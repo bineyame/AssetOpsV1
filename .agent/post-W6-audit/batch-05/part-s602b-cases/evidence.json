@@ -1,0 +1,3030 @@
+{
+ "revision": "73d538ab",
+ "captured_at": "2026-10-24T16:00:34.223Z",
+ "pairs": [
+  {
+   "screen": "verification",
+   "case": "target_miss",
+   "viewport": "1440x1000",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/6a9f1b95-e629-4cb6-b667-f449cc8397e0/verification",
+   "mock_hash": "#/verification",
+   "app_image": "target_miss/verification-target_miss-1440-app.png",
+   "mock_image": "target_miss/verification-target_miss-1440-mock.png",
+   "app": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 248,
+      "y": 590,
+      "w": 1145,
+      "h": 347,
+      "tables": 2,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Limit",
+       "Result"
+      ],
+      "chips": [
+       "Fail",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass"
+      ],
+      "links": 2,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 248,
+      "y": 971,
+      "w": 725,
+      "h": 354,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 4,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 991,
+      "y": 971,
+      "w": 403,
+      "h": 354,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Pass",
+       "Pass"
+      ],
+      "links": 3,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 1375,
+    "header": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "h1": {
+     "text": "ACT-000001 \u00b7 Battery reserve trial",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "site-tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings*",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "cls": "site-tabs site-subtabs",
+      "items": [
+       "Overview",
+       "Plan",
+       "Application",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [
+     {
+      "tag": "CAPTION",
+      "cls": "visually-hidden",
+      "text": "Target and limits, both windows",
+      "sw": 176,
+      "cw": 22,
+      "sh": 42,
+      "ch": 24
+     }
+    ],
+    "hscroll": [],
+    "pSizes": {
+     "10px": 5,
+     "11px": 9
+    },
+    "dark": [
+     {
+      "cls": "app-frame__side",
+      "tag": "DIV",
+      "x": 0,
+      "y": 0,
+      "w": 216,
+      "h": 1375
+     }
+    ],
+    "mainTop": 24,
+    "viewportH": 1000,
+    "consoleErrors": []
+   },
+   "mock": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 234,
+      "y": 586,
+      "w": 1161,
+      "h": 336,
+      "tables": 1,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Evidence",
+       "Result"
+      ],
+      "chips": [
+       "Pass so far",
+       "Pass so far",
+       "Not assessable",
+       "Needs evidence"
+      ],
+      "links": 0,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 234,
+      "y": 940,
+      "w": 735,
+      "h": 252,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Captured"
+      ],
+      "links": 1,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 987,
+      "y": 940,
+      "w": 408,
+      "h": 252,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 0,
+      "buttons": 1,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 1258,
+    "header": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "h1": {
+     "text": "Reduce extended generator support",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "tabs ",
+      "items": [
+       "Overview",
+       "Plan",
+       "Execution",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [],
+    "hscroll": [],
+    "pSizes": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    },
+    "dark": [
+     {
+      "cls": "rail",
+      "tag": "ASIDE",
+      "x": 0,
+      "y": 44,
+      "w": 204,
+      "h": 1214
+     }
+    ],
+    "mainTop": 44,
+    "viewportH": 1000
+   }
+  },
+  {
+   "screen": "verification",
+   "case": "target_miss",
+   "viewport": "390x900",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/6a9f1b95-e629-4cb6-b667-f449cc8397e0/verification",
+   "mock_hash": "#/verification",
+   "app_image": "target_miss/verification-target_miss-390-app.png",
+   "mock_image": "target_miss/verification-target_miss-390-mock.png",
+   "app": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 16,
+      "y": 1044,
+      "w": 358,
+      "h": 642,
+      "tables": 2,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Limit",
+       "Result"
+      ],
+      "chips": [
+       "Fail",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass"
+      ],
+      "links": 2,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 16,
+      "y": 1720,
+      "w": 358,
+      "h": 314,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 4,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 16,
+      "y": 2050,
+      "w": 358,
+      "h": 354,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Pass",
+       "Pass"
+      ],
+      "links": 3,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 2444,
+    "header": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "h1": {
+     "text": "ACT-000001 \u00b7 Battery reserve trial",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "site-tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings*",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "cls": "site-tabs site-subtabs",
+      "items": [
+       "Overview",
+       "Plan",
+       "Application",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [
+     {
+      "tag": "CAPTION",
+      "cls": "visually-hidden",
+      "text": "Target and limits, both windows",
+      "sw": 176,
+      "cw": 22,
+      "sh": 42,
+      "ch": 24
+     }
+    ],
+    "hscroll": [
+     {
+      "cls": "site-tabs__list",
+      "sw": 521,
+      "cw": 358,
+      "panel": ""
+     },
+     {
+      "cls": "data-table__scroll",
+      "sw": 356,
+      "cw": 318,
+      "panel": "Target and guardrails evaluated together"
+     },
+     {
+      "cls": "data-table__scroll",
+      "sw": 979,
+      "cw": 286,
+      "panel": "Target and guardrails evaluated together"
+     }
+    ],
+    "pSizes": {
+     "10px": 5,
+     "11px": 9
+    },
+    "dark": [
+     {
+      "cls": "app-frame__side",
+      "tag": "DIV",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 92
+     }
+    ],
+    "mainTop": 108,
+    "viewportH": 900,
+    "consoleErrors": []
+   },
+   "mock": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 15,
+      "y": 1101,
+      "w": 360,
+      "h": 522,
+      "tables": 1,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Evidence",
+       "Result"
+      ],
+      "chips": [
+       "Pass so far",
+       "Pass so far",
+       "Not assessable",
+       "Needs evidence"
+      ],
+      "links": 0,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 15,
+      "y": 1641,
+      "w": 360,
+      "h": 252,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Captured"
+      ],
+      "links": 1,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 15,
+      "y": 1911,
+      "w": 360,
+      "h": 246,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 0,
+      "buttons": 1,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 2251,
+    "header": {
+     "cls": "topbar",
+     "h": 90,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "h1": {
+     "text": "Reduce extended generator support",
+     "top": 298,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "tabs ",
+      "items": [
+       "Overview",
+       "Plan",
+       "Execution",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [],
+    "hscroll": [
+     {
+      "cls": "tabs ",
+      "sw": 362,
+      "cw": 360,
+      "panel": ""
+     },
+     {
+      "cls": "table-wrap",
+      "sw": 481,
+      "cw": 320,
+      "panel": "Target and guardrails evaluated together"
+     }
+    ],
+    "pSizes": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    },
+    "dark": [],
+    "mainTop": 158,
+    "viewportH": 900
+   }
+  },
+  {
+   "screen": "verification",
+   "case": "guardrail",
+   "viewport": "1440x1000",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/c1e32234-99e1-47b9-93d5-98563235cd27/verification",
+   "mock_hash": "#/verification",
+   "app_image": "guardrail/verification-guardrail-1440-app.png",
+   "mock_image": "guardrail/verification-guardrail-1440-mock.png",
+   "app": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 248,
+      "y": 590,
+      "w": 1145,
+      "h": 390,
+      "tables": 2,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Limit",
+       "Result"
+      ],
+      "chips": [
+       "Pass",
+       "Pass",
+       "Fail",
+       "Fail",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass"
+      ],
+      "links": 14,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 248,
+      "y": 1014,
+      "w": 725,
+      "h": 354,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 4,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 991,
+      "y": 1014,
+      "w": 403,
+      "h": 354,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Pass",
+       "Pass"
+      ],
+      "links": 3,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 1418,
+    "header": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "h1": {
+     "text": "ACT-000001 \u00b7 Battery reserve trial",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "site-tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings*",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "cls": "site-tabs site-subtabs",
+      "items": [
+       "Overview",
+       "Plan",
+       "Application",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [
+     {
+      "tag": "CAPTION",
+      "cls": "visually-hidden",
+      "text": "Target and limits, both windows",
+      "sw": 176,
+      "cw": 22,
+      "sh": 42,
+      "ch": 24
+     }
+    ],
+    "hscroll": [],
+    "pSizes": {
+     "10px": 6,
+     "11px": 9
+    },
+    "dark": [
+     {
+      "cls": "app-frame__side",
+      "tag": "DIV",
+      "x": 0,
+      "y": 0,
+      "w": 216,
+      "h": 1418
+     }
+    ],
+    "mainTop": 24,
+    "viewportH": 1000,
+    "consoleErrors": []
+   },
+   "mock": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 234,
+      "y": 586,
+      "w": 1161,
+      "h": 336,
+      "tables": 1,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Evidence",
+       "Result"
+      ],
+      "chips": [
+       "Pass so far",
+       "Pass so far",
+       "Not assessable",
+       "Needs evidence"
+      ],
+      "links": 0,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 234,
+      "y": 940,
+      "w": 735,
+      "h": 252,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Captured"
+      ],
+      "links": 1,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 987,
+      "y": 940,
+      "w": 408,
+      "h": 252,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 0,
+      "buttons": 1,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 1258,
+    "header": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "h1": {
+     "text": "Reduce extended generator support",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "tabs ",
+      "items": [
+       "Overview",
+       "Plan",
+       "Execution",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [],
+    "hscroll": [],
+    "pSizes": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    },
+    "dark": [
+     {
+      "cls": "rail",
+      "tag": "ASIDE",
+      "x": 0,
+      "y": 44,
+      "w": 204,
+      "h": 1214
+     }
+    ],
+    "mainTop": 44,
+    "viewportH": 1000
+   }
+  },
+  {
+   "screen": "verification",
+   "case": "guardrail",
+   "viewport": "390x900",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/c1e32234-99e1-47b9-93d5-98563235cd27/verification",
+   "mock_hash": "#/verification",
+   "app_image": "guardrail/verification-guardrail-390-app.png",
+   "mock_image": "guardrail/verification-guardrail-390-mock.png",
+   "app": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 16,
+      "y": 1093,
+      "w": 358,
+      "h": 751,
+      "tables": 2,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Limit",
+       "Result"
+      ],
+      "chips": [
+       "Pass",
+       "Pass",
+       "Fail",
+       "Fail",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass"
+      ],
+      "links": 14,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 16,
+      "y": 1878,
+      "w": 358,
+      "h": 314,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 4,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 16,
+      "y": 2208,
+      "w": 358,
+      "h": 354,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Pass",
+       "Pass"
+      ],
+      "links": 3,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 2602,
+    "header": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "h1": {
+     "text": "ACT-000001 \u00b7 Battery reserve trial",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "site-tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings*",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "cls": "site-tabs site-subtabs",
+      "items": [
+       "Overview",
+       "Plan",
+       "Application",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [
+     {
+      "tag": "CAPTION",
+      "cls": "visually-hidden",
+      "text": "Target and limits, both windows",
+      "sw": 176,
+      "cw": 22,
+      "sh": 42,
+      "ch": 24
+     }
+    ],
+    "hscroll": [
+     {
+      "cls": "site-tabs__list",
+      "sw": 521,
+      "cw": 358,
+      "panel": ""
+     },
+     {
+      "cls": "data-table__scroll",
+      "sw": 356,
+      "cw": 318,
+      "panel": "Target and guardrails evaluated together"
+     },
+     {
+      "cls": "data-table__scroll",
+      "sw": 979,
+      "cw": 286,
+      "panel": "Target and guardrails evaluated together"
+     }
+    ],
+    "pSizes": {
+     "10px": 6,
+     "11px": 9
+    },
+    "dark": [
+     {
+      "cls": "app-frame__side",
+      "tag": "DIV",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 92
+     }
+    ],
+    "mainTop": 108,
+    "viewportH": 900,
+    "consoleErrors": []
+   },
+   "mock": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 15,
+      "y": 1101,
+      "w": 360,
+      "h": 522,
+      "tables": 1,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Evidence",
+       "Result"
+      ],
+      "chips": [
+       "Pass so far",
+       "Pass so far",
+       "Not assessable",
+       "Needs evidence"
+      ],
+      "links": 0,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 15,
+      "y": 1641,
+      "w": 360,
+      "h": 252,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Captured"
+      ],
+      "links": 1,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 15,
+      "y": 1911,
+      "w": 360,
+      "h": 246,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 0,
+      "buttons": 1,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 2251,
+    "header": {
+     "cls": "topbar",
+     "h": 90,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "h1": {
+     "text": "Reduce extended generator support",
+     "top": 298,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "tabs ",
+      "items": [
+       "Overview",
+       "Plan",
+       "Execution",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [],
+    "hscroll": [
+     {
+      "cls": "tabs ",
+      "sw": 362,
+      "cw": 360,
+      "panel": ""
+     },
+     {
+      "cls": "table-wrap",
+      "sw": 481,
+      "cw": 320,
+      "panel": "Target and guardrails evaluated together"
+     }
+    ],
+    "pSizes": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    },
+    "dark": [],
+    "mainTop": 158,
+    "viewportH": 900
+   }
+  },
+  {
+   "screen": "verification",
+   "case": "inconclusive",
+   "viewport": "1440x1000",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/26849529-f152-425b-9f7a-49b6a7f32f98/verification",
+   "mock_hash": "#/verification",
+   "app_image": "inconclusive/verification-inconclusive-1440-app.png",
+   "mock_image": "inconclusive/verification-inconclusive-1440-mock.png",
+   "app": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 248,
+      "y": 590,
+      "w": 1145,
+      "h": 390,
+      "tables": 2,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Limit",
+       "Result"
+      ],
+      "chips": [
+       "Pass",
+       "Unknown",
+       "Pass",
+       "Pass",
+       "Unknown",
+       "Unknown",
+       "Pass",
+       "Unknown",
+       "Unknown"
+      ],
+      "links": 2,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 248,
+      "y": 1014,
+      "w": 725,
+      "h": 361,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 3,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 991,
+      "y": 1014,
+      "w": 403,
+      "h": 361,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Unknown"
+      ],
+      "links": 3,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 1424,
+    "header": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "h1": {
+     "text": "ACT-000001 \u00b7 Battery reserve trial",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "site-tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings*",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "cls": "site-tabs site-subtabs",
+      "items": [
+       "Overview",
+       "Plan",
+       "Application",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [
+     {
+      "tag": "CAPTION",
+      "cls": "visually-hidden",
+      "text": "Target and limits, both windows",
+      "sw": 176,
+      "cw": 22,
+      "sh": 42,
+      "ch": 24
+     }
+    ],
+    "hscroll": [],
+    "pSizes": {
+     "10px": 6,
+     "11px": 8
+    },
+    "dark": [
+     {
+      "cls": "app-frame__side",
+      "tag": "DIV",
+      "x": 0,
+      "y": 0,
+      "w": 216,
+      "h": 1424
+     }
+    ],
+    "mainTop": 24,
+    "viewportH": 1000,
+    "consoleErrors": []
+   },
+   "mock": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 234,
+      "y": 586,
+      "w": 1161,
+      "h": 336,
+      "tables": 1,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Evidence",
+       "Result"
+      ],
+      "chips": [
+       "Pass so far",
+       "Pass so far",
+       "Not assessable",
+       "Needs evidence"
+      ],
+      "links": 0,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 234,
+      "y": 940,
+      "w": 735,
+      "h": 252,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Captured"
+      ],
+      "links": 1,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 987,
+      "y": 940,
+      "w": 408,
+      "h": 252,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 0,
+      "buttons": 1,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 1258,
+    "header": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "h1": {
+     "text": "Reduce extended generator support",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "tabs ",
+      "items": [
+       "Overview",
+       "Plan",
+       "Execution",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [],
+    "hscroll": [],
+    "pSizes": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    },
+    "dark": [
+     {
+      "cls": "rail",
+      "tag": "ASIDE",
+      "x": 0,
+      "y": 44,
+      "w": 204,
+      "h": 1214
+     }
+    ],
+    "mainTop": 44,
+    "viewportH": 1000
+   }
+  },
+  {
+   "screen": "verification",
+   "case": "inconclusive",
+   "viewport": "390x900",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/26849529-f152-425b-9f7a-49b6a7f32f98/verification",
+   "mock_hash": "#/verification",
+   "app_image": "inconclusive/verification-inconclusive-390-app.png",
+   "mock_image": "inconclusive/verification-inconclusive-390-mock.png",
+   "app": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 16,
+      "y": 1041,
+      "w": 358,
+      "h": 751,
+      "tables": 2,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Limit",
+       "Result"
+      ],
+      "chips": [
+       "Pass",
+       "Unknown",
+       "Pass",
+       "Pass",
+       "Unknown",
+       "Unknown",
+       "Pass",
+       "Unknown",
+       "Unknown"
+      ],
+      "links": 2,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 16,
+      "y": 1826,
+      "w": 358,
+      "h": 298,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 3,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 16,
+      "y": 2139,
+      "w": 358,
+      "h": 377,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Unknown"
+      ],
+      "links": 3,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 2556,
+    "header": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "h1": {
+     "text": "ACT-000001 \u00b7 Battery reserve trial",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "site-tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings*",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "cls": "site-tabs site-subtabs",
+      "items": [
+       "Overview",
+       "Plan",
+       "Application",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [
+     {
+      "tag": "CAPTION",
+      "cls": "visually-hidden",
+      "text": "Target and limits, both windows",
+      "sw": 176,
+      "cw": 22,
+      "sh": 42,
+      "ch": 24
+     }
+    ],
+    "hscroll": [
+     {
+      "cls": "site-tabs__list",
+      "sw": 521,
+      "cw": 358,
+      "panel": ""
+     },
+     {
+      "cls": "data-table__scroll",
+      "sw": 402,
+      "cw": 318,
+      "panel": "Target and guardrails evaluated together"
+     },
+     {
+      "cls": "data-table__scroll",
+      "sw": 877,
+      "cw": 286,
+      "panel": "Target and guardrails evaluated together"
+     }
+    ],
+    "pSizes": {
+     "10px": 6,
+     "11px": 8
+    },
+    "dark": [
+     {
+      "cls": "app-frame__side",
+      "tag": "DIV",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 92
+     }
+    ],
+    "mainTop": 108,
+    "viewportH": 900,
+    "consoleErrors": []
+   },
+   "mock": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 15,
+      "y": 1101,
+      "w": 360,
+      "h": 522,
+      "tables": 1,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Evidence",
+       "Result"
+      ],
+      "chips": [
+       "Pass so far",
+       "Pass so far",
+       "Not assessable",
+       "Needs evidence"
+      ],
+      "links": 0,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 15,
+      "y": 1641,
+      "w": 360,
+      "h": 252,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Captured"
+      ],
+      "links": 1,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 15,
+      "y": 1911,
+      "w": 360,
+      "h": 246,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 0,
+      "buttons": 1,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 2251,
+    "header": {
+     "cls": "topbar",
+     "h": 90,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "h1": {
+     "text": "Reduce extended generator support",
+     "top": 298,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "tabs ",
+      "items": [
+       "Overview",
+       "Plan",
+       "Execution",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [],
+    "hscroll": [
+     {
+      "cls": "tabs ",
+      "sw": 362,
+      "cw": 360,
+      "panel": ""
+     },
+     {
+      "cls": "table-wrap",
+      "sw": 481,
+      "cw": 320,
+      "panel": "Target and guardrails evaluated together"
+     }
+    ],
+    "pSizes": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    },
+    "dark": [],
+    "mainTop": 158,
+    "viewportH": 900
+   }
+  },
+  {
+   "screen": "verification",
+   "case": "withdrawn",
+   "viewport": "1440x1000",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/1d4ee6a2-f5a4-4fa2-8902-69c1e3104489/verification",
+   "mock_hash": "#/verification",
+   "app_image": "withdrawn/verification-withdrawn-1440-app.png",
+   "mock_image": "withdrawn/verification-withdrawn-1440-mock.png",
+   "app": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 248,
+      "y": 600,
+      "w": 1145,
+      "h": 373,
+      "tables": 2,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Limit",
+       "Result"
+      ],
+      "chips": [
+       "Pass",
+       "Pass",
+       "Unknown",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Unknown",
+       "Pass"
+      ],
+      "links": 2,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 248,
+      "y": 1007,
+      "w": 725,
+      "h": 361,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 5,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 991,
+      "y": 1007,
+      "w": 403,
+      "h": 361,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Pass"
+      ],
+      "links": 4,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 1417,
+    "header": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "h1": {
+     "text": "ACT-000001 \u00b7 Battery reserve trial",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "site-tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings*",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "cls": "site-tabs site-subtabs",
+      "items": [
+       "Overview",
+       "Plan",
+       "Application",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [
+     {
+      "tag": "CAPTION",
+      "cls": "visually-hidden",
+      "text": "Target and limits, both windows",
+      "sw": 176,
+      "cw": 22,
+      "sh": 42,
+      "ch": 24
+     }
+    ],
+    "hscroll": [],
+    "pSizes": {
+     "10px": 6,
+     "11px": 10
+    },
+    "dark": [
+     {
+      "cls": "app-frame__side",
+      "tag": "DIV",
+      "x": 0,
+      "y": 0,
+      "w": 216,
+      "h": 1417
+     }
+    ],
+    "mainTop": 24,
+    "viewportH": 1000,
+    "consoleErrors": []
+   },
+   "mock": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 234,
+      "y": 586,
+      "w": 1161,
+      "h": 336,
+      "tables": 1,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Evidence",
+       "Result"
+      ],
+      "chips": [
+       "Pass so far",
+       "Pass so far",
+       "Not assessable",
+       "Needs evidence"
+      ],
+      "links": 0,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 234,
+      "y": 940,
+      "w": 735,
+      "h": 252,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Captured"
+      ],
+      "links": 1,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 987,
+      "y": 940,
+      "w": 408,
+      "h": 252,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 0,
+      "buttons": 1,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 1258,
+    "header": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "h1": {
+     "text": "Reduce extended generator support",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "tabs ",
+      "items": [
+       "Overview",
+       "Plan",
+       "Execution",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [],
+    "hscroll": [],
+    "pSizes": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    },
+    "dark": [
+     {
+      "cls": "rail",
+      "tag": "ASIDE",
+      "x": 0,
+      "y": 44,
+      "w": 204,
+      "h": 1214
+     }
+    ],
+    "mainTop": 44,
+    "viewportH": 1000
+   }
+  },
+  {
+   "screen": "verification",
+   "case": "withdrawn",
+   "viewport": "390x900",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/1d4ee6a2-f5a4-4fa2-8902-69c1e3104489/verification",
+   "mock_hash": "#/verification",
+   "app_image": "withdrawn/verification-withdrawn-390-app.png",
+   "mock_image": "withdrawn/verification-withdrawn-390-mock.png",
+   "app": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 16,
+      "y": 1044,
+      "w": 358,
+      "h": 718,
+      "tables": 2,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Limit",
+       "Result"
+      ],
+      "chips": [
+       "Pass",
+       "Pass",
+       "Unknown",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Pass",
+       "Unknown",
+       "Pass"
+      ],
+      "links": 2,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 16,
+      "y": 1796,
+      "w": 358,
+      "h": 347,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 5,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 16,
+      "y": 2159,
+      "w": 358,
+      "h": 361,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Pass"
+      ],
+      "links": 4,
+      "buttons": 0,
+      "details": 1,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 2560,
+    "header": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "h1": {
+     "text": "ACT-000001 \u00b7 Battery reserve trial",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "site-tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings*",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "cls": "site-tabs site-subtabs",
+      "items": [
+       "Overview",
+       "Plan",
+       "Application",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [
+     {
+      "tag": "CAPTION",
+      "cls": "visually-hidden",
+      "text": "Target and limits, both windows",
+      "sw": 176,
+      "cw": 22,
+      "sh": 42,
+      "ch": 24
+     }
+    ],
+    "hscroll": [
+     {
+      "cls": "site-tabs__list",
+      "sw": 521,
+      "cw": 358,
+      "panel": ""
+     },
+     {
+      "cls": "data-table__scroll",
+      "sw": 394,
+      "cw": 318,
+      "panel": "Target and guardrails evaluated together"
+     },
+     {
+      "cls": "data-table__scroll",
+      "sw": 990,
+      "cw": 286,
+      "panel": "Target and guardrails evaluated together"
+     }
+    ],
+    "pSizes": {
+     "10px": 6,
+     "11px": 10
+    },
+    "dark": [
+     {
+      "cls": "app-frame__side",
+      "tag": "DIV",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 92
+     }
+    ],
+    "mainTop": 108,
+    "viewportH": 900,
+    "consoleErrors": []
+   },
+   "mock": {
+    "titles": [
+     "Target and guardrails evaluated together",
+     "Activity evidence",
+     "Outcome evidence"
+    ],
+    "panels": [
+     {
+      "title": "Target and guardrails evaluated together",
+      "x": 15,
+      "y": 1101,
+      "w": 360,
+      "h": 522,
+      "tables": 1,
+      "rows": 4,
+      "columns": [
+       "Metric",
+       "Role",
+       "Before",
+       "After",
+       "Evidence",
+       "Result"
+      ],
+      "chips": [
+       "Pass so far",
+       "Pass so far",
+       "Not assessable",
+       "Needs evidence"
+      ],
+      "links": 0,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Activity evidence",
+      "x": 15,
+      "y": 1641,
+      "w": 360,
+      "h": 252,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [
+       "Captured"
+      ],
+      "links": 1,
+      "buttons": 0,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     {
+      "title": "Outcome evidence",
+      "x": 15,
+      "y": 1911,
+      "w": 360,
+      "h": 246,
+      "tables": 0,
+      "rows": 0,
+      "columns": [],
+      "chips": [],
+      "links": 0,
+      "buttons": 1,
+      "details": 0,
+      "h3": [],
+      "background": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    ],
+    "overflowX": 0,
+    "pageH": 2251,
+    "header": {
+     "cls": "topbar",
+     "h": 90,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "h1": {
+     "text": "Reduce extended generator support",
+     "top": 298,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "fonts": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "tabRows": [
+     {
+      "cls": "tabs ",
+      "items": [
+       "Overview",
+       "Plan",
+       "Execution",
+       "Evidence",
+       "Verification*",
+       "History"
+      ]
+     }
+    ],
+    "clipped": [],
+    "hscroll": [
+     {
+      "cls": "tabs ",
+      "sw": 362,
+      "cw": 360,
+      "panel": ""
+     },
+     {
+      "cls": "table-wrap",
+      "sw": 481,
+      "cw": 320,
+      "panel": "Target and guardrails evaluated together"
+     }
+    ],
+    "pSizes": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    },
+    "dark": [],
+    "mainTop": 158,
+    "viewportH": 900
+   }
+  }
+ ]
+}

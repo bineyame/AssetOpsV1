@@ -1,0 +1,76 @@
+{
+  "positive": {
+    "window": {
+      "from": "2026-11-01T00:00:00Z",
+      "to": "2026-11-02T00:00:00Z"
+    },
+    "total_count": 2,
+    "sql_count": 2,
+    "fence": {
+      "max_created_at": "2026-11-01T00:05:00Z",
+      "max_event_recorded_at": "2026-11-01T01:06:00Z",
+      "action_count": 2,
+      "event_count": 8,
+      "zero_rows": false,
+      "token": "sai1-77e1d216d16a0d6d29808569cd6e8b060a8ea592fc646b533ff6d9f1246b1be7"
+    },
+    "rows": [
+      {
+        "code": "ACT-000002",
+        "action_id": "d1f3009b-4c2e-4036-9698-2b528451cebf",
+        "created_at": "2026-11-01T00:05:00Z",
+        "finding_revision_id": "5714ab85-65ff-4475-a6c7-7541a9fa6949",
+        "event": [
+          "FAILED",
+          "67634e9f-9d09-4995-8fbb-f7c48541f56b"
+        ],
+        "state": "PENDING",
+        "links": {
+          "canonical": "/sites/KOBO-001/actions/d1f3009b-4c2e-4036-9698-2b528451cebf",
+          "selected_event": "/sites/KOBO-001/actions/d1f3009b-4c2e-4036-9698-2b528451cebf?event_id=67634e9f-9d09-4995-8fbb-f7c48541f56b",
+          "history_at_event": "/sites/KOBO-001/actions/d1f3009b-4c2e-4036-9698-2b528451cebf/history?event_id=67634e9f-9d09-4995-8fbb-f7c48541f56b",
+          "api_action_at_event": "/api/sites/KOBO-001/actions/d1f3009b-4c2e-4036-9698-2b528451cebf?event_id=67634e9f-9d09-4995-8fbb-f7c48541f56b",
+          "api_events_at_event": "/api/sites/KOBO-001/actions/d1f3009b-4c2e-4036-9698-2b528451cebf/events?event_id=67634e9f-9d09-4995-8fbb-f7c48541f56b",
+          "origin_finding": "/sites/KOBO-001/findings/30d3913e-cdf5-4e47-a90d-dd57ff463832?revision_id=5714ab85-65ff-4475-a6c7-7541a9fa6949"
+        }
+      },
+      {
+        "code": "ACT-000001",
+        "action_id": "a663f86c-11c6-4bc4-a9be-48eccda64ea0",
+        "created_at": "2026-11-01T00:00:00Z",
+        "finding_revision_id": "8886eded-ca6a-4d96-9436-bde7b81d5345",
+        "event": [
+          "APPLIED",
+          "9b6c7d9a-c5fb-4b9d-9b10-ef80855358ff"
+        ],
+        "state": "APPLIED",
+        "links": {
+          "canonical": "/sites/KOBO-001/actions/a663f86c-11c6-4bc4-a9be-48eccda64ea0",
+          "selected_event": "/sites/KOBO-001/actions/a663f86c-11c6-4bc4-a9be-48eccda64ea0?event_id=9b6c7d9a-c5fb-4b9d-9b10-ef80855358ff",
+          "history_at_event": "/sites/KOBO-001/actions/a663f86c-11c6-4bc4-a9be-48eccda64ea0/history?event_id=9b6c7d9a-c5fb-4b9d-9b10-ef80855358ff",
+          "api_action_at_event": "/api/sites/KOBO-001/actions/a663f86c-11c6-4bc4-a9be-48eccda64ea0?event_id=9b6c7d9a-c5fb-4b9d-9b10-ef80855358ff",
+          "api_events_at_event": "/api/sites/KOBO-001/actions/a663f86c-11c6-4bc4-a9be-48eccda64ea0/events?event_id=9b6c7d9a-c5fb-4b9d-9b10-ef80855358ff",
+          "origin_finding": "/sites/KOBO-001/findings/803741a6-74c8-448d-a8fd-df671e9c378f?revision_id=8886eded-ca6a-4d96-9436-bde7b81d5345"
+        }
+      }
+    ]
+  },
+  "zero": {
+    "window": {
+      "from": "2026-10-01T00:00:00Z",
+      "to": "2026-11-01T00:00:00Z"
+    },
+    "total_count": 0,
+    "sql_count": 0,
+    "fence": {
+      "max_created_at": null,
+      "max_event_recorded_at": null,
+      "action_count": 0,
+      "event_count": 0,
+      "zero_rows": true,
+      "token": "sai1-4323a45a517dfeabfa67da58f65411d193b1454897b456083a5e021cd3b39ad8"
+    },
+    "rows": []
+  }
+}
+ATTEST OK

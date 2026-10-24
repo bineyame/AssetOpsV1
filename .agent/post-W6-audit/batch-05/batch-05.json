@@ -1,0 +1,7622 @@
+{
+ "batch": "05",
+ "name": "W1 verification",
+ "ids": [
+  "verification",
+  "sitework"
+ ],
+ "frozen_main": "73d538ab (product code identical to fddf5cad)",
+ "branch": "audit/batch-05",
+ "api": "http://127.0.0.1:18501-18503",
+ "frontend": "http://localhost:5185 (vite dev, ASSETOPS_API_PORT=18501/18502/18503)",
+ "viewports": [
+  "1440x1000",
+  "390x900"
+ ],
+ "capture_tool": ".agent/post-W6-audit/batch-05/tools/capture-b5.mjs (capture-only)",
+ "pair_count": 26,
+ "differences": [
+  {
+   "id": "B5-X1",
+   "screens": [
+    "verification",
+    "sitework"
+   ],
+   "what": "Cross-cutting, cited not re-described: B1-01/B2-01 (no white topbar) and B1-04/B2-36 (rail Assets/Settings 'Not available yet') on every pair; B2-21/B3-04 (UTC, not site-local) on every verification pair (strip 'As of ... UTC', table 'recorded ... UTC', Activity 'applied ... UTC', Outcome windows '06:00-07:00 UTC') and on sitework (strip 'Read ... UTC', zero-state sentence, invalid copy 'whole UTC days'); B2-02 (page-local window control 'Created from / to (included) / Show Actions' inside the sitework panel head, about +140 px at 390); B1-02/B2-04 (390 dark header grows on short pages: 109 px on sitework no-window and invalid-window, 115 px on verification unknown-action, vs 92 px elsewhere); B1-07/B2-03 on sitework (closing note 'Opening an Action moves you...' at body 14 px vs the mock 12 px info note); B1-53 (raw codes: 'Code: VERIFICATION_SELECTOR_CONFLICT' on verification selector-conflict; backticked field names '`from` must be before `to`' on sitework invalid-window).",
+   "disp": "Cite existing IDs; shared fix owner is the shell/typography/copy seam."
+  },
+  {
+   "id": "B5-01",
+   "screens": [
+    "verification"
+   ],
+   "what": "Navigation: the app renders the Site tab row (Overview ... Evidence, with 'Findings' marked current) above the Action tab row; the mock verification screen has only the Action row (Overview/Plan/Execution/Evidence/Verification/History) and breadcrumb 'Actions > ACT-048 > Verification · site: Kobo Mini-grid'. App breadcrumb 'Sites / Kobo mini-grid / Findings / Action / Verification' ('Action', not the code). The rail shows Actions current (R69 resolved, verified here), so the Site row's 'Findings' contradicts the rail. Two nav rows at 390. Probably shared with batch 4 action-* screens (same SiteActionFrame).",
+   "disp": "(c) D3: drop the Site tab row (at least the wrong 'Findings' current mark) and use the mock Actions breadcrumb with the Action code; Architect to reconcile with batch 4."
+  },
+  {
+   "id": "B5-02",
+   "screens": [
+    "verification"
+   ],
+   "what": "Action tab label 'Application' where the mock says 'Execution'. No register row found.",
+   "disp": "(b) D2 register row (vocabulary, owner approval) unless a W1-UX-04 ruling exists; otherwise (c) D3 rename."
+  },
+  {
+   "id": "B5-03",
+   "screens": [
+    "verification"
+   ],
+   "what": "Header: h1 'ACT-000001 · Battery reserve trial', subtitle 'Kobo mini-grid · an action raised from a finding'; the mock h1 is the intervention title with subtitle 'ACT-048 · source F-104 · owner: site controls lead' and an 'Open site' header button, which is missing (/sites/:siteId is mounted).",
+   "disp": "Open site: (c) D3 Low (as B3-03). Title/subtitle arrangement and F-code: (b) D1, extend R65 (no public W1 Finding code)."
+  },
+  {
+   "id": "B5-04",
+   "screens": [
+    "verification"
+   ],
+   "what": "Status strip: mock one line ('ACT-048 · Verification window', 'Provisional target pass', pending sentence); app shows two outcome chips (selected + 'Current state'), an outcome sentence, a Source line, 'This Action's measured trial · As of ...' and a 'How this was worked out' disclosure (2-3 lines at 1440, about 190 px at 390). Fact strip: Owner 'Not recorded', Source 'Source Finding version' link vs 'F-104'. KPI cards carry real measured values and Verified / Ineffective / Inconclusive outcomes in the mock slots (mock shows Pending).",
+   "disp": "Strip additions: (b) D2 (selected outcome, currentness and source must stay visible; same reasoning as cold/EV R80/R91). Owner/F-code: (b) D1. KPI values are illustrative in the mock and the structure matches, so no action."
+  },
+  {
+   "id": "B5-05",
+   "screens": [
+    "verification"
+   ],
+   "what": "Target and guardrails table: column 'Limit' replaces the mock 'Evidence' column; Result chips Pass/Fail/Unknown vs 'Pass so far / Not assessable / Needs evidence'; adds a caption line, a failed/unknown-limit sentence, the fixed-rule line with 'Open the success criteria' and a 'Dig deeper' disclosure. 1.03-1.16x at 1440 and 1.23-1.44x at 390 (guardrail and inconclusive 751 px vs 522). At 390 the Result column sits off-screen inside a 972 px table scroller. Copy: the reserve row's Limit reads 'None' while the guardrail sentence says 'limit 0 min', so 'None' reads as 'no limit'.",
+   "disp": "Column, additions and height: (a) W1-F5b overage ruling ('verification|*|*|Target and guardrails evaluated together', which names the 390 wrap) -> register. 'None' limit copy: (c) D3 Low ('0 min' or 'No time below reserve')."
+  },
+  {
+   "id": "B5-06",
+   "screens": [
+    "verification"
+   ],
+   "what": "Activity evidence rows Policy application record / Change status / Resolution / Owner vs mock Policy application record (Captured chip) / Execution state / Change reference CHG-019 / Owner, plus the withdrawal sentence and Finding version link. Outcome evidence: the mock is a prose explanation with a 'Review a complete evidence example' button; the app is a window/conditions/source list with 'Inspect the evidence', an 'Earlier outcomes and plans' disclosure and a policy-trial notice. Both 1.34-1.43x at 1440 (the pair is row-stretched), 1.18-1.53x at 390.",
+   "disp": "(a) W1-F5b overage rulings for both panels -> register rows. Change reference: (b) D1 (no change code on the wire; the Resolution row links the outcome)."
+  },
+  {
+   "id": "B5-07",
+   "screens": [
+    "verification"
+   ],
+   "cases": [
+    "selector-conflict"
+   ],
+   "what": "Selector conflict (outcome_id + recorded_at): the refusal box with three recovery links is correct, but the Outcome evidence panel prints 'Nothing is shown here: the address names selections that conflict.' twice, and the KPI cards say 'The verification read failed' for a selector conflict, not a failed read.",
+   "disp": "(c) D3 Low copy: one state sentence per panel and KPI wording that matches the conflict."
+  },
+  {
+   "id": "B5-08",
+   "screens": [
+    "verification"
+   ],
+   "cases": [
+    "unknown-action"
+   ],
+   "what": "Unknown Action id: 'Action not found' is honest, but the subtitle asserts 'Kobo mini-grid · an action raised from a finding' for an Action that does not exist (as B3-10), and the three mock panels stay headed with 'Not shown: the Action could not be read', where cold/EV Action detail uses one untitled state panel for 404 (R101/R110).",
+   "disp": "Subtitle: (c) D3 Low copy. Panel treatment: (b) D2, align W1 with R101/R110 or rule W1's headed-panel refusal as its own row."
+  },
+  {
+   "id": "B5-09",
+   "screens": [
+    "sitework"
+   ],
+   "what": "Scope strip: 'Scoped to Kobo mini-grid · 2 Actions created 1 Nov 2026 to 1 Nov 2026 · Every Action created here in this window · Read ... UTC' vs mock 'Scoped to Kobo · 2 actions · Same records and states as the global Actions list · Manage in Actions ->'. The 'Manage in Actions' link is missing although /actions is mounted (W3-01).",
+   "disp": "Missing link: (c) D3 Low (same pattern as B3-13 'Manage in Findings'). Strip wording/read time: (a) W1-F5b sitework ruling ('compact count-and-basis line')."
+  },
+  {
+   "id": "B5-10",
+   "screens": [
+    "sitework"
+   ],
+   "what": "Actions table: same 6 columns; Source 'Finding, version N' vs 'F-104'; Owner and Success criterion 'Not recorded'; State chips 'Accepted · not applied (1 failed attempt)' / 'Applied · result not checked yet' plus a 'Latest step' link line vs 'Verification window' / 'Open'; adds 'Showing 2 of 2. Newest first.', a 'What this list is based on' disclosure and a scope sentence; the mock-only subtitle 'Due dates are not yet set in this example' is absent. 1.36x at 1440 and 1.65x at 390 (positive); 1.09x/1.33x on the limit=1 page. At 390 the table scrolls (531 px in 318 px); no page overflow.",
+   "disp": "F-code: (b) D1, extend R65. Owner/criterion: (b) D1 state (the s603 Actions have no owner or plan). State vocabulary, footer and height: (a) W1-F5b sitework ruling -> register."
+  },
+  {
+   "id": "B5-11",
+   "screens": [
+    "sitework"
+   ],
+   "cases": [
+    "zero",
+    "no-window",
+    "invalid-window"
+   ],
+   "what": "States with no mock equivalent: zero ('No Actions created at this site in this window', with proved-zero read time), no-window ('Choose a window', subrow counts '(—)'), invalid window ('This window cannot be shown', subrow '(—)', strip 'no count'). The panel is kept without a table; heights 0.84-1.09x. Footer 'Opening an Action moves you to its own page' replaces the mock's '... New work starts from the global create flow' (no create flow in W1).",
+   "disp": "(b) D1 honest states; footer copy (b) D1 (no create flow). Invalid copy raw field names: cite B1-53."
+  },
+  {
+   "id": "B5-12",
+   "screens": [
+    "verification",
+    "sitework"
+   ],
+   "what": "Mandatory carried checks: '1 incidents' plural not observable (s603 subrow shows Incidents (0)/Maintenance (0)). Raw 'c1 · EV_CONNECTOR' not applicable (mini Site). domainActionClient window error: not on these screens (mini sitework uses SiteWorkActions), but the mini invalid-window copy is likewise one combined message for distinct inputs ('`from` must be before `to`. Windows are whole UTC days, at most 31 days long.'). R88/R112 Window control: cold/EV only; the W1 control is covered by the W1-F5b sitework ruling and B2-02. D3 rows R22/R23/R24/R37/R38/R60 do not touch these screens. R69 (Actions current in rail on W1 Action detail) verified closed. No console errors or crashes in 26 app captures.",
+   "disp": "Mini generic invalid-window copy: carry under the backlog domainActionClient item as the same shared-copy fix, (c) D3 Low. Others: no finding."
+  }
+ ],
+ "pairs": [
+  {
+   "screen": "verification",
+   "case": "guardrail",
+   "width": "1440",
+   "viewport": "1440x1000",
+   "part": "part-s602b-cases",
+   "route": "/sites/KOBO-001/actions/c1e32234-99e1-47b9-93d5-98563235cd27/verification",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/c1e32234-99e1-47b9-93d5-98563235cd27/verification",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "producer_mode": "s602b TEST-SCOPED cases (S6-02a evaluator builders, not Lab runs): target_miss, guardrail, inconclusive, withdrawn",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T16:00:34.223Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 390,
+     "mock_h": 336,
+     "ratio": 1.16,
+     "over_1_3": false,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Limit",
+      "Result"
+     ],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [
+      "Pass",
+      "Pass",
+      "Fail",
+      "Fail",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 14,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 354,
+     "mock_h": 252,
+     "ratio": 1.4,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 4,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 354,
+     "mock_h": 252,
+     "ratio": 1.4,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [],
+     "app_links": 3,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.4,
+   "app_page_h": 1418,
+   "mock_page_h": 1258,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 216,
+     "h": 1418
+    },
+    "app_main_top": 24
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 6,
+     "11px": 9
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [
+    {
+     "tag": "CAPTION",
+     "cls": "visually-hidden",
+     "text": "Target and limits, both windows",
+     "sw": 176,
+     "cw": 22,
+     "sh": 42,
+     "ch": 24
+    }
+   ],
+   "scroll_containers": [],
+   "console_errors": [],
+   "app_image": "part-s602b-cases/guardrail/verification-guardrail-1440-app.png",
+   "mock_image": "part-s602b-cases/guardrail/verification-guardrail-1440-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 2 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "verification",
+   "case": "guardrail",
+   "width": "390",
+   "viewport": "390x900",
+   "part": "part-s602b-cases",
+   "route": "/sites/KOBO-001/actions/c1e32234-99e1-47b9-93d5-98563235cd27/verification",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/c1e32234-99e1-47b9-93d5-98563235cd27/verification",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "producer_mode": "s602b TEST-SCOPED cases (S6-02a evaluator builders, not Lab runs): target_miss, guardrail, inconclusive, withdrawn",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T16:00:34.223Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 751,
+     "mock_h": 522,
+     "ratio": 1.44,
+     "over_1_3": true,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Limit",
+      "Result"
+     ],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [
+      "Pass",
+      "Pass",
+      "Fail",
+      "Fail",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 14,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 314,
+     "mock_h": 252,
+     "ratio": 1.25,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 4,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 354,
+     "mock_h": 246,
+     "ratio": 1.44,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [],
+     "app_links": 3,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.44,
+   "app_page_h": 2602,
+   "mock_page_h": 2251,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 90,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 92
+    },
+    "app_main_top": 108
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 298,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 6,
+     "11px": 9
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [
+    {
+     "tag": "CAPTION",
+     "cls": "visually-hidden",
+     "text": "Target and limits, both windows",
+     "sw": 176,
+     "cw": 22,
+     "sh": 42,
+     "ch": 24
+    }
+   ],
+   "scroll_containers": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 356,
+     "cw": 318,
+     "panel": "Target and guardrails evaluated together"
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 979,
+     "cw": 286,
+     "panel": "Target and guardrails evaluated together"
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s602b-cases/guardrail/verification-guardrail-390-app.png",
+   "mock_image": "part-s602b-cases/guardrail/verification-guardrail-390-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 2 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "verification",
+   "case": "historical-outcome",
+   "width": "1440",
+   "viewport": "1440x1000",
+   "part": "part-s602b-replay",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "producer_mode": "s602b public replay of d-verification-window-v2: real VERIFIED Action, exact historical outcome, selector conflict; unknown Action id = refused (capture-only URL)",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:58:08.266Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 366,
+     "mock_h": 336,
+     "ratio": 1.09,
+     "over_1_3": false,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Limit",
+      "Result"
+     ],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 2,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 338,
+     "mock_h": 252,
+     "ratio": 1.34,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 4,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 338,
+     "mock_h": 252,
+     "ratio": 1.34,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [],
+     "app_links": 3,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.34,
+   "app_page_h": 1378,
+   "mock_page_h": 1258,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 216,
+     "h": 1378
+    },
+    "app_main_top": 24
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 5,
+     "11px": 9
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [
+    {
+     "tag": "CAPTION",
+     "cls": "visually-hidden",
+     "text": "Target and limits, both windows",
+     "sw": 176,
+     "cw": 22,
+     "sh": 42,
+     "ch": 24
+    }
+   ],
+   "scroll_containers": [],
+   "console_errors": [],
+   "app_image": "part-s602b-replay/verification-historical-outcome-1440-app.png",
+   "mock_image": "part-s602b-replay/verification-historical-outcome-1440-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 2 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "verification",
+   "case": "historical-outcome",
+   "width": "390",
+   "viewport": "390x900",
+   "part": "part-s602b-replay",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "producer_mode": "s602b public replay of d-verification-window-v2: real VERIFIED Action, exact historical outcome, selector conflict; unknown Action id = refused (capture-only URL)",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:58:08.266Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 678,
+     "mock_h": 522,
+     "ratio": 1.3,
+     "over_1_3": false,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Limit",
+      "Result"
+     ],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 2,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 314,
+     "mock_h": 252,
+     "ratio": 1.25,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 4,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 338,
+     "mock_h": 246,
+     "ratio": 1.37,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [],
+     "app_links": 3,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.37,
+   "app_page_h": 2556,
+   "mock_page_h": 2251,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 90,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 92
+    },
+    "app_main_top": 108
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 298,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 5,
+     "11px": 9
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [
+    {
+     "tag": "CAPTION",
+     "cls": "visually-hidden",
+     "text": "Target and limits, both windows",
+     "sw": 176,
+     "cw": 22,
+     "sh": 42,
+     "ch": 24
+    }
+   ],
+   "scroll_containers": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 361,
+     "cw": 318,
+     "panel": "Target and guardrails evaluated together"
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 972,
+     "cw": 286,
+     "panel": "Target and guardrails evaluated together"
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s602b-replay/verification-historical-outcome-390-app.png",
+   "mock_image": "part-s602b-replay/verification-historical-outcome-390-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 1 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "verification",
+   "case": "inconclusive",
+   "width": "1440",
+   "viewport": "1440x1000",
+   "part": "part-s602b-cases",
+   "route": "/sites/KOBO-001/actions/26849529-f152-425b-9f7a-49b6a7f32f98/verification",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/26849529-f152-425b-9f7a-49b6a7f32f98/verification",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "producer_mode": "s602b TEST-SCOPED cases (S6-02a evaluator builders, not Lab runs): target_miss, guardrail, inconclusive, withdrawn",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T16:00:34.223Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 390,
+     "mock_h": 336,
+     "ratio": 1.16,
+     "over_1_3": false,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Limit",
+      "Result"
+     ],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [
+      "Pass",
+      "Unknown",
+      "Pass",
+      "Pass",
+      "Unknown",
+      "Unknown",
+      "Pass",
+      "Unknown",
+      "Unknown"
+     ],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 2,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 361,
+     "mock_h": 252,
+     "ratio": 1.43,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 3,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 361,
+     "mock_h": 252,
+     "ratio": 1.43,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [
+      "Unknown"
+     ],
+     "mock_chips": [],
+     "app_links": 3,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.43,
+   "app_page_h": 1424,
+   "mock_page_h": 1258,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 216,
+     "h": 1424
+    },
+    "app_main_top": 24
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 6,
+     "11px": 8
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [
+    {
+     "tag": "CAPTION",
+     "cls": "visually-hidden",
+     "text": "Target and limits, both windows",
+     "sw": 176,
+     "cw": 22,
+     "sh": 42,
+     "ch": 24
+    }
+   ],
+   "scroll_containers": [],
+   "console_errors": [],
+   "app_image": "part-s602b-cases/inconclusive/verification-inconclusive-1440-app.png",
+   "mock_image": "part-s602b-cases/inconclusive/verification-inconclusive-1440-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 2 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "verification",
+   "case": "inconclusive",
+   "width": "390",
+   "viewport": "390x900",
+   "part": "part-s602b-cases",
+   "route": "/sites/KOBO-001/actions/26849529-f152-425b-9f7a-49b6a7f32f98/verification",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/26849529-f152-425b-9f7a-49b6a7f32f98/verification",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "producer_mode": "s602b TEST-SCOPED cases (S6-02a evaluator builders, not Lab runs): target_miss, guardrail, inconclusive, withdrawn",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T16:00:34.223Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 751,
+     "mock_h": 522,
+     "ratio": 1.44,
+     "over_1_3": true,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Limit",
+      "Result"
+     ],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [
+      "Pass",
+      "Unknown",
+      "Pass",
+      "Pass",
+      "Unknown",
+      "Unknown",
+      "Pass",
+      "Unknown",
+      "Unknown"
+     ],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 2,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 298,
+     "mock_h": 252,
+     "ratio": 1.18,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 3,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 377,
+     "mock_h": 246,
+     "ratio": 1.53,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [
+      "Unknown"
+     ],
+     "mock_chips": [],
+     "app_links": 3,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.53,
+   "app_page_h": 2556,
+   "mock_page_h": 2251,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 90,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 92
+    },
+    "app_main_top": 108
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 298,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 6,
+     "11px": 8
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [
+    {
+     "tag": "CAPTION",
+     "cls": "visually-hidden",
+     "text": "Target and limits, both windows",
+     "sw": 176,
+     "cw": 22,
+     "sh": 42,
+     "ch": 24
+    }
+   ],
+   "scroll_containers": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 402,
+     "cw": 318,
+     "panel": "Target and guardrails evaluated together"
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 877,
+     "cw": 286,
+     "panel": "Target and guardrails evaluated together"
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s602b-cases/inconclusive/verification-inconclusive-390-app.png",
+   "mock_image": "part-s602b-cases/inconclusive/verification-inconclusive-390-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 2 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "verification",
+   "case": "selector-conflict",
+   "width": "1440",
+   "viewport": "1440x1000",
+   "part": "part-s602b-replay",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299&recorded_at=2026-10-16T01%3A00%3A00%2B00%3A00",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299&recorded_at=2026-10-16T01%3A00%3A00%2B00%3A00",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "producer_mode": "s602b public replay of d-verification-window-v2: real VERIFIED Action, exact historical outcome, selector conflict; unknown Action id = refused (capture-only URL)",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:58:08.266Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 96,
+     "mock_h": 336,
+     "ratio": 0.29,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 4,
+     "app_columns": [],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 0,
+     "mock_links": 0,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 184,
+     "mock_h": 252,
+     "ratio": 0.73,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 0,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 184,
+     "mock_h": 252,
+     "ratio": 0.73,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_links": 1,
+     "mock_links": 0,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 0.73,
+   "app_page_h": 1065,
+   "mock_page_h": 1258,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 216,
+     "h": 1065
+    },
+    "app_main_top": 24
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": null,
+     "th": null
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 5
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [],
+   "console_errors": [],
+   "app_image": "part-s602b-replay/verification-selector-conflict-1440-app.png",
+   "mock_image": "part-s602b-replay/verification-selector-conflict-1440-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-07",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals"
+  },
+  {
+   "screen": "verification",
+   "case": "selector-conflict",
+   "width": "390",
+   "viewport": "390x900",
+   "part": "part-s602b-replay",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299&recorded_at=2026-10-16T01%3A00%3A00%2B00%3A00",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299&recorded_at=2026-10-16T01%3A00%3A00%2B00%3A00",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "producer_mode": "s602b public replay of d-verification-window-v2: real VERIFIED Action, exact historical outcome, selector conflict; unknown Action id = refused (capture-only URL)",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:58:08.266Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 96,
+     "mock_h": 522,
+     "ratio": 0.18,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 4,
+     "app_columns": [],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 0,
+     "mock_links": 0,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 96,
+     "mock_h": 252,
+     "ratio": 0.38,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 0,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 185,
+     "mock_h": 246,
+     "ratio": 0.75,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_links": 1,
+     "mock_links": 0,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 0.75,
+   "app_page_h": 1497,
+   "mock_page_h": 2251,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 90,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 92
+    },
+    "app_main_top": 108
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 298,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": null,
+     "th": null
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 5
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s602b-replay/verification-selector-conflict-390-app.png",
+   "mock_image": "part-s602b-replay/verification-selector-conflict-390-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-07",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals"
+  },
+  {
+   "screen": "verification",
+   "case": "target_miss",
+   "width": "1440",
+   "viewport": "1440x1000",
+   "part": "part-s602b-cases",
+   "route": "/sites/KOBO-001/actions/6a9f1b95-e629-4cb6-b667-f449cc8397e0/verification",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/6a9f1b95-e629-4cb6-b667-f449cc8397e0/verification",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "producer_mode": "s602b TEST-SCOPED cases (S6-02a evaluator builders, not Lab runs): target_miss, guardrail, inconclusive, withdrawn",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T16:00:34.223Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 347,
+     "mock_h": 336,
+     "ratio": 1.03,
+     "over_1_3": false,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Limit",
+      "Result"
+     ],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [
+      "Fail",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 2,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 354,
+     "mock_h": 252,
+     "ratio": 1.4,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 4,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 354,
+     "mock_h": 252,
+     "ratio": 1.4,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [],
+     "app_links": 3,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.4,
+   "app_page_h": 1375,
+   "mock_page_h": 1258,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 216,
+     "h": 1375
+    },
+    "app_main_top": 24
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 5,
+     "11px": 9
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [
+    {
+     "tag": "CAPTION",
+     "cls": "visually-hidden",
+     "text": "Target and limits, both windows",
+     "sw": 176,
+     "cw": 22,
+     "sh": 42,
+     "ch": 24
+    }
+   ],
+   "scroll_containers": [],
+   "console_errors": [],
+   "app_image": "part-s602b-cases/target_miss/verification-target_miss-1440-app.png",
+   "mock_image": "part-s602b-cases/target_miss/verification-target_miss-1440-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 2 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "verification",
+   "case": "target_miss",
+   "width": "390",
+   "viewport": "390x900",
+   "part": "part-s602b-cases",
+   "route": "/sites/KOBO-001/actions/6a9f1b95-e629-4cb6-b667-f449cc8397e0/verification",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/6a9f1b95-e629-4cb6-b667-f449cc8397e0/verification",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "producer_mode": "s602b TEST-SCOPED cases (S6-02a evaluator builders, not Lab runs): target_miss, guardrail, inconclusive, withdrawn",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T16:00:34.223Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 642,
+     "mock_h": 522,
+     "ratio": 1.23,
+     "over_1_3": false,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Limit",
+      "Result"
+     ],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [
+      "Fail",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 2,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 314,
+     "mock_h": 252,
+     "ratio": 1.25,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 4,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 354,
+     "mock_h": 246,
+     "ratio": 1.44,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [],
+     "app_links": 3,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.44,
+   "app_page_h": 2444,
+   "mock_page_h": 2251,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 90,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 92
+    },
+    "app_main_top": 108
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 298,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 5,
+     "11px": 9
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [
+    {
+     "tag": "CAPTION",
+     "cls": "visually-hidden",
+     "text": "Target and limits, both windows",
+     "sw": 176,
+     "cw": 22,
+     "sh": 42,
+     "ch": 24
+    }
+   ],
+   "scroll_containers": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 356,
+     "cw": 318,
+     "panel": "Target and guardrails evaluated together"
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 979,
+     "cw": 286,
+     "panel": "Target and guardrails evaluated together"
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s602b-cases/target_miss/verification-target_miss-390-app.png",
+   "mock_image": "part-s602b-cases/target_miss/verification-target_miss-390-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 1 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "verification",
+   "case": "unknown-action",
+   "width": "1440",
+   "viewport": "1440x1000",
+   "part": "part-s602b-replay",
+   "route": "/sites/KOBO-001/actions/00000000-0000-4000-8000-000000000000/verification",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/00000000-0000-4000-8000-000000000000/verification",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "producer_mode": "s602b public replay of d-verification-window-v2: real VERIFIED Action, exact historical outcome, selector conflict; unknown Action id = refused (capture-only URL)",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:58:08.266Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 96,
+     "mock_h": 336,
+     "ratio": 0.29,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 4,
+     "app_columns": [],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 0,
+     "mock_links": 0,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 96,
+     "mock_h": 252,
+     "ratio": 0.38,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 0,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 96,
+     "mock_h": 252,
+     "ratio": 0.38,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_links": 0,
+     "mock_links": 0,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 0.38,
+   "app_page_h": 1000,
+   "mock_page_h": 1258,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 216,
+     "h": 1000
+    },
+    "app_main_top": 24
+   },
+   "h1": {
+    "app": {
+     "text": "Action",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": null,
+     "th": null
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 3
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [],
+   "console_errors": [],
+   "app_image": "part-s602b-replay/verification-unknown-action-1440-app.png",
+   "mock_image": "part-s602b-replay/verification-unknown-action-1440-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-08",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals"
+  },
+  {
+   "screen": "verification",
+   "case": "unknown-action",
+   "width": "390",
+   "viewport": "390x900",
+   "part": "part-s602b-replay",
+   "route": "/sites/KOBO-001/actions/00000000-0000-4000-8000-000000000000/verification",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/00000000-0000-4000-8000-000000000000/verification",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "producer_mode": "s602b public replay of d-verification-window-v2: real VERIFIED Action, exact historical outcome, selector conflict; unknown Action id = refused (capture-only URL)",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:58:08.266Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 96,
+     "mock_h": 522,
+     "ratio": 0.18,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 4,
+     "app_columns": [],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 0,
+     "mock_links": 0,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 96,
+     "mock_h": 252,
+     "ratio": 0.38,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 0,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 96,
+     "mock_h": 246,
+     "ratio": 0.39,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_links": 0,
+     "mock_links": 0,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 0.39,
+   "app_page_h": 900,
+   "mock_page_h": 2251,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 90,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 115
+    },
+    "app_main_top": 131
+   },
+   "h1": {
+    "app": {
+     "text": "Action",
+     "top": 151,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 298,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": null,
+     "th": null
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 3
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s602b-replay/verification-unknown-action-390-app.png",
+   "mock_image": "part-s602b-replay/verification-unknown-action-390-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-08",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals"
+  },
+  {
+   "screen": "verification",
+   "case": "verified-current",
+   "width": "1440",
+   "viewport": "1440x1000",
+   "part": "part-s602b-replay",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "producer_mode": "s602b public replay of d-verification-window-v2: real VERIFIED Action, exact historical outcome, selector conflict; unknown Action id = refused (capture-only URL)",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:58:08.266Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 347,
+     "mock_h": 336,
+     "ratio": 1.03,
+     "over_1_3": false,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Limit",
+      "Result"
+     ],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 2,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 338,
+     "mock_h": 252,
+     "ratio": 1.34,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 4,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 338,
+     "mock_h": 252,
+     "ratio": 1.34,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [],
+     "app_links": 3,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.34,
+   "app_page_h": 1381,
+   "mock_page_h": 1258,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 216,
+     "h": 1381
+    },
+    "app_main_top": 24
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 5,
+     "11px": 9
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [
+    {
+     "tag": "CAPTION",
+     "cls": "visually-hidden",
+     "text": "Target and limits, both windows",
+     "sw": 176,
+     "cw": 22,
+     "sh": 42,
+     "ch": 24
+    }
+   ],
+   "scroll_containers": [],
+   "console_errors": [],
+   "app_image": "part-s602b-replay/verification-verified-current-1440-app.png",
+   "mock_image": "part-s602b-replay/verification-verified-current-1440-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 2 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "verification",
+   "case": "verified-current",
+   "width": "390",
+   "viewport": "390x900",
+   "part": "part-s602b-replay",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "producer_mode": "s602b public replay of d-verification-window-v2: real VERIFIED Action, exact historical outcome, selector conflict; unknown Action id = refused (capture-only URL)",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:58:08.266Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 659,
+     "mock_h": 522,
+     "ratio": 1.26,
+     "over_1_3": false,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Limit",
+      "Result"
+     ],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 2,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 314,
+     "mock_h": 252,
+     "ratio": 1.25,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 4,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 338,
+     "mock_h": 246,
+     "ratio": 1.37,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [
+      "Pass",
+      "Pass"
+     ],
+     "mock_chips": [],
+     "app_links": 3,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.37,
+   "app_page_h": 2510,
+   "mock_page_h": 2251,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 90,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 92
+    },
+    "app_main_top": 108
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 298,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 5,
+     "11px": 9
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [
+    {
+     "tag": "CAPTION",
+     "cls": "visually-hidden",
+     "text": "Target and limits, both windows",
+     "sw": 176,
+     "cw": 22,
+     "sh": 42,
+     "ch": 24
+    }
+   ],
+   "scroll_containers": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 361,
+     "cw": 318,
+     "panel": "Target and guardrails evaluated together"
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 972,
+     "cw": 286,
+     "panel": "Target and guardrails evaluated together"
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s602b-replay/verification-verified-current-390-app.png",
+   "mock_image": "part-s602b-replay/verification-verified-current-390-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 1 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "verification",
+   "case": "withdrawn",
+   "width": "1440",
+   "viewport": "1440x1000",
+   "part": "part-s602b-cases",
+   "route": "/sites/KOBO-001/actions/1d4ee6a2-f5a4-4fa2-8902-69c1e3104489/verification",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/1d4ee6a2-f5a4-4fa2-8902-69c1e3104489/verification",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "producer_mode": "s602b TEST-SCOPED cases (S6-02a evaluator builders, not Lab runs): target_miss, guardrail, inconclusive, withdrawn",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T16:00:34.223Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 373,
+     "mock_h": 336,
+     "ratio": 1.11,
+     "over_1_3": false,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Limit",
+      "Result"
+     ],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [
+      "Pass",
+      "Pass",
+      "Unknown",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Unknown",
+      "Pass"
+     ],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 2,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 361,
+     "mock_h": 252,
+     "ratio": 1.43,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 5,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 361,
+     "mock_h": 252,
+     "ratio": 1.43,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [
+      "Pass"
+     ],
+     "mock_chips": [],
+     "app_links": 4,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.43,
+   "app_page_h": 1417,
+   "mock_page_h": 1258,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 216,
+     "h": 1417
+    },
+    "app_main_top": 24
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 6,
+     "11px": 10
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [
+    {
+     "tag": "CAPTION",
+     "cls": "visually-hidden",
+     "text": "Target and limits, both windows",
+     "sw": 176,
+     "cw": 22,
+     "sh": 42,
+     "ch": 24
+    }
+   ],
+   "scroll_containers": [],
+   "console_errors": [],
+   "app_image": "part-s602b-cases/withdrawn/verification-withdrawn-1440-app.png",
+   "mock_image": "part-s602b-cases/withdrawn/verification-withdrawn-1440-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 2 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "verification",
+   "case": "withdrawn",
+   "width": "390",
+   "viewport": "390x900",
+   "part": "part-s602b-cases",
+   "route": "/sites/KOBO-001/actions/1d4ee6a2-f5a4-4fa2-8902-69c1e3104489/verification",
+   "app_url": "http://localhost:5185/sites/KOBO-001/actions/1d4ee6a2-f5a4-4fa2-8902-69c1e3104489/verification",
+   "mock": "frontend/mockups/v69/index.html#/verification",
+   "producer_command": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "producer_mode": "s602b TEST-SCOPED cases (S6-02a evaluator builders, not Lab runs): target_miss, guardrail, inconclusive, withdrawn",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T16:00:34.223Z",
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Target and guardrails evaluated together",
+     "mock_title": "Target and guardrails evaluated together",
+     "app_h": 718,
+     "mock_h": 522,
+     "ratio": 1.38,
+     "over_1_3": true,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Limit",
+      "Result"
+     ],
+     "mock_columns": [
+      "Metric",
+      "Role",
+      "Before",
+      "After",
+      "Evidence",
+      "Result"
+     ],
+     "app_chips": [
+      "Pass",
+      "Pass",
+      "Unknown",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Pass",
+      "Unknown",
+      "Pass"
+     ],
+     "mock_chips": [
+      "Pass so far",
+      "Pass so far",
+      "Not assessable",
+      "Needs evidence"
+     ],
+     "app_links": 2,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Activity evidence",
+     "mock_title": "Activity evidence",
+     "app_h": 347,
+     "mock_h": 252,
+     "ratio": 1.38,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [],
+     "mock_chips": [
+      "Captured"
+     ],
+     "app_links": 5,
+     "mock_links": 1,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    },
+    {
+     "title": "Outcome evidence",
+     "mock_title": "Outcome evidence",
+     "app_h": 361,
+     "mock_h": 246,
+     "ratio": 1.47,
+     "over_1_3": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_chips": [
+      "Pass"
+     ],
+     "mock_chips": [],
+     "app_links": 4,
+     "mock_links": 0,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.47,
+   "app_page_h": 2560,
+   "mock_page_h": 2251,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 90,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 92
+    },
+    "app_main_top": 108
+   },
+   "h1": {
+    "app": {
+     "text": "ACT-000001 · Battery reserve trial",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Reduce extended generator support",
+     "top": 298,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "16.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "13.5px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [
+      "12px"
+     ],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 6,
+     "11px": 10
+    },
+    "mock": {
+     "11px": 5,
+     "10px": 1,
+     "12px": 2,
+     "14px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings*",
+      "Work",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Plan",
+      "Execution",
+      "Evidence",
+      "Verification*",
+      "History"
+     ]
+    ]
+   },
+   "clipped_text": [
+    {
+     "tag": "CAPTION",
+     "cls": "visually-hidden",
+     "text": "Target and limits, both windows",
+     "sw": 176,
+     "cw": 22,
+     "sh": 42,
+     "ch": 24
+    }
+   ],
+   "scroll_containers": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 394,
+     "cw": 318,
+     "panel": "Target and guardrails evaluated together"
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 990,
+     "cw": 286,
+     "panel": "Target and guardrails evaluated together"
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s602b-cases/withdrawn/verification-withdrawn-390-app.png",
+   "mock_image": "part-s602b-cases/withdrawn/verification-withdrawn-390-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 3 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "sitework",
+   "case": "invalid-window",
+   "width": "1440",
+   "viewport": "1440x1000",
+   "part": "part-s603",
+   "route": "/sites/KOBO-001/work?from=2026-11-02T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "app_url": "http://localhost:5185/sites/KOBO-001/work?from=2026-11-02T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "mock": "frontend/mockups/v69/index.html#/sitework",
+   "producer_command": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "producer_mode": "s603_site_work_walkthrough (S6-03 owner walkthrough, D-action-records: ACT-000001/ACT-000002 created 2026-11-01; positive window 11-01..11-02, zero window 10-01..11-01, limit=1 page, no window; invalid window = URL from>to, capture-only); attest OK",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:49:26.802Z",
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Actions at this site",
+     "mock_title": "Actions at this site",
+     "app_h": 196,
+     "mock_h": 234,
+     "ratio": 0.84,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 2,
+     "app_columns": [],
+     "mock_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "app_chips": [
+      "Created from to (included) Show Actions"
+     ],
+     "mock_chips": [
+      "Verification window",
+      "Open"
+     ],
+     "app_links": 0,
+     "mock_links": 4,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 0.84,
+   "app_page_h": 1000,
+   "mock_page_h": 1001,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 216,
+     "h": 1000
+    },
+    "app_main_top": 24
+   },
+   "h1": {
+    "app": {
+     "text": "Kobo mini-grid",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Kobo Mini-grid",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": null,
+     "th": null
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "13px": 1,
+     "10px": 2
+    },
+    "mock": {
+     "11px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (—)*",
+      "Incidents (—)",
+      "Maintenance (—)"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [],
+   "console_errors": [],
+   "app_image": "part-s603/sitework-invalid-window-1440-app.png",
+   "mock_image": "part-s603/sitework-invalid-window-1440-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-11",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals"
+  },
+  {
+   "screen": "sitework",
+   "case": "invalid-window",
+   "width": "390",
+   "viewport": "390x900",
+   "part": "part-s603",
+   "route": "/sites/KOBO-001/work?from=2026-11-02T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "app_url": "http://localhost:5185/sites/KOBO-001/work?from=2026-11-02T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "mock": "frontend/mockups/v69/index.html#/sitework",
+   "producer_command": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "producer_mode": "s603_site_work_walkthrough (S6-03 owner walkthrough, D-action-records: ACT-000001/ACT-000002 created 2026-11-01; positive window 11-01..11-02, zero window 10-01..11-01, limit=1 page, no window; invalid window = URL from>to, capture-only); attest OK",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:49:26.802Z",
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Actions at this site",
+     "mock_title": "Actions at this site",
+     "app_h": 340,
+     "mock_h": 362,
+     "ratio": 0.94,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 2,
+     "app_columns": [],
+     "mock_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "app_chips": [
+      "Created from to (included) Show Actions"
+     ],
+     "mock_chips": [
+      "Verification window",
+      "Open"
+     ],
+     "app_links": 0,
+     "mock_links": 4,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 0.94,
+   "app_page_h": 900,
+   "mock_page_h": 1184,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 131,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 109
+    },
+    "app_main_top": 125
+   },
+   "h1": {
+    "app": {
+     "text": "Kobo mini-grid",
+     "top": 144,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Kobo Mini-grid",
+     "top": 339,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": null,
+     "th": null
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "13px": 1,
+     "10px": 2
+    },
+    "mock": {
+     "11px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (—)*",
+      "Incidents (—)",
+      "Maintenance (—)"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s603/sitework-invalid-window-390-app.png",
+   "mock_image": "part-s603/sitework-invalid-window-390-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-11",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals"
+  },
+  {
+   "screen": "sitework",
+   "case": "no-window",
+   "width": "1440",
+   "viewport": "1440x1000",
+   "part": "part-s603",
+   "route": "/sites/KOBO-001/work",
+   "app_url": "http://localhost:5185/sites/KOBO-001/work",
+   "mock": "frontend/mockups/v69/index.html#/sitework",
+   "producer_command": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "producer_mode": "s603_site_work_walkthrough (S6-03 owner walkthrough, D-action-records: ACT-000001/ACT-000002 created 2026-11-01; positive window 11-01..11-02, zero window 10-01..11-01, limit=1 page, no window; invalid window = URL from>to, capture-only); attest OK",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:49:26.802Z",
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Actions at this site",
+     "mock_title": "Actions at this site",
+     "app_h": 196,
+     "mock_h": 234,
+     "ratio": 0.84,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 2,
+     "app_columns": [],
+     "mock_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "app_chips": [
+      "Created from to (included) Show Actions"
+     ],
+     "mock_chips": [
+      "Verification window",
+      "Open"
+     ],
+     "app_links": 0,
+     "mock_links": 4,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 0.84,
+   "app_page_h": 1000,
+   "mock_page_h": 1001,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 216,
+     "h": 1000
+    },
+    "app_main_top": 24
+   },
+   "h1": {
+    "app": {
+     "text": "Kobo mini-grid",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Kobo Mini-grid",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": null,
+     "th": null
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "13px": 1,
+     "10px": 2
+    },
+    "mock": {
+     "11px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (—)*",
+      "Incidents (—)",
+      "Maintenance (—)"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [],
+   "console_errors": [],
+   "app_image": "part-s603/sitework-no-window-1440-app.png",
+   "mock_image": "part-s603/sitework-no-window-1440-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-11",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals"
+  },
+  {
+   "screen": "sitework",
+   "case": "no-window",
+   "width": "390",
+   "viewport": "390x900",
+   "part": "part-s603",
+   "route": "/sites/KOBO-001/work",
+   "app_url": "http://localhost:5185/sites/KOBO-001/work",
+   "mock": "frontend/mockups/v69/index.html#/sitework",
+   "producer_command": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "producer_mode": "s603_site_work_walkthrough (S6-03 owner walkthrough, D-action-records: ACT-000001/ACT-000002 created 2026-11-01; positive window 11-01..11-02, zero window 10-01..11-01, limit=1 page, no window; invalid window = URL from>to, capture-only); attest OK",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:49:26.802Z",
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Actions at this site",
+     "mock_title": "Actions at this site",
+     "app_h": 340,
+     "mock_h": 362,
+     "ratio": 0.94,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 2,
+     "app_columns": [],
+     "mock_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "app_chips": [
+      "Created from to (included) Show Actions"
+     ],
+     "mock_chips": [
+      "Verification window",
+      "Open"
+     ],
+     "app_links": 0,
+     "mock_links": 4,
+     "app_details": 0,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 0.94,
+   "app_page_h": 900,
+   "mock_page_h": 1184,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 131,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 109
+    },
+    "app_main_top": 125
+   },
+   "h1": {
+    "app": {
+     "text": "Kobo mini-grid",
+     "top": 144,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Kobo Mini-grid",
+     "top": 339,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": null,
+     "th": null
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "13px": 1,
+     "10px": 2
+    },
+    "mock": {
+     "11px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (—)*",
+      "Incidents (—)",
+      "Maintenance (—)"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s603/sitework-no-window-390-app.png",
+   "mock_image": "part-s603/sitework-no-window-390-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-11",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals"
+  },
+  {
+   "screen": "sitework",
+   "case": "page1-limit1",
+   "width": "1440",
+   "viewport": "1440x1000",
+   "part": "part-s603",
+   "route": "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1",
+   "app_url": "http://localhost:5185/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1",
+   "mock": "frontend/mockups/v69/index.html#/sitework",
+   "producer_command": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "producer_mode": "s603_site_work_walkthrough (S6-03 owner walkthrough, D-action-records: ACT-000001/ACT-000002 created 2026-11-01; positive window 11-01..11-02, zero window 10-01..11-01, limit=1 page, no window; invalid window = URL from>to, capture-only); attest OK",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:49:26.802Z",
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Actions at this site",
+     "mock_title": "Actions at this site",
+     "app_h": 254,
+     "mock_h": 234,
+     "ratio": 1.09,
+     "over_1_3": false,
+     "app_rows": 1,
+     "mock_rows": 2,
+     "app_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "mock_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "app_chips": [
+      "Created from to (included) Show Actions",
+      "Accepted · not applied (1 failed attempt)"
+     ],
+     "mock_chips": [
+      "Verification window",
+      "Open"
+     ],
+     "app_links": 4,
+     "mock_links": 4,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.09,
+   "app_page_h": 1000,
+   "mock_page_h": 1001,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 216,
+     "h": 1000
+    },
+    "app_main_top": 24
+   },
+   "h1": {
+    "app": {
+     "text": "Kobo mini-grid",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Kobo Mini-grid",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "14.4px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 1
+    },
+    "mock": {
+     "11px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [
+    {
+     "cls": "data-table__scroll",
+     "sw": 847,
+     "cw": 104,
+     "panel": "Actions at this site"
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s603/sitework-page1-limit1-1440-app.png",
+   "mock_image": "part-s603/sitework-page1-limit1-1440-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals"
+  },
+  {
+   "screen": "sitework",
+   "case": "page1-limit1",
+   "width": "390",
+   "viewport": "390x900",
+   "part": "part-s603",
+   "route": "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1",
+   "app_url": "http://localhost:5185/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1",
+   "mock": "frontend/mockups/v69/index.html#/sitework",
+   "producer_command": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "producer_mode": "s603_site_work_walkthrough (S6-03 owner walkthrough, D-action-records: ACT-000001/ACT-000002 created 2026-11-01; positive window 11-01..11-02, zero window 10-01..11-01, limit=1 page, no window; invalid window = URL from>to, capture-only); attest OK",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:49:26.802Z",
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Actions at this site",
+     "mock_title": "Actions at this site",
+     "app_h": 482,
+     "mock_h": 362,
+     "ratio": 1.33,
+     "over_1_3": true,
+     "app_rows": 1,
+     "mock_rows": 2,
+     "app_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "mock_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "app_chips": [
+      "Created from to (included) Show Actions",
+      "Accepted · not applied (1 failed attempt)"
+     ],
+     "mock_chips": [
+      "Verification window",
+      "Open"
+     ],
+     "app_links": 4,
+     "mock_links": 4,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.33,
+   "app_page_h": 1046,
+   "mock_page_h": 1184,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 131,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 92
+    },
+    "app_main_top": 108
+   },
+   "h1": {
+    "app": {
+     "text": "Kobo mini-grid",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Kobo Mini-grid",
+     "top": 339,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "14.4px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 1
+    },
+    "mock": {
+     "11px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 512,
+     "cw": 318,
+     "panel": "Actions at this site"
+    },
+    {
+     "cls": "data-table",
+     "sw": 373,
+     "cw": 104,
+     "panel": "Actions at this site"
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s603/sitework-page1-limit1-390-app.png",
+   "mock_image": "part-s603/sitework-page1-limit1-390-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 1 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "sitework",
+   "case": "positive",
+   "width": "1440",
+   "viewport": "1440x1000",
+   "part": "part-s603",
+   "route": "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
+   "app_url": "http://localhost:5185/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
+   "mock": "frontend/mockups/v69/index.html#/sitework",
+   "producer_command": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "producer_mode": "s603_site_work_walkthrough (S6-03 owner walkthrough, D-action-records: ACT-000001/ACT-000002 created 2026-11-01; positive window 11-01..11-02, zero window 10-01..11-01, limit=1 page, no window; invalid window = URL from>to, capture-only); attest OK",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:49:26.802Z",
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Actions at this site",
+     "mock_title": "Actions at this site",
+     "app_h": 319,
+     "mock_h": 234,
+     "ratio": 1.36,
+     "over_1_3": true,
+     "app_rows": 2,
+     "mock_rows": 2,
+     "app_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "mock_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "app_chips": [
+      "Created from to (included) Show Actions",
+      "Accepted · not applied (1 failed attempt)",
+      "Applied · result not checked yet"
+     ],
+     "mock_chips": [
+      "Verification window",
+      "Open"
+     ],
+     "app_links": 6,
+     "mock_links": 4,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.36,
+   "app_page_h": 1000,
+   "mock_page_h": 1001,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 216,
+     "h": 1000
+    },
+    "app_main_top": 24
+   },
+   "h1": {
+    "app": {
+     "text": "Kobo mini-grid",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Kobo Mini-grid",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "14.4px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 1
+    },
+    "mock": {
+     "11px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [
+    {
+     "cls": "data-table__scroll",
+     "sw": 853,
+     "cw": 104,
+     "panel": "Actions at this site"
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s603/sitework-positive-1440-app.png",
+   "mock_image": "part-s603/sitework-positive-1440-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 1 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "sitework",
+   "case": "positive",
+   "width": "390",
+   "viewport": "390x900",
+   "part": "part-s603",
+   "route": "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
+   "app_url": "http://localhost:5185/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
+   "mock": "frontend/mockups/v69/index.html#/sitework",
+   "producer_command": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "producer_mode": "s603_site_work_walkthrough (S6-03 owner walkthrough, D-action-records: ACT-000001/ACT-000002 created 2026-11-01; positive window 11-01..11-02, zero window 10-01..11-01, limit=1 page, no window; invalid window = URL from>to, capture-only); attest OK",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:49:26.802Z",
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Actions at this site",
+     "mock_title": "Actions at this site",
+     "app_h": 598,
+     "mock_h": 362,
+     "ratio": 1.65,
+     "over_1_3": true,
+     "app_rows": 2,
+     "mock_rows": 2,
+     "app_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "mock_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "app_chips": [
+      "Created from to (included) Show Actions",
+      "Accepted · not applied (1 failed attempt)",
+      "Applied · result not checked yet"
+     ],
+     "mock_chips": [
+      "Verification window",
+      "Open"
+     ],
+     "app_links": 6,
+     "mock_links": 4,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.65,
+   "app_page_h": 1162,
+   "mock_page_h": 1184,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 131,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 92
+    },
+    "app_main_top": 108
+   },
+   "h1": {
+    "app": {
+     "text": "Kobo mini-grid",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Kobo Mini-grid",
+     "top": 339,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "14.4px",
+      "color": "rgb(107, 118, 144)"
+     }
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "10px": 1
+    },
+    "mock": {
+     "11px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 531,
+     "cw": 318,
+     "panel": "Actions at this site"
+    },
+    {
+     "cls": "data-table",
+     "sw": 373,
+     "cw": 104,
+     "panel": "Actions at this site"
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s603/sitework-positive-390-app.png",
+   "mock_image": "part-s603/sitework-positive-390-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals; 1 panel(s) >1.3x need ruling/reason"
+  },
+  {
+   "screen": "sitework",
+   "case": "zero",
+   "width": "1440",
+   "viewport": "1440x1000",
+   "part": "part-s603",
+   "route": "/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "app_url": "http://localhost:5185/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "mock": "frontend/mockups/v69/index.html#/sitework",
+   "producer_command": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "producer_mode": "s603_site_work_walkthrough (S6-03 owner walkthrough, D-action-records: ACT-000001/ACT-000002 created 2026-11-01; positive window 11-01..11-02, zero window 10-01..11-01, limit=1 page, no window; invalid window = URL from>to, capture-only); attest OK",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:49:26.802Z",
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Actions at this site",
+     "mock_title": "Actions at this site",
+     "app_h": 233,
+     "mock_h": 234,
+     "ratio": 1.0,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 2,
+     "app_columns": [],
+     "mock_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "app_chips": [
+      "Created from to (included) Show Actions"
+     ],
+     "mock_chips": [
+      "Verification window",
+      "Open"
+     ],
+     "app_links": 0,
+     "mock_links": 4,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.0,
+   "app_page_h": 1000,
+   "mock_page_h": 1001,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 59,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 65,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 216,
+     "h": 1000
+    },
+    "app_main_top": 24
+   },
+   "h1": {
+    "app": {
+     "text": "Kobo mini-grid",
+     "top": 44,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Kobo Mini-grid",
+     "top": 165,
+     "family": "system-ui",
+     "size": "27px",
+     "weight": "650",
+     "lineHeight": "33.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": null,
+     "th": null
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "13px": 1,
+     "10px": 2
+    },
+    "mock": {
+     "11px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (0)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [],
+   "console_errors": [],
+   "app_image": "part-s603/sitework-zero-1440-app.png",
+   "mock_image": "part-s603/sitework-zero-1440-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-11",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals"
+  },
+  {
+   "screen": "sitework",
+   "case": "zero",
+   "width": "390",
+   "viewport": "390x900",
+   "part": "part-s603",
+   "route": "/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "app_url": "http://localhost:5185/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "mock": "frontend/mockups/v69/index.html#/sitework",
+   "producer_command": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "producer_mode": "s603_site_work_walkthrough (S6-03 owner walkthrough, D-action-records: ACT-000001/ACT-000002 created 2026-11-01; positive window 11-01..11-02, zero window 10-01..11-01, limit=1 page, no window; invalid window = URL from>to, capture-only); attest OK",
+   "revision": "73d538ab (product code = fddf5cad)",
+   "captured_at": "2026-10-24T15:49:26.802Z",
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "title_order_match": true,
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Actions at this site",
+     "mock_title": "Actions at this site",
+     "app_h": 393,
+     "mock_h": 362,
+     "ratio": 1.09,
+     "over_1_3": false,
+     "app_rows": 0,
+     "mock_rows": 2,
+     "app_columns": [],
+     "mock_columns": [
+      "Action",
+      "Source",
+      "Owner",
+      "Due",
+      "State",
+      "Success criterion"
+     ],
+     "app_chips": [
+      "Created from to (included) Show Actions"
+     ],
+     "mock_chips": [
+      "Verification window",
+      "Open"
+     ],
+     "app_links": 0,
+     "mock_links": 4,
+     "app_details": 1,
+     "app_bg": "rgb(255, 255, 255)",
+     "mock_bg": "rgb(255, 255, 255)",
+     "app_border": "rgb(224, 230, 239) 1px",
+     "mock_border": "rgb(224, 230, 239) 1px"
+    }
+   ],
+   "max_ratio": 1.09,
+   "app_page_h": 935,
+   "mock_page_h": 1184,
+   "overflow_x": 0,
+   "header": {
+    "app": {
+     "cls": "app-header",
+     "h": 58,
+     "bg": "rgba(0, 0, 0, 0)"
+    },
+    "mock": {
+     "cls": "topbar",
+     "h": 131,
+     "bg": "rgb(255, 255, 255)"
+    },
+    "app_dark_block": {
+     "cls": "app-frame__side",
+     "tag": "DIV",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 92
+    },
+    "app_main_top": 108
+   },
+   "h1": {
+    "app": {
+     "text": "Kobo mini-grid",
+     "top": 127,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    },
+    "mock": {
+     "text": "Kobo Mini-grid",
+     "top": 339,
+     "family": "system-ui",
+     "size": "23px",
+     "weight": "650",
+     "lineHeight": "28.75px",
+     "color": "rgb(23, 36, 59)"
+    }
+   },
+   "fonts": {
+    "app": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": null,
+     "th": null
+    },
+    "mock": {
+     "body": {
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "prose": {
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "19.8px",
+      "color": "rgb(97, 112, 135)"
+     },
+     "proseSizes": [],
+     "h2": {
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     },
+     "td": {
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "th": {
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    }
+   },
+   "panel_text_sizes": {
+    "app": {
+     "13px": 1,
+     "10px": 2
+    },
+    "mock": {
+     "11px": 1
+    }
+   },
+   "tab_rows": {
+    "app": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (0)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ],
+    "mock": [
+     [
+      "Overview",
+      "Foundation",
+      "Health",
+      "Performance",
+      "Findings",
+      "Work*",
+      "Financials",
+      "Evidence"
+     ],
+     [
+      "Actions (2)*",
+      "Incidents (0)",
+      "Maintenance (0)"
+     ]
+    ]
+   },
+   "clipped_text": [],
+   "scroll_containers": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "console_errors": [],
+   "app_image": "part-s603/sitework-zero-390-app.png",
+   "mock_image": "part-s603/sitework-zero-390-mock.png",
+   "findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-11",
+    "B5-12"
+   ],
+   "reviewer_verdict": "panel count/order match; differences listed as proposals"
+  }
+ ]
+}
