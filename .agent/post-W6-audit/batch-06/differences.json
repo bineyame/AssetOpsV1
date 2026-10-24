@@ -1,0 +1,512 @@
+[
+ {
+  "id": "B6-01",
+  "screens": [
+   "cold-foundation",
+   "cold-readiness",
+   "cold-sld"
+  ],
+  "observed": "Status strip carries extra W1 state-line items: 'Configuration only'/'Set up to report'/'Configured site' chip, 'Effective ... UTC to no end date', 'This is the configuration in effect now', version select 'In effect now', a cross-link and 'How this was worked out'; mock has 'Configuration v1 · Effective 6 Oct 2026' (readiness: 'Needs review · Configuration readiness is distinct...'). Panels close with a note line and a disclosure.",
+  "evidence": "excursion/cold-foundation-stocked-1440-{app,mock}.png",
+  "proposed": "Cite B1-05 (candidate D2 W1 state-line pattern); UTC part B2-21/B3-04.",
+  "pairs": [
+   "cold-foundation/stocked/1440",
+   "cold-foundation/stocked/390",
+   "cold-foundation/no-version/1440",
+   "cold-foundation/no-version/390",
+   "cold-readiness/stocked/1440",
+   "cold-readiness/stocked/390",
+   "cold-readiness/no-version/1440",
+   "cold-readiness/no-version/390",
+   "cold-sld/stocked/1440",
+   "cold-sld/stocked/390",
+   "cold-sld/no-version/1440",
+   "cold-sld/no-version/390",
+   "cold-foundation/normal-replay/1440",
+   "cold-foundation/normal-replay/390"
+  ]
+ },
+ {
+  "id": "B6-02",
+  "screens": [
+   "cold-foundation"
+  ],
+  "observed": "Physical site 8 rows vs 6 (Site ID, Cold rooms, Power supply, Cooling equipment, Chamber temperature probe, Other sensors, Declared connections, Night outage rule) vs mock (Site ID, Primary operation, Power sources, Night outage rule, Cooling asset, Policy). Operating interpretation 6 rows vs 4, with green 'Configured' chips where the mock has plain text (Missing / Incomplete / Mapped / Mapped); adds Temperature policy and Effective period. Ratio 1.26 at 1440; 1.25 / 1.72 at 390.",
+  "evidence": "excursion/cold-foundation-stocked-{1440,390}-{app,mock}.png",
+  "proposed": "(b) candidate D4 (rows from the selected Foundation version replace illustrative rows) with B1-05 notes; the 390 1.72x Operating interpretation needs a measured-cap ruling (extra rows + note + disclosure).",
+  "pairs": [
+   "cold-foundation/stocked/1440",
+   "cold-foundation/stocked/390",
+   "cold-foundation/normal-replay/1440",
+   "cold-foundation/normal-replay/390"
+  ]
+ },
+ {
+  "id": "B6-03",
+  "screens": [
+   "cold-foundation",
+   "cold-readiness",
+   "cold-sld",
+   "temperature",
+   "coldbackup",
+   "cold-finding"
+  ],
+  "observed": "h1/badge/subtitle are record-derived: 'Cold replay lab', 'Demonstration data · COLD-LAB-001' (purple, so B1-14 green tone does not recur), subtitles 'Cold room · stored configuration for the period shown', 'Cold room · single line diagram', 'Cold replay lab · cold-chain finding' vs mock 'Produce cold room · 2–4°C policy · hybrid...'. Temperature/backup subtitles match the mock.",
+  "evidence": "excursion/*-1440-{app,mock}.png",
+  "proposed": "(b) candidate D4 (record-derived identity replaces illustrative copy; cf. B4-06).",
+  "pairs": [
+   "cold-foundation/stocked/1440",
+   "cold-foundation/stocked/390",
+   "cold-foundation/no-version/1440",
+   "cold-foundation/no-version/390",
+   "cold-readiness/stocked/1440",
+   "cold-readiness/stocked/390",
+   "cold-readiness/no-version/1440",
+   "cold-readiness/no-version/390",
+   "cold-sld/stocked/1440",
+   "cold-sld/stocked/390",
+   "cold-sld/no-version/1440",
+   "cold-sld/no-version/390",
+   "temperature/excursion/1440",
+   "temperature/excursion/390",
+   "temperature/no-selection/1440",
+   "temperature/no-selection/390",
+   "temperature/refused/1440",
+   "temperature/refused/390",
+   "coldbackup/excursion/1440",
+   "coldbackup/excursion/390",
+   "coldbackup/no-selection/1440",
+   "coldbackup/no-selection/390",
+   "coldbackup/refused/1440",
+   "coldbackup/refused/390",
+   "cold-finding/start-excursion/1440",
+   "cold-finding/start-excursion/390",
+   "cold-finding/unknown-id/1440",
+   "cold-finding/unknown-id/390",
+   "cold-finding/excursion-finding/1440",
+   "cold-finding/excursion-finding/390",
+   "temperature/normal/1440",
+   "temperature/normal/390",
+   "coldbackup/normal/1440",
+   "coldbackup/normal/390",
+   "cold-foundation/normal-replay/1440",
+   "cold-foundation/normal-replay/390",
+   "temperature/backup-failed/1440",
+   "temperature/backup-failed/390",
+   "coldbackup/backup-failed/1440",
+   "coldbackup/backup-failed/390",
+   "coldbackup/default-window/1440",
+   "coldbackup/default-window/390",
+   "cold-finding/start-backup-failed/1440",
+   "cold-finding/start-backup-failed/390",
+   "cold-finding/start-refused-window/1440",
+   "cold-finding/start-refused-window/390"
+  ]
+ },
+ {
+  "id": "B6-04",
+  "screens": [
+   "cold-foundation",
+   "cold-readiness",
+   "cold-sld",
+   "temperature",
+   "coldbackup"
+  ],
+  "observed": "Closing note: Foundation, Readiness and SLD render it as an unboxed 14 px paragraph; mock has a bordered 11 px info callout with an icon. Temperature (amber) and Backup (blue) callouts are boxed but have no info icon.",
+  "evidence": "excursion/cold-readiness-stocked-1440-{app,mock}.png",
+  "proposed": "Cite B1-06 / B1-07 (shared callout/typography D3 candidate).",
+  "pairs": [
+   "cold-foundation/stocked/1440",
+   "cold-foundation/stocked/390",
+   "cold-foundation/no-version/1440",
+   "cold-foundation/no-version/390",
+   "cold-readiness/stocked/1440",
+   "cold-readiness/stocked/390",
+   "cold-readiness/no-version/1440",
+   "cold-readiness/no-version/390",
+   "cold-sld/stocked/1440",
+   "cold-sld/stocked/390",
+   "cold-sld/no-version/1440",
+   "cold-sld/no-version/390",
+   "temperature/excursion/1440",
+   "temperature/excursion/390",
+   "temperature/no-selection/1440",
+   "temperature/no-selection/390",
+   "temperature/refused/1440",
+   "temperature/refused/390",
+   "coldbackup/excursion/1440",
+   "coldbackup/excursion/390",
+   "coldbackup/no-selection/1440",
+   "coldbackup/no-selection/390",
+   "coldbackup/refused/1440",
+   "coldbackup/refused/390",
+   "temperature/normal/1440",
+   "temperature/normal/390",
+   "coldbackup/normal/1440",
+   "coldbackup/normal/390",
+   "cold-foundation/normal-replay/1440",
+   "cold-foundation/normal-replay/390",
+   "temperature/backup-failed/1440",
+   "temperature/backup-failed/390",
+   "coldbackup/backup-failed/1440",
+   "coldbackup/backup-failed/390",
+   "coldbackup/default-window/1440",
+   "coldbackup/default-window/390"
+  ]
+ },
+ {
+  "id": "B6-05",
+  "screens": [
+   "cold-readiness"
+  ],
+  "observed": "Readiness table 9 rows vs 4; Declared cells are a chip plus caption; every row is 'Unconfirmed' with the identical 'Commissioning record' (W2 M2 stays closed: no blank 'What is needed'); 8 of 9 Next step links are 'Single line diagram →'; note line + disclosure. Ratio 2.15 at 1440, 1.59 at 390 (inner table scroll 536/318, readable).",
+  "evidence": "excursion/cold-readiness-stocked-{1440,390}-{app,mock}.png",
+  "proposed": "Rows: (b) candidate D4 (areas of the selected version). The >1.3x needs a reviewed ruling (measured reason: 9 configured areas, chip+caption cells, note, disclosure). Cite B1-31 pattern.",
+  "pairs": [
+   "cold-readiness/stocked/1440",
+   "cold-readiness/stocked/390"
+  ]
+ },
+ {
+  "id": "B6-06",
+  "screens": [
+   "cold-readiness"
+  ],
+  "observed": "Gateway panel: title 'Gateway status · edge-cold-lab-001' (raw gateway id); tiles 'No contact received yet' / 'Not available' / 'Not available' / 'Unknown'; contact bar is a hatched 'No history to draw' placeholder with a 4-item legend; Connected sources lists 11 reading chips with no reporting state (mock 6 device chips with Reporting / Never reported); Effect panel has two generic items; header link 'Evidence › Data sources →' (mock 'Health › Data sources →').",
+  "evidence": "excursion/cold-readiness-stocked-1440-{app,mock}.png",
+  "proposed": "Title: cite B1-30 (approved dynamic) and B1-53 for the raw id. Tiles/bar/chips: cite B1-32, candidate D1 (no gateway diagnostic history on the selected read). Link target: (a) R22 (Foundation Data sources points to cold-evidence) verified.",
+  "pairs": [
+   "cold-readiness/stocked/1440",
+   "cold-readiness/stocked/390"
+  ]
+ },
+ {
+  "id": "B6-07",
+  "screens": [
+   "cold-readiness",
+   "cold-sld"
+  ],
+  "observed": "Breadcrumb adds the sub-tab leaf ('... / Foundation / Readiness', '... / Single line diagram'); the mock trail ends at Foundation.",
+  "evidence": "excursion/cold-sld-stocked-1440-{app,mock}.png",
+  "proposed": "(b) candidate D2 (minor), same as the W1 Foundation pages; Architect to rule once for W1+W2.",
+  "pairs": [
+   "cold-readiness/stocked/1440",
+   "cold-readiness/stocked/390",
+   "cold-readiness/no-version/1440",
+   "cold-readiness/no-version/390",
+   "cold-sld/stocked/1440",
+   "cold-sld/stocked/390",
+   "cold-sld/no-version/1440",
+   "cold-sld/no-version/390"
+  ]
+ },
+ {
+  "id": "B6-08",
+  "screens": [
+   "cold-sld"
+  ],
+  "observed": "Diagram is the replay site's 8 configured parts: no solar/battery/DC bus, no circuit breakers, feeders or kWh meter; every reporting dot is 'not assessed'; Monitoring row shows 11 reading names instead of 6 devices; title 'Cold replay lab' with no topology suffix and 'Topology type not stated in this version'; legend Power/Cooling/Sensing; 'Undeclared in this version: solar array, battery'.",
+  "evidence": "excursion/cold-sld-stocked-1440-{app,mock}.png",
+  "proposed": "Cite B1-40 / B1-41; candidate D4 (configured topology replaces illustrative hybrid) plus D1 (reporting status not assessed).",
+  "pairs": [
+   "cold-sld/stocked/1440",
+   "cold-sld/stocked/390"
+  ]
+ },
+ {
+  "id": "B6-09",
+  "screens": [
+   "cold-sld"
+  ],
+  "observed": "'What each part does' has 8 per-part rows whose Role is a type word (Cold room, Sensor, Cooling, Switch...) vs mock 5 grouped rows with descriptive roles; footnote 'Function description not recorded' + disclosure. Ratio 1.55 at 1440.",
+  "evidence": "excursion/cold-sld-stocked-1440-{app,mock}.png",
+  "proposed": "Cite B1-42; candidate D1 (no function description on the record). >1.3x measured reason: 8 configured parts.",
+  "pairs": [
+   "cold-sld/stocked/1440",
+   "cold-sld/stocked/390"
+  ]
+ },
+ {
+  "id": "B6-10",
+  "screens": [
+   "temperature"
+  ],
+  "observed": "Strip: 'Outside policy' vs 'Needs attention'; the mock's 'Inspect temperature claim ↗' link is absent; the app adds '6 Oct 2026 19:00–20:05 UTC · Up to date for this window' and omits 'in policy 42–58% of the hour'.",
+  "evidence": "excursion/temperature-excursion-1440-{app,mock}.png",
+  "proposed": "Chip wording: candidate D2. Missing claim link: (c) D3 candidate (cold-evidence is built, so the link is renderable). UTC: B2-21/B3-04.",
+  "pairs": [
+   "temperature/excursion/1440",
+   "temperature/excursion/390",
+   "temperature/no-selection/1440",
+   "temperature/no-selection/390",
+   "temperature/refused/1440",
+   "temperature/refused/390",
+   "temperature/normal/1440",
+   "temperature/normal/390",
+   "temperature/backup-failed/1440",
+   "temperature/backup-failed/390"
+  ]
+ },
+ {
+  "id": "B6-11",
+  "screens": [
+   "temperature",
+   "coldbackup"
+  ],
+  "observed": "KPI typography: values render as one string at one size ('At least 45 min', '4.8 °C', '19–23 °C·min'), while the mock sets a large number with a small unit. Text values ('Not determined', 'Start failed', 'Not recorded', 'Not assessed') render at about 17 px against mock 'Unknown' / 'Failed' at about 27 px. 'Not determined' vs mock 'Unknown'.",
+  "evidence": "excursion/temperature-excursion-1440-{app,mock}.png; excursion/coldbackup-excursion-1440-{app,mock}.png",
+  "proposed": "(c) D3 candidate (minor shared KPI typography). Wording: candidate D2.",
+  "pairs": [
+   "temperature/excursion/1440",
+   "temperature/excursion/390",
+   "temperature/no-selection/1440",
+   "temperature/no-selection/390",
+   "temperature/refused/1440",
+   "temperature/refused/390",
+   "coldbackup/excursion/1440",
+   "coldbackup/excursion/390",
+   "coldbackup/no-selection/1440",
+   "coldbackup/no-selection/390",
+   "coldbackup/refused/1440",
+   "coldbackup/refused/390",
+   "temperature/normal/1440",
+   "temperature/normal/390",
+   "coldbackup/normal/1440",
+   "coldbackup/normal/390",
+   "temperature/backup-failed/1440",
+   "temperature/backup-failed/390",
+   "coldbackup/backup-failed/1440",
+   "coldbackup/backup-failed/390",
+   "coldbackup/default-window/1440",
+   "coldbackup/default-window/390"
+  ]
+ },
+ {
+  "id": "B6-12",
+  "screens": [
+   "temperature"
+  ],
+  "observed": "Chart legend 'Policy band' vs 'Upper policy limit'; axis labels carry 'UTC'; timeline 4 events vs 3; Excursion context adds a disclosure, the Power outage row has no 'Observed' chip, and 'Open the Finding →' stands where the mock has 'Open Incident INC-203 →'. Claim boundary adds a disclosure; its sentence is 14 px.",
+  "evidence": "excursion/temperature-excursion-1440-{app,mock}.png",
+  "proposed": "Legend/timeline: candidate D4. Incident link: candidate D1 (this producer links no Incident). Disclosures: B1-05. 14 px: B1-07. UTC: B2-21/B3-04.",
+  "pairs": [
+   "temperature/excursion/1440",
+   "temperature/excursion/390",
+   "temperature/normal/1440",
+   "temperature/normal/390",
+   "temperature/backup-failed/1440",
+   "temperature/backup-failed/390"
+  ]
+ },
+ {
+  "id": "B6-13",
+  "screens": [
+   "temperature",
+   "coldbackup"
+  ],
+  "observed": "Refused window (from > to): strip and KPI tile row are dropped; a 'Window cannot be read' banner plus one italic gap line per panel remain. The mock always keeps strip + 4 tiles. W2-F applied the M3 'keep strip and Not assessed tiles' treatment only to Overview/Evidence/Financials. The amber 'Durations are bounded...' callout still shows. The refusal copy 'not a valid UTC window of at most 31 days' is the same for an inverted window as for an over-long one.",
+  "evidence": "excursion/temperature-refused-1440-app.png; excursion/coldbackup-refused-1440-app.png",
+  "proposed": "(c) D3 candidate: extend the W2-F M3 refused treatment (strip + 'Not assessed' tiles) to Temperature and Backup, or an Architect ruling that keeps the banner-only form. Generic copy: analogue of the domainActionClient window-error item.",
+  "pairs": [
+   "temperature/refused/1440",
+   "temperature/refused/390",
+   "coldbackup/refused/1440",
+   "coldbackup/refused/390"
+  ]
+ },
+ {
+  "id": "B6-14",
+  "screens": [
+   "temperature"
+  ],
+  "observed": "No-selection window (5 Oct): strip says 'Policy not recorded' and Excursion context 'Upper policy limit: Not recorded', while the Foundation version in effect declares 'Temperature policy 2–4 °C'. Chart panel stays full height (379 px) with one gap line.",
+  "evidence": "excursion/temperature-no-selection-1440-app.png; excursion/cold-foundation-stocked-1440-app.png",
+  "proposed": "Architect check: the policy is read from the selected assessment, so 'not recorded' may be literal; otherwise (c) D3 candidate copy ('not read for this window').",
+  "pairs": [
+   "temperature/no-selection/1440",
+   "temperature/no-selection/390"
+  ]
+ },
+ {
+  "id": "B6-15",
+  "screens": [
+   "coldbackup"
+  ],
+  "observed": "Strip: 'Start failed' / 'Started' + 'Evidence: Observed' vs mock 'Degraded' + 'Confidence: High'; no confidence chip; the mock's 'Open INC-203 →' is absent.",
+  "evidence": "excursion/coldbackup-excursion-1440-{app,mock}.png; normal/coldbackup-normal-1440-app.png",
+  "proposed": "Chip wording: candidate D2. Confidence absent: (c) D3 candidate (W2-F M9/M13 added confidence to the Overview and Finding strips; Backup still lacks it) unless the Architect rules 'Evidence: Observed' the equivalent. Incident link: candidate D1.",
+  "pairs": [
+   "coldbackup/excursion/1440",
+   "coldbackup/excursion/390",
+   "coldbackup/no-selection/1440",
+   "coldbackup/no-selection/390",
+   "coldbackup/refused/1440",
+   "coldbackup/refused/390",
+   "coldbackup/normal/1440",
+   "coldbackup/normal/390",
+   "coldbackup/backup-failed/1440",
+   "coldbackup/backup-failed/390",
+   "coldbackup/default-window/1440",
+   "coldbackup/default-window/390"
+  ]
+ },
+ {
+  "id": "B6-16",
+  "screens": [
+   "coldbackup"
+  ],
+  "observed": "Backup event chains columns 'Power to compressor' / 'Compressor response' vs mock 'Power to load' / 'Load response'; Result chip 'Start failed' vs 'Fail'. Evidence by causal step 9 rows vs 5, each with a 'record' link, plus a 'Records not used' line and a disclosure: 1.67 at 1440, 1.62 at 390 (inner scrollers 810/318 and 447/318, as the mock 689/320, 447/320).",
+  "evidence": "excursion/coldbackup-excursion-{1440,390}-{app,mock}.png",
+  "proposed": "Columns: (a) R20 D2 built, verified, but R20's screen list names temperature and cold-finding, not coldbackup: register correction. Rows: candidate D4; >1.3x measured reason: nine selected causal steps + links + disclosure.",
+  "pairs": [
+   "coldbackup/excursion/1440",
+   "coldbackup/excursion/390",
+   "coldbackup/normal/1440",
+   "coldbackup/normal/390",
+   "coldbackup/backup-failed/1440",
+   "coldbackup/backup-failed/390",
+   "coldbackup/default-window/1440",
+   "coldbackup/default-window/390"
+  ]
+ },
+ {
+  "id": "B6-17",
+  "screens": [
+   "coldbackup"
+  ],
+  "observed": "Normal (successful start) case keeps failure copy: 'Which part failed, if any, is not determined here.' and the Start result row Limit 'A failed start needs inspection' beside 'Succeeded at 19:07'.",
+  "evidence": "normal/coldbackup-normal-1440-app.png",
+  "proposed": "(c) D3 candidate (minor copy: state-specific limit text).",
+  "pairs": [
+   "coldbackup/normal/1440",
+   "coldbackup/normal/390"
+  ]
+ },
+ {
+  "id": "B6-18",
+  "screens": [
+   "cold-finding"
+  ],
+  "observed": "Finding chrome: rail selects Sites (mock Findings); breadcrumb is Site-rooted 'Sites / Cold replay lab / Findings / Finding' with a generic leaf and no code (mock 'Findings › F-118 › Overview · site: ...'); an extra Site tab row sits above the Finding sub-tabs (at 390 it scrolls 521/358 with a cut-off 'W'); the mock 'Open site' button is absent.",
+  "evidence": "excursion/cold-finding-start-excursion-{1440,390}-{app,mock}.png",
+  "proposed": "Cite B4-01 (rail), B4-03 (breadcrumb origin, Finding variant), B4-04 (extra Site tab row), B4-05 (Open site); code: (a) R65 D1 planned, verified.",
+  "pairs": [
+   "cold-finding/start-excursion/1440",
+   "cold-finding/start-excursion/390",
+   "cold-finding/unknown-id/1440",
+   "cold-finding/unknown-id/390",
+   "cold-finding/excursion-finding/1440",
+   "cold-finding/excursion-finding/390",
+   "cold-finding/start-backup-failed/1440",
+   "cold-finding/start-backup-failed/390",
+   "cold-finding/start-refused-window/1440",
+   "cold-finding/start-refused-window/390"
+  ]
+ },
+ {
+  "id": "B6-19",
+  "screens": [
+   "cold-finding"
+  ],
+  "observed": "Sub-tab 'Recommendation · Not available yet' (mock live); Recommended next step is an italic gap 'No recorded next step. No Action or Recommendation record is linked to this Finding.' + 'Open the Backup view →' where the mock has a sentence and a 'Review recommendation' button (0.52x).",
+  "evidence": "excursion/cold-finding-start-excursion-1440-{app,mock}.png",
+  "proposed": "Register R40 lists cold-finding Recommendation as D5 'built' (destination built in W5), but cold Recommendation is still unbuilt (spec lists cold-recommendation as unimplemented): Architect to correct R40 for cold-finding to D1, or name the resolving unit.",
+  "pairs": [
+   "cold-finding/start-excursion/1440",
+   "cold-finding/start-excursion/390",
+   "cold-finding/unknown-id/1440",
+   "cold-finding/unknown-id/390",
+   "cold-finding/excursion-finding/1440",
+   "cold-finding/excursion-finding/390",
+   "cold-finding/start-backup-failed/1440",
+   "cold-finding/start-backup-failed/390",
+   "cold-finding/start-refused-window/1440",
+   "cold-finding/start-refused-window/390"
+  ]
+ },
+ {
+  "id": "B6-20",
+  "screens": [
+   "cold-finding"
+  ],
+  "observed": "Strip 'Open · Cold replay lab · Confidence: Observed · 6 Oct 2026 19:00–20:05 UTC · Up to date ... · Selected source: Generated test data' (W2 M13 stays closed: confidence present); no Finding code chip. Refused / unknown states read 'Unknown  Confidence: Unknown Cold replay lab' with no separator before the site name.",
+  "evidence": "excursion/cold-finding-unknown-id-390-app.png; backup-failed/cold-finding-start-refused-window-1440-app.png",
+  "proposed": "Code: R65 D1. Missing separator: (c) D3 candidate (minor copy defect). UTC: B2-21/B3-04.",
+  "pairs": [
+   "cold-finding/start-excursion/1440",
+   "cold-finding/start-excursion/390",
+   "cold-finding/unknown-id/1440",
+   "cold-finding/unknown-id/390",
+   "cold-finding/excursion-finding/1440",
+   "cold-finding/excursion-finding/390",
+   "cold-finding/start-backup-failed/1440",
+   "cold-finding/start-backup-failed/390",
+   "cold-finding/start-refused-window/1440",
+   "cold-finding/start-refused-window/390"
+  ]
+ },
+ {
+  "id": "B6-21",
+  "screens": [
+   "cold-finding"
+  ],
+  "observed": "Bounded conclusion lead 'A commanded automatic generator start failed.' (mock adds recovery and peak), adds the bullet 'Not observed: transfer to backup.' and 'Inspect the backup chain →' (mock 'Inspect claim evidence ↗'). Operational context adds an 'Accepted record' link per step, a 'Missing steps' line and a disclosure. The secondary sentence is 14 px.",
+  "evidence": "excursion/cold-finding-start-excursion-1440-{app,mock}.png",
+  "proposed": "Candidate D4 (selected chain, recovery not recorded) + B1-05 disclosure; 14 px: B1-07.",
+  "pairs": [
+   "cold-finding/start-excursion/1440",
+   "cold-finding/start-excursion/390",
+   "cold-finding/excursion-finding/1440",
+   "cold-finding/excursion-finding/390",
+   "cold-finding/start-backup-failed/1440",
+   "cold-finding/start-backup-failed/390"
+  ]
+ },
+ {
+  "id": "B6-22",
+  "screens": [
+   "cold-finding"
+  ],
+  "observed": "Unknown ID and refused window: generic h1 'Finding', 'Not found' / 'Window cannot be read' banner, three panels with one gap line each, 'No recorded next step.' No mock state.",
+  "evidence": "excursion/cold-finding-unknown-id-1440-app.png; backup-failed/cold-finding-start-refused-window-1440-app.png",
+  "proposed": "Architect to confirm the shared error-state pattern (cf. B4-24); honest refusal, no Rxx.",
+  "pairs": [
+   "cold-finding/unknown-id/1440",
+   "cold-finding/unknown-id/390",
+   "cold-finding/start-refused-window/1440",
+   "cold-finding/start-refused-window/390"
+  ]
+ },
+ {
+  "id": "B6-23",
+  "screens": [
+   "cold-finding"
+  ],
+  "observed": "Inventory: 'cold-finding-excursion' is mounted on the same Finding route and produced by the W2-03 replay (Finding ...170), yet the spec lists it among IDs with no W1-W6 implementation. Captured here as an extra cold-finding state against mock #/cold-finding-excursion: panel titles and order match (Bounded conclusion, Temperature, Recommended next step).",
+  "evidence": "excursion/cold-finding-excursion-finding-1440-{app,mock}.png",
+  "proposed": "Spec route-table correction: move cold-finding-excursion into the audit target (88 implemented + 22), then give it its own representative pairs.",
+  "pairs": [
+   "cold-finding/excursion-finding/1440",
+   "cold-finding/excursion-finding/390"
+  ]
+ },
+ {
+  "id": "B6-24",
+  "screens": [
+   "cold-foundation",
+   "cold-readiness",
+   "cold-sld"
+  ],
+  "observed": "No-version (?at=2026-09-01): h1 keeps the display name (B1-25 does not recur on cold); every panel is a single gap sentence (0.14-0.49x); at 390 the dark header band is 141-143 px.",
+  "evidence": "excursion/cold-foundation-no-version-390-app.png",
+  "proposed": "Gap state: candidate D1 (honest missing state). Header: cite B1-02.",
+  "pairs": [
+   "cold-foundation/no-version/1440",
+   "cold-foundation/no-version/390",
+   "cold-readiness/no-version/1440",
+   "cold-readiness/no-version/390",
+   "cold-sld/no-version/1440",
+   "cold-sld/no-version/390"
+  ]
+ }
+]
