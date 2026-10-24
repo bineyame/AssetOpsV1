@@ -2430,3 +2430,6 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - Strip Finding version check accepts overflow-x:auto without scrolling to both ends (w502-cold-work-evidence.mjs:882).
 - Comment at test_w502_domain_intent_postgres.py:542,587 misdescribes the cutoff (after WR completion, before the Action root).
 - Panel sentence renders at 14 px vs mock .prose 12 px on every v69 screen using .prose; UI/UX pass.
+
+## Recurring flake (2026-10-24)
+- test_s4_schedule_tick_postgres.py::TestKillableStagesAndServerTimeouts::test_a_hung_stage_is_killed... failed in 3 consecutive full suites under -n 4 (PENDING vs LEASED / FAILED vs COMPLETED) and passes alone every time. Deflake (timing bound or lease wait) in the post-W6 hardening pass.
