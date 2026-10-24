@@ -1,82 +1,68 @@
-"""W5-04a V1b: the non-test EV work fixture producer library (readiness rulings 20, 29, 31; pre-flight 20-23).
+"""W5-04a V1b: the non-test EV work fixture producer library (readiness rulings 20, 21, 29, 31, 34-38).
 
-`.agent/W5-04-build-spec.md` "V1 selection, clock and schema" (second paragraph) and "EV producer, UI and registry"
-(first paragraph). Importable mode library in the shape of `tools/w502_cold_work_cases.py`; the CLI is
-`tools/w504_ev_work_walkthrough.py`. Nothing here imports `backend/tests` (no `Chain`, no `decision_clock`).
+`.agent/W5-04-build-spec.md` "V1 selection, clock and schema" and "EV producer, UI and registry"; readiness rulings
+34-38 supersede the earlier shifted-Site design (no generated Site, no shifted documents). Importable mode library in
+the shape of `tools/w502_cold_work_cases.py`; the CLI is `tools/w504_ev_work_walkthrough.py`, whose walkthrough
+CHILD alone imports the existing `backend/tests`/`host/tests` registered-replay helpers (ruling 36). Nothing here
+imports a test module (AST-guarded), and `Chain.decision_clock()` is never a K0.
 
 What is here, all pure or driven through caller-supplied HTTP callables:
-- Clocks: `R` is the private DB now, `D = floorUTCday(R) - 1 day`, and one delta moves the registered W2 EV
-  scenario window `[2026-10-06T08:00Z, 09:00Z)` onto `[D+08:00, D+09:00)`; the same delta moves the scenario's
-  `forcing[].time`, `observations[].time/release_at` and the Foundation `valid_from`/`valid_to`.
-- The generated Site document: code `EV-W504-DEPOT-{suffix}`, display `Depot Charging Hub`, zone `Etc/UTC`, the
-  registered EV Foundation components unchanged, no subtitle (readiness 20) and no money read (readiness 13).
-- K0 (readiness 29): `read_k0` GETs `/ev/financials/scenarios?from&to` and `/ev/sessions?from&to` without
-  `known_at`, then `/ev/findings?from&to&known_at=K0` for the same selected window, and `cross_check_k0` /
-  `select_positive` refuse preparation (raise `ProducerRefused`) on a null K0, unequal bounds, unequal clocks or a
-  Finding/session not in that window. A clock is never invented.
-- The exact Action/intent/INC/WR/case-link payload literals and the mock-zero / submitted modes.
+- Two honest windows (ruling 35): the evidence window `E=[2026-10-06T08:00Z, 09:00Z)` of the registered, unmodified
+  `ev-interrupted` replay at `EV-LAB-001` (evidence basis and K0 reads only), and the current Work window
+  `W=[floorUTCday(R), +1 day)` (or a bounded explicit UTC window containing K1, the Incident `occurred_at` and the
+  Maintenance `created_at`) for the three Work tabs and the Action detail URL.
+- K0 (readiness 29/35): `read_k0` GETs `/ev/financials/scenarios?from&to` and `/ev/sessions?from&to` without
+  `known_at`, then `/ev/findings?from&to&known_at=K0` for the same window; `cross_check_k0` / `select_positive`
+  refuse preparation (raise `ProducerRefused`) on a null K0, unequal bounds, unequal clocks or a Finding/session not
+  in that window. A clock is never invented.
+- `clock_order`: `K0 < K1 <= K2 <= K3 <= K4` over returned `recorded_at` values, refused otherwise.
+- The exact Action/intent/INC/WR/record/case-link payload literals (WR narrative per ruling 37).
 - `evidence_clock_for`: a browser record clock maps to the last returned EV watermark no later than it (ruling 21).
-
-Not producible on merged code (see `.agent/W5-04a-questions.md` round 3, Q8-Q12): the registered EV parser pins
-`site_code` and the window, `ev-fault` yields no Finding, and the registered gateway/central runner exists only in
-test modules. `replay_shifted` therefore raises `ProducerBlocked` naming the blocking question instead of producing
-a different fixture.
 """
 
 from __future__ import annotations
 
-import copy
-import re
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
-import yaml
-
-ROOT = Path(__file__).resolve().parents[1]
-SCENARIO_DIR = ROOT / "config" / "scenarios"
-SITE_PREFIX = "EV-W504-DEPOT-"
-DISPLAY_NAME = "Depot Charging Hub"
-#: Readiness/pre-flight 22: the short name. The Site document and Site read have no short-name field (Q12), so the
-#: producer records it in the manifest only.
+#: Ruling 35/38: the registered EV Site (its stored display name and `Etc/UTC` zone are read back, never written).
+SITE_CODE = "EV-LAB-001"
+#: Ruling 38: the short name is a private manifest label only (the Site document/read has no short-name field).
 SHORT_NAME = "Depot"
 TIMEZONE = "Etc/UTC"
 SITE_TYPE = "EV_CHARGING"
-#: Pre-flight 20 / readiness 31: the positive replay and the isolated unknown vector (see Q8 for `ev-fault`).
-POSITIVE_SCENARIO = "ev-fault"
+#: Ruling 34: the registered positive replay and the isolated unknown vector.
+POSITIVE_SCENARIO = "ev-interrupted"
 UNKNOWN_SCENARIO = "ev-missing-meter"
-BASE_WINDOW_START = datetime(2026, 10, 6, 8, 0, tzinfo=timezone.utc)
-BASE_WINDOW_END = datetime(2026, 10, 6, 9, 0, tzinfo=timezone.utc)
-WINDOW_OFFSET = timedelta(hours=8)
-WINDOW_LENGTH = timedelta(hours=1)
+#: Ruling 35: the evidence window E of the registered replay (never shifted).
+E_START = datetime(2026, 10, 6, 8, 0, tzinfo=timezone.utc)
+E_END = datetime(2026, 10, 6, 9, 0, tzinfo=timezone.utc)
+#: W4 limits (ruling 35): list windows of at most 31 days; occurrences at most 30 days back and 5 minutes ahead.
+WORK_LIST_MAX = timedelta(days=31)
+BACKDATE_LIMIT = timedelta(days=30)
+FUTURE_SLACK = timedelta(minutes=5)
 #: The DB-backed modes `prepare` emits (positive and mock-zero share one positive replay; submitted is `attest`).
 MODES = ("positive", "mock-zero", "submitted")
 #: Isolated selector-state vectors: captured only if the merged selector returns that state.
 ISOLATED_STATES = {"pending": "PENDING_RECOMPUTE", "stale": "STALE_SOURCE", "unknown": "UNKNOWN"}
-_SUFFIX = re.compile(r"[A-Z0-9]{1,12}")
 _FMT = "%Y-%m-%dT%H:%M:%SZ"
 
 #: "EV producer, UI and registry": exact literals.
 ACTION = {"title": "Investigate connector 2", "owner_label": "Charging operations", "due_at": None}
 INCIDENT = {"title": "Charging session fault",
             "narrative": "Connector fault ended a charging session; outcome remains unverified"}
+#: Ruling 37: the WR `narrative` is exactly the attested activity text.
 WORK_REQUEST = {"title": "Connector diagnostic inspection",
+                "narrative": "Inspect connector and witness a charging session",
                 "activity": "Inspect connector and witness a charging session",
                 "outcome_note": "Inspection recorded; recurrence and availability remain unverified"}
-#: Q11: the spec gives the WR case no narrative, but W4 requires one (`work/service.py` CASE_CREATE_KEYS,
-#: 1..4000 chars). Provisional value pending a ruling: the WR activity literal, flagged in the manifest.
-WR_NARRATIVE_PENDING_RULING = WORK_REQUEST["activity"]
 SERVICE_ACTOR = {"kind": "SERVICE", "id": "service:w401-fixture",
                  "attestation": "service=w401-fixture;job=w504-ev-work;rule=w504/1"}
 
 
 class ProducerRefused(RuntimeError):
     """Fixture preparation refused: a returned public clock, window or selection disagreed (never invent one)."""
-
-
-class ProducerBlocked(ProducerRefused):
-    """The ruled input cannot be produced on merged code; the message names the open question."""
 
 
 # ---- clocks -------------------------------------------------------------------------------------------------
@@ -101,23 +87,60 @@ def iso(value: datetime) -> str:
     return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def day_d(db_now: datetime) -> datetime:
-    """`D = floorUTCday(R) - 1 day`."""
-    if db_now.tzinfo is None:
-        raise ProducerRefused("R must be timezone-aware")
-    r = db_now.astimezone(timezone.utc)
-    return r.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
+def _aware(value: datetime, what: str) -> datetime:
+    if not isinstance(value, datetime) or value.tzinfo is None:
+        raise ProducerRefused(f"{what} must be a timezone-aware instant")
+    return value.astimezone(timezone.utc)
 
 
-def target_delta(db_now: datetime) -> timedelta:
-    """The one delta that moves the registered window start onto `D + 08:00`."""
-    return (day_d(db_now) + WINDOW_OFFSET) - BASE_WINDOW_START
+def floor_day(value: datetime) -> datetime:
+    return _aware(value, "the instant").replace(hour=0, minute=0, second=0, microsecond=0)
 
 
-def shifted_window(db_now: datetime) -> tuple[datetime, datetime]:
-    """`[D+08:00, D+09:00)`."""
-    lo = day_d(db_now) + WINDOW_OFFSET
-    return lo, lo + WINDOW_LENGTH
+def work_window(db_now: datetime) -> tuple[datetime, datetime]:
+    """Ruling 35: `W = [floorUTCday(R), floorUTCday(R) + 1 day)`."""
+    lo = floor_day(db_now)
+    return lo, lo + timedelta(days=1)
+
+
+def bounded_work_window(db_now: datetime, contained: Mapping[str, datetime]) -> dict[str, Any]:
+    """Ruling 35: W from `R` if it contains every named instant (K1, Incident `occurred_at`, Maintenance
+    `created_at`); otherwise the explicit UTC day-bounded window containing all of them, refused past W4's 31-day list
+    limit or with an instant outside the 30-day backdate / 5-minute future bound around `R`."""
+    if not contained:
+        raise ProducerRefused("the Work window needs at least one returned instant")
+    now = _aware(db_now, "R")
+    values = {name: _aware(at, name) for name, at in contained.items()}
+    for name, at in values.items():
+        if at < now - BACKDATE_LIMIT or at > now + FUTURE_SLACK:
+            raise ProducerRefused(f"{name} {iso(at)} is outside W4's occurrence bound around R {iso(now)}")
+    lo, hi = work_window(now)
+    recomputed = not all(lo <= at < hi for at in values.values())
+    if recomputed:
+        lo = floor_day(min(values.values()))
+        hi = floor_day(max(values.values())) + timedelta(days=1)
+        if hi - lo > WORK_LIST_MAX:
+            raise ProducerRefused(f"no W4 list window of at most 31 days contains {sorted(values)}")
+    return {"from": lo, "to": hi, "recomputed": recomputed, "contains": {k: iso(v) for k, v in values.items()}}
+
+
+def clock_order(k0: datetime, k1: datetime, k2: datetime | None = None, k3: Iterable[datetime] = (),
+                k4: Iterable[datetime] = ()) -> list[str]:
+    """Ruling 35: `K0 < K1 <= K2 <= K3 <= K4` over returned clocks (every K3 at or before every K4). Returns the
+    actual order for the manifest; refuses preparation otherwise."""
+    k3, k4 = list(k3), list(k4)
+    if (k3 or k4) and k2 is None:
+        raise ProducerRefused("a submitted-case capture needs K2")
+    if k4 and not k3:
+        raise ProducerRefused("K4 (case links) needs K3 (the linked cases)")
+    if not k0 < k1:
+        raise ProducerRefused(f"K0 {iso(k0)} is not before K1 {iso(k1)}")
+    stages = [("K1", [k1])] + ([("K2", [k2])] if k2 is not None else []) + ([("K3", k3)] if k3 else []) \
+        + ([("K4", k4)] if k4 else [])
+    for (a, before), (b, after) in zip(stages, stages[1:]):
+        if max(before) > min(after):
+            raise ProducerRefused(f"{a} {iso(max(before))} is after {b} {iso(min(after))}")
+    return [f"K0={iso(k0)}"] + [f"{name}={iso(at)}" for name, values in stages for at in sorted(values)]
 
 
 def evidence_clock_for(record_clock: datetime, watermarks: Iterable[datetime]) -> datetime:
@@ -126,95 +149,6 @@ def evidence_clock_for(record_clock: datetime, watermarks: Iterable[datetime]) -
     if not earlier:
         raise ProducerRefused(f"no returned EV watermark at or before {iso(record_clock)}")
     return max(earlier)
-
-
-def site_code(suffix: str) -> str:
-    if not isinstance(suffix, str) or not _SUFFIX.fullmatch(suffix):
-        raise ValueError("the run suffix must be 1-12 upper-case letters/digits")
-    return SITE_PREFIX + suffix
-
-
-# ---- generated inputs ---------------------------------------------------------------------------------------
-
-
-def _move(value: str | None, delta: timedelta) -> str | None:
-    return None if value is None else text_of(instant(value) + delta)
-
-
-def registered_scenario(scenario_id: str) -> dict[str, Any]:
-    """The registered W2 EV scenario document (`config/scenarios/<id>.yaml`), read only."""
-    path = SCENARIO_DIR / f"{scenario_id}.yaml"
-    document = yaml.safe_load(path.read_text(encoding="utf-8"))
-    if not isinstance(document, dict) or document.get("scenario_id") != scenario_id:
-        raise ProducerRefused(f"{path} is not the registered {scenario_id} scenario")
-    return document
-
-
-def shifted_scenario_document(document: Mapping[str, Any], delta: timedelta) -> dict[str, Any]:
-    """Every absolute instant of an `ev-scenario/1` document moved by `delta`; nothing else changes."""
-    out = copy.deepcopy(dict(document))
-    out["window"]["start"] = _move(out["window"]["start"], delta)
-    out["window"]["end"] = _move(out["window"]["end"], delta)
-    for row in out.get("forcing") or []:
-        row["time"] = _move(row["time"], delta)
-    for row in out.get("observations") or []:
-        row["time"] = _move(row["time"], delta)
-        if row.get("release_at") is not None:
-            row["release_at"] = _move(row["release_at"], delta)
-    return out
-
-
-def registered_site_document() -> dict[str, Any]:
-    """The registered EV Foundation document the product installer reads (`sites/ev_lab.FIXTURE_PATH`)."""
-    from assetops_backend.sites.ev_lab import FIXTURE_PATH
-
-    return yaml.safe_load(Path(FIXTURE_PATH).read_text(encoding="utf-8"))
-
-
-def shifted_site_document(document: Mapping[str, Any], delta: timedelta, suffix: str) -> dict[str, Any]:
-    """Readiness 20 / pre-flight 22: Site code/name/zone as ruled, Foundation effective interval moved by `delta`,
-    components unchanged (their IDs stay the registered ones; stored UUIDs are returned on import). No subtitle."""
-    out = copy.deepcopy(dict(document))
-    if "subtitle" in out:
-        raise ProducerRefused("the registered EV Site document carries a subtitle; the Site read has none")
-    out["site_id"] = site_code(suffix)
-    out["display_name"] = DISPLAY_NAME
-    out["timezone"] = TIMEZONE
-    foundation = out["foundation"]
-    foundation["valid_from"] = _move(foundation["valid_from"], delta)
-    if foundation.get("valid_to") is not None:
-        foundation["valid_to"] = _move(foundation["valid_to"], delta)
-    return out
-
-
-def connector_components(site_document: Mapping[str, Any]) -> list[str]:
-    """The Foundation connector component IDs (the WR/INC asset is the returned stored ID for one of them)."""
-    return sorted(c["component_id"] for c in site_document["foundation"]["components"]
-                  if c.get("component_type") == "EV_CONNECTOR")
-
-
-def parse_shifted(document: Mapping[str, Any]):
-    """The shifted document through the unchanged registered parser; its pins refuse it (Q9)."""
-    from assetops_backend.scenarios.ev_parsing import parse_ev_scenario_document
-    from assetops_backend.scenarios.ports import ScenarioConfigurationInvalid
-
-    try:
-        return parse_ev_scenario_document(copy.deepcopy(dict(document)))
-    except ScenarioConfigurationInvalid as refused:
-        raise ProducerBlocked(
-            f"Q9: the registered EV scenario parser refuses the shifted document ({refused}); it pins site_code "
-            "EV-LAB-001 and the 2026-10-06T08:00Z-09:00Z window, and no product change is authorized") from refused
-
-
-def replay_shifted(scenario_id: str, db_now: datetime, suffix: str):
-    """The private shifted replay of `scenario_id` for Site `EV-W504-DEPOT-{suffix}`.
-
-    Blocked on merged code: the registered parser refuses the shifted document (Q9); were it admitted, the only
-    registered gateway/central runner is test code (Q10), and `ev-fault` has no fault-aborted session (Q8)."""
-    site_code(suffix)
-    document = shifted_scenario_document(registered_scenario(scenario_id), target_delta(db_now))
-    parse_shifted(document)
-    raise ProducerBlocked("Q10: no non-test gateway/central runner for the registered EV publication path")
 
 
 # ---- K0 and the selected window (readiness 29) --------------------------------------------------------------
@@ -320,7 +254,8 @@ def read_k0(get: Get, code: str, lo: datetime, hi: datetime) -> SelectedEv:
         answers[name] = body
     k0 = cross_check_k0(answers["scenarios"], answers["sessions"], lo, hi)
     # The same selected cutoff, as the server returned it (no reformatting of the clock).
-    status, findings = get(base + "/findings", {**bounds, "known_at": str(answers["scenarios"]["window"]["committed_watermark"])})
+    returned_k0 = str(answers["scenarios"]["window"]["committed_watermark"])
+    status, findings = get(base + "/findings", {**bounds, "known_at": returned_k0})
     if status != 200:
         raise ProducerRefused(f"GET {base}/findings answered {status}: {findings!r}"[:400])
     chosen = select_positive(answers["sessions"], findings, k0, lo, hi)
@@ -337,10 +272,14 @@ def read_k0(get: Get, code: str, lo: datetime, hi: datetime) -> SelectedEv:
 # ---- command bodies -----------------------------------------------------------------------------------------
 
 
-def action_body(selected: SelectedEv, raised_at: datetime, key: str, actor: Mapping[str, Any] = SERVICE_ACTOR
-                ) -> dict[str, Any]:
+def action_body(selected: SelectedEv, raised_at: datetime, key: str, actor: Mapping[str, Any] = SERVICE_ACTOR,
+                db_now: datetime | None = None) -> dict[str, Any]:
+    """Ruling 35: `raised_at` is current DB time (the domain service admits 30 days back to 5 minutes ahead of DB
+    now) and after K0; never the 2026-10-06 evidence clock."""
     if raised_at <= selected.k0:
         raise ProducerRefused("the Action must be raised after K0 (it follows its evidence)")
+    if db_now is not None and not (db_now - BACKDATE_LIMIT <= raised_at <= db_now + FUTURE_SLACK):
+        raise ProducerRefused(f"raised_at {iso(raised_at)} is outside the DB-time window around {iso(db_now)}")
     return {"domain": SITE_TYPE, "origin_finding_id": selected.finding_id,
             "origin_finding_revision_id": selected.finding_revision_id, **ACTION, "raised_at": iso(raised_at),
             "actor": dict(actor), "idempotency_key": key}
@@ -377,7 +316,7 @@ def request_body(asset_id: str, occurred_at: datetime, key: str, actor: Mapping[
                  ) -> dict[str, Any]:
     return {"kind": "MAINTENANCE_REQUEST", "occurred_at": iso(occurred_at), "asset_id": asset_id,
             "finding_links": [], "action_links": [], "title": WORK_REQUEST["title"],
-            "narrative": WR_NARRATIVE_PENDING_RULING, "cited_accepted_evidence_ids": [], "actor": dict(actor),
+            "narrative": WORK_REQUEST["narrative"], "cited_accepted_evidence_ids": [], "actor": dict(actor),
             "idempotency_key": key}
 
 
@@ -392,10 +331,18 @@ def case_link_body(case: Mapping[str, Any], event_id: str, key: str, actor: Mapp
             "actor": dict(actor), "idempotency_key": key}
 
 
-def submitted_case_times(lo: datetime) -> dict[str, datetime]:
-    """W4 list-window semantics: both cases occur inside the generated `[D+08:00, D+09:00)` period."""
-    return {"incident": lo + timedelta(minutes=20), "request": lo + timedelta(minutes=30),
-            "record": lo + timedelta(minutes=40)}
+def submitted_case_times(db_now: datetime) -> dict[str, datetime]:
+    """Ruling 35: INC/WR/record occurrences from current DB time (inside W4's 30-day backdate bound), never
+    2026-10-06; the record follows its request."""
+    now = _aware(db_now, "R")
+    return {"incident": now - timedelta(minutes=3), "request": now - timedelta(minutes=2),
+            "record": now - timedelta(minutes=1)}
+
+
+def listed_ids(body: Mapping[str, Any], key: str) -> set[str]:
+    """The IDs a W4/domain-work list response returns under `rows` (or `items`)."""
+    rows = body.get("rows") or body.get("items") or ()
+    return {str(r.get(key)).lower() for r in rows if isinstance(r, Mapping) and r.get(key) is not None}
 
 
 def zero_reads_complete(incidents: Mapping[str, Any], maintenance: Mapping[str, Any]) -> bool:

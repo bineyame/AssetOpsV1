@@ -1,6 +1,6 @@
 """W5-04a V1b: DB-free unit tests of the EV work producer library `tools/w504_ev_work_cases.py`.
 
-Readiness 29 (K0 route/clock cross-check on synthetic responses), 20/22 (Site identity, no subtitle), 21 (clocks and
+Readiness 29 (K0 route/clock cross-check on synthetic responses), 34-38 (registered E, current W, clock order,
 the evidence-clock mapping) and the "EV producer, UI and registry" payload literals. No database, no server.
 """
 
@@ -18,8 +18,8 @@ sys.path.insert(0, str(ROOT / "tools"))
 import w504_ev_work_cases as P  # noqa: E402
 
 R = datetime(2026, 10, 24, 13, 5, 7, 123456, tzinfo=timezone.utc)
-LO, HI = datetime(2026, 10, 23, 8, 0, tzinfo=timezone.utc), datetime(2026, 10, 23, 9, 0, tzinfo=timezone.utc)
-K0 = "2026-10-23T09:00:00.25Z"
+LO, HI = datetime(2026, 10, 6, 8, 0, tzinfo=timezone.utc), datetime(2026, 10, 6, 9, 0, tzinfo=timezone.utc)
+K0 = "2026-10-06T09:00:00.25Z"
 FINDING, REVISION = "aaaaaaaa-0000-4000-8000-000000000001", "aaaaaaaa-0000-4000-8000-000000000002"
 SESSION, SESSION_REV = "bbbbbbbb-0000-4000-8000-000000000001", "bbbbbbbb-0000-4000-8000-000000000002"
 OTHER = "bbbbbbbb-0000-4000-8000-000000000003"
@@ -27,7 +27,7 @@ E1, E2, E3 = ("cccccccc-0000-4000-8000-00000000000" + n for n in "123")
 
 
 def window(**over) -> dict:
-    return {"from": "2026-10-23T08:00:00Z", "to": "2026-10-23T09:00:00Z", "known_at": K0, **over}
+    return {"from": "2026-10-06T08:00:00Z", "to": "2026-10-06T09:00:00Z", "known_at": K0, **over}
 
 
 def scenarios(**over) -> dict:
@@ -48,63 +48,58 @@ def findings(**over) -> dict:
          "source_provenance": {"evidence_ids": [E1, E2, E3]}}]}
 
 
-def test_clock_math_and_window() -> None:
-    assert P.day_d(R) == datetime(2026, 10, 23, tzinfo=timezone.utc)
-    assert P.shifted_window(R) == (LO, HI)
-    assert P.BASE_WINDOW_START + P.target_delta(R) == LO
-    midnight = datetime(2026, 10, 24, tzinfo=timezone.utc)
-    assert P.shifted_window(midnight) == (LO, HI)
-    with pytest.raises(P.ProducerRefused):
-        P.day_d(datetime(2026, 10, 24))
-    marks = [LO, HI, HI + timedelta(minutes=5)]
+def test_evidence_window_is_the_registered_one() -> None:
+    assert (P.E_START, P.E_END) == (LO, HI)
+    assert (P.SITE_CODE, P.POSITIVE_SCENARIO, P.UNKNOWN_SCENARIO) == ("EV-LAB-001", "ev-interrupted",
+                                                                      "ev-missing-meter")
+    marks = [HI, HI + timedelta(minutes=5)]
+    assert P.evidence_clock_for(R, marks) == HI + timedelta(minutes=5)
     assert P.evidence_clock_for(HI + timedelta(minutes=1), marks) == HI
     with pytest.raises(P.ProducerRefused):
-        P.evidence_clock_for(LO - timedelta(seconds=1), marks)
+        P.evidence_clock_for(LO, marks)
 
 
-def test_shifted_scenario_moves_every_instant_only() -> None:
-    for scenario_id in (P.POSITIVE_SCENARIO, P.UNKNOWN_SCENARIO):
-        base = P.registered_scenario(scenario_id)
-        moved = P.shifted_scenario_document(base, P.target_delta(R))
-        assert P.instant(moved["window"]["start"]) == LO and P.instant(moved["window"]["end"]) == HI
-        delta = P.target_delta(R)
-        for a, b in zip(base["forcing"], moved["forcing"]):
-            assert P.instant(b["time"]) - P.instant(a["time"]) == delta
-            assert {k: v for k, v in a.items() if k != "time"} == {k: v for k, v in b.items() if k != "time"}
-        for a, b in zip(base["observations"], moved["observations"]):
-            assert P.instant(b["time"]) - P.instant(a["time"]) == delta
-        assert base["window"]["start"] == "2026-10-06T08:00:00Z"  # the registered input is not mutated
-    assert P.registered_scenario(P.UNKNOWN_SCENARIO)["observations"], "the unknown vector has a DROP row"
-
-
-def test_shifted_site_identity_and_foundation() -> None:
-    base = P.registered_site_document()
-    moved = P.shifted_site_document(base, P.target_delta(R), "RUN7")
-    assert (moved["site_id"], moved["display_name"], moved["timezone"], moved["site_type"]) == (
-        "EV-W504-DEPOT-RUN7", "Depot Charging Hub", "Etc/UTC", "EV_CHARGING")
-    assert "subtitle" not in moved and "short_name" not in moved
-    assert P.instant(moved["foundation"]["valid_from"]) - P.instant(base["foundation"]["valid_from"]) == \
-        P.target_delta(R)
-    assert moved["foundation"]["components"] == base["foundation"]["components"]
-    assert P.connector_components(moved) and len(P.connector_components(moved)) == 2
-    for bad in ("run7", "", "X" * 13, "A-B"):
-        with pytest.raises(ValueError):
-            P.site_code(bad)
+def test_work_window_from_db_day() -> None:
+    day = datetime(2026, 10, 24, tzinfo=timezone.utc)
+    assert P.work_window(R) == (day, day + timedelta(days=1))
     with pytest.raises(P.ProducerRefused):
-        P.shifted_site_document({**base, "subtitle": "2 x 60 kW"}, P.target_delta(R), "RUN7")
+        P.work_window(datetime(2026, 10, 24))
+    w = P.bounded_work_window(R, {"K1": R - timedelta(minutes=5), "incident.occurred_at": R - timedelta(minutes=3)})
+    assert (w["from"], w["to"], w["recomputed"]) == (day, day + timedelta(days=1), False)
+    # K1 written just before midnight, the cases just after: one bounded explicit window containing all three.
+    late = datetime(2026, 10, 25, 0, 0, 30, tzinfo=timezone.utc)
+    w = P.bounded_work_window(late, {"K1": late - timedelta(minutes=2), "incident.occurred_at": late,
+                                     "maintenance.created_at": late})
+    assert (w["from"], w["to"], w["recomputed"]) == (day, day + timedelta(days=2), True)
+    for bad in ({"K1": R - timedelta(days=31)}, {"K1": R + timedelta(minutes=6)}, {}):
+        with pytest.raises(P.ProducerRefused):
+            P.bounded_work_window(R, bad)
+
+
+def test_clock_order_is_enforced() -> None:
+    k0 = P.instant(K0)
+    k1, k2 = R, R + timedelta(seconds=1)
+    k3, k4 = [R + timedelta(seconds=2), R + timedelta(seconds=3)], [R + timedelta(seconds=4)]
+    order = P.clock_order(k0, k1, k2, k3, k4)
+    assert [x.split("=")[0] for x in order] == ["K0", "K1", "K2", "K3", "K3", "K4"]
+    assert P.clock_order(k0, k1, k1, [k1], [k1])  # equal returned clocks are allowed (<=)
+    for args in ((k0, k0), (k0, k1, k1 - timedelta(microseconds=1)), (k0, k1, k2, [k1], [k2]),
+                 (k0, k1, k2, [k4[0]], [k3[0]]), (k0, k1, None, k3), (k0, k1, k2, (), k4)):
+        with pytest.raises(P.ProducerRefused):
+            P.clock_order(*args)
 
 
 def test_k0_cross_check_accepts_equal_clocks_after_normalization() -> None:
-    k0 = P.cross_check_k0(scenarios(), sessions(known_at="2026-10-23T09:00:00.250000+00:00"), LO, HI)
-    assert k0 == datetime(2026, 10, 23, 9, 0, 0, 250000, tzinfo=timezone.utc)
+    k0 = P.cross_check_k0(scenarios(), sessions(known_at="2026-10-06T09:00:00.250000+00:00"), LO, HI)
+    assert k0 == datetime(2026, 10, 6, 9, 0, 0, 250000, tzinfo=timezone.utc)
 
 
 @pytest.mark.parametrize("scen,sess", [
     (dict(committed_watermark=None), {}),
-    ({}, dict(known_at="2026-10-23T09:00:00Z")),
-    (dict(known_at="2026-10-23T08:59:00Z"), {}),
-    ({}, {"to": "2026-10-23T10:00:00Z"}),
-    (dict(**{"from": "2026-10-23T07:00:00Z"}), {}),
+    ({}, dict(known_at="2026-10-06T09:00:00Z")),
+    (dict(known_at="2026-10-06T08:59:00Z"), {}),
+    ({}, {"to": "2026-10-06T10:00:00Z"}),
+    (dict(**{"from": "2026-10-06T07:00:00Z"}), {}),
     ({}, dict(known_at=None)),
 ])
 def test_k0_cross_check_refuses_mismatched_window_or_clock(scen, sess) -> None:
@@ -125,21 +120,21 @@ def test_read_k0_uses_the_routes_and_the_same_window() -> None:
         body = {"/financials/scenarios": scenarios(), "/sessions": sessions(), "/findings": findings()}
         return 200, body[path.split("/ev", 1)[1]]
 
-    selected = P.read_k0(get, "EV-W504-DEPOT-RUN7", LO, HI)
-    bounds = {"from": "2026-10-23T08:00:00Z", "to": "2026-10-23T09:00:00Z"}
-    assert calls == [("/api/sites/EV-W504-DEPOT-RUN7/ev/financials/scenarios", bounds),
-                     ("/api/sites/EV-W504-DEPOT-RUN7/ev/sessions", bounds),
-                     ("/api/sites/EV-W504-DEPOT-RUN7/ev/findings", {**bounds, "known_at": K0})]
+    selected = P.read_k0(get, "EV-LAB-001", LO, HI)
+    bounds = {"from": "2026-10-06T08:00:00Z", "to": "2026-10-06T09:00:00Z"}
+    assert calls == [("/api/sites/EV-LAB-001/ev/financials/scenarios", bounds),
+                     ("/api/sites/EV-LAB-001/ev/sessions", bounds),
+                     ("/api/sites/EV-LAB-001/ev/findings", {**bounds, "known_at": K0})]
     assert (selected.finding_revision_id, selected.session_id, selected.session_revision_id) == (
         REVISION, SESSION, SESSION_REV)
     assert selected.accepted_evidence_ids == sorted([E1, E2])  # cited by the Finding and the selected head
-    assert selected.manifest()["k0"] == "2026-10-23T09:00:00.250000Z"
+    assert selected.manifest()["k0"] == "2026-10-06T09:00:00.250000Z"
 
 
 def test_select_positive_refusals() -> None:
     k0 = P.instant(K0)
     with pytest.raises(P.ProducerRefused):  # the Finding read is not the same cutoff
-        P.select_positive(sessions(), findings(known_at="2026-10-23T09:05:00Z"), k0, LO, HI)
+        P.select_positive(sessions(), findings(known_at="2026-10-06T09:05:00Z"), k0, LO, HI)
     other = findings()
     other["items"][0]["session_id"] = OTHER  # a completed session is not fault-ended
     with pytest.raises(P.ProducerRefused):
@@ -154,21 +149,25 @@ def test_select_positive_refusals() -> None:
         P.select_positive(uncited, findings(), k0, LO, HI)
     status = []
     with pytest.raises(P.ProducerRefused):
-        P.read_k0(lambda path, params: status.append(path) or (503, {"error": {}}), "EV-W504-DEPOT-RUN7", LO, HI)
+        P.read_k0(lambda path, params: status.append(path) or (503, {"error": {}}), "EV-LAB-001", LO, HI)
     assert len(status) == 1
 
 
 def test_payload_literals() -> None:
     selected = P.read_k0(lambda path, params: (200, {"/financials/scenarios": scenarios(), "/sessions": sessions(),
                                                      "/findings": findings()}[path.split("/ev", 1)[1]]),
-                         "EV-W504-DEPOT-RUN7", LO, HI)
-    raised = selected.k0 + timedelta(minutes=1)
-    action = P.action_body(selected, raised, "k")
+                         "EV-LAB-001", LO, HI)
+    raised = R
+    action = P.action_body(selected, raised, "k", db_now=R)
     assert {k: action[k] for k in ("domain", "title", "owner_label", "due_at")} == {
         "domain": "EV_CHARGING", "title": "Investigate connector 2", "owner_label": "Charging operations",
         "due_at": None}
+    assert action["raised_at"] == "2026-10-24T13:05:07.123456Z"  # current DB time, not the 2026-10-06 clock
     with pytest.raises(P.ProducerRefused):
         P.action_body(selected, selected.k0, "k")
+    for outside in (R - timedelta(days=30, seconds=1), R + timedelta(minutes=5, seconds=1)):
+        with pytest.raises(P.ProducerRefused):  # the domain service's DB-time window
+            P.action_body(selected, outside, "k", db_now=R)
     intent = P.intent_body(selected, REVISION, raised, "i", session_ids=[OTHER, SESSION.upper()])
     assert intent["basis"] == {"finding_revision_id": REVISION, "work_case_id": None, "work_record_id": None,
                                "accepted_evidence_ids": sorted([E1, E2]), "session_ids": sorted([SESSION, OTHER])}
@@ -184,22 +183,40 @@ def test_payload_literals() -> None:
     assert (rec["activity"], rec["outcome_note"]) == (
         "Inspect connector and witness a charging session",
         "Inspection recorded; recurrence and availability remain unverified")
-    times = P.submitted_case_times(LO)
-    assert all(LO <= t < HI for t in times.values())
+    assert wr["narrative"] == "Inspect connector and witness a charging session" == rec["activity"]  # ruling 37
+    assert not hasattr(P, "WR_NARRATIVE_PENDING_RULING")
+    times = P.submitted_case_times(R)
+    assert all(R - timedelta(days=30) <= t <= R for t in times.values())
+    assert times["incident"] < times["request"] < times["record"]
 
 
-def test_replay_is_blocked_on_merged_parser() -> None:
-    with pytest.raises(P.ProducerBlocked, match="Q9"):
-        P.replay_shifted(P.POSITIVE_SCENARIO, R, "RUN7")
+def _imports(tree) -> set[str]:
+    imported = {a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names}
+    return imported | {n.module or "" for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)}
+
+
+TEST_ONLY = ("pg_harness", "ev_depth_cases", "scenario_cache", "run_fixtures", "fake_central", "gateway_process")
+
+
+def _test_modules(names: set[str]) -> list[str]:
+    return sorted(m for m in names if m.split(".")[0].startswith("test_") or m.split(".")[0] in TEST_ONLY)
 
 
 def test_producer_imports_no_test_module() -> None:
-    """The library never imports backend/tests (no `Chain`, no `test_*`, no harness)."""
-    for name in ("w504_ev_work_cases.py", "w504_ev_work_walkthrough.py"):
-        tree = ast.parse((ROOT / "tools" / name).read_text(encoding="utf-8"))
-        imported = {a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names}
-        imported |= {n.module or "" for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)}
-        bad = sorted(m for m in imported if m.split(".")[0].startswith("test_")
-                     or m.split(".")[0] in ("pg_harness", "ev_depth_cases", "scenario_cache", "run_fixtures",
-                                            "fake_central", "gateway_process"))
-        assert not bad, (name, bad)
+    """The library never imports a test module (no `Chain`, no `test_*`, no harness)."""
+    tree = ast.parse((ROOT / "tools" / "w504_ev_work_cases.py").read_text(encoding="utf-8"))
+    assert not _test_modules(_imports(tree))
+
+
+def test_walkthrough_test_imports_are_only_the_native_replay_child() -> None:
+    """Ruling 36: the walkthrough's only test-helper imports are the two registered-replay helper modules, inside
+    `native_replay` (the child's private `*_test` fixture adapter); nothing reads `decision_clock` as K0."""
+    source = (ROOT / "tools" / "w504_ev_work_walkthrough.py").read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    replay = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "native_replay")
+    assert _test_modules(_imports(replay)) == ["test_w205b_ev_replay_postgres", "test_w206_ev_store_postgres"]
+    outside = ast.Module(body=[n for n in tree.body if n is not replay], type_ignores=[])
+    assert not _test_modules(_imports(outside))
+    names = {n.attr for n in ast.walk(tree) if isinstance(n, ast.Attribute)} | {
+        n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+    assert "decision_clock" not in names and "FIRST_DECISION" not in names
