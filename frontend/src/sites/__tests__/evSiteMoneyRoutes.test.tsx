@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -24,6 +24,7 @@ import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import koboDetail from "../../shell/__tests__/kobo-site-detail.json";
 
 /*
  * W2-07 commits 4-5 (`.agent/W2-07-build-spec.md` "Commits 4-5", closure section 4, q5 dry-read, q6): an
@@ -847,5 +848,60 @@ describe("W2-F: EV Overview link, status and record IDs", () => {
     expect(cell("availability")).not.toBe("Connector status coverage not assessed");
     expect(cell("availability")).not.toContain("Nothing required");
     expect(cell("energy")).toBe("Not assessed");
+  });
+});
+
+describe("post-W6 W2-EV (Q14/Q23): EV Site main tabs and the bare Site home", () => {
+  const tabHrefs = () =>
+    Object.fromEntries(Array.from(document.querySelectorAll('nav[aria-label="Site sections"] a')).map((a) => [a.textContent ?? "", a.getAttribute("href")]));
+
+  it("every EV Site screen's main tabs open EV pages at the loaded read's window", async () => {
+    for (const path of Object.values(PATHS)) {
+      await renderAt(path, client());
+      await waitFor(() => expect(tabHrefs().Overview, path).toBe(`/sites/${CODE}/ev${Q}`));
+      const tabs = tabHrefs();
+      expect(tabs.Evidence, path).toBe(`/sites/${CODE}/ev/evidence${Q}`);
+      expect(tabs.Financials, path).toBe(`/sites/${CODE}/ev/financials${Q}`);
+      expect(tabs.Foundation, path).toBe(`/sites/${CODE}/foundation${Q}`);
+      cleanup();
+    }
+  });
+
+  it("a refused read carries no window on the main tabs", async () => {
+    for (const path of Object.values(PATHS)) {
+      await renderAt(path, client({}, refused(503, "EV_READ_UNAVAILABLE")));
+      const tabs = tabHrefs();
+      expect(tabs.Overview, path).toBe(`/sites/${CODE}/ev`);
+      expect(Object.values(tabs).some((h) => (h ?? "").includes("?")), path).toBe(false);
+      cleanup();
+    }
+  });
+
+  it("bare /sites/:id opens the EV Overview for an EV Site, keeping the query", async () => {
+    const evSite = client();
+    render(
+      <MemoryRouter initialEntries={[`/sites/${CODE}${RAW_Q}`]}>
+        <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} evSite={evSite} />
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(main().getAttribute("data-ev-site-view")).toBe("ev"));
+    await settledScreen();
+    expect(evSite.getOverview).toHaveBeenCalledWith(CODE, { from: FROM, to: TO, known_at: KNOWN });
+  });
+
+  it("bare /sites/:id keeps the mini Overview for a MINIGRID Site", async () => {
+    const mini = { ...(koboDetail as unknown as SiteDetailReadModel), site_id: "MINI-001" } as SiteDetailReadModel;
+    const miniDetail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: mini }) };
+    const evSite = client();
+    render(
+      <MemoryRouter initialEntries={["/sites/MINI-001"]}>
+        <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={miniDetail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} evSite={evSite} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Kalangala mini-grid");
+    expect(main().getAttribute("data-ev-site-view")).toBeNull();
+    expect(evSite.getOverview).not.toHaveBeenCalled();
+    expect(tabHrefs().Overview).toBe("/sites/MINI-001");
   });
 });

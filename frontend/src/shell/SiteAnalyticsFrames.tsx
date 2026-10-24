@@ -78,7 +78,7 @@ import { EvFindingFrame, EvSessionsFrame, type EvPerformanceView, evFindingHref 
 import { EvAvailability } from "../sites/EvAvailability";
 import { EvEnergy } from "../sites/EvEnergy";
 import { type EvDepthClient, createEvDepthClient } from "../sites/evDepthClient";
-import { evSiteRoutes } from "./evSiteRoutes";
+import { EV_SITE_TAB_HREFS, evSiteRoutes } from "./evSiteRoutes";
 import type { EvAssessmentClient } from "../sites/evAssessmentClient";
 import { coldSiteRoutes, coldSiteScreen } from "./coldSiteRoutes";
 import { createColdDepthClient, type ColdDepthClient } from "../sites/ColdDepthClient";
@@ -263,7 +263,7 @@ export function SitePerformanceFrame({
               mode={deriveSiteView(site).sourceMode}
               window={window}
               client={evAssessment}
-              tabs={<OperatorSiteTabs siteId={siteId} current="Performance" />}
+              tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Performance" hrefs={EV_SITE_TAB_HREFS} search={search} />}
               parentTrail={[
                 { label: "Sites", to: sitesPath },
                 { label: site.display_name, to: siteDetailHref(site.site_id) },
@@ -663,7 +663,7 @@ export function SiteFindingFrame({
               findingId={id}
               window={coldWindowFromParams(params)}
               client={evAssessment}
-              tabs={<OperatorSiteTabs siteId={siteId} current="Findings" />}
+              tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={EV_SITE_TAB_HREFS} search={search} />}
               parentTrail={[
                 { label: "Sites", to: sitesPath },
                 { label: site.display_name, to: siteDetailHref(site.site_id) },

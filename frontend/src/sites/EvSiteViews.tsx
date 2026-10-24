@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { selectedClassification } from "./sourceProvenance";
 import { classificationWord } from "./coldAssessmentWords";
@@ -40,6 +40,7 @@ import type {
 } from "./evSiteClient";
 import { EvScenarios } from "./EvScenarios";
 import { createEvScenariosClient, type EvScenariosClient } from "./evScenariosClient";
+import { renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
 import { EvPowerChart } from "./assessmentGraphics";
 import "./w2-ev-site.css";
 
@@ -312,7 +313,15 @@ function StateNote({ env }: { env: EvEnvelope }) {
 }
 
 /** The selected window and cutoff (copy ledger: `{from}–{to} UTC · known at {known_at} UTC`). */
+/** post-W6 W2-EV (Q14): each screen's window bar reports its loaded read's selected query to the frame's main tabs. */
+const ReportSelected = createContext<((search: string) => void) | null>(null);
+
 function WindowBar({ env, extra }: { env: EvEnvelope | null; extra?: string | null }) {
+  const report = useContext(ReportSelected);
+  const search = selectedWindowSearch(env);
+  useEffect(() => {
+    report?.(search);
+  }, [report, search]);
   if (env === null) return null;
   const w = env.window;
   const text = w.from === null || w.to === null ? "No window selected" : `${dayHm(w.from)}–${dayHm(w.to)} UTC · known at ${dayHm(w.known_at)} UTC`;
@@ -334,7 +343,8 @@ export interface EvSiteFrameProps {
   window: EvWindowQuery;
   client: EvSiteClient;
   routes: EvSiteRoutes;
-  tabs: ReactNode;
+  /** post-W6 W2-EV (Q14): a function receives the loaded read's selected `?from=&to=&known_at=` ("" when none). */
+  tabs: EvTabs;
   parentTrail: Crumb[];
   /** W5-03b E6: the authored clock from the address, carried only by the Scenarios entry. */
   scenarioAt?: string | null;
@@ -416,25 +426,32 @@ function Subtabs({ view, routes, window, scenarioAt }: { view: EvSiteView; route
 
 export function EvSiteFrame(props: EvSiteFrameProps) {
   const { view } = props;
+  // The selected query belongs to this view and requested window only; a stale report never reaches the tabs.
+  const selectedKey = `${view}|${keyOf(props, "tabs")}`;
+  const [selected, setSelected] = useState<{ key: string; search: string } | null>(null);
+  const report = useCallback((search: string) => setSelected({ key: selectedKey, search }), [selectedKey]);
+  const search = selected !== null && selected.key === selectedKey ? selected.search : "";
   return (
     <main aria-labelledby={EV_SITE_HEADING_ID} data-ev-site-view={SCREEN[view]}>
       <Breadcrumbs trail={[...props.parentTrail, ...CRUMB[view]]} />
       <SitePageHeader siteName={props.siteName} siteId={props.siteId} mode={props.mode} description={DESCRIPTION[view]} headingId={EV_SITE_HEADING_ID} />
-      {props.tabs}
+      {renderEvTabs(props.tabs, search)}
       <Subtabs view={view} routes={props.routes} window={props.window} scenarioAt={props.scenarioAt ?? null} />
-      {view === "overview" ? (
-        <OverviewScreen {...props} />
-      ) : view === "evidence" ? (
-        <EvidenceScreen {...props} />
-      ) : view === "analysis" ? (
-        <AnalysisScreen {...props} />
-      ) : view === "financials" ? (
-        <FinancialsScreen {...props} />
-      ) : view === "scenarios" ? (
-        <EvScenarios siteCode={props.siteId} window={props.window} scenarioAt={props.scenarioAt ?? null} client={props.scenarios ?? DEFAULT_SCENARIOS} />
-      ) : (
-        <AssumptionsScreen {...props} />
-      )}
+      <ReportSelected.Provider value={report}>
+        {view === "overview" ? (
+          <OverviewScreen {...props} />
+        ) : view === "evidence" ? (
+          <EvidenceScreen {...props} />
+        ) : view === "analysis" ? (
+          <AnalysisScreen {...props} />
+        ) : view === "financials" ? (
+          <FinancialsScreen {...props} />
+        ) : view === "scenarios" ? (
+          <EvScenarios siteCode={props.siteId} window={props.window} scenarioAt={props.scenarioAt ?? null} client={props.scenarios ?? DEFAULT_SCENARIOS} />
+        ) : (
+          <AssumptionsScreen {...props} />
+        )}
+      </ReportSelected.Provider>
     </main>
   );
 }

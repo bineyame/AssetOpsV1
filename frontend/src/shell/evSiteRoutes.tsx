@@ -86,7 +86,7 @@ export function SiteEvFrame({
             scenarios={evScenarios}
             client={evSite}
             routes={evSiteRoutes(site.site_id)}
-            tabs={<OperatorSiteTabs siteId={site.site_id} current={CURRENT_TAB[view]} />}
+            tabs={(search) => <OperatorSiteTabs siteId={site.site_id} current={CURRENT_TAB[view]} hrefs={EV_SITE_TAB_HREFS} search={search} />}
             parentTrail={[
               { label: "Sites", to: sitesPath },
               view === "overview" ? { label: site.display_name } : { label: site.display_name, to: siteDetailHref(site.site_id) },

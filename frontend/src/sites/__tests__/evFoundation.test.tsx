@@ -549,35 +549,55 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(Array.from(diagram.querySelectorAll("[data-ev-dot]")).every((d) => d.getAttribute("data-ev-dot") === "unknown")).toBe(true);
   });
 
-  it("ev-readiness shows Financials and Assumptions as unavailable entries, and keeps supported links live", async () => {
-    for (const read of [STOCKED, MISSING_ROLE]) {
-      renderEv(`${BASE}/readiness`, loaded(read));
+  it("post-W6 W2-EV R265 (Q1): ev-readiness Financials and Assumptions open the EV pages with no invented window", async () => {
+    for (const [read, query] of [[STOCKED, ""], [MISSING_ROLE, "?at=2026-10-06T09:00:00.000000Z"]] as const) {
+      renderEv(`${BASE}/readiness${query}`, loaded(read));
       await settledScreen();
       const m = main();
-      const panels = Array.from(m.querySelectorAll("section.panel")) as HTMLElement[];
-      expect(panels.length).toBeGreaterThan(0);
-      for (const [label, count] of [["Financials", 1], ["Assumptions", 1]] as const) {
-        const entries = Array.from(m.querySelectorAll(`[data-link-unavailable="${label}"]`)) as HTMLElement[];
-        expect(entries, label).toHaveLength(count);
-        for (const entry of entries) {
-          expect(entry.textContent).toBe(`${label} · Not available yet`);
-          expectUnavailableEntry(entry.closest("ul") as HTMLElement, label);
-          expect(entry.getAttribute("aria-label"), label).toBe(`${label}, Not available yet`);
-          expect(entry.hasAttribute("tabindex"), label).toBe(false);
-          expect(entry.querySelector("a, button, [tabindex]"), label).toBeNull();
-          const before = window.location.href;
-          entry.click();
-          expect(window.location.href, label).toBe(before);
-        }
-        for (const panel of panels) expect(within(panel).queryByRole("link", { name: new RegExp(`^${label}`) })).toBeNull();
-      }
-      for (const panel of panels) expect(panel.querySelectorAll('a[href*="financials"], a[href*="assumptions"], a[href*="health"]')).toHaveLength(0);
+      const billing = m.querySelector('[data-ev-readiness-row="billing"]') as HTMLElement;
+      const tariff = m.querySelector('[data-ev-readiness-row="tariff"]') as HTMLElement;
+      expect(within(billing).getByRole("link", { name: "Financials →" }).getAttribute("href")).toBe("/sites/EV-LAB-001/ev/financials");
+      expect(within(tariff).getByRole("link", { name: "Assumptions →" }).getAttribute("href")).toBe("/sites/EV-LAB-001/ev/financial-assumptions");
+      expect(m.querySelector('[data-link-unavailable="Financials"]')).toBeNull();
+      expect(m.querySelector('[data-link-unavailable="Assumptions"]')).toBeNull();
+      expect(m.querySelectorAll('a[href^="/sites/EV-LAB-001/financial"]')).toHaveLength(0);
+      // The remaining unbuilt destination keeps its unavailable entry.
+      expect(m.querySelector('[data-link-unavailable="Investigation action"]')).not.toBeNull();
       expect(within(m).getAllByRole("link", { name: /Single line diagram/ }).length).toBeGreaterThan(0);
-      expect(within(m).getAllByRole("link", { name: /Evidence/ }).length).toBeGreaterThan(0);
       expect(within(m).getAllByRole("link", { name: /Site model/ }).length).toBeGreaterThan(0);
-      expect(m.querySelector('[data-link-unavailable="Health › Data sources"]')).toBeNull();
       cleanup();
     }
+  });
+
+  it("post-W6 W2-EV R267 (Q2): source reference labels name the part and stay unique, with no React key warning", async () => {
+    const errors = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    // Two connectors sharing a role, plus a binding with no declared part (falls back to its device).
+    const dup: EvFoundationReadModel = {
+      ...STOCKED,
+      bindings: [...STOCKED.bindings, { ...bind("ev_site_import", "site-meter-1", "site-meter-2", "import", "kW", 300) }, { ...bind("ev_site_import", "x", "meter-x", "import", "kW", 300), asset_id: null }],
+    };
+    renderEv(`${BASE}/readiness`, loaded(dup));
+    await settledScreen();
+    const refs = main().querySelector('[data-disclosure="ev-source-references"]') as HTMLElement;
+    const labels = Array.from(refs.querySelectorAll("dt")).map((dt) => dt.textContent ?? "");
+    expect(labels).toHaveLength(dup.bindings.length);
+    expect(new Set(labels).size).toBe(labels.length);
+    expect(labels.some((l) => l.includes("Connector c1"))).toBe(true);
+    expect(labels.some((l) => l.includes("Connector c2"))).toBe(true);
+    expect(labels.some((l) => l.endsWith("· meter-x"))).toBe(true);
+    expect(errors.mock.calls.some((c) => String(c[0]).includes("same key"))).toBe(false);
+    errors.mockRestore();
+  });
+
+  it("post-W6 W2-EV (Q14): the EV Foundation main tabs open the EV Overview, Evidence and Financials", async () => {
+    renderEv(`${BASE}/readiness`, loaded(STOCKED));
+    await settledScreen();
+    const tabs = document.querySelector('nav[aria-label="Site sections"]') as HTMLElement;
+    const href = (name: string) => within(tabs).getByRole("link", { name }).getAttribute("href");
+    expect(href("Overview")).toBe("/sites/EV-LAB-001/ev");
+    expect(href("Evidence")).toBe("/sites/EV-LAB-001/ev/evidence");
+    expect(href("Financials")).toBe("/sites/EV-LAB-001/ev/financials");
+    expect(href("Foundation")).toBe("/sites/EV-LAB-001/foundation");
   });
 
   it("W5-03b E4 (ruling 3): both source controls open EV Evidence > Data sources with only a valid window", async () => {

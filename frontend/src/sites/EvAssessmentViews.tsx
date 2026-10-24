@@ -19,6 +19,7 @@ import {
 } from "../ui";
 import { UnavailableInline, UnavailableLinkEntry, UnavailableTab } from "../ui/UnavailableEntry";
 import { coldWindowSearch } from "./coldAssessmentClient";
+import { renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
 import { selectedSourceBlock } from "./sourceProvenance";
 import { classificationWord, lifecycleWord } from "./coldAssessmentWords";
 import { dayHm, hm } from "./coldFormat";
@@ -543,7 +544,8 @@ export interface EvSessionsFrameProps {
   mode: string | null;
   window: EvWindowQuery;
   client: EvAssessmentClient;
-  tabs: ReactNode;
+  /** post-W6 W2-EV (Q14): a function receives the loaded read's selected `?from=&to=&known_at=` ("" when none). */
+  tabs: EvTabs;
   parentTrail: Crumb[];
   sessionsHref: string;
   findingHref: (findingId: string) => string;
@@ -603,7 +605,7 @@ function EvDepthPage({ view, props }: { view: EvPerformanceView; props: EvSessio
         description={SITE_SCREEN_DESCRIPTIONS[SCREEN_OF[view]]}
         headingId={EV_SESSIONS_HEADING_ID}
       />
-      {props.tabs}
+      {renderEvTabs(props.tabs, "")}
       <EvPerformanceSubtabs view={view} props={props} />
       {props.depth}
     </main>
@@ -625,7 +627,7 @@ function EvSessionsPage(props: EvSessionsFrameProps) {
         description={SITE_SCREEN_DESCRIPTIONS.sessions}
         headingId={EV_SESSIONS_HEADING_ID}
       />
-      {props.tabs}
+      {renderEvTabs(props.tabs, selectedWindowSearch(read))}
       <EvPerformanceSubtabs view="sessions" props={props} />
       {sessions === null ? (
         <p>{EV_LOADING}</p>
@@ -652,7 +654,8 @@ export interface EvFindingFrameProps {
   findingId: string;
   window: EvWindowQuery;
   client: EvAssessmentClient;
-  tabs: ReactNode;
+  /** post-W6 W2-EV (Q14): a function receives the loaded read's selected `?from=&to=&known_at=` ("" when none). */
+  tabs: EvTabs;
   parentTrail: Crumb[];
 }
 
@@ -839,7 +842,7 @@ export function EvFindingFrame(props: EvFindingFrameProps) {
     <main aria-labelledby={EV_FINDING_HEADING_ID} data-ev-view="ev-finding">
       <Breadcrumbs trail={[...props.parentTrail, { label: "Finding" }]} />
       <PageHeader title={detail?.title ?? "Finding"} headingId={EV_FINDING_HEADING_ID} subtitle={`${props.siteName} · EV charging finding`} />
-      {props.tabs}
+      {renderEvTabs(props.tabs, selectedWindowSearch(detail))}
       <nav className="site-tabs site-subtabs" aria-label="Finding sections">
         <ol className="site-tabs__list">
           <li className="site-tabs__item">

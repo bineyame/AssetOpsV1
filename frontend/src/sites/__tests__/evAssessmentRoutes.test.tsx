@@ -820,3 +820,41 @@ describe("W3-01 r1 M1/M2: selected versus pending source copy", () => {
     expect(strip()).toContain("Current accepted evidence source: Mixed sources");
   });
 });
+
+describe("post-W6 W2-EV (Q14/Q23): EV Sessions and Finding main tabs carry the selected read's window", () => {
+  const SEL = `?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
+  const tabHrefs = () =>
+    Object.fromEntries(Array.from(document.querySelectorAll('nav[aria-label="Site sections"] a')).map((a) => [a.textContent ?? "", a.getAttribute("href")]));
+
+  it("sessions: EV destinations with the selected window; the raw address extras never ride along", async () => {
+    renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}&gateway=GW-1`, ok(STATES.complete));
+    await settledScreen();
+    const tabs = tabHrefs();
+    expect(tabs.Overview).toBe(`/sites/${CODE}/ev${SEL}`);
+    expect(tabs.Evidence).toBe(`/sites/${CODE}/ev/evidence${SEL}`);
+    expect(tabs.Financials).toBe(`/sites/${CODE}/ev/financials${SEL}`);
+    expect(tabs.Findings).toBe(`/sites/${CODE}/findings${SEL}`);
+    expect(Object.values(tabs).some((h) => (h ?? "").includes("gateway"))).toBe(false);
+  });
+
+  it("sessions refused and finding refused: tabs carry no window", async () => {
+    renderEv(`${SESSIONS}?from=${FROM}&to=${TO}`, refused(503, "EV_READ_UNAVAILABLE"));
+    await settledScreen();
+    expect(tabHrefs().Overview).toBe(`/sites/${CODE}/ev`);
+    expect(Object.values(tabHrefs()).some((h) => (h ?? "").includes("?"))).toBe(false);
+    cleanup();
+    renderEv(FINDING_PATH, ok(STATES.complete), refused(404, "EV_FINDING_NOT_FOUND"));
+    await settledScreen();
+    expect(tabHrefs().Overview).toBe(`/sites/${CODE}/ev`);
+    expect(tabHrefs().Findings).toBe(`/sites/${CODE}/findings`);
+  });
+
+  it("finding: EV destinations at the Finding read's selected window", async () => {
+    renderEv(FINDING_PATH, ok(STATES.complete));
+    await settledScreen();
+    const tabs = tabHrefs();
+    expect(tabs.Overview).toBe(`/sites/${CODE}/ev${SEL}`);
+    expect(tabs.Evidence).toBe(`/sites/${CODE}/ev/evidence${SEL}`);
+    expect(tabs.Financials).toBe(`/sites/${CODE}/ev/financials${SEL}`);
+  });
+});
