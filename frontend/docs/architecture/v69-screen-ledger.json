@@ -2070,31 +2070,20 @@
       "id": "ev-work",
       "mock_route": "#/ev-work",
       "product_destination": "Sites > Work",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 EV domain",
-      "data_owner": "Unassigned Site/domain read model",
-      "supported_claim": "No S1-S7 product claim. ActionIndex needs a reviewed data and claim contract.",
+      "coverage": "partial",
+      "task": "W5-04",
+      "follow_on": null,
+      "data_owner": "domain_action and selected domain_action_intent",
+      "supported_claim": "Stored EV work and declared intent only; no completed-session, no-recurrence or availability pass is inferred.",
       "interaction": "Open Sites > Work and follow its primary record or selected window; interaction contract pending.",
       "unknown_or_empty": "Show unavailable/Unknown until ActionIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-work",
-      "proposed_fidelity_tier": "Deferred",
+      "proposed_fidelity_tier": "Real with honest gaps",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "MaintenanceIndex"
-          ],
-          "projection_contracts": [
-            "ActionIndex"
-          ],
-          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
-          "unresolved_panels": [
-            "Actions at this site"
-          ],
+          "unresolved_panels": [],
           "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
@@ -2104,29 +2093,20 @@
       "id": "ev-work-incidents",
       "mock_route": "#/ev-work-incidents",
       "product_destination": "Sites > Work",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 EV domain",
-      "data_owner": "Unassigned Site/domain read model",
-      "supported_claim": "No S1-S7 product claim. IncidentIndex needs a reviewed data and claim contract.",
+      "coverage": "partial",
+      "task": "W5-04",
+      "follow_on": null,
+      "data_owner": "work_case and selected work_case_revision",
+      "supported_claim": "Stored EV work and declared intent only; no completed-session, no-recurrence or availability pass is inferred.",
       "interaction": "Open Sites > Work and follow its primary record or selected window; interaction contract pending.",
       "unknown_or_empty": "Show unavailable/Unknown until IncidentIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-work-incidents",
-      "proposed_fidelity_tier": "Deferred",
+      "proposed_fidelity_tier": "Real with honest gaps",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "IncidentIndex"
-          ],
-          "projection_contracts": [],
-          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
-          "unresolved_panels": [
-            "Incidents at this site"
-          ],
+          "unresolved_panels": [],
           "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
@@ -2136,29 +2116,20 @@
       "id": "ev-work-maintenance",
       "mock_route": "#/ev-work-maintenance",
       "product_destination": "Sites > Work",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 EV domain",
-      "data_owner": "Unassigned Site/domain read model",
-      "supported_claim": "No S1-S7 product claim. MaintenanceIndex needs a reviewed data and claim contract.",
+      "coverage": "partial",
+      "task": "W5-04",
+      "follow_on": null,
+      "data_owner": "maintenance_work_request and performed record",
+      "supported_claim": "Stored EV work and declared intent only; no completed-session, no-recurrence or availability pass is inferred.",
       "interaction": "Open Sites > Work and follow its primary record or selected window; interaction contract pending.",
       "unknown_or_empty": "Show unavailable/Unknown until MaintenanceIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-work-maintenance",
-      "proposed_fidelity_tier": "Deferred",
+      "proposed_fidelity_tier": "Real with honest gaps",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "MaintenanceIndex"
-          ],
-          "projection_contracts": [],
-          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
-          "unresolved_panels": [
-            "Maintenance at this site"
-          ],
+          "unresolved_panels": [],
           "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
