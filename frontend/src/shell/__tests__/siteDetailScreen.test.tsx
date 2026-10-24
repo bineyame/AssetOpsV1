@@ -147,7 +147,7 @@ function renderAt(
 const SITE_PATH = "/sites/MG-002";
 
 describe("the breadcrumb trail leads from the Sites index to this Site", () => {
-  it("names the parent and then the Site, and only those", async () => {
+  it("names the parent, the Site and the current Overview leaf, and only those (post-W6 W1-a Q1 / R156)", async () => {
     renderAt(SITE_PATH);
     await settledScreen();
 
@@ -155,7 +155,7 @@ describe("the breadcrumb trail leads from the Sites index to this Site", () => {
 
     expect(
       Array.from(trail.querySelectorAll("li")).map((item) => item.textContent),
-    ).toEqual(["Sites", "Kalangala Mini-Grid"]);
+    ).toEqual(["Sites", "Kalangala Mini-Grid", "Overview"]);
   });
 
   it("does not link the page to itself", async () => {
@@ -168,10 +168,11 @@ describe("the breadcrumb trail leads from the Sites index to this Site", () => {
       within(trail)
         .getAllByRole("link")
         .map((link) => [link.textContent, link.getAttribute("href")]),
-    ).toEqual([["Sites", "/sites"]]);
-    expect(trail.querySelector('[aria-current="page"]')?.textContent).toBe(
-      "Kalangala Mini-Grid",
-    );
+    ).toEqual([
+      ["Sites", "/sites"],
+      ["Kalangala Mini-Grid", "/sites/MG-002"],
+    ]);
+    expect(trail.querySelector('[aria-current="page"]')?.textContent).toBe("Overview");
   });
 
   it("names the Site the way the record names it, never the raw code (W1-F5b carry 11)", async () => {

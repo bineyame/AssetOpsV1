@@ -27,6 +27,9 @@ import {
   siteFindingHref,
   siteFindingsHref,
   sitePerformanceHref,
+  siteAssetsHref,
+  siteDetailHref,
+  siteFoundationViewHref,
 } from "./operatorSiteRoutes";
 import { findingIndexScopeQuery } from "./SiteAnalyticsFrames";
 import { simulatorLabSiteActions } from "./simulatorLabRoutes";
@@ -138,6 +141,7 @@ export function SiteDetailFrame({
         templateLineage={templateLineage}
         tabs={<OperatorSiteTabs siteId={siteId} current="Overview" />}
         parentTrail={() => [{ label: "Sites", to: sitesPath }]}
+        siteHref={siteDetailHref}
         overview={(canonicalId, site) => (
           <SiteOverview
             mini={
@@ -173,6 +177,8 @@ export function SiteDetailFrame({
               assumption: (revisionId) => siteFinancialAssumptionsHref(canonicalId, { revisionId }),
               evidenceRecord: (evidenceId) => siteEvidenceAcceptedRecordHref(canonicalId, evidenceId),
               findingList: (scope) => `${siteFindingsHref(canonicalId)}?${findingIndexScopeQuery(scope)}`,
+              assets: siteAssetsHref(canonicalId),
+              sld: (at) => siteFoundationViewHref(canonicalId, "sld", at),
             }}
             findingIndex={findingIndex}
             analysisHref={(assessmentId, isFinding) =>
