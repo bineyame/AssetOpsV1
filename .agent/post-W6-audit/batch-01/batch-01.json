@@ -34,7 +34,7 @@
   "asset": "/sites/:siteId/assets/:assetId mounted",
   "note": "/sites/:siteId/assets (SiteAssetsFrame, the 'Battery' list) is also mounted; it is the intermediate breadcrumb of `asset`, not the manifest `assets` register. Architect to confirm it stays out of the denominator."
  },
- "pair_count": 30,
+ "pair_count": 38,
  "representative_pairs": 12,
  "register_d3_closure": {
   "R22": "cold-health; not on batch-01 screens",
@@ -53,7 +53,7 @@
   "R88_R112_window_control": "Not applicable: no Window control on these screens."
  },
  "blockers": [
-  "B1-50: changes applied/effect states (s601b/s602b) and asset s701 states need producer DBs named assetops_s601b*/s602b*/s701_owner* that must not end in _test, which conflicts with the audit DB rule assetops_audit_b1*_test."
+  "B1-50 resolved for the applied state (owner scratch-DB authorization). Remaining gap: the s602b 'later effect' change state needs a second API port (s602b serve/capture bind --port+1); not captured."
  ],
  "differences": [
   {
@@ -221,8 +221,8 @@
   {
    "id": "B1-50",
    "screens": "changes",
-   "observed": "BLOCKED: the representative populated (applied / effect) change state could not be captured. The s601b/s602b producers refuse any DB name ending in _test, and this audit may only use assetops_audit_b1*_test. The v01a data has no change records (action_policy_change 0 rows).",
-   "proposed_disposition": "Blocker for the coordinator. Rerun with an authorised assetops_s601b* audit DB, or authorise a name exception."
+   "observed": "RESOLVED by the owner's producer scratch-DB authorization (2026-10-24, main 1db7360c): the unmodified s601b producer (assetops_s601b_audit) gave the applied change, captured as changes:applied at 1440/390. The s602b 'later effect' state is still not captured: s602b `serve`/`capture` always start a second, TEST-SCOPED API on --port+1 (18102), outside this batch's port allocation (18101/5181).",
+   "proposed_disposition": "Resolved for applied. Effect state: needs a second API port (or a coordinator ruling), then rerun s602b unmodified."
   },
   {
    "id": "B1-51",
@@ -269,8 +269,26 @@
   {
    "id": "B1-66",
    "screens": "asset",
-   "observed": "Refusals: unknown asset on KOBO-001 gives an in-frame refusal at 14 px (B1-07); unknown Site gives 'Site not found' / 'No such site' (1 panel vs mock 3) with the 369 px band at 390 (B1-02). W1-F5b's 3-slot refusal (stored KOBO-002 without a battery) cannot be reproduced: v01a data stores no KOBO-002, and the s701 producer is blocked as in B1-50.",
-   "proposed_disposition": "Refusal structure: existing W1-F5b accepted pattern (no Rxx). Architect to confirm or register it. Producer gap: blocker note."
+   "observed": "Refusals: the W1-F5b 3-slot refusal (s701, stored KOBO-002 with no battery) is now captured. The three panel titles match the mock, with one-sentence gap statements at 14 px (B1-07) and the generic h1 'Battery'. Unknown asset on KOBO-001 gives the same 3-slot pattern. Unknown Site gives 'Site not found' / 'No such site' (1 panel vs mock 3) with the 369 px band at 390 (B1-02). The s701 battery capture equals the v01a one (same panel heights).",
+   "proposed_disposition": "Refusal structure: existing W1-F5b accepted pattern (no Rxx). Architect to confirm or register it. Generic h1 'Battery' on refusal: candidate D4."
+  },
+  {
+   "id": "B1-52",
+   "screens": "changes",
+   "observed": "Applied state: table header 'After' vs mock 'Proposed'; 2 rows (Battery reserve, Foundation version) vs 4; the Target and Guardrails cards read 'Not recorded yet' and Outcome reads 'No verification plan yet'; Decision path step 1 has no 'Inspect plan' link ('Not recorded yet') and step 2 adds 'Application record'. Panel 1.26x (1440) and 1.34x (390).",
+   "proposed_disposition": "Header: candidate D4 (state-correct label for an applied change). Cards/links: candidate D1 (no frozen plan in this record). 1.34x at 390: carried W1-F5b reason (outcome/applied-by rows, failed attempts, disclosure); needs a ruling."
+  },
+  {
+   "id": "B1-53",
+   "screens": "changes",
+   "observed": "Applied state shows raw system vocabulary: a battery asset UUID in monospace ('Battery 2deeca26-...') and failure codes ACTION_FOUNDATION_STALE, ACTION_VALUE_INVALID and ACTION_EFFECTIVE_TIME_INVALID in the 'earlier attempts' line.",
+   "proposed_disposition": "(c) D3 candidate (client-facing copy: no system vocabulary; the plain-language mapping is renderable). Shared copy fix owner, like the carried raw 'c1 - EV_CONNECTOR' label."
+  },
+  {
+   "id": "B1-54",
+   "screens": "changes",
+   "observed": "Breadcrumb leaf is 'Change' on the applied state and 'Change & effect' on the bare page; mock 'Sites > Kobo Mini-grid > Foundation'. The page-end note is a left-bar 13 px note against the mock's boxed 11 px info callout.",
+   "proposed_disposition": "Breadcrumb: (c) minor D3 candidate (inconsistent leaf). Note style/size: part of B1-06/B1-07."
   }
  ],
  "pairs": [
@@ -6609,7 +6627,7 @@
    "screen": "changes",
    "case": "no-selection",
    "width": "1440",
-   "representative": true,
+   "representative": false,
    "route": "/sites/KOBO-001/foundation/changes",
    "app_url": "http://localhost:5181/sites/KOBO-001/foundation/changes",
    "mock_hash": "#/changes",
@@ -6902,7 +6920,10 @@
     "B1-05",
     "B1-06",
     "B1-50",
-    "B1-51"
+    "B1-51",
+    "B1-52",
+    "B1-53",
+    "B1-54"
    ],
    "structure_note": "panel count and order match",
    "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
@@ -6911,7 +6932,7 @@
    "screen": "changes",
    "case": "no-selection",
    "width": "390",
-   "representative": true,
+   "representative": false,
    "route": "/sites/KOBO-001/foundation/changes",
    "app_url": "http://localhost:5181/sites/KOBO-001/foundation/changes",
    "mock_hash": "#/changes",
@@ -7211,7 +7232,10 @@
     "B1-05",
     "B1-06",
     "B1-50",
-    "B1-51"
+    "B1-51",
+    "B1-52",
+    "B1-53",
+    "B1-54"
    ],
    "structure_note": "panel count and order match",
    "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
@@ -7513,7 +7537,10 @@
     "B1-05",
     "B1-06",
     "B1-50",
-    "B1-51"
+    "B1-51",
+    "B1-52",
+    "B1-53",
+    "B1-54"
    ],
    "structure_note": "panel count and order match",
    "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
@@ -7822,7 +7849,10 @@
     "B1-05",
     "B1-06",
     "B1-50",
-    "B1-51"
+    "B1-51",
+    "B1-52",
+    "B1-53",
+    "B1-54"
    ],
    "structure_note": "panel count and order match",
    "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
@@ -10211,6 +10241,2634 @@
     "B1-16"
    ],
    "structure_note": "panel count and order match",
+   "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
+  },
+  {
+   "screen": "changes",
+   "case": "applied",
+   "width": "1440",
+   "representative": true,
+   "route": "/sites/KOBO-001/foundation/changes/f272ee05-9239-4a66-b63f-d2108e9d6ca4",
+   "app_url": "http://localhost:5181/sites/KOBO-001/foundation/changes/f272ee05-9239-4a66-b63f-d2108e9d6ca4",
+   "mock_hash": "#/changes",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit prepare; serve --port 18101 --web-port 5181 (unmodified; owner authorization 2026-10-24); dropped by its drop mode",
+   "selected": "KOBO-001; Action d23ec457-3aa6-4a7e-8dca-7f8f76393c81; applied change f272ee05-9239-4a66-b63f-d2108e9d6ca4 (D-action-records builder, fixture clock 2026-10-29..11-01)",
+   "window": "none (Foundation views use ?at= or now)",
+   "app_titles": [
+    "Change and effect",
+    "Decision path"
+   ],
+   "mock_titles": [
+    "Change and effect",
+    "Decision path"
+   ],
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Change and effect",
+     "app_h": 401,
+     "mock_title": "Change and effect",
+     "mock_h": 319,
+     "ratio": 1.26,
+     "over_limit": false,
+     "app_rows": 2,
+     "mock_rows": 4,
+     "app_columns": [
+      "Field",
+      "Before",
+      "After",
+      "Purpose"
+     ],
+     "mock_columns": [
+      "Field",
+      "Before",
+      "Proposed",
+      "Purpose"
+     ],
+     "app_links": [
+      "The Action (SYSTEM demonstration) →",
+      "1 Nov 2026, 01:00 UTC",
+      "1 Nov 2026, 01:02 UTC",
+      "1 Nov 2026, 01:03 UTC"
+     ],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": [
+      "Versions and records this change names"
+     ]
+    },
+    {
+     "title": "Decision path",
+     "app_h": 401,
+     "mock_title": "Decision path",
+     "mock_h": 319,
+     "ratio": 1.26,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [
+      "Application record →",
+      "Inspect accepted evidence →",
+      "View verification →"
+     ],
+     "mock_links": [
+      "Inspect plan →",
+      "Inspect accepted evidence →",
+      "View verification →"
+     ],
+     "app_chips": [
+      "No verification plan yet"
+     ],
+     "mock_chips": [],
+     "app_disclosures": []
+    }
+   ],
+   "max_ratio": 1.26,
+   "over_limit_panels": [],
+   "typography": {
+    "h1": {
+     "app": {
+      "text": "Kobo mini-grid",
+      "family": "system-ui",
+      "size": "27px",
+      "weight": "650",
+      "lineHeight": "33.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 44
+     },
+     "mock": {
+      "text": "Kobo Mini-grid",
+      "family": "system-ui",
+      "size": "27px",
+      "weight": "650",
+      "lineHeight": "33.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 165
+     }
+    },
+    "h2": {
+     "app": {
+      "text": "Change and effect",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Change and effect",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "prose": {
+     "app": null,
+     "mock": null
+    },
+    "td": {
+     "app": {
+      "text": "Battery reserve",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Stop threshold",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "th": {
+     "app": {
+      "text": "Field",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "14.4px",
+      "color": "rgb(107, 118, 144)"
+     },
+     "mock": {
+      "text": "Field",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "body": {
+     "app": {
+      "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "panel_paragraph_sizes": {
+     "app": {
+      "10px": 1,
+      "11px": 3
+     },
+     "mock": {
+      "11px": 3
+     }
+    },
+    "page_end_note": {
+     "app": {
+      "text": "There is no list of Site changes yet; a change is reached fr",
+      "family": "system-ui",
+      "size": "13px",
+      "weight": "400",
+      "lineHeight": "19.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Illustrative proposal. No real controller command is sent by",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "18.15px",
+      "color": "rgb(69, 96, 128)"
+     }
+    },
+    "prose_class_count": {
+     "app": 0,
+     "mock": 0
+    }
+   },
+   "colours": {
+    "body_bg": {
+     "app": "rgb(245, 247, 251)",
+     "mock": "rgb(245, 247, 251)"
+    },
+    "panel": {
+     "app": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     "mock": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    },
+    "rail": {
+     "app": {
+      "y": 0,
+      "w": 216,
+      "h": 1000,
+      "bg": "rgb(22, 35, 63)"
+     },
+     "mock": {
+      "y": 44,
+      "w": 204,
+      "h": 957,
+      "bg": "rgb(22, 35, 63)"
+     }
+    }
+   },
+   "shell": {
+    "first_panel_y": {
+     "app": 471,
+     "mock": 547
+    },
+    "dark_band_390_px": null,
+    "page_height": {
+     "app": 1000,
+     "mock": 1001
+    }
+   },
+   "tabs": {
+    "app": [
+     {
+      "label": "Breadcrumb",
+      "items": [
+       "Sites",
+       "Kobo mini-grid",
+       "Foundation",
+       "Change [current] [disabled]"
+      ]
+     },
+     {
+      "label": "Site sections",
+      "items": [
+       "Overview",
+       "Foundation [current]",
+       "Health",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "label": "Foundation views",
+      "items": [
+       "Site model",
+       "Single line diagram",
+       "Readiness",
+       "Change & effect [current]"
+      ]
+     }
+    ],
+    "mock": [
+     {
+      "label": "Context tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "label": "Section views",
+      "items": [
+       "Site model",
+       "Single line diagram",
+       "Readiness",
+       "Change & effect"
+      ]
+     }
+    ]
+   },
+   "overflow_x": 0,
+   "clipped_text_candidates": [
+    "Changed value"
+   ],
+   "clipped_note": "the listed leaves are visually-hidden labels/select text (sr-only clip), not clipped material text",
+   "inner_scrollers": [],
+   "app_image": "s601b/changes-applied-1440-app.png",
+   "mock_image": "s601b/changes-applied-1440-mock.png",
+   "findings": [
+    "B1-01",
+    "B1-02",
+    "B1-03",
+    "B1-04",
+    "B1-05",
+    "B1-06",
+    "B1-50",
+    "B1-51",
+    "B1-52",
+    "B1-53",
+    "B1-54"
+   ],
+   "structure_note": "panel count and order match",
+   "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
+  },
+  {
+   "screen": "changes",
+   "case": "applied",
+   "width": "390",
+   "representative": true,
+   "route": "/sites/KOBO-001/foundation/changes/f272ee05-9239-4a66-b63f-d2108e9d6ca4",
+   "app_url": "http://localhost:5181/sites/KOBO-001/foundation/changes/f272ee05-9239-4a66-b63f-d2108e9d6ca4",
+   "mock_hash": "#/changes",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit prepare; serve --port 18101 --web-port 5181 (unmodified; owner authorization 2026-10-24); dropped by its drop mode",
+   "selected": "KOBO-001; Action d23ec457-3aa6-4a7e-8dca-7f8f76393c81; applied change f272ee05-9239-4a66-b63f-d2108e9d6ca4 (D-action-records builder, fixture clock 2026-10-29..11-01)",
+   "window": "none (Foundation views use ?at= or now)",
+   "app_titles": [
+    "Change and effect",
+    "Decision path"
+   ],
+   "mock_titles": [
+    "Change and effect",
+    "Decision path"
+   ],
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Change and effect",
+     "app_h": 552,
+     "mock_title": "Change and effect",
+     "mock_h": 411,
+     "ratio": 1.34,
+     "over_limit": true,
+     "app_rows": 2,
+     "mock_rows": 4,
+     "app_columns": [
+      "Field",
+      "Before",
+      "After",
+      "Purpose"
+     ],
+     "mock_columns": [
+      "Field",
+      "Before",
+      "Proposed",
+      "Purpose"
+     ],
+     "app_links": [
+      "The Action (SYSTEM demonstration) →",
+      "1 Nov 2026, 01:00 UTC",
+      "1 Nov 2026, 01:02 UTC",
+      "1 Nov 2026, 01:03 UTC"
+     ],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": [
+      "Versions and records this change names"
+     ]
+    },
+    {
+     "title": "Decision path",
+     "app_h": 330,
+     "mock_title": "Decision path",
+     "mock_h": 353,
+     "ratio": 0.93,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [
+      "Application record →",
+      "Inspect accepted evidence →",
+      "View verification →"
+     ],
+     "mock_links": [
+      "Inspect plan →",
+      "Inspect accepted evidence →",
+      "View verification →"
+     ],
+     "app_chips": [
+      "No verification plan yet"
+     ],
+     "mock_chips": [],
+     "app_disclosures": []
+    }
+   ],
+   "max_ratio": 1.34,
+   "over_limit_panels": [
+    "Change and effect"
+   ],
+   "typography": {
+    "h1": {
+     "app": {
+      "text": "Kobo mini-grid",
+      "family": "system-ui",
+      "size": "23px",
+      "weight": "650",
+      "lineHeight": "28.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 127
+     },
+     "mock": {
+      "text": "Kobo Mini-grid",
+      "family": "system-ui",
+      "size": "23px",
+      "weight": "650",
+      "lineHeight": "28.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 339
+     }
+    },
+    "h2": {
+     "app": {
+      "text": "Change and effect",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Change and effect",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "prose": {
+     "app": null,
+     "mock": null
+    },
+    "td": {
+     "app": {
+      "text": "Battery reserve",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Stop threshold",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "th": {
+     "app": {
+      "text": "Field",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "14.4px",
+      "color": "rgb(107, 118, 144)"
+     },
+     "mock": {
+      "text": "Field",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "body": {
+     "app": {
+      "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "panel_paragraph_sizes": {
+     "app": {
+      "10px": 1,
+      "11px": 3
+     },
+     "mock": {
+      "11px": 3
+     }
+    },
+    "page_end_note": {
+     "app": {
+      "text": "There is no list of Site changes yet; a change is reached fr",
+      "family": "system-ui",
+      "size": "13px",
+      "weight": "400",
+      "lineHeight": "19.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Illustrative proposal. No real controller command is sent by",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "18.15px",
+      "color": "rgb(69, 96, 128)"
+     }
+    },
+    "prose_class_count": {
+     "app": 0,
+     "mock": 0
+    }
+   },
+   "colours": {
+    "body_bg": {
+     "app": "rgb(245, 247, 251)",
+     "mock": "rgb(245, 247, 251)"
+    },
+    "panel": {
+     "app": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     "mock": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    },
+    "rail": {
+     "app": {
+      "y": 0,
+      "w": 390,
+      "h": 92,
+      "bg": "rgb(22, 35, 63)"
+     },
+     "mock": {
+      "y": 0,
+      "w": 0,
+      "h": 0,
+      "bg": "rgb(22, 35, 63)"
+     }
+    }
+   },
+   "shell": {
+    "first_panel_y": {
+     "app": 813,
+     "mock": 932
+    },
+    "dark_band_390_px": 92,
+    "page_height": {
+     "app": 1831,
+     "mock": 1905
+    }
+   },
+   "tabs": {
+    "app": [
+     {
+      "label": "Breadcrumb",
+      "items": [
+       "Sites",
+       "Kobo mini-grid",
+       "Foundation",
+       "Change [current] [disabled]"
+      ]
+     },
+     {
+      "label": "Site sections",
+      "items": [
+       "Overview",
+       "Foundation [current]",
+       "Health",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "label": "Foundation views",
+      "items": [
+       "Site model",
+       "Single line diagram",
+       "Readiness",
+       "Change & effect [current]"
+      ]
+     }
+    ],
+    "mock": [
+     {
+      "label": "Context tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "label": "Section views",
+      "items": [
+       "Site model",
+       "Single line diagram",
+       "Readiness",
+       "Change & effect"
+      ]
+     }
+    ]
+   },
+   "overflow_x": 0,
+   "clipped_text_candidates": [
+    "Changed value"
+   ],
+   "clipped_note": "the listed leaves are visually-hidden labels/select text (sr-only clip), not clipped material text",
+   "inner_scrollers": [
+    {
+     "tag": "ol",
+     "cls": "site-tabs__list",
+     "client": 358,
+     "scroll": 521
+    }
+   ],
+   "app_image": "s601b/changes-applied-390-app.png",
+   "mock_image": "s601b/changes-applied-390-mock.png",
+   "findings": [
+    "B1-01",
+    "B1-02",
+    "B1-03",
+    "B1-04",
+    "B1-05",
+    "B1-06",
+    "B1-50",
+    "B1-51",
+    "B1-52",
+    "B1-53",
+    "B1-54"
+   ],
+   "structure_note": "panel count and order match",
+   "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. Panels >1.3x without a register ruling: ['Change and effect']."
+  },
+  {
+   "screen": "changes",
+   "case": "no-selection-s601b",
+   "width": "1440",
+   "representative": false,
+   "route": "/sites/KOBO-001/foundation/changes",
+   "app_url": "http://localhost:5181/sites/KOBO-001/foundation/changes",
+   "mock_hash": "#/changes",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit prepare; serve --port 18101 --web-port 5181 (unmodified; owner authorization 2026-10-24); dropped by its drop mode",
+   "selected": "KOBO-001; Action d23ec457-3aa6-4a7e-8dca-7f8f76393c81; applied change f272ee05-9239-4a66-b63f-d2108e9d6ca4 (D-action-records builder, fixture clock 2026-10-29..11-01)",
+   "window": "none (Foundation views use ?at= or now)",
+   "app_titles": [
+    "Change and effect",
+    "Decision path"
+   ],
+   "mock_titles": [
+    "Change and effect",
+    "Decision path"
+   ],
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Change and effect",
+     "app_h": 96,
+     "mock_title": "Change and effect",
+     "mock_h": 319,
+     "ratio": 0.3,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 4,
+     "app_columns": [],
+     "mock_columns": [
+      "Field",
+      "Before",
+      "Proposed",
+      "Purpose"
+     ],
+     "app_links": [],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    },
+    {
+     "title": "Decision path",
+     "app_h": 96,
+     "mock_title": "Decision path",
+     "mock_h": 319,
+     "ratio": 0.3,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [],
+     "mock_links": [
+      "Inspect plan →",
+      "Inspect accepted evidence →",
+      "View verification →"
+     ],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    }
+   ],
+   "max_ratio": 0.3,
+   "over_limit_panels": [],
+   "typography": {
+    "h1": {
+     "app": {
+      "text": "Kobo mini-grid",
+      "family": "system-ui",
+      "size": "27px",
+      "weight": "650",
+      "lineHeight": "33.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 44
+     },
+     "mock": {
+      "text": "Kobo Mini-grid",
+      "family": "system-ui",
+      "size": "27px",
+      "weight": "650",
+      "lineHeight": "33.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 165
+     }
+    },
+    "h2": {
+     "app": {
+      "text": "Change and effect",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Change and effect",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "prose": {
+     "app": null,
+     "mock": null
+    },
+    "td": {
+     "app": null,
+     "mock": {
+      "text": "Stop threshold",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "th": {
+     "app": null,
+     "mock": {
+      "text": "Field",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "body": {
+     "app": {
+      "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "panel_paragraph_sizes": {
+     "app": {
+      "10px": 2
+     },
+     "mock": {
+      "11px": 3
+     }
+    },
+    "page_end_note": {
+     "app": {
+      "text": "Back to the Foundation",
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Illustrative proposal. No real controller command is sent by",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "18.15px",
+      "color": "rgb(69, 96, 128)"
+     }
+    },
+    "prose_class_count": {
+     "app": 0,
+     "mock": 0
+    }
+   },
+   "colours": {
+    "body_bg": {
+     "app": "rgb(245, 247, 251)",
+     "mock": "rgb(245, 247, 251)"
+    },
+    "panel": {
+     "app": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     "mock": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    },
+    "rail": {
+     "app": {
+      "y": 0,
+      "w": 216,
+      "h": 1000,
+      "bg": "rgb(22, 35, 63)"
+     },
+     "mock": {
+      "y": 44,
+      "w": 204,
+      "h": 957,
+      "bg": "rgb(22, 35, 63)"
+     }
+    }
+   },
+   "shell": {
+    "first_panel_y": {
+     "app": 391,
+     "mock": 547
+    },
+    "dark_band_390_px": null,
+    "page_height": {
+     "app": 1000,
+     "mock": 1001
+    }
+   },
+   "tabs": {
+    "app": [
+     {
+      "label": "Breadcrumb",
+      "items": [
+       "Sites",
+       "Kobo mini-grid",
+       "Foundation",
+       "Change & effect [current] [disabled]"
+      ]
+     },
+     {
+      "label": "Site sections",
+      "items": [
+       "Overview",
+       "Foundation [current]",
+       "Health",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "label": "Foundation views",
+      "items": [
+       "Site model",
+       "Single line diagram",
+       "Readiness",
+       "Change & effect [current]"
+      ]
+     }
+    ],
+    "mock": [
+     {
+      "label": "Context tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "label": "Section views",
+      "items": [
+       "Site model",
+       "Single line diagram",
+       "Readiness",
+       "Change & effect"
+      ]
+     }
+    ]
+   },
+   "overflow_x": 0,
+   "clipped_text_candidates": [],
+   "clipped_note": null,
+   "inner_scrollers": [],
+   "app_image": "s601b/changes-no-selection-s601b-1440-app.png",
+   "mock_image": "s601b/changes-no-selection-s601b-1440-mock.png",
+   "findings": [
+    "B1-01",
+    "B1-02",
+    "B1-03",
+    "B1-04",
+    "B1-05",
+    "B1-06",
+    "B1-50",
+    "B1-51",
+    "B1-52",
+    "B1-53",
+    "B1-54"
+   ],
+   "structure_note": "panel count and order match",
+   "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
+  },
+  {
+   "screen": "changes",
+   "case": "no-selection-s601b",
+   "width": "390",
+   "representative": false,
+   "route": "/sites/KOBO-001/foundation/changes",
+   "app_url": "http://localhost:5181/sites/KOBO-001/foundation/changes",
+   "mock_hash": "#/changes",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit prepare; serve --port 18101 --web-port 5181 (unmodified; owner authorization 2026-10-24); dropped by its drop mode",
+   "selected": "KOBO-001; Action d23ec457-3aa6-4a7e-8dca-7f8f76393c81; applied change f272ee05-9239-4a66-b63f-d2108e9d6ca4 (D-action-records builder, fixture clock 2026-10-29..11-01)",
+   "window": "none (Foundation views use ?at= or now)",
+   "app_titles": [
+    "Change and effect",
+    "Decision path"
+   ],
+   "mock_titles": [
+    "Change and effect",
+    "Decision path"
+   ],
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Change and effect",
+     "app_h": 96,
+     "mock_title": "Change and effect",
+     "mock_h": 411,
+     "ratio": 0.23,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 4,
+     "app_columns": [],
+     "mock_columns": [
+      "Field",
+      "Before",
+      "Proposed",
+      "Purpose"
+     ],
+     "app_links": [],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    },
+    {
+     "title": "Decision path",
+     "app_h": 96,
+     "mock_title": "Decision path",
+     "mock_h": 353,
+     "ratio": 0.27,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [],
+     "mock_links": [
+      "Inspect plan →",
+      "Inspect accepted evidence →",
+      "View verification →"
+     ],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    }
+   ],
+   "max_ratio": 0.27,
+   "over_limit_panels": [],
+   "typography": {
+    "h1": {
+     "app": {
+      "text": "Kobo mini-grid",
+      "family": "system-ui",
+      "size": "23px",
+      "weight": "650",
+      "lineHeight": "28.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 200
+     },
+     "mock": {
+      "text": "Kobo Mini-grid",
+      "family": "system-ui",
+      "size": "23px",
+      "weight": "650",
+      "lineHeight": "28.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 339
+     }
+    },
+    "h2": {
+     "app": {
+      "text": "Change and effect",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Change and effect",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "prose": {
+     "app": null,
+     "mock": null
+    },
+    "td": {
+     "app": null,
+     "mock": {
+      "text": "Stop threshold",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "th": {
+     "app": null,
+     "mock": {
+      "text": "Field",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "body": {
+     "app": {
+      "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "panel_paragraph_sizes": {
+     "app": {
+      "10px": 2
+     },
+     "mock": {
+      "11px": 3
+     }
+    },
+    "page_end_note": {
+     "app": {
+      "text": "Back to the Foundation",
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Illustrative proposal. No real controller command is sent by",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "18.15px",
+      "color": "rgb(69, 96, 128)"
+     }
+    },
+    "prose_class_count": {
+     "app": 0,
+     "mock": 0
+    }
+   },
+   "colours": {
+    "body_bg": {
+     "app": "rgb(245, 247, 251)",
+     "mock": "rgb(245, 247, 251)"
+    },
+    "panel": {
+     "app": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     "mock": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    },
+    "rail": {
+     "app": {
+      "y": 0,
+      "w": 390,
+      "h": 165,
+      "bg": "rgb(22, 35, 63)"
+     },
+     "mock": {
+      "y": 0,
+      "w": 0,
+      "h": 0,
+      "bg": "rgb(22, 35, 63)"
+     }
+    }
+   },
+   "shell": {
+    "first_panel_y": {
+     "app": 579,
+     "mock": 932
+    },
+    "dark_band_390_px": 165,
+    "page_height": {
+     "app": 900,
+     "mock": 1905
+    }
+   },
+   "tabs": {
+    "app": [
+     {
+      "label": "Breadcrumb",
+      "items": [
+       "Sites",
+       "Kobo mini-grid",
+       "Foundation",
+       "Change & effect [current] [disabled]"
+      ]
+     },
+     {
+      "label": "Site sections",
+      "items": [
+       "Overview",
+       "Foundation [current]",
+       "Health",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "label": "Foundation views",
+      "items": [
+       "Site model",
+       "Single line diagram",
+       "Readiness",
+       "Change & effect [current]"
+      ]
+     }
+    ],
+    "mock": [
+     {
+      "label": "Context tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "label": "Section views",
+      "items": [
+       "Site model",
+       "Single line diagram",
+       "Readiness",
+       "Change & effect"
+      ]
+     }
+    ]
+   },
+   "overflow_x": 0,
+   "clipped_text_candidates": [],
+   "clipped_note": null,
+   "inner_scrollers": [
+    {
+     "tag": "ol",
+     "cls": "site-tabs__list",
+     "client": 358,
+     "scroll": 521
+    }
+   ],
+   "app_image": "s601b/changes-no-selection-s601b-390-app.png",
+   "mock_image": "s601b/changes-no-selection-s601b-390-mock.png",
+   "findings": [
+    "B1-01",
+    "B1-02",
+    "B1-03",
+    "B1-04",
+    "B1-05",
+    "B1-06",
+    "B1-50",
+    "B1-51",
+    "B1-52",
+    "B1-53",
+    "B1-54"
+   ],
+   "structure_note": "panel count and order match",
+   "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
+  },
+  {
+   "screen": "asset",
+   "case": "kobo001-s701",
+   "width": "1440",
+   "representative": false,
+   "route": "/sites/KOBO-001/assets/2661fe42-55be-4ad4-bb96-9e653d18231a",
+   "app_url": "http://localhost:5181/sites/KOBO-001/assets/2661fe42-55be-4ad4-bb96-9e653d18231a",
+   "mock_hash": "#/asset",
+   "producer": "tools/s701_health_walkthrough.py --db assetops_s701_owner_audit --work var/s701_owner_audit prepare; serve --port 18101 --web-port 5181; deliver (unmodified; owner authorization 2026-10-24); dropped by its drop mode",
+   "selected": "KOBO-001 battery asset 2661fe42-55be-4ad4-bb96-9e653d18231a (condition Unknown); KOBO-002 (no battery) refusal with asset 00000000-0000-4000-8000-000000000000",
+   "window": "none (Foundation views use ?at= or now)",
+   "app_titles": [
+    "Observed reserve and power exposure",
+    "Interpretation and next evidence",
+    "Condition evidence and its limits"
+   ],
+   "mock_titles": [
+    "Observed reserve and power exposure",
+    "Interpretation and next evidence",
+    "Condition evidence and claim boundary"
+   ],
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Observed reserve and power exposure",
+     "app_h": 379,
+     "mock_title": "Observed reserve and power exposure",
+     "mock_h": 316,
+     "ratio": 1.2,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    },
+    {
+     "title": "Interpretation and next evidence",
+     "app_h": 379,
+     "mock_title": "Interpretation and next evidence",
+     "mock_h": 316,
+     "ratio": 1.2,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [],
+     "mock_links": [
+      "Create test action →",
+      "Review capability gap →"
+     ],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    },
+    {
+     "title": "Condition evidence and its limits",
+     "app_h": 358,
+     "mock_title": "Condition evidence and claim boundary",
+     "mock_h": 287,
+     "ratio": 1.25,
+     "over_limit": false,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Dimension",
+      "Evidence basis",
+      "What may be concluded",
+      "What remains unknown"
+     ],
+     "mock_columns": [
+      "Dimension",
+      "Evidence basis",
+      "What may be concluded",
+      "What remains unknown"
+     ],
+     "app_links": [],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": [
+      "Technical details"
+     ]
+    }
+   ],
+   "max_ratio": 1.25,
+   "over_limit_panels": [],
+   "typography": {
+    "h1": {
+     "app": {
+      "text": "Battery energy storage",
+      "family": "system-ui",
+      "size": "27px",
+      "weight": "650",
+      "lineHeight": "33.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 44
+     },
+     "mock": {
+      "text": "Kobo battery",
+      "family": "system-ui",
+      "size": "27px",
+      "weight": "650",
+      "lineHeight": "33.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 165
+     }
+    },
+    "h2": {
+     "app": {
+      "text": "Observed reserve and power exposure",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Observed reserve and power exposure",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "prose": {
+     "app": null,
+     "mock": {
+      "text": "Observable reserve exposure merits review. The history is in",
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "21.6px",
+      "color": "rgb(70, 86, 110)"
+     }
+    },
+    "td": {
+     "app": {
+      "text": "No accepted state-of-charge history on this page",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Reserve discipline",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "th": {
+     "app": {
+      "text": "Dimension",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "14.4px",
+      "color": "rgb(107, 118, 144)"
+     },
+     "mock": {
+      "text": "Dimension",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "body": {
+     "app": {
+      "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "panel_paragraph_sizes": {
+     "app": {
+      "11px": 4,
+      "12px": 2,
+      "10px": 3
+     },
+     "mock": {
+      "11px": 3,
+      "10px": 1,
+      "12px": 1
+     }
+    },
+    "page_end_note": {
+     "app": null,
+     "mock": {
+      "text": "Warranty: cover to 1 Mar 2034 · at risk because temperature ",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "18.15px",
+      "color": "rgb(69, 96, 128)"
+     }
+    },
+    "prose_class_count": {
+     "app": 0,
+     "mock": 1
+    }
+   },
+   "colours": {
+    "body_bg": {
+     "app": "rgb(245, 247, 251)",
+     "mock": "rgb(245, 247, 251)"
+    },
+    "panel": {
+     "app": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     "mock": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    },
+    "rail": {
+     "app": {
+      "y": 0,
+      "w": 216,
+      "h": 1303,
+      "bg": "rgb(22, 35, 63)"
+     },
+     "mock": {
+      "y": 44,
+      "w": 204,
+      "h": 1196,
+      "bg": "rgb(22, 35, 63)"
+     }
+    }
+   },
+   "shell": {
+    "first_panel_y": {
+     "app": 438,
+     "mock": 492
+    },
+    "dark_band_390_px": null,
+    "page_height": {
+     "app": 1303,
+     "mock": 1240
+    }
+   },
+   "tabs": {
+    "app": [
+     {
+      "label": "Breadcrumb",
+      "items": [
+       "Sites",
+       "Kobo mini-grid",
+       "Health",
+       "Battery",
+       "Battery energy storage [current] [disabled]"
+      ]
+     },
+     {
+      "label": "Site sections",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health [current]",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     }
+    ],
+    "mock": [
+     {
+      "label": "Context tabs",
+      "items": [
+       "Overview",
+       "Health",
+       "Performance",
+       "Configuration",
+       "Work",
+       "Evidence",
+       "Warranty"
+      ]
+     }
+    ]
+   },
+   "overflow_x": 0,
+   "clipped_text_candidates": [],
+   "clipped_note": null,
+   "inner_scrollers": [],
+   "app_image": "s701/asset-kobo001-s701-1440-app.png",
+   "mock_image": "s701/asset-kobo001-s701-1440-mock.png",
+   "findings": [
+    "B1-01",
+    "B1-02",
+    "B1-03",
+    "B1-04",
+    "B1-05",
+    "B1-06",
+    "B1-07",
+    "B1-60",
+    "B1-61",
+    "B1-62",
+    "B1-63",
+    "B1-64",
+    "B1-65",
+    "B1-66"
+   ],
+   "structure_note": "titles differ in text only (see differences)",
+   "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
+  },
+  {
+   "screen": "asset",
+   "case": "kobo001-s701",
+   "width": "390",
+   "representative": false,
+   "route": "/sites/KOBO-001/assets/2661fe42-55be-4ad4-bb96-9e653d18231a",
+   "app_url": "http://localhost:5181/sites/KOBO-001/assets/2661fe42-55be-4ad4-bb96-9e653d18231a",
+   "mock_hash": "#/asset",
+   "producer": "tools/s701_health_walkthrough.py --db assetops_s701_owner_audit --work var/s701_owner_audit prepare; serve --port 18101 --web-port 5181; deliver (unmodified; owner authorization 2026-10-24); dropped by its drop mode",
+   "selected": "KOBO-001 battery asset 2661fe42-55be-4ad4-bb96-9e653d18231a (condition Unknown); KOBO-002 (no battery) refusal with asset 00000000-0000-4000-8000-000000000000",
+   "window": "none (Foundation views use ?at= or now)",
+   "app_titles": [
+    "Observed reserve and power exposure",
+    "Interpretation and next evidence",
+    "Condition evidence and its limits"
+   ],
+   "mock_titles": [
+    "Observed reserve and power exposure",
+    "Interpretation and next evidence",
+    "Condition evidence and claim boundary"
+   ],
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Observed reserve and power exposure",
+     "app_h": 330,
+     "mock_title": "Observed reserve and power exposure",
+     "mock_h": 274,
+     "ratio": 1.2,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    },
+    {
+     "title": "Interpretation and next evidence",
+     "app_h": 415,
+     "mock_title": "Interpretation and next evidence",
+     "mock_h": 316,
+     "ratio": 1.31,
+     "over_limit": true,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [],
+     "mock_links": [
+      "Create test action →",
+      "Review capability gap →"
+     ],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    },
+    {
+     "title": "Condition evidence and its limits",
+     "app_h": 478,
+     "mock_title": "Condition evidence and claim boundary",
+     "mock_h": 428,
+     "ratio": 1.12,
+     "over_limit": false,
+     "app_rows": 4,
+     "mock_rows": 4,
+     "app_columns": [
+      "Dimension",
+      "Evidence basis",
+      "What may be concluded",
+      "What remains unknown"
+     ],
+     "mock_columns": [
+      "Dimension",
+      "Evidence basis",
+      "What may be concluded",
+      "What remains unknown"
+     ],
+     "app_links": [],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": [
+      "Technical details"
+     ]
+    }
+   ],
+   "max_ratio": 1.31,
+   "over_limit_panels": [
+    "Interpretation and next evidence"
+   ],
+   "typography": {
+    "h1": {
+     "app": {
+      "text": "Battery energy storage",
+      "family": "system-ui",
+      "size": "23px",
+      "weight": "650",
+      "lineHeight": "28.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 155
+     },
+     "mock": {
+      "text": "Kobo battery",
+      "family": "system-ui",
+      "size": "23px",
+      "weight": "650",
+      "lineHeight": "28.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 298
+     }
+    },
+    "h2": {
+     "app": {
+      "text": "Observed reserve and power exposure",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Observed reserve and power exposure",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "prose": {
+     "app": null,
+     "mock": {
+      "text": "Observable reserve exposure merits review. The history is in",
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "21.6px",
+      "color": "rgb(70, 86, 110)"
+     }
+    },
+    "td": {
+     "app": {
+      "text": "No accepted state-of-charge history on this page",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Reserve discipline",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "th": {
+     "app": {
+      "text": "Dimension",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "14.4px",
+      "color": "rgb(107, 118, 144)"
+     },
+     "mock": {
+      "text": "Dimension",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "body": {
+     "app": {
+      "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "panel_paragraph_sizes": {
+     "app": {
+      "11px": 4,
+      "12px": 2,
+      "10px": 3
+     },
+     "mock": {
+      "11px": 3,
+      "10px": 1,
+      "12px": 1
+     }
+    },
+    "page_end_note": {
+     "app": null,
+     "mock": {
+      "text": "Warranty: cover to 1 Mar 2034 · at risk because temperature ",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "18.15px",
+      "color": "rgb(69, 96, 128)"
+     }
+    },
+    "prose_class_count": {
+     "app": 0,
+     "mock": 1
+    }
+   },
+   "colours": {
+    "body_bg": {
+     "app": "rgb(245, 247, 251)",
+     "mock": "rgb(245, 247, 251)"
+    },
+    "panel": {
+     "app": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     "mock": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    },
+    "rail": {
+     "app": {
+      "y": 0,
+      "w": 390,
+      "h": 92,
+      "bg": "rgb(22, 35, 63)"
+     },
+     "mock": {
+      "y": 0,
+      "w": 0,
+      "h": 0,
+      "bg": "rgb(22, 35, 63)"
+     }
+    }
+   },
+   "shell": {
+    "first_panel_y": {
+     "app": 749,
+     "mock": 828
+    },
+    "dark_band_390_px": 92,
+    "page_height": {
+     "app": 2125,
+     "mock": 2072
+    }
+   },
+   "tabs": {
+    "app": [
+     {
+      "label": "Breadcrumb",
+      "items": [
+       "Sites",
+       "Kobo mini-grid",
+       "Health",
+       "Battery",
+       "Battery energy storage [current] [disabled]"
+      ]
+     },
+     {
+      "label": "Site sections",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health [current]",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     }
+    ],
+    "mock": [
+     {
+      "label": "Context tabs",
+      "items": [
+       "Overview",
+       "Health",
+       "Performance",
+       "Configuration",
+       "Work",
+       "Evidence",
+       "Warranty"
+      ]
+     }
+    ]
+   },
+   "overflow_x": 0,
+   "clipped_text_candidates": [],
+   "clipped_note": null,
+   "inner_scrollers": [
+    {
+     "tag": "ol",
+     "cls": "site-tabs__list",
+     "client": 358,
+     "scroll": 521
+    },
+    {
+     "tag": "div",
+     "cls": "data-table__scroll",
+     "client": 318,
+     "scroll": 640
+    }
+   ],
+   "app_image": "s701/asset-kobo001-s701-390-app.png",
+   "mock_image": "s701/asset-kobo001-s701-390-mock.png",
+   "findings": [
+    "B1-01",
+    "B1-02",
+    "B1-03",
+    "B1-04",
+    "B1-05",
+    "B1-06",
+    "B1-07",
+    "B1-60",
+    "B1-61",
+    "B1-62",
+    "B1-63",
+    "B1-64",
+    "B1-65",
+    "B1-66"
+   ],
+   "structure_note": "titles differ in text only (see differences)",
+   "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. Panels >1.3x without a register ruling: ['Interpretation and next evidence']."
+  },
+  {
+   "screen": "asset",
+   "case": "refusal-kobo002",
+   "width": "1440",
+   "representative": false,
+   "route": "/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000",
+   "app_url": "http://localhost:5181/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000",
+   "mock_hash": "#/asset",
+   "producer": "tools/s701_health_walkthrough.py --db assetops_s701_owner_audit --work var/s701_owner_audit prepare; serve --port 18101 --web-port 5181; deliver (unmodified; owner authorization 2026-10-24); dropped by its drop mode",
+   "selected": "KOBO-001 battery asset 2661fe42-55be-4ad4-bb96-9e653d18231a (condition Unknown); KOBO-002 (no battery) refusal with asset 00000000-0000-4000-8000-000000000000",
+   "window": "none (Foundation views use ?at= or now)",
+   "app_titles": [
+    "Observed reserve and power exposure",
+    "Interpretation and next evidence",
+    "Condition evidence and its limits"
+   ],
+   "mock_titles": [
+    "Observed reserve and power exposure",
+    "Interpretation and next evidence",
+    "Condition evidence and claim boundary"
+   ],
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Observed reserve and power exposure",
+     "app_h": 126,
+     "mock_title": "Observed reserve and power exposure",
+     "mock_h": 316,
+     "ratio": 0.4,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    },
+    {
+     "title": "Interpretation and next evidence",
+     "app_h": 126,
+     "mock_title": "Interpretation and next evidence",
+     "mock_h": 316,
+     "ratio": 0.4,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [],
+     "mock_links": [
+      "Create test action →",
+      "Review capability gap →"
+     ],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    },
+    {
+     "title": "Condition evidence and its limits",
+     "app_h": 103,
+     "mock_title": "Condition evidence and claim boundary",
+     "mock_h": 287,
+     "ratio": 0.36,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 4,
+     "app_columns": [],
+     "mock_columns": [
+      "Dimension",
+      "Evidence basis",
+      "What may be concluded",
+      "What remains unknown"
+     ],
+     "app_links": [],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    }
+   ],
+   "max_ratio": 0.4,
+   "over_limit_panels": [],
+   "typography": {
+    "h1": {
+     "app": {
+      "text": "Battery",
+      "family": "system-ui",
+      "size": "27px",
+      "weight": "650",
+      "lineHeight": "33.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 44
+     },
+     "mock": {
+      "text": "Kobo battery",
+      "family": "system-ui",
+      "size": "27px",
+      "weight": "650",
+      "lineHeight": "33.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 165
+     }
+    },
+    "h2": {
+     "app": {
+      "text": "Observed reserve and power exposure",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Observed reserve and power exposure",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "prose": {
+     "app": null,
+     "mock": {
+      "text": "Observable reserve exposure merits review. The history is in",
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "21.6px",
+      "color": "rgb(70, 86, 110)"
+     }
+    },
+    "td": {
+     "app": null,
+     "mock": {
+      "text": "Reserve discipline",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "th": {
+     "app": null,
+     "mock": {
+      "text": "Dimension",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "body": {
+     "app": {
+      "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "panel_paragraph_sizes": {
+     "app": {
+      "14px": 3
+     },
+     "mock": {
+      "11px": 3,
+      "10px": 1,
+      "12px": 1
+     }
+    },
+    "page_end_note": {
+     "app": {
+      "text": "That asset is not a battery in this site's current configura",
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Warranty: cover to 1 Mar 2034 · at risk because temperature ",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "18.15px",
+      "color": "rgb(69, 96, 128)"
+     }
+    },
+    "prose_class_count": {
+     "app": 0,
+     "mock": 1
+    }
+   },
+   "colours": {
+    "body_bg": {
+     "app": "rgb(245, 247, 251)",
+     "mock": "rgb(245, 247, 251)"
+    },
+    "panel": {
+     "app": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     "mock": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    },
+    "rail": {
+     "app": {
+      "y": 0,
+      "w": 216,
+      "h": 1000,
+      "bg": "rgb(22, 35, 63)"
+     },
+     "mock": {
+      "y": 44,
+      "w": 204,
+      "h": 1196,
+      "bg": "rgb(22, 35, 63)"
+     }
+    }
+   },
+   "shell": {
+    "first_panel_y": {
+     "app": 381,
+     "mock": 492
+    },
+    "dark_band_390_px": null,
+    "page_height": {
+     "app": 1000,
+     "mock": 1240
+    }
+   },
+   "tabs": {
+    "app": [
+     {
+      "label": "Breadcrumb",
+      "items": [
+       "Sites",
+       "Kobo mini-grid",
+       "Health",
+       "Battery",
+       "Battery [current] [disabled]"
+      ]
+     },
+     {
+      "label": "Site sections",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health [current]",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     }
+    ],
+    "mock": [
+     {
+      "label": "Context tabs",
+      "items": [
+       "Overview",
+       "Health",
+       "Performance",
+       "Configuration",
+       "Work",
+       "Evidence",
+       "Warranty"
+      ]
+     }
+    ]
+   },
+   "overflow_x": 0,
+   "clipped_text_candidates": [],
+   "clipped_note": null,
+   "inner_scrollers": [],
+   "app_image": "s701/asset-refusal-kobo002-1440-app.png",
+   "mock_image": "s701/asset-refusal-kobo002-1440-mock.png",
+   "findings": [
+    "B1-01",
+    "B1-02",
+    "B1-03",
+    "B1-04",
+    "B1-05",
+    "B1-06",
+    "B1-07",
+    "B1-60",
+    "B1-61",
+    "B1-62",
+    "B1-63",
+    "B1-64",
+    "B1-65",
+    "B1-66"
+   ],
+   "structure_note": "titles differ in text only (see differences)",
+   "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
+  },
+  {
+   "screen": "asset",
+   "case": "refusal-kobo002",
+   "width": "390",
+   "representative": false,
+   "route": "/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000",
+   "app_url": "http://localhost:5181/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000",
+   "mock_hash": "#/asset",
+   "producer": "tools/s701_health_walkthrough.py --db assetops_s701_owner_audit --work var/s701_owner_audit prepare; serve --port 18101 --web-port 5181; deliver (unmodified; owner authorization 2026-10-24); dropped by its drop mode",
+   "selected": "KOBO-001 battery asset 2661fe42-55be-4ad4-bb96-9e653d18231a (condition Unknown); KOBO-002 (no battery) refusal with asset 00000000-0000-4000-8000-000000000000",
+   "window": "none (Foundation views use ?at= or now)",
+   "app_titles": [
+    "Observed reserve and power exposure",
+    "Interpretation and next evidence",
+    "Condition evidence and its limits"
+   ],
+   "mock_titles": [
+    "Observed reserve and power exposure",
+    "Interpretation and next evidence",
+    "Condition evidence and claim boundary"
+   ],
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Observed reserve and power exposure",
+     "app_h": 126,
+     "mock_title": "Observed reserve and power exposure",
+     "mock_h": 274,
+     "ratio": 0.46,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    },
+    {
+     "title": "Interpretation and next evidence",
+     "app_h": 126,
+     "mock_title": "Interpretation and next evidence",
+     "mock_h": 316,
+     "ratio": 0.4,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [],
+     "mock_links": [
+      "Create test action →",
+      "Review capability gap →"
+     ],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    },
+    {
+     "title": "Condition evidence and its limits",
+     "app_h": 126,
+     "mock_title": "Condition evidence and claim boundary",
+     "mock_h": 428,
+     "ratio": 0.29,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 4,
+     "app_columns": [],
+     "mock_columns": [
+      "Dimension",
+      "Evidence basis",
+      "What may be concluded",
+      "What remains unknown"
+     ],
+     "app_links": [],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": []
+    }
+   ],
+   "max_ratio": 0.46,
+   "over_limit_panels": [],
+   "typography": {
+    "h1": {
+     "app": {
+      "text": "Battery",
+      "family": "system-ui",
+      "size": "23px",
+      "weight": "650",
+      "lineHeight": "28.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 127
+     },
+     "mock": {
+      "text": "Kobo battery",
+      "family": "system-ui",
+      "size": "23px",
+      "weight": "650",
+      "lineHeight": "28.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 298
+     }
+    },
+    "h2": {
+     "app": {
+      "text": "Observed reserve and power exposure",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Observed reserve and power exposure",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "prose": {
+     "app": null,
+     "mock": {
+      "text": "Observable reserve exposure merits review. The history is in",
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "21.6px",
+      "color": "rgb(70, 86, 110)"
+     }
+    },
+    "td": {
+     "app": null,
+     "mock": {
+      "text": "Reserve discipline",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "th": {
+     "app": null,
+     "mock": {
+      "text": "Dimension",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "body": {
+     "app": {
+      "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "panel_paragraph_sizes": {
+     "app": {
+      "14px": 3
+     },
+     "mock": {
+      "11px": 3,
+      "10px": 1,
+      "12px": 1
+     }
+    },
+    "page_end_note": {
+     "app": {
+      "text": "That asset is not a battery in this site's current configura",
+      "family": "system-ui",
+      "size": "12px",
+      "weight": "400",
+      "lineHeight": "18px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Warranty: cover to 1 Mar 2034 · at risk because temperature ",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "18.15px",
+      "color": "rgb(69, 96, 128)"
+     }
+    },
+    "prose_class_count": {
+     "app": 0,
+     "mock": 1
+    }
+   },
+   "colours": {
+    "body_bg": {
+     "app": "rgb(245, 247, 251)",
+     "mock": "rgb(245, 247, 251)"
+    },
+    "panel": {
+     "app": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     "mock": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    },
+    "rail": {
+     "app": {
+      "y": 0,
+      "w": 390,
+      "h": 92,
+      "bg": "rgb(22, 35, 63)"
+     },
+     "mock": {
+      "y": 0,
+      "w": 0,
+      "h": 0,
+      "bg": "rgb(22, 35, 63)"
+     }
+    }
+   },
+   "shell": {
+    "first_panel_y": {
+     "app": 537,
+     "mock": 828
+    },
+    "dark_band_390_px": 92,
+    "page_height": {
+     "app": 988,
+     "mock": 2072
+    }
+   },
+   "tabs": {
+    "app": [
+     {
+      "label": "Breadcrumb",
+      "items": [
+       "Sites",
+       "Kobo mini-grid",
+       "Health",
+       "Battery",
+       "Battery [current] [disabled]"
+      ]
+     },
+     {
+      "label": "Site sections",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health [current]",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     }
+    ],
+    "mock": [
+     {
+      "label": "Context tabs",
+      "items": [
+       "Overview",
+       "Health",
+       "Performance",
+       "Configuration",
+       "Work",
+       "Evidence",
+       "Warranty"
+      ]
+     }
+    ]
+   },
+   "overflow_x": 0,
+   "clipped_text_candidates": [],
+   "clipped_note": null,
+   "inner_scrollers": [
+    {
+     "tag": "ol",
+     "cls": "site-tabs__list",
+     "client": 358,
+     "scroll": 521
+    }
+   ],
+   "app_image": "s701/asset-refusal-kobo002-390-app.png",
+   "mock_image": "s701/asset-refusal-kobo002-390-mock.png",
+   "findings": [
+    "B1-01",
+    "B1-02",
+    "B1-03",
+    "B1-04",
+    "B1-05",
+    "B1-06",
+    "B1-07",
+    "B1-60",
+    "B1-61",
+    "B1-62",
+    "B1-63",
+    "B1-64",
+    "B1-65",
+    "B1-66"
+   ],
+   "structure_note": "titles differ in text only (see differences)",
    "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
   }
  ]

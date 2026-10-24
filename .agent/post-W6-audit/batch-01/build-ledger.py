@@ -21,17 +21,21 @@ FROZEN = {
     "launcher": ".agent/post-W6-audit/batch-01/serve-one.py (starts ONE API of v01a serve mode with the tool's own env/tree; no writes)",
 }
 PRODUCER = {
+    "s601b": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit prepare; serve --port 18101 --web-port 5181 (unmodified; owner authorization 2026-10-24); dropped by its drop mode",
+    "s701": "tools/s701_health_walkthrough.py --db assetops_s701_owner_audit --work var/s701_owner_audit prepare; serve --port 18101 --web-port 5181; deliver (unmodified; owner authorization 2026-10-24); dropped by its drop mode",
     "populated": "tools/v01a_foundation_walkthrough.py --db assetops_audit_b1_walk_test --empty-db assetops_audit_b1_empty_test "
                  "--work-name audit-b1-v01a prepare  (copy of assetops_s4cases, KOBO-001; then serve-one.py --which populated --port 18101)",
     "empty": "same prepare; serve-one.py --which empty --port 18101 (migrated DB, no Site)",
 }
 SELECTED = {
+    "s601b": "KOBO-001; Action d23ec457-3aa6-4a7e-8dca-7f8f76393c81; applied change f272ee05-9239-4a66-b63f-d2108e9d6ca4 (D-action-records builder, fixture clock 2026-10-29..11-01)",
+    "s701": "KOBO-001 battery asset 2661fe42-55be-4ad4-bb96-9e653d18231a (condition Unknown); KOBO-002 (no battery) refusal with asset 00000000-0000-4000-8000-000000000000",
     "populated": "Site KOBO-001 (site_uuid 194c2aeb-9b2a-415e-9cd8-6df7292356eb), Foundation v13 rev ecd48de2-e29e-4251-9089-fe117ba36210, "
                  "binding set v12 rev 96eae0e1-bb25-413e-98f4-7b8ad169dd79; battery asset 9f7a0a29-c36f-46a0-8203-46a69ccde612",
     "empty": "no Site stored",
 }
 REPRESENTATIVE = {("sites", "stocked"), ("foundation", "now"), ("readiness", "now"), ("sld", "now"),
-                  ("changes", "no-selection"), ("asset", "kobo001-battery")}
+                  ("changes", "applied"), ("asset", "kobo001-battery")}
 LIMIT = 1.3
 
 # Every observed difference. disposition = PROPOSAL only; the Architect assigns register IDs.
@@ -96,8 +100,8 @@ D = [
     ("B1-43", "sld", "Diagram panel is 1.63x/1.84x at 1440 and 3.84x/4.51x at 390. At 390 the app keeps the drawing full size in an inner horizontal scroller (952 px in 316 px), while the mock scales the diagram down to 318 px tall.",
      "Needs a reviewed ruling: candidate D2 (readability) or, if scale-to-fit is the faithful alternative, (c) D3. Measured reason: 9 parts in 4 rows plus a selected-part box and notes."),
     # changes
-    ("B1-50", "changes", "BLOCKED: the representative populated (applied / effect) change state could not be captured. The s601b/s602b producers refuse any DB name ending in _test, and this audit may only use assetops_audit_b1*_test. The v01a data has no change records (action_policy_change 0 rows).",
-     "Blocker for the coordinator. Rerun with an authorised assetops_s601b* audit DB, or authorise a name exception."),
+    ("B1-50", "changes", "RESOLVED by the owner's producer scratch-DB authorization (2026-10-24, main 1db7360c): the unmodified s601b producer (assetops_s601b_audit) gave the applied change, captured as changes:applied at 1440/390. The s602b 'later effect' state is still not captured: s602b `serve`/`capture` always start a second, TEST-SCOPED API on --port+1 (18102), outside this batch's port allocation (18101/5181).",
+     "Resolved for applied. Effect state: needs a second API port (or a coordinator ruling), then rerun s602b unmodified."),
     ("B1-51", "changes", "No-selection and unknown-ID states: an amber notice 'No change selected... no list of Foundation changes yet' and two panels with one-line gap statements; the mock has a strip, 4 KPI cards, a before/proposed table, decision steps and a callout. Panel titles and order match (2/2).",
      "(b) candidate D1 (no Foundation change list); honest missing state."),
     # asset
@@ -113,8 +117,14 @@ D = [
      "Warranty: candidate D1. Disclosure: covered by B1-05 D2."),
     ("B1-65", "asset", "h1 'Battery energy storage' (Foundation display name) vs 'Kobo battery'; subtitle has no asset code (mock BAT-001).",
      "(b) candidate D4 (illustrative name/code)."),
-    ("B1-66", "asset", "Refusals: unknown asset on KOBO-001 gives an in-frame refusal at 14 px (B1-07); unknown Site gives 'Site not found' / 'No such site' (1 panel vs mock 3) with the 369 px band at 390 (B1-02). W1-F5b's 3-slot refusal (stored KOBO-002 without a battery) cannot be reproduced: v01a data stores no KOBO-002, and the s701 producer is blocked as in B1-50.",
-     "Refusal structure: existing W1-F5b accepted pattern (no Rxx). Architect to confirm or register it. Producer gap: blocker note."),
+    ("B1-66", "asset", "Refusals: the W1-F5b 3-slot refusal (s701, stored KOBO-002 with no battery) is now captured. The three panel titles match the mock, with one-sentence gap statements at 14 px (B1-07) and the generic h1 'Battery'. Unknown asset on KOBO-001 gives the same 3-slot pattern. Unknown Site gives 'Site not found' / 'No such site' (1 panel vs mock 3) with the 369 px band at 390 (B1-02). The s701 battery capture equals the v01a one (same panel heights).",
+     "Refusal structure: existing W1-F5b accepted pattern (no Rxx). Architect to confirm or register it. Generic h1 'Battery' on refusal: candidate D4."),
+    ("B1-52", "changes", "Applied state: table header 'After' vs mock 'Proposed'; 2 rows (Battery reserve, Foundation version) vs 4; the Target and Guardrails cards read 'Not recorded yet' and Outcome reads 'No verification plan yet'; Decision path step 1 has no 'Inspect plan' link ('Not recorded yet') and step 2 adds 'Application record'. Panel 1.26x (1440) and 1.34x (390).",
+     "Header: candidate D4 (state-correct label for an applied change). Cards/links: candidate D1 (no frozen plan in this record). 1.34x at 390: carried W1-F5b reason (outcome/applied-by rows, failed attempts, disclosure); needs a ruling."),
+    ("B1-53", "changes", "Applied state shows raw system vocabulary: a battery asset UUID in monospace ('Battery 2deeca26-...') and failure codes ACTION_FOUNDATION_STALE, ACTION_VALUE_INVALID and ACTION_EFFECTIVE_TIME_INVALID in the 'earlier attempts' line.",
+     "(c) D3 candidate (client-facing copy: no system vocabulary; the plain-language mapping is renderable). Shared copy fix owner, like the carried raw 'c1 - EV_CONNECTOR' label."),
+    ("B1-54", "changes", "Breadcrumb leaf is 'Change' on the applied state and 'Change & effect' on the bare page; mock 'Sites > Kobo Mini-grid > Foundation'. The page-end note is a left-bar 13 px note against the mock's boxed 11 px info callout.",
+     "Breadcrumb: (c) minor D3 candidate (inconsistent leaf). Note style/size: part of B1-06/B1-07."),
 ]
 SCREEN_DIFFS = {}
 for did, screens, *_ in D:
@@ -128,7 +138,7 @@ def load(folder):
 
 
 pairs = []
-for folder, ev in (load("populated"), load("empty")):
+for folder, ev in (load("populated"), load("empty"), load("s601b"), load("s701")):
     for p in ev["pairs"]:
         a, m = p["app"], p["mock"]
         width = p["viewport"].split("x")[0]
@@ -172,7 +182,7 @@ for folder, ev in (load("populated"), load("empty")):
             "app_image": f"{folder}/{p['app_image']}", "mock_image": f"{folder}/{p['mock_image']}",
             "findings": diffs, "structure_note": verdict_note,
             "reviewer_verdict": "PROPOSED: needs Architect classification. "
-                                + ("Structural D3 candidate present. " if any(x in diffs for x in ("B1-02", "B1-06", "B1-07", "B1-14", "B1-21", "B1-22", "B1-25")) else "")
+                                + ("Structural D3 candidate present. " if any(x in diffs for x in ("B1-02", "B1-06", "B1-07", "B1-14", "B1-21", "B1-22", "B1-25", "B1-53", "B1-54")) else "")
                                 + (f"Panels >1.3x without a register ruling: {over}." if over else "No panel >1.3x."),
         })
 
@@ -196,7 +206,7 @@ out = {"batch": "01", "name": "W1 shell/Foundation", "ids": ["sites", "foundatio
            "domainActionClient_generic_window_error": "Not applicable: no domain-action window inputs on these screens; the Foundation reserve form was not submitted (capture-only).",
            "R88_R112_window_control": "Not applicable: no Window control on these screens.",
        },
-       "blockers": ["B1-50: changes applied/effect states (s601b/s602b) and asset s701 states need producer DBs named assetops_s601b*/s602b*/s701_owner* that must not end in _test, which conflicts with the audit DB rule assetops_audit_b1*_test."],
+       "blockers": ["B1-50 resolved for the applied state (owner scratch-DB authorization). Remaining gap: the s602b 'later effect' change state needs a second API port (s602b serve/capture bind --port+1); not captured."],
        "differences": [{"id": d[0], "screens": d[1], "observed": d[2], "proposed_disposition": d[3]} for d in D],
        "pairs": pairs}
 (HERE / "batch-01.json").write_text(json.dumps(out, indent=1, ensure_ascii=False), encoding="utf-8")

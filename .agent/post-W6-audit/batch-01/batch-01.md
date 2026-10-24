@@ -16,7 +16,12 @@ Every disposition below is a **PROPOSAL**. The Architect classifies each one and
 - **capture_tool**: .agent/post-W6-audit/batch-01/capture-b1.mjs (copy of tools/w1-fidelity-evidence.mjs @fddf5cad + DOM-only measurements; CDP port 9481)
 - **launcher**: .agent/post-W6-audit/batch-01/serve-one.py (starts ONE API of v01a serve mode with the tool's own env/tree; no writes)
 
-Producer data comes from the reviewed `v01a_foundation_walkthrough.py` prepare mode (a copy of `assetops_s4cases`). Each API was started alone by `serve-one.py` with that tool's env and tree. No seeding, no API fabrication, no product edits. Both DBs were dropped afterwards (`drop`), and every spawned PID was stopped by PID.
+Producers, all reviewed and run unmodified:
+- `v01a_foundation_walkthrough.py` prepare (a copy of `assetops_s4cases`, DBs `assetops_audit_b1_*_test`). Its APIs were started one at a time by `serve-one.py` with the tool's own env, because v01a's serve always starts two APIs.
+- `s601b_action_walkthrough.py` (`assetops_s601b_audit`), serve on 18101.
+- `s701_health_walkthrough.py` (`assetops_s701_owner_audit`), serve on 18101 plus deliver.
+
+The s601b and s701 DB names follow the owner's producer scratch-DB authorization (2026-10-24). Each DB was dropped by its producer's drop mode. There was no seeding, no API fabrication and no product edit; every spawned PID was stopped by PID.
 
 ## Route reconciliation
 
@@ -28,11 +33,11 @@ Producer data comes from the reviewed `v01a_foundation_walkthrough.py` prepare m
 - `asset`: /sites/:siteId/assets/:assetId mounted
 - `note`: /sites/:siteId/assets (SiteAssetsFrame, the 'Battery' list) is also mounted; it is the intermediate breadcrumb of `asset`, not the manifest `assets` register. Architect to confirm it stays out of the denominator.
 
-## Blockers
+## Blockers / gaps
 
-- B1-50: changes applied/effect states (s601b/s602b) and asset s701 states need producer DBs named assetops_s601b*/s602b*/s701_owner* that must not end in _test, which conflicts with the audit DB rule assetops_audit_b1*_test.
+- B1-50 resolved for the applied state (owner scratch-DB authorization). Remaining gap: the s602b 'later effect' change state needs a second API port (s602b serve/capture bind --port+1); not captured.
 
-## Pairs (30, 24 representative)
+## Pairs (38, 12 representative)
 
 | Screen | Case | Width | Rep | Count match | Max ratio | >1.3 panels | Dark band 390 | Differences | App | Mock |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -54,10 +59,10 @@ Producer data comes from the reviewed `v01a_foundation_walkthrough.py` prepare m
 | sld | battery | 390 |  | True | 4.51 | Kobo mini-grid, What each part does | 92 | B1-01, B1-03, B1-04, B1-05, B1-06, B1-07, B1-40, B1-41, B1-42, B1-43 | [app](populated/sld-battery-390-app.png) | [mock](populated/sld-battery-390-mock.png) |
 | sld | unknown-part | 1440 |  | True | 2.23 | Kobo mini-grid, What each part does |  | B1-01, B1-03, B1-04, B1-05, B1-06, B1-07, B1-40, B1-41, B1-42, B1-43 | [app](populated/sld-unknown-part-1440-app.png) | [mock](populated/sld-unknown-part-1440-mock.png) |
 | sld | unknown-part | 390 |  | True | 3.84 | Kobo mini-grid, What each part does | 92 | B1-01, B1-03, B1-04, B1-05, B1-06, B1-07, B1-40, B1-41, B1-42, B1-43 | [app](populated/sld-unknown-part-390-app.png) | [mock](populated/sld-unknown-part-390-mock.png) |
-| changes | no-selection | 1440 | yes | True | 0.3 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51 | [app](populated/changes-no-selection-1440-app.png) | [mock](populated/changes-no-selection-1440-mock.png) |
-| changes | no-selection | 390 | yes | True | 0.27 |  | 165 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51 | [app](populated/changes-no-selection-390-app.png) | [mock](populated/changes-no-selection-390-mock.png) |
-| changes | unknown-id | 1440 |  | True | 0.3 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51 | [app](populated/changes-unknown-id-1440-app.png) | [mock](populated/changes-unknown-id-1440-mock.png) |
-| changes | unknown-id | 390 |  | True | 0.27 |  | 157 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51 | [app](populated/changes-unknown-id-390-app.png) | [mock](populated/changes-unknown-id-390-mock.png) |
+| changes | no-selection | 1440 |  | True | 0.3 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](populated/changes-no-selection-1440-app.png) | [mock](populated/changes-no-selection-1440-mock.png) |
+| changes | no-selection | 390 |  | True | 0.27 |  | 165 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](populated/changes-no-selection-390-app.png) | [mock](populated/changes-no-selection-390-mock.png) |
+| changes | unknown-id | 1440 |  | True | 0.3 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](populated/changes-unknown-id-1440-app.png) | [mock](populated/changes-unknown-id-1440-mock.png) |
+| changes | unknown-id | 390 |  | True | 0.27 |  | 157 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](populated/changes-unknown-id-390-app.png) | [mock](populated/changes-unknown-id-390-mock.png) |
 | asset | kobo001-battery | 1440 | yes | True | 1.25 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](populated/asset-kobo001-battery-1440-app.png) | [mock](populated/asset-kobo001-battery-1440-mock.png) |
 | asset | kobo001-battery | 390 | yes | True | 1.31 | Interpretation and next evidence | 92 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](populated/asset-kobo001-battery-390-app.png) | [mock](populated/asset-kobo001-battery-390-mock.png) |
 | asset | unknown-asset | 1440 |  | True | 0.4 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](populated/asset-unknown-asset-1440-app.png) | [mock](populated/asset-unknown-asset-1440-mock.png) |
@@ -66,6 +71,14 @@ Producer data comes from the reviewed `v01a_foundation_walkthrough.py` prepare m
 | asset | unknown-site | 390 |  | False | 0.54 |  | 369 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](populated/asset-unknown-site-390-app.png) | [mock](populated/asset-unknown-site-390-mock.png) |
 | sites | empty | 1440 |  | True | 0.9 |  |  | B1-01, B1-03, B1-04, B1-05, B1-06, B1-07, B1-10, B1-11, B1-12, B1-13, B1-14, B1-15, B1-16 | [app](empty/sites-empty-1440-app.png) | [mock](empty/sites-empty-1440-mock.png) |
 | sites | empty | 390 |  | True | 1.02 |  | 92 | B1-01, B1-03, B1-04, B1-05, B1-06, B1-07, B1-10, B1-11, B1-12, B1-13, B1-14, B1-15, B1-16 | [app](empty/sites-empty-390-app.png) | [mock](empty/sites-empty-390-mock.png) |
+| changes | applied | 1440 | yes | True | 1.26 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](s601b/changes-applied-1440-app.png) | [mock](s601b/changes-applied-1440-mock.png) |
+| changes | applied | 390 | yes | True | 1.34 | Change and effect | 92 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](s601b/changes-applied-390-app.png) | [mock](s601b/changes-applied-390-mock.png) |
+| changes | no-selection-s601b | 1440 |  | True | 0.3 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](s601b/changes-no-selection-s601b-1440-app.png) | [mock](s601b/changes-no-selection-s601b-1440-mock.png) |
+| changes | no-selection-s601b | 390 |  | True | 0.27 |  | 165 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](s601b/changes-no-selection-s601b-390-app.png) | [mock](s601b/changes-no-selection-s601b-390-mock.png) |
+| asset | kobo001-s701 | 1440 |  | True | 1.25 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](s701/asset-kobo001-s701-1440-app.png) | [mock](s701/asset-kobo001-s701-1440-mock.png) |
+| asset | kobo001-s701 | 390 |  | True | 1.31 | Interpretation and next evidence | 92 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](s701/asset-kobo001-s701-390-app.png) | [mock](s701/asset-kobo001-s701-390-mock.png) |
+| asset | refusal-kobo002 | 1440 |  | True | 0.4 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](s701/asset-refusal-kobo002-1440-app.png) | [mock](s701/asset-refusal-kobo002-1440-mock.png) |
+| asset | refusal-kobo002 | 390 |  | True | 0.46 |  | 92 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](s701/asset-refusal-kobo002-390-app.png) | [mock](s701/asset-refusal-kobo002-390-mock.png) |
 
 ## Differences and proposed dispositions
 
@@ -123,8 +136,8 @@ Producer data comes from the reviewed `v01a_foundation_walkthrough.py` prepare m
   - PROPOSED: (b) candidate D1 (no role/reporting description stored) plus candidate D2 (per-part rows). Panel 2.23x at 1440, 1.95x at 390: measured reason is the 10 rows plus the intro and disclosure; needs a ruling.
 - **B1-43** (sld): Diagram panel is 1.63x/1.84x at 1440 and 3.84x/4.51x at 390. At 390 the app keeps the drawing full size in an inner horizontal scroller (952 px in 316 px), while the mock scales the diagram down to 318 px tall.
   - PROPOSED: Needs a reviewed ruling: candidate D2 (readability) or, if scale-to-fit is the faithful alternative, (c) D3. Measured reason: 9 parts in 4 rows plus a selected-part box and notes.
-- **B1-50** (changes): BLOCKED: the representative populated (applied / effect) change state could not be captured. The s601b/s602b producers refuse any DB name ending in _test, and this audit may only use assetops_audit_b1*_test. The v01a data has no change records (action_policy_change 0 rows).
-  - PROPOSED: Blocker for the coordinator. Rerun with an authorised assetops_s601b* audit DB, or authorise a name exception.
+- **B1-50** (changes): RESOLVED by the owner's producer scratch-DB authorization (2026-10-24, main 1db7360c): the unmodified s601b producer (assetops_s601b_audit) gave the applied change, captured as changes:applied at 1440/390. The s602b 'later effect' state is still not captured: s602b `serve`/`capture` always start a second, TEST-SCOPED API on --port+1 (18102), outside this batch's port allocation (18101/5181).
+  - PROPOSED: Resolved for applied. Effect state: needs a second API port (or a coordinator ruling), then rerun s602b unmodified.
 - **B1-51** (changes): No-selection and unknown-ID states: an amber notice 'No change selected... no list of Foundation changes yet' and two panels with one-line gap statements; the mock has a strip, 4 KPI cards, a before/proposed table, decision steps and a callout. Panel titles and order match (2/2).
   - PROPOSED: (b) candidate D1 (no Foundation change list); honest missing state.
 - **B1-60** (asset): Asset-rooted chrome absent: the mock has the Assets rail entry active, breadcrumb Assets > BAT-001 > Health, asset tabs (Overview, Health, Performance, Configuration, Work, Evidence, Warranty) and an 'Open site' button. The app is Site-rooted (Sites active, Site tabs, breadcrumb Sites / Kobo mini-grid / Health / Battery).
@@ -139,8 +152,14 @@ Producer data comes from the reviewed `v01a_foundation_walkthrough.py` prepare m
   - PROPOSED: Warranty: candidate D1. Disclosure: covered by B1-05 D2.
 - **B1-65** (asset): h1 'Battery energy storage' (Foundation display name) vs 'Kobo battery'; subtitle has no asset code (mock BAT-001).
   - PROPOSED: (b) candidate D4 (illustrative name/code).
-- **B1-66** (asset): Refusals: unknown asset on KOBO-001 gives an in-frame refusal at 14 px (B1-07); unknown Site gives 'Site not found' / 'No such site' (1 panel vs mock 3) with the 369 px band at 390 (B1-02). W1-F5b's 3-slot refusal (stored KOBO-002 without a battery) cannot be reproduced: v01a data stores no KOBO-002, and the s701 producer is blocked as in B1-50.
-  - PROPOSED: Refusal structure: existing W1-F5b accepted pattern (no Rxx). Architect to confirm or register it. Producer gap: blocker note.
+- **B1-66** (asset): Refusals: the W1-F5b 3-slot refusal (s701, stored KOBO-002 with no battery) is now captured. The three panel titles match the mock, with one-sentence gap statements at 14 px (B1-07) and the generic h1 'Battery'. Unknown asset on KOBO-001 gives the same 3-slot pattern. Unknown Site gives 'Site not found' / 'No such site' (1 panel vs mock 3) with the 369 px band at 390 (B1-02). The s701 battery capture equals the v01a one (same panel heights).
+  - PROPOSED: Refusal structure: existing W1-F5b accepted pattern (no Rxx). Architect to confirm or register it. Generic h1 'Battery' on refusal: candidate D4.
+- **B1-52** (changes): Applied state: table header 'After' vs mock 'Proposed'; 2 rows (Battery reserve, Foundation version) vs 4; the Target and Guardrails cards read 'Not recorded yet' and Outcome reads 'No verification plan yet'; Decision path step 1 has no 'Inspect plan' link ('Not recorded yet') and step 2 adds 'Application record'. Panel 1.26x (1440) and 1.34x (390).
+  - PROPOSED: Header: candidate D4 (state-correct label for an applied change). Cards/links: candidate D1 (no frozen plan in this record). 1.34x at 390: carried W1-F5b reason (outcome/applied-by rows, failed attempts, disclosure); needs a ruling.
+- **B1-53** (changes): Applied state shows raw system vocabulary: a battery asset UUID in monospace ('Battery 2deeca26-...') and failure codes ACTION_FOUNDATION_STALE, ACTION_VALUE_INVALID and ACTION_EFFECTIVE_TIME_INVALID in the 'earlier attempts' line.
+  - PROPOSED: (c) D3 candidate (client-facing copy: no system vocabulary; the plain-language mapping is renderable). Shared copy fix owner, like the carried raw 'c1 - EV_CONNECTOR' label.
+- **B1-54** (changes): Breadcrumb leaf is 'Change' on the applied state and 'Change & effect' on the bare page; mock 'Sites > Kobo Mini-grid > Foundation'. The page-end note is a left-bar 13 px note against the mock's boxed 11 px info callout.
+  - PROPOSED: Breadcrumb: (c) minor D3 candidate (inconsistent leaf). Note style/size: part of B1-06/B1-07.
 
 ## Carried checks
 
@@ -163,7 +182,7 @@ Producer data comes from the reviewed `v01a_foundation_walkthrough.py` prepare m
 ## Notes
 
 - Typography and colour samples (h1/h2/td/th/body family, size, weight, line-height, colour; panel bg/border/radius; rail colour) are equal between app and mock on all pairs: h1 27/23 px, weight 650; h2 15 px, weight 650, rgb(23,36,59); td 11 px system-ui; rail rgb(22,35,63). The differences are listed above.
-- Page overflow-x is 0 on all 30 pairs. Inner scrollers at 390: the Site tab list (521 in 358), data tables, and the SLD drawing (952 in 316).
+- Page overflow-x is 0 on all pairs. Inner scrollers at 390: the Site tab list (521 in 358), data tables, and the SLD drawing (952 in 316).
 - Clipped-text candidates are visually-hidden labels and select text only, not clipped material text.
 - W1-F5b overage reasons (`.agent/W1-F5b-evidence/overages.json`) still describe the >1.3x panels, but no register row rules on them. The spec requires a reviewed ruling.
 - The time-dependent label in `v01a_foundation_walkthrough.py` ('Scheduled period v13 ... not in effect yet') is stale: since 21 Oct 2026, v13 is the period in effect. That is why the scheduled case was replaced by `imported-period` (?at=2026-09-30).
