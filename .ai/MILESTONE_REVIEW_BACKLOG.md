@@ -2418,12 +2418,15 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - Foundation cases (c)/(d) at :777-782 do not assert the fallback finds a Foundation, so they could pass via the absent-Foundation path.
 - The refused correction at :821 asserts only the code, not the ruled message.
 
-## W5-02b K3 Lows (K4b owns the capture tool next)
-- Ruling-20 rule (contain: inline-size; overflow-x: auto, w1f4-action.css:227-230) applies to every cold disclosure body, and the capture containment checks were relaxed to match (w502-cold-work-evidence.mjs:380,385), so long-text wrap failures would not be caught. Scope the rule or the relaxation to bodies containing code.
-- MINIGRID isolation test (coldWorkCases.test.tsx:448-460) does not assert [data-cold-cases] absent; no cold test asserts it present.
-- K4 must prove both ruling-22 Related activity branches (completed-inspection at a current cutoff, not-linked before completion).
-
 ## W5-03b E4/E6 Lows
 - The 360 px phone basis-scroller override wins only because evScenarios.css loads after coldScenarios.css; an import reorder would bring back 220 px.
 - The capture header_grey flag reads true on pages without a sticky table; the raw header-background arrays are the evidence.
 - W5-03a node I-W5-ev-depth-ui acceptance_target still says "preserved gateway panel" (R60 withdrew it).
+
+## W5-02c K4 Lows and Architect carries
+- Architect (before W6 adds the verification writer): copy for a linked request in VERIFICATION_WINDOW (with performed record) or CANCELLED; today both fall to the generic not-linked sentence (DomainActionVerification.tsx:58-69). Reviewer recommends completed sentence for VERIFICATION_WINDOW and a cancelled sentence, as a D2 extension of R102.
+- Architect: name one owning unit to close the open registry chain A-cold-work-projections <- A-maintenance-index <- A-work-cases (and the EV equivalent).
+- Worstcase title capture check counts the ACT prefix (w502-cold-work-evidence.mjs:1017); component test asserts the exact title.
+- Strip Finding version check accepts overflow-x:auto without scrolling to both ends (w502-cold-work-evidence.mjs:882).
+- Comment at test_w502_domain_intent_postgres.py:542,587 misdescribes the cutoff (after WR completion, before the Action root).
+- Panel sentence renders at 14 px vs mock .prose 12 px on every v69 screen using .prose; UI/UX pass.
