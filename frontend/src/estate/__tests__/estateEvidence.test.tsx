@@ -110,7 +110,7 @@ const EV_ROW = row({
   raw_state: "UNASSESSED",
   readiness: "UNKNOWN",
   selected_revision_ids: [],
-  links: { site: "/sites/EV-LAB-001", site_readiness: "/sites/EV-LAB-001", site_readiness_label: "Opens current Site view" },
+  links: { site: "/sites/EV-LAB-001/ev", site_readiness: "/sites/EV-LAB-001/ev", site_readiness_label: "Opens current Site view" },
 });
 
 const GAPS: EvidenceGap[] = [
@@ -299,17 +299,21 @@ describe("W3-02 estate Evidence root", () => {
     expect(unlocksText(["energy@b", "temperature@a", "energy@a", "unknown@x"])).toBe("Delivered energy · Temperature compliance");
   });
 
-  it("keepsInertMockActions", async () => {
+  it("relatedRecordsShowOnlyTheTwoLiveDestinations", async () => {
     renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body())));
     await settledScreen();
     const gaps = panelTitled(GAPS_PANEL);
     const examples = gaps.querySelector("[data-estate-examples]") as HTMLElement;
-    expect(examples.textContent).toContain("Example destinations");
-    // W6-01e E2 (P-E2-9): two inert examples remain.
-    for (const label of ["ACT-049, ACT-061", "Map transfer switch"]) {
-      const entry = within(examples).getByLabelText(`${label}, Not available yet`);
-      expect(entry.textContent).toBe(`${label} · Not available yet`);
-    }
+    // Post-W6 W3-estate Q11: `Related records` over the two live links; the mock-only entries are gone.
+    expect(examples.querySelector(".estate-evidence-examples__label")?.textContent).toBe("Related records");
+    expect(examples.textContent).not.toContain("Example destinations");
+    expect(main().textContent).not.toContain("ACT-049");
+    expect(main().textContent).not.toContain("ACT-061");
+    expect(main().textContent).not.toContain("Map transfer switch");
+    expect(within(examples).getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual([
+      `/operational-records?${WINDOW}`,
+      `/maintenance/preventive?${WINDOW}`,
+    ]);
     // W6-01b B3 (P-B3-2): the Preventive example is one live link to the selected window; nothing else is a control,
     // and no gap row carries an invented Action link.
     expect(within(examples).queryByLabelText("Preventive plan, Not available yet")).toBeNull();
@@ -499,7 +503,7 @@ describe("W3-02 estate Evidence root", () => {
     await settledScreen();
     const links = Array.from(panelTitled(COVERAGE_PANEL).querySelectorAll("[data-estate-site-link]"));
     // The server owns `links.*`: the cold row opens its own window; the others open the current Site view.
-    expect(links.map((a) => a.getAttribute("href"))).toEqual(["/sites/KOBO-001", COLD_LINK, "/sites/EV-LAB-001"]);
+    expect(links.map((a) => a.getAttribute("href"))).toEqual(["/sites/KOBO-001", COLD_LINK, "/sites/EV-LAB-001/ev"]);
     const rows = within(panelTitled(COVERAGE_PANEL)).getAllByRole("row").slice(1);
     expect(rows.map((r) => r.querySelector("[data-estate-current-view]")?.textContent ?? null)).toEqual([
       "Opens current Site view",

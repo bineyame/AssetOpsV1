@@ -101,11 +101,10 @@
   background: var(--surface-raised);
 }
 
+/* Post-W6 W3-estate Q8 (R295): no estate title is clamped; long words wrap instead of being cut. */
 .estate-cell__primary {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  display: block;
+  overflow-wrap: anywhere;
 }
 
 .estate-cell__secondary {
@@ -133,6 +132,17 @@
 @media (max-width: 640px) {
   .estate-page .v69-cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Q8: a narrow sticky first column so Finding, Site, Priority and part of Confidence show at 390. */
+  .estate-page .data-table th:first-child,
+  .estate-page .data-table td:first-child {
+    width: 152px;
+    max-width: 152px;
+  }
+
+  .estate-page .data-table col:first-child {
+    width: 152px !important;
   }
 }
 

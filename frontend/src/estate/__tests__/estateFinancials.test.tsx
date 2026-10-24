@@ -119,7 +119,7 @@ const EV_LINE = line({
   amount: { low: "36.005", high: "36.005", currency: "USD" },
   period_kind: "SCENARIO_WINDOW",
   limit: "Gross scenario only; not cash collected.",
-  links: { site: "/sites/EV-LAB-001", bridge: EV_BRIDGE, evidence: `/sites/EV-LAB-001/ev/evidence?${COLD_QUERY}`, current_view_label: null },
+  links: { site: "/sites/EV-LAB-001/ev", bridge: EV_BRIDGE, evidence: `/sites/EV-LAB-001/ev/evidence?${COLD_QUERY}`, current_view_label: null },
   group_key: KEY(3),
 });
 
@@ -417,7 +417,7 @@ describe("W3-02 estate Financials root", () => {
     const rows = registerRows();
     const site = (r: HTMLElement) => r.querySelector("[data-estate-site-link]")?.getAttribute("href");
     const source = (r: HTMLElement) => r.querySelector("[data-estate-source-link]");
-    expect(rows.map(site)).toEqual(["/sites/KOBO-001", "/sites/COLD-LAB-001", "/sites/EV-LAB-001", "/sites/KOBO-001"]);
+    expect(rows.map(site)).toEqual(["/sites/KOBO-001", "/sites/COLD-LAB-001", "/sites/EV-LAB-001/ev", "/sites/KOBO-001"]);
     // Mini-grid: the server's current-view bridge, labelled as such (no estate cutoff carried).
     expect(source(rows[0])?.getAttribute("href")).toBe("/sites/KOBO-001/financials");
     expect(rows[0].querySelector("[data-estate-current-view]")?.textContent).toBe("Opens current Site view");
@@ -484,6 +484,48 @@ async function readDisk(path: string): Promise<string> {
 }
 
 describe("W3-02 commit 4 measured Financials layout", () => {
+  it("showsFullLimitsInBasisDetailsAndEveryRowWithoutAVerticalCap", async () => {
+    // Post-W6 W3-estate Q12 / Q20: five 160-character, two-sentence limits joined with a space by the server. The cell
+    // shows the first sentence, the Basis details `Limits` line holds the whole text, no `.;` join appears, and
+    // every row (both EV rows included) renders.
+    const longLimit = (n: number) => {
+      const first = `Limit ${n} first sentence states the bounded interpretation of this consequence line in full words.`;
+      const text = `${first} Second sentence ${n} keeps the remaining caveat.`;
+      return text.padEnd(160, "x").slice(0, 159) + ".";
+    };
+    const rows = [
+      line({ ...MINI_LINE, line_key: "mini_grid:l1", limit: longLimit(1) }),
+      line({ ...COLD_LINE, line_key: "cold_chain:l2", limit: longLimit(2) }),
+      line({ ...EV_LINE, line_key: "ev_charging:l3", limit: longLimit(3) }),
+      line({ ...EV_LINE, line_key: "ev_charging:l4", site_id: EV2, site_code: "EV-LAB-002", site_name: "Second EV lab", limit: longLimit(4) }),
+      line({ ...MINI_LINE, line_key: "mini_grid:l5", limit: longLimit(5) }),
+    ];
+    for (const r of rows) expect(r.limit!.length).toBe(160);
+    renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake(loaded(body({ rows }))));
+    await settledScreen();
+    const rendered = registerRows();
+    expect(rendered).toHaveLength(5);
+    expect(rendered.map((r) => r.getAttribute("data-estate-money-row"))).toEqual(rows.map((r) => r.line_key));
+    const evRows = rendered.filter((r) => (r.getAttribute("data-estate-money-row") ?? "").startsWith("ev_charging:"));
+    expect(evRows).toHaveLength(2);
+    expect(evRows.map((r) => r.querySelector("[data-estate-site-link]")?.getAttribute("href"))).toEqual([
+      "/sites/EV-LAB-001/ev",
+      "/sites/EV-LAB-001/ev",
+    ]);
+    rendered.forEach((r, i) => {
+      const limit = rows[i].limit!;
+      expect(r.querySelector("[data-estate-limit]")?.textContent).toBe(limit.slice(0, limit.indexOf(".") + 1));
+      expect(r.querySelector("[data-estate-limits]")?.textContent).toBe(limit);
+      const dt = r.querySelector("[data-estate-limits]")?.previousElementSibling;
+      expect(dt?.textContent).toBe("Limits");
+    });
+    expect(main().textContent).not.toContain(".;");
+    // No vertical cap on the register at either width; horizontal scrolling stays.
+    const css = await readDisk("src/estate/estateFinancials.css");
+    expect(css).not.toMatch(/max-height/);
+    expect(css).toMatch(/\.estate-financials-table \.data-table__scroll \{[^}]*overflow-x: auto/s);
+  });
+
   it("meetsMeasuredNarrowLayoutWithoutDocumentOverflow", async () => {
     // jsdom has no layout: this reads the real-browser 390 px measurements of the mounted `/financials` page
     // (`.agent/W3-02-evidence/capture-financials.mjs`). Ruling c4: the closed results summary stays within its 24 px

@@ -539,6 +539,16 @@ describe("W3-01 estate roots", () => {
     expect(estateCss).toContain("min-width: 820px");
     expect(estateCss).toMatch(/td:first-child[^}]*position: sticky/s);
     expect(estateCss).toMatch(/\.estate-state-chips \{[^}]*overflow-x: auto/s);
+    // Post-W6 W3-estate Q8: no line clamp on any estate primary cell, wrapping allowed, a 152px sticky first
+    // column at 640px and below, and the horizontal scroller kept.
+    const estateCssFiles = ["estate.css", "estateEvidence.css", "estateFinancials.css", "estatePortfolio.css"].map((f) =>
+      fs.readFileSync(`${cwd}/src/estate/${f}`, "utf8"),
+    );
+    for (const css of estateCssFiles) expect(css).not.toMatch(/line-clamp/);
+    expect(estateCss).toMatch(/\.estate-cell__primary \{[^}]*overflow-wrap: anywhere/s);
+    expect(estateCss).toMatch(/\.estate-page \.data-table__scroll \{[^}]*overflow-x: auto/s);
+    const narrow = estateCss.slice(estateCss.indexOf("@media (max-width: 640px)"));
+    expect(narrow).toMatch(/td:first-child \{[^}]*width: 152px;[^}]*max-width: 152px/s);
     const client = fakeClient((lens) => loaded(findingsBody(lens, { rows: [findingRow(1)] })));
     for (const entry of [`/findings?${WINDOW}`, `${ESTATE_ACTIONS_PATH}?${WINDOW}`]) {
       const view = renderAt(entry, client);
