@@ -24,8 +24,15 @@
  * here as unavailable captures and remain pure component vectors (`frontend/src/sites/__tests__/evWorkActions.test.tsx`).
  * Every claim prints PASS/FAIL with its measured value; row claims require a non-empty measured row set. Writes
  * <out>/w504b-measurements.json. It launches and stops only its own headless Chrome.
+ *
+ * W5-04 V4b: `W504_EVIDENCE=action` instead captures the EV Action detail (`ev-action`) at 1440/390 from the same
+ * manifest (readiness rulings 15, 16, 25, 40, 50; caps in ACTION_CAPS): the Work-list click (R113 closed), positive,
+ * historical, missing-intent (known_at = K1, before the intent), worst-text (the worstcase mode's 160-code-point
+ * Action), forbidden-403, invalid-422 (a future known_at), not-found-404 and the stopped-API unavailable-503. Writes
+ * <out>/w504c-measurements.json. The 409 basis change, an in-panel 503 and pending/stale are not producer states and
+ * are recorded as unavailable captures with their pure vectors.
  */
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -190,6 +197,7 @@ const MEASURE = `(() => {
     anchorsInEvRows: document.querySelectorAll('[data-domain-work-row][data-domain-work-domain="EV_CHARGING"] td a').length,
     actionHrefs: [...document.querySelectorAll('main a')].map((a) => a.getAttribute('href') ?? '').filter((x) => /\\/actions\\//.test(x)),
     coldNames: coldNames.length,
+    evRowLinks: [...document.querySelectorAll('[data-domain-work-row][data-domain-work-domain="EV_CHARGING"]')].map((r) => ({ id: r.getAttribute('data-domain-work-row'), hrefs: [...r.querySelectorAll('td a')].map((a) => a.getAttribute('href')) })),
     rows: rows.map((r) => {
       const codes = [...r.querySelectorAll('.domain-work-code')];
       const cells = [...r.querySelectorAll('td')];
@@ -266,7 +274,11 @@ function caps(W, label, m, wi, { panelCap = CAPS.panel, heights = true } = {}) {
 function rowClaims(W, label, m, expectRows) {
   claim(`${W} ${label}: ${expectRows} visible row(s) measured`, m.rowCount === expectRows && m.rows.length > 0, m.rowCount);
   claim(`${W} ${label}: every row's code is on one line`, m.rows.length > 0 && m.rows.every((r) => r.codeOneLine), m.rows.map((r) => r.codes.map((c) => c.lines)));
-  claim(`${W} ${label}: EV Action codes are plain text (R113), no /actions/ href on the page`, m.anchorsInEvRows === 0 && m.actionHrefs.length === 0, { anchors: m.anchorsInEvRows, hrefs: m.actionHrefs });
+  // W5-04 V4a closes R113: each visible EV row's code is one live link to its own `/verification` detail, and no other
+  // `/actions/` href appears on the page.
+  claim(`${W} ${label}: each EV Action code links only to its own /verification detail (R113 closed in V4a)`,
+    m.evRowLinks.length > 0 && m.evRowLinks.every((r) => r.hrefs.length === 1 && r.hrefs[0] === `/sites/${SITE}/actions/${r.id}/verification`) && m.actionHrefs.length === m.evRowLinks.length,
+    { rows: m.evRowLinks, hrefs: m.actionHrefs });
   const summaries = m.rows.flatMap((r) => r.summaryLines);
   if (summaries.length > 0) claim(`${W} ${label}: every disclosure summary is on one line`, summaries.every((n) => n === 1), summaries);
   claim(`${W} ${label}: every row cell contains its content`, m.cells.length > 0 && m.cells.every((c) => c.fits && c.kidsInside && c.clampFits), m.cells.filter((c) => !(c.fits && c.kidsInside && c.clampFits)));
@@ -287,7 +299,7 @@ function windowClaims(W, label, m, wi, want) {
   else claim(`${W} ${label}: Window control full width`, w.width >= w.parentWidth - 1 && w.leftGap <= 1, { width: w.width, parent: w.parentWidth, leftGap: w.leftGap });
 }
 async function record(W, wi, state, url, afterLoad) {
-  const ok = await go(url, READY);
+  const ok = await goTo(url, READY); // W5-04c: wait for the new address first (a previous page could satisfy READY)
   if (afterLoad) await afterLoad();
   const m = await js(MEASURE);
   claim(`${W} ${state}: settled`, ok, m.panelState ?? m.siteRefusal);
@@ -411,14 +423,271 @@ async function main() {
   return failed;
 }
 
+/* ---------- W5-04 V4b: the EV Action detail (`ev-action`), `W504_EVIDENCE=action` ---------- */
+
+// Readiness ruling 25 (Action page) and ruling 50 (closed untitled state panel and missing-intent plan panel).
+const ACTION_CAPS = { main: [1500, 1900], strip: [140, 200], plan: [360, 590], statePanel: [360, 590], notice: [110, 160] };
+const ACTION_READY = `document.querySelector('main[data-domain-action-shell]') && !document.querySelector('main[data-domain-action-shell="loading"]') || (!document.querySelector('main[data-domain-action-shell]') && !document.querySelector('main[data-domain-action-probe]') && /unavailable|could not|not reachable/i.test(document.querySelector('main')?.innerText ?? ''))`;
+const ACTION_MEASURE = `(() => {
+  const h = (e) => (e ? Math.round(e.getBoundingClientRect().height) : null);
+  const main = document.querySelector('main[data-domain-action-shell]');
+  const lines = (e) => {
+    const range = document.createRange();
+    range.selectNodeContents(e);
+    const tops = [...range.getClientRects()].filter((r) => r.width > 0).map((r) => r.top).sort((a, b) => a - b);
+    return tops.reduce((n, t, i) => (i === 0 || t - tops[i - 1] > 4 ? n + 1 : n), 0);
+  };
+  const panels = main ? [...main.querySelectorAll('section.panel')] : [];
+  const plan = panels.find((p) => p.querySelector('h2')?.textContent?.trim() === 'Declared verification plan') ?? null;
+  const statePanel = main?.querySelector('[data-domain-action-panel]')?.closest('section.panel') ?? null;
+  const scroller = plan?.querySelector('.data-table__scroll') ?? null;
+  const strip = main?.querySelector('[data-domain-action-strip]') ?? null;
+  const badge = strip?.querySelector('[data-domain-action-state]') ?? null;
+  const owner = strip?.querySelector('[data-domain-action-owner]') ?? null;
+  const h1 = main?.querySelector('h1') ?? null;
+  const inside = (e, box) => { const b = e.getBoundingClientRect(); return b.width === 0 || (b.left >= box.left - 1 && b.right <= box.right + 1); };
+  const cells = plan ? [...plan.querySelectorAll('tbody td')] : [];
+  const coldNames = [...document.querySelectorAll('main, main *')].flatMap((el) => [...el.attributes]
+    .filter((a) => a.name.startsWith('data-cold-') || (a.name === 'class' && /\\bcold-/.test(a.value)) || (a.name === 'data-disclosure' && a.value.startsWith('cold-')))
+    .map((a) => a.name));
+  return {
+    href: location.pathname + location.search,
+    shell: main?.getAttribute('data-domain-action-shell') ?? null,
+    siteRefusal: main ? null : (document.querySelector('main')?.innerText?.replace(/\\s+/g, ' ').trim().slice(0, 200) ?? null),
+    crumbs: main ? [...main.querySelectorAll('[data-domain-action-crumbs] li')].map((li) => li.textContent.trim()) : [],
+    crumbSite: main?.querySelector('[data-domain-action-crumb-site]')?.textContent?.replace(/\\s+/g, ' ').trim() ?? null,
+    crumbHref: main?.querySelector('[data-domain-action-crumbs] a')?.getAttribute('href') ?? null,
+    h1: h1?.textContent?.trim() ?? null,
+    h1Fits: h1 ? h1.scrollWidth <= h1.clientWidth + 1 : null,
+    header: main?.querySelector('header')?.innerText?.replace(/\\s+/g, ' ').trim() ?? null,
+    openSite: main?.querySelector('[data-domain-action-open-site]')?.getAttribute('href') ?? null,
+    tabs: main ? [...main.querySelectorAll('[data-action-section]')].map((a) => ({ text: a.textContent.trim(), href: a.getAttribute('href'), current: a.getAttribute('aria-current') })) : [],
+    badge: badge ? { text: badge.textContent.trim(), amber: badge.classList.contains('w1f4-action-badge--amber'), lines: lines(badge), clipped: badge.scrollWidth > badge.clientWidth + 1 } : null,
+    statusLine: strip?.querySelector('[data-domain-action-status-line]')?.textContent?.replace(/\\s+/g, ' ').trim() ?? null,
+    stripText: strip?.innerText?.replace(/\\s+/g, ' ').trim() ?? null,
+    ownerInside: owner && strip ? inside(owner, strip.getBoundingClientRect()) && owner.scrollWidth <= owner.clientWidth + 1 : null,
+    ownerLines: owner ? lines(owner) : null,
+    revisionDisclosure: Boolean(strip?.querySelector('[data-domain-action-revision]')),
+    currentness: main?.querySelector('[data-domain-action-currentness]')?.getAttribute('data-domain-action-currentness') ?? null,
+    currentnessText: main?.querySelector('[data-domain-action-currentness]')?.innerText?.trim() ?? null,
+    currentnessBlue: main?.querySelector('[data-domain-action-currentness]')?.classList.contains('v69-notice--blue') ?? null,
+    currentnessBeforePlan: (() => { const n = main?.querySelector('[data-domain-action-currentness]'); return n ? n.previousElementSibling === strip && n.nextElementSibling === plan : null; })(),
+    panelTitles: panels.map((p) => p.querySelector('h2')?.textContent?.trim() ?? '(untitled)'),
+    tableHead: plan ? [...plan.querySelectorAll('thead th')].map((th) => th.textContent.trim()) : [],
+    tableRows: plan ? [...plan.querySelectorAll('tbody tr')].map((tr) => [...tr.querySelectorAll('td')].map((td) => td.innerText.replace(/\\s+/g, ' ').trim())) : [],
+    resultChildren: plan ? [...plan.querySelectorAll('[data-domain-action-result]')].map((c) => c.children.length) : [],
+    cellsContained: cells.length > 0 ? cells.every((td) => td.scrollWidth <= td.clientWidth + 1 && [...td.querySelectorAll('*')].every((e) => inside(e, td.getBoundingClientRect()))) : null,
+    cellCount: cells.length,
+    intentMissing: main?.querySelector('[data-domain-action-intent-missing]')?.textContent?.trim() ?? null,
+    stateKind: main?.querySelector('[data-domain-action-panel]')?.getAttribute('data-domain-action-panel') ?? null,
+    refusal: main?.querySelector('[data-domain-action-refusal]')?.getAttribute('data-domain-action-refusal') ?? null,
+    refusalText: main?.querySelector('[data-domain-action-panel="refused"]')?.innerText?.replace(/\\s+/g, ' ').trim() ?? null,
+    refusalMessage: main?.querySelector('[data-domain-action-refusal-message]')?.textContent?.trim() ?? null,
+    stateText: main?.querySelector('[data-domain-action-panel]')?.innerText?.replace(/\\s+/g, ' ').trim() ?? null,
+    retryVisible: (() => { const b = main?.querySelector('[data-domain-action-retry]'); if (!b) return null; const r = b.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.right <= document.documentElement.clientWidth; })(),
+    closingNotice: main?.querySelector('[data-domain-action-notice]')?.innerText?.trim() ?? null,
+    closingBlue: main?.querySelector('[data-domain-action-notice]')?.classList.contains('v69-notice--blue') ?? null,
+    related: /Related activity/.test(main?.innerText ?? ''),
+    disabledButtons: main ? main.querySelectorAll('button[disabled]').length : null,
+    inspect: main ? main.querySelectorAll('[data-domain-action-inspect], [data-domain-action-finding-control]').length : null,
+    formControls: main ? main.querySelectorAll('form, input').length : null,
+    depot: /Depot/.test(main?.innerText ?? ''),
+    coldNames: coldNames.length,
+    docScrollWidth: document.documentElement.scrollWidth,
+    docClientWidth: document.documentElement.clientWidth,
+    docHeight: document.documentElement.scrollHeight,
+    main: h(main),
+    strip: h(strip),
+    plan: h(plan),
+    statePanel: h(statePanel),
+    currentnessNotice: h(main?.querySelector('[data-domain-action-currentness]')),
+    closing: h(main?.querySelector('[data-domain-action-notice]')),
+    scrollerScrollWidth: scroller?.scrollWidth ?? null,
+    scrollerClientWidth: scroller?.clientWidth ?? null,
+  };
+})()`;
+
+const EV_PLAN_ROWS = [
+  ["Complete a witnessed charging session", "Session start, end, outcome and meter delta", "Pending"],
+  ["No fault recurrence during observation", "Connector diagnostic events with full coverage", "Pending"],
+  ["No reduction in service availability", "Comparable status coverage / operational window", "Pending"],
+];
+
+function actionCaps(W, label, m, wi, { panel = "plan" } = {}) {
+  claim(`${W} ${label}: no document horizontal overflow (scrollWidth <= clientWidth + 1)`, m.docScrollWidth <= m.docClientWidth + 1, { scrollWidth: m.docScrollWidth, clientWidth: m.docClientWidth });
+  claim(`${W} ${label}: no cold-named attribute, class or disclosure on the EV page (ruling 45)`, m.coldNames === 0, m.coldNames);
+  claim(`${W} ${label}: page main <= ${ACTION_CAPS.main[wi]}`, m.main !== null && m.main <= ACTION_CAPS.main[wi], { main: m.main, docHeight: m.docHeight });
+  if (m.strip !== null) claim(`${W} ${label}: status strip <= ${ACTION_CAPS.strip[wi]}`, m.strip <= ACTION_CAPS.strip[wi], m.strip);
+  if (panel === "plan") claim(`${W} ${label}: Declared verification plan panel <= ${ACTION_CAPS.plan[wi]}`, m.plan !== null && m.plan <= ACTION_CAPS.plan[wi], { plan: m.plan, tableScrollWidth: m.scrollerScrollWidth, tableClientWidth: m.scrollerClientWidth });
+  else claim(`${W} ${label}: untitled state panel <= ${ACTION_CAPS.statePanel[wi]} (ruling 50)`, m.statePanel !== null && m.statePanel <= ACTION_CAPS.statePanel[wi], m.statePanel);
+  if (m.currentnessNotice !== null) claim(`${W} ${label}: currentness notice <= ${ACTION_CAPS.notice[wi]}`, m.currentnessNotice <= ACTION_CAPS.notice[wi], m.currentnessNotice);
+  if (m.closing !== null) claim(`${W} ${label}: closing notice <= ${ACTION_CAPS.notice[wi]}`, m.closing <= ACTION_CAPS.notice[wi], m.closing);
+}
+
+function frameClaims(W, label, m, action) {
+  claim(`${W} ${label}: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)`,
+    JSON.stringify(m.crumbs) === JSON.stringify(["Actions", action.action_code, "Verification"]) && m.crumbHref === "/actions" && m.crumbSite === `· site: ${manifest.modes.positive.site.display_name}`,
+    { crumbs: m.crumbs, site: m.crumbSite });
+  claim(`${W} ${label}: heading {code} · {stored title}, contained (R109)`, (m.h1 ?? "").startsWith(`${action.action_code} · `) && m.h1Fits === true, { h1: (m.h1 ?? "").slice(0, 80), fits: m.h1Fits });
+  claim(`${W} ${label}: mock question subtitle and Open site to the Site detail`, /What would establish successful service restoration\?/.test(m.header ?? "") && m.openSite === `/sites/${SITE}`, { openSite: m.openSite });
+  claim(`${W} ${label}: one Verification tab, current`, m.tabs.length === 1 && m.tabs[0].text === "Verification" && m.tabs[0].current === "page", m.tabs);
+  claim(`${W} ${label}: amber 'Open' badge on one line, unclipped (pre-flight 45)`, m.badge?.text === "Open" && m.badge.amber && m.badge.lines === 1 && !m.badge.clipped, m.badge);
+  claim(`${W} ${label}: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)`,
+    (m.statusLine ?? "").endsWith(` · ${manifest.modes.positive.site.display_name}`) && !/Finding/.test(m.stripText ?? "") && m.revisionDisclosure === false, { status: (m.statusLine ?? "").slice(0, 80) });
+  claim(`${W} ${label}: owner span contained in the strip`, m.ownerInside === true, { inside: m.ownerInside, lines: m.ownerLines });
+  claim(`${W} ${label}: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)`,
+    !m.related && m.disabledButtons === 0 && m.inspect === 0 && m.formControls === 0 && !m.depot, { related: m.related, disabled: m.disabledButtons, inspect: m.inspect, form: m.formControls, depot: m.depot });
+  claim(`${W} ${label}: blue closing notice (mock literal)`, m.closingNotice === "A completed investigation or diagnostic reset would not establish a verified outcome." && m.closingBlue === true, m.closingNotice);
+}
+
+function planClaims(W, label, m) {
+  claim(`${W} ${label}: sole panel 'Declared verification plan' with the mock columns`, JSON.stringify(m.panelTitles) === JSON.stringify(["Declared verification plan"]) && JSON.stringify(m.tableHead) === JSON.stringify(["Criterion", "Required evidence", "Current result"]), { panels: m.panelTitles, head: m.tableHead });
+  claim(`${W} ${label}: the three EV criteria with plain 'Pending' results (no chip)`, JSON.stringify(m.tableRows) === JSON.stringify(EV_PLAN_ROWS) && m.resultChildren.length === 3 && m.resultChildren.every((n) => n === 0), m.tableRows);
+  claim(`${W} ${label}: every criteria cell contains its content (${m.cellCount} cells)`, m.cellCount === 9 && m.cellsContained === true, { cells: m.cellCount });
+  if (W === "narrow") info(`${W} ${label}: criteria table scroller`, { scrollWidth: m.scrollerScrollWidth, clientWidth: m.scrollerClientWidth });
+}
+
+/**
+ * Navigate and wait until the page is the requested address before testing `ready` (a previous page's refusal text
+ * would otherwise satisfy it), retrying a navigation whose evaluation stalls (a dev-server reload mid-load).
+ */
+async function goTo(url, ready) {
+  const want = new URL(url);
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      await send("Page.navigate", { url });
+      const arrived = await waitFor(`location.origin === ${JSON.stringify(want.origin)} && location.pathname === ${JSON.stringify(want.pathname)}`, 20000);
+      const ok = arrived && (await waitFor(ready));
+      await sleep(500);
+      await requireWidth(viewport[0], viewport[1], `loaded ${url}`, { record: false });
+      return ok;
+    } catch (error) {
+      console.log(`retry navigation ${attempt}: ${url} (${error.message})`);
+      await sleep(1000);
+    }
+  }
+  return false;
+}
+
+async function actionRecord(W, wi, state, url, afterLoad) {
+  const ok = afterLoad ? true : await goTo(url, ACTION_READY);
+  if (afterLoad) await afterLoad();
+  const m = await js(ACTION_MEASURE);
+  claim(`${W} ${state}: settled`, ok && (m.shell !== null || m.siteRefusal !== null), m.shell ?? m.siteRefusal);
+  const file = await shot(`w504c-${W}-${state}`);
+  captures.push({ state, width: WIDTHS[wi][1], file, url: url ?? m.href, measurements: m });
+  return m;
+}
+
+async function actionMain() {
+  ws = await connect();
+  ws.addEventListener("message", (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.id && pending.has(msg.id)) {
+      pending.get(msg.id)(msg);
+      pending.delete(msg.id);
+    }
+  });
+  await send("Page.enable");
+  await send("Runtime.enable");
+
+  const worst = (WC?.worstcase?.actions ?? [])[0] ?? null;
+  claim("manifest: positive ready with its declared Action and intent (ruling 39)", P?.status === "ready" && Boolean(P.action?.id) && Boolean(P.intent?.recorded_at), { status: P?.status, action: P?.action ?? null });
+  claim("manifest: clocks K1 < K2 (the Action precedes its intent; the K1 read has no intent)", Date.parse(P.clocks.K1) < Date.parse(P.clocks.K2), P.clocks.order);
+  claim("manifest: worstcase ready with a 160-code-point title and owner Action and its intent, served", WC?.status === "ready" && worst?.title_code_points === 160 && worst?.owner_code_points === 160 && Boolean(worst?.intent_id) && Boolean(proc.worstcase), worst);
+  claim("manifest: forbidden served and unavailable stopped by attest", Boolean(proc.forbidden && proc.unavailable && manifest.vectors?.unavailable?.stopped_pid), manifest.vectors ?? null);
+  for (const [k, reason] of [
+    ["409 DOMAIN_INTENT_BASIS_CHANGED", "needs the intent's exact EV selection to change at its recorded cutoff; the native replay cannot produce it (rulings 54/55); pure vectors in domainActionVerification.test.tsx and operatorRouteFrames.test.tsx"],
+    ["in-panel 503 with a healthy Site read", "the walkthrough's unavailable vector stops the whole API, so the browser shows the Site-level refusal (captured as unavailable-503); pure vector in domainActionVerification.test.tsx"],
+    ["missing intent with UNKNOWN currentness", "the producer's missing-intent read (known_at = K1) is HISTORICAL; UNKNOWN stays a pure vector (domainActionVerification.test.tsx)"],
+    ["pending / stale currentness", "manifest modes unavailable (ruling 54); pure vectors in domainActionVerification.test.tsx"],
+  ]) info(`unavailable capture: ${k}`, reason);
+
+  const W_ = P.work_window_W;
+  const detail = (name, id, extra = {}) => `${base(name)}/sites/${SITE}/actions/${id}/verification?${q({ from: W_.from, to: W_.to, ...extra })}`;
+  const workUrl = `${base("positive")}/sites/${SITE}/work?${q({ from: W_.from, to: W_.to })}`;
+  const future = new Date(Date.now() + 365 * 86400000).toISOString().replace(/\.\d{3}Z$/, "Z");
+  const missingId = "00000000-0000-4000-8000-000000000404";
+
+  for (const [wi, [W, width, height]] of WIDTHS.entries()) {
+    await size(width, height);
+    let m;
+
+    // R113 closed: the EV Work code is the live selected link and opens this detail.
+    await goTo(workUrl, `document.querySelector('[data-domain-work-row="${P.action.id}"] td a')`);
+    const link = await js(`(() => { const a = document.querySelector('[data-domain-work-row="${P.action.id}"] td a'); return a ? a.getAttribute('href') : null; })()`);
+    claim(`${W} work-link: the EV Work code links to its /verification detail (R113 closed)`, link === `/sites/${SITE}/actions/${P.action.id}/verification`, link);
+    m = await actionRecord(W, wi, "positive-from-work", null, async () => {
+      await js(`document.querySelector('[data-domain-work-row="${P.action.id}"] td a')?.click()`);
+      await waitFor(ACTION_READY);
+      await sleep(500);
+    });
+    claim(`${W} positive-from-work: the click opens the loaded EV detail at its /verification address`, m.shell === "loaded" && m.href.startsWith(`/sites/${SITE}/actions/${P.action.id}/verification`), m.href);
+
+    m = await actionRecord(W, wi, "positive", detail("positive", P.action.id));
+    claim(`${W} positive: loaded, CURRENT (no currentness notice), selected query kept on the Verification tab (ruling 14)`,
+      m.shell === "loaded" && m.currentness === null && m.tabs[0]?.href === new URL(detail("positive", P.action.id)).pathname + new URL(detail("positive", P.action.id)).search, { shell: m.shell, tab: m.tabs[0]?.href });
+    claim(`${W} positive: status owner is the walkthrough's stored owner`, (m.statusLine ?? "").startsWith(`${P.action_posted.owner_label ?? "Not assigned"} · `), m.statusLine);
+    frameClaims(W, "positive", m, P.action);
+    planClaims(W, "positive", m);
+    actionCaps(W, "positive", m, wi);
+
+    m = await actionRecord(W, wi, "historical", detail("positive", P.action.id, { known_at: P.index_known_at }));
+    claim(`${W} historical: HISTORICAL blue notice between strip and plan (R80/R104)`, m.currentness === "HISTORICAL" && m.currentnessBlue === true && m.currentnessBeforePlan === true && /^Read as of .* UTC\. Later work may differ\.$/.test(m.currentnessText ?? ""), { status: m.currentness, text: m.currentnessText });
+    frameClaims(W, "historical", m, P.action);
+    planClaims(W, "historical", m);
+    actionCaps(W, "historical", m, wi);
+
+    m = await actionRecord(W, wi, "missing-intent", detail("positive", P.action.id, { known_at: P.clocks.K1 }));
+    claim(`${W} missing-intent: 200 at K1 (before the intent): plan heading kept, exact no-criteria sentence, no table, notice above the plan`,
+      m.shell === "loaded" && JSON.stringify(m.panelTitles) === JSON.stringify(["Declared verification plan"]) && m.intentMissing === "No verification criteria have been declared for this Action." && m.tableRows.length === 0 && m.currentness !== null && m.currentnessBeforePlan === true,
+      { status: m.currentness, missing: m.intentMissing, panels: m.panelTitles });
+    frameClaims(W, "missing-intent", m, P.action);
+    actionCaps(W, "missing-intent", m, wi);
+
+    m = await actionRecord(W, wi, "worst-text", detail("worstcase", worst.action_id));
+    claim(`${W} worst-text: the 160-code-point title and owner whole (R109)`, (m.h1 ?? "").length >= 160 + worst.action_code.length && (m.statusLine ?? "").length >= 160, { h1Length: (m.h1 ?? "").length, statusLength: (m.statusLine ?? "").length, ownerLines: m.ownerLines });
+    frameClaims(W, "worst-text", m, { action_code: worst.action_code });
+    planClaims(W, "worst-text", m);
+    actionCaps(W, "worst-text", m, wi);
+
+    m = await actionRecord(W, wi, "forbidden-403", detail("forbidden", P.action.id));
+    claim(`${W} forbidden-403: Site read healthy; one untitled panel 'EV work unavailable', server message, visible Retry; no strip, no Pending`,
+      m.siteRefusal === null && m.stateKind === "refused" && /EV work unavailable/.test(m.refusalText ?? "") && Boolean(m.refusalMessage) && !/unexpected shape|could not be reached/.test(m.refusalMessage ?? "") && m.retryVisible === true && m.strip === null && JSON.stringify(m.panelTitles) === JSON.stringify(["(untitled)"]) && !/Pending/.test(m.refusalText ?? ""),
+      { refusal: m.refusal, message: m.refusalMessage, panels: m.panelTitles });
+    actionCaps(W, "forbidden-403", m, wi, { panel: "state" });
+
+    m = await actionRecord(W, wi, "invalid-422", detail("positive", P.action.id, { known_at: future }));
+    claim(`${W} invalid-422: a future known_at is the server's 422 in the untitled EV refusal panel`, m.stateKind === "refused" && m.refusal === "INVALID_KNOWN_AT" && /EV work unavailable/.test(m.refusalText ?? "") && m.retryVisible === true, { refusal: m.refusal, message: m.refusalMessage });
+    actionCaps(W, "invalid-422", m, wi, { panel: "state" });
+
+    m = await actionRecord(W, wi, "not-found-404", detail("positive", missingId));
+    claim(`${W} not-found-404: one untitled panel 'Action was not found at this site.'`, m.stateKind === "not-found" && m.stateText === "Action was not found at this site." && m.strip === null, { kind: m.stateKind, text: m.stateText });
+    actionCaps(W, "not-found-404", m, wi, { panel: "state" });
+
+    m = await actionRecord(W, wi, "unavailable-503", detail("unavailable", P.action.id));
+    info(`${W} unavailable-503: the walkthrough stops this API, so the Site read fails at the proxy (Site-level refusal, not the in-panel EV 503)`, { siteRefusal: m.siteRefusal, kind: m.stateKind });
+    claim(`${W} unavailable-503: a refusal with no criteria and no Pending`, (m.siteRefusal !== null || m.stateKind === "refused") && m.tableRows.length === 0 && !/Pending/.test(m.siteRefusal ?? m.refusalText ?? ""), { siteRefusal: m.siteRefusal });
+    claim(`${W} unavailable-503: no document horizontal overflow`, m.docScrollWidth <= m.docClientWidth + 1, { scrollWidth: m.docScrollWidth, clientWidth: m.docClientWidth });
+  }
+
+  const failed = results.filter((r) => !r.ok).length;
+  writeFileSync(join(OUT, "w504c-measurements.json"), JSON.stringify({ manifest_revision: manifest.revision, caps: ACTION_CAPS, captures, claims: results, failed }, null, 2));
+  console.log(`${results.filter((r) => r.ok && !r.info).length} PASS, ${failed} FAIL, ${results.filter((r) => r.info).length} INFO`);
+  return failed;
+}
+
 let code = 1;
 try {
-  code = (await main()) === 0 ? 0 : 1;
+  code = (await (process.env.W504_EVIDENCE === "action" ? actionMain() : main())) === 0 ? 0 : 1;
 } catch (error) {
   console.error(error);
 } finally {
   ws?.close();
   chrome.kill();
+  // W5-04c: Chrome can outlive its launcher; stop only the processes started on this run's unique profile, by PID.
+  spawnSync("powershell", ["-NoProfile", "-Command",
+    `Get-CimInstance Win32_Process -Filter "Name='chrome.exe'" | Where-Object { $_.CommandLine -like '*${profile}*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`], { stdio: "ignore" });
   await sleep(500);
   try {
     rmSync(profile, { recursive: true, force: true });

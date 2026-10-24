@@ -1,0 +1,3332 @@
+{
+  "manifest_revision": "3b2b5f1f51fc3ef8660bdc7b538c30ea027a1054",
+  "caps": {
+    "main": [
+      1500,
+      1900
+    ],
+    "strip": [
+      140,
+      200
+    ],
+    "plan": [
+      360,
+      590
+    ],
+    "statePanel": [
+      360,
+      590
+    ],
+    "notice": [
+      110,
+      160
+    ]
+  },
+  "captures": [
+    {
+      "state": "positive-from-work",
+      "width": 1440,
+      "file": "w504c-desktop-positive-from-work.png",
+      "url": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification",
+        "shell": "loaded",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "ACT-000001 · Investigate connector 2",
+        "h1Fits": true,
+        "header": "ACT-000001 · Investigate connector 2 What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification",
+            "current": "page"
+          }
+        ],
+        "badge": {
+          "text": "Open",
+          "amber": true,
+          "lines": 1,
+          "clipped": false
+        },
+        "statusLine": "Charging operations · EV charging lab",
+        "stripText": "Open Charging operations · EV charging lab",
+        "ownerInside": true,
+        "ownerLines": 1,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [
+          "Declared verification plan"
+        ],
+        "tableHead": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "tableRows": [
+          [
+            "Complete a witnessed charging session",
+            "Session start, end, outcome and meter delta",
+            "Pending"
+          ],
+          [
+            "No fault recurrence during observation",
+            "Connector diagnostic events with full coverage",
+            "Pending"
+          ],
+          [
+            "No reduction in service availability",
+            "Comparable status coverage / operational window",
+            "Pending"
+          ]
+        ],
+        "resultChildren": [
+          0,
+          0,
+          0
+        ],
+        "cellsContained": true,
+        "cellCount": 9,
+        "intentMissing": null,
+        "stateKind": null,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": null,
+        "retryVisible": null,
+        "closingNotice": "A completed investigation or diagnostic reset would not establish a verified outcome.",
+        "closingBlue": true,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 525,
+        "strip": 42,
+        "plan": 248,
+        "statePanel": null,
+        "currentnessNotice": null,
+        "closing": 42,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120
+      }
+    },
+    {
+      "state": "positive",
+      "width": 1440,
+      "file": "w504c-desktop-positive.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "shell": "loaded",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "ACT-000001 · Investigate connector 2",
+        "h1Fits": true,
+        "header": "ACT-000001 · Investigate connector 2 What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+            "current": "page"
+          }
+        ],
+        "badge": {
+          "text": "Open",
+          "amber": true,
+          "lines": 1,
+          "clipped": false
+        },
+        "statusLine": "Charging operations · EV charging lab",
+        "stripText": "Open Charging operations · EV charging lab",
+        "ownerInside": true,
+        "ownerLines": 1,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [
+          "Declared verification plan"
+        ],
+        "tableHead": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "tableRows": [
+          [
+            "Complete a witnessed charging session",
+            "Session start, end, outcome and meter delta",
+            "Pending"
+          ],
+          [
+            "No fault recurrence during observation",
+            "Connector diagnostic events with full coverage",
+            "Pending"
+          ],
+          [
+            "No reduction in service availability",
+            "Comparable status coverage / operational window",
+            "Pending"
+          ]
+        ],
+        "resultChildren": [
+          0,
+          0,
+          0
+        ],
+        "cellsContained": true,
+        "cellCount": 9,
+        "intentMissing": null,
+        "stateKind": null,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": null,
+        "retryVisible": null,
+        "closingNotice": "A completed investigation or diagnostic reset would not establish a verified outcome.",
+        "closingBlue": true,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 525,
+        "strip": 42,
+        "plan": 248,
+        "statePanel": null,
+        "currentnessNotice": null,
+        "closing": 42,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120
+      }
+    },
+    {
+      "state": "historical",
+      "width": 1440,
+      "file": "w504c-desktop-historical.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z",
+        "shell": "loaded",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "ACT-000001 · Investigate connector 2",
+        "h1Fits": true,
+        "header": "ACT-000001 · Investigate connector 2 What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z",
+            "current": "page"
+          }
+        ],
+        "badge": {
+          "text": "Open",
+          "amber": true,
+          "lines": 1,
+          "clipped": false
+        },
+        "statusLine": "Charging operations · EV charging lab",
+        "stripText": "Open Charging operations · EV charging lab",
+        "ownerInside": true,
+        "ownerLines": 1,
+        "revisionDisclosure": false,
+        "currentness": "HISTORICAL",
+        "currentnessText": "Read as of 2026-10-24 08:25 UTC. Later work may differ.",
+        "currentnessBlue": true,
+        "currentnessBeforePlan": true,
+        "panelTitles": [
+          "Declared verification plan"
+        ],
+        "tableHead": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "tableRows": [
+          [
+            "Complete a witnessed charging session",
+            "Session start, end, outcome and meter delta",
+            "Pending"
+          ],
+          [
+            "No fault recurrence during observation",
+            "Connector diagnostic events with full coverage",
+            "Pending"
+          ],
+          [
+            "No reduction in service availability",
+            "Comparable status coverage / operational window",
+            "Pending"
+          ]
+        ],
+        "resultChildren": [
+          0,
+          0,
+          0
+        ],
+        "cellsContained": true,
+        "cellCount": 9,
+        "intentMissing": null,
+        "stateKind": null,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": null,
+        "retryVisible": null,
+        "closingNotice": "A completed investigation or diagnostic reset would not establish a verified outcome.",
+        "closingBlue": true,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 585,
+        "strip": 42,
+        "plan": 248,
+        "statePanel": null,
+        "currentnessNotice": 42,
+        "closing": 42,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120
+      }
+    },
+    {
+      "state": "missing-intent",
+      "width": 1440,
+      "file": "w504c-desktop-missing-intent.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A10.631174Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A10.631174Z",
+        "shell": "loaded",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "ACT-000001 · Investigate connector 2",
+        "h1Fits": true,
+        "header": "ACT-000001 · Investigate connector 2 What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A10.631174Z",
+            "current": "page"
+          }
+        ],
+        "badge": {
+          "text": "Open",
+          "amber": true,
+          "lines": 1,
+          "clipped": false
+        },
+        "statusLine": "Charging operations · EV charging lab",
+        "stripText": "Open Charging operations · EV charging lab",
+        "ownerInside": true,
+        "ownerLines": 1,
+        "revisionDisclosure": false,
+        "currentness": "HISTORICAL",
+        "currentnessText": "Read as of 2026-10-24 08:25 UTC. Later work may differ.",
+        "currentnessBlue": true,
+        "currentnessBeforePlan": true,
+        "panelTitles": [
+          "Declared verification plan"
+        ],
+        "tableHead": [],
+        "tableRows": [],
+        "resultChildren": [],
+        "cellsContained": null,
+        "cellCount": 0,
+        "intentMissing": "No verification criteria have been declared for this Action.",
+        "stateKind": null,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": null,
+        "retryVisible": null,
+        "closingNotice": "A completed investigation or diagnostic reset would not establish a verified outcome.",
+        "closingBlue": true,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 440,
+        "strip": 42,
+        "plan": 103,
+        "statePanel": null,
+        "currentnessNotice": 42,
+        "closing": 42,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null
+      }
+    },
+    {
+      "state": "worst-text",
+      "width": 1440,
+      "file": "w504c-desktop-worst-text.png",
+      "url": "http://localhost:5503/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "shell": "loaded",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "ACT-000002",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "ACT-000002 · Investigate connector 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "h1Fits": true,
+        "header": "ACT-000002 · Investigate connector 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+            "current": "page"
+          }
+        ],
+        "badge": {
+          "text": "Open",
+          "amber": true,
+          "lines": 1,
+          "clipped": false
+        },
+        "statusLine": "Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy · EV charging lab",
+        "stripText": "Open Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy · EV charging lab",
+        "ownerInside": true,
+        "ownerLines": 1,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [
+          "Declared verification plan"
+        ],
+        "tableHead": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "tableRows": [
+          [
+            "Complete a witnessed charging session",
+            "Session start, end, outcome and meter delta",
+            "Pending"
+          ],
+          [
+            "No fault recurrence during observation",
+            "Connector diagnostic events with full coverage",
+            "Pending"
+          ],
+          [
+            "No reduction in service availability",
+            "Comparable status coverage / operational window",
+            "Pending"
+          ]
+        ],
+        "resultChildren": [
+          0,
+          0,
+          0
+        ],
+        "cellsContained": true,
+        "cellCount": 9,
+        "intentMissing": null,
+        "stateKind": null,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": null,
+        "retryVisible": null,
+        "closingNotice": "A completed investigation or diagnostic reset would not establish a verified outcome.",
+        "closingBlue": true,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 643,
+        "strip": 42,
+        "plan": 248,
+        "statePanel": null,
+        "currentnessNotice": null,
+        "closing": 42,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120
+      }
+    },
+    {
+      "state": "forbidden-403",
+      "width": 1440,
+      "file": "w504c-desktop-forbidden-403.png",
+      "url": "http://localhost:5506/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "shell": "refused",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "Action",
+        "h1Fits": true,
+        "header": "Action What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+            "current": "page"
+          }
+        ],
+        "badge": null,
+        "statusLine": null,
+        "stripText": null,
+        "ownerInside": null,
+        "ownerLines": null,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [
+          "(untitled)"
+        ],
+        "tableHead": [],
+        "tableRows": [],
+        "resultChildren": [],
+        "cellsContained": null,
+        "cellCount": 0,
+        "intentMissing": null,
+        "stateKind": "refused",
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "refusalText": "EV work unavailable No access to Site 'EV-LAB-001'. Retry",
+        "refusalMessage": "No access to Site 'EV-LAB-001'.",
+        "stateText": "EV work unavailable No access to Site 'EV-LAB-001'. Retry",
+        "retryVisible": true,
+        "closingNotice": null,
+        "closingBlue": null,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 315,
+        "strip": null,
+        "plan": null,
+        "statePanel": 158,
+        "currentnessNotice": null,
+        "closing": null,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null
+      }
+    },
+    {
+      "state": "invalid-422",
+      "width": 1440,
+      "file": "w504c-desktop-invalid-422.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2027-10-24T08%3A49%3A12Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2027-10-24T08%3A49%3A12Z",
+        "shell": "refused",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "Action",
+        "h1Fits": true,
+        "header": "Action What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2027-10-24T08%3A49%3A12Z",
+            "current": "page"
+          }
+        ],
+        "badge": null,
+        "statusLine": null,
+        "stripText": null,
+        "ownerInside": null,
+        "ownerLines": null,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [
+          "(untitled)"
+        ],
+        "tableHead": [],
+        "tableRows": [],
+        "resultChildren": [],
+        "cellsContained": null,
+        "cellCount": 0,
+        "intentMissing": null,
+        "stateKind": "refused",
+        "refusal": "INVALID_KNOWN_AT",
+        "refusalText": "EV work unavailable 'known_at' must be one UTC instant no later than the read time. Retry",
+        "refusalMessage": "'known_at' must be one UTC instant no later than the read time.",
+        "stateText": "EV work unavailable 'known_at' must be one UTC instant no later than the read time. Retry",
+        "retryVisible": true,
+        "closingNotice": null,
+        "closingBlue": null,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 315,
+        "strip": null,
+        "plan": null,
+        "statePanel": 158,
+        "currentnessNotice": null,
+        "closing": null,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null
+      }
+    },
+    {
+      "state": "not-found-404",
+      "width": 1440,
+      "file": "w504c-desktop-not-found-404.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/actions/00000000-0000-4000-8000-000000000404/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/00000000-0000-4000-8000-000000000404/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "shell": "not_found",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "Action",
+        "h1Fits": true,
+        "header": "Action What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/00000000-0000-4000-8000-000000000404/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+            "current": "page"
+          }
+        ],
+        "badge": null,
+        "statusLine": null,
+        "stripText": null,
+        "ownerInside": null,
+        "ownerLines": null,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [
+          "(untitled)"
+        ],
+        "tableHead": [],
+        "tableRows": [],
+        "resultChildren": [],
+        "cellsContained": null,
+        "cellCount": 0,
+        "intentMissing": null,
+        "stateKind": "not-found",
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": "Action was not found at this site.",
+        "retryVisible": null,
+        "closingNotice": null,
+        "closingBlue": null,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 220,
+        "strip": null,
+        "plan": null,
+        "statePanel": 63,
+        "currentnessNotice": null,
+        "closing": null,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null
+      }
+    },
+    {
+      "state": "unavailable-503",
+      "width": 1440,
+      "file": "w504c-desktop-unavailable-503.png",
+      "url": "http://localhost:5507/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "shell": null,
+        "siteRefusal": "Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "crumbs": [],
+        "crumbSite": null,
+        "crumbHref": null,
+        "h1": null,
+        "h1Fits": null,
+        "header": null,
+        "openSite": null,
+        "tabs": [],
+        "badge": null,
+        "statusLine": null,
+        "stripText": null,
+        "ownerInside": null,
+        "ownerLines": null,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [],
+        "tableHead": [],
+        "tableRows": [],
+        "resultChildren": [],
+        "cellsContained": null,
+        "cellCount": 0,
+        "intentMissing": null,
+        "stateKind": null,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": null,
+        "retryVisible": null,
+        "closingNotice": null,
+        "closingBlue": null,
+        "related": false,
+        "disabledButtons": null,
+        "inspect": null,
+        "formControls": null,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": null,
+        "strip": null,
+        "plan": null,
+        "statePanel": null,
+        "currentnessNotice": null,
+        "closing": null,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null
+      }
+    },
+    {
+      "state": "positive-from-work",
+      "width": 390,
+      "file": "w504c-narrow-positive-from-work.png",
+      "url": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification",
+        "shell": "loaded",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "ACT-000001 · Investigate connector 2",
+        "h1Fits": true,
+        "header": "ACT-000001 · Investigate connector 2 What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification",
+            "current": "page"
+          }
+        ],
+        "badge": {
+          "text": "Open",
+          "amber": true,
+          "lines": 1,
+          "clipped": false
+        },
+        "statusLine": "Charging operations · EV charging lab",
+        "stripText": "Open Charging operations · EV charging lab",
+        "ownerInside": true,
+        "ownerLines": 1,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [
+          "Declared verification plan"
+        ],
+        "tableHead": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "tableRows": [
+          [
+            "Complete a witnessed charging session",
+            "Session start, end, outcome and meter delta",
+            "Pending"
+          ],
+          [
+            "No fault recurrence during observation",
+            "Connector diagnostic events with full coverage",
+            "Pending"
+          ],
+          [
+            "No reduction in service availability",
+            "Comparable status coverage / operational window",
+            "Pending"
+          ]
+        ],
+        "resultChildren": [
+          0,
+          0,
+          0
+        ],
+        "cellsContained": true,
+        "cellCount": 9,
+        "intentMissing": null,
+        "stateKind": null,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": null,
+        "retryVisible": null,
+        "closingNotice": "A completed investigation or diagnostic reset would not establish a verified outcome.",
+        "closingBlue": true,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 925,
+        "main": 776,
+        "strip": 42,
+        "plan": 406,
+        "statePanel": null,
+        "currentnessNotice": null,
+        "closing": 60,
+        "scrollerScrollWidth": 318,
+        "scrollerClientWidth": 318
+      }
+    },
+    {
+      "state": "positive",
+      "width": 390,
+      "file": "w504c-narrow-positive.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "shell": "loaded",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "ACT-000001 · Investigate connector 2",
+        "h1Fits": true,
+        "header": "ACT-000001 · Investigate connector 2 What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+            "current": "page"
+          }
+        ],
+        "badge": {
+          "text": "Open",
+          "amber": true,
+          "lines": 1,
+          "clipped": false
+        },
+        "statusLine": "Charging operations · EV charging lab",
+        "stripText": "Open Charging operations · EV charging lab",
+        "ownerInside": true,
+        "ownerLines": 1,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [
+          "Declared verification plan"
+        ],
+        "tableHead": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "tableRows": [
+          [
+            "Complete a witnessed charging session",
+            "Session start, end, outcome and meter delta",
+            "Pending"
+          ],
+          [
+            "No fault recurrence during observation",
+            "Connector diagnostic events with full coverage",
+            "Pending"
+          ],
+          [
+            "No reduction in service availability",
+            "Comparable status coverage / operational window",
+            "Pending"
+          ]
+        ],
+        "resultChildren": [
+          0,
+          0,
+          0
+        ],
+        "cellsContained": true,
+        "cellCount": 9,
+        "intentMissing": null,
+        "stateKind": null,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": null,
+        "retryVisible": null,
+        "closingNotice": "A completed investigation or diagnostic reset would not establish a verified outcome.",
+        "closingBlue": true,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 925,
+        "main": 776,
+        "strip": 42,
+        "plan": 406,
+        "statePanel": null,
+        "currentnessNotice": null,
+        "closing": 60,
+        "scrollerScrollWidth": 318,
+        "scrollerClientWidth": 318
+      }
+    },
+    {
+      "state": "historical",
+      "width": 390,
+      "file": "w504c-narrow-historical.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z",
+        "shell": "loaded",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "ACT-000001 · Investigate connector 2",
+        "h1Fits": true,
+        "header": "ACT-000001 · Investigate connector 2 What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z",
+            "current": "page"
+          }
+        ],
+        "badge": {
+          "text": "Open",
+          "amber": true,
+          "lines": 1,
+          "clipped": false
+        },
+        "statusLine": "Charging operations · EV charging lab",
+        "stripText": "Open Charging operations · EV charging lab",
+        "ownerInside": true,
+        "ownerLines": 1,
+        "revisionDisclosure": false,
+        "currentness": "HISTORICAL",
+        "currentnessText": "Read as of 2026-10-24 08:25 UTC. Later work may differ.",
+        "currentnessBlue": true,
+        "currentnessBeforePlan": true,
+        "panelTitles": [
+          "Declared verification plan"
+        ],
+        "tableHead": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "tableRows": [
+          [
+            "Complete a witnessed charging session",
+            "Session start, end, outcome and meter delta",
+            "Pending"
+          ],
+          [
+            "No fault recurrence during observation",
+            "Connector diagnostic events with full coverage",
+            "Pending"
+          ],
+          [
+            "No reduction in service availability",
+            "Comparable status coverage / operational window",
+            "Pending"
+          ]
+        ],
+        "resultChildren": [
+          0,
+          0,
+          0
+        ],
+        "cellsContained": true,
+        "cellCount": 9,
+        "intentMissing": null,
+        "stateKind": null,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": null,
+        "retryVisible": null,
+        "closingNotice": "A completed investigation or diagnostic reset would not establish a verified outcome.",
+        "closingBlue": true,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 985,
+        "main": 836,
+        "strip": 42,
+        "plan": 406,
+        "statePanel": null,
+        "currentnessNotice": 42,
+        "closing": 60,
+        "scrollerScrollWidth": 318,
+        "scrollerClientWidth": 318
+      }
+    },
+    {
+      "state": "missing-intent",
+      "width": 390,
+      "file": "w504c-narrow-missing-intent.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A10.631174Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A10.631174Z",
+        "shell": "loaded",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "ACT-000001 · Investigate connector 2",
+        "h1Fits": true,
+        "header": "ACT-000001 · Investigate connector 2 What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A10.631174Z",
+            "current": "page"
+          }
+        ],
+        "badge": {
+          "text": "Open",
+          "amber": true,
+          "lines": 1,
+          "clipped": false
+        },
+        "statusLine": "Charging operations · EV charging lab",
+        "stripText": "Open Charging operations · EV charging lab",
+        "ownerInside": true,
+        "ownerLines": 1,
+        "revisionDisclosure": false,
+        "currentness": "HISTORICAL",
+        "currentnessText": "Read as of 2026-10-24 08:25 UTC. Later work may differ.",
+        "currentnessBlue": true,
+        "currentnessBeforePlan": true,
+        "panelTitles": [
+          "Declared verification plan"
+        ],
+        "tableHead": [],
+        "tableRows": [],
+        "resultChildren": [],
+        "cellsContained": null,
+        "cellCount": 0,
+        "intentMissing": "No verification criteria have been declared for this Action.",
+        "stateKind": null,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": null,
+        "retryVisible": null,
+        "closingNotice": "A completed investigation or diagnostic reset would not establish a verified outcome.",
+        "closingBlue": true,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 555,
+        "strip": 42,
+        "plan": 126,
+        "statePanel": null,
+        "currentnessNotice": 42,
+        "closing": 60,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null
+      }
+    },
+    {
+      "state": "worst-text",
+      "width": 390,
+      "file": "w504c-narrow-worst-text.png",
+      "url": "http://localhost:5503/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "shell": "loaded",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "ACT-000002",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "ACT-000002 · Investigate connector 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "h1Fits": true,
+        "header": "ACT-000002 · Investigate connector 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+            "current": "page"
+          }
+        ],
+        "badge": {
+          "text": "Open",
+          "amber": true,
+          "lines": 1,
+          "clipped": false
+        },
+        "statusLine": "Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy · EV charging lab",
+        "stripText": "Open Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy · EV charging lab",
+        "ownerInside": true,
+        "ownerLines": 3,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [
+          "Declared verification plan"
+        ],
+        "tableHead": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "tableRows": [
+          [
+            "Complete a witnessed charging session",
+            "Session start, end, outcome and meter delta",
+            "Pending"
+          ],
+          [
+            "No fault recurrence during observation",
+            "Connector diagnostic events with full coverage",
+            "Pending"
+          ],
+          [
+            "No reduction in service availability",
+            "Comparable status coverage / operational window",
+            "Pending"
+          ]
+        ],
+        "resultChildren": [
+          0,
+          0,
+          0
+        ],
+        "cellsContained": true,
+        "cellCount": 9,
+        "intentMissing": null,
+        "stateKind": null,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": null,
+        "retryVisible": null,
+        "closingNotice": "A completed investigation or diagnostic reset would not establish a verified outcome.",
+        "closingBlue": true,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 1141,
+        "main": 991,
+        "strip": 114,
+        "plan": 406,
+        "statePanel": null,
+        "currentnessNotice": null,
+        "closing": 60,
+        "scrollerScrollWidth": 318,
+        "scrollerClientWidth": 318
+      }
+    },
+    {
+      "state": "forbidden-403",
+      "width": 390,
+      "file": "w504c-narrow-forbidden-403.png",
+      "url": "http://localhost:5506/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "shell": "refused",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "Action",
+        "h1Fits": true,
+        "header": "Action What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+            "current": "page"
+          }
+        ],
+        "badge": null,
+        "statusLine": null,
+        "stripText": null,
+        "ownerInside": null,
+        "ownerLines": null,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [
+          "(untitled)"
+        ],
+        "tableHead": [],
+        "tableRows": [],
+        "resultChildren": [],
+        "cellsContained": null,
+        "cellCount": 0,
+        "intentMissing": null,
+        "stateKind": "refused",
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "refusalText": "EV work unavailable No access to Site 'EV-LAB-001'. Retry",
+        "refusalMessage": "No access to Site 'EV-LAB-001'.",
+        "stateText": "EV work unavailable No access to Site 'EV-LAB-001'. Retry",
+        "retryVisible": true,
+        "closingNotice": null,
+        "closingBlue": null,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 361,
+        "strip": null,
+        "plan": null,
+        "statePanel": 158,
+        "currentnessNotice": null,
+        "closing": null,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null
+      }
+    },
+    {
+      "state": "invalid-422",
+      "width": 390,
+      "file": "w504c-narrow-invalid-422.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2027-10-24T08%3A49%3A12Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2027-10-24T08%3A49%3A12Z",
+        "shell": "refused",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "Action",
+        "h1Fits": true,
+        "header": "Action What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2027-10-24T08%3A49%3A12Z",
+            "current": "page"
+          }
+        ],
+        "badge": null,
+        "statusLine": null,
+        "stripText": null,
+        "ownerInside": null,
+        "ownerLines": null,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [
+          "(untitled)"
+        ],
+        "tableHead": [],
+        "tableRows": [],
+        "resultChildren": [],
+        "cellsContained": null,
+        "cellCount": 0,
+        "intentMissing": null,
+        "stateKind": "refused",
+        "refusal": "INVALID_KNOWN_AT",
+        "refusalText": "EV work unavailable 'known_at' must be one UTC instant no later than the read time. Retry",
+        "refusalMessage": "'known_at' must be one UTC instant no later than the read time.",
+        "stateText": "EV work unavailable 'known_at' must be one UTC instant no later than the read time. Retry",
+        "retryVisible": true,
+        "closingNotice": null,
+        "closingBlue": null,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 384,
+        "strip": null,
+        "plan": null,
+        "statePanel": 181,
+        "currentnessNotice": null,
+        "closing": null,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null
+      }
+    },
+    {
+      "state": "not-found-404",
+      "width": 390,
+      "file": "w504c-narrow-not-found-404.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/actions/00000000-0000-4000-8000-000000000404/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/00000000-0000-4000-8000-000000000404/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "shell": "not_found",
+        "siteRefusal": null,
+        "crumbs": [
+          "Actions",
+          "Verification"
+        ],
+        "crumbSite": "· site: EV charging lab",
+        "crumbHref": "/actions",
+        "h1": "Action",
+        "h1Fits": true,
+        "header": "Action What would establish successful service restoration? Open site",
+        "openSite": "/sites/EV-LAB-001",
+        "tabs": [
+          {
+            "text": "Verification",
+            "href": "/sites/EV-LAB-001/actions/00000000-0000-4000-8000-000000000404/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+            "current": "page"
+          }
+        ],
+        "badge": null,
+        "statusLine": null,
+        "stripText": null,
+        "ownerInside": null,
+        "ownerLines": null,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [
+          "(untitled)"
+        ],
+        "tableHead": [],
+        "tableRows": [],
+        "resultChildren": [],
+        "cellsContained": null,
+        "cellCount": 0,
+        "intentMissing": null,
+        "stateKind": "not-found",
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": "Action was not found at this site.",
+        "retryVisible": null,
+        "closingNotice": null,
+        "closingBlue": null,
+        "related": false,
+        "disabledButtons": 0,
+        "inspect": 0,
+        "formControls": 0,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 266,
+        "strip": null,
+        "plan": null,
+        "statePanel": 63,
+        "currentnessNotice": null,
+        "closing": null,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null
+      }
+    },
+    {
+      "state": "unavailable-503",
+      "width": 390,
+      "file": "w504c-narrow-unavailable-503.png",
+      "url": "http://localhost:5507/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "shell": null,
+        "siteRefusal": "Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "crumbs": [],
+        "crumbSite": null,
+        "crumbHref": null,
+        "h1": null,
+        "h1Fits": null,
+        "header": null,
+        "openSite": null,
+        "tabs": [],
+        "badge": null,
+        "statusLine": null,
+        "stripText": null,
+        "ownerInside": null,
+        "ownerLines": null,
+        "revisionDisclosure": false,
+        "currentness": null,
+        "currentnessText": null,
+        "currentnessBlue": null,
+        "currentnessBeforePlan": null,
+        "panelTitles": [],
+        "tableHead": [],
+        "tableRows": [],
+        "resultChildren": [],
+        "cellsContained": null,
+        "cellCount": 0,
+        "intentMissing": null,
+        "stateKind": null,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "stateText": null,
+        "retryVisible": null,
+        "closingNotice": null,
+        "closingBlue": null,
+        "related": false,
+        "disabledButtons": null,
+        "inspect": null,
+        "formControls": null,
+        "depot": false,
+        "coldNames": 0,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": null,
+        "strip": null,
+        "plan": null,
+        "statePanel": null,
+        "currentnessNotice": null,
+        "closing": null,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null
+      }
+    }
+  ],
+  "claims": [
+    {
+      "name": "manifest: positive ready with its declared Action and intent (ruling 39)",
+      "ok": true,
+      "detail": {
+        "status": "ready",
+        "action": {
+          "schema_version": "domain-action-1",
+          "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+          "action_code": "ACT-000001",
+          "recorded_at": "2026-10-24T08:25:10.631174Z"
+        }
+      }
+    },
+    {
+      "name": "manifest: clocks K1 < K2 (the Action precedes its intent; the K1 read has no intent)",
+      "ok": true,
+      "detail": [
+        "K0=2026-10-06T09:00:00Z",
+        "K1=2026-10-24T08:25:10.631174Z",
+        "K2=2026-10-24T08:25:10.961115Z"
+      ]
+    },
+    {
+      "name": "manifest: worstcase ready with a 160-code-point title and owner Action and its intent, served",
+      "ok": true,
+      "detail": {
+        "n": 2,
+        "action_id": "75ee9481-13fa-4688-afbc-8a226b246665",
+        "action_code": "ACT-000002",
+        "recorded_at": "2026-10-24T08:26:39.584641Z",
+        "intent_id": "1e252c25-c718-4a68-b60f-a5ec1e50fd4c",
+        "title_code_points": 160,
+        "owner_code_points": 160
+      }
+    },
+    {
+      "name": "manifest: forbidden served and unavailable stopped by attest",
+      "ok": true,
+      "detail": {
+        "forbidden": {
+          "http": 403,
+          "code": "SITE_SCOPE_FORBIDDEN"
+        },
+        "unavailable": {
+          "stopped_pid": 20944,
+          "port": 9007,
+          "http_after_stop": 0,
+          "expected": "connection refused; the browser proxy reports 503"
+        }
+      }
+    },
+    {
+      "name": "unavailable capture: 409 DOMAIN_INTENT_BASIS_CHANGED",
+      "ok": true,
+      "info": true,
+      "detail": "needs the intent's exact EV selection to change at its recorded cutoff; the native replay cannot produce it (rulings 54/55); pure vectors in domainActionVerification.test.tsx and operatorRouteFrames.test.tsx"
+    },
+    {
+      "name": "unavailable capture: in-panel 503 with a healthy Site read",
+      "ok": true,
+      "info": true,
+      "detail": "the walkthrough's unavailable vector stops the whole API, so the browser shows the Site-level refusal (captured as unavailable-503); pure vector in domainActionVerification.test.tsx"
+    },
+    {
+      "name": "unavailable capture: missing intent with UNKNOWN currentness",
+      "ok": true,
+      "info": true,
+      "detail": "the producer's missing-intent read (known_at = K1) is HISTORICAL; UNKNOWN stays a pure vector (domainActionVerification.test.tsx)"
+    },
+    {
+      "name": "unavailable capture: pending / stale currentness",
+      "ok": true,
+      "info": true,
+      "detail": "manifest modes unavailable (ruling 54); pure vectors in domainActionVerification.test.tsx"
+    },
+    {
+      "name": "desktop work-link: the EV Work code links to its /verification detail (R113 closed)",
+      "ok": true,
+      "detail": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+    },
+    {
+      "name": "desktop positive-from-work: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "desktop positive-from-work: the click opens the loaded EV detail at its /verification address",
+      "ok": true,
+      "detail": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+    },
+    {
+      "name": "desktop positive: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "desktop positive: loaded, CURRENT (no currentness notice), selected query kept on the Verification tab (ruling 14)",
+      "ok": true,
+      "detail": {
+        "shell": "loaded",
+        "tab": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+      }
+    },
+    {
+      "name": "desktop positive: status owner is the walkthrough's stored owner",
+      "ok": true,
+      "detail": "Charging operations · EV charging lab"
+    },
+    {
+      "name": "desktop positive: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)",
+      "ok": true,
+      "detail": {
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "site": "· site: EV charging lab"
+      }
+    },
+    {
+      "name": "desktop positive: heading {code} · {stored title}, contained (R109)",
+      "ok": true,
+      "detail": {
+        "h1": "ACT-000001 · Investigate connector 2",
+        "fits": true
+      }
+    },
+    {
+      "name": "desktop positive: mock question subtitle and Open site to the Site detail",
+      "ok": true,
+      "detail": {
+        "openSite": "/sites/EV-LAB-001"
+      }
+    },
+    {
+      "name": "desktop positive: one Verification tab, current",
+      "ok": true,
+      "detail": [
+        {
+          "text": "Verification",
+          "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "current": "page"
+        }
+      ]
+    },
+    {
+      "name": "desktop positive: amber 'Open' badge on one line, unclipped (pre-flight 45)",
+      "ok": true,
+      "detail": {
+        "text": "Open",
+        "amber": true,
+        "lines": 1,
+        "clipped": false
+      }
+    },
+    {
+      "name": "desktop positive: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)",
+      "ok": true,
+      "detail": {
+        "status": "Charging operations · EV charging lab"
+      }
+    },
+    {
+      "name": "desktop positive: owner span contained in the strip",
+      "ok": true,
+      "detail": {
+        "inside": true,
+        "lines": 1
+      }
+    },
+    {
+      "name": "desktop positive: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)",
+      "ok": true,
+      "detail": {
+        "related": false,
+        "disabled": 0,
+        "inspect": 0,
+        "form": 0,
+        "depot": false
+      }
+    },
+    {
+      "name": "desktop positive: blue closing notice (mock literal)",
+      "ok": true,
+      "detail": "A completed investigation or diagnostic reset would not establish a verified outcome."
+    },
+    {
+      "name": "desktop positive: sole panel 'Declared verification plan' with the mock columns",
+      "ok": true,
+      "detail": {
+        "panels": [
+          "Declared verification plan"
+        ],
+        "head": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ]
+      }
+    },
+    {
+      "name": "desktop positive: the three EV criteria with plain 'Pending' results (no chip)",
+      "ok": true,
+      "detail": [
+        [
+          "Complete a witnessed charging session",
+          "Session start, end, outcome and meter delta",
+          "Pending"
+        ],
+        [
+          "No fault recurrence during observation",
+          "Connector diagnostic events with full coverage",
+          "Pending"
+        ],
+        [
+          "No reduction in service availability",
+          "Comparable status coverage / operational window",
+          "Pending"
+        ]
+      ]
+    },
+    {
+      "name": "desktop positive: every criteria cell contains its content (9 cells)",
+      "ok": true,
+      "detail": {
+        "cells": 9
+      }
+    },
+    {
+      "name": "desktop positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop positive: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop positive: page main <= 1500",
+      "ok": true,
+      "detail": {
+        "main": 525,
+        "docHeight": 1000
+      }
+    },
+    {
+      "name": "desktop positive: status strip <= 140",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop positive: Declared verification plan panel <= 360",
+      "ok": true,
+      "detail": {
+        "plan": 248,
+        "tableScrollWidth": 1120,
+        "tableClientWidth": 1120
+      }
+    },
+    {
+      "name": "desktop positive: closing notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop historical: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "desktop historical: HISTORICAL blue notice between strip and plan (R80/R104)",
+      "ok": true,
+      "detail": {
+        "status": "HISTORICAL",
+        "text": "Read as of 2026-10-24 08:25 UTC. Later work may differ."
+      }
+    },
+    {
+      "name": "desktop historical: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)",
+      "ok": true,
+      "detail": {
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "site": "· site: EV charging lab"
+      }
+    },
+    {
+      "name": "desktop historical: heading {code} · {stored title}, contained (R109)",
+      "ok": true,
+      "detail": {
+        "h1": "ACT-000001 · Investigate connector 2",
+        "fits": true
+      }
+    },
+    {
+      "name": "desktop historical: mock question subtitle and Open site to the Site detail",
+      "ok": true,
+      "detail": {
+        "openSite": "/sites/EV-LAB-001"
+      }
+    },
+    {
+      "name": "desktop historical: one Verification tab, current",
+      "ok": true,
+      "detail": [
+        {
+          "text": "Verification",
+          "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z",
+          "current": "page"
+        }
+      ]
+    },
+    {
+      "name": "desktop historical: amber 'Open' badge on one line, unclipped (pre-flight 45)",
+      "ok": true,
+      "detail": {
+        "text": "Open",
+        "amber": true,
+        "lines": 1,
+        "clipped": false
+      }
+    },
+    {
+      "name": "desktop historical: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)",
+      "ok": true,
+      "detail": {
+        "status": "Charging operations · EV charging lab"
+      }
+    },
+    {
+      "name": "desktop historical: owner span contained in the strip",
+      "ok": true,
+      "detail": {
+        "inside": true,
+        "lines": 1
+      }
+    },
+    {
+      "name": "desktop historical: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)",
+      "ok": true,
+      "detail": {
+        "related": false,
+        "disabled": 0,
+        "inspect": 0,
+        "form": 0,
+        "depot": false
+      }
+    },
+    {
+      "name": "desktop historical: blue closing notice (mock literal)",
+      "ok": true,
+      "detail": "A completed investigation or diagnostic reset would not establish a verified outcome."
+    },
+    {
+      "name": "desktop historical: sole panel 'Declared verification plan' with the mock columns",
+      "ok": true,
+      "detail": {
+        "panels": [
+          "Declared verification plan"
+        ],
+        "head": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ]
+      }
+    },
+    {
+      "name": "desktop historical: the three EV criteria with plain 'Pending' results (no chip)",
+      "ok": true,
+      "detail": [
+        [
+          "Complete a witnessed charging session",
+          "Session start, end, outcome and meter delta",
+          "Pending"
+        ],
+        [
+          "No fault recurrence during observation",
+          "Connector diagnostic events with full coverage",
+          "Pending"
+        ],
+        [
+          "No reduction in service availability",
+          "Comparable status coverage / operational window",
+          "Pending"
+        ]
+      ]
+    },
+    {
+      "name": "desktop historical: every criteria cell contains its content (9 cells)",
+      "ok": true,
+      "detail": {
+        "cells": 9
+      }
+    },
+    {
+      "name": "desktop historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop historical: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop historical: page main <= 1500",
+      "ok": true,
+      "detail": {
+        "main": 585,
+        "docHeight": 1000
+      }
+    },
+    {
+      "name": "desktop historical: status strip <= 140",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop historical: Declared verification plan panel <= 360",
+      "ok": true,
+      "detail": {
+        "plan": 248,
+        "tableScrollWidth": 1120,
+        "tableClientWidth": 1120
+      }
+    },
+    {
+      "name": "desktop historical: currentness notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop historical: closing notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop missing-intent: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "desktop missing-intent: 200 at K1 (before the intent): plan heading kept, exact no-criteria sentence, no table, notice above the plan",
+      "ok": true,
+      "detail": {
+        "status": "HISTORICAL",
+        "missing": "No verification criteria have been declared for this Action.",
+        "panels": [
+          "Declared verification plan"
+        ]
+      }
+    },
+    {
+      "name": "desktop missing-intent: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)",
+      "ok": true,
+      "detail": {
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "site": "· site: EV charging lab"
+      }
+    },
+    {
+      "name": "desktop missing-intent: heading {code} · {stored title}, contained (R109)",
+      "ok": true,
+      "detail": {
+        "h1": "ACT-000001 · Investigate connector 2",
+        "fits": true
+      }
+    },
+    {
+      "name": "desktop missing-intent: mock question subtitle and Open site to the Site detail",
+      "ok": true,
+      "detail": {
+        "openSite": "/sites/EV-LAB-001"
+      }
+    },
+    {
+      "name": "desktop missing-intent: one Verification tab, current",
+      "ok": true,
+      "detail": [
+        {
+          "text": "Verification",
+          "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A10.631174Z",
+          "current": "page"
+        }
+      ]
+    },
+    {
+      "name": "desktop missing-intent: amber 'Open' badge on one line, unclipped (pre-flight 45)",
+      "ok": true,
+      "detail": {
+        "text": "Open",
+        "amber": true,
+        "lines": 1,
+        "clipped": false
+      }
+    },
+    {
+      "name": "desktop missing-intent: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)",
+      "ok": true,
+      "detail": {
+        "status": "Charging operations · EV charging lab"
+      }
+    },
+    {
+      "name": "desktop missing-intent: owner span contained in the strip",
+      "ok": true,
+      "detail": {
+        "inside": true,
+        "lines": 1
+      }
+    },
+    {
+      "name": "desktop missing-intent: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)",
+      "ok": true,
+      "detail": {
+        "related": false,
+        "disabled": 0,
+        "inspect": 0,
+        "form": 0,
+        "depot": false
+      }
+    },
+    {
+      "name": "desktop missing-intent: blue closing notice (mock literal)",
+      "ok": true,
+      "detail": "A completed investigation or diagnostic reset would not establish a verified outcome."
+    },
+    {
+      "name": "desktop missing-intent: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop missing-intent: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop missing-intent: page main <= 1500",
+      "ok": true,
+      "detail": {
+        "main": 440,
+        "docHeight": 1000
+      }
+    },
+    {
+      "name": "desktop missing-intent: status strip <= 140",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop missing-intent: Declared verification plan panel <= 360",
+      "ok": true,
+      "detail": {
+        "plan": 103,
+        "tableScrollWidth": null,
+        "tableClientWidth": null
+      }
+    },
+    {
+      "name": "desktop missing-intent: currentness notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop missing-intent: closing notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop worst-text: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "desktop worst-text: the 160-code-point title and owner whole (R109)",
+      "ok": true,
+      "detail": {
+        "h1Length": 173,
+        "statusLength": 178,
+        "ownerLines": 1
+      }
+    },
+    {
+      "name": "desktop worst-text: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)",
+      "ok": true,
+      "detail": {
+        "crumbs": [
+          "Actions",
+          "ACT-000002",
+          "Verification"
+        ],
+        "site": "· site: EV charging lab"
+      }
+    },
+    {
+      "name": "desktop worst-text: heading {code} · {stored title}, contained (R109)",
+      "ok": true,
+      "detail": {
+        "h1": "ACT-000002 · Investigate connector 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxx",
+        "fits": true
+      }
+    },
+    {
+      "name": "desktop worst-text: mock question subtitle and Open site to the Site detail",
+      "ok": true,
+      "detail": {
+        "openSite": "/sites/EV-LAB-001"
+      }
+    },
+    {
+      "name": "desktop worst-text: one Verification tab, current",
+      "ok": true,
+      "detail": [
+        {
+          "text": "Verification",
+          "href": "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "current": "page"
+        }
+      ]
+    },
+    {
+      "name": "desktop worst-text: amber 'Open' badge on one line, unclipped (pre-flight 45)",
+      "ok": true,
+      "detail": {
+        "text": "Open",
+        "amber": true,
+        "lines": 1,
+        "clipped": false
+      }
+    },
+    {
+      "name": "desktop worst-text: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)",
+      "ok": true,
+      "detail": {
+        "status": "Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+      }
+    },
+    {
+      "name": "desktop worst-text: owner span contained in the strip",
+      "ok": true,
+      "detail": {
+        "inside": true,
+        "lines": 1
+      }
+    },
+    {
+      "name": "desktop worst-text: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)",
+      "ok": true,
+      "detail": {
+        "related": false,
+        "disabled": 0,
+        "inspect": 0,
+        "form": 0,
+        "depot": false
+      }
+    },
+    {
+      "name": "desktop worst-text: blue closing notice (mock literal)",
+      "ok": true,
+      "detail": "A completed investigation or diagnostic reset would not establish a verified outcome."
+    },
+    {
+      "name": "desktop worst-text: sole panel 'Declared verification plan' with the mock columns",
+      "ok": true,
+      "detail": {
+        "panels": [
+          "Declared verification plan"
+        ],
+        "head": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ]
+      }
+    },
+    {
+      "name": "desktop worst-text: the three EV criteria with plain 'Pending' results (no chip)",
+      "ok": true,
+      "detail": [
+        [
+          "Complete a witnessed charging session",
+          "Session start, end, outcome and meter delta",
+          "Pending"
+        ],
+        [
+          "No fault recurrence during observation",
+          "Connector diagnostic events with full coverage",
+          "Pending"
+        ],
+        [
+          "No reduction in service availability",
+          "Comparable status coverage / operational window",
+          "Pending"
+        ]
+      ]
+    },
+    {
+      "name": "desktop worst-text: every criteria cell contains its content (9 cells)",
+      "ok": true,
+      "detail": {
+        "cells": 9
+      }
+    },
+    {
+      "name": "desktop worst-text: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop worst-text: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop worst-text: page main <= 1500",
+      "ok": true,
+      "detail": {
+        "main": 643,
+        "docHeight": 1000
+      }
+    },
+    {
+      "name": "desktop worst-text: status strip <= 140",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop worst-text: Declared verification plan panel <= 360",
+      "ok": true,
+      "detail": {
+        "plan": 248,
+        "tableScrollWidth": 1120,
+        "tableClientWidth": 1120
+      }
+    },
+    {
+      "name": "desktop worst-text: closing notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop forbidden-403: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "desktop forbidden-403: Site read healthy; one untitled panel 'EV work unavailable', server message, visible Retry; no strip, no Pending",
+      "ok": true,
+      "detail": {
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "message": "No access to Site 'EV-LAB-001'.",
+        "panels": [
+          "(untitled)"
+        ]
+      }
+    },
+    {
+      "name": "desktop forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop forbidden-403: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop forbidden-403: page main <= 1500",
+      "ok": true,
+      "detail": {
+        "main": 315,
+        "docHeight": 1000
+      }
+    },
+    {
+      "name": "desktop forbidden-403: untitled state panel <= 360 (ruling 50)",
+      "ok": true,
+      "detail": 158
+    },
+    {
+      "name": "desktop invalid-422: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "desktop invalid-422: a future known_at is the server's 422 in the untitled EV refusal panel",
+      "ok": true,
+      "detail": {
+        "refusal": "INVALID_KNOWN_AT",
+        "message": "'known_at' must be one UTC instant no later than the read time."
+      }
+    },
+    {
+      "name": "desktop invalid-422: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop invalid-422: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop invalid-422: page main <= 1500",
+      "ok": true,
+      "detail": {
+        "main": 315,
+        "docHeight": 1000
+      }
+    },
+    {
+      "name": "desktop invalid-422: untitled state panel <= 360 (ruling 50)",
+      "ok": true,
+      "detail": 158
+    },
+    {
+      "name": "desktop not-found-404: settled",
+      "ok": true,
+      "detail": "not_found"
+    },
+    {
+      "name": "desktop not-found-404: one untitled panel 'Action was not found at this site.'",
+      "ok": true,
+      "detail": {
+        "kind": "not-found",
+        "text": "Action was not found at this site."
+      }
+    },
+    {
+      "name": "desktop not-found-404: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop not-found-404: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop not-found-404: page main <= 1500",
+      "ok": true,
+      "detail": {
+        "main": 220,
+        "docHeight": 1000
+      }
+    },
+    {
+      "name": "desktop not-found-404: untitled state panel <= 360 (ruling 50)",
+      "ok": true,
+      "detail": 63
+    },
+    {
+      "name": "desktop unavailable-503: settled",
+      "ok": true,
+      "detail": "Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+    },
+    {
+      "name": "desktop unavailable-503: the walkthrough stops this API, so the Site read fails at the proxy (Site-level refusal, not the in-panel EV 503)",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "siteRefusal": "Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "kind": null
+      }
+    },
+    {
+      "name": "desktop unavailable-503: a refusal with no criteria and no Pending",
+      "ok": true,
+      "detail": {
+        "siteRefusal": "Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+      }
+    },
+    {
+      "name": "desktop unavailable-503: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "narrow work-link: the EV Work code links to its /verification detail (R113 closed)",
+      "ok": true,
+      "detail": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+    },
+    {
+      "name": "narrow positive-from-work: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "narrow positive-from-work: the click opens the loaded EV detail at its /verification address",
+      "ok": true,
+      "detail": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+    },
+    {
+      "name": "narrow positive: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "narrow positive: loaded, CURRENT (no currentness notice), selected query kept on the Verification tab (ruling 14)",
+      "ok": true,
+      "detail": {
+        "shell": "loaded",
+        "tab": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+      }
+    },
+    {
+      "name": "narrow positive: status owner is the walkthrough's stored owner",
+      "ok": true,
+      "detail": "Charging operations · EV charging lab"
+    },
+    {
+      "name": "narrow positive: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)",
+      "ok": true,
+      "detail": {
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "site": "· site: EV charging lab"
+      }
+    },
+    {
+      "name": "narrow positive: heading {code} · {stored title}, contained (R109)",
+      "ok": true,
+      "detail": {
+        "h1": "ACT-000001 · Investigate connector 2",
+        "fits": true
+      }
+    },
+    {
+      "name": "narrow positive: mock question subtitle and Open site to the Site detail",
+      "ok": true,
+      "detail": {
+        "openSite": "/sites/EV-LAB-001"
+      }
+    },
+    {
+      "name": "narrow positive: one Verification tab, current",
+      "ok": true,
+      "detail": [
+        {
+          "text": "Verification",
+          "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "current": "page"
+        }
+      ]
+    },
+    {
+      "name": "narrow positive: amber 'Open' badge on one line, unclipped (pre-flight 45)",
+      "ok": true,
+      "detail": {
+        "text": "Open",
+        "amber": true,
+        "lines": 1,
+        "clipped": false
+      }
+    },
+    {
+      "name": "narrow positive: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)",
+      "ok": true,
+      "detail": {
+        "status": "Charging operations · EV charging lab"
+      }
+    },
+    {
+      "name": "narrow positive: owner span contained in the strip",
+      "ok": true,
+      "detail": {
+        "inside": true,
+        "lines": 1
+      }
+    },
+    {
+      "name": "narrow positive: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)",
+      "ok": true,
+      "detail": {
+        "related": false,
+        "disabled": 0,
+        "inspect": 0,
+        "form": 0,
+        "depot": false
+      }
+    },
+    {
+      "name": "narrow positive: blue closing notice (mock literal)",
+      "ok": true,
+      "detail": "A completed investigation or diagnostic reset would not establish a verified outcome."
+    },
+    {
+      "name": "narrow positive: sole panel 'Declared verification plan' with the mock columns",
+      "ok": true,
+      "detail": {
+        "panels": [
+          "Declared verification plan"
+        ],
+        "head": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ]
+      }
+    },
+    {
+      "name": "narrow positive: the three EV criteria with plain 'Pending' results (no chip)",
+      "ok": true,
+      "detail": [
+        [
+          "Complete a witnessed charging session",
+          "Session start, end, outcome and meter delta",
+          "Pending"
+        ],
+        [
+          "No fault recurrence during observation",
+          "Connector diagnostic events with full coverage",
+          "Pending"
+        ],
+        [
+          "No reduction in service availability",
+          "Comparable status coverage / operational window",
+          "Pending"
+        ]
+      ]
+    },
+    {
+      "name": "narrow positive: every criteria cell contains its content (9 cells)",
+      "ok": true,
+      "detail": {
+        "cells": 9
+      }
+    },
+    {
+      "name": "narrow positive: criteria table scroller",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "scrollWidth": 318,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow positive: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow positive: page main <= 1900",
+      "ok": true,
+      "detail": {
+        "main": 776,
+        "docHeight": 925
+      }
+    },
+    {
+      "name": "narrow positive: status strip <= 200",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "narrow positive: Declared verification plan panel <= 590",
+      "ok": true,
+      "detail": {
+        "plan": 406,
+        "tableScrollWidth": 318,
+        "tableClientWidth": 318
+      }
+    },
+    {
+      "name": "narrow positive: closing notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow historical: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "narrow historical: HISTORICAL blue notice between strip and plan (R80/R104)",
+      "ok": true,
+      "detail": {
+        "status": "HISTORICAL",
+        "text": "Read as of 2026-10-24 08:25 UTC. Later work may differ."
+      }
+    },
+    {
+      "name": "narrow historical: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)",
+      "ok": true,
+      "detail": {
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "site": "· site: EV charging lab"
+      }
+    },
+    {
+      "name": "narrow historical: heading {code} · {stored title}, contained (R109)",
+      "ok": true,
+      "detail": {
+        "h1": "ACT-000001 · Investigate connector 2",
+        "fits": true
+      }
+    },
+    {
+      "name": "narrow historical: mock question subtitle and Open site to the Site detail",
+      "ok": true,
+      "detail": {
+        "openSite": "/sites/EV-LAB-001"
+      }
+    },
+    {
+      "name": "narrow historical: one Verification tab, current",
+      "ok": true,
+      "detail": [
+        {
+          "text": "Verification",
+          "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z",
+          "current": "page"
+        }
+      ]
+    },
+    {
+      "name": "narrow historical: amber 'Open' badge on one line, unclipped (pre-flight 45)",
+      "ok": true,
+      "detail": {
+        "text": "Open",
+        "amber": true,
+        "lines": 1,
+        "clipped": false
+      }
+    },
+    {
+      "name": "narrow historical: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)",
+      "ok": true,
+      "detail": {
+        "status": "Charging operations · EV charging lab"
+      }
+    },
+    {
+      "name": "narrow historical: owner span contained in the strip",
+      "ok": true,
+      "detail": {
+        "inside": true,
+        "lines": 1
+      }
+    },
+    {
+      "name": "narrow historical: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)",
+      "ok": true,
+      "detail": {
+        "related": false,
+        "disabled": 0,
+        "inspect": 0,
+        "form": 0,
+        "depot": false
+      }
+    },
+    {
+      "name": "narrow historical: blue closing notice (mock literal)",
+      "ok": true,
+      "detail": "A completed investigation or diagnostic reset would not establish a verified outcome."
+    },
+    {
+      "name": "narrow historical: sole panel 'Declared verification plan' with the mock columns",
+      "ok": true,
+      "detail": {
+        "panels": [
+          "Declared verification plan"
+        ],
+        "head": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ]
+      }
+    },
+    {
+      "name": "narrow historical: the three EV criteria with plain 'Pending' results (no chip)",
+      "ok": true,
+      "detail": [
+        [
+          "Complete a witnessed charging session",
+          "Session start, end, outcome and meter delta",
+          "Pending"
+        ],
+        [
+          "No fault recurrence during observation",
+          "Connector diagnostic events with full coverage",
+          "Pending"
+        ],
+        [
+          "No reduction in service availability",
+          "Comparable status coverage / operational window",
+          "Pending"
+        ]
+      ]
+    },
+    {
+      "name": "narrow historical: every criteria cell contains its content (9 cells)",
+      "ok": true,
+      "detail": {
+        "cells": 9
+      }
+    },
+    {
+      "name": "narrow historical: criteria table scroller",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "scrollWidth": 318,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow historical: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow historical: page main <= 1900",
+      "ok": true,
+      "detail": {
+        "main": 836,
+        "docHeight": 985
+      }
+    },
+    {
+      "name": "narrow historical: status strip <= 200",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "narrow historical: Declared verification plan panel <= 590",
+      "ok": true,
+      "detail": {
+        "plan": 406,
+        "tableScrollWidth": 318,
+        "tableClientWidth": 318
+      }
+    },
+    {
+      "name": "narrow historical: currentness notice <= 160",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "narrow historical: closing notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow missing-intent: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "narrow missing-intent: 200 at K1 (before the intent): plan heading kept, exact no-criteria sentence, no table, notice above the plan",
+      "ok": true,
+      "detail": {
+        "status": "HISTORICAL",
+        "missing": "No verification criteria have been declared for this Action.",
+        "panels": [
+          "Declared verification plan"
+        ]
+      }
+    },
+    {
+      "name": "narrow missing-intent: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)",
+      "ok": true,
+      "detail": {
+        "crumbs": [
+          "Actions",
+          "ACT-000001",
+          "Verification"
+        ],
+        "site": "· site: EV charging lab"
+      }
+    },
+    {
+      "name": "narrow missing-intent: heading {code} · {stored title}, contained (R109)",
+      "ok": true,
+      "detail": {
+        "h1": "ACT-000001 · Investigate connector 2",
+        "fits": true
+      }
+    },
+    {
+      "name": "narrow missing-intent: mock question subtitle and Open site to the Site detail",
+      "ok": true,
+      "detail": {
+        "openSite": "/sites/EV-LAB-001"
+      }
+    },
+    {
+      "name": "narrow missing-intent: one Verification tab, current",
+      "ok": true,
+      "detail": [
+        {
+          "text": "Verification",
+          "href": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A10.631174Z",
+          "current": "page"
+        }
+      ]
+    },
+    {
+      "name": "narrow missing-intent: amber 'Open' badge on one line, unclipped (pre-flight 45)",
+      "ok": true,
+      "detail": {
+        "text": "Open",
+        "amber": true,
+        "lines": 1,
+        "clipped": false
+      }
+    },
+    {
+      "name": "narrow missing-intent: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)",
+      "ok": true,
+      "detail": {
+        "status": "Charging operations · EV charging lab"
+      }
+    },
+    {
+      "name": "narrow missing-intent: owner span contained in the strip",
+      "ok": true,
+      "detail": {
+        "inside": true,
+        "lines": 1
+      }
+    },
+    {
+      "name": "narrow missing-intent: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)",
+      "ok": true,
+      "detail": {
+        "related": false,
+        "disabled": 0,
+        "inspect": 0,
+        "form": 0,
+        "depot": false
+      }
+    },
+    {
+      "name": "narrow missing-intent: blue closing notice (mock literal)",
+      "ok": true,
+      "detail": "A completed investigation or diagnostic reset would not establish a verified outcome."
+    },
+    {
+      "name": "narrow missing-intent: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow missing-intent: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow missing-intent: page main <= 1900",
+      "ok": true,
+      "detail": {
+        "main": 555,
+        "docHeight": 900
+      }
+    },
+    {
+      "name": "narrow missing-intent: status strip <= 200",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "narrow missing-intent: Declared verification plan panel <= 590",
+      "ok": true,
+      "detail": {
+        "plan": 126,
+        "tableScrollWidth": null,
+        "tableClientWidth": null
+      }
+    },
+    {
+      "name": "narrow missing-intent: currentness notice <= 160",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "narrow missing-intent: closing notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow worst-text: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "narrow worst-text: the 160-code-point title and owner whole (R109)",
+      "ok": true,
+      "detail": {
+        "h1Length": 173,
+        "statusLength": 178,
+        "ownerLines": 3
+      }
+    },
+    {
+      "name": "narrow worst-text: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)",
+      "ok": true,
+      "detail": {
+        "crumbs": [
+          "Actions",
+          "ACT-000002",
+          "Verification"
+        ],
+        "site": "· site: EV charging lab"
+      }
+    },
+    {
+      "name": "narrow worst-text: heading {code} · {stored title}, contained (R109)",
+      "ok": true,
+      "detail": {
+        "h1": "ACT-000002 · Investigate connector 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxx",
+        "fits": true
+      }
+    },
+    {
+      "name": "narrow worst-text: mock question subtitle and Open site to the Site detail",
+      "ok": true,
+      "detail": {
+        "openSite": "/sites/EV-LAB-001"
+      }
+    },
+    {
+      "name": "narrow worst-text: one Verification tab, current",
+      "ok": true,
+      "detail": [
+        {
+          "text": "Verification",
+          "href": "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "current": "page"
+        }
+      ]
+    },
+    {
+      "name": "narrow worst-text: amber 'Open' badge on one line, unclipped (pre-flight 45)",
+      "ok": true,
+      "detail": {
+        "text": "Open",
+        "amber": true,
+        "lines": 1,
+        "clipped": false
+      }
+    },
+    {
+      "name": "narrow worst-text: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)",
+      "ok": true,
+      "detail": {
+        "status": "Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+      }
+    },
+    {
+      "name": "narrow worst-text: owner span contained in the strip",
+      "ok": true,
+      "detail": {
+        "inside": true,
+        "lines": 3
+      }
+    },
+    {
+      "name": "narrow worst-text: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)",
+      "ok": true,
+      "detail": {
+        "related": false,
+        "disabled": 0,
+        "inspect": 0,
+        "form": 0,
+        "depot": false
+      }
+    },
+    {
+      "name": "narrow worst-text: blue closing notice (mock literal)",
+      "ok": true,
+      "detail": "A completed investigation or diagnostic reset would not establish a verified outcome."
+    },
+    {
+      "name": "narrow worst-text: sole panel 'Declared verification plan' with the mock columns",
+      "ok": true,
+      "detail": {
+        "panels": [
+          "Declared verification plan"
+        ],
+        "head": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ]
+      }
+    },
+    {
+      "name": "narrow worst-text: the three EV criteria with plain 'Pending' results (no chip)",
+      "ok": true,
+      "detail": [
+        [
+          "Complete a witnessed charging session",
+          "Session start, end, outcome and meter delta",
+          "Pending"
+        ],
+        [
+          "No fault recurrence during observation",
+          "Connector diagnostic events with full coverage",
+          "Pending"
+        ],
+        [
+          "No reduction in service availability",
+          "Comparable status coverage / operational window",
+          "Pending"
+        ]
+      ]
+    },
+    {
+      "name": "narrow worst-text: every criteria cell contains its content (9 cells)",
+      "ok": true,
+      "detail": {
+        "cells": 9
+      }
+    },
+    {
+      "name": "narrow worst-text: criteria table scroller",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "scrollWidth": 318,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow worst-text: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow worst-text: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow worst-text: page main <= 1900",
+      "ok": true,
+      "detail": {
+        "main": 991,
+        "docHeight": 1141
+      }
+    },
+    {
+      "name": "narrow worst-text: status strip <= 200",
+      "ok": true,
+      "detail": 114
+    },
+    {
+      "name": "narrow worst-text: Declared verification plan panel <= 590",
+      "ok": true,
+      "detail": {
+        "plan": 406,
+        "tableScrollWidth": 318,
+        "tableClientWidth": 318
+      }
+    },
+    {
+      "name": "narrow worst-text: closing notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow forbidden-403: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "narrow forbidden-403: Site read healthy; one untitled panel 'EV work unavailable', server message, visible Retry; no strip, no Pending",
+      "ok": true,
+      "detail": {
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "message": "No access to Site 'EV-LAB-001'.",
+        "panels": [
+          "(untitled)"
+        ]
+      }
+    },
+    {
+      "name": "narrow forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow forbidden-403: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow forbidden-403: page main <= 1900",
+      "ok": true,
+      "detail": {
+        "main": 361,
+        "docHeight": 900
+      }
+    },
+    {
+      "name": "narrow forbidden-403: untitled state panel <= 590 (ruling 50)",
+      "ok": true,
+      "detail": 158
+    },
+    {
+      "name": "narrow invalid-422: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "narrow invalid-422: a future known_at is the server's 422 in the untitled EV refusal panel",
+      "ok": true,
+      "detail": {
+        "refusal": "INVALID_KNOWN_AT",
+        "message": "'known_at' must be one UTC instant no later than the read time."
+      }
+    },
+    {
+      "name": "narrow invalid-422: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow invalid-422: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow invalid-422: page main <= 1900",
+      "ok": true,
+      "detail": {
+        "main": 384,
+        "docHeight": 900
+      }
+    },
+    {
+      "name": "narrow invalid-422: untitled state panel <= 590 (ruling 50)",
+      "ok": true,
+      "detail": 181
+    },
+    {
+      "name": "narrow not-found-404: settled",
+      "ok": true,
+      "detail": "not_found"
+    },
+    {
+      "name": "narrow not-found-404: one untitled panel 'Action was not found at this site.'",
+      "ok": true,
+      "detail": {
+        "kind": "not-found",
+        "text": "Action was not found at this site."
+      }
+    },
+    {
+      "name": "narrow not-found-404: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow not-found-404: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow not-found-404: page main <= 1900",
+      "ok": true,
+      "detail": {
+        "main": 266,
+        "docHeight": 900
+      }
+    },
+    {
+      "name": "narrow not-found-404: untitled state panel <= 590 (ruling 50)",
+      "ok": true,
+      "detail": 63
+    },
+    {
+      "name": "narrow unavailable-503: settled",
+      "ok": true,
+      "detail": "Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+    },
+    {
+      "name": "narrow unavailable-503: the walkthrough stops this API, so the Site read fails at the proxy (Site-level refusal, not the in-panel EV 503)",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "siteRefusal": "Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "kind": null
+      }
+    },
+    {
+      "name": "narrow unavailable-503: a refusal with no criteria and no Pending",
+      "ok": true,
+      "detail": {
+        "siteRefusal": "Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+      }
+    },
+    {
+      "name": "narrow unavailable-503: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    }
+  ],
+  "failed": 0
+}
