@@ -4,7 +4,7 @@ Architect plan, 2026-10-24. Each card is a reviewable vertical correction on a f
 
 ## Sequencing and shared files
 
-Run shell first: its CSS/tokens, Action frame crumbs and Work count copy have shared reach. After it merges, W1-a then W1-b are serial. W2-cold, W2-EV and W3-estate can run in parallel with each other and with W1; W4-mini can join that group only after W1-b releases their shared `SiteAnalyticsFrames.tsx`. W5-cold-Work and W5-EV-Work can develop separate cold/EV components in parallel after their W2 predecessors; serialize their edits to `DomainActionVerification.tsx`. W6-global-Work can run alongside W2/W3/W4/W5 after shell, but rebase and refresh affected cases before merge. W4 and W5 case pages use `siteWorkCases.tsx`; if either changes that shared file, serialize those edits and recapture mini/cold/EV case screens. R373 builds separately on `task/post-W6-R373-request-access`; rebase W6 after it lands and keep B19 403/200 recapture in W6. No card owns `App.tsx` merely to change already-mounted links. Each card has five build units: structure/routing; selected data/copy; refusals/long content; focused tests; paired recapture/cap proof. For each card recapture every indexed case of its listed screens at both widths, plus screens reached by any shared component it actually changes; use pure selected-DTO tests and record a capture gap where a producer cannot honestly create a state. Refresh affected representative cover cases after a shared-navigation merge.
+Run shell first: its CSS/tokens, Action frame crumbs and Work count copy have shared reach. After it merges, W1-a then W1-b are serial. Serialize shared `SiteAnalyticsFrames.tsx`/tab edits in this order: shell → W1-a → W1-b → W2-EV → W2-cold → W4-mini. W2-EV creates the EV tab override and EV Findings branch; W2-cold consumes the override and adds the cold Findings branch. W3-estate may run after shell independently. W5-cold-Work and W5-EV-Work develop after their W2 predecessors; W5-EV-Work applies W2-EV's common R347 tab mechanism to its depth/work mounts. Serialize their edits to `DomainActionVerification.tsx`. W6-global-Work can run alongside W2/W3/W4/W5 after shell, but rebase and refresh affected cases before merge. W4 and W5 case pages use `siteWorkCases.tsx`; if either changes that shared file, serialize those edits and recapture mini/cold/EV case screens. R373 builds separately on `task/post-W6-R373-request-access`; rebase W6 after it lands and keep B19 403/200 recapture in W6. `App.tsx` is in scope only for W2-EV/W2-cold Findings client props. Each card has five build units: structure/routing; selected data/copy; refusals/long content; focused tests; paired recapture/cap proof. For each card recapture every indexed case of its listed screens at both widths, plus screens reached by any shared component it actually changes; use pure selected-DTO tests and record a capture gap where a producer cannot honestly create a state. Refresh affected representative cover cases after a shared-navigation merge.
 
 ## Cards
 
@@ -80,7 +80,7 @@ Run shell first: its CSS/tokens, Action frame crumbs and Work count copy have sh
 
 **States:** B6–B7 plus cold-finding-excursion representative and false Findings reason; both widths.
 
-**Files:** `frontend/src/sites/ColdAssessmentViews.tsx`, `coldSiteViews.tsx`, `SiteFindingIndex.tsx`; `shell/coldSiteRoutes.tsx` for mounted destination/window links. Read `ColdDepthClient.ts` to preserve selected-row semantics. Keep App routing unchanged.
+**Files:** `frontend/src/sites/ColdAssessmentViews.tsx`, `coldSiteViews.tsx`, `SiteFindingIndex.tsx`; `shell/coldSiteRoutes.tsx`, `shell/SiteAnalyticsFrames.tsx` for the cold Findings branch, and `App.tsx` for its cold client prop. Consume W2-EV's `operatorSiteTabs.tsx` override for cold main tabs (B14-10). Read `ColdDepthClient.ts` to preserve selected-row semantics. Keep App routes unchanged.
 
 **Tests:** `sites/__tests__/coldSiteViews.test.tsx`, `coldDepth.test.tsx`, `coldRoutes.test.tsx`; `shell/__tests__/s404SiteFindingIndex.test.tsx`; add event-chain order, Finding destination, selected-window and refusal assertions.
 
@@ -90,9 +90,9 @@ Run shell first: its CSS/tokens, Action frame crumbs and Work count copy have sh
 
 ### W2-EV — EV Site, tabs and depth links
 
-**Size:** 13 D3 IDs; five build units. **Severity:** Medium/Low.
+**Size:** 14 D3 IDs including R347; five build units. **Severity:** Medium/Low.
 
-**Exact D3 IDs:** `R265` (B8-06), `R267` (B8-08), `R268` (B8-12), `R270` (B8-14), `R271` (B8-15), `R275` (B8-19), `R276` (B8-20), `R280` (B8-24), `R281` (B8-27), `R283` (B9-03), `R284` (B9-05), `R285` (B9-08), `R286` (B9-09).
+**Exact D3 IDs:** `R265` (B8-06), `R267` (B8-08), `R268` (B8-12), `R270` (B8-14), `R271` (B8-15), `R275` (B8-19), `R276` (B8-20), `R280` (B8-24), `R281` (B8-27), `R283` (B9-03), `R284` (B9-05), `R285` (B9-08), `R286` (B9-09), `R347` (B16-16 common EV tab mechanism). Also owns the EV branch of merged R253/B9-10 and EV copies of R254/R258/R259.
 
 **Affected screens; panels in page order:** `ev-readiness`: Readiness and commissioning evidence → Gateway status; `sessions`: Session service records → How to read the denominator → Cause remains bounded; `ev-finding`: Bounded conclusion → Operational context → Recommended next step; `ev`: event/charging cards → Next step; `ev-evidence`, `ev-evidence-analysis`, `ev-financials`, `ev-assumptions`: Site tab/window state and the selected evidence/money panel. Connected sources and other adjacent panels are regression-only.
 
@@ -100,11 +100,11 @@ Run shell first: its CSS/tokens, Action frame crumbs and Work count copy have sh
 
 **States:** B8–B9, EV main-tab destinations, refused and missing-meter; both widths.
 
-**Files:** `frontend/src/sites/EvFoundationViews.tsx`, `EvAssessmentViews.tsx`, `EvSiteViews.tsx`; `shell/evSiteRoutes.tsx` for mounted destination/window links. Read `evDepthClient.ts` to preserve selected-row semantics. Keep App routing unchanged.
+**Files:** `frontend/src/sites/EvFoundationViews.tsx`, `EvAssessmentViews.tsx`, `EvSiteViews.tsx`; `shell/evSiteRoutes.tsx`, `shell/SiteAnalyticsFrames.tsx` (EV mounts, EV Findings branch and shared unavailable copy), `shell/SiteFoundationFrame.tsx` (EV readiness links/tabs), `shell/operatorSiteTabs.tsx` (shared override), `shell/SiteDetailFrame.tsx` (bare EV home) and `App.tsx` (EV Findings client prop). Read `evDepthClient.ts` to preserve selected-row semantics. App route declarations stay unchanged.
 
 **Tests:** `sites/__tests__/evFoundation.test.tsx`, `evAssessmentRoutes.test.tsx`, `evDepth.test.tsx`, `evSiteMoneyRoutes.test.tsx`; add session denominator, Finding link, tab-window and missing-meter assertions.
 
-**Paired recaptures:** all 92 indexed pairs for the eight screens above, plus `ev-findings` as a destination regression for changed EV links; both widths, including interrupted, refused and missing-meter. Record current SHA and cap proof.
+**Paired recaptures:** all 92 indexed pairs for the eight screens above, plus every indexed `ev-findings` case as an owned B9-10/R253 fix; refresh EV Foundation/SLD, Availability/Energy/Scenarios and mini/cold Finding child representative pairs reached by shared navigation. Include interrupted, refused and missing-meter at both widths. Record current SHA and cap proof.
 
 **Caps:** apply the measured docket below. User-expanded all-disclosures-open is exempt from closed-height caps; it must remain readable without page or panel clipping. If a remeasure exceeds a cap, adjust layout or internal scrolling and recapture; if that cannot preserve the content, return to Architect for a revised cap based on the worst-case fixture before merge.
 
@@ -120,7 +120,7 @@ Run shell first: its CSS/tokens, Action frame crumbs and Work count copy have sh
 
 **States:** B10–B11 clean, partial, pending, historical, page two and long-row; both widths.
 
-**Files:** `frontend/src/estate/actionIndex.tsx`, `findingIndex.tsx`, `EstateEvidence.tsx`, `EstateFinancials.tsx`, `EstatePortfolio.tsx`; their existing estate styles if wrap/scroll is required. The nine D3 rows are presentation, navigation and selected-copy defects; no backend estate file is assigned without a demonstrated DTO omission.
+**Files:** `frontend/src/estate/actionIndex.tsx`, `findingIndex.tsx`, `EstateEvidence.tsx`, `EstateFinancials.tsx`, `EstatePortfolio.tsx`; their existing estate styles if wrap/scroll is required. Demonstrated href/limit DTO omissions allow scoped backend estate edits in `evidence_money.py`, `portfolio.py`, `financials.py`, `index.py` and their tests; no schema change. W3 also fixes expired inert cold/EV Finding titles in the four estate Findings lenses under R297 destination proof.
 
 **Tests:** `estate/__tests__/estateRoots.test.tsx`, `estateEvidence.test.tsx`, `estatePortfolio.test.tsx`, `estatePortfolioRoutes.test.tsx`; add pending/partial row, 390 unclamped title, real link and bounded scope-disclosure cases.
 
@@ -170,9 +170,9 @@ Run shell first: its CSS/tokens, Action frame crumbs and Work count copy have sh
 
 ### W5-EV-Work — EV depth and Work
 
-**Size:** 6 D3 IDs; five build units. **Severity:** Medium/Low.
+**Size:** 5 D3 IDs plus R347 application/recapture; five build units. **Severity:** Medium/Low.
 
-**Exact D3 IDs:** `R345` (B16-06), `R346` (B16-07), `R347` (B16-16), `R348` (B17-04), `R349` (B17-06), `R350` (B17-08).
+**Exact D3 IDs:** `R345` (B16-06), `R346` (B16-07), `R348` (B17-04), `R349` (B17-06), `R350` (B17-08). R347's common tab mechanism moves to W2-EV; this card applies it to its depth/work mounts and retains B16-16 recapture.
 
 **Affected screens; panels in page order:** `availability`: schedule count/units → Connector states over the service schedule → Full-schedule availability bound; `energy`: selected bridge row → Import power and configured limit → What can be concluded; `ev-health`: Condition and evidence window state; `ev-scenarios`: Financial scenarios window state; `ev-work`: Actions at this site window state; `ev-action`: Declared verification plan → non-loaded/invalid-window refusal. R350 also checks the existing Action `/overview` link destination; it does not authorize rewriting W1 Action chrome.
 
@@ -268,7 +268,8 @@ Caps below are per named panel and viewport. They use the largest captured close
 | `cold-evidence-analysis` | Accepted records behind the conclusions | 390 | 485 | 800 |
 | `cold-financials` | Not included | 390 | 266 | 300 |
 | `cold-finding` | Bounded conclusion | 390 | 353 | 400 |
-| `cold-findings` | Findings at this site | 390 | 441 | 500 |
+| `cold-findings` | Findings at this site | 1440 | not captured: five long rows | 550 |
+| `cold-findings` | Findings at this site | 390 | 441 (zero-row gap) | 850 |
 | `cold-foundation` | Operating interpretation | 390 | 399 | 450 |
 | `cold-health` | Condition and evidence | 1440 | 285 | 400 |
 | `cold-readiness` | Readiness and commissioning evidence | 1440 | 672 | 800 |
@@ -287,8 +288,22 @@ Caps below are per named panel and viewport. They use the largest captured close
 | `dispatch` | Accepted sample coverage | 1440 | 345 | 400 |
 | `dispatch` | Selected block · 04:00–04:15 UTC | 390 | 640 | 750 |
 | `dispatch` | Sources and 15-minute blocks | 390 | 870 | 1000 |
-| `ev-evidence-analysis` | Accepted records behind the conclusions | 1440 | 399 | 450 |
-| `ev-findings` | Findings at this site | 390 | 430 | 500 |
+| `ev-evidence-analysis` | Accepted records behind the conclusions | 1440 | 399 (short rows) | 700 |
+| `ev-evidence-analysis` | Accepted records behind the conclusions | 390 | not captured: five long rows | 1000 |
+| `ev-finding` | Bounded conclusion | 1440 | not captured with link | 600 |
+| `ev-finding` | Bounded conclusion | 390 | not captured with link | 850 |
+| `ev-findings` | Findings at this site | 1440 | not captured: five long rows | 550 |
+| `ev-findings` | Findings at this site | 390 | 430 (gap) | 850 |
+| `sessions` | Session service records table | 1440 | not captured: five long rows | 900 |
+| `sessions` | Session service records table | 390 | not captured: five long rows | 1400 |
+| `findings`, `findings-cost`, `findings-risks`, `findings-opportunities` | Findings across the estate / lens panel | 1440 | not captured: five long rows | 1000 |
+| `findings`, `findings-cost`, `findings-risks`, `findings-opportunities` | Findings across the estate / lens panel | 390 | not captured: five long rows | 1500 |
+| `actions` | Managed actions | 1440 | not captured: five long rows | 750 |
+| `actions` | Managed actions | 390 | not captured: five long rows | 1100 |
+| `globalfinancials` | Consequence register | 1440 | not captured: five long rows | 800 |
+| `globalfinancials` | Consequence register | 390 | not captured: five long rows | 1200 |
+| `portfolio` | Objectives across the estate | 1440 | not captured: five long rows | 600 |
+| `portfolio` | Objectives across the estate | 390 | not captured: five long rows | 800 |
 | `ev-foundation` | Operating interpretation | 390 | 348 | 400 |
 | `ev-foundation` | Physical site | 390 | 360 | 450 |
 | `ev-health` | Condition and evidence | 1440 | 324 | 400 |
