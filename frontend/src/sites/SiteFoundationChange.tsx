@@ -42,6 +42,7 @@ import {
 import type { SiteSummary } from "./siteReadModel";
 import { deriveSiteView } from "./siteViewModel";
 import { COLD_WORK_SUBTITLE_FALLBACK } from "./coldWorkPresentation";
+import { EV_WORK_SUBTITLE_FALLBACK } from "./evWorkPresentation";
 import type {
   ActionClient,
   ActionEventsBody,
@@ -101,7 +102,15 @@ export function ChangesWorkPageHeader({
         // no Site subtitle field, so the cold Work page always reads `Cold-room operations at this site.` under the
         // stored Site name, never Foundation `summary`; mini-grid keeps its screen description.
         // MOCK DEVIATION (D4) R90: the mock `cold-work` site-specific subtitle (`index.html:1138`) is illustrative copy.
-        site.site_type === "COLDCHAIN" && screen !== "changes" ? COLD_WORK_SUBTITLE_FALLBACK : SITE_SCREEN_DESCRIPTIONS[screen]
+        // W5-04 V2a (ruling 20): an EV_CHARGING Site's Work pages always read `EV charging operations at this site.`;
+        // MOCK DEVIATION (D4) R78: the mock `SITES.ev` connector/power subtitle is illustrative configuration copy.
+        screen === "changes"
+          ? SITE_SCREEN_DESCRIPTIONS[screen]
+          : site.site_type === "COLDCHAIN"
+            ? COLD_WORK_SUBTITLE_FALLBACK
+            : site.site_type === "EV_CHARGING"
+              ? EV_WORK_SUBTITLE_FALLBACK
+              : SITE_SCREEN_DESCRIPTIONS[screen]
       }
       headingId={headingId}
     />

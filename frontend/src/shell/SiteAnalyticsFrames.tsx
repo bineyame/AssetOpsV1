@@ -12,7 +12,13 @@ import {
   type ActionIndexClient,
   type ActionIndexScope,
 } from "../sites/actionIndexClient";
-import { ColdSiteWorkActions, ColdWorkWindow, SiteWorkActions } from "../sites/SiteWorkActions";
+import {
+  DomainSiteWorkActions,
+  DomainWorkWindow,
+  SiteWorkActions,
+  domainWorkPresentation,
+  type DomainWorkPresentation,
+} from "../sites/SiteWorkActions";
 import {
   createDomainActionClient,
   type DomainActionClient,
@@ -118,7 +124,7 @@ import {
   siteFoundationHref,
   siteFoundationViewHref,
   sitePerformanceHref,
-  coldWorkQuery,
+  domainWorkQuery,
   siteWorkHref,
   siteWorkIncidentsHref,
   siteWorkMaintenanceHref,
@@ -1781,10 +1787,11 @@ function workScopeFromQuery(params: URLSearchParams): (ActionIndexScope & { know
 }
 
 /**
- * W5-02 K2a ("Shared Site UI", U3): the COLDCHAIN Work scope. Without `from`/`to` the window is W4's seven complete
- * UTC days ending today 00:00 UTC; the cutoff and the Actions cursor come from the URL. `limit` is not a URL query.
+ * W5-02 K2a ("Shared Site UI", U3) / W5-04 V2a (R-9): the COLDCHAIN and EV_CHARGING Work scope. Without `from`/`to` the
+ * window is W4's seven complete UTC days ending today 00:00 UTC; the cutoff and the Actions cursor come from the URL.
+ * `limit` is not a URL query. A mini-grid Site keeps its W1 choose-window state.
  */
-function coldWorkScope(params: URLSearchParams): DomainIndexScope {
+function domainWorkScope(params: URLSearchParams): DomainIndexScope {
   const from = params.get("from");
   const to = params.get("to");
   const window = from && to ? { from, to } : defaultWorkWindow();
@@ -1802,7 +1809,7 @@ export function SiteWorkFrame({
   sitesPath: string;
   actionIndex?: ActionIndexClient;
   workClient?: WorkClient;
-  /** W5-02 K2a: the union Site Action index read, used only on a COLDCHAIN Site. */
+  /** W5-02 K2a / W5-04 V2a: the union Site Action index read, used only on a COLDCHAIN or EV_CHARGING Site. */
   domainActions?: DomainActionClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
@@ -1811,10 +1818,13 @@ export function SiteWorkFrame({
   const scope = workScopeFromQuery(params);
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Work" headingId={SITE_WORK_HEADING_ID}>
-      {(site) =>
-        site.site_type === "COLDCHAIN" ? (
-          <ColdWorkActionsPage
+      {(site) => {
+        // W5-04 readiness ruling 18: the Site type selects the domain Actions presenter; mini-grid stays W1.
+        const presentation = domainWorkPresentation(site.site_type);
+        return presentation !== null ? (
+          <DomainWorkActionsPage
             site={site}
+            presentation={presentation}
             sitesPath={sitesPath}
             params={params}
             actionIndex={actionIndex}
@@ -1855,15 +1865,16 @@ export function SiteWorkFrame({
             onScope={(next) => navigate(siteWorkHref(site.site_id, actionIndexQuery(next)))}
           />
         </main>
-        )
-      }
+        );
+      }}
     </SiteScoped>
   );
 }
 
-/** W5-02 K2a: the COLDCHAIN Site > Work > Actions page (v69 `cold-work`). */
-function ColdWorkActionsPage({
+/** W5-02 K2a / W5-04 V2a: the COLDCHAIN or EV_CHARGING Site > Work > Actions page (v69 `cold-work`, `ev-work`). */
+function DomainWorkActionsPage({
   site,
+  presentation,
   sitesPath,
   params,
   actionIndex,
@@ -1871,6 +1882,7 @@ function ColdWorkActionsPage({
   domainActions,
 }: {
   site: LoadedSite;
+  presentation: DomainWorkPresentation;
   sitesPath: string;
   params: URLSearchParams;
   actionIndex: ActionIndexClient;
@@ -1878,10 +1890,14 @@ function ColdWorkActionsPage({
   domainActions: DomainActionClient;
 }) {
   const navigate = useNavigate();
-  const scope = coldWorkScope(params);
-  const page = (next: DomainIndexScope) => siteWorkHref(site.site_id, coldWorkQuery(next));
+  const scope = domainWorkScope(params);
+  const page = (next: DomainIndexScope) => siteWorkHref(site.site_id, domainWorkQuery(next));
+  // Ruling 45: `data-domain-work-page` on both domains; the K2 `data-cold-work-page` on cold only.
+  const pageAttrs: Record<string, string> = presentation.legacyCold
+    ? { "data-domain-work-page": "actions", "data-cold-work-page": "actions" }
+    : { "data-domain-work-page": "actions" };
   return (
-    <main aria-labelledby={SITE_WORK_HEADING_ID} data-cold-work-page="actions">
+    <main aria-labelledby={SITE_WORK_HEADING_ID} {...pageAttrs}>
       <Breadcrumbs
         trail={[
           { label: "Sites", to: sitesPath },
@@ -1901,14 +1917,21 @@ function ColdWorkActionsPage({
         workClient={workClient}
         domainActions={domainActions}
       />
-      {/* K2 ruling 1: MOCK DEVIATION (D1) R88, the page-local Window control (Apply keeps known_at, drops the cursor). */}
-      <ColdWorkWindow scope={scope} onApply={(next) => navigate(page({ ...next, cursor: null }))} />
-      <ColdSiteWorkActions
+      {/* K2 ruling 1 / W5-04 ruling 14: MOCK DEVIATION (D1) R88 (cold) / R112 (EV), the page-local Window control
+          (Apply keeps known_at, drops the cursor). */}
+      <DomainWorkWindow
+        scope={scope}
+        legacyCold={presentation.legacyCold}
+        onApply={(next) => navigate(page({ ...next, cursor: null }))}
+      />
+      <DomainSiteWorkActions
         siteId={site.site_id}
         siteName={site.display_name}
+        siteType={site.site_type}
         client={domainActions}
         scope={scope}
         links={{ page }}
+        presentation={presentation}
         onRestart={(next) => navigate(page(next))}
       />
     </main>
@@ -1916,8 +1939,8 @@ function ColdWorkActionsPage({
 }
 
 /** The Work subrow (v69 `tabs subtabs`): Actions, Incidents, Maintenance, all live, the current one marked. */
-// W5-02 K2a (P-K2a-38): a COLDCHAIN Site passes the encoded `from,to,known_at` query (never a cursor); mini-grid
-// passes none, so its hrefs are unchanged.
+// W5-02 K2a (P-K2a-38) / W5-04 V2a (ruling 45): a COLDCHAIN or EV_CHARGING Site passes the encoded
+// `from,to,known_at` query (never a cursor); mini-grid passes none, so its hrefs are unchanged.
 const WORK_SUBTABS: { key: "actions" | WorkKind; label: string; href: (siteId: string, query?: string) => string }[] = [
   { key: "actions", label: "Actions", href: (siteId, query) => siteWorkHref(siteId, query) },
   { key: "incidents", label: "Incidents", href: (siteId, query) => siteWorkIncidentsHref(siteId, query) },
@@ -1939,14 +1962,15 @@ function useWorkCounts(
   window: { from: string; to: string } | null,
   actionIndex: ActionIndexClient,
   workClient: WorkClient,
-  cold: { knownAt: string | null; domainActions: DomainActionClient } | null = null,
+  domain: { knownAt: string | null; domainActions: DomainActionClient; siteType: string } | null = null,
 ): WorkCounts {
   const [state, setState] = useState<{ key: string; counts: WorkCounts }>({ key: "", counts: NO_COUNTS });
   const from = window?.from ?? null;
   const to = window?.to ?? null;
-  const coldKnownAt = cold === null ? null : cold.knownAt;
-  const domainActions = cold === null ? null : cold.domainActions;
-  const key = from && to ? `${siteId}|${from}|${to}${cold === null ? "" : `|cold|${coldKnownAt ?? ""}`}` : "";
+  const coldKnownAt = domain === null ? null : domain.knownAt;
+  const domainActions = domain === null ? null : domain.domainActions;
+  const domainSiteType = domain === null ? null : domain.siteType;
+  const key = from && to ? `${siteId}|${from}|${to}${domain === null ? "" : `|domain|${domainSiteType}|${coldKnownAt ?? ""}`}` : "";
   useEffect(() => {
     if (!from || !to) return;
     let live = true;
@@ -1959,8 +1983,10 @@ function useWorkCounts(
         () => put({ actions: null }),
       );
     } else {
-      // W5-02 K2a: a COLDCHAIN Site counts the union Site Action index at the same window and cutoff.
-      domainActions.getIndex(siteId, { from, to, knownAt: coldKnownAt, cursor: null }).then(
+      // W5-02 K2a / W5-04 V2a: a COLDCHAIN or EV_CHARGING Site counts the union Site Action index at the same window
+      // and cutoff (the cold call keeps its K2 two-argument shape; EV passes its Site type for ruling 44).
+      const scope = { from, to, knownAt: coldKnownAt, cursor: null };
+      (domainSiteType === "EV_CHARGING" ? domainActions.getIndex(siteId, scope, domainSiteType) : domainActions.getIndex(siteId, scope)).then(
         (r) => put({ actions: r.status === "loaded" ? fullCount(r.value.total_count) : null }),
         () => put({ actions: null }),
       );
@@ -1974,7 +2000,7 @@ function useWorkCounts(
     return () => {
       live = false;
     };
-  }, [siteId, from, to, key, actionIndex, workClient, coldKnownAt, domainActions]);
+  }, [siteId, from, to, key, actionIndex, workClient, coldKnownAt, domainActions, domainSiteType]);
   // Counts belong to one Site and window: a stale key reads as unknown at once.
   return state.key === key && key !== "" ? state.counts : NO_COUNTS;
 }
@@ -1998,9 +2024,9 @@ function WorkSubrow({
   workClient: WorkClient;
   domainActions?: DomainActionClient;
 }) {
-  const cold = siteType === "COLDCHAIN";
-  const counts = useWorkCounts(siteId, window, actionIndex, workClient, cold ? { knownAt, domainActions } : null);
-  const query = cold && window !== null ? coldWorkQuery({ from: window.from, to: window.to, knownAt }) : undefined;
+  const domain = domainWorkPresentation(siteType) !== null;
+  const counts = useWorkCounts(siteId, window, actionIndex, workClient, domain ? { knownAt, domainActions, siteType } : null);
+  const query = domain && window !== null ? domainWorkQuery({ from: window.from, to: window.to, knownAt }) : undefined;
   return (
     <nav className="site-tabs site-subtabs" aria-label={SITE_WORK_SECTIONS_LABEL}>
       <ol className="site-tabs__list">
@@ -2055,7 +2081,7 @@ export function SiteWorkCasesFrame({
   kind: WorkKind;
   workClient?: WorkClient;
   actionIndex?: ActionIndexClient;
-  /** W5-02 K2a: the cold Actions subtab count. */
+  /** W5-02 K2a / W5-04 V2a: the cold or EV Actions subtab count. */
   domainActions?: DomainActionClient;
   /** W4-03 unit 8: the decision-context overlay, read only on a mini-grid Site. */
   miniDecisions?: MiniDecisionsClient;
@@ -2086,7 +2112,8 @@ export function SiteWorkCasesFrame({
             siteType={site.site_type}
             current={kind}
             window={{ from: scope.from, to: scope.to }}
-            knownAt={site.site_type === "COLDCHAIN" ? scope.knownAt : null}
+            // W5-04 ruling 45: an EV Site's subrow carries the same explicit cutoff as cold.
+            knownAt={domainWorkPresentation(site.site_type) !== null ? scope.knownAt : null}
             actionIndex={actionIndex}
             workClient={workClient}
             domainActions={domainActions}
@@ -2094,10 +2121,11 @@ export function SiteWorkCasesFrame({
           {site.site_type === "COLDCHAIN" ? (
             // K2 ruling 1: MOCK DEVIATION (D1) R88, the same page-local Window control on cold Incidents and
             // Maintenance; Apply keeps an explicit known_at, drops the cursor and the earlier pages, reads page one.
-            <ColdWorkWindow
+            <DomainWorkWindow
               scope={{ from: scope.from, to: scope.to, knownAt: scope.knownAt ?? null }}
+              legacyCold
               onApply={(next) =>
-                navigate(hrefFor(site.site_id, coldWorkQuery({ ...next, cursor: null })), { state: { workTrail: [] } })
+                navigate(hrefFor(site.site_id, domainWorkQuery({ ...next, cursor: null })), { state: { workTrail: [] } })
               }
             />
           ) : null}
