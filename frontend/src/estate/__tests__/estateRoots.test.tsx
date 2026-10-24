@@ -9,7 +9,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { EstateActionsPage, ESTATE_ACTIONS_PATH, ACTIONS_LIFECYCLE, ACTIONS_NOTICE } from "../actionIndex";
-import { createEstateClient, type EstateClient, type EstateLens } from "../estateClient";
+import { createEstateClient, invalidWindowCopy, type EstateClient, type EstateLens } from "../estateClient";
 import { AWAITING_RULE, AWAITING_ZERO, ESTATE_FINDING_LENS_PATHS, EstateFindingsPage, FINDINGS_LINKED_NOTICE, FINDINGS_NOTICE, FINDINGS_UNLINKED_NOTICE } from "../findingIndex";
 import {
   FROM,
@@ -23,6 +23,7 @@ import {
   findingRow,
   findingsBody,
   loaded,
+  scopeBody,
   site,
 } from "./estateFixtures";
 
@@ -569,5 +570,176 @@ describe("W3-01 estate roots", () => {
       expect(screen.queryAllByText("Not assessed").every((n) => n.closest("a") === null)).toBe(true);
       view.unmount();
     }
+  });
+});
+
+describe("post-W6 W3-estate Findings and Actions roots", () => {
+  const SITE_C = "10000000-0000-4000-8000-000000000013";
+  const coldLink = (n: number) =>
+    `/sites/COLD-7/findings/f${n}?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
+  const long = (label: string) => `${label} `.padEnd(160, "w").slice(0, 160);
+
+  it("coldAndEvTitlesAreLiveOnlyWithAProvableWindowedLinkOnEveryLens", async () => {
+    // Q4: SITE_B (cold) and SITE_C (EV) report match_state NOT_APPLICABLE; the cold row carries its own from/to/known_at,
+    // the EV row only the legacy revision link the server sends when the window is not provable.
+    const rows = [
+      findingRow(1),
+      findingRow(2, { site_id: SITE_B, site_code: "COLD-7", site_name: "Cold Store", links: { finding: coldLink(2), site: "/sites/COLD-7" } }),
+      findingRow(3, {
+        site_id: SITE_C,
+        site_code: "EV-02",
+        site_name: "Depot Chargers",
+        links: { finding: "/sites/EV-02/findings/f3?revision_id=r3", site: "/sites/EV-02/ev" },
+      }),
+    ];
+    const coverage = {
+      state: "COMPLETE" as const,
+      sites: [site(SITE_A, "CURRENT"), { ...site(SITE_B, "CURRENT"), match_state: "NOT_APPLICABLE" }, { ...site(SITE_C, "CURRENT"), match_state: "NOT_APPLICABLE" }],
+    };
+    const client = fakeClient((lens) => loaded(findingsBody(lens, { rows, coverage })));
+    for (const lens of LENSES) {
+      const view = renderAt(`${ESTATE_FINDING_LENS_PATHS[lens]}?${WINDOW}`, client);
+      await settledScreen();
+      const trs = Array.from(main().querySelectorAll("tbody tr")) as HTMLElement[];
+      expect(trs).toHaveLength(3);
+      expect(trs[0].querySelector("[data-estate-finding-link]")?.getAttribute("href")).toBe(rows[0].links.finding);
+      expect(trs[1].querySelector("[data-estate-finding-link]")?.getAttribute("href")).toBe(coldLink(2));
+      expect(trs[1].querySelector("[data-estate-finding-unavailable]")).toBeNull();
+      // The unprovable EV link is never followed (it would 404): inert title with the labelled unavailable detail.
+      expect(trs[2].querySelector("[data-estate-finding-link]")).toBeNull();
+      expect(trs[2].querySelector("[data-estate-finding-inert]")?.textContent).toBe("Stored finding title 3");
+      expect(trs[2].querySelector("[data-estate-finding-unavailable]")?.textContent).toBe("Finding detail unavailable");
+      expect(main().querySelector("a[href*='revision_id=r3']")).toBeNull();
+      expect(trs[2].querySelector("[data-estate-site-link]")?.getAttribute("href")).toBe("/sites/EV-02/ev");
+      expect(main().querySelector("[data-estate-notice]")?.textContent).toContain(FINDINGS_LINKED_NOTICE);
+      view.unmount();
+    }
+  });
+
+  it("partialCopyNamesTheSiteByCauseAndFallsBackWhenScopeFails", async () => {
+    // Q7: the identical window and cutoff are sent to scope; names join on site_id.
+    const pendingSel = { ...site(SITE_A, "PENDING_RECOMPUTE"), selection_id: "sel-a" };
+    const pendingSelB = { ...site(SITE_B, "PENDING_RECOMPUTE"), selection_id: "sel-b" };
+    const unassessed = site(SITE_B, "UNKNOWN");
+    const selected = (id: string) => ({ ...site(id, "CURRENT"), selection_id: `sel-${id}` });
+    const scope = scopeBody([
+      [SITE_A, "Kobo Mini-grid"],
+      [SITE_B, "Cold Store"],
+    ]);
+    const partial = (sites: ReturnType<typeof site>[]) =>
+      findingsBody("all", { coverage: { state: "PARTIAL", sites }, total_count: null, summary: { ...findingsBody("all").summary, supported_findings: null, awaiting_verification: null } });
+    const cases: [ReturnType<typeof site>[], string[], string[]][] = [
+      [
+        [pendingSel, selected(SITE_B)],
+        ["Totals are unknown while new evidence for Kobo Mini-grid is assessed; its rows are held until then."],
+        ["New evidence for Kobo Mini-grid is being assessed."],
+      ],
+      [
+        [selected(SITE_A), unassessed],
+        ["Cold Store has no selected result; totals are unknown."],
+        ["Cold Store is not yet assessed; estate totals are unknown."],
+      ],
+      [
+        [pendingSel, pendingSelB],
+        ["Totals are unknown while new evidence for Kobo Mini-grid, Cold Store is assessed; its rows are held until then."],
+        ["New evidence for Kobo Mini-grid, Cold Store is being assessed."],
+      ],
+    ];
+    for (const lens of LENSES) {
+      for (const [sites, panelLines, noticeLines] of cases) {
+        const client = fakeClient(() => loaded({ ...partial(sites), lens }), undefined, loaded(scope));
+        const view = renderAt(`${ESTATE_FINDING_LENS_PATHS[lens]}?${WINDOW}&known_at=${encodeURIComponent(KNOWN)}`, client);
+        await settledScreen();
+        expect(client.calls.find((c) => (c as { kind: string }).kind === "scope")).toEqual({ kind: "scope", from: FROM, to: TO, known_at: KNOWN });
+        expect(Array.from(main().querySelectorAll("[data-estate-partial]")).map((p) => p.textContent)).toEqual(panelLines);
+        expect(Array.from(main().querySelectorAll(".estate-limitation__line")).map((l) => l.textContent?.trim())).toEqual(noticeLines);
+        expect(main().textContent).not.toContain("Some sites");
+        view.unmount();
+      }
+    }
+    // A failed scope read keeps the generic sentences.
+    const failed = fakeClient(() => loaded(partial([pendingSel, unassessed])));
+    const view = renderAt(`/findings?${WINDOW}`, failed);
+    await settledScreen();
+    expect(Array.from(main().querySelectorAll("[data-estate-partial]")).map((p) => p.textContent)).toEqual([
+      "Some sites have no selected result; totals are unknown.",
+    ]);
+    expect(main().textContent).toContain("New evidence is being assessed.");
+    expect(main().textContent).toContain("Some sites are not yet assessed; estate totals are unknown.");
+    view.unmount();
+    // Actions wording is unchanged by the Finding-lens variant.
+    const actions = fakeClient(() => loaded(findingsBody("all")), loaded(actionsBody({ coverage: { state: "PARTIAL", sites: [pendingSel, unassessed] }, total_count: null })), loaded(scope));
+    const actionsView = renderAt(`${ESTATE_ACTIONS_PATH}?${WINDOW}`, actions);
+    await settledScreen();
+    expect(main().textContent).toContain("New evidence is being assessed.");
+    expect(main().textContent).not.toContain("Kobo Mini-grid is being assessed");
+    actionsView.unmount();
+  });
+
+  it("refusedWindowOnFindingsAndActionsUsesTheSharedSentences", async () => {
+    // Q14: classified from the page query; the window line says `Window not valid` without echoing the dates.
+    const cases: [string, string][] = [
+      ["from=2026-10-07T00:00:00Z&to=2026-10-05T00:00:00Z", "The selected window needs both a start and an end, with the start before the end."],
+      ["from=2026-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
+      [WINDOW, "The selected window is invalid."],
+    ];
+    const refusedRead = { status: "refused" as const, httpStatus: 422, code: "INVALID_WINDOW", copy: "server copy" };
+    for (const path of ["/findings", ESTATE_ACTIONS_PATH]) {
+      for (const [query, copy] of cases) {
+        const view = renderAt(`${path}?${query}`, fakeClient(() => refusedRead, refusedRead));
+        await settledScreen();
+        expect(main().querySelector("[data-page-refusal='INVALID_WINDOW'] p")?.textContent).toBe(copy);
+        expect(main().querySelector("[data-estate-window]")?.textContent).toBe("Window not valid");
+        view.unmount();
+      }
+    }
+    // The real client classifies the same way from the query it sent.
+    const body = JSON.stringify({ detail: { code: "INVALID_WINDOW", message: "x" } });
+    vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(new Response(body, { status: 422 }))));
+    const read = await createEstateClient().findings({ from: "2026-10-07T00:00:00Z", to: "2026-10-05T00:00:00Z", known_at: null, cursor: null, lens: "all", state: "all" });
+    expect(read).toEqual({ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", copy: "The selected window needs both a start and an end, with the start before the end." });
+    expect(invalidWindowCopy({ from: "2026-10-01T00:00:00Z", to: null })).toBe("The selected window needs both a start and an end, with the start before the end.");
+    expect(invalidWindowCopy({ from: "2026-10-01T00:00:00Z", to: "2026-11-01T00:00:00Z" })).toBe("The selected window is invalid.");
+    expect(invalidWindowCopy({ from: "2026-10-01T00:00:00Z", to: "2026-11-01T00:00:01Z" })).toBe("The selected window is longer than 31 days.");
+    // A non-window refusal keeps its copy and the requested window line (UTC header, Q22).
+    const store = { status: "refused" as const, httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "Estate records are unavailable right now. Try again." };
+    const view = renderAt(`/findings?${WINDOW}`, fakeClient(() => store));
+    await settledScreen();
+    expect(main().querySelector("[data-page-refusal] p")?.textContent).toBe(store.copy);
+    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("Window 2026-10-13 to 2026-10-19 (UTC days)");
+    view.unmount();
+  });
+
+  it("actionTitleIsTheSelectedTitleOrTheCodeAlone", async () => {
+    // Q5: no Action-kind wording; Q6: the criterion stays `No success criterion recorded`.
+    const titled = actionRow({ action_title: "Review generator stop setting" });
+    const untitled = actionRow({ action_id: "10000000-0000-4000-8000-000000000299", action_title: null as unknown as string });
+    const view = renderAt(`${ESTATE_ACTIONS_PATH}?${WINDOW}`, fakeClient(() => loaded(findingsBody("all")), loaded(actionsBody({ rows: [titled, untitled] }))));
+    await settledScreen();
+    const links = Array.from(main().querySelectorAll("[data-estate-action-link]")).map((a) => a.textContent);
+    expect(links).toEqual(["Review generator stop setting", "ACT-000001"]);
+    expect(main().textContent).not.toContain("Battery reserve trial");
+    expect(main().textContent).toContain("No success criterion recorded");
+    view.unmount();
+  });
+
+  it("fiveLongRowsRenderInFullOnFindingsAndActions", async () => {
+    // Q20: pure selected-DTO render of five 160-character rows; nothing is truncated in the DOM.
+    const findings = Array.from({ length: 5 }, (_, i) => findingRow(i + 1, { title: long(`Finding ${i + 1}`) }));
+    const actions = Array.from({ length: 5 }, (_, i) =>
+      actionRow({ action_id: `10000000-0000-4000-8000-00000000030${i}`, action_title: long(`Action ${i + 1}`) }),
+    );
+    for (const t of [...findings.map((f) => f.title), ...actions.map((a) => a.action_title)]) expect(t).toHaveLength(160);
+    const client = fakeClient((lens) => loaded(findingsBody(lens, { rows: findings })), loaded(actionsBody({ rows: actions })));
+    let view = renderAt(`/findings?${WINDOW}`, client);
+    await settledScreen();
+    expect(Array.from(main().querySelectorAll("tbody tr .estate-cell__primary[data-estate-finding-link]")).map((a) => a.textContent)).toEqual(
+      findings.map((f) => f.title),
+    );
+    view.unmount();
+    view = renderAt(`${ESTATE_ACTIONS_PATH}?${WINDOW}`, client);
+    await settledScreen();
+    expect(Array.from(main().querySelectorAll("[data-estate-action-link]")).map((a) => a.textContent)).toEqual(actions.map((a) => a.action_title));
+    view.unmount();
   });
 });

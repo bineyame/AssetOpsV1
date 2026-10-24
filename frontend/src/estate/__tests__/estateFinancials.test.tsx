@@ -580,3 +580,25 @@ describe("W3-02 commit 4 measured Financials layout", () => {
     }
   });
 });
+
+describe("post-W6 W3-estate refused window", () => {
+  it("classifiesInvalidWindowFromThePageQueryAndHidesTheDates", async () => {
+    const cases: [string, string][] = [
+      ["from=2026-10-07T00:00:00Z&to=2026-10-05T00:00:00Z", "The selected window needs both a start and an end, with the start before the end."],
+      ["from=2026-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
+      [WINDOW, "The selected window is invalid."],
+    ];
+    for (const [query, copy] of cases) {
+      const view = renderAt(`${ESTATE_FINANCIALS_PATH}?${query}`, fake({ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", copy: "server copy" }));
+      await settledScreen();
+      expect(main().querySelector("[data-page-refusal='INVALID_WINDOW'] p")?.textContent).toBe(copy);
+      expect(main().querySelector("[data-estate-window]")?.textContent).toBe("Window not valid");
+      view.unmount();
+    }
+    const view = renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake({ status: "refused", httpStatus: 403, code: "ESTATE_SCOPE_FORBIDDEN", copy: EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN }));
+    await settledScreen();
+    expect(main().querySelector("[data-page-refusal] p")?.textContent).toBe(EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN);
+    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("Window 2026-10-13 to 2026-10-19 (UTC days)");
+    view.unmount();
+  });
+});
