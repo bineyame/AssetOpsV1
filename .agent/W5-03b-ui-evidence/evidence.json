@@ -1,5 +1,5 @@
 {
-  "revision": "wip",
+  "revision": "99ca5caf",
   "pairs": [
     {
       "state": "ev-health-fault",
@@ -39,13 +39,26 @@
         "clientWidth": 1440,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 1120,
+            "clientWidth": 1120,
+            "overflows": false
+          }
+        ],
+        "headerBackgrounds": [
+          [
+            "rgb(248, 250, 253)",
+            "rgb(248, 250, 253)"
+          ]
+        ],
+        "basisMaxHeight": null,
         "order": [
           "cards",
           "panel:Condition and evidence",
           "notice"
         ],
-        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nConnector c1\nNeeds attention\n1 selected fault records; cause not diagnosed\nSessions →\nConnector c2\nUnknown\nNo charger condition assessment\nSessions →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nConnector c1\n00000502-0000-4000-8000-000000000007\n\tSession interruption; hardware fault not established\nSession 00000502-0000-4000-8000-000000000255\nOpen Sessions →\tDiagnostic event + witnessed session\nSite import meter\n00000502-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c2\n00000502-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
+        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nConnector c1\nNeeds attention\n1 selected fault record; cause not diagnosed\nView detail →\nConnector c2\nUnknown\nNo charger condition assessment\nView detail →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nConnector c1\n00000502-0000-4000-8000-000000000007\n\tSession interruption; hardware fault not established\nSession 00000502-0000-4000-8000-000000000255\nOpen Sessions →\tDiagnostic event + witnessed session\nSite import meter\n00000502-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c2\n00000502-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
       },
       "mock_image": "ev-health-1440-mock.png",
       "mock": {
@@ -66,11 +79,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": 0,
+      "header_grey": true
     },
     {
       "state": "ev-health-fault",
@@ -103,20 +122,33 @@
           "refusal": null,
           "state_notice": null,
           "basis": null,
-          "Condition and evidence": 409,
-          "page": 1150
+          "Condition and evidence": 490,
+          "page": 1231
         },
         "scrollWidth": 375,
         "clientWidth": 375,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 303,
+            "clientWidth": 303,
+            "overflows": false
+          }
+        ],
+        "headerBackgrounds": [
+          [
+            "rgb(248, 250, 253)",
+            "rgb(248, 250, 253)"
+          ]
+        ],
+        "basisMaxHeight": null,
         "order": [
           "cards",
           "panel:Condition and evidence",
           "notice"
         ],
-        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nConnector c1\nNeeds attention\n1 selected fault records; cause not diagnosed\nSessions →\nConnector c2\nUnknown\nNo charger condition assessment\nSessions →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nConnector c1\n00000502-0000-4000-8000-000000000007\n\tSession interruption; hardware fault not established\nSession 00000502-0000-4000-8000-000000000255\nOpen Sessions →\tDiagnostic event + witnessed session\nSite import meter\n00000502-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c2\n00000502-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
+        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nConnector c1\nNeeds attention\n1 selected fault record; cause not diagnosed\nView detail →\nConnector c2\nUnknown\nNo charger condition assessment\nView detail →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nConnector c1\n00000502-0000-4000-8000-000000000007\n\tSession interruption; hardware fault not established\nSession 00000502-0000-4000-8000-000000000255\nOpen Sessions →\tDiagnostic event + witnessed session\nSite import meter\n00000502-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c2\n00000502-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
       },
       "mock_image": "ev-health-390-mock.png",
       "mock": {
@@ -137,11 +169,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": 0,
+      "header_grey": true
     },
     {
       "state": "ev-health-refused",
@@ -175,6 +213,8 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": [],
         "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nEV depth unavailable\n\nEV_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry"
       },
@@ -197,11 +237,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": null,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": false,
+      "hidden_columns": 0,
+      "header_grey": true
     },
     {
       "state": "ev-health-refused",
@@ -235,6 +281,8 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": [],
         "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nEV depth unavailable\n\nEV_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry"
       },
@@ -257,263 +305,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": null,
       "no_overflow": true,
-      "over_cap": []
-    },
-    {
-      "state": "ev-scenarios-empty",
-      "viewport": "1440x1000",
-      "app_url": "http://localhost:6191/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-06T09:00:00.000000Z",
-        "known_at": "2026-10-06T09:00:00.000000Z",
-        "scenario_at": "2026-10-23T22:39:15.427531Z",
-        "rows": null,
-        "items": [],
-        "next_cursor": null
-      },
-      "read_ok": true,
-      "app_image": "ev-scenarios-empty-1440-app.png",
-      "app": {
-        "panels": [
-          "Financial scenarios"
-        ],
-        "blocks": {
-          "cards": null,
-          "closing_notice": 66,
-          "refusal": null,
-          "state_notice": null,
-          "basis": null,
-          "Financial scenarios": 305,
-          "page": 1000
-        },
-        "scrollWidth": 1440,
-        "clientWidth": 1440,
-        "ellipsized": 0,
-        "overflowingCells": 0,
-        "tableScrolls": [],
-        "order": [
-          "panel:Financial scenarios",
-          "blue-notice"
-        ],
-        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nNo scenario defined yet\n\nA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
-      },
-      "mock_image": "ev-scenarios-1440-mock.png",
-      "mock": {
-        "panels": [
-          "Financial scenarios"
-        ],
-        "blocks": {
-          "cards": null,
-          "closing_notice": 42,
-          "refusal": null,
-          "state_notice": null,
-          "basis": null,
-          "Financial scenarios": 316,
-          "page": 1001
-        },
-        "scrollWidth": 1425,
-        "clientWidth": 1425,
-        "ellipsized": 0,
-        "overflowingCells": 0,
-        "tableScrolls": [],
-        "order": []
-      },
-      "titles_equal": true,
-      "no_overflow": true,
-      "over_cap": []
-    },
-    {
-      "state": "ev-scenarios-empty",
-      "viewport": "390x900",
-      "app_url": "http://localhost:6191/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-06T09:00:00.000000Z",
-        "known_at": "2026-10-06T09:00:00.000000Z",
-        "scenario_at": "2026-10-23T22:39:15.427531Z",
-        "rows": null,
-        "items": [],
-        "next_cursor": null
-      },
-      "read_ok": true,
-      "app_image": "ev-scenarios-empty-390-app.png",
-      "app": {
-        "panels": [
-          "Financial scenarios"
-        ],
-        "blocks": {
-          "cards": null,
-          "closing_notice": 102,
-          "refusal": null,
-          "state_notice": null,
-          "basis": null,
-          "Financial scenarios": 345,
-          "page": 900
-        },
-        "scrollWidth": 390,
-        "clientWidth": 390,
-        "ellipsized": 0,
-        "overflowingCells": 0,
-        "tableScrolls": [],
-        "order": [
-          "panel:Financial scenarios",
-          "blue-notice"
-        ],
-        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nNo scenario defined yet\n\nA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
-      },
-      "mock_image": "ev-scenarios-390-mock.png",
-      "mock": {
-        "panels": [
-          "Financial scenarios"
-        ],
-        "blocks": {
-          "cards": null,
-          "closing_notice": 78,
-          "refusal": null,
-          "state_notice": null,
-          "basis": null,
-          "Financial scenarios": 355,
-          "page": 1140
-        },
-        "scrollWidth": 375,
-        "clientWidth": 375,
-        "ellipsized": 0,
-        "overflowingCells": 0,
-        "tableScrolls": [],
-        "order": []
-      },
-      "titles_equal": true,
-      "no_overflow": true,
-      "over_cap": []
-    },
-    {
-      "state": "ev-scenarios-refused",
-      "viewport": "1440x1000",
-      "app_url": "http://localhost:6191/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
-      "read": {
-        "http": 422,
-        "code": "EV_WINDOW_INVALID",
-        "selection_state": null,
-        "committed_watermark": null,
-        "known_at": null,
-        "scenario_at": null,
-        "rows": null,
-        "items": null,
-        "next_cursor": null
-      },
-      "read_ok": true,
-      "app_image": "ev-scenarios-refused-1440-app.png",
-      "app": {
-        "panels": [],
-        "blocks": {
-          "cards": null,
-          "closing_notice": null,
-          "refusal": 140,
-          "state_notice": null,
-          "basis": null,
-          "page": 1000
-        },
-        "scrollWidth": 1440,
-        "clientWidth": 1440,
-        "ellipsized": 0,
-        "overflowingCells": 0,
-        "tableScrolls": [],
-        "order": [],
-        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\n\nEV scenarios unavailable\n\nEV_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry"
-      },
-      "mock_image": "ev-scenarios-1440-mock.png",
-      "mock": {
-        "panels": [
-          "Financial scenarios"
-        ],
-        "blocks": {
-          "cards": null,
-          "closing_notice": 42,
-          "refusal": null,
-          "state_notice": null,
-          "basis": null,
-          "Financial scenarios": 316,
-          "page": 1001
-        },
-        "scrollWidth": 1425,
-        "clientWidth": 1425,
-        "ellipsized": 0,
-        "overflowingCells": 0,
-        "tableScrolls": [],
-        "order": []
-      },
-      "titles_equal": null,
-      "no_overflow": true,
-      "over_cap": []
-    },
-    {
-      "state": "ev-scenarios-refused",
-      "viewport": "390x900",
-      "app_url": "http://localhost:6191/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
-      "read": {
-        "http": 422,
-        "code": "EV_WINDOW_INVALID",
-        "selection_state": null,
-        "committed_watermark": null,
-        "known_at": null,
-        "scenario_at": null,
-        "rows": null,
-        "items": null,
-        "next_cursor": null
-      },
-      "read_ok": true,
-      "app_image": "ev-scenarios-refused-390-app.png",
-      "app": {
-        "panels": [],
-        "blocks": {
-          "cards": null,
-          "closing_notice": null,
-          "refusal": 140,
-          "state_notice": null,
-          "basis": null,
-          "page": 900
-        },
-        "scrollWidth": 390,
-        "clientWidth": 390,
-        "ellipsized": 0,
-        "overflowingCells": 0,
-        "tableScrolls": [],
-        "order": [],
-        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\n\nEV scenarios unavailable\n\nEV_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry"
-      },
-      "mock_image": "ev-scenarios-390-mock.png",
-      "mock": {
-        "panels": [
-          "Financial scenarios"
-        ],
-        "blocks": {
-          "cards": null,
-          "closing_notice": 78,
-          "refusal": null,
-          "state_notice": null,
-          "basis": null,
-          "Financial scenarios": 355,
-          "page": 1140
-        },
-        "scrollWidth": 375,
-        "clientWidth": 375,
-        "ellipsized": 0,
-        "overflowingCells": 0,
-        "tableScrolls": [],
-        "order": []
-      },
-      "titles_equal": null,
-      "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": false,
+      "hidden_columns": 0,
+      "header_grey": true
     },
     {
       "state": "ev-health-unknown",
@@ -553,14 +355,27 @@
         "clientWidth": 1440,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 1120,
+            "clientWidth": 1120,
+            "overflows": false
+          }
+        ],
+        "headerBackgrounds": [
+          [
+            "rgb(248, 250, 253)",
+            "rgb(248, 250, 253)"
+          ]
+        ],
+        "basisMaxHeight": null,
         "order": [
           "notice",
           "cards",
           "panel:Condition and evidence",
           "notice"
         ],
-        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nNo selected EV session assessment covers this window yet.\nConnector c1\nUnknown\nNo charger condition assessment\nSessions →\nConnector c2\nUnknown\nNo charger condition assessment\nSessions →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nSite import meter\n00000503-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c1\n00000503-0000-4000-8000-000000000007\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nConnector c2\n00000503-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
+        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nNo selected EV session assessment covers this window yet.\nConnector c1\nUnknown\nNo charger condition assessment\nView detail →\nConnector c2\nUnknown\nNo charger condition assessment\nView detail →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nSite import meter\n00000501-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c1\n00000501-0000-4000-8000-000000000007\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nConnector c2\n00000501-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
       },
       "mock_image": "ev-health-1440-mock.png",
       "mock": {
@@ -581,11 +396,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": 0,
+      "header_grey": true
     },
     {
       "state": "ev-health-unknown",
@@ -618,21 +439,34 @@
           "refusal": null,
           "state_notice": 43,
           "basis": null,
-          "Condition and evidence": 374,
-          "page": 1176
+          "Condition and evidence": 455,
+          "page": 1256
         },
         "scrollWidth": 375,
         "clientWidth": 375,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 303,
+            "clientWidth": 303,
+            "overflows": false
+          }
+        ],
+        "headerBackgrounds": [
+          [
+            "rgb(248, 250, 253)",
+            "rgb(248, 250, 253)"
+          ]
+        ],
+        "basisMaxHeight": null,
         "order": [
           "notice",
           "cards",
           "panel:Condition and evidence",
           "notice"
         ],
-        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nNo selected EV session assessment covers this window yet.\nConnector c1\nUnknown\nNo charger condition assessment\nSessions →\nConnector c2\nUnknown\nNo charger condition assessment\nSessions →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nSite import meter\n00000503-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c1\n00000503-0000-4000-8000-000000000007\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nConnector c2\n00000503-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
+        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nNo selected EV session assessment covers this window yet.\nConnector c1\nUnknown\nNo charger condition assessment\nView detail →\nConnector c2\nUnknown\nNo charger condition assessment\nView detail →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nSite import meter\n00000501-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c1\n00000501-0000-4000-8000-000000000007\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nConnector c2\n00000501-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
       },
       "mock_image": "ev-health-390-mock.png",
       "mock": {
@@ -653,11 +487,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": 0,
+      "header_grey": true
     },
     {
       "state": "ev-health-pending",
@@ -697,14 +537,27 @@
         "clientWidth": 1440,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 1120,
+            "clientWidth": 1120,
+            "overflows": false
+          }
+        ],
+        "headerBackgrounds": [
+          [
+            "rgb(248, 250, 253)",
+            "rgb(248, 250, 253)"
+          ]
+        ],
+        "basisMaxHeight": null,
         "order": [
           "notice",
           "cards",
           "panel:Condition and evidence",
           "notice"
         ],
-        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nNew evidence is being assessed. Earlier selected results may change.\nConnector c1\nUnknown\nNo charger condition assessment\nSessions →\nConnector c2\nUnknown\nNo charger condition assessment\nSessions →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nSite import meter\n00000505-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c1\n00000505-0000-4000-8000-000000000007\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nConnector c2\n00000505-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
+        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nNew evidence is being assessed. Earlier selected results may change.\nConnector c1\nUnknown\nNo charger condition assessment\nView detail →\nConnector c2\nUnknown\nNo charger condition assessment\nView detail →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nSite import meter\n00000505-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c1\n00000505-0000-4000-8000-000000000007\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nConnector c2\n00000505-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
       },
       "mock_image": "ev-health-1440-mock.png",
       "mock": {
@@ -725,11 +578,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": 0,
+      "header_grey": true
     },
     {
       "state": "ev-health-pending",
@@ -762,21 +621,34 @@
           "refusal": null,
           "state_notice": 61,
           "basis": null,
-          "Condition and evidence": 374,
-          "page": 1195
+          "Condition and evidence": 455,
+          "page": 1275
         },
         "scrollWidth": 375,
         "clientWidth": 375,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 303,
+            "clientWidth": 303,
+            "overflows": false
+          }
+        ],
+        "headerBackgrounds": [
+          [
+            "rgb(248, 250, 253)",
+            "rgb(248, 250, 253)"
+          ]
+        ],
+        "basisMaxHeight": null,
         "order": [
           "notice",
           "cards",
           "panel:Condition and evidence",
           "notice"
         ],
-        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nNew evidence is being assessed. Earlier selected results may change.\nConnector c1\nUnknown\nNo charger condition assessment\nSessions →\nConnector c2\nUnknown\nNo charger condition assessment\nSessions →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nSite import meter\n00000505-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c1\n00000505-0000-4000-8000-000000000007\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nConnector c2\n00000505-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
+        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nNew evidence is being assessed. Earlier selected results may change.\nConnector c1\nUnknown\nNo charger condition assessment\nView detail →\nConnector c2\nUnknown\nNo charger condition assessment\nView detail →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nSite import meter\n00000505-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c1\n00000505-0000-4000-8000-000000000007\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nConnector c2\n00000505-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
       },
       "mock_image": "ev-health-390-mock.png",
       "mock": {
@@ -797,11 +669,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": 0,
+      "header_grey": true
     },
     {
       "state": "ev-health-historical",
@@ -841,14 +719,27 @@
         "clientWidth": 1440,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 1120,
+            "clientWidth": 1120,
+            "overflows": false
+          }
+        ],
+        "headerBackgrounds": [
+          [
+            "rgb(248, 250, 253)",
+            "rgb(248, 250, 253)"
+          ]
+        ],
+        "basisMaxHeight": null,
         "order": [
           "notice",
           "cards",
           "panel:Condition and evidence",
           "notice"
         ],
-        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nThis result reflects records known at the selected cutoff.\nConnector c1\nUnknown\nNo charger condition assessment\nSessions →\nConnector c2\nUnknown\nNo charger condition assessment\nSessions →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nSite import meter\n00000505-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c1\n00000505-0000-4000-8000-000000000007\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nConnector c2\n00000505-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
+        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nThis result reflects records known at the selected cutoff.\nConnector c1\nUnknown\nNo charger condition assessment\nView detail →\nConnector c2\nUnknown\nNo charger condition assessment\nView detail →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nSite import meter\n00000505-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c1\n00000505-0000-4000-8000-000000000007\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nConnector c2\n00000505-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
       },
       "mock_image": "ev-health-1440-mock.png",
       "mock": {
@@ -869,11 +760,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": 0,
+      "header_grey": true
     },
     {
       "state": "ev-health-historical",
@@ -906,21 +803,34 @@
           "refusal": null,
           "state_notice": 43,
           "basis": null,
-          "Condition and evidence": 374,
-          "page": 1176
+          "Condition and evidence": 455,
+          "page": 1256
         },
         "scrollWidth": 375,
         "clientWidth": 375,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 303,
+            "clientWidth": 303,
+            "overflows": false
+          }
+        ],
+        "headerBackgrounds": [
+          [
+            "rgb(248, 250, 253)",
+            "rgb(248, 250, 253)"
+          ]
+        ],
+        "basisMaxHeight": null,
         "order": [
           "notice",
           "cards",
           "panel:Condition and evidence",
           "notice"
         ],
-        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nThis result reflects records known at the selected cutoff.\nConnector c1\nUnknown\nNo charger condition assessment\nSessions →\nConnector c2\nUnknown\nNo charger condition assessment\nSessions →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nSite import meter\n00000505-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c1\n00000505-0000-4000-8000-000000000007\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nConnector c2\n00000505-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
+        "text": "Sites\nEV charging lab\nHealth\nEV charging lab\nDemonstration data · EV-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nThis result reflects records known at the selected cutoff.\nConnector c1\nUnknown\nNo charger condition assessment\nView detail →\nConnector c2\nUnknown\nNo charger condition assessment\nView detail →\nStationary battery\nUnknown\nBattery configuration is not established by this Foundation.\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nSite import meter\n00000505-0000-4000-8000-000000000005\n\tPower limit not assessed from selected samples\tContinuous coverage for interval-wide claims\nConnector c1\n00000505-0000-4000-8000-000000000007\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nConnector c2\n00000505-0000-4000-8000-000000000008\n\tNo connector condition assessment\tDiagnostic event + witnessed session\nSession and fault records show what was observed at each connector. They do not establish charger condition or diagnose a fault's cause."
       },
       "mock_image": "ev-health-390-mock.png",
       "mock": {
@@ -941,11 +851,301 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": 0,
+      "header_grey": true
+    },
+    {
+      "state": "ev-scenarios-empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-06T09:00:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "scenario_at": "2026-10-24T01:00:56.950535Z",
+        "rows": null,
+        "items": [],
+        "next_cursor": null
+      },
+      "read_ok": true,
+      "app_image": "ev-scenarios-empty-1440-app.png",
+      "app": {
+        "panels": [
+          "Financial scenarios"
+        ],
+        "blocks": {
+          "cards": null,
+          "closing_notice": 42,
+          "refusal": null,
+          "state_notice": null,
+          "basis": null,
+          "Financial scenarios": 305,
+          "page": 1000
+        },
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "ellipsized": 0,
+        "overflowingCells": 0,
+        "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
+        "order": [
+          "panel:Financial scenarios",
+          "blue-notice"
+        ],
+        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nNo scenario defined yet\n\nA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+      },
+      "mock_image": "ev-scenarios-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Financial scenarios"
+        ],
+        "blocks": {
+          "cards": null,
+          "closing_notice": 42,
+          "refusal": null,
+          "state_notice": null,
+          "basis": null,
+          "Financial scenarios": 316,
+          "page": 1001
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0,
+        "overflowingCells": 0,
+        "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
+        "order": []
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": false,
+      "hidden_columns": null,
+      "header_grey": true
+    },
+    {
+      "state": "ev-scenarios-empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-06T09:00:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "scenario_at": "2026-10-24T01:00:56.950535Z",
+        "rows": null,
+        "items": [],
+        "next_cursor": null
+      },
+      "read_ok": true,
+      "app_image": "ev-scenarios-empty-390-app.png",
+      "app": {
+        "panels": [
+          "Financial scenarios"
+        ],
+        "blocks": {
+          "cards": null,
+          "closing_notice": 78,
+          "refusal": null,
+          "state_notice": null,
+          "basis": null,
+          "Financial scenarios": 345,
+          "page": 900
+        },
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "ellipsized": 0,
+        "overflowingCells": 0,
+        "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
+        "order": [
+          "panel:Financial scenarios",
+          "blue-notice"
+        ],
+        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nNo scenario defined yet\n\nA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+      },
+      "mock_image": "ev-scenarios-390-mock.png",
+      "mock": {
+        "panels": [
+          "Financial scenarios"
+        ],
+        "blocks": {
+          "cards": null,
+          "closing_notice": 78,
+          "refusal": null,
+          "state_notice": null,
+          "basis": null,
+          "Financial scenarios": 355,
+          "page": 1140
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "overflowingCells": 0,
+        "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
+        "order": []
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": false,
+      "hidden_columns": null,
+      "header_grey": true
+    },
+    {
+      "state": "ev-scenarios-refused",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+      "read": {
+        "http": 422,
+        "code": "EV_WINDOW_INVALID",
+        "selection_state": null,
+        "committed_watermark": null,
+        "known_at": null,
+        "scenario_at": null,
+        "rows": null,
+        "items": null,
+        "next_cursor": null
+      },
+      "read_ok": true,
+      "app_image": "ev-scenarios-refused-1440-app.png",
+      "app": {
+        "panels": [],
+        "blocks": {
+          "cards": null,
+          "closing_notice": null,
+          "refusal": 140,
+          "state_notice": null,
+          "basis": null,
+          "page": 1000
+        },
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "ellipsized": 0,
+        "overflowingCells": 0,
+        "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
+        "order": [],
+        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\n\nEV scenarios unavailable\n\nEV_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry"
+      },
+      "mock_image": "ev-scenarios-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Financial scenarios"
+        ],
+        "blocks": {
+          "cards": null,
+          "closing_notice": 42,
+          "refusal": null,
+          "state_notice": null,
+          "basis": null,
+          "Financial scenarios": 316,
+          "page": 1001
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0,
+        "overflowingCells": 0,
+        "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
+        "order": []
+      },
+      "titles_equal": null,
+      "no_overflow": true,
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": false,
+      "hidden_columns": null,
+      "header_grey": true
+    },
+    {
+      "state": "ev-scenarios-refused",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+      "read": {
+        "http": 422,
+        "code": "EV_WINDOW_INVALID",
+        "selection_state": null,
+        "committed_watermark": null,
+        "known_at": null,
+        "scenario_at": null,
+        "rows": null,
+        "items": null,
+        "next_cursor": null
+      },
+      "read_ok": true,
+      "app_image": "ev-scenarios-refused-390-app.png",
+      "app": {
+        "panels": [],
+        "blocks": {
+          "cards": null,
+          "closing_notice": null,
+          "refusal": 140,
+          "state_notice": null,
+          "basis": null,
+          "page": 900
+        },
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "ellipsized": 0,
+        "overflowingCells": 0,
+        "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
+        "order": [],
+        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\n\nEV scenarios unavailable\n\nEV_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry"
+      },
+      "mock_image": "ev-scenarios-390-mock.png",
+      "mock": {
+        "panels": [
+          "Financial scenarios"
+        ],
+        "blocks": {
+          "cards": null,
+          "closing_notice": 78,
+          "refusal": null,
+          "state_notice": null,
+          "basis": null,
+          "Financial scenarios": 355,
+          "page": 1140
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "overflowingCells": 0,
+        "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
+        "order": []
+      },
+      "titles_equal": null,
+      "no_overflow": true,
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": false,
+      "hidden_columns": null,
+      "header_grey": true
     },
     {
       "state": "ev-scenarios-authored",
@@ -957,7 +1157,7 @@
         "selection_state": "CURRENT",
         "committed_watermark": "2026-10-06T09:00:00.000000Z",
         "known_at": "2026-10-06T09:00:00.000000Z",
-        "scenario_at": "2026-10-23T22:42:07.653181Z",
+        "scenario_at": "2026-10-24T01:01:46.827704Z",
         "rows": null,
         "items": [
           "ESCN-000001:r1:DEFINED"
@@ -972,7 +1172,7 @@
         ],
         "blocks": {
           "cards": null,
-          "closing_notice": 66,
+          "closing_notice": 42,
           "refusal": null,
           "state_notice": null,
           "basis": null,
@@ -983,12 +1183,20 @@
         "clientWidth": 1440,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 1120,
+            "clientWidth": 1120,
+            "overflows": false
+          }
+        ],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": [
           "panel:Financial scenarios",
           "blue-notice"
         ],
-        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nDepot gross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-23 22:41 UTC\tDefined\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nGross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-24 01:01 UTC\tDefined\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
       },
       "mock_image": "ev-scenarios-1440-mock.png",
       "mock": {
@@ -1009,11 +1217,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": null,
+      "header_grey": true
     },
     {
       "state": "ev-scenarios-authored",
@@ -1025,7 +1239,7 @@
         "selection_state": "CURRENT",
         "committed_watermark": "2026-10-06T09:00:00.000000Z",
         "known_at": "2026-10-06T09:00:00.000000Z",
-        "scenario_at": "2026-10-23T22:42:07.653181Z",
+        "scenario_at": "2026-10-24T01:01:46.827704Z",
         "rows": null,
         "items": [
           "ESCN-000001:r1:DEFINED"
@@ -1040,7 +1254,7 @@
         ],
         "blocks": {
           "cards": null,
-          "closing_notice": 102,
+          "closing_notice": 78,
           "refusal": null,
           "state_notice": null,
           "basis": null,
@@ -1051,12 +1265,20 @@
         "clientWidth": 390,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 820,
+            "clientWidth": 318,
+            "overflows": true
+          }
+        ],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": [
           "panel:Financial scenarios",
           "blue-notice"
         ],
-        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nDepot gross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-23 22:41 UTC\tDefined\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nGross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-24 01:01 UTC\tDefined\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
       },
       "mock_image": "ev-scenarios-390-mock.png",
       "mock": {
@@ -1077,23 +1299,29 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": null,
+      "header_grey": true
     },
     {
       "state": "ev-scenarios-historical",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6191/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&scenario_at=2026-10-23T22%3A42%3A58.963238Z",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&scenario_at=2026-10-24T01%3A02%3A27.690582Z",
       "read": {
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
         "committed_watermark": "2026-10-06T09:00:00.000000Z",
         "known_at": "2026-10-06T09:00:00.000000Z",
-        "scenario_at": "2026-10-23T22:42:58.963238Z",
+        "scenario_at": "2026-10-24T01:02:27.690582Z",
         "rows": null,
         "items": [
           "ESCN-000001:r1:HISTORICAL"
@@ -1108,7 +1336,7 @@
         ],
         "blocks": {
           "cards": null,
-          "closing_notice": 66,
+          "closing_notice": 42,
           "refusal": null,
           "state_notice": null,
           "basis": null,
@@ -1119,12 +1347,20 @@
         "clientWidth": 1440,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 1120,
+            "clientWidth": 1120,
+            "overflows": false
+          }
+        ],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": [
           "panel:Financial scenarios",
           "blue-notice"
         ],
-        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nDepot gross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-23 22:42 UTC\tHistorical\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nGross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-24 01:02 UTC\tHistorical\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
       },
       "mock_image": "ev-scenarios-1440-mock.png",
       "mock": {
@@ -1145,23 +1381,29 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": null,
+      "header_grey": true
     },
     {
       "state": "ev-scenarios-historical",
       "viewport": "390x900",
-      "app_url": "http://localhost:6191/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&scenario_at=2026-10-23T22%3A42%3A58.963238Z",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&scenario_at=2026-10-24T01%3A02%3A27.690582Z",
       "read": {
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
         "committed_watermark": "2026-10-06T09:00:00.000000Z",
         "known_at": "2026-10-06T09:00:00.000000Z",
-        "scenario_at": "2026-10-23T22:42:58.963238Z",
+        "scenario_at": "2026-10-24T01:02:27.690582Z",
         "rows": null,
         "items": [
           "ESCN-000001:r1:HISTORICAL"
@@ -1176,7 +1418,7 @@
         ],
         "blocks": {
           "cards": null,
-          "closing_notice": 102,
+          "closing_notice": 78,
           "refusal": null,
           "state_notice": null,
           "basis": null,
@@ -1187,12 +1429,20 @@
         "clientWidth": 390,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 820,
+            "clientWidth": 318,
+            "overflows": true
+          }
+        ],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": [
           "panel:Financial scenarios",
           "blue-notice"
         ],
-        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nDepot gross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-23 22:42 UTC\tHistorical\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nGross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-24 01:02 UTC\tHistorical\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
       },
       "mock_image": "ev-scenarios-390-mock.png",
       "mock": {
@@ -1213,11 +1463,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": null,
+      "header_grey": true
     },
     {
       "state": "ev-scenarios-pending",
@@ -1229,7 +1485,7 @@
         "selection_state": "PENDING_RECOMPUTE",
         "committed_watermark": "2026-10-06T09:05:00.000000Z",
         "known_at": "2026-10-06T09:05:00.000000Z",
-        "scenario_at": "2026-10-23T22:47:00.267989Z",
+        "scenario_at": "2026-10-24T01:03:11.607011Z",
         "rows": null,
         "items": [
           "ESCN-000001:r1:DEFINED"
@@ -1244,7 +1500,7 @@
         ],
         "blocks": {
           "cards": null,
-          "closing_notice": 66,
+          "closing_notice": 42,
           "refusal": null,
           "state_notice": 43,
           "basis": null,
@@ -1255,13 +1511,21 @@
         "clientWidth": 1440,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 1120,
+            "clientWidth": 1120,
+            "overflows": false
+          }
+        ],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": [
           "notice",
           "panel:Financial scenarios",
           "blue-notice"
         ],
-        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nUnderlying evidence is being reassessed; the authored scenario remains separate.\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nDepot gross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-23 22:46 UTC\tDefined\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nUnderlying evidence is being reassessed; the authored scenario remains separate.\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nGross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-24 01:03 UTC\tDefined\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
       },
       "mock_image": "ev-scenarios-1440-mock.png",
       "mock": {
@@ -1282,11 +1546,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": null,
+      "header_grey": true
     },
     {
       "state": "ev-scenarios-pending",
@@ -1298,7 +1568,7 @@
         "selection_state": "PENDING_RECOMPUTE",
         "committed_watermark": "2026-10-06T09:05:00.000000Z",
         "known_at": "2026-10-06T09:05:00.000000Z",
-        "scenario_at": "2026-10-23T22:47:00.267989Z",
+        "scenario_at": "2026-10-24T01:03:11.607011Z",
         "rows": null,
         "items": [
           "ESCN-000001:r1:DEFINED"
@@ -1313,7 +1583,7 @@
         ],
         "blocks": {
           "cards": null,
-          "closing_notice": 102,
+          "closing_notice": 78,
           "refusal": null,
           "state_notice": 61,
           "basis": null,
@@ -1324,13 +1594,21 @@
         "clientWidth": 390,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 820,
+            "clientWidth": 318,
+            "overflows": true
+          }
+        ],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": [
           "notice",
           "panel:Financial scenarios",
           "blue-notice"
         ],
-        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nUnderlying evidence is being reassessed; the authored scenario remains separate.\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nDepot gross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-23 22:46 UTC\tDefined\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nUnderlying evidence is being reassessed; the authored scenario remains separate.\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nGross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-24 01:03 UTC\tDefined\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
       },
       "mock_image": "ev-scenarios-390-mock.png",
       "mock": {
@@ -1351,11 +1629,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": null,
+      "header_grey": true
     },
     {
       "state": "ev-scenarios-pending-expanded",
@@ -1367,7 +1651,7 @@
         "selection_state": "PENDING_RECOMPUTE",
         "committed_watermark": "2026-10-06T09:05:00.000000Z",
         "known_at": "2026-10-06T09:05:00.000000Z",
-        "scenario_at": "2026-10-23T22:47:45.693686Z",
+        "scenario_at": "2026-10-24T01:03:20.095711Z",
         "rows": null,
         "items": [
           "ESCN-000001:r1:DEFINED"
@@ -1382,24 +1666,32 @@
         ],
         "blocks": {
           "cards": null,
-          "closing_notice": 66,
+          "closing_notice": 42,
           "refusal": null,
           "state_notice": 43,
           "basis": 360,
           "Financial scenarios": 604,
-          "page": 1045
+          "page": 1021
         },
         "scrollWidth": 1425,
         "clientWidth": 1425,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 1105,
+            "clientWidth": 1105,
+            "overflows": false
+          }
+        ],
+        "headerBackgrounds": [],
+        "basisMaxHeight": "360px",
         "order": [
           "notice",
           "panel:Financial scenarios",
           "blue-notice"
         ],
-        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nUnderlying evidence is being reassessed; the authored scenario remains separate.\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nDepot gross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-23 22:46 UTC\tDefined\n\nKind\nGROSS_TARIFF_CONTEXT\nAssumptions\ntariff_per_kwh: 0.31\ncurrency: KES\nWindow\n2026-10-06T08:00:00.000000Z – 2026-10-06T09:00:00.000000Z\nEvidence cutoff\n2026-10-06T09:00:00.000000Z\nAssessment revision\n00000501-0000-4000-8000-000000000261\nSession revisions\n00000501-0000-4000-8000-000000000262\nAccepted evidence\n7 records\n00000501-0000-4000-8000-0000000000f3\n00000501-0000-4000-8000-000000000112\n00000501-0000-4000-8000-000000000131\n00000501-0000-4000-8000-000000000150\n00000501-0000-4000-8000-00000000016f\n00000501-0000-4000-8000-00000000018e\n00000501-0000-4000-8000-00000000019f\nFoundation revision\n00000501-0000-4000-8000-000000000011\nConsequence revision\nNone\nTariff revision\nNone\nSource classification\nREGISTERED_SIMULATION\nRevision\n00000501-0000-4000-8000-00000000026b\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nUnderlying evidence is being reassessed; the authored scenario remains separate.\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nGross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-24 01:03 UTC\tDefined\n\nKind\nGROSS_TARIFF_CONTEXT\nAssumptions\ntariff_per_kwh: 0.31\ncurrency: KES\nWindow\n2026-10-06T08:00:00.000000Z – 2026-10-06T09:00:00.000000Z\nEvidence cutoff\n2026-10-06T09:00:00.000000Z\nAssessment revision\n00000501-0000-4000-8000-000000000261\nSession revisions\n00000501-0000-4000-8000-000000000262\nAccepted evidence\n7 records\n00000501-0000-4000-8000-0000000000f3\n00000501-0000-4000-8000-000000000112\n00000501-0000-4000-8000-000000000131\n00000501-0000-4000-8000-000000000150\n00000501-0000-4000-8000-00000000016f\n00000501-0000-4000-8000-00000000018e\n00000501-0000-4000-8000-00000000019f\nFoundation revision\n00000501-0000-4000-8000-000000000011\nConsequence revision\nNone\nTariff revision\nNone\nSource classification\nREGISTERED_SIMULATION\nRevision\n00000501-0000-4000-8000-00000000026b\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
       },
       "mock_image": "ev-scenarios-1440-mock.png",
       "mock": {
@@ -1420,11 +1712,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": null,
+      "header_grey": true
     },
     {
       "state": "ev-scenarios-pending-expanded",
@@ -1436,7 +1734,7 @@
         "selection_state": "PENDING_RECOMPUTE",
         "committed_watermark": "2026-10-06T09:05:00.000000Z",
         "known_at": "2026-10-06T09:05:00.000000Z",
-        "scenario_at": "2026-10-23T22:47:45.693686Z",
+        "scenario_at": "2026-10-24T01:03:20.095711Z",
         "rows": null,
         "items": [
           "ESCN-000001:r1:DEFINED"
@@ -1451,24 +1749,32 @@
         ],
         "blocks": {
           "cards": null,
-          "closing_notice": 102,
+          "closing_notice": 78,
           "refusal": null,
           "state_notice": 61,
-          "basis": 220,
-          "Financial scenarios": 461,
-          "page": 1038
+          "basis": 360,
+          "Financial scenarios": 601,
+          "page": 1154
         },
         "scrollWidth": 375,
         "clientWidth": 375,
         "ellipsized": 0,
         "overflowingCells": 0,
-        "tableScrolls": [],
+        "tableScrolls": [
+          {
+            "scrollWidth": 820,
+            "clientWidth": 303,
+            "overflows": true
+          }
+        ],
+        "headerBackgrounds": [],
+        "basisMaxHeight": "360px",
         "order": [
           "notice",
           "panel:Financial scenarios",
           "blue-notice"
         ],
-        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nUnderlying evidence is being reassessed; the authored scenario remains separate.\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nDepot gross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-23 22:46 UTC\tDefined\n\nKind\nGROSS_TARIFF_CONTEXT\nAssumptions\ntariff_per_kwh: 0.31\ncurrency: KES\nWindow\n2026-10-06T08:00:00.000000Z – 2026-10-06T09:00:00.000000Z\nEvidence cutoff\n2026-10-06T09:00:00.000000Z\nAssessment revision\n00000501-0000-4000-8000-000000000261\nSession revisions\n00000501-0000-4000-8000-000000000262\nAccepted evidence\n7 records\n00000501-0000-4000-8000-0000000000f3\n00000501-0000-4000-8000-000000000112\n00000501-0000-4000-8000-000000000131\n00000501-0000-4000-8000-000000000150\n00000501-0000-4000-8000-00000000016f\n00000501-0000-4000-8000-00000000018e\n00000501-0000-4000-8000-00000000019f\nFoundation revision\n00000501-0000-4000-8000-000000000011\nConsequence revision\nNone\nTariff revision\nNone\nSource classification\nREGISTERED_SIMULATION\nRevision\n00000501-0000-4000-8000-00000000026b\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+        "text": "Sites\nEV charging lab\nFinancials\nScenarios\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · scenarios (placeholder)\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios\nUnderlying evidence is being reassessed; the authored scenario remains separate.\nFinancial scenarios\n\nPlaceholder · to be designed with the owner\n\nAUTHORED SCENARIO\tASSUMPTIONS\tBASIS\tDEFINED AT\tSTATE\n\nGross tariff context\nESCN-000001 revision 1\n\t0.31 KES/kWh gross tariff\t\nSelected evidence through 2026-10-06 09:00 UTC\nReview assumptions →\t2026-10-24 01:03 UTC\tDefined\n\nKind\nGROSS_TARIFF_CONTEXT\nAssumptions\ntariff_per_kwh: 0.31\ncurrency: KES\nWindow\n2026-10-06T08:00:00.000000Z – 2026-10-06T09:00:00.000000Z\nEvidence cutoff\n2026-10-06T09:00:00.000000Z\nAssessment revision\n00000501-0000-4000-8000-000000000261\nSession revisions\n00000501-0000-4000-8000-000000000262\nAccepted evidence\n7 records\n00000501-0000-4000-8000-0000000000f3\n00000501-0000-4000-8000-000000000112\n00000501-0000-4000-8000-000000000131\n00000501-0000-4000-8000-000000000150\n00000501-0000-4000-8000-00000000016f\n00000501-0000-4000-8000-00000000018e\n00000501-0000-4000-8000-00000000019f\nFoundation revision\n00000501-0000-4000-8000-000000000011\nConsequence revision\nNone\nTariff revision\nNone\nSource classification\nREGISTERED_SIMULATION\nRevision\n00000501-0000-4000-8000-00000000026b\n\nScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
       },
       "mock_image": "ev-scenarios-390-mock.png",
       "mock": {
@@ -1489,11 +1795,17 @@
         "ellipsized": 0,
         "overflowingCells": 0,
         "tableScrolls": [],
+        "headerBackgrounds": [],
+        "basisMaxHeight": null,
         "order": []
       },
       "titles_equal": true,
       "no_overflow": true,
-      "over_cap": []
+      "over_cap": [],
+      "revision": "99ca5caf",
+      "table_scrolls_nonempty": true,
+      "hidden_columns": null,
+      "header_grey": true
     }
   ]
 }
