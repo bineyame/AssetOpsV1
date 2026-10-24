@@ -34,7 +34,7 @@ if URL:
     from assetops_backend.work.composition import build_domain_intent_service, build_work_service
     from assetops_backend.work.model import WorkRefused
 
-HEAD = "0034_w5_ev_scenarios"
+HEAD = "0035_w5_ev_work"
 PREVIOUS = "0032_w5_cold_scenarios"
 REFUSED = "Downgrade of 0033_w5_cold_work refused: domain Action rows exist."
 TABLES = ("domain_action", "domain_action_intent", "domain_action_case_link")
@@ -344,9 +344,9 @@ def test_db_checks_triggers_and_downgrade(cold) -> None:
         c.execute(text(ROOT_INSERT), root)
     _rejects(engine, ROOT_INSERT, _root_sql(cold, no=900002), "domain_action_code")  # same code twice
     four, base = json.dumps(criteria()), json.dumps({"finding_revision_id": cold.revision_id})
-    three = json.dumps(criteria()[:3])
+    two = json.dumps(criteria()[:2])  # W5-04a: 0035 admits 3 or 4 structurally; the service enforces four cold
     ip = {"t": cold.t, "s": cold.s, "a": root["id"], "p": None, "sha": SHA}
-    _rejects(engine, INTENT_INSERT, {**ip, "id": str(uuid4()), "c": three, "b": base, "key": "w502-i-0001"},
+    _rejects(engine, INTENT_INSERT, {**ip, "id": str(uuid4()), "c": two, "b": base, "key": "w502-i-0001"},
              "domain_action_intent_criteria_count_chk")
     _rejects(engine, INTENT_INSERT, {**ip, "id": str(uuid4()), "c": four, "b": "[]", "key": "w502-i-0001"})
     first = str(uuid4())

@@ -11,6 +11,7 @@ conditions only; it is never a verification outcome and never implies `VERIFIED`
 from __future__ import annotations
 
 import hashlib
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Mapping
 from uuid import UUID
@@ -47,6 +48,59 @@ MESSAGES = {
 }
 STATUS = {"DOMAIN_INTENT_INVALID": 422, "DOMAIN_INTENT_LINK_INVALID": 422, "DOMAIN_INTENT_CONFLICT": 409,
           "DOMAIN_INTENT_BASIS_CHANGED": 409, "ACTION_NOT_FOUND": 404}
+
+#: W5-04a V1a (pre-flight 9, readiness 12): the EV contract, in display order.
+EV_DOMAIN = "EV_CHARGING"
+EV_FINDING_DOMAIN = "ev_charging"
+EV_CRITERIA: tuple[tuple[str, str, str], ...] = (
+    ("WITNESSED_SESSION", "Complete a witnessed charging session", "Session start, end, outcome and meter delta"),
+    ("NO_FAULT_RECURRENCE", "No fault recurrence during observation", "Connector diagnostic events with full coverage"),
+    ("NO_SERVICE_REDUCTION", "No reduction in service availability", "Comparable status coverage / operational window"),
+)
+EV_MESSAGES = {
+    "DOMAIN_INTENT_INVALID": "The EV Action declaration is incomplete or invalid.",
+    "DOMAIN_INTENT_LINK_INVALID": "The declared Finding or session is not selected at this site and cutoff.",
+    "DOMAIN_INTENT_CONFLICT": "This Action declaration has a newer version; reload it.",
+    "DOMAIN_INTENT_BASIS_CHANGED": "The selected EV work basis changed; reload the Action.",
+    "ACTION_NOT_FOUND": "Action was not found at this site.",
+}
+#: Pre-flight 10: neutral literals used only before a domain or an Action is resolved.
+NEUTRAL_DOMAIN_INVALID = "The Action domain is missing or unsupported."
+NEUTRAL_LINK_INVALID = "The Action could not be resolved at this site and cutoff."
+
+
+@dataclass(frozen=True)
+class DomainSpec:
+    """One closed domain contract (pre-flight 9). `domain` is the upper-case Site/Action literal, `finding_domain`
+    the lower-case analytics literal; nothing outside `DOMAINS` falls through to cold."""
+
+    domain: str
+    finding_domain: str
+    criteria: tuple[tuple[str, str, str], ...]
+    summary: str
+    initial_results: tuple[str, ...]
+    messages: Mapping[str, str]
+    basis_keys: tuple[str, ...]
+
+    def refuse(self, code: str) -> "DomainIntentRefused":
+        return DomainIntentRefused(STATUS[code], code, self.messages[code])
+
+
+_BASIS = ("finding_revision_id", "work_case_id", "work_record_id", "accepted_evidence_ids")
+DOMAINS: Mapping[str, DomainSpec] = {
+    DOMAIN: DomainSpec(DOMAIN, FINDING_DOMAIN, CRITERIA, "Start requested → generator runs → power → cooling",
+                       ("NOT_TESTED", "NOT_TESTED", "NOT_ESTABLISHED", "PENDING"), MESSAGES, _BASIS),
+    EV_DOMAIN: DomainSpec(EV_DOMAIN, EV_FINDING_DOMAIN, EV_CRITERIA, "A complete witnessed session and no repeat fault",
+                          ("PENDING", "PENDING", "PENDING"), EV_MESSAGES, _BASIS + ("session_ids",)),
+}
+#: Finding (analytics) domain -> Action domain, for `_domain_links` and pins (readiness ruling 12).
+BY_FINDING_DOMAIN: Mapping[str, str] = {spec.finding_domain: name for name, spec in DOMAINS.items()}
+
+
+def spec_of(domain: Any) -> DomainSpec | None:
+    """The closed contract of a stored or declared domain; None for anything unreviewed."""
+    return DOMAINS.get(domain) if isinstance(domain, str) else None
+
 
 #: The cross-table Action code collision trigger's constraint name (migration 0033, ruling A4).
 CODE_CONFLICT_CONSTRAINT = "action_cross_domain_code_conflict"

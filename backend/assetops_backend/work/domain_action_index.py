@@ -49,9 +49,10 @@ KIND_W1, KIND_DOMAIN = "ACTION", "DOMAIN_ACTION"
 _CURSOR_TEXT = ("kind", "tenant_id", "site_id", "from", "to", "known_at", "selection_token")
 
 #: Initial supported replay results, in criteria display order (spec "Criteria keys").
-INITIAL_RESULTS = ("NOT_TESTED", "NOT_TESTED", "NOT_ESTABLISHED", "PENDING")
-#: `criterion_summary` from the selected intent's exact criterion keys (never a fixture constant).
-CRITERION_SUMMARY = {tuple(k for k, _, _ in d.CRITERIA): "Start requested → generator runs → power → cooling"}
+INITIAL_RESULTS = d.DOMAINS[d.DOMAIN].initial_results
+#: `criterion_summary` from the selected intent's exact criterion keys (never a fixture constant); one entry per
+#: closed domain contract (W5-04a pre-flight 9).
+CRITERION_SUMMARY = {tuple(k for k, _, _ in spec.criteria): spec.summary for spec in d.DOMAINS.values()}
 
 
 @dataclass(frozen=True)
