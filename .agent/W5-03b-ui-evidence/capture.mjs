@@ -15,6 +15,7 @@ import { join } from "node:path";
 const args = process.argv.slice(2).filter((a) => a !== "--expand");
 const EXPAND = process.argv.includes("--expand");
 const [OUT, REV, PAGE, STATE, KNOWN_RAW = "", AT_RAW = ""] = args;
+if (!/^[0-9a-f]{8,40}$/.test(REV)) { console.error(`revision must be a commit SHA, got ${REV}`); process.exit(2); }  // S-L1: no "wip" stamps
 const KNOWN = KNOWN_RAW || null;
 const AT = AT_RAW || null;
 const WEB = process.env.W503_WEB ?? "http://localhost:6191";
@@ -101,11 +102,15 @@ const MEASURE = (isMock) => `(async () => {
   const ellipsized = Array.from(root.querySelectorAll("*")).filter((el) => getComputedStyle(el).textOverflow === "ellipsis" && el.scrollWidth > el.clientWidth).length;
   // Cells whose content overflows them horizontally (long IDs must break inside the cell).
   const overflowingCells = Array.from(root.querySelectorAll("td, th")).filter((c) => c.scrollWidth > c.clientWidth + 1).length;
-  const tableScrolls = Array.from(root.querySelectorAll(".data-table-scroll, .table-scroll, [data-table-scroll]")).map((s) => s.scrollWidth > s.clientWidth);
+  // S-L1: `DataTable` renders `.data-table__scroll`; report each scroller's real widths. A Health table must not scroll.
+  const tableScrolls = Array.from(root.querySelectorAll(".data-table__scroll")).map((s) => ({ scrollWidth: s.scrollWidth, clientWidth: s.clientWidth, overflows: s.scrollWidth > s.clientWidth + 1 }));
+  // Ruling 25: browser-computed header backgrounds of every sticky table (first cell and the one after it).
+  const headerBackgrounds = Array.from(root.querySelectorAll(".data-table__scroll--sticky thead tr")).map((tr) => Array.from(tr.children).slice(0, 2).map((c) => getComputedStyle(c).backgroundColor));
+  const basisMaxHeight = (() => { const b = root.querySelector("[data-ev-scenario-basis]"); return b ? getComputedStyle(b).maxHeight : null; })();
   const order = Array.from(root.children).map((el) => el.matches("section.panel") ? "panel:" + (el.querySelector("h2")?.textContent ?? "").trim()
     : el.matches("ul.v69-cards") ? "cards" : el.matches(".v69-notice--blue") ? "blue-notice" : el.matches(".v69-notice") ? "notice" : null).filter(Boolean);
   return { panels: panels.map((p) => p.title).filter(Boolean), blocks, scrollWidth: document.documentElement.scrollWidth,
-    clientWidth: document.documentElement.clientWidth, ellipsized, overflowingCells, tableScrolls, order, text: root.innerText.slice(0, 4000) };
+    clientWidth: document.documentElement.clientWidth, ellipsized, overflowingCells, tableScrolls, headerBackgrounds, basisMaxHeight, order, text: root.innerText.slice(0, 4000) };
 })()`;
 
 async function shoot(target, w, hgt, file, isMock) {
@@ -143,12 +148,17 @@ for (const [w, hgt] of SIZES) {
   pair.titles_equal = STATE === "refused" ? null : JSON.stringify(pair.app.panels) === JSON.stringify(pair.mock.panels);
   pair.no_overflow = pair.app.scrollWidth <= pair.app.clientWidth;
   pair.over_cap = Object.entries(CAPS[w]).filter(([k, cap]) => pair.app.blocks[k] != null && pair.app.blocks[k] > cap).map(([k, cap]) => `${k} ${pair.app.blocks[k]} > ${cap}`);
+  pair.revision = REV;
+  const tables = pair.app.tableScrolls;
+  pair.table_scrolls_nonempty = tables.length > 0;  // non-vacuity: the measured set is not empty when a table is rendered
+  pair.hidden_columns = PAGE === "health" ? tables.filter((t) => t.overflows).length : null;
+  pair.header_grey = pair.app.headerBackgrounds.every((r) => r.every((c) => c === "rgb(248, 250, 253)"));
   pairs.push(pair);
 }
 writeFileSync(evidencePath, JSON.stringify({ revision: REV, pairs: [...prior.pairs.filter((p) => p.state !== NAME), ...pairs] }, null, 2));
 for (const p of pairs) {
   console.log(`${p.state} ${p.viewport} read=${p.read.http}/${p.read.code ?? p.read.selection_state} ok=${p.read_ok} wm=${p.read.committed_watermark} ` +
     `overflow=${!p.no_overflow} titlesEqual=${p.titles_equal} overCap=[${p.over_cap.join("; ")}] ellipsized=${p.app.ellipsized} ` +
-    `cellOverflow=${p.app.overflowingCells} order=${p.app.order.join(">")} blocks=${JSON.stringify(p.app.blocks)}`);
+    `cellOverflow=${p.app.overflowingCells} tables=${JSON.stringify(p.app.tableScrolls)} headerGrey=${p.header_grey} basisMax=${p.app.basisMaxHeight} order=${p.app.order.join(">")} blocks=${JSON.stringify(p.app.blocks)}`);
 }
 ws.close(); chrome.kill(); process.exit(0);
