@@ -445,6 +445,7 @@ export function EstateEvidencePage({ client }: { client?: EstateEvidenceMoneyCli
         key={`${query.from}|${query.to}|${query.known_at ?? ""}`}
         query={query}
         body={barBody(body)}
+        windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"}
         onApply={(nextQuery) => navigate(estateHref(ESTATE_EVIDENCE_PATH, nextQuery))}
       />
       {read === null ? (
@@ -452,7 +453,7 @@ export function EstateEvidencePage({ client }: { client?: EstateEvidenceMoneyCli
           Loading evidence across the estate.
         </p>
       ) : read.status === "refused" ? (
-        <EstateRefusal code={read.code} copy={read.copy} firstPage={firstPage} />
+        <EstateRefusal code={read.code} copy={read.copy} window={query} firstPage={firstPage} />
       ) : (
         <>
           <Cards body={read.value} />

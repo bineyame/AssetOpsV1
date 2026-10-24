@@ -445,7 +445,7 @@ describe("W3-02 estate Evidence root", () => {
       ESTATE_READ_UNAVAILABLE: "Estate data is temporarily unavailable. Try again.",
       ESTATE_BASIS_CHANGED: "The selection changed. Refresh to see the latest basis.",
       ESTATE_SELECTION_INCONSISTENT: "The selection changed. Refresh to see the latest basis.",
-      INVALID_WINDOW: "Choose a UTC window of up to 31 days with a start before its end.",
+      INVALID_WINDOW: "The selected window is invalid.",
       INVALID_KNOWN_AT: RESET,
       INVALID_LIMIT: RESET,
       INVALID_CURSOR: RESET,

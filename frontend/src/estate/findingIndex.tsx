@@ -18,14 +18,17 @@ import {
   type EstateLens,
   type EstateLifecycle,
   type EstateResult,
+  type EstateScopeBody,
   type EstateStateFilter,
 } from "./estateClient";
 import {
+  EARLIER_CUTOFF,
   EstateDateBar,
   EstateRefusal,
   LimitationNotice,
   PARTIAL_COVERAGE,
   PARTIAL_TOTALS,
+  PENDING_EVIDENCE,
   Pager,
   SiteStateChip,
   estateHref,
@@ -201,6 +204,53 @@ function StateChips({ active, href }: { active: EstateStateFilter; href: (state:
 }
 
 /**
+ * Post-W6 W3-estate Q7 (R294): the cause-aware limitation copy of the four Finding lenses. Site names come from a
+ * second `scope()` read at the identical `from`/`to`/`known_at`, joined on `site_id`. A Site that is
+ * PENDING_RECOMPUTE with a selection is being reassessed; a Site with no selection (or UNKNOWN) has no selected
+ * result. A failed or unfinished scope read, or a Site the scope does not name, falls back to the generic copy.
+ * The Actions root keeps `limitationSentences` unchanged.
+ */
+export interface FindingCauseCopy {
+  panel: string[];
+  notice: string[];
+}
+
+export function findingCauseCopy(body: EstateFindingsBody, scope: EstateScopeBody | null): FindingCauseCopy {
+  const generic: FindingCauseCopy = {
+    panel: body.total_count === null ? [PARTIAL_TOTALS] : [],
+    notice: limitationSentences(body, PARTIAL_COVERAGE),
+  };
+  if (scope === null) return generic;
+  const names = new Map(scope.sites.map((site) => [site.site_id, site.site_name]));
+  const pending = body.coverage.sites.filter((site) => site.state === "PENDING_RECOMPUTE" && site.selection_id !== null);
+  const missing = body.coverage.sites.filter(
+    (site) => !(site.state === "PENDING_RECOMPUTE" && site.selection_id !== null) && (site.state === "UNKNOWN" || site.selection_id === null),
+  );
+  if ([...pending, ...missing].some((site) => !names.has(site.site_id))) return generic;
+  const pendingNames = pending.map((site) => names.get(site.site_id)).join(", ");
+  const missingNames = missing.map((site) => names.get(site.site_id)).join(", ");
+  const panel: string[] = [];
+  if (body.total_count === null) {
+    if (pending.length > 0) {
+      panel.push(`Totals are unknown while new evidence for ${pendingNames} is assessed; its rows are held until then.`);
+    }
+    if (missing.length > 0) panel.push(`${missingNames} has no selected result; totals are unknown.`);
+    if (panel.length === 0) panel.push(PARTIAL_TOTALS);
+  }
+  const states = new Set(body.coverage.sites.map((site) => site.state));
+  const notice: string[] = [];
+  if (body.status === "HISTORICAL") notice.push(EARLIER_CUTOFF);
+  if (pending.length > 0) notice.push(`New evidence for ${pendingNames} is being assessed.`);
+  else if (states.has("PENDING_RECOMPUTE")) notice.push(PENDING_EVIDENCE);
+  if (states.has("STALE_SOURCE")) notice.push("Some sites' results may miss newer readings.");
+  if (body.coverage.state !== "COMPLETE") {
+    if (missing.length > 0) notice.push(`${missingNames} is not yet assessed; estate totals are unknown.`);
+    else if (pending.length === 0) notice.push(PARTIAL_COVERAGE);
+  }
+  return { panel, notice };
+}
+
+/**
  * Sites whose rows link `links.finding` (Run 13 ruling 3): the mini-grid rows, whose exact `revision_id` the
  * reviewed W1 Finding detail consumes. The wire has no row domain; the existing coverage reports a mini-grid
  * Site with a matcher state, while cold and EV Sites report `match_state NOT_APPLICABLE`. A Site missing from
@@ -209,6 +259,23 @@ function StateChips({ active, href }: { active: EstateStateFilter; href: (state:
 function miniGridSiteIds(body: EstateFindingsBody): ReadonlySet<string> {
   return new Set(body.coverage.sites.filter((site) => site.match_state !== "NOT_APPLICABLE").map((site) => site.site_id));
 }
+
+/**
+ * Post-W6 W3-estate Q4 (R297): whether a row's Finding title is live. A mini-grid row links its exact revision
+ * link. A cold or EV row is live only when the server sends a provable row-local windowed link (one carrying its
+ * own `from` and `to`); a null, absent or unwindowed link leaves the title inert with a labelled unavailable detail.
+ * The wire type stays `string`; the runtime check also covers a null the server sends for an unprovable link.
+ */
+export function findingLinkLive(row: EstateFindingRow, miniGridIds: ReadonlySet<string>): boolean {
+  const link: unknown = row.links.finding;
+  if (typeof link !== "string" || link === "") return false;
+  if (miniGridIds.has(row.site_id)) return true;
+  if (!link.includes("?")) return false;
+  const params = new URLSearchParams(link.slice(link.indexOf("?") + 1));
+  return params.has("from") && params.has("to");
+}
+
+export const FINDING_DETAIL_UNAVAILABLE = "Finding detail unavailable";
 
 function Row({ row, knownAt, linked }: { row: EstateFindingRow; knownAt: string; linked: boolean }) {
   const lifecycle = LIFECYCLE_WORDS[row.lifecycle];
@@ -221,9 +288,14 @@ function Row({ row, knownAt, linked }: { row: EstateFindingRow; knownAt: string;
             {row.title}
           </Link>
         ) : (
-          <span className="estate-cell__primary" data-estate-finding-inert>
-            {row.title}
-          </span>
+          <>
+            <span className="estate-cell__primary" data-estate-finding-inert>
+              {row.title}
+            </span>
+            <span className="estate-cell__secondary" data-estate-finding-unavailable>
+              {FINDING_DETAIL_UNAVAILABLE}
+            </span>
+          </>
         )}
         <Disclosure summary={row.finding_label} name={`estate-finding-${row.finding_id}`} variant="inline">
           <span className="estate-cell__detail">
@@ -272,7 +344,7 @@ function FindingRowsTable({ body, linkedIds }: { body: EstateFindingsBody; linke
       </thead>
       <tbody>
         {body.rows.map((row) => (
-          <Row key={row.finding_id} row={row} knownAt={body.window.known_at} linked={linkedIds.has(row.site_id)} />
+          <Row key={row.finding_id} row={row} knownAt={body.window.known_at} linked={findingLinkLive(row, linkedIds)} />
         ))}
       </tbody>
     </DataTable>
@@ -304,6 +376,25 @@ export function EstateFindingsPage({ lens, client }: EstateFindingsPageProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reads, lens, key]);
 
+  // Q7: Site names for the cause-aware copy, read at the identical window and cutoff.
+  const scopeKey = `${query.from}|${query.to}|${query.known_at ?? ""}`;
+  const [scopeResult, setScopeResult] = useState<{ key: string; read: EstateResult<EstateScopeBody> } | null>(null);
+  useEffect(() => {
+    let live = true;
+    void reads
+      .scope({ from: query.from, to: query.to, known_at: query.known_at })
+      .then((read) => {
+        if (live) setScopeResult({ key: scopeKey, read });
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reads, scopeKey]);
+  const scopeBody =
+    scopeResult?.key === scopeKey && scopeResult.read.status === "loaded" ? scopeResult.read.value : null;
+
   const path = ESTATE_FINDING_LENS_PATHS[lens];
   const lensHref = (next: EstateLens) => estateHref(ESTATE_FINDING_LENS_PATHS[next], query, { state: query.state });
   const stateHref = (state: EstateStateFilter) => estateHref(path, query, { state });
@@ -319,14 +410,15 @@ export function EstateFindingsPage({ lens, client }: EstateFindingsPageProps) {
         key={`${query.from}|${query.to}|${query.known_at ?? ""}`}
         query={query}
         body={body}
+        windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"}
         onApply={(next) => navigate(estateHref(path, next, { state: query.state }))}
       />
       {read === null ? (
         <p className="estate-loading">Loading the findings across the estate.</p>
       ) : read.status === "refused" ? (
-        <EstateRefusal code={read.code} copy={read.copy} firstPage={firstPage} />
+        <EstateRefusal code={read.code} copy={read.copy} window={query} firstPage={firstPage} />
       ) : (
-        <Loaded body={read.value} lens={lens} active={query.state} stateHref={stateHref} path={path} query={query} />
+        <Loaded body={read.value} scope={scopeBody} lens={lens} active={query.state} stateHref={stateHref} path={path} query={query} />
       )}
     </div>
   );
@@ -339,8 +431,10 @@ function Loaded({
   stateHref,
   path,
   query,
+  scope,
 }: {
   body: EstateFindingsBody;
+  scope: EstateScopeBody | null;
   lens: EstateLens;
   active: EstateStateFilter;
   stateHref: (state: EstateStateFilter) => string;
@@ -348,7 +442,8 @@ function Loaded({
   query: ReturnType<typeof queryFromParams>;
 }) {
   const linkedIds = miniGridSiteIds(body);
-  const anyLinked = body.rows.some((row) => linkedIds.has(row.site_id));
+  const anyLinked = body.rows.some((row) => findingLinkLive(row, linkedIds));
+  const cause = findingCauseCopy(body, scope);
   const complete = body.total_count !== null;
   const empty = complete && body.total_count === 0;
   const next = body.next_cursor === null ? null : estateHref(path, query, { state: active, cursor: body.next_cursor });
@@ -368,14 +463,14 @@ function Loaded({
             {LENS_EMPTY[lens] === null ? null : <p>{LENS_EMPTY[lens]}</p>}
           </div>
         ) : null}
-        {complete ? null : (
-          <p className="estate-partial" data-estate-partial>
-            {PARTIAL_TOTALS}
+        {cause.panel.map((line) => (
+          <p key={line} className="estate-partial" data-estate-partial>
+            {line}
           </p>
-        )}
+        ))}
         <Pager next={next} first={stateHref(active)} paged={query.cursor !== null} />
       </Panel>
-      <LimitationNotice sentences={limitationSentences(body, PARTIAL_COVERAGE)} />
+      <LimitationNotice sentences={cause.notice} />
       <Notice tone="blue" data={{ "data-estate-notice": "" }}>
         {FINDINGS_NOTICE}
         {body.rows.length === 0 ? null : ` ${anyLinked ? FINDINGS_LINKED_NOTICE : FINDINGS_UNLINKED_NOTICE}`}

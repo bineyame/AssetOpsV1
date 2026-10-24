@@ -383,6 +383,7 @@ export function EstateFinancialsPage({ client }: { client?: EstateFinancialsClie
         key={`${query.from}|${query.to}|${query.known_at ?? ""}`}
         query={query}
         body={barBody(body)}
+        windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"}
         onApply={(nextQuery) => navigate(estateHref(ESTATE_FINANCIALS_PATH, nextQuery))}
       />
       {read === null ? (
@@ -390,7 +391,7 @@ export function EstateFinancialsPage({ client }: { client?: EstateFinancialsClie
           Loading financials across the estate.
         </p>
       ) : read.status === "refused" ? (
-        <EstateRefusal code={read.code} copy={read.copy} firstPage={firstPage} />
+        <EstateRefusal code={read.code} copy={read.copy} window={query} firstPage={firstPage} />
       ) : (
         <>
           <StatusBar label="Financial status" data={{ "data-estate-status": "" }}>

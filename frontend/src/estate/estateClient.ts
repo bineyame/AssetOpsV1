@@ -367,13 +367,37 @@ export const REFUSAL_COPY: Readonly<Record<string, string>> = {
   UNAUTHENTICATED: "Sign in to see estate records.",
   ESTATE_BASIS_CHANGED: "The list changed. Reload the first page.",
   ESTATE_SELECTION_INCONSISTENT: "Some records are being updated. Reload the list.",
-  INVALID_WINDOW: "Choose a valid date range of at most 31 days.",
+  INVALID_WINDOW: "The selected window is invalid.",
   INVALID_KNOWN_AT: "Choose a valid evidence cutoff.",
   INVALID_LENS: "Choose a supported Findings lens.",
   INVALID_LIMIT: "Choose a page size from 1 to 100.",
   INVALID_CURSOR: "Reload the first page.",
   ESTATE_STORE_UNAVAILABLE: "Estate records are unavailable right now. Try again.",
 };
+
+/**
+ * Post-W6 W3-estate Q14 / cross-card item 5: the one estate window refusal set. The backend sends one
+ * `INVALID_WINDOW` code for malformed, reversed and over-31-day windows, so the page query classifies it.
+ */
+export const WINDOW_REVERSED_COPY = "The selected window needs both a start and an end, with the start before the end.";
+export const WINDOW_TOO_LONG_COPY = "The selected window is longer than 31 days.";
+export const WINDOW_INVALID_COPY = "The selected window is invalid.";
+export const WINDOW_REFUSAL_TITLE = "Window cannot be read";
+export const WINDOW_NOT_VALID = "Window not valid";
+const MAX_WINDOW_MS = 31 * 24 * 60 * 60 * 1000;
+
+/** The cross-card sentence for an estate `INVALID_WINDOW` refusal of the window `{from, to}`. */
+export function invalidWindowCopy(window: { from?: string | null; to?: string | null }): string {
+  const from = window.from ? Date.parse(window.from) : Number.NaN;
+  const to = window.to ? Date.parse(window.to) : Number.NaN;
+  const fromMissing = !window.from;
+  const toMissing = !window.to;
+  if (fromMissing !== toMissing) return WINDOW_REVERSED_COPY;
+  if (Number.isNaN(from) || Number.isNaN(to)) return WINDOW_INVALID_COPY;
+  if (from >= to) return WINDOW_REVERSED_COPY;
+  if (to - from > MAX_WINDOW_MS) return WINDOW_TOO_LONG_COPY;
+  return WINDOW_INVALID_COPY;
+}
 
 /** Codes whose UI copy asks the reader to start again at page one (the page offers that link). */
 export const FIRST_PAGE_CODES: ReadonlySet<string> = new Set(["ESTATE_BASIS_CHANGED", "INVALID_CURSOR"]);
@@ -430,7 +454,11 @@ export function estateQueryString(query: Partial<EstateFindingsQuery>): string {
   return text === "" ? "" : `?${text}`;
 }
 
-async function readEstate<T>(path: string, schema: string): Promise<EstateResult<T>> {
+async function readEstate<T>(
+  path: string,
+  schema: string,
+  window?: { from?: string | null; to?: string | null },
+): Promise<EstateResult<T>> {
   let response: Response;
   try {
     response = await fetch(path, { headers: { Accept: "application/json" } });
@@ -449,20 +477,21 @@ async function readEstate<T>(path: string, schema: string): Promise<EstateResult
   }
   const detail = isObject(body) && isObject(body.detail) ? body.detail : null;
   const code = detail !== null && typeof detail.code === "string" ? detail.code : "";
-  const copy = REFUSAL_COPY[code];
+  const copy = code === "INVALID_WINDOW" && window !== undefined ? invalidWindowCopy(window) : REFUSAL_COPY[code];
   if (copy === undefined) return unavailable();
   return { status: "refused", httpStatus: response.status, code, copy };
 }
 
 export function createEstateClient(basePath: string = ESTATE_API_PATH): EstateClient {
   return {
-    findings: (query) => readEstate(`${basePath}/findings${estateQueryString(query)}`, FINDINGS_SCHEMA),
+    findings: (query) => readEstate(`${basePath}/findings${estateQueryString(query)}`, FINDINGS_SCHEMA, query),
     actions: (query) =>
-      readEstate(`${basePath}/actions${estateQueryString({ ...query, lens: undefined, state: undefined })}`, ACTIONS_SCHEMA),
+      readEstate(`${basePath}/actions${estateQueryString({ ...query, lens: undefined, state: undefined })}`, ACTIONS_SCHEMA, query),
     scope: (query) =>
       readEstate(
         `${basePath}/scope${estateQueryString({ from: query.from, to: query.to, known_at: query.known_at })}`,
         SCOPE_SCHEMA,
+        query,
       ),
     portfolio: (query) =>
       readEstate(
@@ -475,6 +504,7 @@ export function createEstateClient(basePath: string = ESTATE_API_PATH): EstateCl
           cursor: query.cursor,
         })}`,
         PORTFOLIO_SCHEMA,
+        query,
       ),
   };
 }

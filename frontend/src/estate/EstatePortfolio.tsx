@@ -731,6 +731,7 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
         key={`${window.from}|${window.to}|${window.known_at ?? ""}`}
         query={{ ...window, cursor: null }}
         body={barBody(body)}
+        windowRefused={first?.status === "refused" && first.code === "INVALID_WINDOW"}
         onApply={(next) => navigate(portfolioHref(next, lens))}
       />
       {first === null ? (
@@ -743,7 +744,7 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
           </ul>
         </div>
       ) : first.status === "refused" ? (
-        <EstateRefusal code={first.code} copy={first.copy} firstPage={portfolioHref(window, lens)} />
+        <EstateRefusal code={first.code} copy={first.copy} window={window} firstPage={portfolioHref(window, lens)} />
       ) : (
         <Loaded
           body={first.value}

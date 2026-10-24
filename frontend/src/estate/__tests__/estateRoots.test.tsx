@@ -353,7 +353,7 @@ describe("W3-01 estate roots", () => {
     // Refusal copy by code: exact message, and no First page link for these five.
     for (const [status, code, copy] of [
       [409, "ESTATE_SELECTION_INCONSISTENT", "Some records are being updated. Reload the list."],
-      [422, "INVALID_WINDOW", "Choose a valid date range of at most 31 days."],
+      [422, "INVALID_WINDOW", "The selected window is invalid."],
       [422, "INVALID_KNOWN_AT", "Choose a valid evidence cutoff."],
       [422, "INVALID_LENS", "Choose a supported Findings lens."],
       [422, "INVALID_LIMIT", "Choose a page size from 1 to 100."],
