@@ -426,7 +426,7 @@ function TopologyCards({ cards, selection }: { cards: TopologyCard[]; selection:
           data-selected={item.parts.some((p) => p.componentId === selection.selected) ? "" : undefined}
         >
           {/* V-01a round 2: one icon per declared part, named by its type. MOCK DEVIATION D2 (post-W6 shell Q10,
-              register R129 note): paired icons and linked part names stay where the mock draws one centred icon,
+              register R377): paired icons and linked part names stay where the mock draws one centred icon,
               because each part selection carries ?component to the SLD and Readiness. */}
           <span className="plant-card__icons">
             {item.parts.map((part) => (
@@ -579,7 +579,7 @@ function IdentityPanel({
             </span>,
             "productive-use",
           ],
-          // MOCK DEVIATION D4 (post-W6 shell Q3, register R125 note): the truthful "Demonstration data" wording, not the
+          // MOCK DEVIATION D4 (post-W6 shell Q3, register R376): the truthful "Demonstration data" wording, not the
           // mock's "Simulated"; only the tone follows the mock.
           ["Evidence mode", <Badge tone="provenance">{configuration.sourceMode}</Badge>, "evidence-mode"],
           ["Lifecycle status", <Badge tone="lifecycle">{configuration.lifecycleStatus}</Badge>, "lifecycle-status"],
@@ -659,6 +659,8 @@ function SldView(props: ViewProps) {
         actions={<Link to={props.evidenceHref}>Site evidence →</Link>}
       >
         <SldDeviceSummary foundation={foundation} site={site} />
+        {/* MOCK DEVIATION D4 (post-W6 shell Q3/Q6, register R378): no closing callout; the mock's text asserts live
+            reporting dots and component asset pages this drawing does not have. */}
         <SiteSldPrimary
           site={site}
           boundDevices={boundDevices}

@@ -325,7 +325,7 @@ export function SiteFoundationChange({
         />
         {/* post-W6 shell R141 (Q14): the frozen plan's stored target and guardrail count. While the plan read is
             pending or failed, the cards keep "Set in the plan" and say the details are not available yet.
-            MOCK DEVIATION D1 (post-W6 shell Q14, register R141 note): a plan read with no stored target or
+            MOCK DEVIATION D1 (post-W6 shell Q14, register R379): a plan read with no stored target or
             guardrails shows the same not-available line instead of the mock's values. */}
         <MetricCard
           label="Target"

@@ -1465,6 +1465,8 @@ function Inspector({
           <p data-evidence-records-empty>No accepted reading in this period.</p>
         ) : (
           <>
+            {/* MOCK DEVIATION D1 (post-W6 shell Q3/Q18, register R381): no "Missing / Inspect the gap" row and no
+                external-link marker on Open record; the ledger read has no stored gap row to list. */}
             <ChartNote data={{ "data-evidence-records-count": String(list.value.records.length) }}>
               {`${list.value.records.length} of ${list.value.total} accepted readings in this period, earliest measured first. Measured and sent times: ${clocks.join(" or ")}; received times: server clock (UTC). Measured times are shown in site time (${measuredZone}); sent and received times stay UTC. The gap between them is not a delivery delay.`}
             </ChartNote>

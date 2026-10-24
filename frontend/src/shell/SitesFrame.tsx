@@ -76,7 +76,7 @@ export function SitesFrame({ flags, directory, templateLineage }: SitesFrameProp
        */}
       {/* post-W6 shell R127 (Q9): the mock's root crumb above the h1 ("Sites ›"). */}
       <Breadcrumbs trail={[{ label: "Sites" }]} />
-      {/* MOCK DEVIATION D4 (post-W6 shell Q9, register R127 note): the subtitle keeps this build's truthful wording
+      {/* MOCK DEVIATION D4 (post-W6 shell Q9, register R375): the subtitle keeps this build's truthful wording
           instead of the mock's "Find and compare sites across the operating estate". */}
       <PageHeader
         title="Sites"
@@ -93,6 +93,8 @@ export function SitesFrame({ flags, directory, templateLineage }: SitesFrameProp
         ))}
       />
 
+      {/* MOCK DEVIATION D4 (post-W6 shell Q3/Q6, register R378): no closing callout; the mock's text asserts reporting
+          dots and an Unknown rule this page does not show. */}
       <SitesIndex
         directory={directory}
         siteHref={siteDetailHref}
