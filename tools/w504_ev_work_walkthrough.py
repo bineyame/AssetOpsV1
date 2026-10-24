@@ -477,7 +477,8 @@ def child(op: str, mode: str, work: Path, tag: str) -> int:
 
 SERVE_ENTRY = r'''
 """Tool-local uvicorn entry (tools/w504_ev_work_walkthrough.py serve): the product host app plus, ahead of its
-domain-work routes, the same router behind a WorkGate whose access is a server-configured operator grant."""
+domain-work routes, the same router behind a WorkGate whose access is a server-configured operator grant. Since R373 the global Work
+router (`build_global_work_router`) also sits ahead of the product routes behind that same grant."""
 import json, os
 from lab_app import app
 from assetops_backend import main as M

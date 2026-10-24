@@ -39,6 +39,9 @@ positive DB for the app (the Site read stays healthy) and gives the domain-work 
 DB URL (`W502B_DOMAIN_WORK_DB_URL`), so the real `WORK_STORE_UNAVAILABLE` 503 renders inside the cold-work panel.
 K3 ruling 8: the `forbidden` and `unavailable` processes also put a W4 Site work router (same grant, same unreachable
 store) ahead of the product W4 routes, for the real case-read 403/503. No product router changes.
+Since R373 every serve process (granted ones included) also prepends the global Work router
+(`build_global_work_router`) behind the same grant: other Sites (KOBO-*) drop out of the granted global Work lists
+and a denied Site answers the byte-identical 403 on both request-detail routes.
 
 Guards: `--work` must be a `var/w502b*` folder directly under this repository's `var/`; database names are
 `w502b_<mode>_<tag>_test`; `drop` acts only on what the work folder's marker and pid file record.

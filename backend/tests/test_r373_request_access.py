@@ -152,7 +152,8 @@ def other_site_request(when: datetime, occurred: datetime) -> SimpleNamespace:
     return SimpleNamespace(code="KOBO-002", t=t, s=s, request=made["id"])
 
 
-def vertical_proof(monkeypatch, code: str, linked: str, other: SimpleNamespace, window: dict[str, str]) -> None:
+def vertical_proof(monkeypatch, code: str, linked: str, other: SimpleNamespace, window: dict[str, str],
+                   other_window: dict[str, str] | str | None = None) -> None:
     """Ruling Q6, per vertical: granted reads the linked request on both routes and lists it; denied is the identical
     403 for the linked, unknown, malformed and foreign-Site IDs, and the lists drop it with no refusal."""
     granted = app(monkeypatch, Grant(code, other.code), URL)
@@ -163,16 +164,24 @@ def vertical_proof(monkeypatch, code: str, linked: str, other: SimpleNamespace, 
     assert detail.json()["work_detail"]["case"]["id"] == linked
     assert detail.json()["work_detail"]["action_links"] or detail.json()["work_detail"]["finding_links"], \
         "the vertical's request must be a real linked request (ruling Q6)"
-    all_ids = [r["case_id"] for r in granted.get("/api/work/maintenance", params=window).json()["rows"]]
-    assert linked in all_ids and other.request in all_ids, all_ids
+    # `other_window` is for a request written at a different clock than the linked one (mini: fixture clock vs wall
+    # clock), so no single window has to span both and grow past the 31-day maximum as real time passes.
+    if other_window == "own":  # a one-day window around the other request's own recorded created_at: no wall-clock read here
+        stamp = global_detail(granted, other.code, other.request).json()["work_detail"]["case"]["created_at"]
+        other_window = midnight_window(datetime.fromisoformat(stamp.replace("Z", "+00:00")), datetime.fromisoformat(stamp.replace("Z", "+00:00")))
+    other_window = other_window or window
+    assert linked in [r["case_id"] for r in granted.get("/api/work/maintenance", params=window).json()["rows"]]
+    assert other.request in [r["case_id"] for r in granted.get("/api/work/maintenance", params=other_window).json()["rows"]]
 
     denied = app(monkeypatch, Grant(other.code), URL)
     denied_identically(denied, code, [linked, UNKNOWN, MALFORMED, other.request])
     body = denied.get("/api/work/maintenance", params=window)
     assert body.status_code == 200, body.text
     rows = body.json()["rows"]
-    assert linked not in [r["case_id"] for r in rows] and other.request in [r["case_id"] for r in rows]
+    assert linked not in [r["case_id"] for r in rows]
     assert all(r["site_code"] != code for r in rows)
+    other_rows = denied.get("/api/work/maintenance", params=other_window).json()["rows"]
+    assert other.request in [r["case_id"] for r in other_rows]
     # The other Site's request is still readable where it lives: the denial is per Site, not per principal.
     assert global_detail(denied, other.code, other.request).status_code == 200
 
@@ -181,8 +190,7 @@ def vertical_proof(monkeypatch, code: str, linked: str, other: SimpleNamespace, 
 def test_mini_linked_request_is_denied_identically_and_filtered(store, monkeypatch) -> None:  # noqa: F811
     info = seedmod.seed(URL, "detail-linked", CLOCK)
     other = other_site_request(CLOCK - timedelta(days=3), CLOCK - timedelta(days=2))
-    now = datetime.now(timezone.utc)
-    vertical_proof(monkeypatch, "KOBO-001", info["request_id"], other, midnight_window(CLOCK - timedelta(days=5), now))
+    vertical_proof(monkeypatch, "KOBO-001", info["request_id"], other, midnight_window(CLOCK - timedelta(days=5), CLOCK), "own")
 
 
 # --- Postgres: all four global lists drop a denied Site from rows, counts, paging and the cursor scope ------------
