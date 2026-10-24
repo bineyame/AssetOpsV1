@@ -187,7 +187,6 @@ def test_downgrade_refuses_each_ev_shape_then_restores_cold_check(ev) -> None:
     engine = ev.engine
     case_id, revision_id, event_id = _case(ev, "w504-dg-request-01")
     ev.work._store.dispose()
-    ev.built.store.dispose()
 
     def shape(no: int, child: str | None) -> str:
         root = root_sql(ev, no)
@@ -245,7 +244,7 @@ def test_selected_ev_basis_on_the_caller_connection(ev) -> None:
             "SELECT evidence_id FROM finding_revision_evidence WHERE finding_revision_id = :r"),
             {"r": ev.revision["id"]}).scalars())
         session_revisions = {str(r[0]): str(r[1]) for r in c.execute(text(
-            "SELECT CAST(session_id AS text), CAST(id AS text) FROM ev_session_revision WHERE site_id = :s"),
+            "SELECT CAST(id AS text), CAST(session_id AS text) FROM ev_session_revision WHERE site_id = :s"),
             {"s": ev.s})}
         missing = basis_of(c, ev.t, ev.s, ev.code, pin, known_at, str(uuid4()))
     finding = basis["finding"]
