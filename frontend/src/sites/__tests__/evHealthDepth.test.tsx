@@ -17,6 +17,7 @@ import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, renderedPanelTitles } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 
+const NODE_FS = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
 const CODE = "EV-LAB-001";
 const FROM = "2026-10-06T08:00:00.000000Z";
 const TO = "2026-10-06T09:00:00.000000Z";
@@ -130,10 +131,13 @@ describe("W5-03b E4: EV Health", () => {
       ["Stationary battery", "Unknown", "Battery configuration is not established by this Foundation.", "gray"],
     ]);
     expect(faultNote(2)).toBe("2 selected fault records; cause not diagnosed");
+    // Ruling 20: singular and zero.
+    expect(faultNote(1)).toBe("1 selected fault record; cause not diagnosed");
+    expect(faultNote(0)).toBe("0 selected fault records; cause not diagnosed");
     const cardLinks = Array.from(document.querySelectorAll("[data-ev-health-card] a"));
     expect(cardLinks.map((a) => [text(a), a.getAttribute("href")])).toEqual([
-      ["Sessions →", SESSIONS],
-      ["Sessions →", SESSIONS],
+      ["View detail →", SESSIONS],
+      ["View detail →", SESSIONS],
     ]);
     // Ruling 7: fault connector, then Site meter (R59), then the non-fault connector (R58).
     expect(tableRows()).toEqual([
@@ -141,6 +145,11 @@ describe("W5-03b E4: EV Health", () => {
       [`Site meter${id(9)}`, "Power limit not assessed from selected samples", "Continuous coverage for interval-wide claims"],
       [`Connector c1${id(7)}`, "No connector condition assessment", "Diagnostic event + witnessed session"],
     ]);
+    // Ruling 21: the session reference sits in the `Supported assessment` (second) cell of the fault row.
+    const faultRow = document.querySelector("tbody tr")!;
+    expect(faultRow.children[1].contains(document.querySelector("[data-ev-health-session]"))).toBe(true);
+    expect(faultRow.children[1].contains(document.querySelector("[data-ev-health-open-sessions]"))).toBe(true);
+    expect(faultRow.children[0].querySelector("[data-ev-health-session]")).toBeNull();
     const open = document.querySelector("[data-ev-health-open-sessions]")!;
     expect(open.getAttribute("href")).toBe(SESSIONS);
     expect(document.querySelector("[data-ev-health-session]")!.getAttribute("data-vocabulary-exempt")).toBe("source-reference");
@@ -234,6 +243,28 @@ describe("W5-03b E4: EV Health", () => {
   it("orders more than two connectors and keeps every selected row (R96/R58)", () => {
     const c3 = row(0, "Connector c3", 11, { session_id: id(71), evidence_ids: [id(203)] });
     expect(conditionRows([C1, C2, c3, METER, ROGUE]).map((r) => r.label)).toEqual(["Connector c2", "Connector c3", "Site meter", "Connector c1"]);
+  });
+
+  it("E4-L3: the four E1b tuple strings are identical in the backend source and the frontend table", () => {
+    // Independent literals: neither EV_HEALTH_TUPLES nor the Python constants feed this expectation.
+    const expected = {
+      CONNECTOR_FAULT: ["NEEDS_INVESTIGATION", "Session interruption observed", "Fault-stopped session observed; cause not diagnosed", "Retrieve diagnostic log and witness a complete session"],
+      CONNECTOR_UNKNOWN: ["UNKNOWN", "Condition unknown", "No charger condition assessment", "Record diagnostic and covered operation"],
+      SITE_METER: ["UNKNOWN", "Sampled import only", null, "Record continuous import and request/limit evidence"],
+      METER_UNKNOWN: ["UNKNOWN", "Meter role not established", "No selected Site-import binding for this meter", "Confirm meter topology and source binding"],
+    } as const;
+    const fs = (globalThis as unknown as { process: { cwd: () => string } }).process;
+    const source = NODE_FS.readFileSync(`${fs.cwd()}/../backend/assetops_backend/analytics/ev_depth.py`, "utf8");
+    for (const [name, parts] of Object.entries(expected)) {
+      const literal = parts.map((p) => (p === null ? "None" : `"${p}"`)).join(String.raw`,\s*`);
+      expect(new RegExp(String.raw`${name} = \(\s*${literal}\)`).test(source), name).toBe(true);
+    }
+    const kinds = ["CONNECTOR", "CONNECTOR", "SITE_METER", "UNKNOWN"];
+    const names = Object.values(expected);
+    EV_HEALTH_TUPLES.forEach(([kind, state, observation, limitation, next], n) => {
+      expect([kind, state, observation, limitation, next]).toEqual([kinds[n], names[n][0], names[n][1], names[n][2], names[n][3]]);
+    });
+    expect(EV_HEALTH_TUPLES).toHaveLength(4);
   });
 
   it("evDepthClient refuses a Health row outside the E1b tuple table", () => {

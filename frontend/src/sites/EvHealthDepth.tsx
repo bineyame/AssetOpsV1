@@ -14,6 +14,8 @@
  * MOCK DEVIATION (D4) R59: a selected Site meter says `Power limit not assessed from selected samples`.
  * MOCK DEVIATION (D2) R58: a selected non-fault connector adds a third, no-assessment table row.
  * MOCK DEVIATION (D1) R97: a meter without a selected Site-import role has no Site-meter row.
+ * MOCK DEVIATION (D4) R103: the page subtitle is the neutral `Health · site-level asset-condition summary` (`V69Layout.tsx`
+ * `SITE_SCREEN_DESCRIPTIONS.health`), not the mock `2 × 60 kW connectors · 80 kW site limit · no stationary battery`.
  * MOCK DEVIATION (D2) R15/R16: the amber currentness notice above the cards and the condition notice below the table.
  */
 import { useEffect, useState } from "react";
@@ -38,7 +40,8 @@ export const METER_NEXT = "Continuous coverage for interval-wide claims";
 export const HEALTH_TABLE_HEADING_ID = "ev-health-condition-heading";
 
 /** Ruling 5: the selected fault-record count (distinct selected fault IDs), never a session count. */
-export const faultNote = (n: number) => `${n} selected fault records; cause not diagnosed`;
+export const faultNote = (n: number) =>
+  n === 1 ? "1 selected fault record; cause not diagnosed" : `${n} selected fault records; cause not diagnosed`;
 
 const isFault = (row: EvHealthRow) => row.kind === "CONNECTOR" && row.condition_state === "NEEDS_INVESTIGATION";
 
@@ -127,7 +130,7 @@ function HealthBody({ read, sessionsPath }: { read: EvHealthRead; sessionsPath: 
             value={isFault(row) ? "Needs attention" : "Unknown"}
             note={isFault(row) ? faultNote(row.evidence_ids.length) : CONNECTOR_UNKNOWN_NOTE}
             tone={isFault(row) ? "amber" : "muted"}
-            link={sessions === null ? undefined : <Link to={sessions}>Sessions →</Link>}
+            link={sessions === null ? undefined : <Link to={sessions}>View detail →</Link>}
             data={{ "data-ev-health-card": row.asset_id }}
           />
         ))}

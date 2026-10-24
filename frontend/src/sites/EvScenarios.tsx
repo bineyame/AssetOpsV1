@@ -155,7 +155,7 @@ function Basis({ item }: { item: EvScenarioItem }) {
         </dd>
         <dt>Accepted evidence</dt>
         <dd>
-          <span className="cold-scenarios-line" data-ev-scenario-evidence-count="">{`${basis.accepted_evidence_ids.length} records`}</span>
+          <span className="cold-scenarios-line" data-ev-scenario-evidence-count="">{basis.accepted_evidence_ids.length === 1 ? "1 record" : `${basis.accepted_evidence_ids.length} records`}</span>
           {basis.accepted_evidence_ids.map((id) => (
             <Ref key={id} value={id} />
           ))}

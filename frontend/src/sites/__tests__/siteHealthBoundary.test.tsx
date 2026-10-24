@@ -407,6 +407,9 @@ describe("W5-01a C3: the cold Health composition stays off non-cold Sites", () =
     await settledScreen();
     expect(getHealth).toHaveBeenCalledWith("EV-LAB-001", { from: null, to: null, known_at: null });
     expect(q("[data-ev-depth-error]")).not.toBeNull();
+    // R103 (ruling 22): the neutral subtitle sits under the selected Site name; the mock's illustrative equipment line does not.
+    expect(document.body.textContent).toContain("Health · site-level asset-condition summary");
+    expect(document.body.textContent).not.toContain("2 × 60 kW connectors");
     expect(requests.some((url) => url.endsWith("/source-health") || url.endsWith("/battery"))).toBe(false);
     expect(q("#site-health-sources-heading")).toBeNull();
     expect(q("[data-health-site]")).toBeNull();

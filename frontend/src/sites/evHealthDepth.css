@@ -14,13 +14,35 @@
   overflow-wrap: anywhere;
 }
 
-/* At phone width the three columns keep readable widths; the table scrolls inside its panel with a sticky Asset
-   column (spec "Mock measurement and rendering limits") instead of squeezing each ID into a 70px column. */
+/* Ruling 24: at phone width all three columns fit the panel, as in the mock; IDs break within their cells. */
 @media (max-width: 640px) {
-  .ev-health-condition .data-table th[scope="row"] {
-    min-width: 150px;
+  .ev-health-condition .data-table {
+    width: 100%;
+    table-layout: fixed;
+    min-width: 0;
   }
+  .ev-health-condition .data-table tr > :first-child {
+    width: 27%;
+    min-width: 0;
+  }
+  .ev-health-condition .data-table tr > :nth-child(2),
+  .ev-health-condition .data-table tr > :nth-child(3) {
+    width: 36.5%;
+    min-width: 0;
+  }
+  .ev-health-condition .data-table th,
   .ev-health-condition .data-table td {
-    min-width: 170px;
+    padding: 7px 5px;
+    overflow-wrap: anywhere;
+    word-break: normal;
   }
+  .ev-health-condition .data-table thead th {
+    white-space: normal;
+    font-size: 9px;
+  }
+}
+
+/* Ruling 27: an Unknown connector card keeps the mock's grey top border but its value is the mock ink colour. */
+.v69-metric--assessment.v69-metric--muted[data-ev-health-card]:not([data-ev-health-card="battery"]) .v69-metric__value {
+  color: #17243b;
 }

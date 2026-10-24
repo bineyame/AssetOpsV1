@@ -8,5 +8,10 @@
     position: sticky;
     left: 0;
     max-width: calc(100vw - 108px);
+    max-height: 360px; /* ruling 28: overrides the inherited cold 220px rule (evScenarios.css loads after it) */
   }
 }
+
+/* Ruling 29 (E6-H1): the mock `.notice` composition, icon left of the paragraph. */
+.v69-notice[data-ev-scenarios-closing-notice] { display: flex; gap: 10px; align-items: flex-start; }
+.v69-notice[data-ev-scenarios-closing-notice] p { margin: 0; }

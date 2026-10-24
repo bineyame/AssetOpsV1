@@ -244,6 +244,16 @@ describe("W5-03b E6: EV Scenarios", () => {
     for (const value of [id(50), id(60), id(61), id(101), id(102), id(40), one.revision_id]) expect(refs).toContain(value);
     expect(text(main())).not.toMatch(/outcome|saved|lost|collected/i);
 
+    // Ruling 20: a single accepted evidence record is `1 record`; the plural stays `{n} records`.
+    cleanup();
+    const solo = item(2, { authored_basis: { ...one.authored_basis, accepted_evidence_ids: [id(101)] } });
+    renderScenarios(loaded(read("CURRENT", [solo])));
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: "Review assumptions →" }));
+    const soloDt = Array.from(document.querySelectorAll("[data-ev-scenario-expansion] dt")).find((dt) => text(dt) === "Accepted evidence")!;
+    expect(text(soloDt.nextElementSibling!.children[0])).toBe("1 record");
+    cleanup();
+
     // Client: exact keys, nullable window/selection (ruling 11), provenance with extra fields (ruling 13).
     const good = read("CURRENT", [one]);
     expect(isEvScenariosRead(good)).toBe(true);
@@ -313,7 +323,10 @@ describe("W5-03b E6: EV Scenarios", () => {
     const line = panel().querySelector("[data-ev-scenarios-first-page]")!;
     expect(text(line)).toBe(firstPageLine(50));
     expect(text(line)).toBe("Showing first 50 authored scenarios. More exist; later pages are not available in this view.");
-    expect(line.previousElementSibling?.querySelector("table") ?? line.previousElementSibling).not.toBeNull();
+    // E6-L2: the R98 line sits immediately below the authored DataTable's scroller (no fallback).
+    const above = line.previousElementSibling!;
+    expect(above.matches(".data-table__scroll")).toBe(true);
+    expect(above.querySelector("table.data-table")).not.toBeNull();
     expect(panel().querySelector("nav, [data-scenarios-pages]")).toBeNull();
     expect(screen.queryByRole("button", { name: /Next|First page/ })).toBeNull();
     expectV69Panels("ev-scenarios");

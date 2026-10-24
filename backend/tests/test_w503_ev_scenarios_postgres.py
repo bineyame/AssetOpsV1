@@ -629,8 +629,6 @@ def test_pending_historical_list_and_cursor(chain) -> None:  # noqa: F811
     assert len(listed(c, f"{QUERY}&limit=100")["items"]) == 3
     assert c.get(f"{ROUTE}?{QUERY}&limit=0").json() == {  # ruling A2
         "error": {"code": "EV_LIMIT_INVALID", "message": "'limit' must be 1 to 100."}}
-    assert c.get(f"{ROUTE}?{QUERY}&limit=0").json() == {  # ruling A2
-        "error": {"code": "EV_LIMIT_INVALID", "message": "'limit' must be 1 to 100."}}
     empty = listed(c, EMPTY_W)
     assert empty["items"] == [] and empty["selection"]["state"] == "UNKNOWN" and empty["next_cursor"] is None
     assert listed(c, OTHER_W)["items"] == []  # a root is listed only for its revision 1 window

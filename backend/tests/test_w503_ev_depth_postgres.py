@@ -267,14 +267,28 @@ def test_energy_health_selected_snapshot(chain) -> None:  # noqa: F811
     assert [(r["kind"], r["asset_code"]) for r in h["rows"]] == [("CONNECTOR", "c1"), ("CONNECTOR", "c2"),
                                                                  ("SITE_METER", "site-meter-1")]
     assert all(list(r) == HEALTH_ROW for r in h["rows"])
-    faulted = [x for x in sessions if x["fault_evidence_id"] is not None]
     by_code = {r["asset_code"]: r for r in h["rows"]}
+    # The `fault` vector has no selected fault evidence: it is the honest UNKNOWN case, asserted outright.
     for code in ("c1", "c2"):
-        mine = [x for x in faulted if x["connector_asset_id"] == by_code[code]["asset_id"]]
-        assert by_code[code]["condition_state"] == ("NEEDS_INVESTIGATION" if mine else "UNKNOWN")
-        assert by_code[code]["evidence_ids"] == sorted({x["fault_evidence_id"] for x in mine})
+        assert by_code[code]["condition_state"] == "UNKNOWN" and by_code[code]["evidence_ids"] == []
     assert by_code["site-meter-1"]["evidence_ids"] == sorted(x["evidence_id"] for x in imports)
     assert h["battery"]["condition_state"] == "UNKNOWN"
+
+
+@needs_db
+def test_health_interrupted_selected_fault(chain) -> None:  # noqa: F811
+    built = settled(chain, "interrupted")
+    c = _client(built)
+    snap, body, accepted, sessions = _snapshot(built)
+    h = _get(c, "health")["health"]
+    by_code = {r["asset_code"]: r for r in h["rows"] if r["kind"] != "UNKNOWN"}
+    flagged = [r for r in h["rows"] if r["kind"] == "CONNECTOR" and r["condition_state"] == "NEEDS_INVESTIGATION"]
+    assert [r["asset_code"] for r in flagged] == ["c1"]
+    mine = sorted({x["fault_evidence_id"] for x in sessions
+                   if x["fault_evidence_id"] is not None and x["connector_asset_id"] == flagged[0]["asset_id"]})
+    assert len(flagged[0]["evidence_ids"]) == 1 and flagged[0]["evidence_ids"] == mine
+    assert by_code["c2"]["condition_state"] == "UNKNOWN"
+    built.close()
 
 
 @needs_db
