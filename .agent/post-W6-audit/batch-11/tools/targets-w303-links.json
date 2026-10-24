@@ -1,0 +1,110 @@
+[
+ {
+  "id": "link00",
+  "case": "portfolio",
+  "url": "http://127.0.0.1:5181/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "src": "Inspect the constraint \u2192"
+ },
+ {
+  "id": "link01",
+  "case": "portfolio",
+  "url": "http://127.0.0.1:5181/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "src": "Operating-cost exposureNo supported valu"
+ },
+ {
+  "id": "link02",
+  "case": "portfolio",
+  "url": "http://127.0.0.1:5181/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "src": "Open all Findings \u2192"
+ },
+ {
+  "id": "link03",
+  "case": "portfolio",
+  "url": "http://127.0.0.1:5181/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "src": "Service & product riskNot assessedNo rev"
+ },
+ {
+  "id": "link04",
+  "case": "globalevidence",
+  "url": "http://127.0.0.1:5181/maintenance/preventive?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+  "src": "Preventive plan \u2192"
+ },
+ {
+  "id": "link05",
+  "case": "globalevidence",
+  "url": "http://127.0.0.1:5181/operational-records?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+  "src": "Operational records \u2192"
+ },
+ {
+  "id": "link06",
+  "case": "globalevidence",
+  "url": "http://127.0.0.1:5181/sites/COLD-LAB-001",
+  "src": "Cold replay lab \u00b7 cold-chain"
+ },
+ {
+  "id": "link07",
+  "case": "globalevidence",
+  "url": "http://127.0.0.1:5181/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A42%3A49.107407Z",
+  "src": "Cold replay lab \u00b7 cold-chain"
+ },
+ {
+  "id": "link08",
+  "case": "globalevidence",
+  "url": "http://127.0.0.1:5181/sites/EV-LAB-001",
+  "src": "EV charging lab \u00b7 EV charging"
+ },
+ {
+  "id": "link09",
+  "case": "globalevidence",
+  "url": "http://127.0.0.1:5181/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+  "src": "EV charging lab \u00b7 EV charging"
+ },
+ {
+  "id": "link10",
+  "case": "globalfinancials",
+  "url": "http://127.0.0.1:5181/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+  "src": "Site bridge \u2192"
+ },
+ {
+  "id": "link11",
+  "case": "globalevidence",
+  "url": "http://127.0.0.1:5181/sites/EV-LAB-002",
+  "src": "EV charging lab 2 \u00b7 EV charging"
+ },
+ {
+  "id": "link12",
+  "case": "globalevidence",
+  "url": "http://127.0.0.1:5181/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+  "src": "EV charging lab 2 \u00b7 EV charging"
+ },
+ {
+  "id": "link13",
+  "case": "globalfinancials",
+  "url": "http://127.0.0.1:5181/sites/EV-LAB-002/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+  "src": "Site bridge \u2192"
+ },
+ {
+  "id": "link14",
+  "case": "globalevidence",
+  "url": "http://127.0.0.1:5181/sites/KOBO-001",
+  "src": "Kobo mini-grid \u00b7 mini-grid"
+ },
+ {
+  "id": "link15",
+  "case": "globalfinancials",
+  "url": "http://127.0.0.1:5181/sites/KOBO-001/financials",
+  "src": "Site bridge \u2192"
+ },
+ {
+  "id": "link16",
+  "case": "portfolio",
+  "url": "http://127.0.0.1:5181/sites/KOBO-001/findings/00000002-0000-4000-8000-000000000749?revision_id=00000002-0000-4000-8000-00000000074b",
+  "src": "Generator support merits review: bounded"
+ },
+ {
+  "id": "link17",
+  "case": "globalevidence",
+  "url": "http://127.0.0.1:5181/sites/W303-EMPTY-001",
+  "src": "Empty test Site \u00b7 EV charging"
+ }
+]
