@@ -1,0 +1,1825 @@
+{
+  "revision": "d1d91a55",
+  "captured_at": "2026-10-24T17:35:44.501Z",
+  "pairs": [
+    {
+      "screen": "sitework-incidents",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5183/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/sitework-incidents",
+      "app_image": "sitework-incidents-stocked-1440-app.png",
+      "mock_image": "sitework-incidents-stocked-1440-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:34 UTCRecorded2026-10-24 17:34 UTCCase ID030f2b82-4479-4dff-9e71-e1c816cefbc2Version ID14e6af2f-7209-462b-989a-55dca7eecfb4Source of cited recordsSource unverified",
+            "scrollH": 2150
+          },
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:34 UTCRecorded2026-10-24 17:34 UTCCase IDb412695c-c860-4fcf-9d92-d06d7b2bcb4cVersion IDbf8c70eb-2e41-4a4e-926e-6d78df07b211Source of cited recordsSource unverified",
+            "scrollH": 2150
+          },
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:34 UTCRecorded2026-10-24 17:34 UTCCase IDee6f5b4f-bf6a-4145-b016-576b9da805a6Version IDe854a033-1d7e-49ea-87b2-c01c5989686aSource of cited recordsSource unverified",
+            "scrollH": 2150
+          },
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:34 UTCRecorded2026-10-24 17:34 UTCCase IDdd26074f-fa95-455b-8039-2b25c8487d10Version IDc08cc024-1202-47c4-958b-14d1391bec65Source of cited recordsSource unverified",
+            "scrollH": 2150
+          },
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:21 UTCRecorded2026-10-24 17:21 UTCCase ID5574300c-5650-4de6-8108-eda41654a73dVersion IDe793dccc-dc99-4462-b783-57b4c32a54bbSource of cited recordsSource unverified",
+            "scrollH": 2150
+          },
+          {
+            "summary": "What this list is based on",
+            "bodyLen": 516,
+            "body": "Window2026-10-17 00:00 UTC to 2026-10-25 00:00 UTC [from, to)Read as of2026-10-24 17:35 UTCLinked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:52a73b95520a0839a157e3259cf277c09972a9e6b1419b426adfc43f5e255395Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "scrollH": 3463
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Mini-grid depth demonstration",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work",
+            "text": "Actions (0)",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work/incidents",
+            "text": "Incidents (5)",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work/maintenance",
+            "text": "Maintenance (3)",
+            "panel": ""
+          },
+          {
+            "href": "/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A35%3A47.947734Z",
+            "text": "Manage in Incidents",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+            "text": "OPP-000001",
+            "panel": "Incidents at this site"
+          }
+        ],
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 248,
+            "y": 303,
+            "w": 1160,
+            "h": 443,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Occurred from to (included) Show incidents",
+              "Open",
+              "Open",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 1,
+            "buttons": 1,
+            "details": 6,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (0)",
+              "Incidents (5)*",
+              "Maintenance (3)"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-context",
+            "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected",
+            "sw": 191,
+            "cw": 191,
+            "sh": 72,
+            "ch": 36
+          }
+        ],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Sites Mini-grid depth demonstration Work Mini-grid depth demonstration Demonstration data · MG-W402-001 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (0) Incidents (5) Maintenance (3) Scoped to Mini-grid · 5 incidents These are work records at this site Manage in Incidents Incidents at this site A case links chronology, findings and work without copying them Occurred from to (included) Show incidents CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000006 · Mill trial supply complaint (5) 24 Oct · from 19:34UTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. No linked finding Open INC-000005 · Mill trial supply complaint (4) 24 Oct · from 19:34UTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. No linked finding Open INC-000004 · Mill trial supply complaint (3) 24 Oct · from 19:34UTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. No linked finding Open INC-000003 · Mill trial supply complaint (2) 24 Oct · from 19:34UTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. No linked finding Open INC-000001 · Mill trial supply complaint 24 Oct · from 19:21UTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. No linked finding Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected narrative) (Scenario detail unavailable) Open Showing 1–5 of 5 What this list is based on Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet."
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "#/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "#/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "#/dispatch",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "#/sitefindings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "#/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "#/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework",
+            "text": "Actions (2)",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework-incidents",
+            "text": "Incidents (0)",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework-maintenance",
+            "text": "Maintenance (0)",
+            "panel": ""
+          },
+          {
+            "href": "#/incidents",
+            "text": "Manage in Incidents →",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (2)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "sitework-incidents",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5183/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/sitework-incidents",
+      "app_image": "sitework-incidents-stocked-390-app.png",
+      "mock_image": "sitework-incidents-stocked-390-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:34 UTCRecorded2026-10-24 17:34 UTCCase ID030f2b82-4479-4dff-9e71-e1c816cefbc2Version ID14e6af2f-7209-462b-989a-55dca7eecfb4Source of cited recordsSource unverified",
+            "scrollH": 2012
+          },
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:34 UTCRecorded2026-10-24 17:34 UTCCase IDb412695c-c860-4fcf-9d92-d06d7b2bcb4cVersion IDbf8c70eb-2e41-4a4e-926e-6d78df07b211Source of cited recordsSource unverified",
+            "scrollH": 2012
+          },
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:34 UTCRecorded2026-10-24 17:34 UTCCase IDee6f5b4f-bf6a-4145-b016-576b9da805a6Version IDe854a033-1d7e-49ea-87b2-c01c5989686aSource of cited recordsSource unverified",
+            "scrollH": 2012
+          },
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:34 UTCRecorded2026-10-24 17:34 UTCCase IDdd26074f-fa95-455b-8039-2b25c8487d10Version IDc08cc024-1202-47c4-958b-14d1391bec65Source of cited recordsSource unverified",
+            "scrollH": 2012
+          },
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:21 UTCRecorded2026-10-24 17:21 UTCCase ID5574300c-5650-4de6-8108-eda41654a73dVersion IDe793dccc-dc99-4462-b783-57b4c32a54bbSource of cited recordsSource unverified",
+            "scrollH": 2012
+          },
+          {
+            "summary": "What this list is based on",
+            "bodyLen": 516,
+            "body": "Window2026-10-17 00:00 UTC to 2026-10-25 00:00 UTC [from, to)Read as of2026-10-24 17:35 UTCLinked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:25fb5d10b1288aa7d062cc23c7e1bf245b71e09435633f1e0429f8cbf217f4b0Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "scrollH": 3463
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Mini-grid depth demonstration",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work",
+            "text": "Actions (0)",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work/incidents",
+            "text": "Incidents (5)",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work/maintenance",
+            "text": "Maintenance (3)",
+            "panel": ""
+          },
+          {
+            "href": "/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A35%3A54.335394Z",
+            "text": "Manage in Incidents",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+            "text": "OPP-000001",
+            "panel": "Incidents at this site"
+          }
+        ],
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 16,
+            "y": 439,
+            "w": 358,
+            "h": 412,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Occurred from to (included) Show incidents",
+              "Open",
+              "Open",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 1,
+            "buttons": 1,
+            "details": 6,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 991,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.4px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (0)",
+              "Incidents (5)*",
+              "Maintenance (3)"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+            "sw": 193,
+            "cw": 193,
+            "sh": 46,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+            "sw": 193,
+            "cw": 193,
+            "sh": 46,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+            "sw": 193,
+            "cw": 193,
+            "sh": 46,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+            "sw": 193,
+            "cw": 193,
+            "sh": 46,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+            "sw": 193,
+            "cw": 193,
+            "sh": 46,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-context",
+            "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected",
+            "sw": 121,
+            "cw": 121,
+            "sh": 101,
+            "ch": 34
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 720,
+            "cw": 324,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "mainText": "Sites Mini-grid depth demonstration Work Mini-grid depth demonstration Demonstration data · MG-W402-001 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (0) Incidents (5) Maintenance (3) Scoped to Mini-grid · 5 incidents These are work records at this site Manage in Incidents Incidents at this site A case links chronology, findings and work without copying them Occurred from to (included) Show incidents CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000006 · Mill trial supply complaint (5) 24 Oct · from 19:34UTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. No linked finding Open INC-000005 · Mill trial supply complaint (4) 24 Oct · from 19:34UTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. No linked finding Open INC-000004 · Mill trial supply complaint (3) 24 Oct · from 19:34UTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. No linked finding Open INC-000003 · Mill trial supply complaint (2) 24 Oct · from 19:34UTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. No linked finding Open INC-000001 · Mill trial supply complaint 24 Oct · from 19:21UTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. No linked finding Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected narrative) (Scenario detail unavailable) Open Showing 1–5 of 5 Scroll the table for more columns → What this list is based on Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet."
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "#/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "#/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "#/dispatch",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "#/sitefindings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "#/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "#/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework",
+            "text": "Actions (2)",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework-incidents",
+            "text": "Incidents (0)",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework-maintenance",
+            "text": "Maintenance (0)",
+            "panel": ""
+          },
+          {
+            "href": "#/incidents",
+            "text": "Manage in Incidents →",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 15,
+            "y": 632,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1158,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (2)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "sitework-maintenance",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5183/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/sitework-maintenance",
+      "app_image": "sitework-maintenance-stocked-1440-app.png",
+      "mock_image": "sitework-maintenance-stocked-1440-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:34 UTCRecorded2026-10-24 17:34 UTCCase IDfb76b271-d735-49ac-b8bf-0ec5d50102f5Version ID907861ca-89dc-423e-bc40-fc1666f79313Source of cited recordsSource unverified",
+            "scrollH": 2150
+          },
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:34 UTCRecorded2026-10-24 17:34 UTCCase ID0ecd304b-8303-4408-9496-090c993fac74Version IDe5641bd5-58f8-48bb-be40-b7734d770988Source of cited recordsSource unverified",
+            "scrollH": 2150
+          },
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:21 UTCRecorded2026-10-24 17:21 UTCCase IDcfbd9248-1c21-4a51-a1cd-c22adc8410e4Version IDd0e5d478-2f68-4121-8aaf-377abd06cca4Source of cited recordsSource unverified",
+            "scrollH": 2150
+          },
+          {
+            "summary": "What this list is based on",
+            "bodyLen": 516,
+            "body": "Window2026-10-17 00:00 UTC to 2026-10-25 00:00 UTC [from, to)Read as of2026-10-24 17:35 UTCLinked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:6dccd2b1361b4919e9b8026d90e038d656d55ec468e8c40ff37f99de875fc6fcEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "scrollH": 3914
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Mini-grid depth demonstration",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work",
+            "text": "Actions (0)",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work/incidents",
+            "text": "Incidents (5)",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work/maintenance",
+            "text": "Maintenance (3)",
+            "panel": ""
+          },
+          {
+            "href": "/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A35%3A58.683341Z",
+            "text": "Manage in Maintenance",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 248,
+            "y": 303,
+            "w": 1160,
+            "h": 316,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Work request",
+              "Asset",
+              "Activity",
+              "Outcome",
+              "Next evidence"
+            ],
+            "chips": [
+              "Raised from to (included) Show maintenance",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified"
+            ],
+            "links": 0,
+            "buttons": 1,
+            "details": 4,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (0)",
+              "Incidents (5)",
+              "Maintenance (3)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Sites Mini-grid depth demonstration Work Mini-grid depth demonstration Demonstration data · MG-W402-001 Site-scoped work · maintenance Overview Foundation Health Performance Findings Work Financials Evidence Actions (0) Incidents (5) Maintenance (3) Scoped to Mini-grid · 3 maintenance These are work records at this site Manage in Maintenance Maintenance at this site Completed work is activity; the outcome is verified separately Raised from to (included) Show maintenance WORK REQUEST ASSET ACTIVITY OUTCOME NEXT EVIDENCE WR-000008 · Inspect mill feeder breaker (3) No asset linkedUTC and IDs Open No activity recorded Unverified No outcome recorded No next evidence recorded WR-000007 · Inspect mill feeder breaker (2) No asset linkedUTC and IDs Open No activity recorded Unverified No outcome recorded No next evidence recorded WR-000002 · Inspect mill feeder breaker No asset linkedUTC and IDs Open No activity recorded Unverified No outcome recorded No next evidence recorded Showing 1–3 of 3 What this list is based on Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet."
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "#/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "#/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "#/dispatch",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "#/sitefindings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "#/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "#/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework",
+            "text": "Actions (2)",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework-incidents",
+            "text": "Incidents (0)",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework-maintenance",
+            "text": "Maintenance (0)",
+            "panel": ""
+          },
+          {
+            "href": "#/maintenance",
+            "text": "Manage in Maintenance →",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 296,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (2)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "sitework-maintenance",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5183/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/sitework-maintenance",
+      "app_image": "sitework-maintenance-stocked-390-app.png",
+      "mock_image": "sitework-maintenance-stocked-390-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:34 UTCRecorded2026-10-24 17:34 UTCCase IDfb76b271-d735-49ac-b8bf-0ec5d50102f5Version ID907861ca-89dc-423e-bc40-fc1666f79313Source of cited recordsSource unverified",
+            "scrollH": 2012
+          },
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:34 UTCRecorded2026-10-24 17:34 UTCCase ID0ecd304b-8303-4408-9496-090c993fac74Version IDe5641bd5-58f8-48bb-be40-b7734d770988Source of cited recordsSource unverified",
+            "scrollH": 2012
+          },
+          {
+            "summary": "UTC and IDs",
+            "bodyLen": 185,
+            "body": "Occurred2026-10-24 16:21 UTCRecorded2026-10-24 17:21 UTCCase IDcfbd9248-1c21-4a51-a1cd-c22adc8410e4Version IDd0e5d478-2f68-4121-8aaf-377abd06cca4Source of cited recordsSource unverified",
+            "scrollH": 2012
+          },
+          {
+            "summary": "What this list is based on",
+            "bodyLen": 516,
+            "body": "Window2026-10-17 00:00 UTC to 2026-10-25 00:00 UTC [from, to)Read as of2026-10-24 17:36 UTCLinked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:5ea262edce04b4f0e6c1a2b27aec5a9c38e00c2e8de43ca3cc1ff22880794af2Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "scrollH": 3463
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Mini-grid depth demonstration",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work",
+            "text": "Actions (0)",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work/incidents",
+            "text": "Incidents (5)",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work/maintenance",
+            "text": "Maintenance (3)",
+            "panel": ""
+          },
+          {
+            "href": "/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A36%3A03.969213Z",
+            "text": "Manage in Maintenance",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 16,
+            "y": 439,
+            "w": 358,
+            "h": 345,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Work request",
+              "Asset",
+              "Activity",
+              "Outcome",
+              "Next evidence"
+            ],
+            "chips": [
+              "Raised from to (included) Show maintenance",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified"
+            ],
+            "links": 0,
+            "buttons": 1,
+            "details": 4,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 925,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.4px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (0)",
+              "Incidents (5)",
+              "Maintenance (3)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 760,
+            "cw": 324,
+            "panel": "Maintenance at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "mainText": "Sites Mini-grid depth demonstration Work Mini-grid depth demonstration Demonstration data · MG-W402-001 Site-scoped work · maintenance Overview Foundation Health Performance Findings Work Financials Evidence Actions (0) Incidents (5) Maintenance (3) Scoped to Mini-grid · 3 maintenance These are work records at this site Manage in Maintenance Maintenance at this site Completed work is activity; the outcome is verified separately Raised from to (included) Show maintenance WORK REQUEST ASSET ACTIVITY OUTCOME NEXT EVIDENCE WR-000008 · Inspect mill feeder breaker (3) No asset linkedUTC and IDs Open No activity recorded Unverified No outcome recorded No next evidence recorded WR-000007 · Inspect mill feeder breaker (2) No asset linkedUTC and IDs Open No activity recorded Unverified No outcome recorded No next evidence recorded WR-000002 · Inspect mill feeder breaker No asset linkedUTC and IDs Open No activity recorded Unverified No outcome recorded No next evidence recorded Showing 1–3 of 3 Scroll the table for more columns → What this list is based on Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet."
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "#/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "#/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "#/dispatch",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "#/sitefindings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "#/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "#/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework",
+            "text": "Actions (2)",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework-incidents",
+            "text": "Incidents (0)",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework-maintenance",
+            "text": "Maintenance (0)",
+            "panel": ""
+          },
+          {
+            "href": "#/maintenance",
+            "text": "Manage in Maintenance →",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 15,
+            "y": 632,
+            "w": 360,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1138,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (2)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

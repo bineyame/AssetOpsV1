@@ -1,0 +1,1266 @@
+{
+ "web": "http://127.0.0.1:5183",
+ "phase": "positive",
+ "captured_at": "2026-10-24T17:34:58.131Z",
+ "replay": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review5\\var\\w403_b13\\positive.json",
+ "stock": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review5\\var\\w403_b13\\capture\\stock.json",
+ "ids": {
+  "finding": "b62e0ef8-8530-4963-8443-eb5941c56f30",
+  "finding_revision": "d4df8338-62ac-4c97-8b5d-08650246816c",
+  "opportunity": "850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+  "old_head": "80e323f0-f78c-448d-8954-50cb90375b49",
+  "missing_opportunity": null,
+  "k_before_late": null,
+  "work_window": "from=2026-10-17T00:00:00Z&to=2026-10-25T00:00:00Z"
+ },
+ "kobo_reads": {
+  "finding_code": null,
+  "finding_status": 200,
+  "site_status": 200
+ },
+ "performance_exits": {
+  "KOBO-001": 0,
+  "MG-W402-001": 0
+ },
+ "mock": {
+  "opportunity-finding-1440": {
+   "pieces": {
+    "status": {
+     "y": 304,
+     "w": 1161,
+     "h": 45
+    },
+    "cards": {
+     "y": 367,
+     "w": 1161,
+     "h": 113
+    },
+    "Bounded opportunity": {
+     "y": 498,
+     "w": 1161,
+     "h": 208
+    },
+    "Next decision": {
+     "y": 723,
+     "w": 735,
+     "h": 268
+    },
+    "Consequence basis": {
+     "y": 723,
+     "w": 408,
+     "h": 268
+    }
+   },
+   "extra": {
+    "cardCount": 4,
+    "contexts": [],
+    "rowContexts": 0,
+    "panelContexts": [],
+    "findingLinks": 0,
+    "chipTone": null,
+    "currentness": null,
+    "refusal": null,
+    "location": "/C:/Users/assef/Bineyame/AssetOpsV1-review5/frontend/mockups/v69/index.html",
+    "scenarioNotice": null,
+    "scenarioRows": 0,
+    "alternativeRows": 0,
+    "workRows": 0,
+    "chip": null,
+    "chipBg": null,
+    "claim": null,
+    "openSite": [],
+    "siteTabs": false,
+    "findingRow": [],
+    "scenarioContexts": [],
+    "contextKinds": [],
+    "caseHrefs": []
+   },
+   "panelOrder": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "text": "Bineyame Operations / Demo estateFind a screenWindow: Event window6 Oct 2026 · 14:20–15:20 EAT▾BYFindings›F-109›Overview· site: Kobo Mini-gridProductive-use headroom at KoboCan recurring renewable headroom support useful additional demand?Open siteOverviewF-109 · Opportunity Confidence: MediumⓘRecommendation · demand unverifiedUsable headroom18–20 kWAfter a 3 kW operating marginEligible days3 / 5Separate five-day studyProposed load10 kW × 1 hGrain-mill scenarioGross sales scenario$2.5010 kWh × $0.25/kWh · before costsBounded opportunityRenewable capacity appears available for a one-hour produc",
+   "doc": {
+    "scrollW": 1425,
+    "clientW": 1425
+   },
+   "pageH": 1057,
+   "ready": true,
+   "image": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review5\\var\\w403_b13\\capture\\opportunity-finding-1440-mock.png"
+  },
+  "opportunity-finding-390": {
+   "pieces": {
+    "status": {
+     "y": 536,
+     "w": 345,
+     "h": 72
+    },
+    "cards": {
+     "y": 626,
+     "w": 345,
+     "h": 264
+    },
+    "Bounded opportunity": {
+     "y": 908,
+     "w": 345,
+     "h": 308
+    },
+    "Next decision": {
+     "y": 1234,
+     "w": 345,
+     "h": 193
+    },
+    "Consequence basis": {
+     "y": 1445,
+     "w": 345,
+     "h": 268
+    }
+   },
+   "extra": {
+    "cardCount": 4,
+    "contexts": [],
+    "rowContexts": 0,
+    "panelContexts": [],
+    "findingLinks": 0,
+    "chipTone": null,
+    "currentness": null,
+    "refusal": null,
+    "location": "/C:/Users/assef/Bineyame/AssetOpsV1-review5/frontend/mockups/v69/index.html",
+    "scenarioNotice": null,
+    "scenarioRows": 0,
+    "alternativeRows": 0,
+    "workRows": 0,
+    "chip": null,
+    "chipBg": null,
+    "claim": null,
+    "openSite": [],
+    "siteTabs": false,
+    "findingRow": [],
+    "scenarioContexts": [],
+    "contextKinds": [],
+    "caseHrefs": []
+   },
+   "panelOrder": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "text": "Bineyame Operations / Demo estateFind a screenWindow: Event window6 Oct 2026 · 14:20–15:20 EAT▾BYFindings›F-109›Overview· site: Kobo Mini-gridProductive-use headroom at KoboCan recurring renewable headroom support useful additional demand?Open siteOverviewF-109 · Opportunity Confidence: MediumⓘRecommendation · demand unverifiedUsable headroom18–20 kWAfter a 3 kW operating marginEligible days3 / 5Separate five-day studyProposed load10 kW × 1 hGrain-mill scenarioGross sales scenario$2.5010 kWh × $0.25/kWh · before costsBounded opportunityRenewable capacity appears available for a one-hour produc",
+   "doc": {
+    "scrollW": 375,
+    "clientW": 375
+   },
+   "pageH": 1807,
+   "ready": true,
+   "image": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review5\\var\\w403_b13\\capture\\opportunity-finding-390-mock.png"
+  }
+ },
+ "app": [
+  {
+   "screen": "opportunity-finding",
+   "state": "opportunity-supported-current",
+   "app": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+   "positive": true,
+   "width": 1440,
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+   "harness": [],
+   "api": [
+    "200 /api/sites/MG-W402-001",
+    "200 /api/sites/MG-W402-001",
+    "200 /api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+    "200 /api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+    "200 /api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e"
+   ],
+   "pieces": {
+    "status": {
+     "y": 181,
+     "w": 1160,
+     "h": 43
+    },
+    "cards": {
+     "y": 242,
+     "w": 1160,
+     "h": 95
+    },
+    "Bounded opportunity": {
+     "y": 355,
+     "w": 1160,
+     "h": 216
+    },
+    "Next decision": {
+     "y": 589,
+     "w": 734,
+     "h": 267
+    },
+    "Consequence basis": {
+     "y": 589,
+     "w": 408,
+     "h": 267
+    }
+   },
+   "extra": {
+    "cardCount": 4,
+    "contexts": [],
+    "rowContexts": 0,
+    "panelContexts": [],
+    "findingLinks": 0,
+    "chipTone": "green",
+    "currentness": "Current selection",
+    "refusal": null,
+    "location": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+    "scenarioNotice": null,
+    "scenarioRows": 0,
+    "alternativeRows": 0,
+    "workRows": 0,
+    "chip": "OPP-000001 · Opportunity",
+    "chipBg": "rgb(230, 244, 238)",
+    "claim": {
+     "big": true,
+     "font": 19,
+     "prose": 14
+    },
+    "openSite": [
+     [
+      "Open site",
+      "/sites/MG-W402-001"
+     ]
+    ],
+    "siteTabs": false,
+    "findingRow": [],
+    "crumbs": {
+     "lineStarts": [
+      "G"
+     ],
+     "beforeAtStart": [],
+     "h": 21,
+     "leadSameLine": true,
+     "firstTop": 25
+    },
+    "scenarioContexts": [],
+    "contextKinds": [],
+    "caseHrefs": [],
+    "wire": {
+     "api": "/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+     "status": 200,
+     "body": {
+      "status": "SUPPORTED",
+      "currentness": "CURRENT",
+      "revision_id": "80e323f0-f78c-448d-8954-50cb90375b49",
+      "renewable": "/sites/49b21a45-fa59-45be-aa9a-cf5c17af54a5/performance/renewable?from=2026-10-05T21:00:00.000000Z&to=2026-10-10T21:00:00.000000Z&known_at=2026-10-24T17:35:06.522763Z",
+      "days": [
+       [
+        "2026-10-06",
+        1,
+        "432dc72d-d7af-4d1e-8350-51e08ac24626"
+       ],
+       [
+        "2026-10-07",
+        5,
+        "277fac31-ba6b-44ab-9c76-fba824dd4e95"
+       ],
+       [
+        "2026-10-08",
+        9,
+        "013751ee-e4e7-447d-9732-111c6b449bf7"
+       ],
+       [
+        "2026-10-09",
+        13,
+        "28c0d23a-2f05-4151-a631-78cfc6df64e6"
+       ],
+       [
+        "2026-10-10",
+        17,
+        "76d53a57-52c0-427d-a240-81c9d9d035d7"
+       ]
+      ]
+     }
+    },
+    "drawer": {
+     "h": 96,
+     "scrollH": 71273,
+     "overflowY": "auto"
+    }
+   },
+   "panelOrder": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "text": "Global Findings unavailable; this opportunity is reached from Renewable evaluation.OPP-000001Overview· site: Mini-grid depth demonstrationProductive-use headroom at Mini-grid depth demonstrationFive-day renewable headroom and an explicitly authored scenario, with evidence and demand limits.Open siteOverviewOPP-000001 · OpportunityConfidence: Not assessedCurrent selectionRecommendation · demand unverifiedUsable headroom18–20 kWAfter the selected retained marginEligible days4 / 5Separate five-day studyProposed load10 kWLinked scenario (name unavailable)Gross sales scenario$2.50Before costs; coll",
+   "doc": {
+    "scrollW": 1440,
+    "clientW": 1440
+   },
+   "pageH": 1000,
+   "ready": true,
+   "image": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review5\\var\\w403_b13\\capture\\opportunity-supported-current-1440-app.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "state": "opportunity-supported-current",
+   "app": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+   "positive": true,
+   "width": 390,
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+   "harness": [],
+   "api": [
+    "200 /api/sites/MG-W402-001",
+    "200 /api/sites/MG-W402-001",
+    "200 /api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+    "200 /api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+    "200 /api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e"
+   ],
+   "pieces": {
+    "status": {
+     "y": 385,
+     "w": 343,
+     "h": 66
+    },
+    "cards": {
+     "y": 468,
+     "w": 343,
+     "h": 227
+    },
+    "Bounded opportunity": {
+     "y": 714,
+     "w": 343,
+     "h": 325
+    },
+    "Next decision": {
+     "y": 1057,
+     "w": 343,
+     "h": 199
+    },
+    "Consequence basis": {
+     "y": 1272,
+     "w": 343,
+     "h": 267
+    }
+   },
+   "extra": {
+    "cardCount": 4,
+    "contexts": [],
+    "rowContexts": 0,
+    "panelContexts": [],
+    "findingLinks": 0,
+    "chipTone": "green",
+    "currentness": "Current selection",
+    "refusal": null,
+    "location": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+    "scenarioNotice": null,
+    "scenarioRows": 0,
+    "alternativeRows": 0,
+    "workRows": 0,
+    "chip": "OPP-000001 · Opportunity",
+    "chipBg": "rgb(230, 244, 238)",
+    "claim": {
+     "big": true,
+     "font": 19,
+     "prose": 14
+    },
+    "openSite": [
+     [
+      "Open site",
+      "/sites/MG-W402-001"
+     ]
+    ],
+    "siteTabs": false,
+    "findingRow": [],
+    "crumbs": {
+     "lineStarts": [
+      "G",
+      "f",
+      "0"
+     ],
+     "beforeAtStart": [],
+     "h": 62,
+     "leadSameLine": true,
+     "firstTop": 109
+    },
+    "scenarioContexts": [],
+    "contextKinds": [],
+    "caseHrefs": [],
+    "wire": {
+     "api": "/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+     "status": 200,
+     "body": {
+      "status": "SUPPORTED",
+      "currentness": "CURRENT",
+      "revision_id": "80e323f0-f78c-448d-8954-50cb90375b49",
+      "renewable": "/sites/49b21a45-fa59-45be-aa9a-cf5c17af54a5/performance/renewable?from=2026-10-05T21:00:00.000000Z&to=2026-10-10T21:00:00.000000Z&known_at=2026-10-24T17:35:17.069602Z",
+      "days": [
+       [
+        "2026-10-06",
+        1,
+        "432dc72d-d7af-4d1e-8350-51e08ac24626"
+       ],
+       [
+        "2026-10-07",
+        5,
+        "277fac31-ba6b-44ab-9c76-fba824dd4e95"
+       ],
+       [
+        "2026-10-08",
+        9,
+        "013751ee-e4e7-447d-9732-111c6b449bf7"
+       ],
+       [
+        "2026-10-09",
+        13,
+        "28c0d23a-2f05-4151-a631-78cfc6df64e6"
+       ],
+       [
+        "2026-10-10",
+        17,
+        "76d53a57-52c0-427d-a240-81c9d9d035d7"
+       ]
+      ]
+     }
+    },
+    "drawer": {
+     "h": 96,
+     "scrollH": 71273,
+     "overflowY": "auto"
+    }
+   },
+   "panelOrder": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "text": "Global Findings unavailable; this opportunity is reached from Renewable evaluation.OPP-000001Overview· site: Mini-grid depth demonstrationProductive-use headroom at Mini-grid depth demonstrationFive-day renewable headroom and an explicitly authored scenario, with evidence and demand limits.Open siteOverviewOPP-000001 · OpportunityConfidence: Not assessedCurrent selectionRecommendation · demand unverifiedUsable headroom18–20 kWAfter the selected retained marginEligible days4 / 5Separate five-day studyProposed load10 kWLinked scenario (name unavailable)Gross sales scenario$2.50Before costs; coll",
+   "doc": {
+    "scrollW": 375,
+    "clientW": 375
+   },
+   "pageH": 1579,
+   "ready": true,
+   "image": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review5\\var\\w403_b13\\capture\\opportunity-supported-current-390-app.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "state": "opportunity-supported-historical",
+   "app": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z",
+   "historical": "2026-10-24T17:34:56.446000Z",
+   "width": 1440,
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z",
+   "harness": [],
+   "api": [
+    "200 /api/sites/MG-W402-001",
+    "200 /api/sites/MG-W402-001",
+    "200 /api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z",
+    "200 /api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z",
+    "200 /api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z"
+   ],
+   "pieces": {
+    "status": {
+     "y": 181,
+     "w": 1160,
+     "h": 43
+    },
+    "cards": {
+     "y": 242,
+     "w": 1160,
+     "h": 95
+    },
+    "Bounded opportunity": {
+     "y": 355,
+     "w": 1160,
+     "h": 216
+    },
+    "Next decision": {
+     "y": 589,
+     "w": 734,
+     "h": 267
+    },
+    "Consequence basis": {
+     "y": 589,
+     "w": 408,
+     "h": 267
+    }
+   },
+   "extra": {
+    "cardCount": 4,
+    "contexts": [],
+    "rowContexts": 0,
+    "panelContexts": [],
+    "findingLinks": 0,
+    "chipTone": "blue",
+    "currentness": "Historical basis",
+    "refusal": null,
+    "location": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z",
+    "scenarioNotice": null,
+    "scenarioRows": 0,
+    "alternativeRows": 0,
+    "workRows": 0,
+    "chip": "OPP-000001 · Opportunity",
+    "chipBg": "rgb(234, 240, 253)",
+    "claim": {
+     "big": true,
+     "font": 19,
+     "prose": 14
+    },
+    "openSite": [
+     [
+      "Open site",
+      "/sites/MG-W402-001"
+     ]
+    ],
+    "siteTabs": false,
+    "findingRow": [],
+    "crumbs": {
+     "lineStarts": [
+      "G"
+     ],
+     "beforeAtStart": [],
+     "h": 21,
+     "leadSameLine": true,
+     "firstTop": 25
+    },
+    "scenarioContexts": [],
+    "contextKinds": [],
+    "caseHrefs": [],
+    "wire": {
+     "api": "/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z",
+     "status": 200,
+     "body": {
+      "status": "SUPPORTED",
+      "currentness": "HISTORICAL",
+      "revision_id": "80e323f0-f78c-448d-8954-50cb90375b49",
+      "renewable": "/sites/49b21a45-fa59-45be-aa9a-cf5c17af54a5/performance/renewable?from=2026-10-05T21:00:00.000000Z&to=2026-10-10T21:00:00.000000Z&known_at=2026-10-24T17:34:56.446000Z",
+      "days": [
+       [
+        "2026-10-06",
+        1,
+        "432dc72d-d7af-4d1e-8350-51e08ac24626"
+       ],
+       [
+        "2026-10-07",
+        5,
+        "277fac31-ba6b-44ab-9c76-fba824dd4e95"
+       ],
+       [
+        "2026-10-08",
+        9,
+        "013751ee-e4e7-447d-9732-111c6b449bf7"
+       ],
+       [
+        "2026-10-09",
+        13,
+        "28c0d23a-2f05-4151-a631-78cfc6df64e6"
+       ],
+       [
+        "2026-10-10",
+        17,
+        "76d53a57-52c0-427d-a240-81c9d9d035d7"
+       ]
+      ]
+     }
+    },
+    "drawer": {
+     "h": 96,
+     "scrollH": 71273,
+     "overflowY": "auto"
+    }
+   },
+   "panelOrder": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "text": "Global Findings unavailable; this opportunity is reached from Renewable evaluation.OPP-000001Overview· site: Mini-grid depth demonstrationProductive-use headroom at Mini-grid depth demonstrationFive-day renewable headroom and an explicitly authored scenario, with evidence and demand limits.Open siteOverviewOPP-000001 · OpportunityConfidence: Not assessedHistorical basisRecommendation · demand unverifiedUsable headroom18–20 kWAfter the selected retained marginEligible days4 / 5Separate five-day studyProposed load10 kWLinked scenario (name unavailable)Gross sales scenario$2.50Before costs; colle",
+   "doc": {
+    "scrollW": 1440,
+    "clientW": 1440
+   },
+   "pageH": 1000,
+   "ready": true,
+   "image": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review5\\var\\w403_b13\\capture\\opportunity-supported-historical-1440-app.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "state": "opportunity-supported-historical",
+   "app": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z",
+   "historical": "2026-10-24T17:34:56.446000Z",
+   "width": 390,
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z",
+   "harness": [],
+   "api": [
+    "200 /api/sites/MG-W402-001",
+    "200 /api/sites/MG-W402-001",
+    "200 /api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z",
+    "200 /api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z",
+    "200 /api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z"
+   ],
+   "pieces": {
+    "status": {
+     "y": 385,
+     "w": 343,
+     "h": 66
+    },
+    "cards": {
+     "y": 468,
+     "w": 343,
+     "h": 227
+    },
+    "Bounded opportunity": {
+     "y": 714,
+     "w": 343,
+     "h": 325
+    },
+    "Next decision": {
+     "y": 1057,
+     "w": 343,
+     "h": 199
+    },
+    "Consequence basis": {
+     "y": 1272,
+     "w": 343,
+     "h": 267
+    }
+   },
+   "extra": {
+    "cardCount": 4,
+    "contexts": [],
+    "rowContexts": 0,
+    "panelContexts": [],
+    "findingLinks": 0,
+    "chipTone": "blue",
+    "currentness": "Historical basis",
+    "refusal": null,
+    "location": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z",
+    "scenarioNotice": null,
+    "scenarioRows": 0,
+    "alternativeRows": 0,
+    "workRows": 0,
+    "chip": "OPP-000001 · Opportunity",
+    "chipBg": "rgb(234, 240, 253)",
+    "claim": {
+     "big": true,
+     "font": 19,
+     "prose": 14
+    },
+    "openSite": [
+     [
+      "Open site",
+      "/sites/MG-W402-001"
+     ]
+    ],
+    "siteTabs": false,
+    "findingRow": [],
+    "crumbs": {
+     "lineStarts": [
+      "G",
+      "f",
+      "0"
+     ],
+     "beforeAtStart": [],
+     "h": 62,
+     "leadSameLine": true,
+     "firstTop": 109
+    },
+    "scenarioContexts": [],
+    "contextKinds": [],
+    "caseHrefs": [],
+    "wire": {
+     "api": "/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z",
+     "status": 200,
+     "body": {
+      "status": "SUPPORTED",
+      "currentness": "HISTORICAL",
+      "revision_id": "80e323f0-f78c-448d-8954-50cb90375b49",
+      "renewable": "/sites/49b21a45-fa59-45be-aa9a-cf5c17af54a5/performance/renewable?from=2026-10-05T21:00:00.000000Z&to=2026-10-10T21:00:00.000000Z&known_at=2026-10-24T17:34:56.446000Z",
+      "days": [
+       [
+        "2026-10-06",
+        1,
+        "432dc72d-d7af-4d1e-8350-51e08ac24626"
+       ],
+       [
+        "2026-10-07",
+        5,
+        "277fac31-ba6b-44ab-9c76-fba824dd4e95"
+       ],
+       [
+        "2026-10-08",
+        9,
+        "013751ee-e4e7-447d-9732-111c6b449bf7"
+       ],
+       [
+        "2026-10-09",
+        13,
+        "28c0d23a-2f05-4151-a631-78cfc6df64e6"
+       ],
+       [
+        "2026-10-10",
+        17,
+        "76d53a57-52c0-427d-a240-81c9d9d035d7"
+       ]
+      ]
+     }
+    },
+    "drawer": {
+     "h": 96,
+     "scrollH": 71273,
+     "overflowY": "auto"
+    }
+   },
+   "panelOrder": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "text": "Global Findings unavailable; this opportunity is reached from Renewable evaluation.OPP-000001Overview· site: Mini-grid depth demonstrationProductive-use headroom at Mini-grid depth demonstrationFive-day renewable headroom and an explicitly authored scenario, with evidence and demand limits.Open siteOverviewOPP-000001 · OpportunityConfidence: Not assessedHistorical basisRecommendation · demand unverifiedUsable headroom18–20 kWAfter the selected retained marginEligible days4 / 5Separate five-day studyProposed load10 kWLinked scenario (name unavailable)Gross sales scenario$2.50Before costs; colle",
+   "doc": {
+    "scrollW": 375,
+    "clientW": 375
+   },
+   "pageH": 1579,
+   "ready": true,
+   "image": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review5\\var\\w403_b13\\capture\\opportunity-supported-historical-390-app.png"
+  }
+ ],
+ "checks": [
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "screen settled (panel rendered, no loading copy)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "panel order [\"Bounded opportunity\",\"Next decision\",\"Consequence basis\"] = mock [\"Bounded opportunity\",\"Next decision\",\"Consequence basis\"]",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "status present (mock 1161x45)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "status height 43 <= 69 (mock 45)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "cards present (mock 1161x113)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "cards height 95 <= 137 (mock 113)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "Bounded opportunity present (mock 1161x208)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "Bounded opportunity height 216 <= 232 (mock 208)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "Bounded opportunity width 1160 <= 1161",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "Next decision present (mock 735x268)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "Next decision height 267 <= 295 (mock 268)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "Next decision width 734 <= 1161",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "Consequence basis present (mock 408x268)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "Consequence basis height 267 <= 295 (mock 268)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "Consequence basis width 408 <= 1161",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "document scrollWidth 1440 <= clientWidth 1440",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "four cards (4)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "evidence list 96 <= 96 (scrollH 71273, auto)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "status SUPPORTED, currentness CURRENT ([\"SUPPORTED\",\"CURRENT\"])",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "positive chip (green OPP-000001 · Opportunity)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "selected five-day rows = pins (5)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "current detail GET without cutoff ([{\"path\":\"/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e\",\"status\":200,\"at\":2},{\"path\":\"/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e\",\"status\":200,\"at\":3},{\"path\":\"/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e\",\"status\":200,\"at\":4}])",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "chip green computed background rgb(230, 244, 238) = rgb(230, 244, 238)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "Bounded claim is the big claim ({\"big\":true,\"font\":19,\"prose\":14})",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "no crumb line starts with a separator ([\"G\"]; [])",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 1440",
+   "what": "Site suffix inline with the crumbs at 1440 ({\"lineStarts\":[\"G\"],\"beforeAtStart\":[],\"h\":21,\"leadSameLine\":true,\"firstTop\":25})",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "screen settled (panel rendered, no loading copy)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "panel order [\"Bounded opportunity\",\"Next decision\",\"Consequence basis\"] = mock [\"Bounded opportunity\",\"Next decision\",\"Consequence basis\"]",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "status present (mock 345x72)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "status height 66 <= 96 (mock 72)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "cards present (mock 345x264)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "cards height 227 <= 273 (mock 264)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "Bounded opportunity present (mock 345x308)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "Bounded opportunity height 325 <= 339 (mock 308)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "Bounded opportunity width 343 <= 360",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "Next decision present (mock 345x193)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "Next decision height 199 <= 217 (mock 193)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "Next decision width 343 <= 360",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "Consequence basis present (mock 345x268)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "Consequence basis height 267 <= 295 (mock 268)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "Consequence basis width 343 <= 360",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "document scrollWidth 375 <= clientWidth 375",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "four cards (4)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "evidence list 96 <= 96 (scrollH 71273, auto)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "status SUPPORTED, currentness CURRENT ([\"SUPPORTED\",\"CURRENT\"])",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "positive chip (green OPP-000001 · Opportunity)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "selected five-day rows = pins (5)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "current detail GET without cutoff ([{\"path\":\"/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e\",\"status\":200,\"at\":2},{\"path\":\"/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e\",\"status\":200,\"at\":3},{\"path\":\"/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e\",\"status\":200,\"at\":4}])",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "chip green computed background rgb(230, 244, 238) = rgb(230, 244, 238)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "Bounded claim is the big claim ({\"big\":true,\"font\":19,\"prose\":14})",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-current 390",
+   "what": "no crumb line starts with a separator ([\"G\",\"f\",\"0\"]; [])",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "screen settled (panel rendered, no loading copy)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "panel order [\"Bounded opportunity\",\"Next decision\",\"Consequence basis\"] = mock [\"Bounded opportunity\",\"Next decision\",\"Consequence basis\"]",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "status present (mock 1161x45)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "status height 43 <= 69 (mock 45)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "cards present (mock 1161x113)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "cards height 95 <= 137 (mock 113)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "Bounded opportunity present (mock 1161x208)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "Bounded opportunity height 216 <= 232 (mock 208)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "Bounded opportunity width 1160 <= 1161",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "Next decision present (mock 735x268)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "Next decision height 267 <= 295 (mock 268)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "Next decision width 734 <= 1161",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "Consequence basis present (mock 408x268)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "Consequence basis height 267 <= 295 (mock 268)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "Consequence basis width 408 <= 1161",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "document scrollWidth 1440 <= clientWidth 1440",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "four cards (4)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "evidence list 96 <= 96 (scrollH 71273, auto)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "explicit past cutoff: SUPPORTED, HISTORICAL, blue chip ([\"SUPPORTED\",\"HISTORICAL\"]; blue)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "intercepted detail GET carries the cutoff ([{\"path\":\"/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z\",\"status\":200,\"at\":2},{\"path\":\"/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z\",\"status\":200,\"at\":3},{\"path\":\"/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z\",\"status\":200,\"at\":4}])",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "chip blue computed background rgb(234, 240, 253) = rgb(234, 240, 253)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "Bounded claim is the big claim ({\"big\":true,\"font\":19,\"prose\":14})",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "no crumb line starts with a separator ([\"G\"]; [])",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 1440",
+   "what": "Site suffix inline with the crumbs at 1440 ({\"lineStarts\":[\"G\"],\"beforeAtStart\":[],\"h\":21,\"leadSameLine\":true,\"firstTop\":25})",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "screen settled (panel rendered, no loading copy)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "panel order [\"Bounded opportunity\",\"Next decision\",\"Consequence basis\"] = mock [\"Bounded opportunity\",\"Next decision\",\"Consequence basis\"]",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "status present (mock 345x72)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "status height 66 <= 96 (mock 72)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "cards present (mock 345x264)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "cards height 227 <= 273 (mock 264)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "Bounded opportunity present (mock 345x308)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "Bounded opportunity height 325 <= 339 (mock 308)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "Bounded opportunity width 343 <= 360",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "Next decision present (mock 345x193)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "Next decision height 199 <= 217 (mock 193)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "Next decision width 343 <= 360",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "Consequence basis present (mock 345x268)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "Consequence basis height 267 <= 295 (mock 268)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "Consequence basis width 343 <= 360",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "document scrollWidth 375 <= clientWidth 375",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "four cards (4)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "evidence list 96 <= 96 (scrollH 71273, auto)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "explicit past cutoff: SUPPORTED, HISTORICAL, blue chip ([\"SUPPORTED\",\"HISTORICAL\"]; blue)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "intercepted detail GET carries the cutoff ([{\"path\":\"/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z\",\"status\":200,\"at\":2},{\"path\":\"/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z\",\"status\":200,\"at\":3},{\"path\":\"/api/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A34%3A56.446000Z\",\"status\":200,\"at\":4}])",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "chip blue computed background rgb(234, 240, 253) = rgb(234, 240, 253)",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "Bounded claim is the big claim ({\"big\":true,\"font\":19,\"prose\":14})",
+   "ok": true
+  },
+  {
+   "case": "opportunity-supported-historical 390",
+   "what": "no crumb line starts with a separator ([\"G\",\"f\",\"0\"]; [])",
+   "ok": true
+  }
+ ],
+ "unproved": [],
+ "tones_seen": [
+  "green",
+  "blue"
+ ],
+ "width_checks": [
+  {
+   "name": "measure opportunity-finding-1440-mock.png: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)",
+   "ok": true,
+   "requested": 1440,
+   "innerWidth": 1440,
+   "clientWidth": 1425
+  },
+  {
+   "name": "measure opportunity-finding-390-mock.png: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+   "ok": true,
+   "requested": 390,
+   "innerWidth": 390,
+   "clientWidth": 375
+  },
+  {
+   "name": "measure opportunity-supported-current-1440-app.png: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)",
+   "ok": true,
+   "requested": 1440,
+   "innerWidth": 1440,
+   "clientWidth": 1440
+  },
+  {
+   "name": "measure opportunity-supported-current-390-app.png: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+   "ok": true,
+   "requested": 390,
+   "innerWidth": 390,
+   "clientWidth": 375
+  },
+  {
+   "name": "measure opportunity-supported-historical-1440-app.png: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)",
+   "ok": true,
+   "requested": 1440,
+   "innerWidth": 1440,
+   "clientWidth": 1440
+  },
+  {
+   "name": "measure opportunity-supported-historical-390-app.png: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+   "ok": true,
+   "requested": 390,
+   "innerWidth": 390,
+   "clientWidth": 375
+  }
+ ]
+}
