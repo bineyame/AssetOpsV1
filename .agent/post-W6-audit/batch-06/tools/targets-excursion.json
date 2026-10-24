@@ -1,0 +1,17 @@
+[
+ {"id":"cold-foundation","case":"stocked","url":"http://localhost:5186/sites/COLD-LAB-001/foundation"},
+ {"id":"cold-foundation","case":"no-version","url":"http://localhost:5186/sites/COLD-LAB-001/foundation?at=2026-09-01T00:00:00Z"},
+ {"id":"cold-readiness","case":"stocked","url":"http://localhost:5186/sites/COLD-LAB-001/foundation/readiness"},
+ {"id":"cold-readiness","case":"no-version","url":"http://localhost:5186/sites/COLD-LAB-001/foundation/readiness?at=2026-09-01T00:00:00Z"},
+ {"id":"cold-sld","case":"stocked","url":"http://localhost:5186/sites/COLD-LAB-001/foundation/sld"},
+ {"id":"cold-sld","case":"no-version","url":"http://localhost:5186/sites/COLD-LAB-001/foundation/sld?at=2026-09-01T00:00:00Z"},
+ {"id":"temperature","case":"excursion","url":"http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z"},
+ {"id":"temperature","case":"no-selection","url":"http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"},
+ {"id":"temperature","case":"refused","url":"http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z"},
+ {"id":"coldbackup","case":"excursion","url":"http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z"},
+ {"id":"coldbackup","case":"no-selection","url":"http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"},
+ {"id":"coldbackup","case":"refused","url":"http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z"},
+ {"id":"cold-finding","case":"start-excursion","url":"http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176"},
+ {"id":"cold-finding","case":"unknown-id","url":"http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000fffff"},
+ {"id":"cold-finding","case":"excursion-finding","url":"http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170","mock":"cold-finding-excursion"}
+]

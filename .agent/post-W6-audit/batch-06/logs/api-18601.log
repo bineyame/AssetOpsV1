@@ -1,0 +1,368 @@
+INFO:     Started server process [19464]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:18601 (Press CTRL+C to quit)
+INFO:     127.0.0.1:54787 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54786 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54792 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54793 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54788 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54797 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58296 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52448 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58295 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50110 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52281 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52280 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52285 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52283 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52286 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50546 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54892 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62697 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50545 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61749 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52320 - "GET /api/sites/COLD-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52321 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52323 - "GET /api/sites/COLD-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52322 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52324 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52326 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55461 - "GET /api/sites/COLD-LAB-001/cold/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55462 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64207 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64206 - "GET /api/sites/COLD-LAB-001/cold/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59668 - "GET /api/sites/COLD-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59669 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "GET /api/sites/COLD-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59670 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59672 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59673 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60197 - "GET /api/sites/COLD-LAB-001/cold/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60198 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52906 - "GET /api/sites/COLD-LAB-001/cold/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61399 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55593 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55592 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55595 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55594 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55597 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57233 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64226 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57232 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63966 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63197 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63196 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63198 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63199 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63201 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54837 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63203 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59456 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54836 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51440 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64687 - "GET /api/sites/COLD-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64688 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64690 - "GET /api/sites/COLD-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64692 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64689 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64693 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59547 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59546 - "GET /api/sites/COLD-LAB-001/cold/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62246 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59575 - "GET /api/sites/COLD-LAB-001/cold/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52318 - "GET /api/sites/COLD-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52319 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52322 - "GET /api/sites/COLD-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52324 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52321 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52327 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54726 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54725 - "GET /api/sites/COLD-LAB-001/cold/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55770 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57585 - "GET /api/sites/COLD-LAB-001/cold/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52763 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52762 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52764 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60884 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60885 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59709 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60886 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59707 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63232 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60538 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51414 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51413 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51416 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51415 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51417 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51418 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60465 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52299 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60464 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62441 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58476 - "GET /api/sites/COLD-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58477 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58479 - "GET /api/sites/COLD-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58481 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58478 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58483 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64870 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64869 - "GET /api/sites/COLD-LAB-001/cold/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53110 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63430 - "GET /api/sites/COLD-LAB-001/cold/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49673 - "GET /api/sites/COLD-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49674 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49677 - "GET /api/sites/COLD-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49675 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49678 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49679 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51183 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51182 - "GET /api/sites/COLD-LAB-001/cold/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:63950 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64290 - "GET /api/sites/COLD-LAB-001/cold/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59058 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59059 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59061 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59060 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59062 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59066 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49910 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58300 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57281 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57282 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57283 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57284 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57285 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57287 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55726 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59354 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60833 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60835 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60836 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60838 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60837 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60839 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50120 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50119 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60108 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60110 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60113 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60112 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60111 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60114 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59088 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54771 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54043 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54045 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54048 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54046 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54047 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54049 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:62389 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:62388 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:58674 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58675 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58678 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:58677 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:58676 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:58679 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:60858 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:60859 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:49675 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52818 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51549 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51548 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51550 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49677 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51551 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62137 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62590 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54080 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54082 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54081 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54083 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54084 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64277 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60820 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55392 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55397 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55399 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55401 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55400 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55402 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57438 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57439 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54710 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58109 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51946 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51945 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51947 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60394 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51794 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51795 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58155 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51630 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58757 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:58755 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:58756 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:58758 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:50069 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:50068 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54759 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54765 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54768 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54767 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54769 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54770 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:52234 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:52235 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54380 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54381 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54382 - "GET /api/sites/COLD-LAB-001/cold/findings/00000002-0000-4000-8000-000000000176 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61692 - "GET /api/sites/COLD-LAB-001/cold/findings/00000002-0000-4000-8000-000000000176 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62326 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T15%3A54%3A16.727629Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65488 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65489 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59995 - "GET /api/sites/COLD-LAB-001/cold/findings/00000002-0000-4000-8000-000000000176 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59996 - "GET /api/sites/COLD-LAB-001/cold/findings/00000002-0000-4000-8000-000000000176 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59997 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T15%3A54%3A16.727629Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59053 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54213 - "GET /api/sites/COLD-LAB-001/cold/findings/00000002-0000-4000-8000-000000000fffff HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54214 - "GET /api/sites/COLD-LAB-001/cold/findings/00000002-0000-4000-8000-000000000fffff HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64178 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64179 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64180 - "GET /api/sites/COLD-LAB-001/cold/findings/00000002-0000-4000-8000-000000000fffff HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64181 - "GET /api/sites/COLD-LAB-001/cold/findings/00000002-0000-4000-8000-000000000fffff HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62749 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58362 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54322 - "GET /api/sites/COLD-LAB-001/cold/findings/00000002-0000-4000-8000-000000000170 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54323 - "GET /api/sites/COLD-LAB-001/cold/findings/00000002-0000-4000-8000-000000000170 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54324 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T15%3A54%3A16.727629Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54325 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T15%3A54%3A16.727629Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50954 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50955 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50956 - "GET /api/sites/COLD-LAB-001/cold/findings/00000002-0000-4000-8000-000000000170 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50957 - "GET /api/sites/COLD-LAB-001/cold/findings/00000002-0000-4000-8000-000000000170 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50958 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T15%3A54%3A16.727629Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50959 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T15%3A54%3A16.727629Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55342 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63933 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55998 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55997 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55999 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56000 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53731 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57739 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63196 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50642 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50646 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50645 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50644 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50647 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56245 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54385 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52412 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52414 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52416 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52415 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52417 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52418 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57042 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53712 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64082 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64083 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64085 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64086 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64084 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50202 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64087 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60584 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57345 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57344 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57346 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57347 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57348 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57349 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64718 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54570 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64717 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51275 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62405 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62404 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62407 - "GET /api/sites/COLD-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62406 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62408 - "GET /api/sites/COLD-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55362 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62409 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51357 - "GET /api/sites/COLD-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55361 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54431 - "GET /api/sites/COLD-LAB-001/cold/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50061 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58165 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61431 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61432 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61433 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60474 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58763 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65170 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55743 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55744 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55746 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55745 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55747 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55748 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60429 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57452 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52815 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52816 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52817 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52818 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52819 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52820 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54946 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54525 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51057 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51058 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51059 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51060 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51061 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51062 - "GET /api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56190 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50736 - "GET /api/sites/COLD-LAB-001/cold/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59568 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59569 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59571 - "GET /api/sites/COLD-LAB-001/cold/backup-chain HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59570 - "GET /api/sites/COLD-LAB-001/cold/temperature HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59572 - "GET /api/sites/COLD-LAB-001/cold/findings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59573 - "GET /api/sites/COLD-LAB-001/cold/backup-chain HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51020 - "GET /api/sites/COLD-LAB-001/cold/temperature HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53060 - "GET /api/sites/COLD-LAB-001/cold/findings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61288 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61289 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61291 - "GET /api/sites/COLD-LAB-001/cold/backup-chain HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61290 - "GET /api/sites/COLD-LAB-001/cold/temperature HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61292 - "GET /api/sites/COLD-LAB-001/cold/findings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61293 - "GET /api/sites/COLD-LAB-001/cold/backup-chain HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57492 - "GET /api/sites/COLD-LAB-001/cold/temperature HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61195 - "GET /api/sites/COLD-LAB-001/cold/findings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60201 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60202 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60203 - "GET /api/sites/COLD-LAB-001/cold/findings/00000003-0000-4000-8000-00000000017c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60204 - "GET /api/sites/COLD-LAB-001/cold/findings/00000003-0000-4000-8000-00000000017c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60205 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A04%3A00.304923Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58944 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58945 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58946 - "GET /api/sites/COLD-LAB-001/cold/findings/00000003-0000-4000-8000-00000000017c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58947 - "GET /api/sites/COLD-LAB-001/cold/findings/00000003-0000-4000-8000-00000000017c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58948 - "GET /api/sites/COLD-LAB-001/cold/backup-chain?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A04%3A00.304923Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61090 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61091 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61092 - "GET /api/sites/COLD-LAB-001/cold/findings/00000003-0000-4000-8000-00000000017c?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:61093 - "GET /api/sites/COLD-LAB-001/cold/findings/00000003-0000-4000-8000-00000000017c?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56597 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56598 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56599 - "GET /api/sites/COLD-LAB-001/cold/findings/00000003-0000-4000-8000-00000000017c?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56600 - "GET /api/sites/COLD-LAB-001/cold/findings/00000003-0000-4000-8000-00000000017c?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity

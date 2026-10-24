@@ -1,0 +1,5200 @@
+{
+ "batch": "06",
+ "name": "W2 cold Foundation/assessment",
+ "frozen": {
+  "main_sha": "d44bb445 (product code identical to frozen fddf5cad)",
+  "branch": "audit/batch-06",
+  "worktree": "AssetOpsV1-review5",
+  "capture_revision": "d44bb445",
+  "api": "http://127.0.0.1:18601 (host/lab_app.py, DATABASE_URL=assetops_audit_b06_test)",
+  "frontend": "http://localhost:5186 Vite dev (ASSETOPS_API_PORT=18601); mock /mockups/v69/index.html#/<id>",
+  "cdp": 9526,
+  "viewports": [
+   "1440x1000 full-page",
+   "390x900 mobile emulation full-page"
+  ],
+  "db": "assetops_audit_b06_test (created, reseeded in place per phase by the producer, dropped; confirmed absent)",
+  "window": "2026-10-06T19:00Z..20:05Z (selected); 2026-10-05 same hours (no-selection); inverted (refused)",
+  "capture_tool": "tools/capture-b6.mjs (batch-04 capture-b4.mjs with CDP 9526; capture-only)"
+ },
+ "pair_count": 46,
+ "representative_pairs": 12,
+ "pairs": [
+  {
+   "screen": "cold-foundation",
+   "case": "stocked",
+   "width": 1440,
+   "representative": true,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation",
+   "mock": "#/cold-foundation",
+   "app_image": "excursion/cold-foundation-stocked-1440-app.png",
+   "mock_image": "excursion/cold-foundation-stocked-1440-mock.png",
+   "titles_app": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "titles_mock": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Physical site",
+     "app_h": 439,
+     "mock_h": 349,
+     "ratio": 1.26,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operating interpretation",
+     "app_h": 439,
+     "mock_h": 349,
+     "ratio": 1.26,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.26,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-01",
+    "B6-02",
+    "B6-03",
+    "B6-04"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-foundation",
+   "case": "stocked",
+   "width": 390,
+   "representative": true,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation",
+   "mock": "#/cold-foundation",
+   "app_image": "excursion/cold-foundation-stocked-390-app.png",
+   "mock_image": "excursion/cold-foundation-stocked-390-mock.png",
+   "titles_app": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "titles_mock": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Physical site",
+     "app_h": 472,
+     "mock_h": 379,
+     "ratio": 1.25,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operating interpretation",
+     "app_h": 399,
+     "mock_h": 232,
+     "ratio": 1.72,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.72,
+   "over_1_3": [
+    "Operating interpretation"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-01",
+    "B6-02",
+    "B6-03",
+    "B6-04"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-foundation",
+   "case": "no-version",
+   "width": 1440,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation?at=2026-09-01T00:00:00Z",
+   "mock": "#/cold-foundation",
+   "app_image": "excursion/cold-foundation-no-version-1440-app.png",
+   "mock_image": "excursion/cold-foundation-no-version-1440-mock.png",
+   "titles_app": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "titles_mock": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Physical site",
+     "app_h": 96,
+     "mock_h": 349,
+     "ratio": 0.28,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operating interpretation",
+     "app_h": 96,
+     "mock_h": 349,
+     "ratio": 0.28,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 0.28,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-01",
+    "B6-03",
+    "B6-04",
+    "B6-24"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-foundation",
+   "case": "no-version",
+   "width": 390,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation?at=2026-09-01T00:00:00Z",
+   "mock": "#/cold-foundation",
+   "app_image": "excursion/cold-foundation-no-version-390-app.png",
+   "mock_image": "excursion/cold-foundation-no-version-390-mock.png",
+   "titles_app": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "titles_mock": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Physical site",
+     "app_h": 113,
+     "mock_h": 379,
+     "ratio": 0.3,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operating interpretation",
+     "app_h": 113,
+     "mock_h": 232,
+     "ratio": 0.49,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 0.49,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 143,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-01",
+    "B6-03",
+    "B6-04",
+    "B6-24",
+    "B1-02"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-readiness",
+   "case": "stocked",
+   "width": 1440,
+   "representative": true,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation/readiness",
+   "mock": "#/cold-readiness",
+   "app_image": "excursion/cold-readiness-stocked-1440-app.png",
+   "mock_image": "excursion/cold-readiness-stocked-1440-mock.png",
+   "titles_app": [
+    "Readiness and commissioning evidence",
+    "Gateway status · edge-cold-lab-001",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "titles_mock": [
+    "Readiness and commissioning evidence",
+    "Gateway status · GW-CR-01",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "order_match": false,
+   "panels": [
+    {
+     "title": "Readiness and commissioning evidence",
+     "app_h": 672,
+     "mock_h": 313,
+     "ratio": 2.15,
+     "app_rows": 9,
+     "mock_rows": 4,
+     "app_cols": [
+      "Area",
+      "Declared",
+      "Confirmed",
+      "What is needed",
+      "Next step"
+     ],
+     "mock_cols": [
+      "Area",
+      "Declared",
+      "Confirmed",
+      "What is needed",
+      "Next step"
+     ]
+    },
+    {
+     "title": "Gateway status · edge-cold-lab-001",
+     "app_h": 669,
+     "mock_h": 558,
+     "ratio": 1.2,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 2.15,
+   "over_1_3": [
+    "Readiness and commissioning evidence"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-01",
+    "B6-03",
+    "B6-04",
+    "B6-05",
+    "B6-06",
+    "B6-07"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-readiness",
+   "case": "stocked",
+   "width": 390,
+   "representative": true,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation/readiness",
+   "mock": "#/cold-readiness",
+   "app_image": "excursion/cold-readiness-stocked-390-app.png",
+   "mock_image": "excursion/cold-readiness-stocked-390-mock.png",
+   "titles_app": [
+    "Readiness and commissioning evidence",
+    "Gateway status · edge-cold-lab-001",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "titles_mock": [
+    "Readiness and commissioning evidence",
+    "Gateway status · GW-CR-01",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "order_match": false,
+   "panels": [
+    {
+     "title": "Readiness and commissioning evidence",
+     "app_h": 654,
+     "mock_h": 411,
+     "ratio": 1.59,
+     "app_rows": 9,
+     "mock_rows": 4,
+     "app_cols": [
+      "Area",
+      "Declared",
+      "Confirmed",
+      "What is needed",
+      "Next step"
+     ],
+     "mock_cols": [
+      "Area",
+      "Declared",
+      "Confirmed",
+      "What is needed",
+      "Next step"
+     ]
+    },
+    {
+     "title": "Gateway status · edge-cold-lab-001",
+     "app_h": 1340,
+     "mock_h": 1206,
+     "ratio": 1.11,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.59,
+   "over_1_3": [
+    "Readiness and commissioning evidence"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 536,
+     "cw": 318,
+     "panel": "Readiness and commissioning evidence"
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-01",
+    "B6-03",
+    "B6-04",
+    "B6-05",
+    "B6-06",
+    "B6-07"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-readiness",
+   "case": "no-version",
+   "width": 1440,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+   "mock": "#/cold-readiness",
+   "app_image": "excursion/cold-readiness-no-version-1440-app.png",
+   "mock_image": "excursion/cold-readiness-no-version-1440-mock.png",
+   "titles_app": [
+    "Readiness and commissioning evidence",
+    "Gateway status · edge-cold-lab-001",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "titles_mock": [
+    "Readiness and commissioning evidence",
+    "Gateway status · GW-CR-01",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "order_match": false,
+   "panels": [
+    {
+     "title": "Readiness and commissioning evidence",
+     "app_h": 96,
+     "mock_h": 313,
+     "ratio": 0.31,
+     "app_rows": 0,
+     "mock_rows": 4,
+     "app_cols": [],
+     "mock_cols": [
+      "Area",
+      "Declared",
+      "Confirmed",
+      "What is needed",
+      "Next step"
+     ]
+    },
+    {
+     "title": "Gateway status · edge-cold-lab-001",
+     "app_h": 223,
+     "mock_h": 558,
+     "ratio": 0.4,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 0.4,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-01",
+    "B6-03",
+    "B6-04",
+    "B6-07",
+    "B6-24"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-readiness",
+   "case": "no-version",
+   "width": 390,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+   "mock": "#/cold-readiness",
+   "app_image": "excursion/cold-readiness-no-version-390-app.png",
+   "mock_image": "excursion/cold-readiness-no-version-390-mock.png",
+   "titles_app": [
+    "Readiness and commissioning evidence",
+    "Gateway status · edge-cold-lab-001",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "titles_mock": [
+    "Readiness and commissioning evidence",
+    "Gateway status · GW-CR-01",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "order_match": false,
+   "panels": [
+    {
+     "title": "Readiness and commissioning evidence",
+     "app_h": 113,
+     "mock_h": 411,
+     "ratio": 0.27,
+     "app_rows": 0,
+     "mock_rows": 4,
+     "app_cols": [],
+     "mock_cols": [
+      "Area",
+      "Declared",
+      "Confirmed",
+      "What is needed",
+      "Next step"
+     ]
+    },
+    {
+     "title": "Gateway status · edge-cold-lab-001",
+     "app_h": 368,
+     "mock_h": 1206,
+     "ratio": 0.31,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 0.31,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-01",
+    "B6-03",
+    "B6-04",
+    "B6-07",
+    "B6-24"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-sld",
+   "case": "stocked",
+   "width": 1440,
+   "representative": true,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation/sld",
+   "mock": "#/cold-sld",
+   "app_image": "excursion/cold-sld-stocked-1440-app.png",
+   "mock_image": "excursion/cold-sld-stocked-1440-mock.png",
+   "titles_app": [
+    "Cold replay lab",
+    "What each part does"
+   ],
+   "titles_mock": [
+    "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+    "What each part does"
+   ],
+   "order_match": false,
+   "panels": [
+    {
+     "title": "Cold replay lab",
+     "app_h": 709,
+     "mock_h": 702,
+     "ratio": 1.01,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "What each part does",
+     "app_h": 514,
+     "mock_h": 332,
+     "ratio": 1.55,
+     "app_rows": 8,
+     "mock_rows": 5,
+     "app_cols": [
+      "Part",
+      "Role at this site",
+      "What it reports"
+     ],
+     "mock_cols": [
+      "Part",
+      "Role at this site",
+      "What it reports"
+     ]
+    }
+   ],
+   "max_ratio": 1.55,
+   "over_1_3": [
+    "What each part does"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-01",
+    "B6-03",
+    "B6-04",
+    "B6-07",
+    "B6-08",
+    "B6-09"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-sld",
+   "case": "stocked",
+   "width": 390,
+   "representative": true,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation/sld",
+   "mock": "#/cold-sld",
+   "app_image": "excursion/cold-sld-stocked-390-app.png",
+   "mock_image": "excursion/cold-sld-stocked-390-mock.png",
+   "titles_app": [
+    "Cold replay lab",
+    "What each part does"
+   ],
+   "titles_mock": [
+    "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+    "What each part does"
+   ],
+   "order_match": false,
+   "panels": [
+    {
+     "title": "Cold replay lab",
+     "app_h": 528,
+     "mock_h": 370,
+     "ratio": 1.43,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "What each part does",
+     "app_h": 759,
+     "mock_h": 596,
+     "ratio": 1.27,
+     "app_rows": 8,
+     "mock_rows": 5,
+     "app_cols": [
+      "Part",
+      "Role at this site",
+      "What it reports"
+     ],
+     "mock_cols": [
+      "Part",
+      "Role at this site",
+      "What it reports"
+     ]
+    }
+   ],
+   "max_ratio": 1.43,
+   "over_1_3": [
+    "Cold replay lab"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-01",
+    "B6-03",
+    "B6-04",
+    "B6-07",
+    "B6-08",
+    "B6-09"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-sld",
+   "case": "no-version",
+   "width": 1440,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation/sld?at=2026-09-01T00:00:00Z",
+   "mock": "#/cold-sld",
+   "app_image": "excursion/cold-sld-no-version-1440-app.png",
+   "mock_image": "excursion/cold-sld-no-version-1440-mock.png",
+   "titles_app": [
+    "Cold replay lab",
+    "What each part does"
+   ],
+   "titles_mock": [
+    "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+    "What each part does"
+   ],
+   "order_match": false,
+   "panels": [
+    {
+     "title": "Cold replay lab",
+     "app_h": 96,
+     "mock_h": 702,
+     "ratio": 0.14,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "What each part does",
+     "app_h": 96,
+     "mock_h": 332,
+     "ratio": 0.29,
+     "app_rows": 0,
+     "mock_rows": 5,
+     "app_cols": [],
+     "mock_cols": [
+      "Part",
+      "Role at this site",
+      "What it reports"
+     ]
+    }
+   ],
+   "max_ratio": 0.29,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-01",
+    "B6-03",
+    "B6-04",
+    "B6-07",
+    "B6-24"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-sld",
+   "case": "no-version",
+   "width": 390,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation/sld?at=2026-09-01T00:00:00Z",
+   "mock": "#/cold-sld",
+   "app_image": "excursion/cold-sld-no-version-390-app.png",
+   "mock_image": "excursion/cold-sld-no-version-390-mock.png",
+   "titles_app": [
+    "Cold replay lab",
+    "What each part does"
+   ],
+   "titles_mock": [
+    "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+    "What each part does"
+   ],
+   "order_match": false,
+   "panels": [
+    {
+     "title": "Cold replay lab",
+     "app_h": 113,
+     "mock_h": 370,
+     "ratio": 0.31,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "What each part does",
+     "app_h": 113,
+     "mock_h": 596,
+     "ratio": 0.19,
+     "app_rows": 0,
+     "mock_rows": 5,
+     "app_cols": [],
+     "mock_cols": [
+      "Part",
+      "Role at this site",
+      "What it reports"
+     ]
+    }
+   ],
+   "max_ratio": 0.31,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 141,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-01",
+    "B6-03",
+    "B6-04",
+    "B6-07",
+    "B6-24",
+    "B1-02"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "temperature",
+   "case": "excursion",
+   "width": 1440,
+   "representative": true,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "mock": "#/temperature",
+   "app_image": "excursion/temperature-excursion-1440-app.png",
+   "mock_image": "excursion/temperature-excursion-1440-mock.png",
+   "titles_app": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titles_mock": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "app_h": 447,
+     "mock_h": 442,
+     "ratio": 1.01,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Excursion context",
+     "app_h": 447,
+     "mock_h": 442,
+     "ratio": 1.01,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Claim boundary",
+     "app_h": 142,
+     "mock_h": 120,
+     "ratio": 1.18,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.18,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-04",
+    "B6-10",
+    "B6-11",
+    "B6-12"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "temperature",
+   "case": "excursion",
+   "width": 390,
+   "representative": true,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "mock": "#/temperature",
+   "app_image": "excursion/temperature-excursion-390-app.png",
+   "mock_image": "excursion/temperature-excursion-390-mock.png",
+   "titles_app": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titles_mock": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "app_h": 398,
+     "mock_h": 408,
+     "ratio": 0.98,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Excursion context",
+     "app_h": 463,
+     "mock_h": 415,
+     "ratio": 1.12,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Claim boundary",
+     "app_h": 211,
+     "mock_h": 163,
+     "ratio": 1.29,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.29,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-04",
+    "B6-10",
+    "B6-11",
+    "B6-12"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "temperature",
+   "case": "no-selection",
+   "width": 1440,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+   "mock": "#/temperature",
+   "app_image": "excursion/temperature-no-selection-1440-app.png",
+   "mock_image": "excursion/temperature-no-selection-1440-mock.png",
+   "titles_app": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titles_mock": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "app_h": 381,
+     "mock_h": 442,
+     "ratio": 0.86,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Excursion context",
+     "app_h": 381,
+     "mock_h": 442,
+     "ratio": 0.86,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Claim boundary",
+     "app_h": 142,
+     "mock_h": 120,
+     "ratio": 1.18,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.18,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-04",
+    "B6-10",
+    "B6-11",
+    "B6-14"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "temperature",
+   "case": "no-selection",
+   "width": 390,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+   "mock": "#/temperature",
+   "app_image": "excursion/temperature-no-selection-390-app.png",
+   "mock_image": "excursion/temperature-no-selection-390-mock.png",
+   "titles_app": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titles_mock": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "app_h": 113,
+     "mock_h": 408,
+     "ratio": 0.28,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Excursion context",
+     "app_h": 381,
+     "mock_h": 415,
+     "ratio": 0.92,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Claim boundary",
+     "app_h": 165,
+     "mock_h": 163,
+     "ratio": 1.01,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.01,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-04",
+    "B6-10",
+    "B6-11",
+    "B6-14"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "temperature",
+   "case": "refused",
+   "width": 1440,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "mock": "#/temperature",
+   "app_image": "excursion/temperature-refused-1440-app.png",
+   "mock_image": "excursion/temperature-refused-1440-mock.png",
+   "titles_app": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titles_mock": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "app_h": 96,
+     "mock_h": 442,
+     "ratio": 0.22,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Excursion context",
+     "app_h": 96,
+     "mock_h": 442,
+     "ratio": 0.22,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Claim boundary",
+     "app_h": 96,
+     "mock_h": 120,
+     "ratio": 0.8,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 0.8,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-04",
+    "B6-10",
+    "B6-11",
+    "B6-13"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "temperature",
+   "case": "refused",
+   "width": 390,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "mock": "#/temperature",
+   "app_image": "excursion/temperature-refused-390-app.png",
+   "mock_image": "excursion/temperature-refused-390-mock.png",
+   "titles_app": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titles_mock": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "app_h": 96,
+     "mock_h": 408,
+     "ratio": 0.24,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Excursion context",
+     "app_h": 96,
+     "mock_h": 415,
+     "ratio": 0.23,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Claim boundary",
+     "app_h": 96,
+     "mock_h": 163,
+     "ratio": 0.59,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 0.59,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-04",
+    "B6-10",
+    "B6-11",
+    "B6-13"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "coldbackup",
+   "case": "excursion",
+   "width": 1440,
+   "representative": true,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "mock": "#/coldbackup",
+   "app_image": "excursion/coldbackup-excursion-1440-app.png",
+   "mock_image": "excursion/coldbackup-excursion-1440-mock.png",
+   "titles_app": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titles_mock": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "app_h": 148,
+     "mock_h": 153,
+     "ratio": 0.97,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Reconstructed event chain",
+     "app_h": 170,
+     "mock_h": 208,
+     "ratio": 0.82,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Backup event chains",
+     "app_h": 188,
+     "mock_h": 194,
+     "ratio": 0.97,
+     "app_rows": 1,
+     "mock_rows": 1,
+     "app_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to compressor",
+      "Compressor response",
+      "Outcome for service",
+      "Result"
+     ],
+     "mock_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to load",
+      "Load response",
+      "Outcome for service",
+      "Result"
+     ]
+    },
+    {
+     "title": "Evidence by causal step",
+     "app_h": 554,
+     "mock_h": 332,
+     "ratio": 1.67,
+     "app_rows": 9,
+     "mock_rows": 5,
+     "app_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ],
+     "mock_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ]
+    }
+   ],
+   "max_ratio": 1.67,
+   "over_1_3": [
+    "Evidence by causal step"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-04",
+    "B6-11",
+    "B6-15",
+    "B6-16"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "coldbackup",
+   "case": "excursion",
+   "width": 390,
+   "representative": true,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "mock": "#/coldbackup",
+   "app_image": "excursion/coldbackup-excursion-390-app.png",
+   "mock_image": "excursion/coldbackup-excursion-390-mock.png",
+   "titles_app": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titles_mock": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "app_h": 202,
+     "mock_h": 239,
+     "ratio": 0.85,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Reconstructed event chain",
+     "app_h": 452,
+     "mock_h": 469,
+     "ratio": 0.96,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Backup event chains",
+     "app_h": 199,
+     "mock_h": 265,
+     "ratio": 0.75,
+     "app_rows": 1,
+     "mock_rows": 1,
+     "app_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to compressor",
+      "Compressor response",
+      "Outcome for service",
+      "Result"
+     ],
+     "mock_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to load",
+      "Load response",
+      "Outcome for service",
+      "Result"
+     ]
+    },
+    {
+     "title": "Evidence by causal step",
+     "app_h": 853,
+     "mock_h": 526,
+     "ratio": 1.62,
+     "app_rows": 9,
+     "mock_rows": 5,
+     "app_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ],
+     "mock_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ]
+    }
+   ],
+   "max_ratio": 1.62,
+   "over_1_3": [
+    "Evidence by causal step"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 810,
+     "cw": 318,
+     "panel": "Backup event chains"
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 447,
+     "cw": 318,
+     "panel": "Evidence by causal step"
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-04",
+    "B6-11",
+    "B6-15",
+    "B6-16"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "coldbackup",
+   "case": "no-selection",
+   "width": 1440,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+   "mock": "#/coldbackup",
+   "app_image": "excursion/coldbackup-no-selection-1440-app.png",
+   "mock_image": "excursion/coldbackup-no-selection-1440-mock.png",
+   "titles_app": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titles_mock": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "app_h": 148,
+     "mock_h": 153,
+     "ratio": 0.97,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Reconstructed event chain",
+     "app_h": 96,
+     "mock_h": 208,
+     "ratio": 0.46,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Backup event chains",
+     "app_h": 188,
+     "mock_h": 194,
+     "ratio": 0.97,
+     "app_rows": 1,
+     "mock_rows": 1,
+     "app_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to compressor",
+      "Compressor response",
+      "Outcome for service",
+      "Result"
+     ],
+     "mock_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to load",
+      "Load response",
+      "Outcome for service",
+      "Result"
+     ]
+    },
+    {
+     "title": "Evidence by causal step",
+     "app_h": 96,
+     "mock_h": 332,
+     "ratio": 0.29,
+     "app_rows": 0,
+     "mock_rows": 5,
+     "app_cols": [],
+     "mock_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ]
+    }
+   ],
+   "max_ratio": 0.97,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-04",
+    "B6-11",
+    "B6-15"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "coldbackup",
+   "case": "no-selection",
+   "width": 390,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+   "mock": "#/coldbackup",
+   "app_image": "excursion/coldbackup-no-selection-390-app.png",
+   "mock_image": "excursion/coldbackup-no-selection-390-mock.png",
+   "titles_app": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titles_mock": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "app_h": 179,
+     "mock_h": 239,
+     "ratio": 0.75,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Reconstructed event chain",
+     "app_h": 96,
+     "mock_h": 469,
+     "ratio": 0.2,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Backup event chains",
+     "app_h": 252,
+     "mock_h": 265,
+     "ratio": 0.95,
+     "app_rows": 1,
+     "mock_rows": 1,
+     "app_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to compressor",
+      "Compressor response",
+      "Outcome for service",
+      "Result"
+     ],
+     "mock_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to load",
+      "Load response",
+      "Outcome for service",
+      "Result"
+     ]
+    },
+    {
+     "title": "Evidence by causal step",
+     "app_h": 96,
+     "mock_h": 526,
+     "ratio": 0.18,
+     "app_rows": 0,
+     "mock_rows": 5,
+     "app_cols": [],
+     "mock_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ]
+    }
+   ],
+   "max_ratio": 0.95,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 808,
+     "cw": 318,
+     "panel": "Backup event chains"
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-04",
+    "B6-11",
+    "B6-15"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "coldbackup",
+   "case": "refused",
+   "width": 1440,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "mock": "#/coldbackup",
+   "app_image": "excursion/coldbackup-refused-1440-app.png",
+   "mock_image": "excursion/coldbackup-refused-1440-mock.png",
+   "titles_app": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titles_mock": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "app_h": 96,
+     "mock_h": 153,
+     "ratio": 0.63,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Reconstructed event chain",
+     "app_h": 96,
+     "mock_h": 208,
+     "ratio": 0.46,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Backup event chains",
+     "app_h": 119,
+     "mock_h": 194,
+     "ratio": 0.61,
+     "app_rows": 0,
+     "mock_rows": 1,
+     "app_cols": [],
+     "mock_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to load",
+      "Load response",
+      "Outcome for service",
+      "Result"
+     ]
+    },
+    {
+     "title": "Evidence by causal step",
+     "app_h": 96,
+     "mock_h": 332,
+     "ratio": 0.29,
+     "app_rows": 0,
+     "mock_rows": 5,
+     "app_cols": [],
+     "mock_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ]
+    }
+   ],
+   "max_ratio": 0.63,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-04",
+    "B6-11",
+    "B6-13",
+    "B6-15"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "coldbackup",
+   "case": "refused",
+   "width": 390,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "mock": "#/coldbackup",
+   "app_image": "excursion/coldbackup-refused-390-app.png",
+   "mock_image": "excursion/coldbackup-refused-390-mock.png",
+   "titles_app": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titles_mock": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "app_h": 96,
+     "mock_h": 239,
+     "ratio": 0.4,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Reconstructed event chain",
+     "app_h": 96,
+     "mock_h": 469,
+     "ratio": 0.2,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Backup event chains",
+     "app_h": 119,
+     "mock_h": 265,
+     "ratio": 0.45,
+     "app_rows": 0,
+     "mock_rows": 1,
+     "app_cols": [],
+     "mock_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to load",
+      "Load response",
+      "Outcome for service",
+      "Result"
+     ]
+    },
+    {
+     "title": "Evidence by causal step",
+     "app_h": 96,
+     "mock_h": 526,
+     "ratio": 0.18,
+     "app_rows": 0,
+     "mock_rows": 5,
+     "app_cols": [],
+     "mock_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ]
+    }
+   ],
+   "max_ratio": 0.45,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-04",
+    "B6-11",
+    "B6-13",
+    "B6-15"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-finding",
+   "case": "start-excursion",
+   "width": 1440,
+   "representative": true,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176",
+   "mock": "#/cold-finding",
+   "app_image": "excursion/cold-finding-start-excursion-1440-app.png",
+   "mock_image": "excursion/cold-finding-start-excursion-1440-mock.png",
+   "titles_app": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "titles_mock": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Bounded conclusion",
+     "app_h": 217,
+     "mock_h": 209,
+     "ratio": 1.04,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operational context",
+     "app_h": 261,
+     "mock_h": 253,
+     "ratio": 1.03,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Recommended next step",
+     "app_h": 131,
+     "mock_h": 253,
+     "ratio": 0.52,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.04,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-18",
+    "B6-19",
+    "B6-20",
+    "B6-21"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-finding",
+   "case": "start-excursion",
+   "width": 390,
+   "representative": true,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176",
+   "mock": "#/cold-finding",
+   "app_image": "excursion/cold-finding-start-excursion-390-app.png",
+   "mock_image": "excursion/cold-finding-start-excursion-390-mock.png",
+   "titles_app": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "titles_mock": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Bounded conclusion",
+     "app_h": 294,
+     "mock_h": 287,
+     "ratio": 1.02,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operational context",
+     "app_h": 527,
+     "mock_h": 469,
+     "ratio": 1.12,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Recommended next step",
+     "app_h": 148,
+     "mock_h": 193,
+     "ratio": 0.77,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.12,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-18",
+    "B6-19",
+    "B6-20",
+    "B6-21"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-finding",
+   "case": "unknown-id",
+   "width": 1440,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000fffff",
+   "mock": "#/cold-finding",
+   "app_image": "excursion/cold-finding-unknown-id-1440-app.png",
+   "mock_image": "excursion/cold-finding-unknown-id-1440-mock.png",
+   "titles_app": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "titles_mock": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Bounded conclusion",
+     "app_h": 96,
+     "mock_h": 209,
+     "ratio": 0.46,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operational context",
+     "app_h": 96,
+     "mock_h": 253,
+     "ratio": 0.38,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Recommended next step",
+     "app_h": 96,
+     "mock_h": 253,
+     "ratio": 0.38,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 0.46,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-18",
+    "B6-19",
+    "B6-20",
+    "B6-22"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-finding",
+   "case": "unknown-id",
+   "width": 390,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000fffff",
+   "mock": "#/cold-finding",
+   "app_image": "excursion/cold-finding-unknown-id-390-app.png",
+   "mock_image": "excursion/cold-finding-unknown-id-390-mock.png",
+   "titles_app": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "titles_mock": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Bounded conclusion",
+     "app_h": 96,
+     "mock_h": 287,
+     "ratio": 0.33,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operational context",
+     "app_h": 96,
+     "mock_h": 469,
+     "ratio": 0.2,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Recommended next step",
+     "app_h": 96,
+     "mock_h": 193,
+     "ratio": 0.5,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 0.5,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 102,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-18",
+    "B6-19",
+    "B6-20",
+    "B6-22"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-finding",
+   "case": "excursion-finding",
+   "width": 1440,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170",
+   "mock": "#/cold-finding-excursion",
+   "app_image": "excursion/cold-finding-excursion-finding-1440-app.png",
+   "mock_image": "excursion/cold-finding-excursion-finding-1440-mock.png",
+   "titles_app": [
+    "Bounded conclusion",
+    "Temperature",
+    "Recommended next step"
+   ],
+   "titles_mock": [
+    "Bounded conclusion",
+    "Temperature",
+    "Recommended next step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Bounded conclusion",
+     "app_h": 248,
+     "mock_h": 209,
+     "ratio": 1.19,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Temperature",
+     "app_h": 376,
+     "mock_h": 333,
+     "ratio": 1.13,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Recommended next step",
+     "app_h": 185,
+     "mock_h": 333,
+     "ratio": 0.56,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.19,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-18",
+    "B6-19",
+    "B6-20",
+    "B6-21",
+    "B6-23"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-finding",
+   "case": "excursion-finding",
+   "width": 390,
+   "representative": false,
+   "phase": "excursion",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170",
+   "mock": "#/cold-finding-excursion",
+   "app_image": "excursion/cold-finding-excursion-finding-390-app.png",
+   "mock_image": "excursion/cold-finding-excursion-finding-390-mock.png",
+   "titles_app": [
+    "Bounded conclusion",
+    "Temperature",
+    "Recommended next step"
+   ],
+   "titles_mock": [
+    "Bounded conclusion",
+    "Temperature",
+    "Recommended next step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Bounded conclusion",
+     "app_h": 353,
+     "mock_h": 259,
+     "ratio": 1.36,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Temperature",
+     "app_h": 250,
+     "mock_h": 212,
+     "ratio": 1.18,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Recommended next step",
+     "app_h": 185,
+     "mock_h": 228,
+     "ratio": 0.81,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.36,
+   "over_1_3": [
+    "Bounded conclusion"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-18",
+    "B6-19",
+    "B6-20",
+    "B6-21",
+    "B6-23"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "temperature",
+   "case": "normal",
+   "width": 1440,
+   "representative": false,
+   "phase": "normal",
+   "producer": "seed.py cold normal (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "mock": "#/temperature",
+   "app_image": "normal/temperature-normal-1440-app.png",
+   "mock_image": "normal/temperature-normal-1440-mock.png",
+   "titles_app": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titles_mock": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "app_h": 435,
+     "mock_h": 442,
+     "ratio": 0.98,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Excursion context",
+     "app_h": 435,
+     "mock_h": 442,
+     "ratio": 0.98,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Claim boundary",
+     "app_h": 142,
+     "mock_h": 120,
+     "ratio": 1.18,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.18,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-04",
+    "B6-10",
+    "B6-11",
+    "B6-12"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "temperature",
+   "case": "normal",
+   "width": 390,
+   "representative": false,
+   "phase": "normal",
+   "producer": "seed.py cold normal (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "mock": "#/temperature",
+   "app_image": "normal/temperature-normal-390-app.png",
+   "mock_image": "normal/temperature-normal-390-mock.png",
+   "titles_app": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titles_mock": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "app_h": 309,
+     "mock_h": 408,
+     "ratio": 0.76,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Excursion context",
+     "app_h": 398,
+     "mock_h": 415,
+     "ratio": 0.96,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Claim boundary",
+     "app_h": 188,
+     "mock_h": 163,
+     "ratio": 1.15,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.15,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-04",
+    "B6-10",
+    "B6-11",
+    "B6-12"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "coldbackup",
+   "case": "normal",
+   "width": 1440,
+   "representative": false,
+   "phase": "normal",
+   "producer": "seed.py cold normal (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "mock": "#/coldbackup",
+   "app_image": "normal/coldbackup-normal-1440-app.png",
+   "mock_image": "normal/coldbackup-normal-1440-mock.png",
+   "titles_app": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titles_mock": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "app_h": 148,
+     "mock_h": 153,
+     "ratio": 0.97,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Reconstructed event chain",
+     "app_h": 170,
+     "mock_h": 208,
+     "ratio": 0.82,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Backup event chains",
+     "app_h": 188,
+     "mock_h": 194,
+     "ratio": 0.97,
+     "app_rows": 1,
+     "mock_rows": 1,
+     "app_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to compressor",
+      "Compressor response",
+      "Outcome for service",
+      "Result"
+     ],
+     "mock_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to load",
+      "Load response",
+      "Outcome for service",
+      "Result"
+     ]
+    },
+    {
+     "title": "Evidence by causal step",
+     "app_h": 581,
+     "mock_h": 332,
+     "ratio": 1.75,
+     "app_rows": 9,
+     "mock_rows": 5,
+     "app_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ],
+     "mock_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ]
+    }
+   ],
+   "max_ratio": 1.75,
+   "over_1_3": [
+    "Evidence by causal step"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-04",
+    "B6-11",
+    "B6-15",
+    "B6-16",
+    "B6-17"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "coldbackup",
+   "case": "normal",
+   "width": 390,
+   "representative": false,
+   "phase": "normal",
+   "producer": "seed.py cold normal (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "mock": "#/coldbackup",
+   "app_image": "normal/coldbackup-normal-390-app.png",
+   "mock_image": "normal/coldbackup-normal-390-mock.png",
+   "titles_app": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titles_mock": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "app_h": 179,
+     "mock_h": 239,
+     "ratio": 0.75,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Reconstructed event chain",
+     "app_h": 468,
+     "mock_h": 469,
+     "ratio": 1.0,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Backup event chains",
+     "app_h": 199,
+     "mock_h": 265,
+     "ratio": 0.75,
+     "app_rows": 1,
+     "mock_rows": 1,
+     "app_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to compressor",
+      "Compressor response",
+      "Outcome for service",
+      "Result"
+     ],
+     "mock_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to load",
+      "Load response",
+      "Outcome for service",
+      "Result"
+     ]
+    },
+    {
+     "title": "Evidence by causal step",
+     "app_h": 915,
+     "mock_h": 526,
+     "ratio": 1.74,
+     "app_rows": 9,
+     "mock_rows": 5,
+     "app_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ],
+     "mock_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ]
+    }
+   ],
+   "max_ratio": 1.74,
+   "over_1_3": [
+    "Evidence by causal step"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 791,
+     "cw": 318,
+     "panel": "Backup event chains"
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 447,
+     "cw": 318,
+     "panel": "Evidence by causal step"
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-04",
+    "B6-11",
+    "B6-15",
+    "B6-16",
+    "B6-17"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-foundation",
+   "case": "normal-replay",
+   "width": 1440,
+   "representative": false,
+   "phase": "normal",
+   "producer": "seed.py cold normal (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation",
+   "mock": "#/cold-foundation",
+   "app_image": "normal/cold-foundation-normal-replay-1440-app.png",
+   "mock_image": "normal/cold-foundation-normal-replay-1440-mock.png",
+   "titles_app": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "titles_mock": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Physical site",
+     "app_h": 439,
+     "mock_h": 349,
+     "ratio": 1.26,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operating interpretation",
+     "app_h": 439,
+     "mock_h": 349,
+     "ratio": 1.26,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.26,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-01",
+    "B6-02",
+    "B6-03",
+    "B6-04"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-foundation",
+   "case": "normal-replay",
+   "width": 390,
+   "representative": false,
+   "phase": "normal",
+   "producer": "seed.py cold normal (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/foundation",
+   "mock": "#/cold-foundation",
+   "app_image": "normal/cold-foundation-normal-replay-390-app.png",
+   "mock_image": "normal/cold-foundation-normal-replay-390-mock.png",
+   "titles_app": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "titles_mock": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Physical site",
+     "app_h": 472,
+     "mock_h": 379,
+     "ratio": 1.25,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operating interpretation",
+     "app_h": 399,
+     "mock_h": 232,
+     "ratio": 1.72,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.72,
+   "over_1_3": [
+    "Operating interpretation"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-01",
+    "B6-02",
+    "B6-03",
+    "B6-04"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "temperature",
+   "case": "backup-failed",
+   "width": 1440,
+   "representative": false,
+   "phase": "backup-failed",
+   "producer": "seed.py cold backup-failed (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "mock": "#/temperature",
+   "app_image": "backup-failed/temperature-backup-failed-1440-app.png",
+   "mock_image": "backup-failed/temperature-backup-failed-1440-mock.png",
+   "titles_app": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titles_mock": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "app_h": 463,
+     "mock_h": 442,
+     "ratio": 1.05,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Excursion context",
+     "app_h": 463,
+     "mock_h": 442,
+     "ratio": 1.05,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Claim boundary",
+     "app_h": 142,
+     "mock_h": 120,
+     "ratio": 1.18,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.18,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-04",
+    "B6-10",
+    "B6-11",
+    "B6-12"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "temperature",
+   "case": "backup-failed",
+   "width": 390,
+   "representative": false,
+   "phase": "backup-failed",
+   "producer": "seed.py cold backup-failed (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "mock": "#/temperature",
+   "app_image": "backup-failed/temperature-backup-failed-390-app.png",
+   "mock_image": "backup-failed/temperature-backup-failed-390-mock.png",
+   "titles_app": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titles_mock": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "app_h": 398,
+     "mock_h": 408,
+     "ratio": 0.98,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Excursion context",
+     "app_h": 480,
+     "mock_h": 415,
+     "ratio": 1.16,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Claim boundary",
+     "app_h": 211,
+     "mock_h": 163,
+     "ratio": 1.29,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.29,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-04",
+    "B6-10",
+    "B6-11",
+    "B6-12"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "coldbackup",
+   "case": "backup-failed",
+   "width": 1440,
+   "representative": false,
+   "phase": "backup-failed",
+   "producer": "seed.py cold backup-failed (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "mock": "#/coldbackup",
+   "app_image": "backup-failed/coldbackup-backup-failed-1440-app.png",
+   "mock_image": "backup-failed/coldbackup-backup-failed-1440-mock.png",
+   "titles_app": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titles_mock": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "app_h": 148,
+     "mock_h": 153,
+     "ratio": 0.97,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Reconstructed event chain",
+     "app_h": 170,
+     "mock_h": 208,
+     "ratio": 0.82,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Backup event chains",
+     "app_h": 188,
+     "mock_h": 194,
+     "ratio": 0.97,
+     "app_rows": 1,
+     "mock_rows": 1,
+     "app_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to compressor",
+      "Compressor response",
+      "Outcome for service",
+      "Result"
+     ],
+     "mock_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to load",
+      "Load response",
+      "Outcome for service",
+      "Result"
+     ]
+    },
+    {
+     "title": "Evidence by causal step",
+     "app_h": 554,
+     "mock_h": 332,
+     "ratio": 1.67,
+     "app_rows": 9,
+     "mock_rows": 5,
+     "app_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ],
+     "mock_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ]
+    }
+   ],
+   "max_ratio": 1.67,
+   "over_1_3": [
+    "Evidence by causal step"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-04",
+    "B6-11",
+    "B6-15",
+    "B6-16"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "coldbackup",
+   "case": "backup-failed",
+   "width": 390,
+   "representative": false,
+   "phase": "backup-failed",
+   "producer": "seed.py cold backup-failed (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "mock": "#/coldbackup",
+   "app_image": "backup-failed/coldbackup-backup-failed-390-app.png",
+   "mock_image": "backup-failed/coldbackup-backup-failed-390-mock.png",
+   "titles_app": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titles_mock": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "app_h": 202,
+     "mock_h": 239,
+     "ratio": 0.85,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Reconstructed event chain",
+     "app_h": 452,
+     "mock_h": 469,
+     "ratio": 0.96,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Backup event chains",
+     "app_h": 199,
+     "mock_h": 265,
+     "ratio": 0.75,
+     "app_rows": 1,
+     "mock_rows": 1,
+     "app_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to compressor",
+      "Compressor response",
+      "Outcome for service",
+      "Result"
+     ],
+     "mock_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to load",
+      "Load response",
+      "Outcome for service",
+      "Result"
+     ]
+    },
+    {
+     "title": "Evidence by causal step",
+     "app_h": 853,
+     "mock_h": 526,
+     "ratio": 1.62,
+     "app_rows": 9,
+     "mock_rows": 5,
+     "app_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ],
+     "mock_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ]
+    }
+   ],
+   "max_ratio": 1.62,
+   "over_1_3": [
+    "Evidence by causal step"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 810,
+     "cw": 318,
+     "panel": "Backup event chains"
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 447,
+     "cw": 318,
+     "panel": "Evidence by causal step"
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-04",
+    "B6-11",
+    "B6-15",
+    "B6-16"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "coldbackup",
+   "case": "default-window",
+   "width": 1440,
+   "representative": false,
+   "phase": "backup-failed",
+   "producer": "seed.py cold backup-failed (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/backup",
+   "mock": "#/coldbackup",
+   "app_image": "backup-failed/coldbackup-default-window-1440-app.png",
+   "mock_image": "backup-failed/coldbackup-default-window-1440-mock.png",
+   "titles_app": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titles_mock": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "app_h": 148,
+     "mock_h": 153,
+     "ratio": 0.97,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Reconstructed event chain",
+     "app_h": 170,
+     "mock_h": 208,
+     "ratio": 0.82,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Backup event chains",
+     "app_h": 188,
+     "mock_h": 194,
+     "ratio": 0.97,
+     "app_rows": 1,
+     "mock_rows": 1,
+     "app_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to compressor",
+      "Compressor response",
+      "Outcome for service",
+      "Result"
+     ],
+     "mock_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to load",
+      "Load response",
+      "Outcome for service",
+      "Result"
+     ]
+    },
+    {
+     "title": "Evidence by causal step",
+     "app_h": 554,
+     "mock_h": 332,
+     "ratio": 1.67,
+     "app_rows": 9,
+     "mock_rows": 5,
+     "app_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ],
+     "mock_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ]
+    }
+   ],
+   "max_ratio": 1.67,
+   "over_1_3": [
+    "Evidence by causal step"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-04",
+    "B6-11",
+    "B6-15",
+    "B6-16"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "coldbackup",
+   "case": "default-window",
+   "width": 390,
+   "representative": false,
+   "phase": "backup-failed",
+   "producer": "seed.py cold backup-failed (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/performance/backup",
+   "mock": "#/coldbackup",
+   "app_image": "backup-failed/coldbackup-default-window-390-app.png",
+   "mock_image": "backup-failed/coldbackup-default-window-390-mock.png",
+   "titles_app": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titles_mock": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "app_h": 202,
+     "mock_h": 239,
+     "ratio": 0.85,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Reconstructed event chain",
+     "app_h": 452,
+     "mock_h": 469,
+     "ratio": 0.96,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Backup event chains",
+     "app_h": 199,
+     "mock_h": 265,
+     "ratio": 0.75,
+     "app_rows": 1,
+     "mock_rows": 1,
+     "app_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to compressor",
+      "Compressor response",
+      "Outcome for service",
+      "Result"
+     ],
+     "mock_cols": [
+      "When",
+      "Grid",
+      "Start requested",
+      "Generator",
+      "Power to load",
+      "Load response",
+      "Outcome for service",
+      "Result"
+     ]
+    },
+    {
+     "title": "Evidence by causal step",
+     "app_h": 853,
+     "mock_h": 526,
+     "ratio": 1.62,
+     "app_rows": 9,
+     "mock_rows": 5,
+     "app_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ],
+     "mock_cols": [
+      "Step",
+      "Accepted observation",
+      "What it establishes",
+      "Limit"
+     ]
+    }
+   ],
+   "max_ratio": 1.62,
+   "over_1_3": [
+    "Evidence by causal step"
+   ],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 810,
+     "cw": 318,
+     "panel": "Backup event chains"
+    },
+    {
+     "cls": "data-table__scroll",
+     "sw": 447,
+     "cw": 318,
+     "panel": "Evidence by causal step"
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     "11px",
+     "11px"
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-04",
+    "B6-11",
+    "B6-15",
+    "B6-16"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-finding",
+   "case": "start-backup-failed",
+   "width": 1440,
+   "representative": false,
+   "phase": "backup-failed",
+   "producer": "seed.py cold backup-failed (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c",
+   "mock": "#/cold-finding",
+   "app_image": "backup-failed/cold-finding-start-backup-failed-1440-app.png",
+   "mock_image": "backup-failed/cold-finding-start-backup-failed-1440-mock.png",
+   "titles_app": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "titles_mock": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Bounded conclusion",
+     "app_h": 217,
+     "mock_h": 209,
+     "ratio": 1.04,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operational context",
+     "app_h": 261,
+     "mock_h": 253,
+     "ratio": 1.03,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Recommended next step",
+     "app_h": 131,
+     "mock_h": 253,
+     "ratio": 0.52,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.04,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-18",
+    "B6-19",
+    "B6-20",
+    "B6-21"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-finding",
+   "case": "start-backup-failed",
+   "width": 390,
+   "representative": false,
+   "phase": "backup-failed",
+   "producer": "seed.py cold backup-failed (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c",
+   "mock": "#/cold-finding",
+   "app_image": "backup-failed/cold-finding-start-backup-failed-390-app.png",
+   "mock_image": "backup-failed/cold-finding-start-backup-failed-390-mock.png",
+   "titles_app": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "titles_mock": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Bounded conclusion",
+     "app_h": 294,
+     "mock_h": 287,
+     "ratio": 1.02,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operational context",
+     "app_h": 527,
+     "mock_h": 469,
+     "ratio": 1.12,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Recommended next step",
+     "app_h": 148,
+     "mock_h": 193,
+     "ratio": 0.77,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 1.12,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 92,
+   "fonts": {
+    "prose_app": [
+     "14px"
+    ],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-18",
+    "B6-19",
+    "B6-20",
+    "B6-21"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-finding",
+   "case": "start-refused-window",
+   "width": 1440,
+   "representative": false,
+   "phase": "backup-failed",
+   "producer": "seed.py cold backup-failed (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "mock": "#/cold-finding",
+   "app_image": "backup-failed/cold-finding-start-refused-window-1440-app.png",
+   "mock_image": "backup-failed/cold-finding-start-refused-window-1440-mock.png",
+   "titles_app": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "titles_mock": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Bounded conclusion",
+     "app_h": 96,
+     "mock_h": 209,
+     "ratio": 0.46,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operational context",
+     "app_h": 96,
+     "mock_h": 253,
+     "ratio": 0.38,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Recommended next step",
+     "app_h": 96,
+     "mock_h": 253,
+     "ratio": 0.38,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 0.46,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [],
+   "dark_band_390": null,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B6-03",
+    "B6-18",
+    "B6-19",
+    "B6-20",
+    "B6-22"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  },
+  {
+   "screen": "cold-finding",
+   "case": "start-refused-window",
+   "width": 390,
+   "representative": false,
+   "phase": "backup-failed",
+   "producer": "seed.py cold backup-failed (same producer, reseeded in place)",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "mock": "#/cold-finding",
+   "app_image": "backup-failed/cold-finding-start-refused-window-390-app.png",
+   "mock_image": "backup-failed/cold-finding-start-refused-window-390-mock.png",
+   "titles_app": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "titles_mock": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "order_match": true,
+   "panels": [
+    {
+     "title": "Bounded conclusion",
+     "app_h": 96,
+     "mock_h": 287,
+     "ratio": 0.33,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Operational context",
+     "app_h": 96,
+     "mock_h": 469,
+     "ratio": 0.2,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    },
+    {
+     "title": "Recommended next step",
+     "app_h": 96,
+     "mock_h": 193,
+     "ratio": 0.5,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_cols": [],
+     "mock_cols": []
+    }
+   ],
+   "max_ratio": 0.5,
+   "over_1_3": [],
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": [
+    {
+     "cls": "site-tabs__list",
+     "sw": 521,
+     "cw": 358,
+     "panel": ""
+    }
+   ],
+   "dark_band_390": 93,
+   "fonts": {
+    "prose_app": [],
+    "prose_mock": [
+     "12px"
+    ],
+    "h2": [
+     "15px",
+     "15px"
+    ],
+    "td": [
+     null,
+     null
+    ]
+   },
+   "console_errors": [],
+   "differences": [
+    "B1-01",
+    "B1-04",
+    "B1-03",
+    "B6-03",
+    "B6-18",
+    "B6-19",
+    "B6-20",
+    "B6-22"
+   ],
+   "verdict": "differences recorded; dispositions proposed"
+  }
+ ],
+ "differences": [
+  {
+   "id": "B6-01",
+   "screens": [
+    "cold-foundation",
+    "cold-readiness",
+    "cold-sld"
+   ],
+   "observed": "Status strip carries extra W1 state-line items: 'Configuration only'/'Set up to report'/'Configured site' chip, 'Effective ... UTC to no end date', 'This is the configuration in effect now', version select 'In effect now', a cross-link and 'How this was worked out'; mock has 'Configuration v1 · Effective 6 Oct 2026' (readiness: 'Needs review · Configuration readiness is distinct...'). Panels close with a note line and a disclosure.",
+   "evidence": "excursion/cold-foundation-stocked-1440-{app,mock}.png",
+   "proposed": "Cite B1-05 (candidate D2 W1 state-line pattern); UTC part B2-21/B3-04.",
+   "pairs": [
+    "cold-foundation/stocked/1440",
+    "cold-foundation/stocked/390",
+    "cold-foundation/no-version/1440",
+    "cold-foundation/no-version/390",
+    "cold-readiness/stocked/1440",
+    "cold-readiness/stocked/390",
+    "cold-readiness/no-version/1440",
+    "cold-readiness/no-version/390",
+    "cold-sld/stocked/1440",
+    "cold-sld/stocked/390",
+    "cold-sld/no-version/1440",
+    "cold-sld/no-version/390",
+    "cold-foundation/normal-replay/1440",
+    "cold-foundation/normal-replay/390"
+   ]
+  },
+  {
+   "id": "B6-02",
+   "screens": [
+    "cold-foundation"
+   ],
+   "observed": "Physical site 8 rows vs 6 (Site ID, Cold rooms, Power supply, Cooling equipment, Chamber temperature probe, Other sensors, Declared connections, Night outage rule) vs mock (Site ID, Primary operation, Power sources, Night outage rule, Cooling asset, Policy). Operating interpretation 6 rows vs 4, with green 'Configured' chips where the mock has plain text (Missing / Incomplete / Mapped / Mapped); adds Temperature policy and Effective period. Ratio 1.26 at 1440; 1.25 / 1.72 at 390.",
+   "evidence": "excursion/cold-foundation-stocked-{1440,390}-{app,mock}.png",
+   "proposed": "(b) candidate D4 (rows from the selected Foundation version replace illustrative rows) with B1-05 notes; the 390 1.72x Operating interpretation needs a measured-cap ruling (extra rows + note + disclosure).",
+   "pairs": [
+    "cold-foundation/stocked/1440",
+    "cold-foundation/stocked/390",
+    "cold-foundation/normal-replay/1440",
+    "cold-foundation/normal-replay/390"
+   ]
+  },
+  {
+   "id": "B6-03",
+   "screens": [
+    "cold-foundation",
+    "cold-readiness",
+    "cold-sld",
+    "temperature",
+    "coldbackup",
+    "cold-finding"
+   ],
+   "observed": "h1/badge/subtitle are record-derived: 'Cold replay lab', 'Demonstration data · COLD-LAB-001' (purple, so B1-14 green tone does not recur), subtitles 'Cold room · stored configuration for the period shown', 'Cold room · single line diagram', 'Cold replay lab · cold-chain finding' vs mock 'Produce cold room · 2–4°C policy · hybrid...'. Temperature/backup subtitles match the mock.",
+   "evidence": "excursion/*-1440-{app,mock}.png",
+   "proposed": "(b) candidate D4 (record-derived identity replaces illustrative copy; cf. B4-06).",
+   "pairs": [
+    "cold-foundation/stocked/1440",
+    "cold-foundation/stocked/390",
+    "cold-foundation/no-version/1440",
+    "cold-foundation/no-version/390",
+    "cold-readiness/stocked/1440",
+    "cold-readiness/stocked/390",
+    "cold-readiness/no-version/1440",
+    "cold-readiness/no-version/390",
+    "cold-sld/stocked/1440",
+    "cold-sld/stocked/390",
+    "cold-sld/no-version/1440",
+    "cold-sld/no-version/390",
+    "temperature/excursion/1440",
+    "temperature/excursion/390",
+    "temperature/no-selection/1440",
+    "temperature/no-selection/390",
+    "temperature/refused/1440",
+    "temperature/refused/390",
+    "coldbackup/excursion/1440",
+    "coldbackup/excursion/390",
+    "coldbackup/no-selection/1440",
+    "coldbackup/no-selection/390",
+    "coldbackup/refused/1440",
+    "coldbackup/refused/390",
+    "cold-finding/start-excursion/1440",
+    "cold-finding/start-excursion/390",
+    "cold-finding/unknown-id/1440",
+    "cold-finding/unknown-id/390",
+    "cold-finding/excursion-finding/1440",
+    "cold-finding/excursion-finding/390",
+    "temperature/normal/1440",
+    "temperature/normal/390",
+    "coldbackup/normal/1440",
+    "coldbackup/normal/390",
+    "cold-foundation/normal-replay/1440",
+    "cold-foundation/normal-replay/390",
+    "temperature/backup-failed/1440",
+    "temperature/backup-failed/390",
+    "coldbackup/backup-failed/1440",
+    "coldbackup/backup-failed/390",
+    "coldbackup/default-window/1440",
+    "coldbackup/default-window/390",
+    "cold-finding/start-backup-failed/1440",
+    "cold-finding/start-backup-failed/390",
+    "cold-finding/start-refused-window/1440",
+    "cold-finding/start-refused-window/390"
+   ]
+  },
+  {
+   "id": "B6-04",
+   "screens": [
+    "cold-foundation",
+    "cold-readiness",
+    "cold-sld",
+    "temperature",
+    "coldbackup"
+   ],
+   "observed": "Closing note: Foundation, Readiness and SLD render it as an unboxed 14 px paragraph; mock has a bordered 11 px info callout with an icon. Temperature (amber) and Backup (blue) callouts are boxed but have no info icon.",
+   "evidence": "excursion/cold-readiness-stocked-1440-{app,mock}.png",
+   "proposed": "Cite B1-06 / B1-07 (shared callout/typography D3 candidate).",
+   "pairs": [
+    "cold-foundation/stocked/1440",
+    "cold-foundation/stocked/390",
+    "cold-foundation/no-version/1440",
+    "cold-foundation/no-version/390",
+    "cold-readiness/stocked/1440",
+    "cold-readiness/stocked/390",
+    "cold-readiness/no-version/1440",
+    "cold-readiness/no-version/390",
+    "cold-sld/stocked/1440",
+    "cold-sld/stocked/390",
+    "cold-sld/no-version/1440",
+    "cold-sld/no-version/390",
+    "temperature/excursion/1440",
+    "temperature/excursion/390",
+    "temperature/no-selection/1440",
+    "temperature/no-selection/390",
+    "temperature/refused/1440",
+    "temperature/refused/390",
+    "coldbackup/excursion/1440",
+    "coldbackup/excursion/390",
+    "coldbackup/no-selection/1440",
+    "coldbackup/no-selection/390",
+    "coldbackup/refused/1440",
+    "coldbackup/refused/390",
+    "temperature/normal/1440",
+    "temperature/normal/390",
+    "coldbackup/normal/1440",
+    "coldbackup/normal/390",
+    "cold-foundation/normal-replay/1440",
+    "cold-foundation/normal-replay/390",
+    "temperature/backup-failed/1440",
+    "temperature/backup-failed/390",
+    "coldbackup/backup-failed/1440",
+    "coldbackup/backup-failed/390",
+    "coldbackup/default-window/1440",
+    "coldbackup/default-window/390"
+   ]
+  },
+  {
+   "id": "B6-05",
+   "screens": [
+    "cold-readiness"
+   ],
+   "observed": "Readiness table 9 rows vs 4; Declared cells are a chip plus caption; every row is 'Unconfirmed' with the identical 'Commissioning record' (W2 M2 stays closed: no blank 'What is needed'); 8 of 9 Next step links are 'Single line diagram →'; note line + disclosure. Ratio 2.15 at 1440, 1.59 at 390 (inner table scroll 536/318, readable).",
+   "evidence": "excursion/cold-readiness-stocked-{1440,390}-{app,mock}.png",
+   "proposed": "Rows: (b) candidate D4 (areas of the selected version). The >1.3x needs a reviewed ruling (measured reason: 9 configured areas, chip+caption cells, note, disclosure). Cite B1-31 pattern.",
+   "pairs": [
+    "cold-readiness/stocked/1440",
+    "cold-readiness/stocked/390"
+   ]
+  },
+  {
+   "id": "B6-06",
+   "screens": [
+    "cold-readiness"
+   ],
+   "observed": "Gateway panel: title 'Gateway status · edge-cold-lab-001' (raw gateway id); tiles 'No contact received yet' / 'Not available' / 'Not available' / 'Unknown'; contact bar is a hatched 'No history to draw' placeholder with a 4-item legend; Connected sources lists 11 reading chips with no reporting state (mock 6 device chips with Reporting / Never reported); Effect panel has two generic items; header link 'Evidence › Data sources →' (mock 'Health › Data sources →').",
+   "evidence": "excursion/cold-readiness-stocked-1440-{app,mock}.png",
+   "proposed": "Title: cite B1-30 (approved dynamic) and B1-53 for the raw id. Tiles/bar/chips: cite B1-32, candidate D1 (no gateway diagnostic history on the selected read). Link target: (a) R22 (Foundation Data sources points to cold-evidence) verified.",
+   "pairs": [
+    "cold-readiness/stocked/1440",
+    "cold-readiness/stocked/390"
+   ]
+  },
+  {
+   "id": "B6-07",
+   "screens": [
+    "cold-readiness",
+    "cold-sld"
+   ],
+   "observed": "Breadcrumb adds the sub-tab leaf ('... / Foundation / Readiness', '... / Single line diagram'); the mock trail ends at Foundation.",
+   "evidence": "excursion/cold-sld-stocked-1440-{app,mock}.png",
+   "proposed": "(b) candidate D2 (minor), same as the W1 Foundation pages; Architect to rule once for W1+W2.",
+   "pairs": [
+    "cold-readiness/stocked/1440",
+    "cold-readiness/stocked/390",
+    "cold-readiness/no-version/1440",
+    "cold-readiness/no-version/390",
+    "cold-sld/stocked/1440",
+    "cold-sld/stocked/390",
+    "cold-sld/no-version/1440",
+    "cold-sld/no-version/390"
+   ]
+  },
+  {
+   "id": "B6-08",
+   "screens": [
+    "cold-sld"
+   ],
+   "observed": "Diagram is the replay site's 8 configured parts: no solar/battery/DC bus, no circuit breakers, feeders or kWh meter; every reporting dot is 'not assessed'; Monitoring row shows 11 reading names instead of 6 devices; title 'Cold replay lab' with no topology suffix and 'Topology type not stated in this version'; legend Power/Cooling/Sensing; 'Undeclared in this version: solar array, battery'.",
+   "evidence": "excursion/cold-sld-stocked-1440-{app,mock}.png",
+   "proposed": "Cite B1-40 / B1-41; candidate D4 (configured topology replaces illustrative hybrid) plus D1 (reporting status not assessed).",
+   "pairs": [
+    "cold-sld/stocked/1440",
+    "cold-sld/stocked/390"
+   ]
+  },
+  {
+   "id": "B6-09",
+   "screens": [
+    "cold-sld"
+   ],
+   "observed": "'What each part does' has 8 per-part rows whose Role is a type word (Cold room, Sensor, Cooling, Switch...) vs mock 5 grouped rows with descriptive roles; footnote 'Function description not recorded' + disclosure. Ratio 1.55 at 1440.",
+   "evidence": "excursion/cold-sld-stocked-1440-{app,mock}.png",
+   "proposed": "Cite B1-42; candidate D1 (no function description on the record). >1.3x measured reason: 8 configured parts.",
+   "pairs": [
+    "cold-sld/stocked/1440",
+    "cold-sld/stocked/390"
+   ]
+  },
+  {
+   "id": "B6-10",
+   "screens": [
+    "temperature"
+   ],
+   "observed": "Strip: 'Outside policy' vs 'Needs attention'; the mock's 'Inspect temperature claim ↗' link is absent; the app adds '6 Oct 2026 19:00–20:05 UTC · Up to date for this window' and omits 'in policy 42–58% of the hour'.",
+   "evidence": "excursion/temperature-excursion-1440-{app,mock}.png",
+   "proposed": "Chip wording: candidate D2. Missing claim link: (c) D3 candidate (cold-evidence is built, so the link is renderable). UTC: B2-21/B3-04.",
+   "pairs": [
+    "temperature/excursion/1440",
+    "temperature/excursion/390",
+    "temperature/no-selection/1440",
+    "temperature/no-selection/390",
+    "temperature/refused/1440",
+    "temperature/refused/390",
+    "temperature/normal/1440",
+    "temperature/normal/390",
+    "temperature/backup-failed/1440",
+    "temperature/backup-failed/390"
+   ]
+  },
+  {
+   "id": "B6-11",
+   "screens": [
+    "temperature",
+    "coldbackup"
+   ],
+   "observed": "KPI typography: values render as one string at one size ('At least 45 min', '4.8 °C', '19–23 °C·min'), while the mock sets a large number with a small unit. Text values ('Not determined', 'Start failed', 'Not recorded', 'Not assessed') render at about 17 px against mock 'Unknown' / 'Failed' at about 27 px. 'Not determined' vs mock 'Unknown'.",
+   "evidence": "excursion/temperature-excursion-1440-{app,mock}.png; excursion/coldbackup-excursion-1440-{app,mock}.png",
+   "proposed": "(c) D3 candidate (minor shared KPI typography). Wording: candidate D2.",
+   "pairs": [
+    "temperature/excursion/1440",
+    "temperature/excursion/390",
+    "temperature/no-selection/1440",
+    "temperature/no-selection/390",
+    "temperature/refused/1440",
+    "temperature/refused/390",
+    "coldbackup/excursion/1440",
+    "coldbackup/excursion/390",
+    "coldbackup/no-selection/1440",
+    "coldbackup/no-selection/390",
+    "coldbackup/refused/1440",
+    "coldbackup/refused/390",
+    "temperature/normal/1440",
+    "temperature/normal/390",
+    "coldbackup/normal/1440",
+    "coldbackup/normal/390",
+    "temperature/backup-failed/1440",
+    "temperature/backup-failed/390",
+    "coldbackup/backup-failed/1440",
+    "coldbackup/backup-failed/390",
+    "coldbackup/default-window/1440",
+    "coldbackup/default-window/390"
+   ]
+  },
+  {
+   "id": "B6-12",
+   "screens": [
+    "temperature"
+   ],
+   "observed": "Chart legend 'Policy band' vs 'Upper policy limit'; axis labels carry 'UTC'; timeline 4 events vs 3; Excursion context adds a disclosure, the Power outage row has no 'Observed' chip, and 'Open the Finding →' stands where the mock has 'Open Incident INC-203 →'. Claim boundary adds a disclosure; its sentence is 14 px.",
+   "evidence": "excursion/temperature-excursion-1440-{app,mock}.png",
+   "proposed": "Legend/timeline: candidate D4. Incident link: candidate D1 (this producer links no Incident). Disclosures: B1-05. 14 px: B1-07. UTC: B2-21/B3-04.",
+   "pairs": [
+    "temperature/excursion/1440",
+    "temperature/excursion/390",
+    "temperature/normal/1440",
+    "temperature/normal/390",
+    "temperature/backup-failed/1440",
+    "temperature/backup-failed/390"
+   ]
+  },
+  {
+   "id": "B6-13",
+   "screens": [
+    "temperature",
+    "coldbackup"
+   ],
+   "observed": "Refused window (from > to): strip and KPI tile row are dropped; a 'Window cannot be read' banner plus one italic gap line per panel remain. The mock always keeps strip + 4 tiles. W2-F applied the M3 'keep strip and Not assessed tiles' treatment only to Overview/Evidence/Financials. The amber 'Durations are bounded...' callout still shows. The refusal copy 'not a valid UTC window of at most 31 days' is the same for an inverted window as for an over-long one.",
+   "evidence": "excursion/temperature-refused-1440-app.png; excursion/coldbackup-refused-1440-app.png",
+   "proposed": "(c) D3 candidate: extend the W2-F M3 refused treatment (strip + 'Not assessed' tiles) to Temperature and Backup, or an Architect ruling that keeps the banner-only form. Generic copy: analogue of the domainActionClient window-error item.",
+   "pairs": [
+    "temperature/refused/1440",
+    "temperature/refused/390",
+    "coldbackup/refused/1440",
+    "coldbackup/refused/390"
+   ]
+  },
+  {
+   "id": "B6-14",
+   "screens": [
+    "temperature"
+   ],
+   "observed": "No-selection window (5 Oct): strip says 'Policy not recorded' and Excursion context 'Upper policy limit: Not recorded', while the Foundation version in effect declares 'Temperature policy 2–4 °C'. Chart panel stays full height (379 px) with one gap line.",
+   "evidence": "excursion/temperature-no-selection-1440-app.png; excursion/cold-foundation-stocked-1440-app.png",
+   "proposed": "Architect check: the policy is read from the selected assessment, so 'not recorded' may be literal; otherwise (c) D3 candidate copy ('not read for this window').",
+   "pairs": [
+    "temperature/no-selection/1440",
+    "temperature/no-selection/390"
+   ]
+  },
+  {
+   "id": "B6-15",
+   "screens": [
+    "coldbackup"
+   ],
+   "observed": "Strip: 'Start failed' / 'Started' + 'Evidence: Observed' vs mock 'Degraded' + 'Confidence: High'; no confidence chip; the mock's 'Open INC-203 →' is absent.",
+   "evidence": "excursion/coldbackup-excursion-1440-{app,mock}.png; normal/coldbackup-normal-1440-app.png",
+   "proposed": "Chip wording: candidate D2. Confidence absent: (c) D3 candidate (W2-F M9/M13 added confidence to the Overview and Finding strips; Backup still lacks it) unless the Architect rules 'Evidence: Observed' the equivalent. Incident link: candidate D1.",
+   "pairs": [
+    "coldbackup/excursion/1440",
+    "coldbackup/excursion/390",
+    "coldbackup/no-selection/1440",
+    "coldbackup/no-selection/390",
+    "coldbackup/refused/1440",
+    "coldbackup/refused/390",
+    "coldbackup/normal/1440",
+    "coldbackup/normal/390",
+    "coldbackup/backup-failed/1440",
+    "coldbackup/backup-failed/390",
+    "coldbackup/default-window/1440",
+    "coldbackup/default-window/390"
+   ]
+  },
+  {
+   "id": "B6-16",
+   "screens": [
+    "coldbackup"
+   ],
+   "observed": "Backup event chains columns 'Power to compressor' / 'Compressor response' vs mock 'Power to load' / 'Load response'; Result chip 'Start failed' vs 'Fail'. Evidence by causal step 9 rows vs 5, each with a 'record' link, plus a 'Records not used' line and a disclosure: 1.67 at 1440, 1.62 at 390 (inner scrollers 810/318 and 447/318, as the mock 689/320, 447/320).",
+   "evidence": "excursion/coldbackup-excursion-{1440,390}-{app,mock}.png",
+   "proposed": "Columns: (a) R20 D2 built, verified, but R20's screen list names temperature and cold-finding, not coldbackup: register correction. Rows: candidate D4; >1.3x measured reason: nine selected causal steps + links + disclosure.",
+   "pairs": [
+    "coldbackup/excursion/1440",
+    "coldbackup/excursion/390",
+    "coldbackup/normal/1440",
+    "coldbackup/normal/390",
+    "coldbackup/backup-failed/1440",
+    "coldbackup/backup-failed/390",
+    "coldbackup/default-window/1440",
+    "coldbackup/default-window/390"
+   ]
+  },
+  {
+   "id": "B6-17",
+   "screens": [
+    "coldbackup"
+   ],
+   "observed": "Normal (successful start) case keeps failure copy: 'Which part failed, if any, is not determined here.' and the Start result row Limit 'A failed start needs inspection' beside 'Succeeded at 19:07'.",
+   "evidence": "normal/coldbackup-normal-1440-app.png",
+   "proposed": "(c) D3 candidate (minor copy: state-specific limit text).",
+   "pairs": [
+    "coldbackup/normal/1440",
+    "coldbackup/normal/390"
+   ]
+  },
+  {
+   "id": "B6-18",
+   "screens": [
+    "cold-finding"
+   ],
+   "observed": "Finding chrome: rail selects Sites (mock Findings); breadcrumb is Site-rooted 'Sites / Cold replay lab / Findings / Finding' with a generic leaf and no code (mock 'Findings › F-118 › Overview · site: ...'); an extra Site tab row sits above the Finding sub-tabs (at 390 it scrolls 521/358 with a cut-off 'W'); the mock 'Open site' button is absent.",
+   "evidence": "excursion/cold-finding-start-excursion-{1440,390}-{app,mock}.png",
+   "proposed": "Cite B4-01 (rail), B4-03 (breadcrumb origin, Finding variant), B4-04 (extra Site tab row), B4-05 (Open site); code: (a) R65 D1 planned, verified.",
+   "pairs": [
+    "cold-finding/start-excursion/1440",
+    "cold-finding/start-excursion/390",
+    "cold-finding/unknown-id/1440",
+    "cold-finding/unknown-id/390",
+    "cold-finding/excursion-finding/1440",
+    "cold-finding/excursion-finding/390",
+    "cold-finding/start-backup-failed/1440",
+    "cold-finding/start-backup-failed/390",
+    "cold-finding/start-refused-window/1440",
+    "cold-finding/start-refused-window/390"
+   ]
+  },
+  {
+   "id": "B6-19",
+   "screens": [
+    "cold-finding"
+   ],
+   "observed": "Sub-tab 'Recommendation · Not available yet' (mock live); Recommended next step is an italic gap 'No recorded next step. No Action or Recommendation record is linked to this Finding.' + 'Open the Backup view →' where the mock has a sentence and a 'Review recommendation' button (0.52x).",
+   "evidence": "excursion/cold-finding-start-excursion-1440-{app,mock}.png",
+   "proposed": "Register R40 lists cold-finding Recommendation as D5 'built' (destination built in W5), but cold Recommendation is still unbuilt (spec lists cold-recommendation as unimplemented): Architect to correct R40 for cold-finding to D1, or name the resolving unit.",
+   "pairs": [
+    "cold-finding/start-excursion/1440",
+    "cold-finding/start-excursion/390",
+    "cold-finding/unknown-id/1440",
+    "cold-finding/unknown-id/390",
+    "cold-finding/excursion-finding/1440",
+    "cold-finding/excursion-finding/390",
+    "cold-finding/start-backup-failed/1440",
+    "cold-finding/start-backup-failed/390",
+    "cold-finding/start-refused-window/1440",
+    "cold-finding/start-refused-window/390"
+   ]
+  },
+  {
+   "id": "B6-20",
+   "screens": [
+    "cold-finding"
+   ],
+   "observed": "Strip 'Open · Cold replay lab · Confidence: Observed · 6 Oct 2026 19:00–20:05 UTC · Up to date ... · Selected source: Generated test data' (W2 M13 stays closed: confidence present); no Finding code chip. Refused / unknown states read 'Unknown  Confidence: Unknown Cold replay lab' with no separator before the site name.",
+   "evidence": "excursion/cold-finding-unknown-id-390-app.png; backup-failed/cold-finding-start-refused-window-1440-app.png",
+   "proposed": "Code: R65 D1. Missing separator: (c) D3 candidate (minor copy defect). UTC: B2-21/B3-04.",
+   "pairs": [
+    "cold-finding/start-excursion/1440",
+    "cold-finding/start-excursion/390",
+    "cold-finding/unknown-id/1440",
+    "cold-finding/unknown-id/390",
+    "cold-finding/excursion-finding/1440",
+    "cold-finding/excursion-finding/390",
+    "cold-finding/start-backup-failed/1440",
+    "cold-finding/start-backup-failed/390",
+    "cold-finding/start-refused-window/1440",
+    "cold-finding/start-refused-window/390"
+   ]
+  },
+  {
+   "id": "B6-21",
+   "screens": [
+    "cold-finding"
+   ],
+   "observed": "Bounded conclusion lead 'A commanded automatic generator start failed.' (mock adds recovery and peak), adds the bullet 'Not observed: transfer to backup.' and 'Inspect the backup chain →' (mock 'Inspect claim evidence ↗'). Operational context adds an 'Accepted record' link per step, a 'Missing steps' line and a disclosure. The secondary sentence is 14 px.",
+   "evidence": "excursion/cold-finding-start-excursion-1440-{app,mock}.png",
+   "proposed": "Candidate D4 (selected chain, recovery not recorded) + B1-05 disclosure; 14 px: B1-07.",
+   "pairs": [
+    "cold-finding/start-excursion/1440",
+    "cold-finding/start-excursion/390",
+    "cold-finding/excursion-finding/1440",
+    "cold-finding/excursion-finding/390",
+    "cold-finding/start-backup-failed/1440",
+    "cold-finding/start-backup-failed/390"
+   ]
+  },
+  {
+   "id": "B6-22",
+   "screens": [
+    "cold-finding"
+   ],
+   "observed": "Unknown ID and refused window: generic h1 'Finding', 'Not found' / 'Window cannot be read' banner, three panels with one gap line each, 'No recorded next step.' No mock state.",
+   "evidence": "excursion/cold-finding-unknown-id-1440-app.png; backup-failed/cold-finding-start-refused-window-1440-app.png",
+   "proposed": "Architect to confirm the shared error-state pattern (cf. B4-24); honest refusal, no Rxx.",
+   "pairs": [
+    "cold-finding/unknown-id/1440",
+    "cold-finding/unknown-id/390",
+    "cold-finding/start-refused-window/1440",
+    "cold-finding/start-refused-window/390"
+   ]
+  },
+  {
+   "id": "B6-23",
+   "screens": [
+    "cold-finding"
+   ],
+   "observed": "Inventory: 'cold-finding-excursion' is mounted on the same Finding route and produced by the W2-03 replay (Finding ...170), yet the spec lists it among IDs with no W1-W6 implementation. Captured here as an extra cold-finding state against mock #/cold-finding-excursion: panel titles and order match (Bounded conclusion, Temperature, Recommended next step).",
+   "evidence": "excursion/cold-finding-excursion-finding-1440-{app,mock}.png",
+   "proposed": "Spec route-table correction: move cold-finding-excursion into the audit target (88 implemented + 22), then give it its own representative pairs.",
+   "pairs": [
+    "cold-finding/excursion-finding/1440",
+    "cold-finding/excursion-finding/390"
+   ]
+  },
+  {
+   "id": "B6-24",
+   "screens": [
+    "cold-foundation",
+    "cold-readiness",
+    "cold-sld"
+   ],
+   "observed": "No-version (?at=2026-09-01): h1 keeps the display name (B1-25 does not recur on cold); every panel is a single gap sentence (0.14-0.49x); at 390 the dark header band is 141-143 px.",
+   "evidence": "excursion/cold-foundation-no-version-390-app.png",
+   "proposed": "Gap state: candidate D1 (honest missing state). Header: cite B1-02.",
+   "pairs": [
+    "cold-foundation/no-version/1440",
+    "cold-foundation/no-version/390",
+    "cold-readiness/no-version/1440",
+    "cold-readiness/no-version/390",
+    "cold-sld/no-version/1440",
+    "cold-sld/no-version/390"
+   ]
+  }
+ ],
+ "cross_cutting": {
+  "B1-01": "all pairs",
+  "B1-03": "all 390 pairs",
+  "B1-04/B2-36": "all pairs",
+  "B1-02/B2-04": "cold-foundation no-version 390 (143 px), cold-sld no-version 390 (141 px); all other 390 pairs 92-102 px",
+  "B1-07/B2-03": "temperature Claim boundary (14 px), coldbackup 'What the chain shows' second sentence, cold-finding conclusion sentence, Foundation/Readiness/SLD closing lines",
+  "B1-53": "cold-readiness gateway id 'edge-cold-lab-001' in the panel title",
+  "B2-02": "not present (no Window control on any batch-06 screen; window only via URL, see B1-01)",
+  "B3-01": "not present",
+  "B2-21/B3-04": "Foundation effective dates, temperature/backup strips and chart axis, cold-finding strip",
+  "B4-03 / B4-04 / B4-01 / B4-05": "cold-finding only (B6-18). On Foundation and Performance the mock has the same Site tab row and it also scrolls at 390 (511/360), so B4-04 does not apply there",
+  "B4-19": "not observed: event/step labels are mapped plain language, no raw kind fall-through and no duplicate-key console error"
+ },
+ "w2f_closure": [
+  [
+   "M2 cold-readiness blank 'What is needed'",
+   "stays CLOSED: every Unconfirmed row reads 'Commissioning record'"
+  ],
+  [
+   "M4 temperature panel 3 title",
+   "stays CLOSED: 'Claim boundary' in excursion, no-selection, refused, normal and backup-failed"
+  ],
+  [
+   "M13 cold-finding strip confidence",
+   "stays CLOSED: 'Confidence: Observed' (start) / 'Confidence: Bounded' (excursion) / 'Confidence: Unknown' (refused)"
+  ],
+  [
+   "H1 counter-evidence on coldbackup",
+   "consistent: 'Cooling resumed: Not recorded · Compressor off at 19:05; no running record'"
+  ],
+  [
+   "M6 exposure size on temperature",
+   "stays CLOSED: '19–23 °C·min · Observed excursion estimate'"
+  ],
+  [
+   "W2 residual peak 4.9 vs 4.8",
+   "CLOSED at this SHA: peak 4.8 °C on temperature, coldbackup and the excursion Finding"
+  ],
+  [
+   "R37 Loading / batch row (cold-performance)",
+   "verified present in Excursion context, mock order"
+  ]
+ ],
+ "ui_pass_checks": {
+  "prose_14_vs_12": "Observed (B1-07): .prose 14 px vs mock 12 px on temperature, coldbackup, cold-finding; panel text 10-12 px.",
+  "tall_dark_header_390": "Observed only on no-version Foundation/SLD (141-143 px); refused cold Temperature/Backup/Finding pages stay 92-93 px because their panels keep the page height.",
+  "plural_1_incidents": "Not applicable (no count+noun case copy). 'One outage in the selected window' reads correctly.",
+  "raw_EV_CONNECTOR_label": "Not applicable (cold Site).",
+  "domainActionClient_generic_window_error": "Not applicable to the client (no Action inputs). Analogue observed: the read refusal copy is identical for inverted and over-long windows (B6-13).",
+  "R88_R112_window_control": "Not applicable: no page-local Window control on these screens; R88/R112 not involved."
+ },
+ "register_checks": {
+  "R20": "D2 built; Power-to-compressor / Compressor-response headings verified on coldbackup, but the row names temperature and cold-finding only (B6-16). Its 'Claim boundary' part is now the mock title (W2-F M4).",
+  "R22": "D3 (cold-health); not on these screens, but the readiness 'Evidence › Data sources' link follows it (B6-06).",
+  "R23": "cold-work-incidents; not on batch-06 screens",
+  "R24": "ev-work-incidents; not on batch-06 screens",
+  "R37": "built (W5-F1 42964500); Loading / batch row verified on temperature",
+  "R38": "cold-evidence-analysis; not on batch-06 screens",
+  "R60": "ev-health; not on batch-06 screens",
+  "R40": "D5 'built': Cooling destination now live on temperature/backup (verified); cold-finding Recommendation still 'Not available yet' (B6-19), so the cold-finding part is not expired",
+  "R65": "D1 planned; no public cold Finding code (verified on cold-finding)"
+ }
+}
