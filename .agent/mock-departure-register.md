@@ -176,3 +176,17 @@ Mock selectors are `SITE_WORK.ev`, `WORK_COLS`, `WORK_EMPTY`, `siteWorkScreen('e
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | R103 | W5-03b E4 | `ev-health` | Subtitle `2 × 60 kW connectors · 80 kW site limit · no stationary battery` | `Health · site-level asset-condition summary` | D4 | The mock equipment values describe its illustrative Site and the E4 Health DTO does not supply ratings or battery absence for every selected Foundation. | E4; inform owner | built: W5-03b E4 fix round (label in `EvHealthDepth.tsx`), review pending |
+
+## W5-04 readiness refresh (2026-10-24)
+
+R104–R110 carry the named cold departures to EV without changing the cold rows. Mock: `frontend/mockups/v69/index.html` `SITE_WORK.ev`/`siteWorkScreen` (334–343), `ev-action` (710–713).
+
+| ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R104 | W5-04 V2a/V3a/V4a | `ev-work`, `ev-work-incidents`, `ev-work-maintenance`, `ev-action` | No currentness notice in example | Selected notice between strip and panel, blue for Historical/Unknown and amber for Pending/Stale (cold R91) | D2 | Selected cutoff/source state must be visible with its severity. | V2a/V3a/V4a; owner walkthrough | planned |
+| R105 | W5-04 V3a | `ev-work-incidents`, `ev-work-maintenance` | Case panel has no basis disclosure | `What this list is based on` at panel foot (cold R92) | D2 | Selected W4 basis remains inspectable. | V3a; owner walkthrough | planned |
+| R106 | W5-04 V3a | `ev-work-incidents`, `ev-work-maintenance` | Example table has no pager | `Showing a–b of N` Pages block below table (cold R93) | D2 | Real selected case list may exceed one row. | V3a; owner walkthrough | planned |
+| R107 | W5-04 V3a/V3b | `ev-work-incidents`, `ev-work-maintenance` | Short example cell text | Two-line previews with `Read full text` in the same cells (cold R94) | D2 | Full 160-character values stay readable. | V3a/V3b; owner walkthrough | planned |
+| R108 | W5-04 V2a/V2b | `ev-work` | One Action example row | First four visible Action rows with `Show all {n} Actions` for remaining selected page rows | D2 | A five-row selected page needs a readable fold without losing rows. | V2a/V2b; owner walkthrough | planned |
+| R109 | W5-04 V4a/V4b | `ev-action` | Short one-line title/owner | Full selected 160-character title/owner wrap (cold R99) | D2 | Stored text can exceed the illustrative example. | V4a/V4b; owner walkthrough | planned |
+| R110 | W5-04 V4a | `ev-action` | Loaded headed panel | One untitled state panel for loading, 404 and refused reads (cold R101) | D2 | No criteria can be shown before a valid detail read. | V4a; owner walkthrough | planned |
