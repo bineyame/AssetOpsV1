@@ -102,7 +102,7 @@ const MEASURE = (isMock) => `(async () => {
   const ellipsized = Array.from(root.querySelectorAll("*")).filter((el) => getComputedStyle(el).textOverflow === "ellipsis" && el.scrollWidth > el.clientWidth).length;
   // Cells whose content overflows them horizontally (long IDs must break inside the cell).
   const overflowingCells = Array.from(root.querySelectorAll("td, th")).filter((c) => c.scrollWidth > c.clientWidth + 1).length;
-  // S-L1: `DataTable` renders `.data-table__scroll`; report each scroller's real widths. A Health table must not scroll.
+  // S-L1: DataTable renders .data-table__scroll; report each scroller's real widths. A Health table must not scroll.
   const tableScrolls = Array.from(root.querySelectorAll(".data-table__scroll")).map((s) => ({ scrollWidth: s.scrollWidth, clientWidth: s.clientWidth, overflows: s.scrollWidth > s.clientWidth + 1 }));
   // Ruling 25: browser-computed header backgrounds of every sticky table (first cell and the one after it).
   const headerBackgrounds = Array.from(root.querySelectorAll(".data-table__scroll--sticky thead tr")).map((tr) => Array.from(tr.children).slice(0, 2).map((c) => getComputedStyle(c).backgroundColor));
