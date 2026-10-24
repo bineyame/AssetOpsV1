@@ -44,6 +44,7 @@ import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 import { COLD_SITE, DOMAIN_ID, detailBody } from "./coldWorkFixtures";
+import { EV_SITE } from "./evWorkFixtures";
 
 type Case = { request: { method: string; path: string; body?: Record<string, unknown> }; status: number; body: any };
 const M = contract.manifest as unknown as Record<string, Record<string, Case>>;
@@ -1043,5 +1044,48 @@ describe("W1 and domain Action IDs on one cold Site", () => {
     mount(`/sites/KOBO-001/actions/${ACTION}`);
     await settledScreen();
     expect(s.requests.some((r) => r.url.includes("/domain-work/"))).toBe(false);
+  });
+});
+
+/* W5-04 V4a (readiness rulings 42, 43): an EV_CHARGING Site dispatches a domain Action ID to the domain read only. */
+describe("W1 and EV domain Action IDs on one EV Site", () => {
+  const evDetail: SiteDetailClient = {
+    getSite: async (siteId: string) => ({ status: "loaded", site: { ...EV_SITE, site_id: siteId } }),
+  } as SiteDetailClient;
+  const DOMAIN_API = `/api/sites/KOBO-001/domain-work/actions/${DOMAIN_ID}`;
+  const W1_ON_DOMAIN_API = `/api/sites/KOBO-001/domain-work/actions/${ACTION}`;
+  const notFound: Served = { status: 404, body: { detail: { code: "ACTION_NOT_FOUND", message: "Action was not found at this site.", intent: null, results: null } } };
+  const evLoaded: Served = { status: 200, body: detailBody({ site_code: "KOBO-001", action: { ...detailBody().action, domain: "EV_CHARGING" } }) };
+
+  function mountEv(path: string) {
+    return render(
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          {["/sites/:siteId/actions/:actionId", "/sites/:siteId/actions/:actionId/:actionView"].map((p) => (
+            <Route key={p} path={p} element={<><SiteActionFrame detail={evDetail} sitesPath="/sites" /><Where /></>} />
+          ))}
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  it.each(["", "/verification", "/plan"])("an EV domain ID at `%s` makes no W1 battery request", async (section) => {
+    const s = serve({ [DOMAIN_API]: evLoaded });
+    mountEv(`/sites/KOBO-001/actions/${DOMAIN_ID}${section}`);
+    await waitFor(() => expect(where()).toBe(`/sites/KOBO-001/actions/${DOMAIN_ID}/verification`));
+    await settledScreen();
+    expect(q('[data-domain-action-shell="loaded"]')).not.toBeNull();
+    expect(s.requests.length).toBeGreaterThan(0);
+    expect(s.requests.every((r) => r.url.split("?")[0] === DOMAIN_API)).toBe(true);
+    expect(s.requests.some((r) => r.url.startsWith(`/api/sites/KOBO-001/actions/`))).toBe(false);
+  });
+
+  it("a W1 ID at its bare address on an EV Site keeps the W1 battery detail (ruling 43 fallback)", async () => {
+    const s = serve({ ...actionReads(ov.applied_pending_newer_revision, hi.events_latest), [W1_ON_DOMAIN_API]: notFound });
+    mountEv(`/sites/KOBO-001/actions/${ACTION}`);
+    await settledScreen();
+    await waitFor(() => expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Battery reserve trial"));
+    expect(q("[data-domain-action-shell]")).toBeNull();
+    expect(s.unmatched).toEqual([]);
   });
 });

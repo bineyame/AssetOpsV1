@@ -1,0 +1,944 @@
+{
+  "schema": "w504a-ev-work-walkthrough-2",
+  "revision": "3b2b5f1f51fc3ef8660bdc7b538c30ea027a1054",
+  "dirty": true,
+  "work": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review6\\var\\w504a_c4_work",
+  "principal": "service:w401-fixture",
+  "site": {
+    "code": "EV-LAB-001",
+    "short_name_manifest_only": "Depot",
+    "timezone": "Etc/UTC"
+  },
+  "windows": {
+    "E": {
+      "from": "2026-10-06T08:00:00Z",
+      "to": "2026-10-06T09:00:00Z",
+      "use": "evidence basis and K0 reads only"
+    },
+    "W": "per mode work_window_W (current DB day); Work tabs and Action detail URL"
+  },
+  "modes": {
+    "positive": {
+      "mode": "positive",
+      "status": "ready",
+      "site": {
+        "code": "EV-LAB-001",
+        "display_name": "EV charging lab",
+        "timezone": "Etc/UTC",
+        "short_name_manifest_only": "Depot"
+      },
+      "replay": {
+        "scenario_id": "ev-interrupted",
+        "case": "interrupted",
+        "site_code": "EV-LAB-001",
+        "tenant_id": "db1b65de-59eb-4c5c-96d4-18b329ef9350",
+        "site_id": "0713f422-8e6c-4205-a4b9-cc18556571b0",
+        "run_id": "run-6e39cf20dd634306b8d9f8f92abb0ea4",
+        "evidence_window": {
+          "from": "2026-10-06T08:00:00Z",
+          "to": "2026-10-06T09:00:00Z"
+        },
+        "dispositions": {
+          "ACCEPTED": 221
+        },
+        "worker_outcomes": 2,
+        "gateway_pid": 9624
+      },
+      "R": "2026-10-24T08:25:11.839066Z",
+      "evidence_window_E": {
+        "from": "2026-10-06T08:00:00Z",
+        "to": "2026-10-06T09:00:00Z",
+        "use": "immutable EV Finding/intent basis and K0 reads only"
+      },
+      "work_window_W": {
+        "from": "2026-10-24T00:00:00Z",
+        "to": "2026-10-25T00:00:00Z",
+        "recomputed": false,
+        "contains": {
+          "K1": "2026-10-24T08:25:10.631174Z"
+        },
+        "use": "Actions, Incidents and Maintenance tabs and the Action detail URL"
+      },
+      "selection": {
+        "k0": "2026-10-06T09:00:00Z",
+        "from": "2026-10-06T08:00:00Z",
+        "to": "2026-10-06T09:00:00Z",
+        "scenarios_window": {
+          "from": "2026-10-06T08:00:00.000000Z",
+          "to": "2026-10-06T09:00:00.000000Z",
+          "known_at": "2026-10-06T09:00:00.000000Z",
+          "committed_watermark": "2026-10-06T09:00:00.000000Z"
+        },
+        "sessions_window": {
+          "from": "2026-10-06T08:00:00.000000Z",
+          "to": "2026-10-06T09:00:00.000000Z",
+          "known_at": "2026-10-06T09:00:00.000000Z"
+        },
+        "findings_window": {
+          "from": "2026-10-06T08:00:00.000000Z",
+          "to": "2026-10-06T09:00:00.000000Z",
+          "known_at": "2026-10-06T09:00:00.000000Z"
+        },
+        "finding_id": "6f10e246-7911-4cf1-a0f3-857c10d8b155",
+        "finding_revision_id": "49bb96fd-412b-43f1-86fa-87e3615e30ca",
+        "session_id": "aad227a9-87ce-46bb-9b22-8ea0420d3abf",
+        "session_revision_id": "008510d4-5d38-4a23-9698-d45781f22e8a",
+        "connector_asset_id": "09987aef-3e7d-4339-a054-75a2916b6ea1",
+        "accepted_evidence_ids": [
+          "420f5594-1566-4185-9285-ac92fef1302b",
+          "c7a7d469-128c-4cbb-8c75-eb1e9b06aba0",
+          "e57c9581-aaa0-4869-9e12-3e8df73cf8d2"
+        ]
+      },
+      "action_posted": {
+        "domain": "EV_CHARGING",
+        "origin_finding_id": "6f10e246-7911-4cf1-a0f3-857c10d8b155",
+        "origin_finding_revision_id": "49bb96fd-412b-43f1-86fa-87e3615e30ca",
+        "title": "Investigate connector 2",
+        "owner_label": "Charging operations",
+        "due_at": null,
+        "raised_at": "2026-10-24T08:25:10.469802Z",
+        "actor": {
+          "kind": "SERVICE",
+          "id": "service:w401-fixture",
+          "attestation": "service=w401-fixture;job=w504-ev-work;rule=w504/1"
+        },
+        "idempotency_key": "w504a-positive-action-c4"
+      },
+      "action": {
+        "schema_version": "domain-action-1",
+        "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+        "action_code": "ACT-000001",
+        "recorded_at": "2026-10-24T08:25:10.631174Z"
+      },
+      "intent_posted": {
+        "supersedes_id": null,
+        "declared_at": "2026-10-24T08:25:10.917066Z",
+        "criteria": [
+          {
+            "key": "WITNESSED_SESSION",
+            "label": "Complete a witnessed charging session",
+            "required_evidence": "Session start, end, outcome and meter delta"
+          },
+          {
+            "key": "NO_FAULT_RECURRENCE",
+            "label": "No fault recurrence during observation",
+            "required_evidence": "Connector diagnostic events with full coverage"
+          },
+          {
+            "key": "NO_SERVICE_REDUCTION",
+            "label": "No reduction in service availability",
+            "required_evidence": "Comparable status coverage / operational window"
+          }
+        ],
+        "basis": {
+          "finding_revision_id": "49bb96fd-412b-43f1-86fa-87e3615e30ca",
+          "work_case_id": null,
+          "work_record_id": null,
+          "accepted_evidence_ids": [
+            "420f5594-1566-4185-9285-ac92fef1302b",
+            "c7a7d469-128c-4cbb-8c75-eb1e9b06aba0",
+            "e57c9581-aaa0-4869-9e12-3e8df73cf8d2"
+          ],
+          "session_ids": [
+            "aad227a9-87ce-46bb-9b22-8ea0420d3abf"
+          ]
+        },
+        "actor": {
+          "kind": "SERVICE",
+          "id": "service:w401-fixture",
+          "attestation": "service=w401-fixture;job=w504-ev-work;rule=w504/1"
+        },
+        "idempotency_key": "w504a-positive-intent-c4"
+      },
+      "intent": {
+        "schema_version": "domain-action-intent-1",
+        "intent_id": "1b7e477a-9acd-49b0-aa39-9b4af1d5f61b",
+        "action_id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+        "recorded_at": "2026-10-24T08:25:10.961115Z",
+        "selection_token": "sha256:949736cae0bda936326f7eb0d773753e83119c2ab82fb636732e0697de0e7882"
+      },
+      "detail_status": "CURRENT",
+      "detail_known_at": "2026-10-24T08:25:11.439923Z",
+      "index_known_at": "2026-10-24T08:25:11.921108Z",
+      "work_urls": {
+        "actions": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "incidents": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "maintenance": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "action_detail": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+      },
+      "clocks": {
+        "K0": "2026-10-06T09:00:00Z",
+        "K1": "2026-10-24T08:25:10.631174Z",
+        "K2": "2026-10-24T08:25:10.961115Z",
+        "order": [
+          "K0=2026-10-06T09:00:00Z",
+          "K1=2026-10-24T08:25:10.631174Z",
+          "K2=2026-10-24T08:25:10.961115Z"
+        ],
+        "evidence_clock": {
+          "K1": "2026-10-06T09:00:00Z",
+          "K2": "2026-10-06T09:00:00Z"
+        }
+      },
+      "selector_arguments": {
+        "E": {
+          "from": "2026-10-06T08:00:00Z",
+          "to": "2026-10-06T09:00:00Z",
+          "known_at": null
+        },
+        "findings_known_at": "2026-10-06T09:00:00.000000Z",
+        "W": {
+          "from": "2026-10-24T00:00:00Z",
+          "to": "2026-10-25T00:00:00Z"
+        }
+      },
+      "zero_reads": {},
+      "submitted": {
+        "incident": {
+          "schema_version": "work-case-1",
+          "id": "cc2db32b-d316-4095-87e2-eac2f1769dee",
+          "code": "INC-000001",
+          "kind": "INCIDENT",
+          "site_id": "0713f422-8e6c-4205-a4b9-cc18556571b0",
+          "revision": {
+            "id": "66bcca75-e1e2-4978-a913-63ca51c1aace",
+            "number": 1
+          },
+          "event": {
+            "id": "cc896a91-3c13-4f29-a70d-9484325228c2",
+            "kind": "CREATED",
+            "recorded_at": "2026-10-24T08:28:07.819743Z"
+          },
+          "state": "OPEN",
+          "source_provenance": {
+            "classification": "UNKNOWN",
+            "state": "UNKNOWN",
+            "source_ids": [],
+            "evidence_ids": [],
+            "basis_sha256": "sha256:3a86ace978145475e653f7504341a2a85d53bdba7c939ce188c01c8e55940eb4",
+            "reasons": [
+              {
+                "code": "EMPTY_CITATION_SET",
+                "accepted_evidence_ids": []
+              }
+            ]
+          }
+        },
+        "request": {
+          "schema_version": "work-case-1",
+          "id": "09256596-2e09-4212-8b93-4386a1f043fa",
+          "code": "WR-000002",
+          "kind": "MAINTENANCE_REQUEST",
+          "site_id": "0713f422-8e6c-4205-a4b9-cc18556571b0",
+          "revision": {
+            "id": "3f5eb72a-6435-4520-af56-e238f42e13a4",
+            "number": 1
+          },
+          "event": {
+            "id": "ccab31da-919b-42bf-a879-94cf63a69dd9",
+            "kind": "CREATED",
+            "recorded_at": "2026-10-24T08:28:07.923843Z"
+          },
+          "state": "OPEN",
+          "source_provenance": {
+            "classification": "UNKNOWN",
+            "state": "UNKNOWN",
+            "source_ids": [],
+            "evidence_ids": [],
+            "basis_sha256": "sha256:ff701e8e35af639ddcc16fcfad7abb6680d4d691f7f35a77d7a234d48415baea",
+            "reasons": [
+              {
+                "code": "EMPTY_CITATION_SET",
+                "accepted_evidence_ids": []
+              }
+            ]
+          }
+        },
+        "record": {
+          "schema_version": "maintenance-record-1",
+          "id": "c7d8f37b-d4ec-4406-a096-4f5c469b2aa0",
+          "case_id": "09256596-2e09-4212-8b93-4386a1f043fa",
+          "recorded_at": "2026-10-24T08:28:07.986028Z",
+          "outcome": "UNVERIFIED"
+        },
+        "links": {
+          "incident": {
+            "schema_version": "domain-action-case-link-1",
+            "case_link_id": "cef842e8-67c0-4181-888a-8e4e6d38953c",
+            "action_id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "case_id": "cc2db32b-d316-4095-87e2-eac2f1769dee",
+            "recorded_at": "2026-10-24T08:28:08.347880Z",
+            "case_event_id": "cc896a91-3c13-4f29-a70d-9484325228c2"
+          },
+          "request": {
+            "schema_version": "domain-action-case-link-1",
+            "case_link_id": "77581096-68d4-4532-ab3b-1bb4b0bb91e4",
+            "action_id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "case_id": "09256596-2e09-4212-8b93-4386a1f043fa",
+            "recorded_at": "2026-10-24T08:28:08.416544Z",
+            "case_event_id": "ccab31da-919b-42bf-a879-94cf63a69dd9"
+          }
+        },
+        "asset_id": "09987aef-3e7d-4339-a054-75a2916b6ea1",
+        "posted": {
+          "incident": {
+            "kind": "INCIDENT",
+            "occurred_at": "2026-10-24T08:25:07.643576Z",
+            "asset_id": "09987aef-3e7d-4339-a054-75a2916b6ea1",
+            "finding_links": [],
+            "action_links": [],
+            "title": "Charging session fault",
+            "narrative": "Connector fault ended a charging session; outcome remains unverified",
+            "cited_accepted_evidence_ids": [],
+            "actor": {
+              "kind": "SERVICE",
+              "id": "service:w401-fixture",
+              "attestation": "service=w401-fixture;job=w504-ev-work;rule=w504/1"
+            },
+            "idempotency_key": "w504a-inc-c4"
+          },
+          "request": {
+            "kind": "MAINTENANCE_REQUEST",
+            "occurred_at": "2026-10-24T08:26:07.643576Z",
+            "asset_id": "09987aef-3e7d-4339-a054-75a2916b6ea1",
+            "finding_links": [],
+            "action_links": [],
+            "title": "Connector diagnostic inspection",
+            "narrative": "Inspect connector and witness a charging session",
+            "cited_accepted_evidence_ids": [],
+            "actor": {
+              "kind": "SERVICE",
+              "id": "service:w401-fixture",
+              "attestation": "service=w401-fixture;job=w504-ev-work;rule=w504/1"
+            },
+            "idempotency_key": "w504a-wr-c4"
+          },
+          "record": {
+            "activity": "Inspect connector and witness a charging session",
+            "outcome_note": "Inspection recorded; recurrence and availability remain unverified",
+            "occurred_at": "2026-10-24T08:27:07.643576Z",
+            "actor": {
+              "kind": "SERVICE",
+              "id": "service:w401-fixture",
+              "attestation": "service=w401-fixture;job=w504-ev-work;rule=w504/1"
+            },
+            "idempotency_key": "w504a-rec-c4"
+          }
+        },
+        "wr_narrative": "Inspect connector and witness a charging session",
+        "work_window_W": {
+          "from": "2026-10-24T00:00:00Z",
+          "to": "2026-10-25T00:00:00Z",
+          "recomputed": false,
+          "contains": {
+            "K1": "2026-10-24T08:25:10.631174Z",
+            "incident.occurred_at": "2026-10-24T08:25:07.643576Z",
+            "maintenance.created_at": "2026-10-24T08:28:07.923843Z"
+          },
+          "R": "2026-10-24T08:28:08.487388Z"
+        },
+        "work_urls": {
+          "actions": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "incidents": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "maintenance": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "action_detail": "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+        },
+        "list_known_at": {
+          "actions": "2026-10-24T08:28:08.569481Z",
+          "incidents": "2026-10-24T08:28:08.723666Z",
+          "maintenance": "2026-10-24T08:28:08.902027Z"
+        },
+        "clocks": {
+          "K3": {
+            "incident": "2026-10-24T08:28:07.819743Z",
+            "request": "2026-10-24T08:28:07.923843Z",
+            "record": "2026-10-24T08:28:07.986028Z"
+          },
+          "K4": {
+            "incident": "2026-10-24T08:28:08.347880Z",
+            "request": "2026-10-24T08:28:08.416544Z"
+          },
+          "order": [
+            "K0=2026-10-06T09:00:00Z",
+            "K1=2026-10-24T08:25:10.631174Z",
+            "K2=2026-10-24T08:25:10.961115Z",
+            "K3=2026-10-24T08:28:07.819743Z",
+            "K3=2026-10-24T08:28:07.923843Z",
+            "K3=2026-10-24T08:28:07.986028Z",
+            "K4=2026-10-24T08:28:08.347880Z",
+            "K4=2026-10-24T08:28:08.416544Z"
+          ],
+          "evidence_clock": {
+            "K3.incident": "2026-10-06T09:00:00Z",
+            "K3.request": "2026-10-06T09:00:00Z",
+            "K3.record": "2026-10-06T09:00:00Z",
+            "K4.incident": "2026-10-06T09:00:00Z",
+            "K4.request": "2026-10-06T09:00:00Z"
+          }
+        }
+      },
+      "db": "w504a_positive_c4_test",
+      "child_exit": 0
+    },
+    "zero": {
+      "mode": "zero",
+      "status": "ready",
+      "site": {
+        "code": "EV-LAB-001",
+        "display_name": "EV charging lab",
+        "timezone": "Etc/UTC",
+        "short_name_manifest_only": "Depot"
+      },
+      "replay": {
+        "scenario_id": "ev-interrupted",
+        "case": "interrupted",
+        "site_code": "EV-LAB-001",
+        "tenant_id": "4b617d56-5cbe-479a-a148-881165925ec4",
+        "site_id": "b091d36d-b5b5-496f-8c5f-fbba1c383c0a",
+        "run_id": "run-c27f5846e0214c06a11f80f4b45f4f4e",
+        "evidence_window": {
+          "from": "2026-10-06T08:00:00Z",
+          "to": "2026-10-06T09:00:00Z"
+        },
+        "dispositions": {
+          "ACCEPTED": 221
+        },
+        "worker_outcomes": 2,
+        "gateway_pid": 31840
+      },
+      "R": "2026-10-24T08:25:56.572849Z",
+      "evidence_window_E": {
+        "from": "2026-10-06T08:00:00Z",
+        "to": "2026-10-06T09:00:00Z",
+        "use": "immutable EV Finding/intent basis and K0 reads only"
+      },
+      "work_window_W": {
+        "from": "2026-10-24T00:00:00Z",
+        "to": "2026-10-25T00:00:00Z",
+        "recomputed": false,
+        "contains": {
+          "K1": "2026-10-24T08:25:55.824483Z"
+        },
+        "use": "Actions, Incidents and Maintenance tabs and the Action detail URL"
+      },
+      "selection": {
+        "k0": "2026-10-06T09:00:00Z",
+        "from": "2026-10-06T08:00:00Z",
+        "to": "2026-10-06T09:00:00Z",
+        "scenarios_window": {
+          "from": "2026-10-06T08:00:00.000000Z",
+          "to": "2026-10-06T09:00:00.000000Z",
+          "known_at": "2026-10-06T09:00:00.000000Z",
+          "committed_watermark": "2026-10-06T09:00:00.000000Z"
+        },
+        "sessions_window": {
+          "from": "2026-10-06T08:00:00.000000Z",
+          "to": "2026-10-06T09:00:00.000000Z",
+          "known_at": "2026-10-06T09:00:00.000000Z"
+        },
+        "findings_window": {
+          "from": "2026-10-06T08:00:00.000000Z",
+          "to": "2026-10-06T09:00:00.000000Z",
+          "known_at": "2026-10-06T09:00:00.000000Z"
+        },
+        "finding_id": "c236c309-4f68-4f48-ad8a-d974b694527d",
+        "finding_revision_id": "6d13a63f-7eab-4fc0-bbb7-021927b98690",
+        "session_id": "545d435c-b926-4dbb-902e-5740c3327225",
+        "session_revision_id": "a7fa4baa-5c71-4080-96f2-448d664f946e",
+        "connector_asset_id": "e138dbad-07d7-4536-b5cc-838ce6016853",
+        "accepted_evidence_ids": [
+          "1d47196b-d59c-4182-9a7e-4e3bdea8c5ef",
+          "6f89b577-782d-4952-93bf-03efe3b8dbb8",
+          "e777254a-2975-40eb-9039-3c2837fd0030"
+        ]
+      },
+      "action_posted": {
+        "domain": "EV_CHARGING",
+        "origin_finding_id": "c236c309-4f68-4f48-ad8a-d974b694527d",
+        "origin_finding_revision_id": "6d13a63f-7eab-4fc0-bbb7-021927b98690",
+        "title": "Investigate connector 2",
+        "owner_label": "Charging operations",
+        "due_at": null,
+        "raised_at": "2026-10-24T08:25:55.647582Z",
+        "actor": {
+          "kind": "SERVICE",
+          "id": "service:w401-fixture",
+          "attestation": "service=w401-fixture;job=w504-ev-work;rule=w504/1"
+        },
+        "idempotency_key": "w504a-zero-action-c4"
+      },
+      "action": {
+        "schema_version": "domain-action-1",
+        "id": "6944bacf-74e9-4ee9-9d3c-ac1d23d0ca25",
+        "action_code": "ACT-000001",
+        "recorded_at": "2026-10-24T08:25:55.824483Z"
+      },
+      "intent_posted": {
+        "supersedes_id": null,
+        "declared_at": "2026-10-24T08:25:56.121614Z",
+        "criteria": [
+          {
+            "key": "WITNESSED_SESSION",
+            "label": "Complete a witnessed charging session",
+            "required_evidence": "Session start, end, outcome and meter delta"
+          },
+          {
+            "key": "NO_FAULT_RECURRENCE",
+            "label": "No fault recurrence during observation",
+            "required_evidence": "Connector diagnostic events with full coverage"
+          },
+          {
+            "key": "NO_SERVICE_REDUCTION",
+            "label": "No reduction in service availability",
+            "required_evidence": "Comparable status coverage / operational window"
+          }
+        ],
+        "basis": {
+          "finding_revision_id": "6d13a63f-7eab-4fc0-bbb7-021927b98690",
+          "work_case_id": null,
+          "work_record_id": null,
+          "accepted_evidence_ids": [
+            "1d47196b-d59c-4182-9a7e-4e3bdea8c5ef",
+            "6f89b577-782d-4952-93bf-03efe3b8dbb8",
+            "e777254a-2975-40eb-9039-3c2837fd0030"
+          ],
+          "session_ids": [
+            "545d435c-b926-4dbb-902e-5740c3327225"
+          ]
+        },
+        "actor": {
+          "kind": "SERVICE",
+          "id": "service:w401-fixture",
+          "attestation": "service=w401-fixture;job=w504-ev-work;rule=w504/1"
+        },
+        "idempotency_key": "w504a-zero-intent-c4"
+      },
+      "intent": {
+        "schema_version": "domain-action-intent-1",
+        "intent_id": "2fc4aa52-4b21-43de-87e1-7e74793f7a2d",
+        "action_id": "6944bacf-74e9-4ee9-9d3c-ac1d23d0ca25",
+        "recorded_at": "2026-10-24T08:25:56.147576Z",
+        "selection_token": "sha256:07fec6992c7091b001b52c1545c928b87028d06108ab573bac25a217703b045b"
+      },
+      "detail_status": "CURRENT",
+      "detail_known_at": "2026-10-24T08:25:56.350892Z",
+      "index_known_at": "2026-10-24T08:25:56.598908Z",
+      "work_urls": {
+        "actions": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "incidents": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "maintenance": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "action_detail": "/sites/EV-LAB-001/actions/6944bacf-74e9-4ee9-9d3c-ac1d23d0ca25/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+      },
+      "clocks": {
+        "K0": "2026-10-06T09:00:00Z",
+        "K1": "2026-10-24T08:25:55.824483Z",
+        "K2": "2026-10-24T08:25:56.147576Z",
+        "order": [
+          "K0=2026-10-06T09:00:00Z",
+          "K1=2026-10-24T08:25:55.824483Z",
+          "K2=2026-10-24T08:25:56.147576Z"
+        ],
+        "evidence_clock": {
+          "K1": "2026-10-06T09:00:00Z",
+          "K2": "2026-10-06T09:00:00Z"
+        }
+      },
+      "selector_arguments": {
+        "E": {
+          "from": "2026-10-06T08:00:00Z",
+          "to": "2026-10-06T09:00:00Z",
+          "known_at": null
+        },
+        "findings_known_at": "2026-10-06T09:00:00.000000Z",
+        "W": {
+          "from": "2026-10-24T00:00:00Z",
+          "to": "2026-10-25T00:00:00Z"
+        }
+      },
+      "zero_reads": {
+        "incidents": {
+          "schema_version": "site-work-index-1",
+          "site_code": "EV-LAB-001",
+          "site_name": "EV charging lab",
+          "window": {
+            "from": "2026-10-24T00:00:00.000000Z",
+            "to": "2026-10-25T00:00:00.000000Z",
+            "bounds": "[from, to)"
+          },
+          "known_at": "2026-10-24T08:25:56.697307Z",
+          "status": "CURRENT",
+          "coverage": {
+            "state": "COMPLETE",
+            "reason": null
+          },
+          "source_provenance": {
+            "classification": "UNKNOWN",
+            "state": "UNKNOWN",
+            "source_ids": [],
+            "evidence_ids": [],
+            "basis_sha256": null,
+            "reasons": [
+              {
+                "code": "EMPTY_CITATION_SET",
+                "accepted_evidence_ids": []
+              }
+            ]
+          },
+          "total_count": 0,
+          "rows": [],
+          "next_cursor": null,
+          "selection_token": "sha256:2f35fa6a655b0b038adda773203803e7fb9dc914e90c4f5838184f24f61ee452"
+        },
+        "maintenance": {
+          "schema_version": "site-work-index-1",
+          "site_code": "EV-LAB-001",
+          "site_name": "EV charging lab",
+          "window": {
+            "from": "2026-10-24T00:00:00.000000Z",
+            "to": "2026-10-25T00:00:00.000000Z",
+            "bounds": "[from, to)"
+          },
+          "known_at": "2026-10-24T08:25:56.760435Z",
+          "status": "CURRENT",
+          "coverage": {
+            "state": "COMPLETE",
+            "reason": null
+          },
+          "source_provenance": {
+            "classification": "UNKNOWN",
+            "state": "UNKNOWN",
+            "source_ids": [],
+            "evidence_ids": [],
+            "basis_sha256": null,
+            "reasons": [
+              {
+                "code": "EMPTY_CITATION_SET",
+                "accepted_evidence_ids": []
+              }
+            ]
+          },
+          "total_count": 0,
+          "rows": [],
+          "next_cursor": null,
+          "selection_token": "sha256:798a672483cf0aa67757570f806d34ebddb3396c8b6538dc7a6a954240286b6a"
+        }
+      },
+      "db": "w504a_zero_c4_test",
+      "child_exit": 0
+    },
+    "worstcase": {
+      "mode": "worstcase",
+      "status": "ready",
+      "site": {
+        "code": "EV-LAB-001",
+        "display_name": "EV charging lab",
+        "timezone": "Etc/UTC",
+        "short_name_manifest_only": "Depot"
+      },
+      "replay": {
+        "scenario_id": "ev-interrupted",
+        "case": "interrupted",
+        "site_code": "EV-LAB-001",
+        "tenant_id": "c074fe19-1938-45fa-8804-321ee1d4dc0f",
+        "site_id": "6b168572-11f7-4454-8c26-3d5d8955ac8a",
+        "run_id": "run-074cac6d9f8245859e36e4298047c78c",
+        "evidence_window": {
+          "from": "2026-10-06T08:00:00Z",
+          "to": "2026-10-06T09:00:00Z"
+        },
+        "dispositions": {
+          "ACCEPTED": 221
+        },
+        "worker_outcomes": 2,
+        "gateway_pid": 29908
+      },
+      "R": "2026-10-24T08:26:38.575736Z",
+      "evidence_window_E": {
+        "from": "2026-10-06T08:00:00Z",
+        "to": "2026-10-06T09:00:00Z",
+        "use": "immutable EV Finding/intent basis and K0 reads only"
+      },
+      "work_window_W": {
+        "from": "2026-10-24T00:00:00Z",
+        "to": "2026-10-25T00:00:00Z",
+        "recomputed": false,
+        "contains": {
+          "K1": "2026-10-24T08:26:37.900632Z"
+        },
+        "use": "Actions, Incidents and Maintenance tabs and the Action detail URL"
+      },
+      "selection": {
+        "k0": "2026-10-06T09:00:00Z",
+        "from": "2026-10-06T08:00:00Z",
+        "to": "2026-10-06T09:00:00Z",
+        "scenarios_window": {
+          "from": "2026-10-06T08:00:00.000000Z",
+          "to": "2026-10-06T09:00:00.000000Z",
+          "known_at": "2026-10-06T09:00:00.000000Z",
+          "committed_watermark": "2026-10-06T09:00:00.000000Z"
+        },
+        "sessions_window": {
+          "from": "2026-10-06T08:00:00.000000Z",
+          "to": "2026-10-06T09:00:00.000000Z",
+          "known_at": "2026-10-06T09:00:00.000000Z"
+        },
+        "findings_window": {
+          "from": "2026-10-06T08:00:00.000000Z",
+          "to": "2026-10-06T09:00:00.000000Z",
+          "known_at": "2026-10-06T09:00:00.000000Z"
+        },
+        "finding_id": "6b0dd1c4-4f96-4144-a87f-4acf40710853",
+        "finding_revision_id": "26de996b-7fc2-4b6b-9648-1f8a4a242fa1",
+        "session_id": "bffbcb3f-9ec6-4bc3-9c51-606b07c25845",
+        "session_revision_id": "597eeaa7-a5eb-4998-aa17-e2f66d75dc46",
+        "connector_asset_id": "177c2fc7-2063-460e-80a6-4d383eebf456",
+        "accepted_evidence_ids": [
+          "3646b14a-2bb2-4180-9fa1-44acfbc4f06f",
+          "a68cf39b-d88e-4091-9525-d5cf471ad895",
+          "de1f4f31-8a4a-41fc-ba79-91a28be2c621"
+        ]
+      },
+      "action_posted": {
+        "domain": "EV_CHARGING",
+        "origin_finding_id": "6b0dd1c4-4f96-4144-a87f-4acf40710853",
+        "origin_finding_revision_id": "26de996b-7fc2-4b6b-9648-1f8a4a242fa1",
+        "title": "Investigate connector 2",
+        "owner_label": "Charging operations",
+        "due_at": null,
+        "raised_at": "2026-10-24T08:26:37.741090Z",
+        "actor": {
+          "kind": "SERVICE",
+          "id": "service:w401-fixture",
+          "attestation": "service=w401-fixture;job=w504-ev-work;rule=w504/1"
+        },
+        "idempotency_key": "w504a-worstcase-action-c4"
+      },
+      "action": {
+        "schema_version": "domain-action-1",
+        "id": "5b945357-e140-42cd-b49a-bbc23c5f8077",
+        "action_code": "ACT-000001",
+        "recorded_at": "2026-10-24T08:26:37.900632Z"
+      },
+      "intent_posted": {
+        "supersedes_id": null,
+        "declared_at": "2026-10-24T08:26:38.121699Z",
+        "criteria": [
+          {
+            "key": "WITNESSED_SESSION",
+            "label": "Complete a witnessed charging session",
+            "required_evidence": "Session start, end, outcome and meter delta"
+          },
+          {
+            "key": "NO_FAULT_RECURRENCE",
+            "label": "No fault recurrence during observation",
+            "required_evidence": "Connector diagnostic events with full coverage"
+          },
+          {
+            "key": "NO_SERVICE_REDUCTION",
+            "label": "No reduction in service availability",
+            "required_evidence": "Comparable status coverage / operational window"
+          }
+        ],
+        "basis": {
+          "finding_revision_id": "26de996b-7fc2-4b6b-9648-1f8a4a242fa1",
+          "work_case_id": null,
+          "work_record_id": null,
+          "accepted_evidence_ids": [
+            "3646b14a-2bb2-4180-9fa1-44acfbc4f06f",
+            "a68cf39b-d88e-4091-9525-d5cf471ad895",
+            "de1f4f31-8a4a-41fc-ba79-91a28be2c621"
+          ],
+          "session_ids": [
+            "bffbcb3f-9ec6-4bc3-9c51-606b07c25845"
+          ]
+        },
+        "actor": {
+          "kind": "SERVICE",
+          "id": "service:w401-fixture",
+          "attestation": "service=w401-fixture;job=w504-ev-work;rule=w504/1"
+        },
+        "idempotency_key": "w504a-worstcase-intent-c4"
+      },
+      "intent": {
+        "schema_version": "domain-action-intent-1",
+        "intent_id": "64b179ac-a13a-4889-9721-09afc6d2373e",
+        "action_id": "5b945357-e140-42cd-b49a-bbc23c5f8077",
+        "recorded_at": "2026-10-24T08:26:38.144051Z",
+        "selection_token": "sha256:27be184f850b824a59bc907e2737aa4aa667719e23b53d91dcc2f73d824100ce"
+      },
+      "detail_status": "CURRENT",
+      "detail_known_at": "2026-10-24T08:26:38.348655Z",
+      "index_known_at": "2026-10-24T08:26:38.608563Z",
+      "work_urls": {
+        "actions": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "incidents": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "maintenance": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "action_detail": "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+      },
+      "clocks": {
+        "K0": "2026-10-06T09:00:00Z",
+        "K1": "2026-10-24T08:26:37.900632Z",
+        "K2": "2026-10-24T08:26:38.144051Z",
+        "order": [
+          "K0=2026-10-06T09:00:00Z",
+          "K1=2026-10-24T08:26:37.900632Z",
+          "K2=2026-10-24T08:26:38.144051Z"
+        ],
+        "evidence_clock": {
+          "K1": "2026-10-06T09:00:00Z",
+          "K2": "2026-10-06T09:00:00Z"
+        }
+      },
+      "selector_arguments": {
+        "E": {
+          "from": "2026-10-06T08:00:00Z",
+          "to": "2026-10-06T09:00:00Z",
+          "known_at": null
+        },
+        "findings_known_at": "2026-10-06T09:00:00.000000Z",
+        "W": {
+          "from": "2026-10-24T00:00:00Z",
+          "to": "2026-10-25T00:00:00Z"
+        }
+      },
+      "zero_reads": {},
+      "worstcase": {
+        "actions": [
+          {
+            "n": 2,
+            "action_id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "action_code": "ACT-000002",
+            "recorded_at": "2026-10-24T08:26:39.584641Z",
+            "intent_id": "1e252c25-c718-4a68-b60f-a5ec1e50fd4c",
+            "title_code_points": 160,
+            "owner_code_points": 160
+          },
+          {
+            "n": 3,
+            "action_id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "action_code": "ACT-000003",
+            "recorded_at": "2026-10-24T08:26:40.038493Z",
+            "intent_id": "cc405b09-c0aa-4e21-a4d0-461e26a88bcc",
+            "title_code_points": 160,
+            "owner_code_points": 160
+          },
+          {
+            "n": 4,
+            "action_id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "action_code": "ACT-000004",
+            "recorded_at": "2026-10-24T08:26:40.653471Z",
+            "intent_id": "b325a5ae-4d69-4fd9-91fd-cbe901389561",
+            "title_code_points": 160,
+            "owner_code_points": 160
+          },
+          {
+            "n": 5,
+            "action_id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "action_code": "ACT-000005",
+            "recorded_at": "2026-10-24T08:26:41.052718Z",
+            "intent_id": "f8e967b4-e6cf-45c9-bf09-594a98697ac7",
+            "title_code_points": 160,
+            "owner_code_points": 160
+          }
+        ],
+        "index_total_count": 5,
+        "index_known_at": "2026-10-24T08:26:41.390693Z"
+      },
+      "db": "w504a_worstcase_c4_test",
+      "child_exit": 0
+    },
+    "unknown": {
+      "mode": "unknown",
+      "replay": {
+        "scenario_id": "ev-missing-meter",
+        "case": "missing-meter",
+        "site_code": "EV-LAB-001",
+        "tenant_id": "ba09242a-eb8b-4cc8-a3ea-dd2f885062ae",
+        "site_id": "cd9cb430-2b40-43e9-b3bc-72fb8bf75c54",
+        "run_id": "run-146f1dda6deb4519836774c22aacba1d",
+        "evidence_window": {
+          "from": "2026-10-06T08:00:00Z",
+          "to": "2026-10-06T09:00:00Z"
+        },
+        "dispositions": {
+          "ACCEPTED": 222
+        },
+        "worker_outcomes": 2,
+        "gateway_pid": 2936
+      },
+      "K0": "2026-10-06T09:00:00Z",
+      "wanted_state": "UNKNOWN",
+      "sessions": [
+        {
+          "session_id": "cd796cbc-ad1e-4323-8cb8-566bc8a8f638",
+          "state": "COMPLETED",
+          "connector_asset_id": "5fae457c-fddc-4c0b-b08f-7e86acc53c54"
+        }
+      ],
+      "status": "unavailable",
+      "reason": "the replay selected 0 SUPPORTED EV Findings, so no Action detail state",
+      "db": "w504a_unknown_c4_test",
+      "child_exit": 0
+    },
+    "pending": {
+      "mode": "pending",
+      "status": "unavailable",
+      "wanted_state": "PENDING_RECOMPUTE",
+      "reason": "a late accepted event before W5-03 reassessment needs a modified replay; use the pure adapter/component vector",
+      "db": null
+    },
+    "stale": {
+      "mode": "stale",
+      "status": "unavailable",
+      "wanted_state": "STALE_SOURCE",
+      "reason": "a superseded source binding before reselection needs a modified replay; use the pure adapter/component vector",
+      "db": null
+    }
+  },
+  "written_at": "2026-10-24T08:28:12.500385Z",
+  "processes": {
+    "positive": {
+      "pid": 31212,
+      "port": 9001,
+      "db": "w504a_positive_c4_test",
+      "log": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review6\\var\\w504a_c4_work\\logs\\api-positive-9001.log"
+    },
+    "zero": {
+      "pid": 14236,
+      "port": 9002,
+      "db": "w504a_zero_c4_test",
+      "log": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review6\\var\\w504a_c4_work\\logs\\api-zero-9002.log"
+    },
+    "worstcase": {
+      "pid": 13008,
+      "port": 9003,
+      "db": "w504a_worstcase_c4_test",
+      "log": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review6\\var\\w504a_c4_work\\logs\\api-worstcase-9003.log"
+    },
+    "forbidden": {
+      "pid": 18656,
+      "port": 9006,
+      "db": "w504a_positive_c4_test",
+      "log": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review6\\var\\w504a_c4_work\\logs\\api-forbidden-9006.log"
+    },
+    "unavailable": {
+      "pid": 20944,
+      "port": 9007,
+      "db": "w504a_positive_c4_test",
+      "log": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review6\\var\\w504a_c4_work\\logs\\api-unavailable-9007.log"
+    }
+  },
+  "vectors": {
+    "forbidden": {
+      "http": 403,
+      "code": "SITE_SCOPE_FORBIDDEN"
+    },
+    "unavailable": {
+      "stopped_pid": 20944,
+      "port": 9007,
+      "http_after_stop": 0,
+      "expected": "connection refused; the browser proxy reports 503"
+    }
+  }
+}

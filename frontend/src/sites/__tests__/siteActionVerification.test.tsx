@@ -37,6 +37,7 @@ import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 import { COLD_SITE, DOMAIN_ID, SITE as COLD_CODE, detailBody, indexBody } from "./coldWorkFixtures";
+import { EV_SITE } from "./evWorkFixtures";
 import type { DomainActionClient, DomainDetailResult } from "../domainActionClient";
 
 type Body = any;
@@ -808,5 +809,38 @@ describe("W5-02 K2a: cold /verification dispatch", () => {
     } as unknown as SiteDetailClient);
     expect(domain.calls).toEqual([]);
     expect(document.querySelector("[data-domain-action-shell]")).toBeNull();
+  });
+});
+
+/* W5-04 V4a (readiness rulings 15, 43): an EV_CHARGING /verification renders the EV plan, never the W1 verification. */
+describe("W5-04 V4a: EV /verification dispatch", () => {
+  const evActionDetail = {
+    getSite: async (siteId: string) => ({ status: "loaded", site: { ...EV_SITE, site_id: siteId } }),
+  } as unknown as SiteDetailClient;
+  const pending = ["WITNESSED_SESSION", "NO_FAULT_RECURRENCE", "NO_SERVICE_REDUCTION"];
+  const evBody = detailBody({
+    action: { ...detailBody().action, domain: "EV_CHARGING" },
+    intent: {
+      ...(detailBody().intent as NonNullable<ReturnType<typeof detailBody>["intent"]>),
+      criteria: pending.map((key) => ({ key, label: key, required_evidence: key })),
+    },
+    results: pending.map((key) => ({ key, result: "PENDING", evidence_ids: [] })),
+  });
+
+  it("an EV domain Action renders only the Declared verification plan with Pending results and no W1 verification read", async () => {
+    const urls: string[] = [];
+    vi.stubGlobal("fetch", async (url: string) => {
+      urls.push(url);
+      return new Response("{}", { status: 599 });
+    });
+    const domain = coldDomain({ status: "loaded", value: evBody });
+    await mountColdAction(`/sites/${COLD_CODE}/actions/${DOMAIN_ID}/verification`, domain, evActionDetail);
+    expect(domain.calls).toEqual([DOMAIN_ID]);
+    expect(screen.getByRole("heading", { level: 2, name: "Declared verification plan" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Declared outcome criteria" })).toBeNull();
+    expect(screen.queryByRole("heading", { level: 2, name: "Related activity" })).toBeNull();
+    expect(Array.from(document.querySelectorAll("[data-domain-action-result]")).map((c) => c.textContent)).toEqual(["Pending", "Pending", "Pending"]);
+    expect(urls).toEqual([]);
+    expect(document.body.textContent).not.toContain("Target and guardrails");
   });
 });

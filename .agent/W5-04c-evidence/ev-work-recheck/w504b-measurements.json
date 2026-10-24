@@ -1,0 +1,5920 @@
+{
+  "manifest_revision": "3b2b5f1f51fc3ef8660bdc7b538c30ea027a1054",
+  "caps": {
+    "main": [
+      1600,
+      2000
+    ],
+    "strip": [
+      100,
+      150
+    ],
+    "panel": [
+      650,
+      850
+    ],
+    "zeroPanel": [
+      460,
+      560
+    ],
+    "statePanel": [
+      360,
+      590
+    ],
+    "notice": [
+      110,
+      160
+    ]
+  },
+  "worstcase": {
+    "actions": [
+      {
+        "n": 2,
+        "action_id": "75ee9481-13fa-4688-afbc-8a226b246665",
+        "action_code": "ACT-000002",
+        "recorded_at": "2026-10-24T08:26:39.584641Z",
+        "intent_id": "1e252c25-c718-4a68-b60f-a5ec1e50fd4c",
+        "title_code_points": 160,
+        "owner_code_points": 160
+      },
+      {
+        "n": 3,
+        "action_id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+        "action_code": "ACT-000003",
+        "recorded_at": "2026-10-24T08:26:40.038493Z",
+        "intent_id": "cc405b09-c0aa-4e21-a4d0-461e26a88bcc",
+        "title_code_points": 160,
+        "owner_code_points": 160
+      },
+      {
+        "n": 4,
+        "action_id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+        "action_code": "ACT-000004",
+        "recorded_at": "2026-10-24T08:26:40.653471Z",
+        "intent_id": "b325a5ae-4d69-4fd9-91fd-cbe901389561",
+        "title_code_points": 160,
+        "owner_code_points": 160
+      },
+      {
+        "n": 5,
+        "action_id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+        "action_code": "ACT-000005",
+        "recorded_at": "2026-10-24T08:26:41.052718Z",
+        "intent_id": "f8e967b4-e6cf-45c9-bf09-594a98697ac7",
+        "title_code_points": 160,
+        "owner_code_points": 160
+      }
+    ],
+    "index_total_count": 5,
+    "index_known_at": "2026-10-24T08:26:41.390693Z"
+  },
+  "captures": [
+    {
+      "state": "positive",
+      "width": 1440,
+      "file": "w504b-desktop-positive.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "rows",
+        "currentness": null,
+        "currentnessText": null,
+        "scope": "Scoped to EV · 1 action",
+        "stripText": "Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": "Due dates are not yet set",
+        "subtabs": [
+          {
+            "text": "Actions (1)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Incidents (1)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Maintenance (1)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          }
+        ],
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 568,
+        "strip": 39,
+        "panel": 184,
+        "currentnessNotice": null,
+        "contextNotice": 42,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120,
+        "stickyFirstColumn": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "anchorsInEvRows": 1,
+        "actionHrefs": [
+          "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+        ],
+        "coldNames": 0,
+        "evRowLinks": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6f10e246",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 47,
+            "source": "Finding 6f10e246",
+            "cellText": [
+              "ACT-000001 · Investigate connector 2",
+              "Finding 6f10e246Finding version",
+              "Charging operations",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "cells": [
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "badgeLines": [
+          1
+        ],
+        "showAll": null,
+        "titleDisclosures": 0,
+        "openTitleDisclosures": 0,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 568,
+        "empty": null,
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+          "from": "2026-10-24",
+          "to": "2026-10-25",
+          "width": 1160,
+          "parentWidth": 1160,
+          "height": 33,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": null,
+          "errorInside": null
+        }
+      }
+    },
+    {
+      "state": "historical",
+      "width": 1440,
+      "file": "w504b-desktop-historical.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "rows",
+        "currentness": "HISTORICAL",
+        "currentnessText": "Read as of 2026-10-24 08:25 UTC. Later work may differ.",
+        "scope": "Scoped to EV · 1 action",
+        "stripText": "Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": "Due dates are not yet set",
+        "subtabs": [
+          {
+            "text": "Actions (1)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z"
+          },
+          {
+            "text": "Incidents (0)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z"
+          },
+          {
+            "text": "Maintenance (0)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z"
+          }
+        ],
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 628,
+        "strip": 39,
+        "panel": 184,
+        "currentnessNotice": 42,
+        "contextNotice": 42,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120,
+        "stickyFirstColumn": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "anchorsInEvRows": 1,
+        "actionHrefs": [
+          "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+        ],
+        "coldNames": 0,
+        "evRowLinks": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6f10e246",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 47,
+            "source": "Finding 6f10e246",
+            "cellText": [
+              "ACT-000001 · Investigate connector 2",
+              "Finding 6f10e246Finding version",
+              "Charging operations",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "cells": [
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "badgeLines": [
+          1
+        ],
+        "showAll": null,
+        "titleDisclosures": 0,
+        "openTitleDisclosures": 0,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 628,
+        "empty": null,
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+          "from": "2026-10-24",
+          "to": "2026-10-25",
+          "width": 1160,
+          "parentWidth": 1160,
+          "height": 33,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": null,
+          "errorInside": null
+        }
+      }
+    },
+    {
+      "state": "zero",
+      "width": 1440,
+      "file": "w504b-desktop-zero.png",
+      "url": "http://localhost:5502/sites/EV-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "empty",
+        "currentness": null,
+        "currentnessText": null,
+        "scope": "Scoped to EV · 0 actions",
+        "stripText": "Scoped to EV · 0 actions EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": null,
+        "subtabs": [
+          {
+            "text": "Actions (0)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+          },
+          {
+            "text": "Incidents (0)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+          },
+          {
+            "text": "Maintenance (0)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+          }
+        ],
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 646,
+        "strip": 39,
+        "panel": 262,
+        "currentnessNotice": null,
+        "contextNotice": 42,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null,
+        "stickyFirstColumn": null,
+        "rowCount": 0,
+        "rowsTotal": 0,
+        "anchorsInEvRows": 0,
+        "actionHrefs": [],
+        "coldNames": 0,
+        "evRowLinks": [],
+        "rows": [],
+        "cells": [],
+        "badgesClipped": 0,
+        "badgeCount": 0,
+        "badgeLines": [],
+        "showAll": null,
+        "titleDisclosures": 0,
+        "openTitleDisclosures": 0,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 646,
+        "empty": "No actions at this site No accepted recommendation or evidence request has been raised here yet.",
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+          "from": "2026-10-23",
+          "to": "2026-10-24",
+          "width": 1160,
+          "parentWidth": 1160,
+          "height": 33,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": null,
+          "errorInside": null
+        }
+      }
+    },
+    {
+      "state": "forbidden-403",
+      "width": 1440,
+      "file": "w504b-desktop-forbidden-403.png",
+      "url": "http://localhost:5506/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "refused",
+        "currentness": null,
+        "currentnessText": null,
+        "scope": "Scoped to EV · — actions",
+        "stripText": "Scoped to EV · — actions EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": null,
+        "subtabs": [
+          {
+            "text": "Actions (—)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Incidents (—)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Maintenance (—)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          }
+        ],
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 582,
+        "strip": 39,
+        "panel": 198,
+        "currentnessNotice": null,
+        "contextNotice": 42,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null,
+        "stickyFirstColumn": null,
+        "rowCount": 0,
+        "rowsTotal": 0,
+        "anchorsInEvRows": 0,
+        "actionHrefs": [],
+        "coldNames": 0,
+        "evRowLinks": [],
+        "rows": [],
+        "cells": [],
+        "badgesClipped": 0,
+        "badgeCount": 0,
+        "badgeLines": [],
+        "showAll": null,
+        "titleDisclosures": 0,
+        "openTitleDisclosures": 0,
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "refusalText": "EV work unavailable No access to Site 'EV-LAB-001'. Retry",
+        "refusalMessage": "No access to Site 'EV-LAB-001'.",
+        "retryVisible": true,
+        "siteRefusal": null,
+        "pageMain": 582,
+        "empty": null,
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+          "from": "2026-10-24",
+          "to": "2026-10-25",
+          "width": 1160,
+          "parentWidth": 1160,
+          "height": 33,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": null,
+          "errorInside": null
+        }
+      }
+    },
+    {
+      "state": "unavailable-503",
+      "width": 1440,
+      "file": "w504b-desktop-unavailable-503.png",
+      "url": "http://localhost:5507/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "h1": "Work",
+        "subtitle": false,
+        "panelState": null,
+        "currentness": null,
+        "currentnessText": null,
+        "scope": null,
+        "stripText": null,
+        "stripLinks": 0,
+        "panelDescription": null,
+        "subtabs": [],
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": null,
+        "strip": null,
+        "panel": null,
+        "currentnessNotice": null,
+        "contextNotice": null,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null,
+        "stickyFirstColumn": null,
+        "rowCount": 0,
+        "rowsTotal": 0,
+        "anchorsInEvRows": 0,
+        "actionHrefs": [],
+        "coldNames": 0,
+        "evRowLinks": [],
+        "rows": [],
+        "cells": [],
+        "badgesClipped": 0,
+        "badgeCount": 0,
+        "badgeLines": [],
+        "showAll": null,
+        "titleDisclosures": 0,
+        "openTitleDisclosures": 0,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "pageMain": 154,
+        "empty": null,
+        "window": null
+      }
+    },
+    {
+      "state": "window-error",
+      "width": 1440,
+      "file": "w504b-desktop-window-error.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "rows",
+        "currentness": null,
+        "currentnessText": null,
+        "scope": "Scoped to EV · 1 action",
+        "stripText": "Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": "Due dates are not yet set",
+        "subtabs": [
+          {
+            "text": "Actions (1)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Incidents (1)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Maintenance (1)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          }
+        ],
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 592,
+        "strip": 39,
+        "panel": 184,
+        "currentnessNotice": null,
+        "contextNotice": 42,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120,
+        "stickyFirstColumn": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "anchorsInEvRows": 1,
+        "actionHrefs": [
+          "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+        ],
+        "coldNames": 0,
+        "evRowLinks": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6f10e246",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 47,
+            "source": "Finding 6f10e246",
+            "cellText": [
+              "ACT-000001 · Investigate connector 2",
+              "Finding 6f10e246Finding version",
+              "Charging operations",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "cells": [
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "badgeLines": [
+          1
+        ],
+        "showAll": null,
+        "titleDisclosures": 0,
+        "openTitleDisclosures": 0,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 592,
+        "empty": null,
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply The window may span at most 31 days.",
+          "from": "2026-08-01",
+          "to": "2026-10-25",
+          "width": 1160,
+          "parentWidth": 1160,
+          "height": 57,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": "The window may span at most 31 days.",
+          "errorInside": true
+        }
+      }
+    },
+    {
+      "state": "positive",
+      "width": 390,
+      "file": "w504b-narrow-positive.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "rows",
+        "currentness": null,
+        "currentnessText": null,
+        "scope": "Scoped to EV · 1 action",
+        "stripText": "Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": "Due dates are not yet set",
+        "subtabs": [
+          {
+            "text": "Actions (1)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Incidents (1)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Maintenance (1)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          }
+        ],
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 722,
+        "strip": 61,
+        "panel": 199,
+        "currentnessNotice": null,
+        "contextNotice": 60,
+        "scrollerScrollWidth": 819,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "anchorsInEvRows": 1,
+        "actionHrefs": [
+          "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+        ],
+        "coldNames": 0,
+        "evRowLinks": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6f10e246",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 62,
+            "source": "Finding 6f10e246",
+            "cellText": [
+              "ACT-000001 · Investigate connector 2",
+              "Finding 6f10e246Finding version",
+              "Charging operations",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "cells": [
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "badgeLines": [
+          1
+        ],
+        "showAll": null,
+        "titleDisclosures": 0,
+        "openTitleDisclosures": 0,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 722,
+        "empty": null,
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+          "from": "2026-10-24",
+          "to": "2026-10-25",
+          "width": 358,
+          "parentWidth": 358,
+          "height": 136,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": null,
+          "errorInside": null
+        }
+      }
+    },
+    {
+      "state": "historical",
+      "width": 390,
+      "file": "w504b-narrow-historical.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "rows",
+        "currentness": "HISTORICAL",
+        "currentnessText": "Read as of 2026-10-24 08:25 UTC. Later work may differ.",
+        "scope": "Scoped to EV · 1 action",
+        "stripText": "Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": "Due dates are not yet set",
+        "subtabs": [
+          {
+            "text": "Actions (1)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z"
+          },
+          {
+            "text": "Incidents (0)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z"
+          },
+          {
+            "text": "Maintenance (0)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A25%3A11.921108Z"
+          }
+        ],
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 932,
+        "main": 782,
+        "strip": 61,
+        "panel": 199,
+        "currentnessNotice": 42,
+        "contextNotice": 60,
+        "scrollerScrollWidth": 819,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "anchorsInEvRows": 1,
+        "actionHrefs": [
+          "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+        ],
+        "coldNames": 0,
+        "evRowLinks": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6f10e246",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 62,
+            "source": "Finding 6f10e246",
+            "cellText": [
+              "ACT-000001 · Investigate connector 2",
+              "Finding 6f10e246Finding version",
+              "Charging operations",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "cells": [
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "badgeLines": [
+          1
+        ],
+        "showAll": null,
+        "titleDisclosures": 0,
+        "openTitleDisclosures": 0,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 782,
+        "empty": null,
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+          "from": "2026-10-24",
+          "to": "2026-10-25",
+          "width": 358,
+          "parentWidth": 358,
+          "height": 136,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": null,
+          "errorInside": null
+        }
+      }
+    },
+    {
+      "state": "zero",
+      "width": 390,
+      "file": "w504b-narrow-zero.png",
+      "url": "http://localhost:5502/sites/EV-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "empty",
+        "currentness": null,
+        "currentnessText": null,
+        "scope": "Scoped to EV · 0 actions",
+        "stripText": "Scoped to EV · 0 actions EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": null,
+        "subtabs": [
+          {
+            "text": "Actions (0)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+          },
+          {
+            "text": "Incidents (0)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+          },
+          {
+            "text": "Maintenance (0)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+          }
+        ],
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 955,
+        "main": 805,
+        "strip": 61,
+        "panel": 282,
+        "currentnessNotice": null,
+        "contextNotice": 60,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null,
+        "stickyFirstColumn": null,
+        "rowCount": 0,
+        "rowsTotal": 0,
+        "anchorsInEvRows": 0,
+        "actionHrefs": [],
+        "coldNames": 0,
+        "evRowLinks": [],
+        "rows": [],
+        "cells": [],
+        "badgesClipped": 0,
+        "badgeCount": 0,
+        "badgeLines": [],
+        "showAll": null,
+        "titleDisclosures": 0,
+        "openTitleDisclosures": 0,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 805,
+        "empty": "No actions at this site No accepted recommendation or evidence request has been raised here yet.",
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+          "from": "2026-10-23",
+          "to": "2026-10-24",
+          "width": 358,
+          "parentWidth": 358,
+          "height": 136,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": null,
+          "errorInside": null
+        }
+      }
+    },
+    {
+      "state": "forbidden-403",
+      "width": 390,
+      "file": "w504b-narrow-forbidden-403.png",
+      "url": "http://localhost:5506/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "refused",
+        "currentness": null,
+        "currentnessText": null,
+        "scope": "Scoped to EV · — actions",
+        "stripText": "Scoped to EV · — actions EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": null,
+        "subtabs": [
+          {
+            "text": "Actions (—)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Incidents (—)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Maintenance (—)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          }
+        ],
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 721,
+        "strip": 61,
+        "panel": 198,
+        "currentnessNotice": null,
+        "contextNotice": 60,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null,
+        "stickyFirstColumn": null,
+        "rowCount": 0,
+        "rowsTotal": 0,
+        "anchorsInEvRows": 0,
+        "actionHrefs": [],
+        "coldNames": 0,
+        "evRowLinks": [],
+        "rows": [],
+        "cells": [],
+        "badgesClipped": 0,
+        "badgeCount": 0,
+        "badgeLines": [],
+        "showAll": null,
+        "titleDisclosures": 0,
+        "openTitleDisclosures": 0,
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "refusalText": "EV work unavailable No access to Site 'EV-LAB-001'. Retry",
+        "refusalMessage": "No access to Site 'EV-LAB-001'.",
+        "retryVisible": true,
+        "siteRefusal": null,
+        "pageMain": 721,
+        "empty": null,
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+          "from": "2026-10-24",
+          "to": "2026-10-25",
+          "width": 358,
+          "parentWidth": 358,
+          "height": 136,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": null,
+          "errorInside": null
+        }
+      }
+    },
+    {
+      "state": "unavailable-503",
+      "width": 390,
+      "file": "w504b-narrow-unavailable-503.png",
+      "url": "http://localhost:5507/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "h1": "Work",
+        "subtitle": false,
+        "panelState": null,
+        "currentness": null,
+        "currentnessText": null,
+        "scope": null,
+        "stripText": null,
+        "stripLinks": 0,
+        "panelDescription": null,
+        "subtabs": [],
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": null,
+        "strip": null,
+        "panel": null,
+        "currentnessNotice": null,
+        "contextNotice": null,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null,
+        "stickyFirstColumn": null,
+        "rowCount": 0,
+        "rowsTotal": 0,
+        "anchorsInEvRows": 0,
+        "actionHrefs": [],
+        "coldNames": 0,
+        "evRowLinks": [],
+        "rows": [],
+        "cells": [],
+        "badgesClipped": 0,
+        "badgeCount": 0,
+        "badgeLines": [],
+        "showAll": null,
+        "titleDisclosures": 0,
+        "openTitleDisclosures": 0,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "pageMain": 172,
+        "empty": null,
+        "window": null
+      }
+    },
+    {
+      "state": "window-error",
+      "width": 390,
+      "file": "w504b-narrow-window-error.png",
+      "url": "http://localhost:5501/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "rows",
+        "currentness": null,
+        "currentnessText": null,
+        "scope": "Scoped to EV · 1 action",
+        "stripText": "Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": "Due dates are not yet set",
+        "subtabs": [
+          {
+            "text": "Actions (1)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Incidents (1)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Maintenance (1)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          }
+        ],
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 747,
+        "strip": 61,
+        "panel": 199,
+        "currentnessNotice": null,
+        "contextNotice": 60,
+        "scrollerScrollWidth": 819,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "anchorsInEvRows": 1,
+        "actionHrefs": [
+          "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+        ],
+        "coldNames": 0,
+        "evRowLinks": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6f10e246",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 62,
+            "source": "Finding 6f10e246",
+            "cellText": [
+              "ACT-000001 · Investigate connector 2",
+              "Finding 6f10e246Finding version",
+              "Charging operations",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "cells": [
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "badgeLines": [
+          1
+        ],
+        "showAll": null,
+        "titleDisclosures": 0,
+        "openTitleDisclosures": 0,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 747,
+        "empty": null,
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply The window may span at most 31 days.",
+          "from": "2026-08-01",
+          "to": "2026-10-25",
+          "width": 358,
+          "parentWidth": 358,
+          "height": 161,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": "The window may span at most 31 days.",
+          "errorInside": true
+        }
+      }
+    },
+    {
+      "state": "worst-folded",
+      "width": 1440,
+      "file": "w504b-desktop-worst-folded.png",
+      "url": "http://localhost:5503/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "rows",
+        "currentness": null,
+        "currentnessText": null,
+        "scope": "Scoped to EV · 5 actions",
+        "stripText": "Scoped to EV · 5 actions EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": "Due dates are not yet set",
+        "subtabs": [
+          {
+            "text": "Actions (5)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Incidents (0)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Maintenance (0)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          }
+        ],
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 864,
+        "strip": 39,
+        "panel": 480,
+        "currentnessNotice": null,
+        "contextNotice": 42,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120,
+        "stickyFirstColumn": true,
+        "rowCount": 4,
+        "rowsTotal": 5,
+        "anchorsInEvRows": 5,
+        "actionHrefs": [
+          "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification",
+          "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification",
+          "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification",
+          "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification",
+          "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+        ],
+        "coldNames": 0,
+        "evRowLinks": [
+          {
+            "id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification"
+            ]
+          },
+          {
+            "id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification"
+            ]
+          },
+          {
+            "id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification"
+            ]
+          },
+          {
+            "id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification"
+            ]
+          },
+          {
+            "id": "5b945357-e140-42cd-b49a-bbc23c5f8077",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000005",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 80,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "ACT-000005 · Investigate connector 5 — long title proof xxxx",
+              "Finding 6b0dd1c4Finding version",
+              "Charging operations 5 — long owner proof yyyyyyyyyyyyyyyyyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000004",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 80,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "ACT-000004 · Investigate connector 4 — long title proof xxxx",
+              "Finding 6b0dd1c4Finding version",
+              "Charging operations 4 — long owner proof yyyyyyyyyyyyyyyyyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000003",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 80,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "ACT-000003 · Investigate connector 3 — long title proof xxxx",
+              "Finding 6b0dd1c4Finding version",
+              "Charging operations 3 — long owner proof yyyyyyyyyyyyyyyyyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000002",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 80,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "ACT-000002 · Investigate connector 2 — long title proof xxxx",
+              "Finding 6b0dd1c4Finding version",
+              "Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          }
+        ],
+        "cells": [
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 4,
+        "badgeLines": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "showAll": "Show all 5 Actions",
+        "titleDisclosures": 4,
+        "openTitleDisclosures": 0,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 864,
+        "empty": null,
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+          "from": "2026-10-24",
+          "to": "2026-10-25",
+          "width": 1160,
+          "parentWidth": 1160,
+          "height": 33,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": null,
+          "errorInside": null
+        }
+      }
+    },
+    {
+      "state": "worst-expanded",
+      "width": 1440,
+      "file": "w504b-desktop-worst-expanded.png",
+      "url": "http://localhost:5503/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "rows",
+        "currentness": null,
+        "currentnessText": null,
+        "scope": "Scoped to EV · 5 actions",
+        "stripText": "Scoped to EV · 5 actions EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": "Due dates are not yet set",
+        "subtabs": [
+          {
+            "text": "Actions (5)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Incidents (0)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Maintenance (0)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          }
+        ],
+        "docScrollWidth": 1425,
+        "docClientWidth": 1425,
+        "docHeight": 1274,
+        "main": 1200,
+        "strip": 39,
+        "panel": 816,
+        "currentnessNotice": null,
+        "contextNotice": 42,
+        "scrollerScrollWidth": 1105,
+        "scrollerClientWidth": 1105,
+        "stickyFirstColumn": true,
+        "rowCount": 5,
+        "rowsTotal": 5,
+        "anchorsInEvRows": 5,
+        "actionHrefs": [
+          "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification",
+          "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification",
+          "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification",
+          "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification",
+          "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+        ],
+        "coldNames": 0,
+        "evRowLinks": [
+          {
+            "id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification"
+            ]
+          },
+          {
+            "id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification"
+            ]
+          },
+          {
+            "id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification"
+            ]
+          },
+          {
+            "id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification"
+            ]
+          },
+          {
+            "id": "5b945357-e140-42cd-b49a-bbc23c5f8077",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000005",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 154,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "Read full text ACT-000005 · Investigate connector 5 — long t",
+              "Finding 6b0dd1c4Finding version",
+              "Read full text Charging operations 5 — long owner proof yyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000004",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 154,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "Read full text ACT-000004 · Investigate connector 4 — long t",
+              "Finding 6b0dd1c4Finding version",
+              "Read full text Charging operations 4 — long owner proof yyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000003",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 154,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "Read full text ACT-000003 · Investigate connector 3 — long t",
+              "Finding 6b0dd1c4Finding version",
+              "Read full text Charging operations 3 — long owner proof yyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000002",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 154,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "Read full text ACT-000002 · Investigate connector 2 — long t",
+              "Finding 6b0dd1c4Finding version",
+              "Read full text Charging operations 2 — long owner proof yyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "5b945357-e140-42cd-b49a-bbc23c5f8077",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 62,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "ACT-000001 · Investigate connector 2",
+              "Finding 6b0dd1c4Finding version",
+              "Charging operations",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "cells": [
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              173
+            ]
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              160
+            ]
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              173
+            ]
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              160
+            ]
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              173
+            ]
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              160
+            ]
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              173
+            ]
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              160
+            ]
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 5,
+        "badgeLines": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "showAll": null,
+        "titleDisclosures": 4,
+        "openTitleDisclosures": 4,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 1200,
+        "empty": null,
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+          "from": "2026-10-24",
+          "to": "2026-10-25",
+          "width": 1145,
+          "parentWidth": 1145,
+          "height": 33,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": null,
+          "errorInside": null
+        }
+      }
+    },
+    {
+      "state": "worst-folded",
+      "width": 390,
+      "file": "w504b-narrow-worst-folded.png",
+      "url": "http://localhost:5503/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "rows",
+        "currentness": null,
+        "currentnessText": null,
+        "scope": "Scoped to EV · 5 actions",
+        "stripText": "Scoped to EV · 5 actions EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": "Due dates are not yet set",
+        "subtabs": [
+          {
+            "text": "Actions (5)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Incidents (0)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Maintenance (0)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          }
+        ],
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 1152,
+        "main": 1003,
+        "strip": 61,
+        "panel": 480,
+        "currentnessNotice": null,
+        "contextNotice": 60,
+        "scrollerScrollWidth": 822,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "rowCount": 4,
+        "rowsTotal": 5,
+        "anchorsInEvRows": 5,
+        "actionHrefs": [
+          "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification",
+          "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification",
+          "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification",
+          "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification",
+          "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+        ],
+        "coldNames": 0,
+        "evRowLinks": [
+          {
+            "id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification"
+            ]
+          },
+          {
+            "id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification"
+            ]
+          },
+          {
+            "id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification"
+            ]
+          },
+          {
+            "id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification"
+            ]
+          },
+          {
+            "id": "5b945357-e140-42cd-b49a-bbc23c5f8077",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000005",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 80,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "ACT-000005 · Investigate connector 5 — long title proof xxxx",
+              "Finding 6b0dd1c4Finding version",
+              "Charging operations 5 — long owner proof yyyyyyyyyyyyyyyyyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000004",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 80,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "ACT-000004 · Investigate connector 4 — long title proof xxxx",
+              "Finding 6b0dd1c4Finding version",
+              "Charging operations 4 — long owner proof yyyyyyyyyyyyyyyyyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000003",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 80,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "ACT-000003 · Investigate connector 3 — long title proof xxxx",
+              "Finding 6b0dd1c4Finding version",
+              "Charging operations 3 — long owner proof yyyyyyyyyyyyyyyyyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000002",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 80,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "ACT-000002 · Investigate connector 2 — long title proof xxxx",
+              "Finding 6b0dd1c4Finding version",
+              "Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          }
+        ],
+        "cells": [
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [
+              2
+            ],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 4,
+        "badgeLines": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "showAll": "Show all 5 Actions",
+        "titleDisclosures": 4,
+        "openTitleDisclosures": 0,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 1003,
+        "empty": null,
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+          "from": "2026-10-24",
+          "to": "2026-10-25",
+          "width": 358,
+          "parentWidth": 358,
+          "height": 136,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": null,
+          "errorInside": null
+        }
+      }
+    },
+    {
+      "state": "worst-expanded",
+      "width": 390,
+      "file": "w504b-narrow-worst-expanded.png",
+      "url": "http://localhost:5503/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "measurements": {
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+        "h1": "EV charging lab",
+        "subtitle": true,
+        "panelState": "rows",
+        "currentness": null,
+        "currentnessText": null,
+        "scope": "Scoped to EV · 5 actions",
+        "stripText": "Scoped to EV · 5 actions EV Actions recorded at this site Global Actions does not include EV Actions yet.",
+        "stripLinks": 0,
+        "panelDescription": "Due dates are not yet set",
+        "subtabs": [
+          {
+            "text": "Actions (5)",
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Incidents (0)",
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          },
+          {
+            "text": "Maintenance (0)",
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+          }
+        ],
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 1559,
+        "main": 1409,
+        "strip": 61,
+        "panel": 886,
+        "currentnessNotice": null,
+        "contextNotice": 60,
+        "scrollerScrollWidth": 822,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "rowCount": 5,
+        "rowsTotal": 5,
+        "anchorsInEvRows": 5,
+        "actionHrefs": [
+          "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification",
+          "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification",
+          "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification",
+          "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification",
+          "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+        ],
+        "coldNames": 0,
+        "evRowLinks": [
+          {
+            "id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification"
+            ]
+          },
+          {
+            "id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification"
+            ]
+          },
+          {
+            "id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification"
+            ]
+          },
+          {
+            "id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification"
+            ]
+          },
+          {
+            "id": "5b945357-e140-42cd-b49a-bbc23c5f8077",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000005",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 172,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "Read full text ACT-000005 · Investigate connector 5 — long t",
+              "Finding 6b0dd1c4Finding version",
+              "Read full text Charging operations 5 — long owner proof yyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000004",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 172,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "Read full text ACT-000004 · Investigate connector 4 — long t",
+              "Finding 6b0dd1c4Finding version",
+              "Read full text Charging operations 4 — long owner proof yyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000003",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 172,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "Read full text ACT-000003 · Investigate connector 3 — long t",
+              "Finding 6b0dd1c4Finding version",
+              "Read full text Charging operations 3 — long owner proof yyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000002",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 172,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "Read full text ACT-000002 · Investigate connector 2 — long t",
+              "Finding 6b0dd1c4Finding version",
+              "Read full text Charging operations 2 — long owner proof yyyy",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "5b945357-e140-42cd-b49a-bbc23c5f8077",
+            "codeOneLine": true,
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 6b0dd1c4",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "height": 62,
+            "source": "Finding 6b0dd1c4",
+            "cellText": [
+              "ACT-000001 · Investigate connector 2",
+              "Finding 6b0dd1c4Finding version",
+              "Charging operations",
+              "Not set",
+              "Open",
+              "A complete witnessed session and no repeat fault"
+            ],
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "cells": [
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              173
+            ]
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              160
+            ]
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              173
+            ]
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              160
+            ]
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              173
+            ]
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              160
+            ]
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              173
+            ]
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 1,
+            "openText": [
+              160
+            ]
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 0,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 1,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 2,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 3,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 4,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          },
+          {
+            "col": 5,
+            "fits": true,
+            "kidsInside": true,
+            "clampFits": true,
+            "previewLines": [],
+            "openBodyInside": true,
+            "openBodyFits": true,
+            "openBodies": 0,
+            "openText": []
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 5,
+        "badgeLines": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "showAll": null,
+        "titleDisclosures": 4,
+        "openTitleDisclosures": 4,
+        "refusal": null,
+        "refusalText": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 1409,
+        "empty": null,
+        "window": {
+          "afterSubtabs": true,
+          "beforeStrip": true,
+          "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+          "from": "2026-10-24",
+          "to": "2026-10-25",
+          "width": 358,
+          "parentWidth": 358,
+          "height": 136,
+          "rightGap": 0,
+          "leftGap": 0,
+          "error": null,
+          "errorInside": null
+        }
+      }
+    }
+  ],
+  "claims": [
+    {
+      "name": "manifest: positive and zero ready (ruling 39)",
+      "ok": true,
+      "detail": {
+        "positive": "ready",
+        "zero": "ready"
+      }
+    },
+    {
+      "name": "manifest: walkthrough worstcase ready with ACT-000001..5, four 160-code-point additions and intents, served (re-review M1)",
+      "ok": true,
+      "detail": {
+        "status": "ready",
+        "total": 5,
+        "actions": [
+          {
+            "n": 2,
+            "action_id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "action_code": "ACT-000002",
+            "recorded_at": "2026-10-24T08:26:39.584641Z",
+            "intent_id": "1e252c25-c718-4a68-b60f-a5ec1e50fd4c",
+            "title_code_points": 160,
+            "owner_code_points": 160
+          },
+          {
+            "n": 3,
+            "action_id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "action_code": "ACT-000003",
+            "recorded_at": "2026-10-24T08:26:40.038493Z",
+            "intent_id": "cc405b09-c0aa-4e21-a4d0-461e26a88bcc",
+            "title_code_points": 160,
+            "owner_code_points": 160
+          },
+          {
+            "n": 4,
+            "action_id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "action_code": "ACT-000004",
+            "recorded_at": "2026-10-24T08:26:40.653471Z",
+            "intent_id": "b325a5ae-4d69-4fd9-91fd-cbe901389561",
+            "title_code_points": 160,
+            "owner_code_points": 160
+          },
+          {
+            "n": 5,
+            "action_id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "action_code": "ACT-000005",
+            "recorded_at": "2026-10-24T08:26:41.052718Z",
+            "intent_id": "f8e967b4-e6cf-45c9-bf09-594a98697ac7",
+            "title_code_points": 160,
+            "owner_code_points": 160
+          }
+        ],
+        "port": 9003
+      }
+    },
+    {
+      "name": "manifest pending: browser capture unavailable (ruling 54; pure component vector)",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "status": "unavailable",
+        "reason": "a late accepted event before W5-03 reassessment needs a modified replay; use the pure adapter/component vector"
+      }
+    },
+    {
+      "name": "manifest stale: browser capture unavailable (ruling 54; pure component vector)",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "status": "unavailable",
+        "reason": "a superseded source binding before reselection needs a modified replay; use the pure adapter/component vector"
+      }
+    },
+    {
+      "name": "manifest unknown: browser capture unavailable (ruling 54; pure component vector)",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "status": "unavailable",
+        "reason": "the replay selected 0 SUPPORTED EV Findings, so no Action detail state"
+      }
+    },
+    {
+      "name": "manifest: forbidden and unavailable processes recorded; unavailable stopped by attest",
+      "ok": true,
+      "detail": {
+        "vectors": {
+          "forbidden": {
+            "http": 403,
+            "code": "SITE_SCOPE_FORBIDDEN"
+          },
+          "unavailable": {
+            "stopped_pid": 20944,
+            "port": 9007,
+            "http_after_stop": 0,
+            "expected": "connection refused; the browser proxy reports 503"
+          }
+        }
+      }
+    },
+    {
+      "name": "desktop positive: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop positive: rows panel, CURRENT, stored Site name and R78 subtitle",
+      "ok": true,
+      "detail": {
+        "panel": "rows",
+        "h1": "EV charging lab",
+        "subtitle": true
+      }
+    },
+    {
+      "name": "desktop positive: strip 'Scoped to … · 1 action' with the EV gap and no link (R79, R04)",
+      "ok": true,
+      "detail": {
+        "scope": "Scoped to EV · 1 action",
+        "strip": "Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet."
+      }
+    },
+    {
+      "name": "desktop positive: row is the walkthrough Action with the mock criterion and Source label",
+      "ok": true,
+      "detail": {
+        "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+        "codeOneLine": true,
+        "codes": [
+          {
+            "text": "ACT-000001",
+            "lines": 1
+          },
+          {
+            "text": "Finding 6f10e246",
+            "lines": 1
+          },
+          {
+            "text": "Not set",
+            "lines": 1
+          }
+        ],
+        "height": 47,
+        "source": "Finding 6f10e246",
+        "cellText": [
+          "ACT-000001 · Investigate connector 2",
+          "Finding 6f10e246Finding version",
+          "Charging operations",
+          "Not set",
+          "Open",
+          "A complete witnessed session and no repeat fault"
+        ],
+        "summaryLines": [
+          1
+        ]
+      }
+    },
+    {
+      "name": "desktop positive: 'Due dates are not yet set' (R76)",
+      "ok": true,
+      "detail": "Due dates are not yet set"
+    },
+    {
+      "name": "desktop positive: no 'Depot' text (ruling 52)",
+      "ok": true,
+      "detail": {
+        "strip": "Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet."
+      }
+    },
+    {
+      "name": "desktop positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop positive: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop positive: page main <= 1600",
+      "ok": true,
+      "detail": {
+        "main": 568,
+        "docHeight": 1000
+      }
+    },
+    {
+      "name": "desktop positive: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop positive: panel <= 650",
+      "ok": true,
+      "detail": {
+        "panel": 184,
+        "tableScrollWidth": 1120,
+        "tableClientWidth": 1120
+      }
+    },
+    {
+      "name": "desktop positive: context notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop positive: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "desktop positive: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "desktop positive: each EV Action code links only to its own /verification detail (R113 closed in V4a)",
+      "ok": true,
+      "detail": {
+        "rows": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+            ]
+          }
+        ],
+        "hrefs": [
+          "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+        ]
+      }
+    },
+    {
+      "name": "desktop positive: every disclosure summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "desktop positive: every row cell contains its content",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "desktop positive: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop positive: no clipped State badge, each on one line",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0,
+        "lines": [
+          1
+        ]
+      }
+    },
+    {
+      "name": "desktop positive: Window control after the Work subtabs and before the scope strip (R112)",
+      "ok": true,
+      "detail": {
+        "afterSubtabs": true,
+        "beforeStrip": true,
+        "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+        "from": "2026-10-24",
+        "to": "2026-10-25",
+        "width": 1160,
+        "parentWidth": 1160,
+        "height": 33,
+        "rightGap": 0,
+        "leftGap": 0,
+        "error": null,
+        "errorInside": null
+      }
+    },
+    {
+      "name": "desktop positive: Window labels are From (UTC) / To (UTC, exclusive) (R77)",
+      "ok": true,
+      "detail": "Window From (UTC) To (UTC, exclusive) Apply"
+    },
+    {
+      "name": "desktop positive: Window shows the selected from/to dates",
+      "ok": true,
+      "detail": {
+        "from": "2026-10-24",
+        "to": "2026-10-25",
+        "want": {
+          "from": "2026-10-24",
+          "to": "2026-10-25"
+        }
+      }
+    },
+    {
+      "name": "desktop positive: Window control right-aligned",
+      "ok": true,
+      "detail": {
+        "rightGap": 0
+      }
+    },
+    {
+      "name": "desktop positive: subtabs keep from, to and drop the cursor",
+      "ok": true,
+      "detail": [
+        {
+          "text": "Actions (1)",
+          "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+        },
+        {
+          "text": "Incidents (1)",
+          "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+        },
+        {
+          "text": "Maintenance (1)",
+          "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+        }
+      ]
+    },
+    {
+      "name": "desktop historical: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop historical: HISTORICAL notice (R80) with the row",
+      "ok": true,
+      "detail": {
+        "status": "HISTORICAL",
+        "text": "Read as of 2026-10-24 08:25 UTC. Later work may differ."
+      }
+    },
+    {
+      "name": "desktop historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop historical: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop historical: page main <= 1600",
+      "ok": true,
+      "detail": {
+        "main": 628,
+        "docHeight": 1000
+      }
+    },
+    {
+      "name": "desktop historical: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop historical: panel <= 650",
+      "ok": true,
+      "detail": {
+        "panel": 184,
+        "tableScrollWidth": 1120,
+        "tableClientWidth": 1120
+      }
+    },
+    {
+      "name": "desktop historical: context notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop historical: currentness notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop historical: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "desktop historical: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "desktop historical: each EV Action code links only to its own /verification detail (R113 closed in V4a)",
+      "ok": true,
+      "detail": {
+        "rows": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+            ]
+          }
+        ],
+        "hrefs": [
+          "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+        ]
+      }
+    },
+    {
+      "name": "desktop historical: every disclosure summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "desktop historical: every row cell contains its content",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "desktop historical: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop historical: no clipped State badge, each on one line",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0,
+        "lines": [
+          1
+        ]
+      }
+    },
+    {
+      "name": "desktop zero: settled",
+      "ok": true,
+      "detail": "empty"
+    },
+    {
+      "name": "desktop zero: exact mock successful zero, '0 actions'",
+      "ok": true,
+      "detail": {
+        "panel": "empty",
+        "empty": "No actions at this site No accepted recommendation or evidence request has been raised here yet.",
+        "scope": "Scoped to EV · 0 actions"
+      }
+    },
+    {
+      "name": "desktop zero: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop zero: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop zero: page main <= 1600",
+      "ok": true,
+      "detail": {
+        "main": 646,
+        "docHeight": 1000
+      }
+    },
+    {
+      "name": "desktop zero: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop zero: panel <= 460",
+      "ok": true,
+      "detail": {
+        "panel": 262,
+        "tableScrollWidth": null,
+        "tableClientWidth": null
+      }
+    },
+    {
+      "name": "desktop zero: context notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop forbidden-403: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "desktop forbidden-403: Site read healthy, refusal inside the Actions panel",
+      "ok": true,
+      "detail": {
+        "siteRefusal": null,
+        "panel": "refused",
+        "refusal": "SITE_SCOPE_FORBIDDEN"
+      }
+    },
+    {
+      "name": "desktop forbidden-403: 'EV work unavailable', server message, Retry visible; no row, no zero",
+      "ok": true,
+      "detail": {
+        "text": "EV work unavailable No access to Site 'EV-LAB-001'. Retry",
+        "scope": "Scoped to EV · — actions"
+      }
+    },
+    {
+      "name": "desktop forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop forbidden-403: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop forbidden-403: page main <= 1600",
+      "ok": true,
+      "detail": {
+        "main": 582,
+        "docHeight": 1000
+      }
+    },
+    {
+      "name": "desktop forbidden-403: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop forbidden-403: panel <= 360",
+      "ok": true,
+      "detail": {
+        "panel": 198,
+        "tableScrollWidth": null,
+        "tableClientWidth": null
+      }
+    },
+    {
+      "name": "desktop forbidden-403: context notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop unavailable-503: settled",
+      "ok": true,
+      "detail": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+    },
+    {
+      "name": "desktop unavailable-503: the walkthrough stops this API, so every read fails at the proxy (Site-level refusal, not an in-panel EV 503)",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "siteRefusal": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "panel": null
+      }
+    },
+    {
+      "name": "desktop unavailable-503: page states a refusal with no rows and no zero",
+      "ok": true,
+      "detail": {
+        "siteRefusal": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "panel": null
+      }
+    },
+    {
+      "name": "desktop unavailable-503: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop window-error: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop window-error: the window error is shown, readable and contained, URL unchanged (ruling 51)",
+      "ok": true,
+      "detail": {
+        "error": "The window may span at most 31 days.",
+        "inside": true,
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+      }
+    },
+    {
+      "name": "desktop window-error: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop window-error: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop window-error: expanded heights (ruling 26/51 exempt)",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "main": 592,
+        "strip": 39,
+        "panel": 184,
+        "docHeight": 1000
+      }
+    },
+    {
+      "name": "desktop window-error: Window height",
+      "ok": true,
+      "info": true,
+      "detail": 57
+    },
+    {
+      "name": "narrow positive: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow positive: rows panel, CURRENT, stored Site name and R78 subtitle",
+      "ok": true,
+      "detail": {
+        "panel": "rows",
+        "h1": "EV charging lab",
+        "subtitle": true
+      }
+    },
+    {
+      "name": "narrow positive: strip 'Scoped to … · 1 action' with the EV gap and no link (R79, R04)",
+      "ok": true,
+      "detail": {
+        "scope": "Scoped to EV · 1 action",
+        "strip": "Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet."
+      }
+    },
+    {
+      "name": "narrow positive: row is the walkthrough Action with the mock criterion and Source label",
+      "ok": true,
+      "detail": {
+        "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+        "codeOneLine": true,
+        "codes": [
+          {
+            "text": "ACT-000001",
+            "lines": 1
+          },
+          {
+            "text": "Finding 6f10e246",
+            "lines": 1
+          },
+          {
+            "text": "Not set",
+            "lines": 1
+          }
+        ],
+        "height": 62,
+        "source": "Finding 6f10e246",
+        "cellText": [
+          "ACT-000001 · Investigate connector 2",
+          "Finding 6f10e246Finding version",
+          "Charging operations",
+          "Not set",
+          "Open",
+          "A complete witnessed session and no repeat fault"
+        ],
+        "summaryLines": [
+          1
+        ]
+      }
+    },
+    {
+      "name": "narrow positive: 'Due dates are not yet set' (R76)",
+      "ok": true,
+      "detail": "Due dates are not yet set"
+    },
+    {
+      "name": "narrow positive: no 'Depot' text (ruling 52)",
+      "ok": true,
+      "detail": {
+        "strip": "Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet."
+      }
+    },
+    {
+      "name": "narrow positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow positive: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow positive: page main <= 2000",
+      "ok": true,
+      "detail": {
+        "main": 722,
+        "docHeight": 900
+      }
+    },
+    {
+      "name": "narrow positive: strip <= 150",
+      "ok": true,
+      "detail": 61
+    },
+    {
+      "name": "narrow positive: panel <= 850",
+      "ok": true,
+      "detail": {
+        "panel": 199,
+        "tableScrollWidth": 819,
+        "tableClientWidth": 318
+      }
+    },
+    {
+      "name": "narrow positive: context notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow positive: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "narrow positive: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "narrow positive: each EV Action code links only to its own /verification detail (R113 closed in V4a)",
+      "ok": true,
+      "detail": {
+        "rows": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+            ]
+          }
+        ],
+        "hrefs": [
+          "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+        ]
+      }
+    },
+    {
+      "name": "narrow positive: every disclosure summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "narrow positive: every row cell contains its content",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "narrow positive: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow positive: no clipped State badge, each on one line",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0,
+        "lines": [
+          1
+        ]
+      }
+    },
+    {
+      "name": "narrow positive: table scrolls inside its panel",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 819,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow positive: Window control after the Work subtabs and before the scope strip (R112)",
+      "ok": true,
+      "detail": {
+        "afterSubtabs": true,
+        "beforeStrip": true,
+        "labels": "Window From (UTC) To (UTC, exclusive) Apply",
+        "from": "2026-10-24",
+        "to": "2026-10-25",
+        "width": 358,
+        "parentWidth": 358,
+        "height": 136,
+        "rightGap": 0,
+        "leftGap": 0,
+        "error": null,
+        "errorInside": null
+      }
+    },
+    {
+      "name": "narrow positive: Window labels are From (UTC) / To (UTC, exclusive) (R77)",
+      "ok": true,
+      "detail": "Window From (UTC) To (UTC, exclusive) Apply"
+    },
+    {
+      "name": "narrow positive: Window shows the selected from/to dates",
+      "ok": true,
+      "detail": {
+        "from": "2026-10-24",
+        "to": "2026-10-25",
+        "want": {
+          "from": "2026-10-24",
+          "to": "2026-10-25"
+        }
+      }
+    },
+    {
+      "name": "narrow positive: Window control full width",
+      "ok": true,
+      "detail": {
+        "width": 358,
+        "parent": 358,
+        "leftGap": 0
+      }
+    },
+    {
+      "name": "narrow positive: subtabs keep from, to and drop the cursor",
+      "ok": true,
+      "detail": [
+        {
+          "text": "Actions (1)",
+          "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+        },
+        {
+          "text": "Incidents (1)",
+          "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+        },
+        {
+          "text": "Maintenance (1)",
+          "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+        }
+      ]
+    },
+    {
+      "name": "narrow historical: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow historical: HISTORICAL notice (R80) with the row",
+      "ok": true,
+      "detail": {
+        "status": "HISTORICAL",
+        "text": "Read as of 2026-10-24 08:25 UTC. Later work may differ."
+      }
+    },
+    {
+      "name": "narrow historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow historical: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow historical: page main <= 2000",
+      "ok": true,
+      "detail": {
+        "main": 782,
+        "docHeight": 932
+      }
+    },
+    {
+      "name": "narrow historical: strip <= 150",
+      "ok": true,
+      "detail": 61
+    },
+    {
+      "name": "narrow historical: panel <= 850",
+      "ok": true,
+      "detail": {
+        "panel": 199,
+        "tableScrollWidth": 819,
+        "tableClientWidth": 318
+      }
+    },
+    {
+      "name": "narrow historical: context notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow historical: currentness notice <= 160",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "narrow historical: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "narrow historical: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "narrow historical: each EV Action code links only to its own /verification detail (R113 closed in V4a)",
+      "ok": true,
+      "detail": {
+        "rows": [
+          {
+            "id": "bfe07ec3-c8c7-4ccd-8109-ba585a41342c",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+            ]
+          }
+        ],
+        "hrefs": [
+          "/sites/EV-LAB-001/actions/bfe07ec3-c8c7-4ccd-8109-ba585a41342c/verification"
+        ]
+      }
+    },
+    {
+      "name": "narrow historical: every disclosure summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "narrow historical: every row cell contains its content",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "narrow historical: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow historical: no clipped State badge, each on one line",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0,
+        "lines": [
+          1
+        ]
+      }
+    },
+    {
+      "name": "narrow historical: table scrolls inside its panel",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 819,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow zero: settled",
+      "ok": true,
+      "detail": "empty"
+    },
+    {
+      "name": "narrow zero: exact mock successful zero, '0 actions'",
+      "ok": true,
+      "detail": {
+        "panel": "empty",
+        "empty": "No actions at this site No accepted recommendation or evidence request has been raised here yet.",
+        "scope": "Scoped to EV · 0 actions"
+      }
+    },
+    {
+      "name": "narrow zero: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow zero: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow zero: page main <= 2000",
+      "ok": true,
+      "detail": {
+        "main": 805,
+        "docHeight": 955
+      }
+    },
+    {
+      "name": "narrow zero: strip <= 150",
+      "ok": true,
+      "detail": 61
+    },
+    {
+      "name": "narrow zero: panel <= 560",
+      "ok": true,
+      "detail": {
+        "panel": 282,
+        "tableScrollWidth": null,
+        "tableClientWidth": null
+      }
+    },
+    {
+      "name": "narrow zero: context notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow forbidden-403: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "narrow forbidden-403: Site read healthy, refusal inside the Actions panel",
+      "ok": true,
+      "detail": {
+        "siteRefusal": null,
+        "panel": "refused",
+        "refusal": "SITE_SCOPE_FORBIDDEN"
+      }
+    },
+    {
+      "name": "narrow forbidden-403: 'EV work unavailable', server message, Retry visible; no row, no zero",
+      "ok": true,
+      "detail": {
+        "text": "EV work unavailable No access to Site 'EV-LAB-001'. Retry",
+        "scope": "Scoped to EV · — actions"
+      }
+    },
+    {
+      "name": "narrow forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow forbidden-403: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow forbidden-403: page main <= 2000",
+      "ok": true,
+      "detail": {
+        "main": 721,
+        "docHeight": 900
+      }
+    },
+    {
+      "name": "narrow forbidden-403: strip <= 150",
+      "ok": true,
+      "detail": 61
+    },
+    {
+      "name": "narrow forbidden-403: panel <= 590",
+      "ok": true,
+      "detail": {
+        "panel": 198,
+        "tableScrollWidth": null,
+        "tableClientWidth": null
+      }
+    },
+    {
+      "name": "narrow forbidden-403: context notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow unavailable-503: settled",
+      "ok": true,
+      "detail": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+    },
+    {
+      "name": "narrow unavailable-503: the walkthrough stops this API, so every read fails at the proxy (Site-level refusal, not an in-panel EV 503)",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "siteRefusal": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "panel": null
+      }
+    },
+    {
+      "name": "narrow unavailable-503: page states a refusal with no rows and no zero",
+      "ok": true,
+      "detail": {
+        "siteRefusal": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "panel": null
+      }
+    },
+    {
+      "name": "narrow unavailable-503: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow window-error: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow window-error: the window error is shown, readable and contained, URL unchanged (ruling 51)",
+      "ok": true,
+      "detail": {
+        "error": "The window may span at most 31 days.",
+        "inside": true,
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+      }
+    },
+    {
+      "name": "narrow window-error: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow window-error: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow window-error: expanded heights (ruling 26/51 exempt)",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "main": 747,
+        "strip": 61,
+        "panel": 199,
+        "docHeight": 900
+      }
+    },
+    {
+      "name": "narrow window-error: Window height",
+      "ok": true,
+      "info": true,
+      "detail": 161
+    },
+    {
+      "name": "desktop worst-folded: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop worst-folded: 5 rows on the page, 4 visible, 'Show all 5 Actions' (R108)",
+      "ok": true,
+      "detail": {
+        "total": 5,
+        "visible": 4,
+        "showAll": "Show all 5 Actions",
+        "panel": "rows",
+        "refusal": null,
+        "message": null
+      }
+    },
+    {
+      "name": "desktop worst-folded: '5 actions' count and 36-character Action IDs from the manifest",
+      "ok": true,
+      "detail": {
+        "scope": "Scoped to EV · 5 actions"
+      }
+    },
+    {
+      "name": "desktop worst-folded: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop worst-folded: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop worst-folded: page main <= 1600",
+      "ok": true,
+      "detail": {
+        "main": 864,
+        "docHeight": 1000
+      }
+    },
+    {
+      "name": "desktop worst-folded: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop worst-folded: panel <= 650",
+      "ok": true,
+      "detail": {
+        "panel": 480,
+        "tableScrollWidth": 1120,
+        "tableClientWidth": 1120
+      }
+    },
+    {
+      "name": "desktop worst-folded: context notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop worst-folded: 4 visible row(s) measured",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "desktop worst-folded: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "desktop worst-folded: each EV Action code links only to its own /verification detail (R113 closed in V4a)",
+      "ok": true,
+      "detail": {
+        "rows": [
+          {
+            "id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification"
+            ]
+          },
+          {
+            "id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification"
+            ]
+          },
+          {
+            "id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification"
+            ]
+          },
+          {
+            "id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification"
+            ]
+          },
+          {
+            "id": "5b945357-e140-42cd-b49a-bbc23c5f8077",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+            ]
+          }
+        ],
+        "hrefs": [
+          "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification",
+          "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification",
+          "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification",
+          "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification",
+          "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+        ]
+      }
+    },
+    {
+      "name": "desktop worst-folded: every disclosure summary is on one line",
+      "ok": true,
+      "detail": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "desktop worst-folded: every row cell contains its content",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "desktop worst-folded: every long-text preview is at most two lines",
+      "ok": true,
+      "detail": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "name": "desktop worst-folded: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop worst-folded: no clipped State badge, each on one line",
+      "ok": true,
+      "detail": {
+        "badges": 4,
+        "clipped": 0,
+        "lines": [
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "desktop worst-expanded: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop worst-expanded: all 5 rows visible, every long title disclosure open",
+      "ok": true,
+      "detail": {
+        "rows": 5,
+        "title": 4,
+        "open": 4
+      }
+    },
+    {
+      "name": "desktop worst-expanded: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1425,
+        "clientWidth": 1425
+      }
+    },
+    {
+      "name": "desktop worst-expanded: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop worst-expanded: expanded heights (ruling 26/51 exempt)",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "main": 1200,
+        "strip": 39,
+        "panel": 816,
+        "docHeight": 1274
+      }
+    },
+    {
+      "name": "desktop worst-expanded: 5 visible row(s) measured",
+      "ok": true,
+      "detail": 5
+    },
+    {
+      "name": "desktop worst-expanded: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "desktop worst-expanded: each EV Action code links only to its own /verification detail (R113 closed in V4a)",
+      "ok": true,
+      "detail": {
+        "rows": [
+          {
+            "id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification"
+            ]
+          },
+          {
+            "id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification"
+            ]
+          },
+          {
+            "id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification"
+            ]
+          },
+          {
+            "id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification"
+            ]
+          },
+          {
+            "id": "5b945357-e140-42cd-b49a-bbc23c5f8077",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+            ]
+          }
+        ],
+        "hrefs": [
+          "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification",
+          "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification",
+          "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification",
+          "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification",
+          "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+        ]
+      }
+    },
+    {
+      "name": "desktop worst-expanded: every disclosure summary is on one line",
+      "ok": true,
+      "detail": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "desktop worst-expanded: every row cell contains its content",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "desktop worst-expanded: every opened disclosure body stays inside its cell with no horizontal clip",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "desktop worst-expanded: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop worst-expanded: no clipped State badge, each on one line",
+      "ok": true,
+      "detail": {
+        "badges": 5,
+        "clipped": 0,
+        "lines": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "desktop worst-expanded: opened bodies show the full 160-code-point values",
+      "ok": true,
+      "detail": [
+        173,
+        160,
+        173,
+        160,
+        173,
+        160,
+        173,
+        160
+      ]
+    },
+    {
+      "name": "narrow worst-folded: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow worst-folded: 5 rows on the page, 4 visible, 'Show all 5 Actions' (R108)",
+      "ok": true,
+      "detail": {
+        "total": 5,
+        "visible": 4,
+        "showAll": "Show all 5 Actions",
+        "panel": "rows",
+        "refusal": null,
+        "message": null
+      }
+    },
+    {
+      "name": "narrow worst-folded: '5 actions' count and 36-character Action IDs from the manifest",
+      "ok": true,
+      "detail": {
+        "scope": "Scoped to EV · 5 actions"
+      }
+    },
+    {
+      "name": "narrow worst-folded: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow worst-folded: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow worst-folded: page main <= 2000",
+      "ok": true,
+      "detail": {
+        "main": 1003,
+        "docHeight": 1152
+      }
+    },
+    {
+      "name": "narrow worst-folded: strip <= 150",
+      "ok": true,
+      "detail": 61
+    },
+    {
+      "name": "narrow worst-folded: panel <= 850",
+      "ok": true,
+      "detail": {
+        "panel": 480,
+        "tableScrollWidth": 822,
+        "tableClientWidth": 318
+      }
+    },
+    {
+      "name": "narrow worst-folded: context notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow worst-folded: 4 visible row(s) measured",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "narrow worst-folded: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "narrow worst-folded: each EV Action code links only to its own /verification detail (R113 closed in V4a)",
+      "ok": true,
+      "detail": {
+        "rows": [
+          {
+            "id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification"
+            ]
+          },
+          {
+            "id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification"
+            ]
+          },
+          {
+            "id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification"
+            ]
+          },
+          {
+            "id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification"
+            ]
+          },
+          {
+            "id": "5b945357-e140-42cd-b49a-bbc23c5f8077",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+            ]
+          }
+        ],
+        "hrefs": [
+          "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification",
+          "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification",
+          "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification",
+          "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification",
+          "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+        ]
+      }
+    },
+    {
+      "name": "narrow worst-folded: every disclosure summary is on one line",
+      "ok": true,
+      "detail": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "narrow worst-folded: every row cell contains its content",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "narrow worst-folded: every long-text preview is at most two lines",
+      "ok": true,
+      "detail": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "name": "narrow worst-folded: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow worst-folded: no clipped State badge, each on one line",
+      "ok": true,
+      "detail": {
+        "badges": 4,
+        "clipped": 0,
+        "lines": [
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "narrow worst-folded: table scrolls inside its panel",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 822,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow worst-expanded: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow worst-expanded: all 5 rows visible, every long title disclosure open",
+      "ok": true,
+      "detail": {
+        "rows": 5,
+        "title": 4,
+        "open": 4
+      }
+    },
+    {
+      "name": "narrow worst-expanded: no document horizontal overflow (scrollWidth <= clientWidth + 1)",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow worst-expanded: no cold-named attribute, class or disclosure on the EV page (ruling 45)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow worst-expanded: expanded heights (ruling 26/51 exempt)",
+      "ok": true,
+      "info": true,
+      "detail": {
+        "main": 1409,
+        "strip": 61,
+        "panel": 886,
+        "docHeight": 1559
+      }
+    },
+    {
+      "name": "narrow worst-expanded: 5 visible row(s) measured",
+      "ok": true,
+      "detail": 5
+    },
+    {
+      "name": "narrow worst-expanded: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "narrow worst-expanded: each EV Action code links only to its own /verification detail (R113 closed in V4a)",
+      "ok": true,
+      "detail": {
+        "rows": [
+          {
+            "id": "47663ab2-f1ba-4ef4-b519-0df53084168e",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification"
+            ]
+          },
+          {
+            "id": "0c276fba-ad6c-4bfb-af6f-c646cb99c577",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification"
+            ]
+          },
+          {
+            "id": "52cfd840-cf2f-494b-b80f-7ed50d03cdc3",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification"
+            ]
+          },
+          {
+            "id": "75ee9481-13fa-4688-afbc-8a226b246665",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification"
+            ]
+          },
+          {
+            "id": "5b945357-e140-42cd-b49a-bbc23c5f8077",
+            "hrefs": [
+              "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+            ]
+          }
+        ],
+        "hrefs": [
+          "/sites/EV-LAB-001/actions/47663ab2-f1ba-4ef4-b519-0df53084168e/verification",
+          "/sites/EV-LAB-001/actions/0c276fba-ad6c-4bfb-af6f-c646cb99c577/verification",
+          "/sites/EV-LAB-001/actions/52cfd840-cf2f-494b-b80f-7ed50d03cdc3/verification",
+          "/sites/EV-LAB-001/actions/75ee9481-13fa-4688-afbc-8a226b246665/verification",
+          "/sites/EV-LAB-001/actions/5b945357-e140-42cd-b49a-bbc23c5f8077/verification"
+        ]
+      }
+    },
+    {
+      "name": "narrow worst-expanded: every disclosure summary is on one line",
+      "ok": true,
+      "detail": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "narrow worst-expanded: every row cell contains its content",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "narrow worst-expanded: every opened disclosure body stays inside its cell with no horizontal clip",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "narrow worst-expanded: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow worst-expanded: no clipped State badge, each on one line",
+      "ok": true,
+      "detail": {
+        "badges": 5,
+        "clipped": 0,
+        "lines": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "narrow worst-expanded: table scrolls inside its panel",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 822,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow worst-expanded: opened bodies show the full 160-code-point values",
+      "ok": true,
+      "detail": [
+        173,
+        160,
+        173,
+        160,
+        173,
+        160,
+        173,
+        160
+      ]
+    }
+  ],
+  "failed": 0
+}

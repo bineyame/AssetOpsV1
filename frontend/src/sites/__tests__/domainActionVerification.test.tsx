@@ -20,7 +20,10 @@ import {
 } from "../domainActionClient";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
+import { COLD_ACTION_PRESENTATION } from "../coldWorkPresentation";
+import { EV_ACTION_LINK_LIVE, EV_ACTION_PRESENTATION } from "../evWorkPresentation";
 import { COLD_SITE, DOMAIN_ID, FINDING, FINDING_REV, KNOWN, SITE, detailBody } from "./coldWorkFixtures";
+import { EV_ACTION_ID, EV_FINDING, EV_FINDING_REV, EV_FROM, EV_KNOWN, EV_SITE, EV_SITE_CODE, EV_SITE_NAME, EV_TO } from "./evWorkFixtures";
 
 const CASE_ID = "c0ffee00-1111-4222-8333-444455556666";
 const RECORD_ID = "d00dfeed-1111-4222-8333-444455556666";
@@ -306,5 +309,335 @@ describe("domainActionClient detail results (K4a)", () => {
       expect(result.status).toBe("refused");
       expect(result.status === "refused" && result.message).toBe("The cold work read answered in an unexpected shape.");
     }
+  });
+});
+
+/* ---------- W5-04 V4a: the EV_CHARGING Action detail (v69 `ev-action`, `index.html:710-713`) ---------- */
+
+describe("cold presentation stays the K4 presentation (rulings 41, 47, 53)", () => {
+  it("keeps every cold literal, the Finding status tail, the disclosure and the Related panel byte-for-byte", () => {
+    expect(COLD_ACTION_PRESENTATION).toMatchObject({
+      subtitle: "Has backup service been restored after the inspection?",
+      stateOpen: "Open",
+      ownerMissing: "Not assigned",
+      revisionDisclosure: true,
+      loading: "Loading the cold Action declaration.",
+      notFound: "Action was not found at this site.",
+      unavailable: "Cold work unavailable",
+      retry: "Retry",
+      closingNotice: "Completed inspection does not establish successful service restoration.",
+      windowQuery: false,
+      panel: {
+        criteriaTitle: "Declared outcome criteria",
+        columns: ["Criterion", "Required evidence", "Current result"],
+        intentMissing: "No outcome criteria have been declared for this Action.",
+        resultLabels: { NOT_TESTED: "Not tested", NOT_ESTABLISHED: "Not established", PENDING: "Pending" },
+        related: true,
+      },
+    });
+    expect(COLD_ACTION_PRESENTATION.statusTail({ siteName: "GreenHarvest Cold Store", siteShort: "GreenHarvest", finding: "Finding abcdef12" })).toBe(
+      "GreenHarvest · Finding abcdef12",
+    );
+    expect(COLD_ACTION_PRESENTATION.statusTail({ siteName: "Store", siteShort: "", finding: "Finding abcdef12" })).toBe("Store · Finding abcdef12");
+  });
+});
+
+const EV_CRITERIA = [
+  { key: "WITNESSED_SESSION", label: "Complete a witnessed charging session", required_evidence: "Session start, end, outcome and meter delta" },
+  { key: "NO_FAULT_RECURRENCE", label: "No fault recurrence during observation", required_evidence: "Connector diagnostic events with full coverage" },
+  { key: "NO_SERVICE_REDUCTION", label: "No reduction in service availability", required_evidence: "Comparable status coverage / operational window" },
+];
+
+/** The as-built EV detail wire (`work/domain_action_index.py` `_ev_detail`): three EV criteria, three `PENDING`. */
+function evDetail(over: Partial<DomainActionDetail> = {}): DomainActionDetail {
+  return {
+    schema_version: "domain-action-intent-read-1",
+    site_code: EV_SITE_CODE,
+    action: {
+      id: EV_ACTION_ID,
+      action_code: "ACT-000061",
+      domain: "EV_CHARGING",
+      title: "Investigate connector 2",
+      owner_label: "Charging operations",
+      due_at: null,
+      raised_at: "2026-10-06T09:10:00Z",
+      recorded_at: "2026-10-06T09:10:01Z",
+      state: "OPEN",
+    },
+    known_at: EV_KNOWN,
+    status: "CURRENT",
+    intent: {
+      id: "bbbb0000-0000-4000-8000-000000000001",
+      recorded_at: "2026-10-06T09:11:00Z",
+      criteria: EV_CRITERIA,
+      basis: { finding_revision_id: EV_FINDING_REV, work_case_id: null, work_record_id: null, accepted_evidence_ids: [], session_ids: [] },
+    },
+    results: EV_CRITERIA.map((c) => ({ key: c.key, result: "PENDING", evidence_ids: [] })),
+    links: { finding: { label: `Finding ${EV_FINDING.slice(0, 8)}`, href: null }, work: NO_WORK },
+    source_provenance: null,
+    selection_token: "sha256:ev",
+    ...over,
+  };
+}
+
+const evMissingIntent = (over: Partial<DomainActionDetail> = {}) => evDetail({ intent: null, results: null, status: "UNKNOWN", ...over });
+
+async function mountEv(detail: () => DomainDetailResult | Promise<DomainDetailResult>, path = "/verification", settle = true) {
+  const d = domain(detail);
+  render(
+    <MemoryRouter initialEntries={[`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}${path}`]}>
+      <Routes>
+        <Route
+          path="/sites/:siteId/actions/:actionId/:actionView"
+          element={<SiteActionFrame detail={siteDetail(EV_SITE as SiteDetailReadModel)} sitesPath="/sites" domainActions={d.client} />}
+        />
+        <Route
+          path="/sites/:siteId/actions/:actionId"
+          element={<SiteActionFrame detail={siteDetail(EV_SITE as SiteDetailReadModel)} sitesPath="/sites" domainActions={d.client} />}
+        />
+      </Routes>
+      <Where />
+    </MemoryRouter>,
+  );
+  if (settle) await settledScreen();
+  else await waitFor(() => expect(document.querySelector("main[data-domain-action-shell]")).not.toBeNull());
+  return { main: document.querySelector("main") as HTMLElement, ...d };
+}
+
+describe("ev-action loaded page (rulings 15, 41, 43; pre-flight 44-46)", () => {
+  it("renders the mock frame, the full Site name status and the sole Declared verification plan with three plain Pending results", async () => {
+    const { main, client } = await mountEv(() => loaded(evDetail()));
+    expectV69Panels("ev-action");
+    // Mock breadcrumb `Actions › {code} › Verification · site: {site}`, heading, question subtitle and Open site.
+    expect(Array.from(main.querySelectorAll("[data-domain-action-crumbs] li")).map(text)).toEqual(["Actions", "ACT-000061", "Verification"]);
+    expect(main.querySelector("[data-domain-action-crumbs] a")?.getAttribute("href")).toBe("/actions");
+    expect(text(main.querySelector("[data-domain-action-crumb-site]"))).toBe(`· site: ${EV_SITE_NAME}`);
+    expect(text(main.querySelector("h1"))).toBe("ACT-000061 · Investigate connector 2");
+    expect(main.textContent).toContain("What would establish successful service restoration?");
+    expect(main.querySelector("[data-domain-action-open-site]")?.getAttribute("href")).toBe(`/sites/${EV_SITE_CODE}`);
+    // One Verification tab only.
+    expect(Array.from(main.querySelectorAll("[data-action-section]")).map(text)).toEqual(["Verification"]);
+    // Pre-flight 44/45, ruling 41: amber `Open`, `{owner} · {full Site display_name}`, no Finding or Finding version.
+    const strip = main.querySelector("[data-domain-action-strip]") as HTMLElement;
+    expect(strip.querySelector(".w1f4-action-badge--amber")?.textContent).toBe("Open");
+    expect(text(strip.querySelector("[data-domain-action-status-line]"))).toBe(`Charging operations · ${EV_SITE_NAME}`);
+    expect(strip.textContent).not.toContain("Finding");
+    expect(strip.querySelector("[data-domain-action-revision]")).toBeNull();
+    expect(main.textContent).not.toContain("Depot");
+    // The sole mock panel.
+    expect(headings(main)).toEqual(["Declared verification plan"]);
+    const table = main.querySelector("[data-domain-action-criteria] table") as HTMLElement;
+    expect(Array.from(table.querySelectorAll("thead th")).map(text)).toEqual(["Criterion", "Required evidence", "Current result"]);
+    const rows = Array.from(table.querySelectorAll("tbody tr")).map((tr) => Array.from(tr.querySelectorAll("td")).map(text));
+    expect(rows).toEqual([
+      ["Complete a witnessed charging session", "Session start, end, outcome and meter delta", "Pending"],
+      ["No fault recurrence during observation", "Connector diagnostic events with full coverage", "Pending"],
+      ["No reduction in service availability", "Comparable status coverage / operational window", "Pending"],
+    ]);
+    // Plain text, never a chip or badge.
+    for (const cell of Array.from(table.querySelectorAll("[data-domain-action-result]"))) {
+      expect(cell.children).toHaveLength(0);
+    }
+    // Pre-flight 46: no Related activity, Inspect, disabled maintenance button or source-Finding control.
+    expect(main.textContent).not.toContain("Related activity");
+    expect(main.querySelector("button[disabled]")).toBeNull();
+    expect(main.querySelector("[data-domain-action-inspect], [data-domain-action-finding-control]")).toBeNull();
+    expect(main.textContent).not.toMatch(/Verified|Restored|Passed|Established\b/);
+    const notice = main.querySelector("[data-domain-action-notice]") as HTMLElement;
+    expect(text(notice)).toBe("A completed investigation or diagnostic reset would not establish a verified outcome.");
+    expect(notice.classList.contains("v69-notice--blue")).toBe(true);
+    const { violations } = scanProductVocabulary(main, "ev-action");
+    expect(violations, describeViolations(violations)).toEqual([]);
+    // Ruling 64: the EV Site passes its Site type for the EV fallback copy.
+    expect(client.getDetail).toHaveBeenCalledWith(EV_SITE_CODE, EV_ACTION_ID, null, "EV_CHARGING");
+  });
+
+  it("shows `Not assigned` for a null owner and keeps a 160-code-point title and owner whole (R109)", async () => {
+    const title = "T".repeat(160);
+    const owner = "O".repeat(160);
+    const { main } = await mountEv(() => loaded(evDetail({ action: { ...evDetail().action, owner_label: null } })));
+    expect(text(main.querySelector("[data-domain-action-owner]"))).toBe("Not assigned");
+    cleanup();
+    const long = await mountEv(() => loaded(evDetail({ action: { ...evDetail().action, title, owner_label: owner } })));
+    expect(text(long.main.querySelector("h1"))).toBe(`ACT-000061 · ${title}`);
+    expect(text(long.main.querySelector("[data-domain-action-owner]"))).toBe(owner);
+    expect(long.main.querySelector("[data-domain-action-owner]")?.className).toBe("domain-action-owner");
+  });
+
+  it("a 200 missing intent keeps UNKNOWN currentness above the plan heading with the exact no-criteria sentence (ruling 40)", async () => {
+    const { main } = await mountEv(() => loaded(evMissingIntent()));
+    expectV69Panels("ev-action");
+    expect(headings(main)).toEqual(["Declared verification plan"]);
+    expect(text(main.querySelector("[data-domain-action-intent-missing]"))).toBe("No verification criteria have been declared for this Action.");
+    expect(main.querySelector("[data-domain-action-criteria]")).toBeNull();
+    expect(main.textContent).not.toContain("Pending");
+    const strip = main.querySelector("[data-domain-action-strip]") as HTMLElement;
+    const notice = main.querySelector('[data-domain-action-currentness="UNKNOWN"]') as HTMLElement;
+    expect(strip.nextElementSibling).toBe(notice);
+    expect(text(notice)).toBe("No selected source for linked evidence. The work record remains recorded.");
+    expect(text(notice.nextElementSibling?.querySelector("h2"))).toBe("Declared verification plan");
+  });
+
+  it.each<[DomainStatus, string, "blue" | "amber"]>([
+    ["HISTORICAL", "Read as of 2026-10-06 12:00 UTC. Later work may differ.", "blue"],
+    ["PENDING_RECOMPUTE", "Linked evidence is being reassessed. The work record remains recorded.", "amber"],
+    ["STALE_SOURCE", "Linked evidence source is out of date. The work record remains recorded.", "amber"],
+    ["UNKNOWN", "No selected source for linked evidence. The work record remains recorded.", "blue"],
+  ])("a loaded %s read puts its R80 notice after the strip and before the plan with the R104 tone", async (status, sentence, tone) => {
+    const { main } = await mountEv(() => loaded(evDetail({ status })));
+    expectV69Panels("ev-action");
+    const strip = main.querySelector("[data-domain-action-strip]") as HTMLElement;
+    const notice = main.querySelector(`[data-domain-action-currentness="${status}"]`) as HTMLElement;
+    expect(strip.nextElementSibling).toBe(notice);
+    expect(text(notice)).toBe(sentence);
+    // Amber is the base notice; blue adds its modifier.
+    expect(notice.classList.contains("v69-notice--blue")).toBe(tone === "blue");
+    expect(text(notice.nextElementSibling?.querySelector("h2"))).toBe("Declared verification plan");
+  });
+
+  it("a CURRENT read has no leading notice", async () => {
+    const { main } = await mountEv(() => loaded(evDetail()));
+    expect(main.querySelector("[data-domain-action-currentness]")).toBeNull();
+  });
+});
+
+describe("ev-action query selection (ruling 14) and route dispatch (ruling 43)", () => {
+  const query = `?from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}&known_at=${encodeURIComponent(EV_KNOWN)}`;
+  const expected = `from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}&known_at=${encodeURIComponent(EV_KNOWN)}`;
+
+  it("keeps the selected from,to,known_at on the Verification tab, reads at known_at, and has no Window control", async () => {
+    const { main, calls } = await mountEv(() => loaded(evDetail({ status: "HISTORICAL" })), `/verification${query}`);
+    expect(calls).toEqual([{ id: EV_ACTION_ID, knownAt: EV_KNOWN }]);
+    expect(main.querySelector('[data-action-section="verification"]')?.getAttribute("href")).toBe(
+      `/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification?${expected}`,
+    );
+    expect(main.querySelector("form, input")).toBeNull();
+    expect(main.textContent).not.toContain("From (UTC)");
+  });
+
+  it.each(["", "/plan", "/history"])("redirects a loaded EV domain Action at `%s` to /verification with the same query", async (path) => {
+    const { calls } = await mountEv(() => loaded(evDetail({ status: "HISTORICAL" })), `${path}${query}`);
+    await waitFor(() => expect(text(screen.getByTestId("where"))).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification?${expected}`));
+    await settledScreen();
+    expect(document.querySelector("main")?.getAttribute("data-domain-action-shell")).toBe("loaded");
+    expect(calls.every((c) => c.knownAt === EV_KNOWN)).toBe(true);
+  });
+
+  it("EV_ACTION_LINK_LIVE is on and only EV keeps the window query (R113 closed)", () => {
+    expect(EV_ACTION_LINK_LIVE).toBe(true);
+    expect(EV_ACTION_PRESENTATION.windowQuery).toBe(true);
+    expect(COLD_ACTION_PRESENTATION.windowQuery).toBe(false);
+  });
+});
+
+describe("ev-action non-loaded states: one untitled panel (rulings 16, 40, 42; R110)", () => {
+  it("loading shows one untitled state panel with the EV loading sentence", async () => {
+    const { main } = await mountEv(() => new Promise<never>(() => undefined), "/verification", false);
+    expect(main.querySelectorAll("section.panel")).toHaveLength(1);
+    expect(main.querySelector("section.panel h2")).toBeNull();
+    expect(text(main.querySelector('[data-domain-action-panel="loading"]'))).toBe("Loading the EV Action declaration.");
+    expect(main.textContent).not.toContain("Declared verification plan");
+  });
+
+  it("a 404 shows one untitled not-found panel", async () => {
+    const { main } = await mountEv(() => ({ status: "not_found", http: 404, code: "ACTION_NOT_FOUND", message: "Action was not found at this site." }));
+    expect(main.querySelectorAll("section.panel")).toHaveLength(1);
+    expect(main.querySelector("section.panel h2")).toBeNull();
+    expect(text(main.querySelector('[data-domain-action-panel="not-found"]'))).toBe("Action was not found at this site.");
+    expect(main.querySelector("[data-domain-action-strip]")).toBeNull();
+  });
+
+  it.each([
+    [409, "DOMAIN_INTENT_BASIS_CHANGED", "The selected EV work basis changed; reload the Action."],
+    [403, "SITE_ACCESS_DENIED", "You do not have access to this site's work."],
+    [422, "INVALID_KNOWN_AT", "'known_at' must be one UTC instant no later than the read time."],
+    [503, "WORK_STORE_UNAVAILABLE", "The work store is unavailable."],
+  ])("a %s refusal shows `EV work unavailable`, the server message and a Retry that re-reads", async (http, code, message) => {
+    const { main, calls } = await mountEv(() => ({ status: "refused", http, code, message }));
+    expect(main.querySelectorAll("section.panel")).toHaveLength(1);
+    expect(main.querySelector("section.panel h2")).toBeNull();
+    const panel = main.querySelector('[data-domain-action-panel="refused"]') as HTMLElement;
+    expect(panel.getAttribute("data-domain-action-refusal")).toBe(code);
+    expect(text(panel.querySelector("strong"))).toBe("EV work unavailable");
+    expect(text(panel.querySelector("[data-domain-action-refusal-message]"))).toBe(message);
+    expect(main.textContent).not.toContain("Cold work unavailable");
+    expect(main.textContent).not.toContain("Pending");
+    expect(main.querySelector("[data-domain-action-notice]")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    await settledScreen();
+    expect(calls).toHaveLength(2);
+  });
+});
+
+describe("domainActionClient EV detail (rulings 43, 44, 64)", () => {
+  const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
+
+  it("parses the EV detail as a domain Action and refuses an EV result other than PENDING", async () => {
+    const client = createDomainActionClient();
+    vi.stubGlobal("fetch", async () => json(200, evDetail()));
+    const ok = await client.getDetail(EV_SITE_CODE, EV_ACTION_ID, null, "EV_CHARGING");
+    expect(ok.status === "loaded" && ok.value.action.domain).toBe("EV_CHARGING");
+    vi.stubGlobal("fetch", async () => json(200, evMissingIntent()));
+    expect((await client.getDetail(EV_SITE_CODE, EV_ACTION_ID, null, "EV_CHARGING")).status).toBe("loaded");
+    for (const body of [
+      evDetail({ results: evDetail().results!.map((r, i) => (i === 0 ? { ...r, result: "NOT_TESTED" } : r)) }),
+      evDetail({ results: evDetail().results!.slice(0, 2) }),
+      evDetail({ action: { ...evDetail().action, domain: "MINIGRID" as never } }),
+    ]) {
+      vi.stubGlobal("fetch", async () => json(200, body));
+      expect(await client.getDetail(EV_SITE_CODE, EV_ACTION_ID, null, "EV_CHARGING")).toEqual({
+        status: "refused",
+        http: 200,
+        code: null,
+        message: "The EV work read answered in an unexpected shape.",
+      });
+    }
+  });
+
+  it("uses the EV network and malformed sentences for an EV Site and keeps the cold sentences byte-for-byte otherwise", async () => {
+    const client = createDomainActionClient();
+    vi.stubGlobal("fetch", async () => {
+      throw new TypeError("network");
+    });
+    expect(await client.getDetail(EV_SITE_CODE, EV_ACTION_ID, null, "EV_CHARGING")).toEqual({
+      status: "refused",
+      http: null,
+      code: null,
+      message: "The EV work read could not be reached.",
+    });
+    expect(await client.getDetail(SITE, DOMAIN_ID, null)).toMatchObject({ message: "The cold work read could not be reached." });
+    vi.stubGlobal("fetch", async () => json(503, { nothing: true }));
+    expect(await client.getDetail(EV_SITE_CODE, EV_ACTION_ID, null, "EV_CHARGING")).toMatchObject({ http: 503, message: "The EV work read answered in an unexpected shape." });
+    expect(await client.getDetail(SITE, DOMAIN_ID, null)).toMatchObject({ http: 503, message: "The cold work read answered in an unexpected shape." });
+    vi.stubGlobal("fetch", async () =>
+      json(409, { detail: { code: "DOMAIN_INTENT_BASIS_CHANGED", message: "The selected EV work basis changed; reload the Action.", intent: null, results: null } }),
+    );
+    expect(await client.getDetail(EV_SITE_CODE, EV_ACTION_ID, null, "EV_CHARGING")).toEqual({
+      status: "refused",
+      http: 409,
+      code: "DOMAIN_INTENT_BASIS_CHANGED",
+      message: "The selected EV work basis changed; reload the Action.",
+    });
+  });
+
+  it("the network failure reaches the page as the EV refusal panel", async () => {
+    vi.stubGlobal("fetch", async () => {
+      throw new TypeError("network");
+    });
+    render(
+      <MemoryRouter initialEntries={[`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`]}>
+        <Routes>
+          <Route
+            path="/sites/:siteId/actions/:actionId/:actionView"
+            element={<SiteActionFrame detail={siteDetail(EV_SITE as SiteDetailReadModel)} sitesPath="/sites" domainActions={createDomainActionClient()} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    const panel = document.querySelector('[data-domain-action-panel="refused"]') as HTMLElement;
+    expect(panel.getAttribute("data-domain-action-refusal")).toBe("UNREACHABLE");
+    expect(text(panel)).toContain("EV work unavailable");
+    expect(text(panel.querySelector("[data-domain-action-refusal-message]"))).toBe("The EV work read could not be reached.");
   });
 });
