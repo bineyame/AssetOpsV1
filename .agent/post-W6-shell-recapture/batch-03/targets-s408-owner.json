@@ -1,0 +1,27 @@
+[
+ {
+  "id": "financials",
+  "case": "nofinding",
+  "url": "http://localhost:5181/sites/KOBO-001/financials"
+ },
+ {
+  "id": "finding",
+  "case": "priced",
+  "url": "http://localhost:5181/sites/KOBO-001/findings/adcc07d4-c124-4d9e-a993-faa8a55a88d0?revision_id=11336241-b492-4465-b8c4-c624077c5a0e"
+ },
+ {
+  "id": "finding-evidence",
+  "case": "labelled",
+  "url": "http://localhost:5181/sites/KOBO-001/findings/adcc07d4-c124-4d9e-a993-faa8a55a88d0/evidence?revision_id=11336241-b492-4465-b8c4-c624077c5a0e"
+ },
+ {
+  "id": "finding-history",
+  "case": "priced",
+  "url": "http://localhost:5181/sites/KOBO-001/findings/adcc07d4-c124-4d9e-a993-faa8a55a88d0/history?revision_id=11336241-b492-4465-b8c4-c624077c5a0e"
+ },
+ {
+  "id": "assumptions",
+  "case": "T3-page2",
+  "url": "http://localhost:5181/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-24T23%3A34%3A32.014311%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI0VDIzOjMzOjM0LjY5MjU4MSswMDowMCIsIjU4MjA3YWQ2LTc1OGItNDE0Yi05ZjA5LTgyMDkxZmEyYzA5YiJdLCJmZW5jZSI6InNjaDEtZGViOTYyOWQzMjk5MzA1NTA1NDRlMDEwMjJlMWE2Mzk3MGU2OWE5MzljNjE3M2UxZGNhNWFkZTE5YmEzNmQ4MSIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjRUMjM6MzQ6MzIuMDE0MzExKzAwOjAwIiwic2l0ZV9pZCI6IjkxYWNlOWMyLWFkOGUtNGNkNC1iMDU3LTFhMjcwMDJjMmIzMyIsInRlbmFudF9pZCI6IjEzZjkyZDNhLTc0NmYtNGI5ZS05YzE2LWUyNjgyZjA1MWUyNiIsInYiOjF9&history_limit=2"
+ }
+]

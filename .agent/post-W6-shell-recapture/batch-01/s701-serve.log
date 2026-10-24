@@ -1,0 +1,13 @@
+API: C:\Users\assef\Bineyame\AssetOpsV1-review3\.venv\Scripts\python.exe -m uvicorn lab_app:app --host 127.0.0.1 --port 18101  (cwd C:\Users\assef\Bineyame\AssetOpsV1-review3\var\s701_owner_shellrc\tree\host, DATABASE_URL=postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/assetops_s701_owner_audit)
+API on http://127.0.0.1:18101 (log C:\Users\assef\Bineyame\AssetOpsV1-review3\var\s701_owner_shellrc\logs\api-18101.log), pid 15260
+Frontend, in a second PowerShell at C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend:
+  $env:ASSETOPS_API_PORT="18101"; npm.cmd run dev -- --port 5181 --strictPort
+Open these (frontend on port 5181):
+  KOBO-001 Gateway contact (Site Health)    http://127.0.0.1:5181/sites/KOBO-001/health
+  KOBO-001 battery (condition Unknown)      http://127.0.0.1:5181/sites/KOBO-001/assets/c3c120a2-6583-4f1b-a0ac-288ed656dee8
+  KOBO-001 battery entry                    http://127.0.0.1:5181/sites/KOBO-001/assets
+  KOBO-002 Gateway contact (no enabled one) http://127.0.0.1:5181/sites/KOBO-002/health
+  KOBO-002 battery (not configured)         http://127.0.0.1:5181/sites/KOBO-002/assets
+  Refusal: asset outside the basis          http://127.0.0.1:5181/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000
+  Compare with the mockup: frontend/mockups/v69/index.html#/health and #/asset
+Before viewing, in another shell: the same command ending `deliver`, then `attest`.
