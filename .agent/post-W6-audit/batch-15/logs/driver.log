@@ -1,0 +1,13 @@
+VITE_PID worstcase 30064
+DONE worstcase 72/72 claims passed; evidence in part-worstcase
+VITE_PID pending 8464
+DONE pending 36/36 claims passed; evidence in part-pending
+VITE_PID stale 20828
+DONE stale 36/36 claims passed; evidence in part-stale
+VITE_PID unknown 16848
+DONE unknown 36/36 claims passed; evidence in part-unknown
+VITE_PID forbidden 16424
+DONE forbidden 34/36 claims passed; evidence in part-forbidden
+VITE_PID unavailable 26288
+DONE unavailable 32/36 claims passed; evidence in part-unavailable
+ALL_DONE

@@ -1,0 +1,141 @@
+[
+ {
+  "id": "B15-X1",
+  "screens": [
+   "cold-work-incidents",
+   "cold-work-maintenance",
+   "cold-action"
+  ],
+  "what": "Cross-cutting, cited not re-described: B1-01/B2-01 shell top bar missing (all pairs; the mock's topbar also carries the Window picker); B1-04/B2-36 rail 'Not available yet' (all); B2-02 page-local Window on the case tabs (R88, B15-05); B1-07/B2-03 14 px panel prose on cold-action (mock .prose 12 px; case tabs match the mock 11/12 px); B1-02/B2-04 tall dark header at 390 on the cold-action state panels (not-found 334 px, 422/403/503 275-286 px dark block; case-tab refusals stay 107-118 px); B1-53 raw codes (basis disclosure 'Linked evidence COMPLETE', '[from, to)', 'List fence sha256:...'; backticked `from`/`to`; 'known_at'; linked actions labelled 'Action 5198a58a' though ACT-000001 is on the wire; Finding id8 = R65); B2-21/B3-04 UTC: 'Read as of 2026-10-24 17:46 UTC' notices, 'From (UTC)' labels, 'UTC and IDs' and basis windows in UTC on an Africa/Addis_Ababa Site. B3-01 does not recur.",
+  "disp": "Cite existing IDs."
+ },
+ {
+  "id": "B15-01",
+  "screens": [
+   "cold-action"
+  ],
+  "what": "Action chrome VERIFIED: B4-03, B4-04, B4-05 and B5-01 do NOT recur on cold-action. Breadcrumb is Action-rooted 'Actions / ACT-000001 / Verification · site: Cold replay lab' (mock 'Actions > ACT-051 > Verification · site: GreenHarvest Cold Room'), the only tab row is 'Verification', the header has 'Open site', and the rail selects Actions (R69 resolved). Strip 'Open · Maintenance lead · Cold · Finding 093b9e7a' (mock '... GreenHarvest · F-118', R65). Criteria table: 4 rows, 3 columns, results Not tested/Not tested/Not established/Pending, exact mock text.",
+  "disp": "(a) R69 verified; B4-03/04/05 and B5-01 stay open for W1 Action pages only, and the cold shell is a ready precedent for their fix."
+ },
+ {
+  "id": "B15-02",
+  "screens": [
+   "cold-work-incidents",
+   "cold-work-maintenance"
+  ],
+  "what": "Carried '1 incidents' / '1 maintenance' plural CONFIRMED: the case strips read 'Scoped to Cold · 1 incidents' and '· 1 maintenance' in every one-row state (current, positive-cutoff, historical, no-window (incidents), all-open, pending, stale, unknown). The mock has the same literal. Subtab counts use 'Incidents (1)'.",
+  "disp": "D3 Low, shared copy owner with B14-03 '1 actions' (a mock typo is not a ruling)."
+ },
+ {
+  "id": "B15-03",
+  "screens": [
+   "cold-work-incidents",
+   "cold-work-maintenance"
+  ],
+  "cases": [
+   "refused-reversed",
+   "refused-span-32d",
+   "forbidden-403",
+   "unavailable-503"
+  ],
+  "what": "Case-tab refusals. The case tabs do NOT go through domainActionClient: a reversed window shows the raw server text '`from` must be before `to`.' and a 32-day span 'The window may span at most 31 days.' (distinct, unlike B14-02 on cold-work, but raw). The Window form keeps the reversed values (10/25 to 10/23). In every refusal (invalid window, 403, 503) the strip says 'Count unknown · work source unavailable', which is false for an invalid input or a missing grant. 'This list cannot be shown' renders as a bordered inline badge before the sentence, and a trailing 'Incidents at this site · As of: time not recorded' line follows. 403 'No access' and 503 'Work records unavailable' keep K3 ruling 9 copy with no Retry.",
+  "disp": "D3 Low (W4 case refusal copy owner): plain-language window messages, strip cause by refusal kind, drop the badge styling and the 'time not recorded' line; cite B1-53 for the backticked field names. B14-02 remains cold-work only."
+ },
+ {
+  "id": "B15-04",
+  "screens": [
+   "cold-action"
+  ],
+  "cases": [
+   "invalid-known-at",
+   "future-known-at",
+   "forbidden-403",
+   "unavailable-503",
+   "not-found"
+  ],
+  "what": "Cold-action state panel (R101 untitled panel). An invalid known_at (client refusal) and a future known_at (server 422) both read 'Cold work unavailable · 'known_at' must be one UTC instant no later than the read time. · Retry'. 403 reads 'Cold work unavailable · No access to Site 'COLD-LAB-001'. · Retry'; 503 'Work records could not be read or saved. · Retry'. The title says 'unavailable' for a bad input and for a missing grant, Retry cannot succeed for 422/403, and the copy differs from the case tabs' 'No access' (no Retry). Not found: 'Action was not found at this site.' with h1 'Action'.",
+  "disp": "R101 (D2) covers the single untitled panel (verified). Copy and Retry: D3 Low, shared with B15-03 and B12-06; cite B1-53 for 'known_at' and the raw Site code."
+ },
+ {
+  "id": "B15-05",
+  "screens": [
+   "cold-work-incidents",
+   "cold-work-maintenance"
+  ],
+  "what": "R88 VERIFIED on both case tabs: page-local Window after the Work subtabs, before the scope strip; 33 px at 1440, 136 px stacked at 390 (the carried 390 height); labels 'From (UTC)' / 'To (UTC, exclusive)' with browser-locale dates. Subtab hrefs keep from/to (and known_at when set). cold-action has no Window control: the mock's only picker is in the missing topbar, and cold Action links keep known_at only (EV ruling 14). R112 is EV-only and does not touch these screens.",
+  "disp": "(a) R88 D1 covers the control and its 390 height; cold-action has no extra departure (B1-01)."
+ },
+ {
+  "id": "B15-06",
+  "screens": [
+   "cold-work-incidents",
+   "cold-work-maintenance"
+  ],
+  "cases": [
+   "no-window"
+  ],
+  "what": "The default window (no query) is seven UTC days ending today 00:00Z. It shows Incidents (1) but Actions (0) and Maintenance (0). The maintenance tab says 'No inspection or repair has been raised here in the selected period.' while the WR's own 'UTC and IDs' says 'Occurred 2026-10-23 16:20 UTC', inside that window. Cause: the W4 Site index windows maintenance requests by root created_at and Incidents by occurred_at (backend work/site_index.py:7, :219; API 17-24 Oct returns 0 requests). Neither the Window column nor 'What this list is based on' says which time places a request in the window.",
+  "disp": "D3 Low (copy/basis, extends B14-09): name the membership time in the basis disclosure or empty copy. Architect to confirm the created_at rule and the default window including today."
+ },
+ {
+  "id": "B15-07",
+  "screens": [
+   "cold-work-incidents",
+   "cold-work-maintenance"
+  ],
+  "what": "The closing notice keeps only 'Opening a record moves you to its own area; the breadcrumb keeps this site.' The mock's second sentence 'New work starts from the global create flow with this site filled in.' is dropped. R01 records this departure for cold-work only (R03 does it for the EV tabs).",
+  "disp": "(b) D1 candidate: extend R01's screen list to cold-work-incidents and cold-work-maintenance."
+ },
+ {
+  "id": "B15-08",
+  "screens": [
+   "cold-work-incidents",
+   "cold-work-maintenance",
+   "cold-action"
+  ],
+  "what": "Links. Incidents: mock 3 row links (INC-203 -> incident, F-118, F-119) vs app 1 (the 'Action 5198a58a' link inside 'UTC and IDs'). The INC code is plain (R73) and the Findings are plain id8 labels with version disclosures (R65/R66). Maintenance: WR code links to the W6 request Overview /maintenance/requests/{id}?site_id=COLD-LAB-001 (R68), asset 'generator-1 · backup generator' (R89), activity/outcome disclosures (R70/R71), 'No next evidence recorded' (R72). cold-action Related activity: 'Inspect maintenance evidence' is a live BUTTON to the request Overview (R68; disabled with its sentence when not linked), and 'Open source Finding ->' is muted text with 'The selected Finding revision cannot be opened here yet.' (R66).",
+  "disp": "(a) R65, R66, R68, R70, R71, R72, R73, R89 verified present; the 'Action {id8}' label is part of B15-X1 (B1-53)."
+ },
+ {
+  "id": "B15-09",
+  "screens": [
+   "cold-work-incidents",
+   "cold-work-maintenance",
+   "cold-action"
+  ],
+  "what": "Panels over 1.3x, with measured reasons. Case zero / maintenance no-window: 317-344 vs 183/230 (1.4-1.84x) = the WORK_EMPTY card plus the R92 basis disclosure in place of the mock's one row. Case one-row all-open: 783/1023 (incidents) and 963/1120 (maintenance) = opened 'UTC and IDs' UUID fact lists (all-disclosures-open exemption). Worst case (five 160-code-point rows): incidents 486/599, maintenance 486/430, within the K3 ruling 17 650 px cap; page main 1004/1354 within 1400/1800; two-line clamp plus 'Read full text' is the only clipping (R94). Worst-case all-open: 2007-2907 px (ruling 18: no cap). cold-action Related activity at 390: 272-278 vs 194 (1.40x) = 14 px prose (B1-07) plus the stacked Finding note (R66), within the K4 ruling 7 cap 500. Not-linked/worstcase criteria 103-126 (smaller, R100). Worst-case Action: full 160-code-point title and owner wrap (R99), strip and page within caps (page 1128/1900 at 390).",
+  "disp": "Informational; heights within ruled caps. Propose accept (no D3)."
+ },
+ {
+  "id": "B15-10",
+  "screens": [
+   "cold-action"
+  ],
+  "what": "Carried Architect item STILL OPEN and not producible: a linked request in VERIFICATION_WINDOW (with record) or CANCELLED still falls to the not-linked sentence (DomainActionVerification.tsx:92-96 handles only COMPLETED with record and OPEN/IN_PROGRESS). The producer offers only COMPLETED (fixture WR) and OPEN (worst-case WRs, which have no Action link), so neither these states nor the R102 OPEN/IN_PROGRESS sentence could be captured. The case-tab chips already label 'Verification window' / 'Cancelled' (siteWorkCases.tsx:268-281).",
+  "disp": "Architect: rule the copy (backlog suggests the completed sentence for VERIFICATION_WINDOW and a cancelled sentence, D2 extension of R102) and add a producer mode linking an OPEN/VERIFICATION_WINDOW/CANCELLED request before the fix recapture."
+ },
+ {
+  "id": "B15-11",
+  "screens": [
+   "cold-work-incidents",
+   "cold-work-maintenance",
+   "cold-action"
+  ],
+  "what": "Currentness and state copy. Historical/positive-cutoff: blue 'Read as of ... UTC. Later work may differ.'; pending 'Linked evidence is being reassessed. The work record remains recorded.'; stale '... source is out of date ...'; unknown 'No selected source for linked evidence ...'. Each sits between the strip and the first panel on all three screens (R91). B4-19 (raw event-code fall-through) does not recur: these screens show no event history, and the state chips use labels (Open, Completed, Unverified).",
+  "disp": "(a) R91 verified; B4-19 not applicable here."
+ },
+ {
+  "id": "B15-12",
+  "screens": [
+   "cold-work-incidents"
+  ],
+  "what": "R23 (D3) VERIFIED CLOSED: the Window column shows Site-local time ('23 Oct · from 19:11' for occurred 16:11Z at an Africa/Addis_Ababa Site). The UTC that remains elsewhere is B2-21/B3-04 (B15-X1). R22/R24/R37/R38/R60 do not touch these screens.",
+  "disp": "(a) R23 closed."
+ },
+ {
+  "id": "B15-13",
+  "screens": [],
+  "what": "Capture note (not a product defect): on the first run, the first navigation after a cold Vite start (cold-work-incidents unavailable-503, 1440) rendered a blank page within the 30 s wait, with no console error. A rerun with one warm-up navigation outside the batch folder rendered normally; the 390 pair rendered both times. The blank first run is kept in logs/part-unavailable-first-run-coldcompile/. This is the same warm-up issue the W5-02c K4 README records.",
+  "disp": "Informational."
+ }
+]
