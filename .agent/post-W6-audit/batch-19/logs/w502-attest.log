@@ -1,0 +1,64 @@
+    positive:incidents     cases status=HISTORICAL coverage={'state': 'COMPLETE', 'reason': None} total_count=1 rows=1
+    positive:maintenance   cases status=HISTORICAL coverage={'state': 'COMPLETE', 'reason': None} total_count=1 rows=1
+    historical:incidents   cases status=HISTORICAL coverage={'state': 'COMPLETE', 'reason': None} total_count=1 rows=1
+    historical:maintenance cases status=HISTORICAL coverage={'state': 'COMPLETE', 'reason': None} total_count=1 rows=1
+    zero:incidents         cases status=CURRENT coverage={'state': 'COMPLETE', 'reason': None} total_count=0 rows=0
+    zero:maintenance       cases status=CURRENT coverage={'state': 'COMPLETE', 'reason': None} total_count=0 rows=0
+    current:incidents      cases status=CURRENT coverage={'state': 'COMPLETE', 'reason': None} total_count=1 rows=1
+    current:maintenance    cases status=CURRENT coverage={'state': 'COMPLETE', 'reason': None} total_count=1 rows=1
+    action-current         detail status=CURRENT known_at=2026-10-24T19:33:26.829684Z intent=True work=COMPLETED record=598a5a77-a175-4309-8c33-23f54e48d93c
+    action-not-linked      detail status=HISTORICAL known_at=2026-10-24T19:33:26.063586Z intent=False work=None record=None
+  positive: blocked=None INC links=['COLD_START_FAILURE', 'COLD_EXCURSION'] limit=None
+  positive (DB lineage + in-process GET): {"mode": "positive", "w501_now": "CURRENT", "reads": {"positive": {"status": "CURRENT", "total_count": 1, "known_at": "2026-10-24T19:39:17.221243Z"}, "zero": {"status": "CURRENT", "total_count": 0, "known_at": "2026-10-24T19:39:17.285357Z"}, "historical": {"status": "HISTORICAL", "total_count": 1, "known_at": "2026-10-24T19:33:26.535000Z"}}, "problems": []}
+    worstcase:incidents    cases status=HISTORICAL coverage={'state': 'COMPLETE', 'reason': None} total_count=5 rows=5
+    worstcase:maintenance  cases status=HISTORICAL coverage={'state': 'COMPLETE', 'reason': None} total_count=5 rows=5
+    action-worstcase       detail status=CURRENT known_at=2026-10-24T19:33:51.684333Z intent=False work=None record=None
+  worstcase: blocked=None INC links=['COLD_START_FAILURE', 'COLD_EXCURSION'] limit=None
+  worstcase (DB lineage + in-process GET): {"mode": "worstcase", "w501_now": "CURRENT", "reads": {"worstcase": {"status": "CURRENT", "total_count": 6, "known_at": "2026-10-24T19:39:21.188422Z"}}, "problems": []}
+    pending:incidents      cases status=PENDING_RECOMPUTE coverage={'state': 'PARTIAL', 'reason': 'LINK_WORK_PENDING'} total_count=1 rows=1
+    pending:maintenance    cases status=PENDING_RECOMPUTE coverage={'state': 'PARTIAL', 'reason': 'LINK_WORK_PENDING'} total_count=1 rows=1
+  pending: blocked=None INC links=['COLD_START_FAILURE', 'COLD_EXCURSION'] limit=None
+  pending (DB lineage + in-process GET): {"mode": "pending", "w501_now": "PENDING_RECOMPUTE", "reads": {"pending": {"status": "PENDING_RECOMPUTE", "total_count": 1, "known_at": "2026-10-24T19:34:14.066231Z"}}, "problems": []}
+    stale:incidents        cases status=STALE_SOURCE coverage={'state': 'PARTIAL', 'reason': 'LINK_SOURCE_STALE'} total_count=1 rows=1
+    stale:maintenance      cases status=STALE_SOURCE coverage={'state': 'PARTIAL', 'reason': 'LINK_SOURCE_STALE'} total_count=1 rows=1
+  stale: blocked=None INC links=['COLD_START_FAILURE', 'COLD_EXCURSION'] limit=None
+  stale (DB lineage + in-process GET): {"mode": "stale", "w501_now": "STALE_SOURCE", "reads": {"stale": {"status": "STALE_SOURCE", "total_count": 1, "known_at": "2026-10-24T19:34:35.131786Z"}}, "problems": []}
+    unknown:incidents      cases status=UNKNOWN coverage={'state': 'UNKNOWN', 'reason': 'LINK_SELECTION_MISSING'} total_count=1 rows=1
+    unknown:maintenance    cases status=UNKNOWN coverage={'state': 'UNKNOWN', 'reason': 'LINK_SELECTION_MISSING'} total_count=1 rows=1
+  unknown: blocked=None INC links=['COLD_START_FAILURE'] limit=UNKNOWN one-link limit: the no-probe replay selects no COLD_EXCURSION Finding revision, so the INC links only the returned COLD_START_FAILURE Finding (ruling 21; no synthetic excursion)
+  unknown (DB lineage + in-process GET): {"mode": "unknown", "w501_now": "UNKNOWN", "reads": {"unknown": {"status": "UNKNOWN", "total_count": 1, "known_at": "2026-10-24T19:34:55.385003Z"}}, "problems": []}
+  Served processes (real HTTP GET action-index):
+    positive    :8971 -> HTTP 200 status=CURRENT total_count=1 known_at=2026-10-24T19:39:33.401862Z
+    zero        :8971 -> HTTP 200 status=CURRENT total_count=0 known_at=2026-10-24T19:39:33.511827Z
+    historical  :8971 -> HTTP 200 status=HISTORICAL total_count=1 known_at=2026-10-24T19:33:26.535000Z
+    action-current         :8971 -> HTTP 200 status=CURRENT work=COMPLETED
+    action-not-linked      :8971 -> HTTP 200 status=HISTORICAL work=None
+    positive:incidents     :8971 -> HTTP 200 status=HISTORICAL total_count=1 rows=1
+    positive:maintenance   :8971 -> HTTP 200 status=HISTORICAL total_count=1 rows=1
+    historical:incidents   :8971 -> HTTP 200 status=HISTORICAL total_count=1 rows=1
+    historical:maintenance :8971 -> HTTP 200 status=HISTORICAL total_count=1 rows=1
+    zero:incidents         :8971 -> HTTP 200 status=CURRENT total_count=0 rows=0
+    zero:maintenance       :8971 -> HTTP 200 status=CURRENT total_count=0 rows=0
+    current:incidents      :8971 -> HTTP 200 status=CURRENT total_count=1 rows=1
+    current:maintenance    :8971 -> HTTP 200 status=CURRENT total_count=1 rows=1
+    worstcase   :8972 -> HTTP 200 status=CURRENT total_count=6 known_at=2026-10-24T19:39:34.654002Z
+    action-worstcase       :8972 -> HTTP 200 status=CURRENT work=None
+    worstcase:incidents    :8972 -> HTTP 200 status=HISTORICAL total_count=5 rows=5
+    worstcase:maintenance  :8972 -> HTTP 200 status=HISTORICAL total_count=5 rows=5
+    pending     :8973 -> HTTP 200 status=PENDING_RECOMPUTE total_count=1 known_at=2026-10-24T19:34:14.066231Z
+    pending:incidents      :8973 -> HTTP 200 status=PENDING_RECOMPUTE total_count=1 rows=1
+    pending:maintenance    :8973 -> HTTP 200 status=PENDING_RECOMPUTE total_count=1 rows=1
+    stale       :8974 -> HTTP 200 status=STALE_SOURCE total_count=1 known_at=2026-10-24T19:34:35.131786Z
+    stale:incidents        :8974 -> HTTP 200 status=STALE_SOURCE total_count=1 rows=1
+    stale:maintenance      :8974 -> HTTP 200 status=STALE_SOURCE total_count=1 rows=1
+    unknown     :8975 -> HTTP 200 status=UNKNOWN total_count=1 known_at=2026-10-24T19:34:55.385003Z
+    unknown:incidents      :8975 -> HTTP 200 status=UNKNOWN total_count=1 rows=1
+    unknown:maintenance    :8975 -> HTTP 200 status=UNKNOWN total_count=1 rows=1
+    forbidden   :8976 -> HTTP 403 SITE_SCOPE_FORBIDDEN "No access to Site 'COLD-LAB-001'."
+    forbidden   :8976 incidents -> HTTP 403 SITE_SCOPE_FORBIDDEN "No access to Site 'COLD-LAB-001'."
+    forbidden   :8976 maintenance -> HTTP 403 SITE_SCOPE_FORBIDDEN "No access to Site 'COLD-LAB-001'."
+    unavailable :8977 -> HTTP 503 WORK_STORE_UNAVAILABLE 'Work records could not be read or saved.'
+    unavailable :8977 incidents -> HTTP 503 WORK_STORE_UNAVAILABLE 'Work records could not be read or saved.'
+    unavailable :8977 maintenance -> HTTP 503 WORK_STORE_UNAVAILABLE 'Work records could not be read or saved.'
+    unavailable :8977 Site read -> HTTP 200
+ATTEST OK

@@ -1,0 +1,32 @@
+[
+ {
+  "id": "link-check",
+  "case": "unknown-subtab-overview",
+  "url": "http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/overview?site_id=KOBO-001",
+  "mock": "wr-overview"
+ },
+ {
+  "id": "link-check",
+  "case": "unknown-subtab-evidence",
+  "url": "http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/evidence?site_id=KOBO-001",
+  "mock": "wr-overview"
+ },
+ {
+  "id": "link-check",
+  "case": "unknown-subtab-execution",
+  "url": "http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/execution?site_id=KOBO-001",
+  "mock": "wr-overview"
+ },
+ {
+  "id": "link-check",
+  "case": "unknown-subtab-records",
+  "url": "http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/records?site_id=KOBO-001",
+  "mock": "wr-overview"
+ },
+ {
+  "id": "link-check",
+  "case": "maintenance-list",
+  "url": "http://127.0.0.1:5189/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+  "mock": "maintenance"
+ }
+]

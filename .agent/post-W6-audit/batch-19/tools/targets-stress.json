@@ -1,0 +1,38 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "worstcase-200char-wr7",
+  "url": "http://127.0.0.1:5189/maintenance/requests/beb69d78-19a4-49c4-9e69-5217605b42fa?site_id=KOBO-001",
+  "openAll": false
+ },
+ {
+  "id": "wr-overview",
+  "case": "worstcase-all-open-wr7",
+  "url": "http://127.0.0.1:5189/maintenance/requests/beb69d78-19a4-49c4-9e69-5217605b42fa?site_id=KOBO-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-record",
+  "case": "worstcase-200char-wr7",
+  "url": "http://127.0.0.1:5189/maintenance/requests/beb69d78-19a4-49c4-9e69-5217605b42fa/record?site_id=KOBO-001",
+  "openAll": false
+ },
+ {
+  "id": "wr-record",
+  "case": "worstcase-all-open-wr7",
+  "url": "http://127.0.0.1:5189/maintenance/requests/beb69d78-19a4-49c4-9e69-5217605b42fa/record?site_id=KOBO-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-history",
+  "case": "worstcase-200char-wr7",
+  "url": "http://127.0.0.1:5189/maintenance/requests/beb69d78-19a4-49c4-9e69-5217605b42fa/history?site_id=KOBO-001",
+  "openAll": false
+ },
+ {
+  "id": "wr-history",
+  "case": "worstcase-all-open-wr7",
+  "url": "http://127.0.0.1:5189/maintenance/requests/beb69d78-19a4-49c4-9e69-5217605b42fa/history?site_id=KOBO-001",
+  "openAll": true
+ }
+]

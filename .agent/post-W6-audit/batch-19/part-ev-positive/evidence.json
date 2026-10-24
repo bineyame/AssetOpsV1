@@ -1,0 +1,4812 @@
+{
+  "revision": "731126a9",
+  "captured_at": "2026-10-24T19:20:27.112Z",
+  "pairs": [
+    {
+      "screen": "wr-overview",
+      "case": "ev-wr-000002",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "wr-overview-ev-wr-000002-1440-app.png",
+      "mock_image": "wr-overview-ev-wr-000002-1440-mock.png",
+      "app": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 248,
+            "y": 339,
+            "w": 734,
+            "h": 346,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneInspect connector and witness a charging sessionFull narrative textInspect connector and witness a charging sessionLatest activity: Inspect connector and witness a charging sessionFull activity textInspect connector and witness a charging sessionTypeCorrectiveAssetc1 · EV_CONNECTORWarrantyWarranty not recordedLinked actionAction e12db79d",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 1000,
+            "y": 339,
+            "w": 408,
+            "h": 346,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified. No work-case outcome evaluator is available.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Connector diagnostic inspection",
+          "top": 56,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 2,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [
+            "EV_CONNECTOR"
+          ],
+          "uuids": 0,
+          "utc": 1,
+          "periodBar": "",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 1,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [
+            "c1 · EV_CONNECTOR"
+          ],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Overview -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+          "Maintenance record -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+          "History -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001",
+          "Action e12db79d -> /sites/EV-LAB-001/actions/e12db79d-9a24-47c8-be4f-b2e832c50f07/verification"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "MaintenanceWR-000002Overview· site: EV charging lab",
+          "mainText": "Maintenance WR-000002 Overview · site: EV charging lab Connector diagnostic inspection WR-000002 · EV charging lab · corrective Open site Overview Maintenance record Verification · Not available yet History As known at 24 Oct 2026, 19:20 UTC Reload OWNER Not assigned Full owner text DUE / SLA Not set STATE Open · outcome not established SOURCE Not recorded Full source text SUCCESS CRITERION Not recorded Work done Inspect connector and witness a charging session Full narrative text Latest activity: Inspect connector and witness a charging session Full activity text Type Corrective Asset c1 · EV_CONNECTOR Warranty Warranty not recorded Linked action Action e12db79d Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified. No work-case outcome evaluator is available.",
+          "buttons": [
+            "Open site",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification · Not available yet(off)",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 234,
+            "y": 409,
+            "w": 735,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 987,
+            "y": 409,
+            "w": 408,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "wr-overview",
+      "case": "ev-wr-000002",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "wr-overview-ev-wr-000002-390-app.png",
+      "mock_image": "wr-overview-ev-wr-000002-390-mock.png",
+      "app": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 16,
+            "y": 621,
+            "w": 358,
+            "h": 346,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneInspect connector and witness a charging sessionFull narrative textInspect connector and witness a charging sessionLatest activity: Inspect connector and witness a charging sessionFull activity textInspect connector and witness a charging sessionTypeCorrectiveAssetc1 · EV_CONNECTORWarrantyWarranty not recordedLinked actionAction e12db79d",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 16,
+            "y": 983,
+            "w": 358,
+            "h": 167,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified. No work-case outcome evaluator is available.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1190,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Connector diagnostic inspection",
+          "top": 163,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 2,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [
+            "EV_CONNECTOR"
+          ],
+          "uuids": 0,
+          "utc": 1,
+          "periodBar": "",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 1,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [
+            "c1 · EV_CONNECTOR"
+          ],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Overview -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+          "Maintenance record -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+          "History -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001",
+          "Action e12db79d -> /sites/EV-LAB-001/actions/e12db79d-9a24-47c8-be4f-b2e832c50f07/verification"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "MaintenanceWR-000002Overview· site: EV charging lab",
+          "mainText": "Maintenance WR-000002 Overview · site: EV charging lab Connector diagnostic inspection WR-000002 · EV charging lab · corrective Open site Overview Maintenance record Verification · Not available yet History As known at 24 Oct 2026, 19:20 UTC Reload OWNER Not assigned Full owner text DUE / SLA Not set STATE Open · outcome not established SOURCE Not recorded Full source text SUCCESS CRITERION Not recorded Work done Inspect connector and witness a charging session Full narrative text Latest activity: Inspect connector and witness a charging session Full activity text Type Corrective Asset c1 · EV_CONNECTOR Warranty Warranty not recorded Linked action Action e12db79d Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified. No work-case outcome evaluator is available.",
+          "buttons": [
+            "Open site",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification · Not available yet(off)",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 411,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 15,
+            "y": 746,
+            "w": 360,
+            "h": 338,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 15,
+            "y": 1102,
+            "w": 360,
+            "h": 161,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1357,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "wr-record",
+      "case": "ev-wr-000002",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+      "mock_hash": "#/wr-record",
+      "app_image": "wr-record-ev-wr-000002-1440-app.png",
+      "mock_image": "wr-record-ev-wr-000002-1440-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance record · activity"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance record · activity",
+            "x": 248,
+            "y": 339,
+            "w": 1160,
+            "h": 542,
+            "tables": 1,
+            "rows": 7,
+            "columns": [
+              "Item",
+              "Detail",
+              "Status",
+              "Basis"
+            ],
+            "chips": [
+              "Recorded",
+              "Not established",
+              "Recorded",
+              "Not established",
+              "Not established",
+              "Not established"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [
+              [
+                "Record 1 · 24 Oct 2026, 19:18 UTC"
+              ],
+              [
+                "Technician notes",
+                "Inspect connector and witness a charging sessionFull activity textInspect connector and witness a charging sessionOutcome note: Inspection recorded; recurrence and availability remain unverifiedUnverified · Authored note",
+                "Recorded",
+                "Authored maintenance record"
+              ],
+              [
+                "Parts",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Time on site",
+                "24 Oct 2026, 19:18 UTC",
+                "Recorded",
+                "Authored time"
+              ],
+              [
+                "Return-to-service reading",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Configuration readback",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Witnessed automatic start",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Maintenance record · activityWhat was recorded on site; no outcome verification follows from this entry.Scroll table horizontallyItemDetailStatusBasisRecord 1 · 24 Oct 2026, 19:18 UTCTechnician notesInspect connector and witness a charging sessionFull activity textInspect connector and witness a charging sessionOutcome note: Inspection recorded; recurrence and availability remain unverifiedUnverified · Authored noteRecordedAuthored maintenance recordPartsNot recordedNot establishedNo stored fieldTime on site24 Oct 2026, 19:18 UTCRecordedAuthored timeReturn-to-service readingNot recordedNot est",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Connector diagnostic inspection",
+          "top": 56,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [
+            "No linked Operational record."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 6,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Overview -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+          "Maintenance record -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+          "History -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "MaintenanceWR-000002Maintenance record· site: EV charging lab",
+          "mainText": "Maintenance WR-000002 Maintenance record · site: EV charging lab Connector diagnostic inspection WR-000002 · EV charging lab · corrective Open site Overview Maintenance record Verification · Not available yet History As known at 24 Oct 2026, 19:20 UTC Reload OWNER Not assigned Full owner text DUE / SLA Not set STATE Open · outcome not established SOURCE Not recorded Full source text SUCCESS CRITERION Not recorded Maintenance record · activity What was recorded on site; no outcome verification follows from this entry. ITEM DETAIL STATUS BASIS Record 1 · 24 Oct 2026, 19:18 UTC Technician notes Inspect connector and witness a charging session Full activity text Outcome note: Inspection recorded; recurrence and availability remain unverified Unverified · Authored note Recorded Authored maintenance record Parts Not recorded Not established No stored field Time on site 24 Oct 2026, 19:18 UTC Recorded Authored time Return-to-service reading Not recorded Not established No stored field Configuration readback Not recorded Not established No stored field Witnessed automatic start Not recorded Not established No stored field No linked Operational record.",
+          "buttons": [
+            "Open site",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview",
+              "Maintenance record*",
+              "Verification · Not available yet(off)",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [
+          "Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \n    at div\n    at Clamp (http://127.0.0.1:5189/src/work/globalWorkParts.tsx:52:25)\n    at p\n    at TechnicianNotes (http://127.0.0.1:5189/src/work/WorkRequestRecord.tsx:103:28)\n    at td\n    at tr\n    at tbody\n   "
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Maintenance record · activity"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance record · activity",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 438,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Item",
+              "Detail",
+              "Status",
+              "Basis"
+            ],
+            "chips": [
+              "Captured",
+              "Captured",
+              "Captured",
+              "Captured",
+              "Partial",
+              "Missing"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Technician notes",
+                "Control connection at terminal 4 loose; re-made and torqued",
+                "Captured",
+                "Operator record"
+              ],
+              [
+                "Parts",
+                "None replaced · starter relay tested in place",
+                "Captured",
+                "Operator record"
+              ],
+              [
+                "Time on site",
+                "6 Oct 21:40 – 22:55",
+                "Captured",
+                "Operator record"
+              ],
+              [
+                "Return-to-service reading",
+                "Battery 25.4 V at the starter; controller healthy",
+                "Captured",
+                "Measured"
+              ],
+              [
+                "Configuration readback",
+                "Auto-start setting read back",
+                "Partial",
+                "Controller record"
+              ],
+              [
+                "Witnessed automatic start",
+                "Not done",
+                "Missing",
+                "—"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Maintenance record · activityWhat was done · per v6.9 8.34 work evidenceItemDetailStatusBasisTechnician notesControl connection at terminal 4 loose; re-made and torquedCapturedOperator recordPartsNone replaced · starter relay tested in placeCapturedOperator recordTime on site6 Oct 21:40 – 22:55CapturedOperator recordReturn-to-service readingBattery 25.4 V at the starter; controller healthyCapturedMeasuredConfiguration readbackAuto-start setting read backPartialController recordWitnessed automatic startNot doneMissing—",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "Operational records -> #/oprecords"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › Maintenance record · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Maintenance record · activity What was done · per v6.9 8.34 work evidence ITEM DETAIL STATUS BASIS Technician notes Control connection at terminal 4 loose; re-made and torqued Captured Operator record Parts None replaced · starter relay tested in place Captured Operator record Time on site 6 Oct 21:40 – 22:55 Captured Operator record Return-to-service reading Battery 25.4 V at the starter; controller healthy Captured Measured Configuration readback Auto-start setting read back Partial Controller record Witnessed automatic start Not done Missing — This record is also listed in Operational records as a site visit. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Maintenance record*",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "wr-record",
+      "case": "ev-wr-000002",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+      "mock_hash": "#/wr-record",
+      "app_image": "wr-record-ev-wr-000002-390-app.png",
+      "mock_image": "wr-record-ev-wr-000002-390-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance record · activity"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance record · activity",
+            "x": 16,
+            "y": 621,
+            "w": 358,
+            "h": 583,
+            "tables": 1,
+            "rows": 7,
+            "columns": [
+              "Item",
+              "Detail",
+              "Status",
+              "Basis"
+            ],
+            "chips": [
+              "Recorded",
+              "Not established",
+              "Recorded",
+              "Not established",
+              "Not established",
+              "Not established"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [
+              [
+                "Record 1 · 24 Oct 2026, 19:18 UTC"
+              ],
+              [
+                "Technician notes",
+                "Inspect connector and witness a charging sessionFull activity textInspect connector and witness a charging sessionOutcome note: Inspection recorded; recurrence and availability remain unverifiedUnverified · Authored note",
+                "Recorded",
+                "Authored maintenance record"
+              ],
+              [
+                "Parts",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Time on site",
+                "24 Oct 2026, 19:18 UTC",
+                "Recorded",
+                "Authored time"
+              ],
+              [
+                "Return-to-service reading",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Configuration readback",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Witnessed automatic start",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Maintenance record · activityWhat was recorded on site; no outcome verification follows from this entry.Scroll table horizontallyItemDetailStatusBasisRecord 1 · 24 Oct 2026, 19:18 UTCTechnician notesInspect connector and witness a charging sessionFull activity textInspect connector and witness a charging sessionOutcome note: Inspection recorded; recurrence and availability remain unverifiedUnverified · Authored noteRecordedAuthored maintenance recordPartsNot recordedNot establishedNo stored fieldTime on site24 Oct 2026, 19:18 UTCRecordedAuthored timeReturn-to-service readingNot recordedNot est",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1306,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Connector diagnostic inspection",
+          "top": 163,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [
+            "No linked Operational record."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 6,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Overview -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+          "Maintenance record -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+          "History -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "MaintenanceWR-000002Maintenance record· site: EV charging lab",
+          "mainText": "Maintenance WR-000002 Maintenance record · site: EV charging lab Connector diagnostic inspection WR-000002 · EV charging lab · corrective Open site Overview Maintenance record Verification · Not available yet History As known at 24 Oct 2026, 19:20 UTC Reload OWNER Not assigned Full owner text DUE / SLA Not set STATE Open · outcome not established SOURCE Not recorded Full source text SUCCESS CRITERION Not recorded Maintenance record · activity What was recorded on site; no outcome verification follows from this entry. Scroll table horizontally ITEM DETAIL STATUS BASIS Record 1 · 24 Oct 2026, 19:18 UTC Technician notes Inspect connector and witness a charging session Full activity text Outcome note: Inspection recorded; recurrence and availability remain unverified Unverified · Authored note Recorded Authored maintenance record Parts Not recorded Not established No stored field Time on site 24 Oct 2026, 19:18 UTC Recorded Authored time Return-to-service reading Not recorded Not established No stored field Configuration readback Not recorded Not established No stored field Witnessed automatic start Not recorded Not established No stored field No linked Operational record.",
+          "buttons": [
+            "Open site",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview",
+              "Maintenance record*",
+              "Verification · Not available yet(off)",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 411,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 960,
+            "cw": 318,
+            "panel": "Maintenance record · activity"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [
+          "Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \n    at div\n    at Clamp (http://127.0.0.1:5189/src/work/globalWorkParts.tsx:52:25)\n    at p\n    at TechnicianNotes (http://127.0.0.1:5189/src/work/WorkRequestRecord.tsx:103:28)\n    at td\n    at tr\n    at tbody\n   "
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Maintenance record · activity"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance record · activity",
+            "x": 15,
+            "y": 769,
+            "w": 360,
+            "h": 716,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Item",
+              "Detail",
+              "Status",
+              "Basis"
+            ],
+            "chips": [
+              "Captured",
+              "Captured",
+              "Captured",
+              "Captured",
+              "Partial",
+              "Missing"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Technician notes",
+                "Control connection at terminal 4 loose; re-made and torqued",
+                "Captured",
+                "Operator record"
+              ],
+              [
+                "Parts",
+                "None replaced · starter relay tested in place",
+                "Captured",
+                "Operator record"
+              ],
+              [
+                "Time on site",
+                "6 Oct 21:40 – 22:55",
+                "Captured",
+                "Operator record"
+              ],
+              [
+                "Return-to-service reading",
+                "Battery 25.4 V at the starter; controller healthy",
+                "Captured",
+                "Measured"
+              ],
+              [
+                "Configuration readback",
+                "Auto-start setting read back",
+                "Partial",
+                "Controller record"
+              ],
+              [
+                "Witnessed automatic start",
+                "Not done",
+                "Missing",
+                "—"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Maintenance record · activityWhat was done · per v6.9 8.34 work evidenceItemDetailStatusBasisTechnician notesControl connection at terminal 4 loose; re-made and torquedCapturedOperator recordPartsNone replaced · starter relay tested in placeCapturedOperator recordTime on site6 Oct 21:40 – 22:55CapturedOperator recordReturn-to-service readingBattery 25.4 V at the starter; controller healthyCapturedMeasuredConfiguration readbackAuto-start setting read backPartialController recordWitnessed automatic startNot doneMissing—",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1640,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 321,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "Operational records -> #/oprecords"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › Maintenance record · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Maintenance record · activity What was done · per v6.9 8.34 work evidence ITEM DETAIL STATUS BASIS Technician notes Control connection at terminal 4 loose; re-made and torqued Captured Operator record Parts None replaced · starter relay tested in place Captured Operator record Time on site 6 Oct 21:40 – 22:55 Captured Operator record Return-to-service reading Battery 25.4 V at the starter; controller healthy Captured Measured Configuration readback Auto-start setting read back Partial Controller record Witnessed automatic start Not done Missing — This record is also listed in Operational records as a site visit. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Maintenance record*",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "wr-history",
+      "case": "ev-wr-000002",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001",
+      "mock_hash": "#/wr-history",
+      "app_image": "wr-history-ev-wr-000002-1440-app.png",
+      "mock_image": "wr-history-ev-wr-000002-1440-mock.png",
+      "app": {
+        "titles": [
+          "History"
+        ],
+        "panels": [
+          {
+            "title": "History",
+            "x": 248,
+            "y": 339,
+            "w": 1160,
+            "h": 268,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Time",
+              "Event",
+              "By"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [
+              [
+                "24 Oct 2026, 19:19:25 UTCOccurrence timeOccurred 24 Oct 2026, 19:17:25 UTC",
+                "Created",
+                "Name not recordedStored actorSERVICE · service:w401-fixture"
+              ],
+              [
+                "—",
+                "Site visit start not recorded",
+                "—"
+              ],
+              [
+                "—",
+                "Verification pending · no outcome assessment recorded",
+                "—"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "HistoryScroll table horizontallyTimeEventBy24 Oct 2026, 19:19:25 UTCOccurrence timeOccurred 24 Oct 2026, 19:17:25 UTCCreatedName not recordedStored actorSERVICE · service:w401-fixture—Site visit start not recorded——Verification pending · no outcome assessment recorded—",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Connector diagnostic inspection",
+          "top": 56,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 2,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Overview -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+          "Maintenance record -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+          "History -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "MaintenanceWR-000002History· site: EV charging lab",
+          "mainText": "Maintenance WR-000002 History · site: EV charging lab Connector diagnostic inspection WR-000002 · EV charging lab · corrective Open site Overview Maintenance record Verification · Not available yet History As known at 24 Oct 2026, 19:20 UTC Reload OWNER Not assigned Full owner text DUE / SLA Not set STATE Open · outcome not established SOURCE Not recorded Full source text SUCCESS CRITERION Not recorded History TIME EVENT BY 24 Oct 2026, 19:19:25 UTC Occurrence time Created Name not recorded Stored actor — Site visit start not recorded — — Verification pending · no outcome assessment recorded —",
+          "buttons": [
+            "Open site",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview",
+              "Maintenance record",
+              "Verification · Not available yet(off)",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "History"
+        ],
+        "panels": [
+          {
+            "title": "History",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 332,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Time",
+              "Event",
+              "By"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "6 Oct 19:20",
+                "Raised from INC-203",
+                "Night operator"
+              ],
+              [
+                "6 Oct 19:35",
+                "Assigned to maintenance lead",
+                "Operations manager"
+              ],
+              [
+                "6 Oct 21:40",
+                "Site visit started",
+                "Technician"
+              ],
+              [
+                "6 Oct 22:55",
+                "Marked completed · witness test outstanding",
+                "Technician"
+              ],
+              [
+                "7 Oct",
+                "Verification pending",
+                "—"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "HistoryTimeEventBy6 Oct 19:20Raised from INC-203Night operator6 Oct 19:35Assigned to maintenance leadOperations manager6 Oct 21:40Site visit startedTechnician6 Oct 22:55Marked completed · witness test outstandingTechnician7 OctVerification pending—",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › History · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure History TIME EVENT BY 6 Oct 19:20 Raised from INC-203 Night operator 6 Oct 19:35 Assigned to maintenance lead Operations manager 6 Oct 21:40 Site visit started Technician 6 Oct 22:55 Marked completed · witness test outstanding Technician 7 Oct Verification pending — Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Maintenance record",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "wr-history",
+      "case": "ev-wr-000002",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001",
+      "mock_hash": "#/wr-history",
+      "app_image": "wr-history-ev-wr-000002-390-app.png",
+      "mock_image": "wr-history-ev-wr-000002-390-mock.png",
+      "app": {
+        "titles": [
+          "History"
+        ],
+        "panels": [
+          {
+            "title": "History",
+            "x": 16,
+            "y": 598,
+            "w": 358,
+            "h": 290,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Time",
+              "Event",
+              "By"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [
+              [
+                "24 Oct 2026, 19:19:25 UTCOccurrence timeOccurred 24 Oct 2026, 19:17:25 UTC",
+                "Created",
+                "Name not recordedStored actorSERVICE · service:w401-fixture"
+              ],
+              [
+                "—",
+                "Site visit start not recorded",
+                "—"
+              ],
+              [
+                "—",
+                "Verification pending · no outcome assessment recorded",
+                "—"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "HistoryScroll table horizontallyTimeEventBy24 Oct 2026, 19:19:25 UTCOccurrence timeOccurred 24 Oct 2026, 19:17:25 UTCCreatedName not recordedStored actorSERVICE · service:w401-fixture—Site visit start not recorded——Verification pending · no outcome assessment recorded—",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 930,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Connector diagnostic inspection",
+          "top": 139,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 2,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Overview -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+          "Maintenance record -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+          "History -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "MaintenanceWR-000002History· site: EV charging lab",
+          "mainText": "Maintenance WR-000002 History · site: EV charging lab Connector diagnostic inspection WR-000002 · EV charging lab · corrective Open site Overview Maintenance record Verification · Not available yet History As known at 24 Oct 2026, 19:20 UTC Reload OWNER Not assigned Full owner text DUE / SLA Not set STATE Open · outcome not established SOURCE Not recorded Full source text SUCCESS CRITERION Not recorded History Scroll table horizontally TIME EVENT BY 24 Oct 2026, 19:19:25 UTC Occurrence time Created Name not recorded Stored actor — Site visit start not recorded — — Verification pending · no outcome assessment recorded —",
+          "buttons": [
+            "Open site",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview",
+              "Maintenance record",
+              "Verification · Not available yet(off)",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 411,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 750,
+            "cw": 318,
+            "panel": "History"
+          }
+        ],
+        "pSizes": {
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "History"
+        ],
+        "panels": [
+          {
+            "title": "History",
+            "x": 15,
+            "y": 746,
+            "w": 360,
+            "h": 402,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Time",
+              "Event",
+              "By"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "6 Oct 19:20",
+                "Raised from INC-203",
+                "Night operator"
+              ],
+              [
+                "6 Oct 19:35",
+                "Assigned to maintenance lead",
+                "Operations manager"
+              ],
+              [
+                "6 Oct 21:40",
+                "Site visit started",
+                "Technician"
+              ],
+              [
+                "6 Oct 22:55",
+                "Marked completed · witness test outstanding",
+                "Technician"
+              ],
+              [
+                "7 Oct",
+                "Verification pending",
+                "—"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "HistoryTimeEventBy6 Oct 19:20Raised from INC-203Night operator6 Oct 19:35Assigned to maintenance leadOperations manager6 Oct 21:40Site visit startedTechnician6 Oct 22:55Marked completed · witness test outstandingTechnician7 OctVerification pending—",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1243,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › History · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure History TIME EVENT BY 6 Oct 19:20 Raised from INC-203 Night operator 6 Oct 19:35 Assigned to maintenance lead Operations manager 6 Oct 21:40 Site visit started Technician 6 Oct 22:55 Marked completed · witness test outstanding Technician 7 Oct Verification pending — Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Maintenance record",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "wr-overview",
+      "case": "ev-all-open-wr-000002",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "wr-overview-ev-all-open-wr-000002-1440-app.png",
+      "mock_image": "wr-overview-ev-all-open-wr-000002-1440-mock.png",
+      "app": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 248,
+            "y": 354,
+            "w": 734,
+            "h": 372,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneInspect connector and witness a charging sessionFull narrative textInspect connector and witness a charging sessionLatest activity: Inspect connector and witness a charging sessionFull activity textInspect connector and witness a charging sessionTypeCorrectiveAssetc1 · EV_CONNECTORWarrantyWarranty not recordedLinked actionAction e12db79d",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 1000,
+            "y": 354,
+            "w": 408,
+            "h": 372,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified. No work-case outcome evaluator is available.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Connector diagnostic inspection",
+          "top": 56,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 3,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [
+            "EV_CONNECTOR"
+          ],
+          "uuids": 0,
+          "utc": 1,
+          "periodBar": "",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 1,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 4,
+          "backticks": [],
+          "rawConnector": [
+            "c1 · EV_CONNECTOR"
+          ],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Overview -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+          "Maintenance record -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+          "History -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001",
+          "Action e12db79d -> /sites/EV-LAB-001/actions/e12db79d-9a24-47c8-be4f-b2e832c50f07/verification"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "MaintenanceWR-000002Overview· site: EV charging lab",
+          "mainText": "Maintenance WR-000002 Overview · site: EV charging lab Connector diagnostic inspection WR-000002 · EV charging lab · corrective Open site Overview Maintenance record Verification · Not available yet History As known at 24 Oct 2026, 19:20 UTC Reload OWNER Not assigned Full owner text Not assigned DUE / SLA Not set STATE Open · outcome not established SOURCE Not recorded Full source text Not recorded SUCCESS CRITERION Not recorded Work done Inspect connector and witness a charging session Full narrative text Inspect connector and witness a charging session Latest activity: Inspect connector and witness a charging session Full activity text Inspect connector and witness a charging session Type Corrective Asset c1 · EV_CONNECTOR Warranty Warranty not recorded Linked action Action e12db79d Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified. No work-case outcome evaluator is available.",
+          "buttons": [
+            "Open site",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification · Not available yet(off)",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 234,
+            "y": 409,
+            "w": 735,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 987,
+            "y": 409,
+            "w": 408,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "wr-overview",
+      "case": "ev-all-open-wr-000002",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "wr-overview-ev-all-open-wr-000002-390-app.png",
+      "mock_image": "wr-overview-ev-all-open-wr-000002-390-mock.png",
+      "app": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 16,
+            "y": 651,
+            "w": 358,
+            "h": 372,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneInspect connector and witness a charging sessionFull narrative textInspect connector and witness a charging sessionLatest activity: Inspect connector and witness a charging sessionFull activity textInspect connector and witness a charging sessionTypeCorrectiveAssetc1 · EV_CONNECTORWarrantyWarranty not recordedLinked actionAction e12db79d",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 16,
+            "y": 1039,
+            "w": 358,
+            "h": 167,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified. No work-case outcome evaluator is available.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1246,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Connector diagnostic inspection",
+          "top": 163,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 3,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [
+            "EV_CONNECTOR"
+          ],
+          "uuids": 0,
+          "utc": 1,
+          "periodBar": "",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 1,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 4,
+          "backticks": [],
+          "rawConnector": [
+            "c1 · EV_CONNECTOR"
+          ],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Overview -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+          "Maintenance record -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+          "History -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001",
+          "Action e12db79d -> /sites/EV-LAB-001/actions/e12db79d-9a24-47c8-be4f-b2e832c50f07/verification"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "MaintenanceWR-000002Overview· site: EV charging lab",
+          "mainText": "Maintenance WR-000002 Overview · site: EV charging lab Connector diagnostic inspection WR-000002 · EV charging lab · corrective Open site Overview Maintenance record Verification · Not available yet History As known at 24 Oct 2026, 19:21 UTC Reload OWNER Not assigned Full owner text Not assigned DUE / SLA Not set STATE Open · outcome not established SOURCE Not recorded Full source text Not recorded SUCCESS CRITERION Not recorded Work done Inspect connector and witness a charging session Full narrative text Inspect connector and witness a charging session Latest activity: Inspect connector and witness a charging session Full activity text Inspect connector and witness a charging session Type Corrective Asset c1 · EV_CONNECTOR Warranty Warranty not recorded Linked action Action e12db79d Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified. No work-case outcome evaluator is available.",
+          "buttons": [
+            "Open site",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification · Not available yet(off)",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 411,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 15,
+            "y": 746,
+            "w": 360,
+            "h": 338,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 15,
+            "y": 1102,
+            "w": 360,
+            "h": 161,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1357,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "wr-record",
+      "case": "ev-all-open-wr-000002",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+      "mock_hash": "#/wr-record",
+      "app_image": "wr-record-ev-all-open-wr-000002-1440-app.png",
+      "mock_image": "wr-record-ev-all-open-wr-000002-1440-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance record · activity"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance record · activity",
+            "x": 248,
+            "y": 354,
+            "w": 1145,
+            "h": 558,
+            "tables": 1,
+            "rows": 7,
+            "columns": [
+              "Item",
+              "Detail",
+              "Status",
+              "Basis"
+            ],
+            "chips": [
+              "Recorded",
+              "Not established",
+              "Recorded",
+              "Not established",
+              "Not established",
+              "Not established"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [
+              [
+                "Record 1 · 24 Oct 2026, 19:18 UTC"
+              ],
+              [
+                "Technician notes",
+                "Inspect connector and witness a charging sessionFull activity textInspect connector and witness a charging sessionOutcome note: Inspection recorded; recurrence and availability remain unverifiedUnverified · Authored note",
+                "Recorded",
+                "Authored maintenance record"
+              ],
+              [
+                "Parts",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Time on site",
+                "24 Oct 2026, 19:18 UTC",
+                "Recorded",
+                "Authored time"
+              ],
+              [
+                "Return-to-service reading",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Configuration readback",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Witnessed automatic start",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Maintenance record · activityWhat was recorded on site; no outcome verification follows from this entry.Scroll table horizontallyItemDetailStatusBasisRecord 1 · 24 Oct 2026, 19:18 UTCTechnician notesInspect connector and witness a charging sessionFull activity textInspect connector and witness a charging sessionOutcome note: Inspection recorded; recurrence and availability remain unverifiedUnverified · Authored noteRecordedAuthored maintenance recordPartsNot recordedNot establishedNo stored fieldTime on site24 Oct 2026, 19:18 UTCRecordedAuthored timeReturn-to-service readingNot recordedNot est",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1022,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Connector diagnostic inspection",
+          "top": 56,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [
+            "No linked Operational record."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 7,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 3,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Overview -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+          "Maintenance record -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+          "History -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "MaintenanceWR-000002Maintenance record· site: EV charging lab",
+          "mainText": "Maintenance WR-000002 Maintenance record · site: EV charging lab Connector diagnostic inspection WR-000002 · EV charging lab · corrective Open site Overview Maintenance record Verification · Not available yet History As known at 24 Oct 2026, 19:21 UTC Reload OWNER Not assigned Full owner text Not assigned DUE / SLA Not set STATE Open · outcome not established SOURCE Not recorded Full source text Not recorded SUCCESS CRITERION Not recorded Maintenance record · activity What was recorded on site; no outcome verification follows from this entry. ITEM DETAIL STATUS BASIS Record 1 · 24 Oct 2026, 19:18 UTC Technician notes Inspect connector and witness a charging session Full activity text Inspect connector and witness a charging session Outcome note: Inspection recorded; recurrence and availability remain unverified Unverified · Authored note Recorded Authored maintenance record Parts Not recorded Not established No stored field Time on site 24 Oct 2026, 19:18 UTC Recorded Authored time Return-to-service reading Not recorded Not established No stored field Configuration readback Not recorded Not established No stored field Witnessed automatic start Not recorded Not established No stored field No linked Operational record.",
+          "buttons": [
+            "Open site",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview",
+              "Maintenance record*",
+              "Verification · Not available yet(off)",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1022
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [
+          "Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \n    at div\n    at Clamp (http://127.0.0.1:5189/src/work/globalWorkParts.tsx:52:25)\n    at p\n    at TechnicianNotes (http://127.0.0.1:5189/src/work/WorkRequestRecord.tsx:103:28)\n    at td\n    at tr\n    at tbody\n   "
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Maintenance record · activity"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance record · activity",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 438,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Item",
+              "Detail",
+              "Status",
+              "Basis"
+            ],
+            "chips": [
+              "Captured",
+              "Captured",
+              "Captured",
+              "Captured",
+              "Partial",
+              "Missing"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Technician notes",
+                "Control connection at terminal 4 loose; re-made and torqued",
+                "Captured",
+                "Operator record"
+              ],
+              [
+                "Parts",
+                "None replaced · starter relay tested in place",
+                "Captured",
+                "Operator record"
+              ],
+              [
+                "Time on site",
+                "6 Oct 21:40 – 22:55",
+                "Captured",
+                "Operator record"
+              ],
+              [
+                "Return-to-service reading",
+                "Battery 25.4 V at the starter; controller healthy",
+                "Captured",
+                "Measured"
+              ],
+              [
+                "Configuration readback",
+                "Auto-start setting read back",
+                "Partial",
+                "Controller record"
+              ],
+              [
+                "Witnessed automatic start",
+                "Not done",
+                "Missing",
+                "—"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Maintenance record · activityWhat was done · per v6.9 8.34 work evidenceItemDetailStatusBasisTechnician notesControl connection at terminal 4 loose; re-made and torquedCapturedOperator recordPartsNone replaced · starter relay tested in placeCapturedOperator recordTime on site6 Oct 21:40 – 22:55CapturedOperator recordReturn-to-service readingBattery 25.4 V at the starter; controller healthyCapturedMeasuredConfiguration readbackAuto-start setting read backPartialController recordWitnessed automatic startNot doneMissing—",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "Operational records -> #/oprecords"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › Maintenance record · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Maintenance record · activity What was done · per v6.9 8.34 work evidence ITEM DETAIL STATUS BASIS Technician notes Control connection at terminal 4 loose; re-made and torqued Captured Operator record Parts None replaced · starter relay tested in place Captured Operator record Time on site 6 Oct 21:40 – 22:55 Captured Operator record Return-to-service reading Battery 25.4 V at the starter; controller healthy Captured Measured Configuration readback Auto-start setting read back Partial Controller record Witnessed automatic start Not done Missing — This record is also listed in Operational records as a site visit. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Maintenance record*",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "wr-record",
+      "case": "ev-all-open-wr-000002",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+      "mock_hash": "#/wr-record",
+      "app_image": "wr-record-ev-all-open-wr-000002-390-app.png",
+      "mock_image": "wr-record-ev-all-open-wr-000002-390-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance record · activity"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance record · activity",
+            "x": 16,
+            "y": 651,
+            "w": 358,
+            "h": 599,
+            "tables": 1,
+            "rows": 7,
+            "columns": [
+              "Item",
+              "Detail",
+              "Status",
+              "Basis"
+            ],
+            "chips": [
+              "Recorded",
+              "Not established",
+              "Recorded",
+              "Not established",
+              "Not established",
+              "Not established"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [
+              [
+                "Record 1 · 24 Oct 2026, 19:18 UTC"
+              ],
+              [
+                "Technician notes",
+                "Inspect connector and witness a charging sessionFull activity textInspect connector and witness a charging sessionOutcome note: Inspection recorded; recurrence and availability remain unverifiedUnverified · Authored note",
+                "Recorded",
+                "Authored maintenance record"
+              ],
+              [
+                "Parts",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Time on site",
+                "24 Oct 2026, 19:18 UTC",
+                "Recorded",
+                "Authored time"
+              ],
+              [
+                "Return-to-service reading",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Configuration readback",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Witnessed automatic start",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Maintenance record · activityWhat was recorded on site; no outcome verification follows from this entry.Scroll table horizontallyItemDetailStatusBasisRecord 1 · 24 Oct 2026, 19:18 UTCTechnician notesInspect connector and witness a charging sessionFull activity textInspect connector and witness a charging sessionOutcome note: Inspection recorded; recurrence and availability remain unverifiedUnverified · Authored noteRecordedAuthored maintenance recordPartsNot recordedNot establishedNo stored fieldTime on site24 Oct 2026, 19:18 UTCRecordedAuthored timeReturn-to-service readingNot recordedNot est",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1352,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Connector diagnostic inspection",
+          "top": 163,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [
+            "No linked Operational record."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 7,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 3,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Overview -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+          "Maintenance record -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+          "History -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "MaintenanceWR-000002Maintenance record· site: EV charging lab",
+          "mainText": "Maintenance WR-000002 Maintenance record · site: EV charging lab Connector diagnostic inspection WR-000002 · EV charging lab · corrective Open site Overview Maintenance record Verification · Not available yet History As known at 24 Oct 2026, 19:21 UTC Reload OWNER Not assigned Full owner text Not assigned DUE / SLA Not set STATE Open · outcome not established SOURCE Not recorded Full source text Not recorded SUCCESS CRITERION Not recorded Maintenance record · activity What was recorded on site; no outcome verification follows from this entry. Scroll table horizontally ITEM DETAIL STATUS BASIS Record 1 · 24 Oct 2026, 19:18 UTC Technician notes Inspect connector and witness a charging session Full activity text Inspect connector and witness a charging session Outcome note: Inspection recorded; recurrence and availability remain unverified Unverified · Authored note Recorded Authored maintenance record Parts Not recorded Not established No stored field Time on site 24 Oct 2026, 19:18 UTC Recorded Authored time Return-to-service reading Not recorded Not established No stored field Configuration readback Not recorded Not established No stored field Witnessed automatic start Not recorded Not established No stored field No linked Operational record.",
+          "buttons": [
+            "Open site",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview",
+              "Maintenance record*",
+              "Verification · Not available yet(off)",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 411,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 960,
+            "cw": 318,
+            "panel": "Maintenance record · activity"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [
+          "Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \n    at div\n    at Clamp (http://127.0.0.1:5189/src/work/globalWorkParts.tsx:52:25)\n    at p\n    at TechnicianNotes (http://127.0.0.1:5189/src/work/WorkRequestRecord.tsx:103:28)\n    at td\n    at tr\n    at tbody\n   "
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Maintenance record · activity"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance record · activity",
+            "x": 15,
+            "y": 769,
+            "w": 360,
+            "h": 716,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Item",
+              "Detail",
+              "Status",
+              "Basis"
+            ],
+            "chips": [
+              "Captured",
+              "Captured",
+              "Captured",
+              "Captured",
+              "Partial",
+              "Missing"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Technician notes",
+                "Control connection at terminal 4 loose; re-made and torqued",
+                "Captured",
+                "Operator record"
+              ],
+              [
+                "Parts",
+                "None replaced · starter relay tested in place",
+                "Captured",
+                "Operator record"
+              ],
+              [
+                "Time on site",
+                "6 Oct 21:40 – 22:55",
+                "Captured",
+                "Operator record"
+              ],
+              [
+                "Return-to-service reading",
+                "Battery 25.4 V at the starter; controller healthy",
+                "Captured",
+                "Measured"
+              ],
+              [
+                "Configuration readback",
+                "Auto-start setting read back",
+                "Partial",
+                "Controller record"
+              ],
+              [
+                "Witnessed automatic start",
+                "Not done",
+                "Missing",
+                "—"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Maintenance record · activityWhat was done · per v6.9 8.34 work evidenceItemDetailStatusBasisTechnician notesControl connection at terminal 4 loose; re-made and torquedCapturedOperator recordPartsNone replaced · starter relay tested in placeCapturedOperator recordTime on site6 Oct 21:40 – 22:55CapturedOperator recordReturn-to-service readingBattery 25.4 V at the starter; controller healthyCapturedMeasuredConfiguration readbackAuto-start setting read backPartialController recordWitnessed automatic startNot doneMissing—",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1640,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 321,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "Operational records -> #/oprecords"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › Maintenance record · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Maintenance record · activity What was done · per v6.9 8.34 work evidence ITEM DETAIL STATUS BASIS Technician notes Control connection at terminal 4 loose; re-made and torqued Captured Operator record Parts None replaced · starter relay tested in place Captured Operator record Time on site 6 Oct 21:40 – 22:55 Captured Operator record Return-to-service reading Battery 25.4 V at the starter; controller healthy Captured Measured Configuration readback Auto-start setting read back Partial Controller record Witnessed automatic start Not done Missing — This record is also listed in Operational records as a site visit. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Maintenance record*",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "wr-history",
+      "case": "ev-all-open-wr-000002",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001",
+      "mock_hash": "#/wr-history",
+      "app_image": "wr-history-ev-all-open-wr-000002-1440-app.png",
+      "mock_image": "wr-history-ev-all-open-wr-000002-1440-mock.png",
+      "app": {
+        "titles": [
+          "History"
+        ],
+        "panels": [
+          {
+            "title": "History",
+            "x": 248,
+            "y": 354,
+            "w": 1160,
+            "h": 284,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Time",
+              "Event",
+              "By"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [
+              [
+                "24 Oct 2026, 19:19:25 UTCOccurrence timeOccurred 24 Oct 2026, 19:17:25 UTC",
+                "Created",
+                "Name not recordedStored actorSERVICE · service:w401-fixture"
+              ],
+              [
+                "—",
+                "Site visit start not recorded",
+                "—"
+              ],
+              [
+                "—",
+                "Verification pending · no outcome assessment recorded",
+                "—"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "HistoryScroll table horizontallyTimeEventBy24 Oct 2026, 19:19:25 UTCOccurrence timeOccurred 24 Oct 2026, 19:17:25 UTCCreatedName not recordedStored actorSERVICE · service:w401-fixture—Site visit start not recorded——Verification pending · no outcome assessment recorded—",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Connector diagnostic inspection",
+          "top": 56,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 3,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 4,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Overview -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+          "Maintenance record -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+          "History -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "MaintenanceWR-000002History· site: EV charging lab",
+          "mainText": "Maintenance WR-000002 History · site: EV charging lab Connector diagnostic inspection WR-000002 · EV charging lab · corrective Open site Overview Maintenance record Verification · Not available yet History As known at 24 Oct 2026, 19:21 UTC Reload OWNER Not assigned Full owner text Not assigned DUE / SLA Not set STATE Open · outcome not established SOURCE Not recorded Full source text Not recorded SUCCESS CRITERION Not recorded History TIME EVENT BY 24 Oct 2026, 19:19:25 UTC Occurrence time Occurred 24 Oct 2026, 19:17:25 UTC Created Name not recorded Stored actor SERVICE · service:w401-fixture — Site visit start not recorded — — Verification pending · no outcome assessment recorded —",
+          "buttons": [
+            "Open site",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview",
+              "Maintenance record",
+              "Verification · Not available yet(off)",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "History"
+        ],
+        "panels": [
+          {
+            "title": "History",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 332,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Time",
+              "Event",
+              "By"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "6 Oct 19:20",
+                "Raised from INC-203",
+                "Night operator"
+              ],
+              [
+                "6 Oct 19:35",
+                "Assigned to maintenance lead",
+                "Operations manager"
+              ],
+              [
+                "6 Oct 21:40",
+                "Site visit started",
+                "Technician"
+              ],
+              [
+                "6 Oct 22:55",
+                "Marked completed · witness test outstanding",
+                "Technician"
+              ],
+              [
+                "7 Oct",
+                "Verification pending",
+                "—"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "HistoryTimeEventBy6 Oct 19:20Raised from INC-203Night operator6 Oct 19:35Assigned to maintenance leadOperations manager6 Oct 21:40Site visit startedTechnician6 Oct 22:55Marked completed · witness test outstandingTechnician7 OctVerification pending—",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › History · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure History TIME EVENT BY 6 Oct 19:20 Raised from INC-203 Night operator 6 Oct 19:35 Assigned to maintenance lead Operations manager 6 Oct 21:40 Site visit started Technician 6 Oct 22:55 Marked completed · witness test outstanding Technician 7 Oct Verification pending — Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Maintenance record",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "wr-history",
+      "case": "ev-all-open-wr-000002",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001",
+      "mock_hash": "#/wr-history",
+      "app_image": "wr-history-ev-all-open-wr-000002-390-app.png",
+      "mock_image": "wr-history-ev-all-open-wr-000002-390-mock.png",
+      "app": {
+        "titles": [
+          "History"
+        ],
+        "panels": [
+          {
+            "title": "History",
+            "x": 16,
+            "y": 628,
+            "w": 358,
+            "h": 306,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Time",
+              "Event",
+              "By"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [
+              [
+                "24 Oct 2026, 19:19:25 UTCOccurrence timeOccurred 24 Oct 2026, 19:17:25 UTC",
+                "Created",
+                "Name not recordedStored actorSERVICE · service:w401-fixture"
+              ],
+              [
+                "—",
+                "Site visit start not recorded",
+                "—"
+              ],
+              [
+                "—",
+                "Verification pending · no outcome assessment recorded",
+                "—"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "HistoryScroll table horizontallyTimeEventBy24 Oct 2026, 19:19:25 UTCOccurrence timeOccurred 24 Oct 2026, 19:17:25 UTCCreatedName not recordedStored actorSERVICE · service:w401-fixture—Site visit start not recorded——Verification pending · no outcome assessment recorded—",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 976,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Connector diagnostic inspection",
+          "top": 139,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 3,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 4,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Overview -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+          "Maintenance record -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+          "History -> /maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "MaintenanceWR-000002History· site: EV charging lab",
+          "mainText": "Maintenance WR-000002 History · site: EV charging lab Connector diagnostic inspection WR-000002 · EV charging lab · corrective Open site Overview Maintenance record Verification · Not available yet History As known at 24 Oct 2026, 19:21 UTC Reload OWNER Not assigned Full owner text Not assigned DUE / SLA Not set STATE Open · outcome not established SOURCE Not recorded Full source text Not recorded SUCCESS CRITERION Not recorded History Scroll table horizontally TIME EVENT BY 24 Oct 2026, 19:19:25 UTC Occurrence time Occurred 24 Oct 2026, 19:17:25 UTC Created Name not recorded Stored actor SERVICE · service:w401-fixture — Site visit start not recorded — — Verification pending · no outcome assessment recorded —",
+          "buttons": [
+            "Open site",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview",
+              "Maintenance record",
+              "Verification · Not available yet(off)",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 411,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 750,
+            "cw": 318,
+            "panel": "History"
+          }
+        ],
+        "pSizes": {
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "History"
+        ],
+        "panels": [
+          {
+            "title": "History",
+            "x": 15,
+            "y": 746,
+            "w": 360,
+            "h": 402,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Time",
+              "Event",
+              "By"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "6 Oct 19:20",
+                "Raised from INC-203",
+                "Night operator"
+              ],
+              [
+                "6 Oct 19:35",
+                "Assigned to maintenance lead",
+                "Operations manager"
+              ],
+              [
+                "6 Oct 21:40",
+                "Site visit started",
+                "Technician"
+              ],
+              [
+                "6 Oct 22:55",
+                "Marked completed · witness test outstanding",
+                "Technician"
+              ],
+              [
+                "7 Oct",
+                "Verification pending",
+                "—"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "HistoryTimeEventBy6 Oct 19:20Raised from INC-203Night operator6 Oct 19:35Assigned to maintenance leadOperations manager6 Oct 21:40Site visit startedTechnician6 Oct 22:55Marked completed · witness test outstandingTechnician7 OctVerification pending—",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1243,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › History · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure History TIME EVENT BY 6 Oct 19:20 Raised from INC-203 Night operator 6 Oct 19:35 Assigned to maintenance lead Operations manager 6 Oct 21:40 Site visit started Technician 6 Oct 22:55 Marked completed · witness test outstanding Technician 7 Oct Verification pending — Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Maintenance record",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}
