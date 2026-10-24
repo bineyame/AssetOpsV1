@@ -81,7 +81,8 @@ export interface EstateFindingRow {
   episode_start: string;
   /** The row's Site basis state (Run 12 ruling 1): page one's basis mode, never the page-two response label. */
   status: EstateSiteState;
-  links: { finding: string; site: string };
+  /** `null` for a cold/EV row without a provable row-local window and cutoff (no `?revision_id=` fallback). */
+  links: { finding: string | null; site: string };
 }
 
 export interface EstateFindingsBody extends EstateEnvelope {

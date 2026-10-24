@@ -216,6 +216,7 @@ export function EstateRefusal({
   const text = code === "INVALID_WINDOW" && window !== undefined ? invalidWindowCopy(window) : copy;
   return (
     <div className="notice v69-notice" data-page-refusal={code}>
+      {code === "INVALID_WINDOW" ? <strong className="notice__title" data-refusal-title>Window cannot be read</strong> : null}
       <p>{text}</p>
       {FIRST_PAGE_CODES.has(code) ? (
         <p>

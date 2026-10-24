@@ -232,7 +232,7 @@ export function findingCauseCopy(body: EstateFindingsBody, scope: EstateScopeBod
   const panel: string[] = [];
   if (body.total_count === null) {
     if (pending.length > 0) {
-      panel.push(`Totals are unknown while new evidence for ${pendingNames} is assessed; its rows are held until then.`);
+      panel.push(`Totals are unknown while new evidence for ${pendingNames} is assessed; ${pending.length === 1 ? "its" : "their"} rows are held until then.`);
     }
     if (missing.length > 0) panel.push(`${missingNames} has no selected result; totals are unknown.`);
     if (panel.length === 0) panel.push(PARTIAL_TOTALS);
@@ -263,8 +263,7 @@ function miniGridSiteIds(body: EstateFindingsBody): ReadonlySet<string> {
 /**
  * Post-W6 W3-estate Q4 (R297): whether a row's Finding title is live. A mini-grid row links its exact revision
  * link. A cold or EV row is live only when the server sends a provable row-local windowed link (one carrying its
- * own `from`, `to` and `known_at`; the server otherwise sends the legacy `?revision_id=` link); a null, absent or unwindowed link leaves the title inert with a labelled unavailable detail.
- * The wire type stays `string`; the runtime check also covers a null the server sends for an unprovable link.
+ * own `from`, `to` and `known_at`; the server otherwise sends `null`); a null, absent or unwindowed link leaves the title inert with a labelled unavailable detail.
  */
 export function findingLinkLive(row: EstateFindingRow, miniGridIds: ReadonlySet<string>): boolean {
   const link: unknown = row.links.finding;
@@ -284,7 +283,7 @@ function Row({ row, knownAt, linked }: { row: EstateFindingRow; knownAt: string;
     <tr data-estate-finding={row.finding_id}>
       <td>
         {linked ? (
-          <Link className="estate-cell__primary" to={row.links.finding} data-estate-finding-link>
+          <Link className="estate-cell__primary" to={row.links.finding ?? ""} data-estate-finding-link>
             {row.title}
           </Link>
         ) : (

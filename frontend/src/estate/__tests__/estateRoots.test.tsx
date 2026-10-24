@@ -367,6 +367,7 @@ describe("W3-01 estate roots", () => {
       expect(refusal.getAttribute("data-page-refusal")).toBe(code);
       expect(refusal.querySelector("p")?.textContent).toBe(copy);
       expect(within(refusal).queryByRole("link", { name: "First page" })).toBeNull();
+      expect(refusal.querySelector("[data-refusal-title]")?.textContent ?? null).toBe(code === "INVALID_WINDOW" ? "Window cannot be read" : null);
       view.unmount();
     }
   });
@@ -641,7 +642,7 @@ describe("post-W6 W3-estate Findings and Actions roots", () => {
       ],
       [
         [pendingSel, pendingSelB],
-        ["Totals are unknown while new evidence for Kobo Mini-grid, Cold Store is assessed; its rows are held until then."],
+        ["Totals are unknown while new evidence for Kobo Mini-grid, Cold Store is assessed; their rows are held until then."],
         ["New evidence for Kobo Mini-grid, Cold Store is being assessed."],
       ],
     ];

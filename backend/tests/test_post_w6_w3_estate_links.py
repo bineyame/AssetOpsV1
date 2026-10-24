@@ -138,3 +138,10 @@ def test_objective_destinations_per_domain() -> None:
     assert (ev["COST_CONTROL"], ev["EVIDENCE"]) == (f"/sites/EV-1/ev/financials?{QUERY}",
                                                     f"/sites/EV-1/ev/evidence?{QUERY}")
     assert set(objective_destinations("U1", "NOT_APPLICABLE", []).values()) == {None}
+
+
+def test_unprovable_cold_ev_finding_link_is_null_on_the_wire() -> None:
+    import json
+    wire = json.loads(json.dumps(_finding_links("C1", "cold_chain", FID, FRID, None, K)))
+    assert wire == {"finding": None, "site": "/sites/C1"}
+    assert "revision_id" not in json.dumps(wire)

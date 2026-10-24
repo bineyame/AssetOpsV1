@@ -601,7 +601,8 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
     for (const [entry, copy] of cases) {
       const view = renderAt(entry, portfolioClient(refused(422, "INVALID_WINDOW", "server copy")));
       await settledScreen();
-      expect(text(document.querySelector("[data-page-refusal='INVALID_WINDOW']"))).toBe(copy);
+      expect(text(document.querySelector("[data-page-refusal='INVALID_WINDOW'] p"))).toBe(copy);
+      expect(text(document.querySelector("[data-page-refusal='INVALID_WINDOW'] [data-refusal-title]"))).toBe("Window cannot be read");
       expect(text(document.querySelector("[data-estate-window]"))).toBe("Window not valid");
       expect(text(document.querySelector("[data-estate-date-bar]"))).not.toContain("2026-10-07 to");
       view.unmount();
