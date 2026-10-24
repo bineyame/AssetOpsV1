@@ -1,0 +1,44 @@
+=== ev-work zero 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Actions at this site' 262/183 (1.43) w=1160/1161 rows=0/1 cols=[] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 0 actionsEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'12px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (0)*', 'Incidents (0)', 'Maintenance (0)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 248, 'w': 1160, 'h': 33, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work zero 390x900 pageH app/mock 955/1108 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Actions at this site' 282/230 (1.23) w=358/360 rows=0/1 cols=[] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 0 actionsEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'12px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (0)*', 'Incidents (0)', 'Maintenance (0)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 16, 'w': 358, 'h': 136, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work zero-mode-current-day 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Actions at this site' 184/183 (1.01) w=1160/1161 rows=1/1 cols=['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion'] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 1 actionEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 1
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 248, 'w': 1160, 'h': 33, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work zero-mode-current-day 390x900 pageH app/mock 900/1108 ovX 0 hdr 58 mainTop 122/158 cerr []
+  P 'Actions at this site' 199/230 (0.87) w=358/360 rows=1/1 cols=['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion'] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 1 actionEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 1
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 820, 'cw': 318, 'panel': 'Actions at this site'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 106}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 16, 'w': 358, 'h': 136, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}

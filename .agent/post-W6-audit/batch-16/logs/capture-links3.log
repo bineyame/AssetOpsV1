@@ -1,0 +1,15 @@
+﻿chrome pid 14356
+PASS  loaded http://127.0.0.1:5186/sites/EV-LAB-001/evidence?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-ev-evidence-main-tab 1440: app rendered
+PASS  loaded http://127.0.0.1:5186/mockups/v69/index.html#/ev-evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-ev-evidence-main-tab 1440: mock rendered
+PASS  link-check-ev-evidence-main-tab 1440: same panel count  {"app":["What we can conclude now","Data sources · data quality, not equipment condition","Most useful next evidence"],"mock":["What we can conclude now","Data sources · data quality, not equipment condition","Most useful next evidence"]}
+PASS  link-check-ev-evidence-main-tab 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5186/sites/EV-LAB-001/evidence?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-evidence-main-tab 390: app rendered
+PASS  loaded http://127.0.0.1:5186/mockups/v69/index.html#/ev-evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-evidence-main-tab 390: mock rendered
+PASS  link-check-ev-evidence-main-tab 390: same panel count  {"app":["What we can conclude now","Data sources · data quality, not equipment condition","Most useful next evidence"],"mock":["What we can conclude now","Data sources · data quality, not equipment condition","Most useful next evidence"]}
+PASS  link-check-ev-evidence-main-tab 390: no app page overflow  {"overflowX":0}
+
+12/12 claims passed; evidence in part-links3

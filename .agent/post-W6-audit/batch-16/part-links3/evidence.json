@@ -1,0 +1,1059 @@
+{
+  "revision": "cb79b18b",
+  "captured_at": "2026-10-24T18:06:13.899Z",
+  "pairs": [
+    {
+      "screen": "link-check",
+      "case": "ev-evidence-main-tab",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/evidence?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "mock_hash": "#/ev-evidence",
+      "app_image": "link-check-ev-evidence-main-tab-1440-app.png",
+      "mock_image": "link-check-ev-evidence-main-tab-1440-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 248,
+            "y": 301,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What we can conclude nowNot shown: awaiting evidence migration. This is not an empty result.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 422,
+            "w": 734,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Data sources · data quality, not equipment conditionNot shown: awaiting evidence migration. This is not an empty result.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 1000,
+            "y": 422,
+            "w": 408,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Most useful next evidenceNot shown: awaiting evidence migration. This is not an empty result.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "Awaiting evidence migrationThis site's configuration has moved to its stored Foundation versions. Its evidence is awaiting evidence migration, so earlier results are not shown beside the updated configuration.",
+          "refusalKey": "awaiting-migration",
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 336,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Capability",
+              "Evidence",
+              "What we can say",
+              "What is missing",
+              "Next step"
+            ],
+            "chips": [
+              "Limited",
+              "Limited",
+              "Full",
+              "None"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Session outcomes",
+                "Limited",
+                "10 completed, 1 interrupted, 1 unknown",
+                "End record for session SES-012",
+                "Raise action →"
+              ],
+              [
+                "Connector availability",
+                "Limited",
+                "93.3% of known hours; 1 hour unknown",
+                "Connector 2 status for one hour",
+                "Review availability →"
+              ],
+              [
+                "Delivered energy",
+                "Full",
+                "120 kWh in complete sessions",
+                "—",
+                "Review energy →"
+              ],
+              [
+                "Cause of interruption",
+                "None",
+                "Interruption seen; cause not established",
+                "Charger diagnostics and vehicle request",
+                "Review sessions →"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Raise action → -> #/ev-work"
+              ],
+              [
+                "Review availability → -> #/availability"
+              ],
+              [
+                "Review energy → -> #/energy"
+              ],
+              [
+                "Review sessions → -> #/sessions"
+              ]
+            ],
+            "panelText": "What we can conclude nowEvidence readiness is not equipment conditionCapabilityEvidenceWhat we can sayWhat is missingNext stepSession outcomesLimited10 completed, 1 interrupted, 1 unknownEnd record for session SES-012Raise action →Connector availabilityLimited93.3% of known hours; 1 hour unknownConnector 2 status for one hourReview availability →Delivered energyFull120 kWh in complete sessions—Review energy →Cause of interruptionNoneInterruption seen; cause not establishedCharger diagnostics and vehicle requestReview sessions →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 770,
+            "w": 735,
+            "h": 336,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Source",
+              "Status at window end",
+              "Quality",
+              "What it provides",
+              "Affects"
+            ],
+            "chips": [
+              "Good",
+              "Gap",
+              "Good",
+              "None"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Connector 1",
+                "Online",
+                "Good",
+                "Sessions and status",
+                "Sessions · availability"
+              ],
+              [
+                "Connector 2",
+                "Online",
+                "Gap",
+                "One hour of status missing",
+                "Availability"
+              ],
+              [
+                "Site meter",
+                "Online",
+                "Good",
+                "Import power",
+                "Energy · site limit"
+              ],
+              [
+                "Billing system",
+                "Not connected",
+                "None",
+                "No payment records",
+                "Revenue"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Data sources · data quality, not equipment conditionOnline · Stale · Offline · Not connectedSourceStatus at window endQualityWhat it providesAffectsConnector 1OnlineGoodSessions and statusSessions · availabilityConnector 2OnlineGapOne hour of status missingAvailabilitySite meterOnlineGoodImport powerEnergy · site limitBilling systemNot connectedNoneNo payment recordsRevenue",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 987,
+            "y": 770,
+            "w": 408,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Most useful next evidence1Recover connector 2 status historyTurns one unknown hour into known time.Review availability →2Export charger diagnosticsNeeded to explain the interrupted session.Raise action →3Connect billing recordsNeeded before any revenue is stated as collected.Review financials →",
+            "h3": [
+              "Recover connector 2 status history",
+              "Export charger diagnostics",
+              "Connect billing records"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1232,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Overview -> #/ev-evidence",
+          "Analysis -> #/ev-evidence-analysis",
+          "Portfolio evidence → -> #/globalevidence",
+          "Raise action → -> #/ev-work",
+          "Review availability → -> #/availability",
+          "Review energy → -> #/energy",
+          "Review sessions → -> #/sessions",
+          "Review availability → -> #/availability",
+          "Raise action → -> #/ev-work",
+          "Review financials → -> #/ev-financials",
+          "Evidence › Analysis -> #/ev-evidence-analysis"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview*",
+              "Analysis"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1188
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "ev-evidence-main-tab",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/evidence?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "mock_hash": "#/ev-evidence",
+      "app_image": "link-check-ev-evidence-main-tab-390-app.png",
+      "mock_image": "link-check-ev-evidence-main-tab-390-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 16,
+            "y": 434,
+            "w": 358,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What we can conclude nowNot shown: awaiting evidence migration. This is not an empty result.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 577,
+            "w": 358,
+            "h": 148,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Data sources · data quality, not equipment conditionNot shown: awaiting evidence migration. This is not an empty result.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 16,
+            "y": 742,
+            "w": 358,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Most useful next evidenceNot shown: awaiting evidence migration. This is not an empty result.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 907,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "Awaiting evidence migrationThis site's configuration has moved to its stored Foundation versions. Its evidence is awaiting evidence migration, so earlier results are not shown beside the updated configuration.",
+          "refusalKey": "awaiting-migration",
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "14px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 15,
+            "y": 696,
+            "w": 360,
+            "h": 434,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Capability",
+              "Evidence",
+              "What we can say",
+              "What is missing",
+              "Next step"
+            ],
+            "chips": [
+              "Limited",
+              "Limited",
+              "Full",
+              "None"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Session outcomes",
+                "Limited",
+                "10 completed, 1 interrupted, 1 unknown",
+                "End record for session SES-012",
+                "Raise action →"
+              ],
+              [
+                "Connector availability",
+                "Limited",
+                "93.3% of known hours; 1 hour unknown",
+                "Connector 2 status for one hour",
+                "Review availability →"
+              ],
+              [
+                "Delivered energy",
+                "Full",
+                "120 kWh in complete sessions",
+                "—",
+                "Review energy →"
+              ],
+              [
+                "Cause of interruption",
+                "None",
+                "Interruption seen; cause not established",
+                "Charger diagnostics and vehicle request",
+                "Review sessions →"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Raise action → -> #/ev-work"
+              ],
+              [
+                "Review availability → -> #/availability"
+              ],
+              [
+                "Review energy → -> #/energy"
+              ],
+              [
+                "Review sessions → -> #/sessions"
+              ]
+            ],
+            "panelText": "What we can conclude nowEvidence readiness is not equipment conditionCapabilityEvidenceWhat we can sayWhat is missingNext stepSession outcomesLimited10 completed, 1 interrupted, 1 unknownEnd record for session SES-012Raise action →Connector availabilityLimited93.3% of known hours; 1 hour unknownConnector 2 status for one hourReview availability →Delivered energyFull120 kWh in complete sessions—Review energy →Cause of interruptionNoneInterruption seen; cause not establishedCharger diagnostics and vehicle requestReview sessions →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1147,
+            "w": 360,
+            "h": 401,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Source",
+              "Status at window end",
+              "Quality",
+              "What it provides",
+              "Affects"
+            ],
+            "chips": [
+              "Good",
+              "Gap",
+              "Good",
+              "None"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Connector 1",
+                "Online",
+                "Good",
+                "Sessions and status",
+                "Sessions · availability"
+              ],
+              [
+                "Connector 2",
+                "Online",
+                "Gap",
+                "One hour of status missing",
+                "Availability"
+              ],
+              [
+                "Site meter",
+                "Online",
+                "Good",
+                "Import power",
+                "Energy · site limit"
+              ],
+              [
+                "Billing system",
+                "Not connected",
+                "None",
+                "No payment records",
+                "Revenue"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Data sources · data quality, not equipment conditionOnline · Stale · Offline · Not connectedSourceStatus at window endQualityWhat it providesAffectsConnector 1OnlineGoodSessions and statusSessions · availabilityConnector 2OnlineGapOne hour of status missingAvailabilitySite meterOnlineGoodImport powerEnergy · site limitBilling systemNot connectedNoneNo payment recordsRevenue",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 15,
+            "y": 1566,
+            "w": 360,
+            "h": 319,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Most useful next evidence1Recover connector 2 status historyTurns one unknown hour into known time.Review availability →2Export charger diagnosticsNeeded to explain the interrupted session.Raise action →3Connect billing recordsNeeded before any revenue is stated as collected.Review financials →",
+            "h3": [
+              "Recover connector 2 status history",
+              "Export charger diagnostics",
+              "Connect billing records"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2058,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Overview -> #/ev-evidence",
+          "Analysis -> #/ev-evidence-analysis",
+          "Portfolio evidence → -> #/globalevidence",
+          "Raise action → -> #/ev-work",
+          "Review availability → -> #/availability",
+          "Review energy → -> #/energy",
+          "Review sessions → -> #/sessions",
+          "Review availability → -> #/availability",
+          "Raise action → -> #/ev-work",
+          "Review financials → -> #/ev-financials",
+          "Evidence › Analysis -> #/ev-evidence-analysis"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview*",
+              "Analysis"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 449,
+            "cw": 320,
+            "panel": "What we can conclude now"
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 473,
+            "cw": 320,
+            "panel": "Data sources · data quality, not equipment condition"
+          }
+        ],
+        "pSizes": {
+          "11px": 5
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

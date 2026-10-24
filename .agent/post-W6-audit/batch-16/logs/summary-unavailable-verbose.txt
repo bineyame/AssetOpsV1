@@ -1,0 +1,64 @@
+=== ev-work store-unavailable-503 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Site unavailable' 103/- w=1160/None rows=0/None cols=[] | None
+     chips [] links=0/None details=0/None h3=[]
+  MISSING vs mock: ['Actions at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {'11px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  links []
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  cardLinks []
+=== ev-work store-unavailable-503 390x900 pageH app/mock 900/1108 ovX 0 hdr 58 mainTop 397/158 cerr []
+  P 'Site unavailable' 126/- w=358/None rows=0/None cols=[] | None
+     chips [] links=0/None details=0/None h3=[]
+  MISSING vs mock: ['Actions at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {'11px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 381}]
+  links []
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  cardLinks []
+=== availability store-unavailable-503 1440x1000 pageH app/mock 1000/1055 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Site unavailable' 103/- w=1160/None rows=0/None cols=[] | None
+     chips [] links=0/None details=0/None h3=[]
+  MISSING vs mock: ['Connector states over the service schedule', 'Full-schedule availability bound', 'Most useful next evidence']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  links []
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  cardLinks []
+=== availability store-unavailable-503 390x900 pageH app/mock 900/1714 ovX 0 hdr 58 mainTop 397/158 cerr []
+  P 'Site unavailable' 126/- w=358/None rows=0/None cols=[] | None
+     chips [] links=0/None details=0/None h3=[]
+  MISSING vs mock: ['Connector states over the service schedule', 'Full-schedule availability bound', 'Most useful next evidence']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 381}]
+  links []
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  cardLinks []
