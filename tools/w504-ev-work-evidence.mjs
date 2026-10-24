@@ -387,13 +387,13 @@ async function main() {
     await size(width, height);
     let m;
     m = await record(W, wi, "worst-folded", worstUrl);
-    claim(`${W} worst-folded: 5 rows on the page, 4 visible, 'Show all 5 Actions' (R108)`, m.rowsTotal === 5 && m.showAll === "Show all 5 Actions", { total: m.rowsTotal, visible: m.rowCount, showAll: m.showAll });
+    claim(`${W} worst-folded: 5 rows on the page, 4 visible, 'Show all 5 Actions' (R108)`, m.rowsTotal === 5 && m.showAll === "Show all 5 Actions", { total: m.rowsTotal, visible: m.rowCount, showAll: m.showAll, panel: m.panelState, refusal: m.refusal, message: m.refusalMessage });
     claim(`${W} worst-folded: '5 actions' count and 36-character Action IDs from the manifest`, /· 5 actions$/.test(m.scope ?? "") && m.rows.every((r) => (r.id ?? "").length === 36 && worstIds.includes(r.id)), { scope: m.scope });
     caps(W, "worst-folded", m, wi);
     rowClaims(W, "worst-folded", m, 4);
 
     m = await record(W, wi, "worst-expanded", worstUrl, async () => {
-      await js(`document.querySelector('[data-domain-work-show-all]').click()`);
+      await js(`document.querySelector('[data-domain-work-show-all]')?.click()`);
       await waitFor(`!document.querySelector('[data-domain-work-show-all]')`);
       await js(`[...document.querySelectorAll('[data-domain-work-row] details[data-disclosure^="domain-work-title-"], [data-domain-work-row] details[data-disclosure^="domain-work-owner-"]')].forEach((d) => { d.open = true; d.dispatchEvent(new Event('toggle')); })`);
       await sleep(400);

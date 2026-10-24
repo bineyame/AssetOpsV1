@@ -35,7 +35,29 @@ rulings 39 and 53–66. Evidence is in `.agent/W5-04-V2b-evidence/`.
     `w502b_*_k2_test` and removed the folder.
   - Ports 5471/5477/8971/8977 were closed afterwards.
 
-## EV captures (`node tools/w504-ev-work-evidence.mjs <manifest> <out>`): **199 PASS, 0 FAIL, 11 INFO**
+### Re-review round (`b2a97b66` and later)
+
+- **Walkthrough.** `prepare` ran in 2m07s. Modes: positive, zero and **worstcase** ready; unknown, pending and stale
+  unavailable as before.
+- **Serve and attest.** Served positive 12228, zero 20364, worstcase 30680 (port 8983), forbidden 21556 and
+  unavailable 7116. Attest returned 403 `SITE_SCOPE_FORBIDDEN` and stopped 7116.
+- **Vite.** Five servers: 16448, 7864, 28772, 27664 and 9956 on 5481/5482/5483/5486/5487.
+  - The 5483 server (PID 28772) exited by itself mid-run, so the first two worst-case captures saw no page. I restarted
+    it as 11408 and reran the whole capture.
+  - The same thing happened once to cold 5471 (PID 23680, restarted as 25060).
+  - These are silent exits of one of several concurrent Vite dev servers sharing one `node_modules/.vite` cache. They
+    are not product failures, and every rerun passed.
+- **Cleanup.**
+  - Vite: every server was stopped by its recorded PID after a command-line check. The two that had exited were
+    skipped.
+  - Walkthrough: `drop` stopped its recorded uvicorn PIDs and dropped `w504a_{positive,zero,worstcase,unknown}_v2b_test`.
+  - Cold: a fresh walkthrough ran for the Low-2 rerun. Its Vite servers were 30268, 23680/25060, 31480, 31504, 9124,
+    18788 and 12140, stopped by PID; then `drop`.
+  - Every port refused connections afterwards.
+
+## EV captures (`node tools/w504-ev-work-evidence.mjs <manifest> <out>`, re-review round): **195 PASS, 0 FAIL, 11 INFO**
+
+The count dropped from 199 because the five seed claims are gone and one claim for the walkthrough worstcase manifest was added.
 
 Heights are in px, shown as 1440 / 390. The caps come from the build spec, and the zero-panel cap from ruling 50.
 
@@ -44,8 +66,8 @@ Heights are in px, shown as 1440 / 390. The caps come from the build spec, and t
 | positive (W, CURRENT, 1 row) | 568 / 722 | 39 / 61 | 184 / 199 | 42 / 60 | — | yes / yes |
 | historical (`known_at` = manifest `index_known_at`) | 628 / 782 | 39 / 61 | 184 / 199 | 42 / 60 | 42 / 42 | yes / yes |
 | zero (zero DB, the day before W; complete zero) | 646 / 805 | 39 / 61 | 262 / 282 (cap 460/560) | 42 / 60 | — | yes / yes |
-| forbidden-403 (healthy Site read, in-panel refusal) | 582 / 721 | 39 / 61 | 198 / 198 | 42 / 60 | — | yes / yes |
-| worst-folded (5 rows, 4 visible, `Show all 5 Actions`) | 864 / 1003 | 39 / 61 | 480 / 480 | 42 / 60 | — | yes / yes |
+| forbidden-403 (healthy Site read, in-panel refusal) | 582 / 721 | 39 / 61 | 198 / 198 (cap 360/590, ruling 50; re-review Low-1) | 42 / 60 | — | yes / yes |
+| worst-folded (walkthrough `worstcase`: 5 rows, 4 visible, `Show all 5 Actions`) | 864 / 1003 | 39 / 61 | 480 / 480 | 42 / 60 | — | yes / yes |
 | worst-expanded (Show all plus every title/owner `Read full text`; exempt) | 1200 / 1409 | 39 / 61 | 816 / 886 | 42 / 60 | — | yes / yes |
 | window-error (59-day Apply; exempt, ruling 51) | 592 / 747 | 39 / 61 | 184 / 199 | 42 / 60 | — | yes / yes |
 
@@ -73,20 +95,24 @@ Heights are in px, shown as 1440 / 390. The caps come from the build spec, and t
   - HISTORICAL shows `Read as of … UTC. Later work may differ.` (R80);
   - the 403 panel shows `EV work unavailable`, the server message, a visible Retry, `— actions` and no row.
 
-## Seeding for the worst case (judgment call)
+## Worst case (re-review M1: produced by the walkthrough)
 
-The V1b walkthrough has no five-row mode, and its served API refuses HTTP writes (`WORK_WRITE_FORBIDDEN`).
+The first V2b round seeded the five-row page from the `.mjs`. That seeding has been removed, because pre-flight 23 says
+`.mjs` only captures.
 
-- **How it was seeded.** After phase A, the evidence tool runs one child process. That child posts four more EV
-  Actions and their intents through the public domain-work routes, in-process, with the walkthrough's own SERVICE
-  principal (`w504_ev_work_walkthrough._clients`), exactly as the walkthrough's `prepare` child does.
-- **Content.** The same posted Finding revision and intent basis, with 160-code-point title and owner, raised now. The
-  results were ACT-000002 to ACT-000005, every Action and intent answered 201, and each is recorded in
-  `w504b-measurements.json`.
-- **What it does not do.** It uses no SQL and no fixture constant, and it never touches the zero DB.
-- **Ordering.** Phase A states are captured before the seed.
-- **Possible follow-up.** If the Architect prefers the seed as a walkthrough `worstcase` mode (V1b-owned file), the
-  tool's phase B reads the same window unchanged.
+- **New walkthrough mode.** `tools/w504_ev_work_walkthrough.py` now has a V1b `worstcase` mode, following the W5-02
+  cold precedent:
+  - its own `w504a_worstcase_<tag>_test` DB and port 8983;
+  - the same native `ev-interrupted` replay and declared positive Action (ACT-000001);
+  - then `_worstcase` posts ACT-000002..5 with 160-code-point title and owner, plus their intents, through the public
+    domain-work routes and the SERVICE principal inside the walkthrough child;
+  - it refuses unless the Work window W lists all five Actions;
+  - every ID, code, intent ID and the index total are written to the manifest (`modes.worstcase.worstcase`).
+- **Producer test.** `test_worstcase_adds_four_long_actions_through_the_public_routes` in
+  `backend/tests/test_w504_ev_work_producer_postgres.py`.
+- **Capture tool.** `tools/w504-ev-work-evidence.mjs` only reads now. Its new claim requires the manifest's worstcase
+  mode to be ready with ACT-000002..5, 160-code-point text and intents, and to be served. The worst-case states read
+  the `worstcase` API, and every row on the page must be one of the manifest's Action IDs.
 
 ## Unavailable captures (ruling 54; pure vectors remain)
 
@@ -102,12 +128,46 @@ error text is not producible, because server refusal messages are short; the 403
 
 ## Cold K2 recapture after the CSS rename (ruling 62)
 
+### First recapture
+
 - `node tools/w502-cold-work-evidence.mjs <cold manifest> <out>` (Actions plus Action shell): **461 PASS, 0 FAIL**.
 - `W502B_EVIDENCE=cases`: **934 PASS, 0 FAIL**.
+- Evidence: `cold-k2-recapture/`.
 
-These match the K2b/K3b totals. The cold layout is unchanged by the `domain-work-*` rename.
+### Numeric diff against the pre-rename baselines (as the re-review measured it)
 
-## Checks on the final revision
+| Surface | Baseline | Differences |
+| --- | --- | --- |
+| Cases | `W5-02c-K4-evidence/cases-recheck` | 0 numeric differences |
+| Actions | `W5-03b-ui-evidence/cold-actions-recheck` | 13 table `scrollWidth` changes of 2–8 px at 390 (per-run UUIDs); 3 `action-positive` heights from K4's later detail merge; 4 in `worstcase-expanded-open` at 1440 (+18 px per row) |
+
+### Low-2 rerun (INFO, expanded state)
+
+I prepared, served and attested a fresh cold walkthrough and reran the cold tool: **461 PASS, 0 FAIL**. Evidence is in
+`cold-k2-rerun/`: the measurements file, the log and the 1440 `worstcase-expanded-open` PNG.
+
+`worstcase-expanded-open` at 1440:
+
+| Run | Rows | Panel | Main |
+| --- | --- | --- | --- |
+| Baseline | 119 ×4, 118 | 731 | 1115 |
+| First recapture | 137 ×4, 136 | 819 | 1203 |
+| This rerun | 119 ×4, 118 | 731 | 1115 |
+
+The +18 px per row does **not** persist. It was a timing artefact of the first recapture: it was measured mid-toggle,
+which matches the blank space the reviewer saw in that PNG. It is not a CSS change. The 390 state is identical in all
+three runs.
+
+## Checks, re-review round
+
+- `test_w504_ev_work_producer_postgres.py` (with the new worstcase test), `test_w504_ev_work_cases.py` and
+  `test_w504_ev_intent_{api,model,postgres}.py`: **52 passed**, 7m47s, JUnit tests=52, skipped=0, failures=0,
+  errors=0. Run with this worktree on `PYTHONPATH`.
+- `tsc --noEmit`: clean.
+- Targeted vitest: 10 files, **247/247**. The frontend is unchanged since `35b01c25`.
+- `tools/check-all.ps1`: CHECKALL_RR.
+
+## Checks on the first V2b revision
 
 - Focused Postgres, run with this worktree on `PYTHONPATH` (the venv's editable install points at the main checkout):
   - Files: `test_w504_ev_intent_{api,model,postgres}.py`, `test_w504_ev_work_cases.py`,

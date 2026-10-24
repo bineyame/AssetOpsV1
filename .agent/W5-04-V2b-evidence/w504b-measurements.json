@@ -1,5 +1,5 @@
 {
-  "manifest_revision": "c3487ce3ec156dd88d8016d9cdbdb8e9438e8bf0",
+  "manifest_revision": "b2a97b66bf0581a70ccc5e7b579a78106ce6ddca",
   "caps": {
     "main": [
       1600,
@@ -17,57 +17,57 @@
       460,
       560
     ],
+    "statePanel": [
+      360,
+      590
+    ],
     "notice": [
       110,
       160
     ]
   },
-  "seeded": [
-    {
-      "n": 2,
-      "action_status": 201,
-      "action_id": "1754c549-8e1f-4bc5-9586-25e5ca7a137f",
-      "action_code": "ACT-000002",
-      "title_code_points": 160,
-      "owner_code_points": 160,
-      "intent_status": 201,
-      "intent_id": "1cd382fa-095a-48d9-80cf-45301be93467",
-      "refusal": null
-    },
-    {
-      "n": 3,
-      "action_status": 201,
-      "action_id": "7b515825-fa8e-4cb2-911c-db72c0c248c2",
-      "action_code": "ACT-000003",
-      "title_code_points": 160,
-      "owner_code_points": 160,
-      "intent_status": 201,
-      "intent_id": "e5663371-4d54-45c9-abe4-ff841351a210",
-      "refusal": null
-    },
-    {
-      "n": 4,
-      "action_status": 201,
-      "action_id": "711d6dd0-dfc8-4065-aa21-d72567ede4c3",
-      "action_code": "ACT-000004",
-      "title_code_points": 160,
-      "owner_code_points": 160,
-      "intent_status": 201,
-      "intent_id": "88931a2a-afad-4587-9920-6599727fd5e6",
-      "refusal": null
-    },
-    {
-      "n": 5,
-      "action_status": 201,
-      "action_id": "5abf4a94-18eb-496a-98fb-0a88117e177d",
-      "action_code": "ACT-000005",
-      "title_code_points": 160,
-      "owner_code_points": 160,
-      "intent_status": 201,
-      "intent_id": "50113718-d42b-42de-b91c-1af84b7dc168",
-      "refusal": null
-    }
-  ],
+  "worstcase": {
+    "actions": [
+      {
+        "n": 2,
+        "action_id": "67064287-b178-47c4-b3fa-c745872fdc87",
+        "action_code": "ACT-000002",
+        "recorded_at": "2026-10-24T07:19:57.706511Z",
+        "intent_id": "47aee33a-702b-4945-bc3b-9a5395fdda9a",
+        "title_code_points": 160,
+        "owner_code_points": 160
+      },
+      {
+        "n": 3,
+        "action_id": "4eb5b16d-5447-4762-a0bd-df147e7bd2fb",
+        "action_code": "ACT-000003",
+        "recorded_at": "2026-10-24T07:19:58.051502Z",
+        "intent_id": "85dd5722-5692-4567-9fff-dee0463a0461",
+        "title_code_points": 160,
+        "owner_code_points": 160
+      },
+      {
+        "n": 4,
+        "action_id": "0d446a4b-3f2f-4a91-8f65-ac6c1e033874",
+        "action_code": "ACT-000004",
+        "recorded_at": "2026-10-24T07:19:58.360910Z",
+        "intent_id": "51be66bc-fe60-44fb-a823-67ece65b7caa",
+        "title_code_points": 160,
+        "owner_code_points": 160
+      },
+      {
+        "n": 5,
+        "action_id": "f0628c75-1862-4b8d-be7a-9abd1acbd382",
+        "action_code": "ACT-000005",
+        "recorded_at": "2026-10-24T07:19:58.685498Z",
+        "intent_id": "9671a8d2-dd1e-4547-ac39-9f1e7999f800",
+        "title_code_points": 160,
+        "owner_code_points": 160
+      }
+    ],
+    "index_total_count": 5,
+    "index_known_at": "2026-10-24T07:19:58.961506Z"
+  },
   "captures": [
     {
       "state": "positive",
@@ -117,7 +117,7 @@
         "coldNames": 0,
         "rows": [
           {
-            "id": "02d9d03a-c95b-4760-aebc-820c5947d9d2",
+            "id": "420ca65c-ffa9-4933-a88d-bcf015ce7ed7",
             "codeOneLine": true,
             "codes": [
               {
@@ -125,7 +125,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding 4b792ef3",
                 "lines": 1
               },
               {
@@ -134,10 +134,10 @@
               }
             ],
             "height": 47,
-            "source": "Finding 721cde36",
+            "source": "Finding 4b792ef3",
             "cellText": [
               "ACT-000001 · Investigate connector 2",
-              "Finding 721cde36Finding version",
+              "Finding 4b792ef3Finding version",
               "Charging operations",
               "Not set",
               "Open",
@@ -251,14 +251,14 @@
       "state": "historical",
       "width": 1440,
       "file": "w504b-desktop-historical.png",
-      "url": "http://localhost:5481/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T05%3A33%3A07.282230Z",
+      "url": "http://localhost:5481/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T07%3A18%3A54.008002Z",
       "measurements": {
-        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T05%3A33%3A07.282230Z",
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T07%3A18%3A54.008002Z",
         "h1": "EV charging lab",
         "subtitle": true,
         "panelState": "rows",
         "currentness": "HISTORICAL",
-        "currentnessText": "Read as of 2026-10-24 05:33 UTC. Later work may differ.",
+        "currentnessText": "Read as of 2026-10-24 07:18 UTC. Later work may differ.",
         "scope": "Scoped to EV · 1 action",
         "stripText": "Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet.",
         "stripLinks": 0,
@@ -266,15 +266,15 @@
         "subtabs": [
           {
             "text": "Actions (1)",
-            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T05%3A33%3A07.282230Z"
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T07%3A18%3A54.008002Z"
           },
           {
             "text": "Incidents (0)",
-            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T05%3A33%3A07.282230Z"
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T07%3A18%3A54.008002Z"
           },
           {
             "text": "Maintenance (0)",
-            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T05%3A33%3A07.282230Z"
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T07%3A18%3A54.008002Z"
           }
         ],
         "docScrollWidth": 1440,
@@ -295,7 +295,7 @@
         "coldNames": 0,
         "rows": [
           {
-            "id": "02d9d03a-c95b-4760-aebc-820c5947d9d2",
+            "id": "420ca65c-ffa9-4933-a88d-bcf015ce7ed7",
             "codeOneLine": true,
             "codes": [
               {
@@ -303,7 +303,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding 4b792ef3",
                 "lines": 1
               },
               {
@@ -312,10 +312,10 @@
               }
             ],
             "height": 47,
-            "source": "Finding 721cde36",
+            "source": "Finding 4b792ef3",
             "cellText": [
               "ACT-000001 · Investigate connector 2",
-              "Finding 721cde36Finding version",
+              "Finding 4b792ef3Finding version",
               "Charging operations",
               "Not set",
               "Open",
@@ -678,7 +678,7 @@
         "coldNames": 0,
         "rows": [
           {
-            "id": "02d9d03a-c95b-4760-aebc-820c5947d9d2",
+            "id": "420ca65c-ffa9-4933-a88d-bcf015ce7ed7",
             "codeOneLine": true,
             "codes": [
               {
@@ -686,7 +686,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding 4b792ef3",
                 "lines": 1
               },
               {
@@ -695,10 +695,10 @@
               }
             ],
             "height": 47,
-            "source": "Finding 721cde36",
+            "source": "Finding 4b792ef3",
             "cellText": [
               "ACT-000001 · Investigate connector 2",
-              "Finding 721cde36Finding version",
+              "Finding 4b792ef3Finding version",
               "Charging operations",
               "Not set",
               "Open",
@@ -846,7 +846,7 @@
         "panel": 199,
         "currentnessNotice": null,
         "contextNotice": 60,
-        "scrollerScrollWidth": 821,
+        "scrollerScrollWidth": 819,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "rowCount": 1,
@@ -856,7 +856,7 @@
         "coldNames": 0,
         "rows": [
           {
-            "id": "02d9d03a-c95b-4760-aebc-820c5947d9d2",
+            "id": "420ca65c-ffa9-4933-a88d-bcf015ce7ed7",
             "codeOneLine": true,
             "codes": [
               {
@@ -864,7 +864,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding 4b792ef3",
                 "lines": 1
               },
               {
@@ -873,10 +873,10 @@
               }
             ],
             "height": 62,
-            "source": "Finding 721cde36",
+            "source": "Finding 4b792ef3",
             "cellText": [
               "ACT-000001 · Investigate connector 2",
-              "Finding 721cde36Finding version",
+              "Finding 4b792ef3Finding version",
               "Charging operations",
               "Not set",
               "Open",
@@ -990,14 +990,14 @@
       "state": "historical",
       "width": 390,
       "file": "w504b-narrow-historical.png",
-      "url": "http://localhost:5481/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T05%3A33%3A07.282230Z",
+      "url": "http://localhost:5481/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T07%3A18%3A54.008002Z",
       "measurements": {
-        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T05%3A33%3A07.282230Z",
+        "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T07%3A18%3A54.008002Z",
         "h1": "EV charging lab",
         "subtitle": true,
         "panelState": "rows",
         "currentness": "HISTORICAL",
-        "currentnessText": "Read as of 2026-10-24 05:33 UTC. Later work may differ.",
+        "currentnessText": "Read as of 2026-10-24 07:18 UTC. Later work may differ.",
         "scope": "Scoped to EV · 1 action",
         "stripText": "Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet.",
         "stripLinks": 0,
@@ -1005,15 +1005,15 @@
         "subtabs": [
           {
             "text": "Actions (1)",
-            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T05%3A33%3A07.282230Z"
+            "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T07%3A18%3A54.008002Z"
           },
           {
             "text": "Incidents (0)",
-            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T05%3A33%3A07.282230Z"
+            "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T07%3A18%3A54.008002Z"
           },
           {
             "text": "Maintenance (0)",
-            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T05%3A33%3A07.282230Z"
+            "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T07%3A18%3A54.008002Z"
           }
         ],
         "docScrollWidth": 390,
@@ -1024,7 +1024,7 @@
         "panel": 199,
         "currentnessNotice": 42,
         "contextNotice": 60,
-        "scrollerScrollWidth": 821,
+        "scrollerScrollWidth": 819,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "rowCount": 1,
@@ -1034,7 +1034,7 @@
         "coldNames": 0,
         "rows": [
           {
-            "id": "02d9d03a-c95b-4760-aebc-820c5947d9d2",
+            "id": "420ca65c-ffa9-4933-a88d-bcf015ce7ed7",
             "codeOneLine": true,
             "codes": [
               {
@@ -1042,7 +1042,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding 4b792ef3",
                 "lines": 1
               },
               {
@@ -1051,10 +1051,10 @@
               }
             ],
             "height": 62,
-            "source": "Finding 721cde36",
+            "source": "Finding 4b792ef3",
             "cellText": [
               "ACT-000001 · Investigate connector 2",
-              "Finding 721cde36Finding version",
+              "Finding 4b792ef3Finding version",
               "Charging operations",
               "Not set",
               "Open",
@@ -1407,7 +1407,7 @@
         "panel": 199,
         "currentnessNotice": null,
         "contextNotice": 60,
-        "scrollerScrollWidth": 821,
+        "scrollerScrollWidth": 819,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "rowCount": 1,
@@ -1417,7 +1417,7 @@
         "coldNames": 0,
         "rows": [
           {
-            "id": "02d9d03a-c95b-4760-aebc-820c5947d9d2",
+            "id": "420ca65c-ffa9-4933-a88d-bcf015ce7ed7",
             "codeOneLine": true,
             "codes": [
               {
@@ -1425,7 +1425,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding 4b792ef3",
                 "lines": 1
               },
               {
@@ -1434,10 +1434,10 @@
               }
             ],
             "height": 62,
-            "source": "Finding 721cde36",
+            "source": "Finding 4b792ef3",
             "cellText": [
               "ACT-000001 · Investigate connector 2",
-              "Finding 721cde36Finding version",
+              "Finding 4b792ef3Finding version",
               "Charging operations",
               "Not set",
               "Open",
@@ -1551,7 +1551,7 @@
       "state": "worst-folded",
       "width": 1440,
       "file": "w504b-desktop-worst-folded.png",
-      "url": "http://localhost:5481/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "url": "http://localhost:5483/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
       "measurements": {
         "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
         "h1": "EV charging lab",
@@ -1569,11 +1569,11 @@
             "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
           },
           {
-            "text": "Incidents (1)",
+            "text": "Incidents (0)",
             "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
           },
           {
-            "text": "Maintenance (1)",
+            "text": "Maintenance (0)",
             "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
           }
         ],
@@ -1595,7 +1595,7 @@
         "coldNames": 0,
         "rows": [
           {
-            "id": "5abf4a94-18eb-496a-98fb-0a88117e177d",
+            "id": "f0628c75-1862-4b8d-be7a-9abd1acbd382",
             "codeOneLine": true,
             "codes": [
               {
@@ -1603,7 +1603,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -1612,10 +1612,10 @@
               }
             ],
             "height": 80,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "ACT-000005 · Investigate connector 5 — long title proof xxxx",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Charging operations 5 — long owner proof yyyyyyyyyyyyyyyyyyy",
               "Not set",
               "Open",
@@ -1628,7 +1628,7 @@
             ]
           },
           {
-            "id": "711d6dd0-dfc8-4065-aa21-d72567ede4c3",
+            "id": "0d446a4b-3f2f-4a91-8f65-ac6c1e033874",
             "codeOneLine": true,
             "codes": [
               {
@@ -1636,7 +1636,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -1645,10 +1645,10 @@
               }
             ],
             "height": 80,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "ACT-000004 · Investigate connector 4 — long title proof xxxx",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Charging operations 4 — long owner proof yyyyyyyyyyyyyyyyyyy",
               "Not set",
               "Open",
@@ -1661,7 +1661,7 @@
             ]
           },
           {
-            "id": "7b515825-fa8e-4cb2-911c-db72c0c248c2",
+            "id": "4eb5b16d-5447-4762-a0bd-df147e7bd2fb",
             "codeOneLine": true,
             "codes": [
               {
@@ -1669,7 +1669,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -1678,10 +1678,10 @@
               }
             ],
             "height": 80,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "ACT-000003 · Investigate connector 3 — long title proof xxxx",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Charging operations 3 — long owner proof yyyyyyyyyyyyyyyyyyy",
               "Not set",
               "Open",
@@ -1694,7 +1694,7 @@
             ]
           },
           {
-            "id": "1754c549-8e1f-4bc5-9586-25e5ca7a137f",
+            "id": "67064287-b178-47c4-b3fa-c745872fdc87",
             "codeOneLine": true,
             "codes": [
               {
@@ -1702,7 +1702,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -1711,10 +1711,10 @@
               }
             ],
             "height": 80,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "ACT-000002 · Investigate connector 2 — long title proof xxxx",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyy",
               "Not set",
               "Open",
@@ -2047,7 +2047,7 @@
       "state": "worst-expanded",
       "width": 1440,
       "file": "w504b-desktop-worst-expanded.png",
-      "url": "http://localhost:5481/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "url": "http://localhost:5483/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
       "measurements": {
         "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
         "h1": "EV charging lab",
@@ -2065,11 +2065,11 @@
             "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
           },
           {
-            "text": "Incidents (1)",
+            "text": "Incidents (0)",
             "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
           },
           {
-            "text": "Maintenance (1)",
+            "text": "Maintenance (0)",
             "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
           }
         ],
@@ -2091,7 +2091,7 @@
         "coldNames": 0,
         "rows": [
           {
-            "id": "5abf4a94-18eb-496a-98fb-0a88117e177d",
+            "id": "f0628c75-1862-4b8d-be7a-9abd1acbd382",
             "codeOneLine": true,
             "codes": [
               {
@@ -2099,7 +2099,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -2108,10 +2108,10 @@
               }
             ],
             "height": 154,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "Read full text ACT-000005 · Investigate connector 5 — long t",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Read full text Charging operations 5 — long owner proof yyyy",
               "Not set",
               "Open",
@@ -2124,7 +2124,7 @@
             ]
           },
           {
-            "id": "711d6dd0-dfc8-4065-aa21-d72567ede4c3",
+            "id": "0d446a4b-3f2f-4a91-8f65-ac6c1e033874",
             "codeOneLine": true,
             "codes": [
               {
@@ -2132,7 +2132,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -2141,10 +2141,10 @@
               }
             ],
             "height": 154,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "Read full text ACT-000004 · Investigate connector 4 — long t",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Read full text Charging operations 4 — long owner proof yyyy",
               "Not set",
               "Open",
@@ -2157,7 +2157,7 @@
             ]
           },
           {
-            "id": "7b515825-fa8e-4cb2-911c-db72c0c248c2",
+            "id": "4eb5b16d-5447-4762-a0bd-df147e7bd2fb",
             "codeOneLine": true,
             "codes": [
               {
@@ -2165,7 +2165,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -2174,10 +2174,10 @@
               }
             ],
             "height": 154,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "Read full text ACT-000003 · Investigate connector 3 — long t",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Read full text Charging operations 3 — long owner proof yyyy",
               "Not set",
               "Open",
@@ -2190,7 +2190,7 @@
             ]
           },
           {
-            "id": "1754c549-8e1f-4bc5-9586-25e5ca7a137f",
+            "id": "67064287-b178-47c4-b3fa-c745872fdc87",
             "codeOneLine": true,
             "codes": [
               {
@@ -2198,7 +2198,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -2207,10 +2207,10 @@
               }
             ],
             "height": 154,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "Read full text ACT-000002 · Investigate connector 2 — long t",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Read full text Charging operations 2 — long owner proof yyyy",
               "Not set",
               "Open",
@@ -2223,7 +2223,7 @@
             ]
           },
           {
-            "id": "02d9d03a-c95b-4760-aebc-820c5947d9d2",
+            "id": "d269cf75-9a71-4a8a-8d17-e28c1c31dd91",
             "codeOneLine": true,
             "codes": [
               {
@@ -2231,7 +2231,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -2240,10 +2240,10 @@
               }
             ],
             "height": 62,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "ACT-000001 · Investigate connector 2",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Charging operations",
               "Not set",
               "Open",
@@ -2641,7 +2641,7 @@
       "state": "worst-folded",
       "width": 390,
       "file": "w504b-narrow-worst-folded.png",
-      "url": "http://localhost:5481/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "url": "http://localhost:5483/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
       "measurements": {
         "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
         "h1": "EV charging lab",
@@ -2659,11 +2659,11 @@
             "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
           },
           {
-            "text": "Incidents (1)",
+            "text": "Incidents (0)",
             "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
           },
           {
-            "text": "Maintenance (1)",
+            "text": "Maintenance (0)",
             "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
           }
         ],
@@ -2675,7 +2675,7 @@
         "panel": 480,
         "currentnessNotice": null,
         "contextNotice": 60,
-        "scrollerScrollWidth": 821,
+        "scrollerScrollWidth": 823,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "rowCount": 4,
@@ -2685,7 +2685,7 @@
         "coldNames": 0,
         "rows": [
           {
-            "id": "5abf4a94-18eb-496a-98fb-0a88117e177d",
+            "id": "f0628c75-1862-4b8d-be7a-9abd1acbd382",
             "codeOneLine": true,
             "codes": [
               {
@@ -2693,7 +2693,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -2702,10 +2702,10 @@
               }
             ],
             "height": 80,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "ACT-000005 · Investigate connector 5 — long title proof xxxx",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Charging operations 5 — long owner proof yyyyyyyyyyyyyyyyyyy",
               "Not set",
               "Open",
@@ -2718,7 +2718,7 @@
             ]
           },
           {
-            "id": "711d6dd0-dfc8-4065-aa21-d72567ede4c3",
+            "id": "0d446a4b-3f2f-4a91-8f65-ac6c1e033874",
             "codeOneLine": true,
             "codes": [
               {
@@ -2726,7 +2726,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -2735,10 +2735,10 @@
               }
             ],
             "height": 80,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "ACT-000004 · Investigate connector 4 — long title proof xxxx",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Charging operations 4 — long owner proof yyyyyyyyyyyyyyyyyyy",
               "Not set",
               "Open",
@@ -2751,7 +2751,7 @@
             ]
           },
           {
-            "id": "7b515825-fa8e-4cb2-911c-db72c0c248c2",
+            "id": "4eb5b16d-5447-4762-a0bd-df147e7bd2fb",
             "codeOneLine": true,
             "codes": [
               {
@@ -2759,7 +2759,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -2768,10 +2768,10 @@
               }
             ],
             "height": 80,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "ACT-000003 · Investigate connector 3 — long title proof xxxx",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Charging operations 3 — long owner proof yyyyyyyyyyyyyyyyyyy",
               "Not set",
               "Open",
@@ -2784,7 +2784,7 @@
             ]
           },
           {
-            "id": "1754c549-8e1f-4bc5-9586-25e5ca7a137f",
+            "id": "67064287-b178-47c4-b3fa-c745872fdc87",
             "codeOneLine": true,
             "codes": [
               {
@@ -2792,7 +2792,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -2801,10 +2801,10 @@
               }
             ],
             "height": 80,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "ACT-000002 · Investigate connector 2 — long title proof xxxx",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyy",
               "Not set",
               "Open",
@@ -3137,7 +3137,7 @@
       "state": "worst-expanded",
       "width": 390,
       "file": "w504b-narrow-worst-expanded.png",
-      "url": "http://localhost:5481/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "url": "http://localhost:5483/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
       "measurements": {
         "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
         "h1": "EV charging lab",
@@ -3155,11 +3155,11 @@
             "href": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
           },
           {
-            "text": "Incidents (1)",
+            "text": "Incidents (0)",
             "href": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
           },
           {
-            "text": "Maintenance (1)",
+            "text": "Maintenance (0)",
             "href": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
           }
         ],
@@ -3171,7 +3171,7 @@
         "panel": 886,
         "currentnessNotice": null,
         "contextNotice": 60,
-        "scrollerScrollWidth": 821,
+        "scrollerScrollWidth": 823,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "rowCount": 5,
@@ -3181,7 +3181,7 @@
         "coldNames": 0,
         "rows": [
           {
-            "id": "5abf4a94-18eb-496a-98fb-0a88117e177d",
+            "id": "f0628c75-1862-4b8d-be7a-9abd1acbd382",
             "codeOneLine": true,
             "codes": [
               {
@@ -3189,7 +3189,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -3198,10 +3198,10 @@
               }
             ],
             "height": 172,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "Read full text ACT-000005 · Investigate connector 5 — long t",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Read full text Charging operations 5 — long owner proof yyyy",
               "Not set",
               "Open",
@@ -3214,7 +3214,7 @@
             ]
           },
           {
-            "id": "711d6dd0-dfc8-4065-aa21-d72567ede4c3",
+            "id": "0d446a4b-3f2f-4a91-8f65-ac6c1e033874",
             "codeOneLine": true,
             "codes": [
               {
@@ -3222,7 +3222,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -3231,10 +3231,10 @@
               }
             ],
             "height": 172,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "Read full text ACT-000004 · Investigate connector 4 — long t",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Read full text Charging operations 4 — long owner proof yyyy",
               "Not set",
               "Open",
@@ -3247,7 +3247,7 @@
             ]
           },
           {
-            "id": "7b515825-fa8e-4cb2-911c-db72c0c248c2",
+            "id": "4eb5b16d-5447-4762-a0bd-df147e7bd2fb",
             "codeOneLine": true,
             "codes": [
               {
@@ -3255,7 +3255,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -3264,10 +3264,10 @@
               }
             ],
             "height": 172,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "Read full text ACT-000003 · Investigate connector 3 — long t",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Read full text Charging operations 3 — long owner proof yyyy",
               "Not set",
               "Open",
@@ -3280,7 +3280,7 @@
             ]
           },
           {
-            "id": "1754c549-8e1f-4bc5-9586-25e5ca7a137f",
+            "id": "67064287-b178-47c4-b3fa-c745872fdc87",
             "codeOneLine": true,
             "codes": [
               {
@@ -3288,7 +3288,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -3297,10 +3297,10 @@
               }
             ],
             "height": 172,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "Read full text ACT-000002 · Investigate connector 2 — long t",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Read full text Charging operations 2 — long owner proof yyyy",
               "Not set",
               "Open",
@@ -3313,7 +3313,7 @@
             ]
           },
           {
-            "id": "02d9d03a-c95b-4760-aebc-820c5947d9d2",
+            "id": "d269cf75-9a71-4a8a-8d17-e28c1c31dd91",
             "codeOneLine": true,
             "codes": [
               {
@@ -3321,7 +3321,7 @@
                 "lines": 1
               },
               {
-                "text": "Finding 721cde36",
+                "text": "Finding ed9b91db",
                 "lines": 1
               },
               {
@@ -3330,10 +3330,10 @@
               }
             ],
             "height": 62,
-            "source": "Finding 721cde36",
+            "source": "Finding ed9b91db",
             "cellText": [
               "ACT-000001 · Investigate connector 2",
-              "Finding 721cde36Finding version",
+              "Finding ed9b91dbFinding version",
               "Charging operations",
               "Not set",
               "Open",
@@ -3738,6 +3738,53 @@
       }
     },
     {
+      "name": "manifest: walkthrough worstcase ready with ACT-000001..5, four 160-code-point additions and intents, served (re-review M1)",
+      "ok": true,
+      "detail": {
+        "status": "ready",
+        "total": 5,
+        "actions": [
+          {
+            "n": 2,
+            "action_id": "67064287-b178-47c4-b3fa-c745872fdc87",
+            "action_code": "ACT-000002",
+            "recorded_at": "2026-10-24T07:19:57.706511Z",
+            "intent_id": "47aee33a-702b-4945-bc3b-9a5395fdda9a",
+            "title_code_points": 160,
+            "owner_code_points": 160
+          },
+          {
+            "n": 3,
+            "action_id": "4eb5b16d-5447-4762-a0bd-df147e7bd2fb",
+            "action_code": "ACT-000003",
+            "recorded_at": "2026-10-24T07:19:58.051502Z",
+            "intent_id": "85dd5722-5692-4567-9fff-dee0463a0461",
+            "title_code_points": 160,
+            "owner_code_points": 160
+          },
+          {
+            "n": 4,
+            "action_id": "0d446a4b-3f2f-4a91-8f65-ac6c1e033874",
+            "action_code": "ACT-000004",
+            "recorded_at": "2026-10-24T07:19:58.360910Z",
+            "intent_id": "51be66bc-fe60-44fb-a823-67ece65b7caa",
+            "title_code_points": 160,
+            "owner_code_points": 160
+          },
+          {
+            "n": 5,
+            "action_id": "f0628c75-1862-4b8d-be7a-9abd1acbd382",
+            "action_code": "ACT-000005",
+            "recorded_at": "2026-10-24T07:19:58.685498Z",
+            "intent_id": "9671a8d2-dd1e-4547-ac39-9f1e7999f800",
+            "title_code_points": 160,
+            "owner_code_points": 160
+          }
+        ],
+        "port": 8983
+      }
+    },
+    {
       "name": "manifest pending: browser capture unavailable (ruling 54; pure component vector)",
       "ok": true,
       "info": true,
@@ -3774,7 +3821,7 @@
             "code": "SITE_SCOPE_FORBIDDEN"
           },
           "unavailable": {
-            "stopped_pid": 16904,
+            "stopped_pid": 7116,
             "port": 8987,
             "http_after_stop": 0,
             "expected": "connection refused; the browser proxy reports 503"
@@ -3808,7 +3855,7 @@
       "name": "desktop positive: row is the walkthrough Action with the mock criterion and Source label",
       "ok": true,
       "detail": {
-        "id": "02d9d03a-c95b-4760-aebc-820c5947d9d2",
+        "id": "420ca65c-ffa9-4933-a88d-bcf015ce7ed7",
         "codeOneLine": true,
         "codes": [
           {
@@ -3816,7 +3863,7 @@
             "lines": 1
           },
           {
-            "text": "Finding 721cde36",
+            "text": "Finding 4b792ef3",
             "lines": 1
           },
           {
@@ -3825,10 +3872,10 @@
           }
         ],
         "height": 47,
-        "source": "Finding 721cde36",
+        "source": "Finding 4b792ef3",
         "cellText": [
           "ACT-000001 · Investigate connector 2",
-          "Finding 721cde36Finding version",
+          "Finding 4b792ef3Finding version",
           "Charging operations",
           "Not set",
           "Open",
@@ -4013,7 +4060,7 @@
       "ok": true,
       "detail": {
         "status": "HISTORICAL",
-        "text": "Read as of 2026-10-24 05:33 UTC. Later work may differ."
+        "text": "Read as of 2026-10-24 07:18 UTC. Later work may differ."
       }
     },
     {
@@ -4216,7 +4263,7 @@
       "detail": 39
     },
     {
-      "name": "desktop forbidden-403: panel <= 650",
+      "name": "desktop forbidden-403: panel <= 360",
       "ok": true,
       "detail": {
         "panel": 198,
@@ -4329,7 +4376,7 @@
       "name": "narrow positive: row is the walkthrough Action with the mock criterion and Source label",
       "ok": true,
       "detail": {
-        "id": "02d9d03a-c95b-4760-aebc-820c5947d9d2",
+        "id": "420ca65c-ffa9-4933-a88d-bcf015ce7ed7",
         "codeOneLine": true,
         "codes": [
           {
@@ -4337,7 +4384,7 @@
             "lines": 1
           },
           {
-            "text": "Finding 721cde36",
+            "text": "Finding 4b792ef3",
             "lines": 1
           },
           {
@@ -4346,10 +4393,10 @@
           }
         ],
         "height": 62,
-        "source": "Finding 721cde36",
+        "source": "Finding 4b792ef3",
         "cellText": [
           "ACT-000001 · Investigate connector 2",
-          "Finding 721cde36Finding version",
+          "Finding 4b792ef3Finding version",
           "Charging operations",
           "Not set",
           "Open",
@@ -4403,7 +4450,7 @@
       "ok": true,
       "detail": {
         "panel": 199,
-        "tableScrollWidth": 821,
+        "tableScrollWidth": 819,
         "tableClientWidth": 318
       }
     },
@@ -4468,7 +4515,7 @@
       "name": "narrow positive: table scrolls inside its panel",
       "ok": true,
       "detail": {
-        "scrollWidth": 821,
+        "scrollWidth": 819,
         "clientWidth": 318
       }
     },
@@ -4544,7 +4591,7 @@
       "ok": true,
       "detail": {
         "status": "HISTORICAL",
-        "text": "Read as of 2026-10-24 05:33 UTC. Later work may differ."
+        "text": "Read as of 2026-10-24 07:18 UTC. Later work may differ."
       }
     },
     {
@@ -4578,7 +4625,7 @@
       "ok": true,
       "detail": {
         "panel": 199,
-        "tableScrollWidth": 821,
+        "tableScrollWidth": 819,
         "tableClientWidth": 318
       }
     },
@@ -4648,7 +4695,7 @@
       "name": "narrow historical: table scrolls inside its panel",
       "ok": true,
       "detail": {
-        "scrollWidth": 821,
+        "scrollWidth": 819,
         "clientWidth": 318
       }
     },
@@ -4755,7 +4802,7 @@
       "detail": 61
     },
     {
-      "name": "narrow forbidden-403: panel <= 850",
+      "name": "narrow forbidden-403: panel <= 590",
       "ok": true,
       "detail": {
         "panel": 198,
@@ -4843,74 +4890,6 @@
       "detail": 161
     },
     {
-      "name": "seed: child exited 0 and reported its POSTs",
-      "ok": true,
-      "detail": {
-        "exit": 0,
-        "stderr": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review3\\.venv\\Lib\\site-packages\\fastapi\\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\r\n  from starlette.testclient import TestClient as TestClient  # noqa\r\n"
-      }
-    },
-    {
-      "name": "seed 2: Action 201 and intent 201 through the public domain-work routes (SERVICE principal, in-process)",
-      "ok": true,
-      "detail": {
-        "n": 2,
-        "action_status": 201,
-        "action_id": "1754c549-8e1f-4bc5-9586-25e5ca7a137f",
-        "action_code": "ACT-000002",
-        "title_code_points": 160,
-        "owner_code_points": 160,
-        "intent_status": 201,
-        "intent_id": "1cd382fa-095a-48d9-80cf-45301be93467",
-        "refusal": null
-      }
-    },
-    {
-      "name": "seed 3: Action 201 and intent 201 through the public domain-work routes (SERVICE principal, in-process)",
-      "ok": true,
-      "detail": {
-        "n": 3,
-        "action_status": 201,
-        "action_id": "7b515825-fa8e-4cb2-911c-db72c0c248c2",
-        "action_code": "ACT-000003",
-        "title_code_points": 160,
-        "owner_code_points": 160,
-        "intent_status": 201,
-        "intent_id": "e5663371-4d54-45c9-abe4-ff841351a210",
-        "refusal": null
-      }
-    },
-    {
-      "name": "seed 4: Action 201 and intent 201 through the public domain-work routes (SERVICE principal, in-process)",
-      "ok": true,
-      "detail": {
-        "n": 4,
-        "action_status": 201,
-        "action_id": "711d6dd0-dfc8-4065-aa21-d72567ede4c3",
-        "action_code": "ACT-000004",
-        "title_code_points": 160,
-        "owner_code_points": 160,
-        "intent_status": 201,
-        "intent_id": "88931a2a-afad-4587-9920-6599727fd5e6",
-        "refusal": null
-      }
-    },
-    {
-      "name": "seed 5: Action 201 and intent 201 through the public domain-work routes (SERVICE principal, in-process)",
-      "ok": true,
-      "detail": {
-        "n": 5,
-        "action_status": 201,
-        "action_id": "5abf4a94-18eb-496a-98fb-0a88117e177d",
-        "action_code": "ACT-000005",
-        "title_code_points": 160,
-        "owner_code_points": 160,
-        "intent_status": 201,
-        "intent_id": "50113718-d42b-42de-b91c-1af84b7dc168",
-        "refusal": null
-      }
-    },
-    {
       "name": "desktop worst-folded: settled",
       "ok": true,
       "detail": "rows"
@@ -4921,11 +4900,14 @@
       "detail": {
         "total": 5,
         "visible": 4,
-        "showAll": "Show all 5 Actions"
+        "showAll": "Show all 5 Actions",
+        "panel": "rows",
+        "refusal": null,
+        "message": null
       }
     },
     {
-      "name": "desktop worst-folded: '5 actions' count and 36-character Action IDs",
+      "name": "desktop worst-folded: '5 actions' count and 36-character Action IDs from the manifest",
       "ok": true,
       "detail": {
         "scope": "Scoped to EV · 5 actions"
@@ -5222,11 +5204,14 @@
       "detail": {
         "total": 5,
         "visible": 4,
-        "showAll": "Show all 5 Actions"
+        "showAll": "Show all 5 Actions",
+        "panel": "rows",
+        "refusal": null,
+        "message": null
       }
     },
     {
-      "name": "narrow worst-folded: '5 actions' count and 36-character Action IDs",
+      "name": "narrow worst-folded: '5 actions' count and 36-character Action IDs from the manifest",
       "ok": true,
       "detail": {
         "scope": "Scoped to EV · 5 actions"
@@ -5263,7 +5248,7 @@
       "ok": true,
       "detail": {
         "panel": 480,
-        "tableScrollWidth": 821,
+        "tableScrollWidth": 823,
         "tableClientWidth": 318
       }
     },
@@ -5371,7 +5356,7 @@
       "name": "narrow worst-folded: table scrolls inside its panel",
       "ok": true,
       "detail": {
-        "scrollWidth": 821,
+        "scrollWidth": 823,
         "clientWidth": 318
       }
     },
@@ -5510,7 +5495,7 @@
       "name": "narrow worst-expanded: table scrolls inside its panel",
       "ok": true,
       "detail": {
-        "scrollWidth": 821,
+        "scrollWidth": 823,
         "clientWidth": 318
       }
     },
