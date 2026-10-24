@@ -25,7 +25,7 @@ import { UnavailableInline, UnavailableLinkEntry } from "../ui/UnavailableEntry"
 import { coldWindowSearch } from "./coldAssessmentClient";
 import { eatTime } from "./coldSiteViews";
 import { date, dayHm, hm } from "./coldFormat";
-import { evRefusalText } from "./EvAssessmentViews";
+import { evRefusalText, plural } from "./EvAssessmentViews";
 import type { EvEnvelope, EvRead, EvWindowQuery } from "./evAssessmentClient";
 import type {
   EvAnalysisItem,
@@ -489,7 +489,7 @@ function OverviewCards({ o, caps, routes }: { o: EvOverviewRead; caps: EvCapabil
   const sessionNote =
     d.started === null
       ? "Session outcomes not assessed"
-      : `${d.completed ?? "Unknown"} completed · ${d.observed_abort ?? "Unknown"} observed aborts · ${d.incomplete ?? "Unknown"} incomplete · of ${d.started} attempts`;
+      : `${d.completed ?? "Unknown"} completed · ${plural(d.observed_abort, "observed abort", "observed aborts")} · ${d.incomplete ?? "Unknown"} incomplete · of ${plural(d.started, "attempt", "attempts")}`;
   const p = o.site_power;
   const peak = p.observed_peak_kw === null ? "Unknown" : `${p.observed_peak_kw} kW observed peak`;
   const powerNote = p.observed_peak_kw === null ? (p.limitation ?? "No accepted Site import report") : coverageText(p.coverage, p.limitation);
@@ -812,7 +812,7 @@ function canSay(row: string, cap: EvCapability | null, o: EvOverviewRead | null)
   if (row === "sessions") {
     const d = o?.denominator;
     if (d === undefined || d.started === null) return "Session outcomes not assessed";
-    return `${d.completed ?? "Unknown"} completed · ${d.observed_abort ?? "Unknown"} observed aborts · ${d.incomplete ?? "Unknown"} incomplete`;
+    return `${d.completed ?? "Unknown"} completed · ${plural(d.observed_abort, "observed abort", "observed aborts")} · ${d.incomplete ?? "Unknown"} incomplete`;
   }
   if (row === "energy") {
     const kwh = o?.energy.complete_kwh ?? null;

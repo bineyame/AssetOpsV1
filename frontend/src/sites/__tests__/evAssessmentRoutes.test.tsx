@@ -20,6 +20,7 @@ import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { plural } from "../EvAssessmentViews";
 
 /*
  * W2-06 commit 5 (`.agent/W2-06-build-spec.md` "Commit 5", r5 state copy, r6 commit-5 dry-read): an EV_CHARGING
@@ -276,7 +277,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     ]);
     expect(outcomeBadge().className).toContain("ev-tone--green");
     const denominator = panelTitled("How to read the denominator").textContent ?? "";
-    expect(denominator).toContain("1 accepted starts · 1 completed · 0 observed aborts · 0 incomplete · 0 contradictory");
+    expect(denominator).toContain("1 accepted start · 1 completed · 0 observed aborts · 0 incomplete · 0 contradictory");
     expect(denominator).toContain("Orphan end records: 0");
     expect(denominator).toContain("Unknown is separate from failure.");
     const cause = panelTitled("Cause remains bounded").textContent ?? "";
@@ -856,5 +857,118 @@ describe("post-W6 W2-EV (Q14/Q23): EV Sessions and Finding main tabs carry the s
     expect(tabs.Overview).toBe(`/sites/${CODE}/ev${SEL}`);
     expect(tabs.Evidence).toBe(`/sites/${CODE}/ev/evidence${SEL}`);
     expect(tabs.Financials).toBe(`/sites/${CODE}/ev/financials${SEL}`);
+  });
+});
+
+describe("post-W6 W2-EV U2: Sessions and Finding links, denominator, plurals and section copy", () => {
+  const SEL = `?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
+  const ANALYSIS = `/sites/${CODE}/ev/evidence/analysis`;
+
+  it("R268 (Q3): Inspect session lineage opens EV Analysis at the selected window; hidden on a refused read", async () => {
+    renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}`, ok(STATES.complete));
+    await settledScreen();
+    const link = document.querySelector("[data-ev-session-lineage]") as HTMLElement;
+    expect(link.textContent).toBe("Inspect session lineage ↗");
+    expect(link.getAttribute("href")).toBe(`${ANALYSIS}${SEL}`);
+    expect(document.querySelector('[data-link-unavailable="Inspect session lineage"]')).toBeNull();
+    cleanup();
+    renderEv(SESSIONS, refused(503, "EV_READ_UNAVAILABLE"));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-session-lineage]")).toBeNull();
+    expect(main().textContent).not.toContain("Inspect session lineage");
+  });
+
+  it("R270 (Q4): attempts outside the three outcomes are stated only when the difference is positive", async () => {
+    renderEv(SESSIONS, ok(STATES.complete));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-outside-outcomes]")).toBeNull();
+    cleanup();
+    renderEv(SESSIONS, ok(sessions("CURRENT", "OBSERVED_SESSIONS", [session(10)], { started: 5, confirmed_delivery: 2, fault_aborted: 1, incomplete: 0 })));
+    await settledScreen();
+    expect(cardValues()).toEqual(["5", "2", "1", "0"]);
+    expect(document.querySelector("[data-ev-outside-outcomes]")?.textContent).toBe(
+      "2 of 5 attempts are outside these three outcomes; see How to read the denominator.",
+    );
+    expectV69Panels("sessions");
+    cleanup();
+    renderEv(SESSIONS, ok(STATES.missingMeter));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-outside-outcomes]")?.textContent).toBe(
+      "1 of 1 attempt is outside these three outcomes; see How to read the denominator.",
+    );
+    cleanup();
+    renderEv(SESSIONS, ok(sessions("UNKNOWN", "UNKNOWN", [], { started: 5, confirmed_delivery: 0 })));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-outside-outcomes]")).toBeNull();
+  });
+
+  it("R281 (Q9): one plural rule for zero, one and many", () => {
+    expect(plural(0, "accepted start", "accepted starts")).toBe("0 accepted starts");
+    expect(plural(1, "accepted start", "accepted starts")).toBe("1 accepted start");
+    expect(plural(2, "observed abort", "observed aborts")).toBe("2 observed aborts");
+    expect(plural(null, "attempt", "attempts")).toBe("Unknown attempts");
+  });
+
+  it("R271 (Q5): Outcome chips wrap inside a widened Outcome column; the table keeps its 640 px scroll minimum", async () => {
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/sites/w2-ev-assessment.css`, "utf8");
+    const rule = (selector: string) => {
+      const start = css.indexOf(`${selector} {`);
+      expect(start, selector).toBeGreaterThan(-1);
+      return css.slice(start, css.indexOf("}", start));
+    };
+    expect(rule('[data-ev-view] col[data-ev-col="Outcome"]')).toContain("width: 17%");
+    expect(rule('[data-ev-view] col[data-ev-col="Evidence completeness"]')).toContain("width: 18%");
+    const chip = rule("[data-ev-view] .data-table td .ev-chip");
+    expect(chip).toContain("white-space: normal");
+    expect(chip).toContain("max-width: 100%");
+    expect(rule("[data-ev-view] .data-table")).toContain("min-width: 640px");
+    const widths = Array.from(css.matchAll(/col\[data-ev-col="[^"]+"\] \{ width: (\d+)%; \}/g), (m) => Number(m[1]));
+    expect(widths.reduce((a, b) => a + b, 0)).toBe(100);
+  });
+
+  it("R275 (Q6): the Finding strip joins claim, Site and the Finding's window; no window says so", async () => {
+    renderEv(FINDING_PATH, ok(STATES.interrupted));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-finding-scope]")?.textContent).toBe("Observed interruption · EV lab depot · 6 Oct 2026 08:00–09:00 UTC");
+    cleanup();
+    renderEv(FINDING_PATH, ok(STATES.interrupted), ok({ ...FINDING_DETAIL, window: { from: null, to: null, known_at: null } }));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-finding-scope]")?.textContent).toBe("Observed interruption · EV lab depot · No window selected");
+  });
+
+  it("R280 (Q8): EV child and unknown child addresses use the common section copy and EV main tabs", async () => {
+    for (const child of ["evidence", "history", "not-a-section"]) {
+      renderEv(`/sites/${CODE}/findings/${FINDING}/${child}?from=${FROM}&to=${TO}`, ok(STATES.complete));
+      await settledScreen();
+      const gap = document.querySelector("[data-finding-section-unavailable]") as HTMLElement;
+      expect(gap.textContent, child).toBe("This Finding section is not available for this kind of Finding. Open Finding overview");
+      expect(screen.getByRole("link", { name: "Open Finding overview" }).getAttribute("href")).toBe(
+        `/sites/${CODE}/findings/${FINDING}?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`,
+      );
+      const tabs = document.querySelector('nav[aria-label="Site sections"]') as HTMLElement;
+      expect(tabs.querySelector('a[href="/sites/EV-LAB-001/ev/evidence"]'), child).not.toBeNull();
+      expect(tabs.querySelector('a[href="/sites/EV-LAB-001/evidence"]'), child).toBeNull();
+      cleanup();
+    }
+  });
+
+  it("R276 (Q7): Inspect claim evidence opens EV Analysis at the Finding's own window; the REC line stays unlinked", async () => {
+    const own = { from: "2026-10-05T10:00:00.000000Z", to: "2026-10-05T11:00:00.000000Z", known_at: "2026-10-05T11:00:00.000000Z" };
+    renderEv(FINDING_PATH, ok(STATES.interrupted), ok({ ...FINDING_DETAIL, window: own }));
+    await settledScreen();
+    const conclusion = panelTitled("Bounded conclusion");
+    const link = conclusion.querySelector("[data-ev-claim-evidence] a") as HTMLElement;
+    expect(link.textContent).toBe("Inspect claim evidence ↗");
+    expect(link.getAttribute("href")).toBe(
+      `${ANALYSIS}?from=${encodeURIComponent(own.from)}&to=${encodeURIComponent(own.to)}&known_at=${encodeURIComponent(own.known_at)}`,
+    );
+    expect(conclusion.querySelector("[data-ev-record]")?.textContent).toBe(`REC ${id(150)} · No analysis link`);
+    cleanup();
+    renderEv(FINDING_PATH, ok(STATES.interrupted), refused(404, "EV_FINDING_NOT_FOUND"));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-claim-evidence]")).toBeNull();
+    expect(main().textContent).not.toContain("Inspect claim evidence");
   });
 });

@@ -831,7 +831,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
         const findings = findingsClient(() => w1("OTHER-1", REV));
         const decisions = frameAt(`/sites/OTHER-1/findings/${F}/${view}`, findings, alternatives([]), siteType, "OTHER-1");
         await settledScreen();
-        await screen.findByText(/Finding section unavailable for this site\./);
+        await screen.findByText(/This Finding section is not available for this kind of Finding./);
         const link = screen.getByRole("link", { name: "Open Finding overview" });
         expect(link).toHaveAttribute("href", `/sites/OTHER-1/findings/${F}`);
         expect(decisions.getAlternatives).not.toHaveBeenCalled();
@@ -1069,7 +1069,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
           );
           await waitFor(() => expect(document.querySelector("main h1")).not.toBeNull());
           await new Promise((resolve) => setTimeout(resolve, 0));
-          expect(main().textContent).not.toContain("Finding section unavailable for this site.");
+          expect(main().textContent).not.toContain("This Finding section is not available for this kind of Finding.");
           if (withClient) {
             const row = Array.from(document.querySelectorAll('nav[aria-label="Finding sections"] li'));
             expect(row).toHaveLength(2);
@@ -1097,7 +1097,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
           </Routes>
         </MemoryRouter>,
       );
-      await screen.findByText(/Finding section unavailable for this site\./);
+      await screen.findByText(/This Finding section is not available for this kind of Finding./);
       expect(screen.getByRole("link", { name: "Open Finding overview" }).getAttribute("href")).toBe(
         `/sites/OTHER-1/findings/${F}?from=2026-10-01T00%3A00%3A00Z&to=2026-10-02T00%3A00%3A00Z`,
       );

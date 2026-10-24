@@ -22,7 +22,7 @@ import { coldWindowSearch } from "./coldAssessmentClient";
 import { renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
 import { selectedSourceBlock } from "./sourceProvenance";
 import { classificationWord, lifecycleWord } from "./coldAssessmentWords";
-import { dayHm, hm } from "./coldFormat";
+import { dayHm, hm, windowText } from "./coldFormat";
 import type {
   EvAssessmentClient,
   EvDenominator,
@@ -119,6 +119,11 @@ function useRead<T>(load: (() => Promise<EvRead<T>>) | null, key: string): EvRea
 const windowKey = (w: EvWindowQuery) => `${w.from ?? ""}|${w.to ?? ""}|${w.known_at ?? ""}`;
 const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "Unknown");
 const count = (n: number | null | undefined) => (n === null || n === undefined ? "Unknown" : String(n));
+
+/** post-W6 W2-EV R281 (Q9): one plural rule for starts, aborts and attempts; an unknown count keeps the plural noun. */
+export function plural(n: number | null | undefined, one: string, many: string): string {
+  return `${count(n)} ${n === 1 ? one : many}`;
+}
 
 /** A long stored identifier shown short, with its full value as the accessible name (full value also in the panel's disclosure). */
 function ShortId({ value }: { value: string | null }) {
@@ -394,8 +399,24 @@ function sourceDetail(read: EvSessionsRead) {
   ];
 }
 
+/**
+ * MOCK DEVIATION (D4) R270 (Q4): the four mock tiles stay; attempts outside confirmed delivery, fault-aborted and
+ * incomplete are stated under the cards (first line of the records panel), never given a fabricated category.
+ */
+export function outsideOutcomesLine(read: EvSessionsRead | null): string | null {
+  if (read === null) return null;
+  const state = read.currentness.state;
+  if (state === "UNKNOWN" || state === "PENDING_RECOMPUTE" || read.status.state === "UNKNOWN") return null;
+  const d = read.denominator;
+  if (d.started === null || d.started === undefined) return null;
+  const outside = d.started - ((d.confirmed_delivery ?? 0) + (d.fault_aborted ?? 0) + (d.incomplete ?? 0));
+  if (outside <= 0) return null;
+  return `${outside} of ${d.started === 1 ? "1 attempt is" : `${d.started} attempts are`} outside these three outcomes; see How to read the denominator.`;
+}
+
 function RecordsPanel({ read, gap, findingHref, energyHref }: { read: EvSessionsRead | null; gap: string | null; findingHref: (findingId: string) => string; energyHref: string }) {
   let body: ReactNode;
+  const outside = outsideOutcomesLine(read);
   const sourceBlocked = read !== null && read.limitations.includes(EV_COPY.sourceUnassessable);
   if (read === null) {
     body = <Gap id="ev-records">{gap}</Gap>;
@@ -438,13 +459,18 @@ function RecordsPanel({ read, gap, findingHref, energyHref }: { read: EvSessions
   }
   return (
     <Panel heading="Session service records" headingId="ev-records-heading" description={<Link to={energyHref} data-ev-energy-summary="">Energy summary →</Link>}>
+      {outside === null ? null : (
+        <p className="prose v69-chart-note" data-ev-outside-outcomes="">
+          {outside}
+        </p>
+      )}
       {body}
     </Panel>
   );
 }
 
 function denominatorLine(d: EvDenominator): string {
-  return `${count(d.started)} accepted starts · ${count(d.completed)} completed · ${count(d.observed_abort)} observed aborts · ${count(d.incomplete)} incomplete · ${count(d.contradictory)} contradictory`;
+  return `${plural(d.started, "accepted start", "accepted starts")} · ${count(d.completed)} completed · ${plural(d.observed_abort, "observed abort", "observed aborts")} · ${count(d.incomplete)} incomplete · ${count(d.contradictory)} contradictory`;
 }
 
 function DenominatorPanel({ read, gap }: { read: EvSessionsRead | null; gap: string | null }) {
@@ -511,7 +537,7 @@ function SessionCards({ read }: { read: EvSessionsRead | null }) {
   );
 }
 
-function SessionsStrip({ read, gap }: { read: EvSessionsRead | null; gap: string | null }) {
+function SessionsStrip({ read, gap, analysisHref }: { read: EvSessionsRead | null; gap: string | null; analysisHref?: string }) {
   if (read === null) {
     return (
       <StatusBar label="Session service state" data={{ "data-ev-strip": "refused" }}>
@@ -522,7 +548,7 @@ function SessionsStrip({ read, gap }: { read: EvSessionsRead | null; gap: string
   const contradictory = read.status.state === "CONTRADICTORY" && read.currentness.state !== "PENDING_RECOMPUTE" && read.currentness.state !== "UNKNOWN";
   const lines = [currentnessLine(read), historicalStamp(read), contradictory ? EV_COPY.contradictory : null].filter(Boolean);
   return (
-    <StatusBar label="Session service state" data={{ "data-ev-strip": read.currentness.state }} action={<UnavailableInline label="Inspect session lineage" />}>
+    <StatusBar label="Session service state" data={{ "data-ev-strip": read.currentness.state }} action={analysisHref === undefined ? undefined : <Link to={analysisHref} data-ev-session-lineage="">Inspect session lineage ↗</Link>}>
       <Badge tone="neutral" className="ev-chip">{sessionsStripWord(read)}</Badge> <ProvenanceBadge env={read} />
       {lines.map((line) => (
         <span key={line} className="ev-strip__note" data-ev-state-line>
@@ -557,6 +583,8 @@ export interface EvSessionsFrameProps {
   performanceHref?: string;
   /** W5-03a E2: the depth page body rendered under the subtabs for a non-sessions view. */
   depth?: ReactNode;
+  /** post-W6 W2-EV R268 (Q3): EV Evidence Analysis at the loaded read's selected window; hidden on a refused read. */
+  analysisHref?: (search: string) => string;
 }
 
 const SCREEN_OF: Record<EvPerformanceView, keyof typeof SITE_SCREEN_DESCRIPTIONS> = {
@@ -633,7 +661,7 @@ function EvSessionsPage(props: EvSessionsFrameProps) {
         <p>{EV_LOADING}</p>
       ) : (
         <>
-          <SessionsStrip read={read} gap={gap} />
+          <SessionsStrip read={read} gap={gap} analysisHref={read === null || props.analysisHref === undefined ? undefined : props.analysisHref(selectedWindowSearch(read))} />
           <SessionCards read={read} />
           <RecordsPanel read={read} gap={gap} findingHref={props.findingHref} energyHref={props.subtabHref("energy")} />
           <div className="panel-pair ev-pair">
@@ -654,6 +682,8 @@ export interface EvFindingFrameProps {
   findingId: string;
   window: EvWindowQuery;
   client: EvAssessmentClient;
+  /** post-W6 W2-EV R276 (Q7): EV Evidence Analysis at the Finding's own window; hidden on a refused read. */
+  analysisHref?: (search: string) => string;
   /** post-W6 W2-EV (Q14): a function receives the loaded read's selected `?from=&to=&known_at=` ("" when none). */
   tabs: EvTabs;
   parentTrail: Crumb[];
@@ -696,12 +726,17 @@ function FindingStrip({ finding, siteName }: { finding: EvFindingDetailRead; sit
       <Badge tone="neutral" className="ev-chip">
         <span data-ev-finding-confidence>{`Confidence: ${confidence}`}</span>
       </Badge>{" "}
-      {finding.lifecycle === "SUPPORTED" ? (
-        <span className="ev-strip__note" data-ev-claim-phrase>
-          Observed interruption
-        </span>
-      ) : null}{" "}
-      <span className="ev-strip__note">{siteName}</span> <ProvenanceBadge env={finding} />
+      {/* post-W6 W2-EV R275 (Q6): claim, Site and the Finding's window in one phrase joined with " · ". */}
+      <span className="ev-strip__note" data-ev-finding-scope="">
+        {finding.lifecycle === "SUPPORTED" ? (
+          <>
+            <span data-ev-claim-phrase>Observed interruption</span>
+            {" · "}
+          </>
+        ) : null}
+        {`${siteName} · ${windowText(finding.window.from, finding.window.to)}`}
+      </span>{" "}
+      <ProvenanceBadge env={finding} />
       {pending ? (
         <span className="ev-strip__note" data-ev-pending-notice>
           Evidence pending
@@ -716,7 +751,7 @@ function FindingStrip({ finding, siteName }: { finding: EvFindingDetailRead; sit
   );
 }
 
-function FindingPanels({ finding, session }: { finding: EvFindingDetailRead; session: EvRead<EvSessionDetailRead> | null }) {
+function FindingPanels({ finding, session, analysisHref }: { finding: EvFindingDetailRead; session: EvRead<EvSessionDetailRead> | null; analysisHref?: string }) {
   const c = finding.claim;
   const connector = session !== null && session.status === "loaded" ? session.value.connector_display_name : null;
   // r7 P5: a withdrawn or otherwise unsupported claim never puts a stored limitation in the BigClaim.
@@ -741,6 +776,11 @@ function FindingPanels({ finding, session }: { finding: EvFindingDetailRead; ses
         <BigClaim data={{ "data-ev-conclusion": exactClaim(finding) ? "supported" : "limited" }}>{conclusion}</BigClaim>
         <p className="prose" data-ev-delivered>{deliveredLine(finding)}</p>
         <p className="prose">{EV_COPY.limit}</p>
+        {analysisHref === undefined ? null : (
+          <p className="prose" data-ev-claim-evidence="">
+            <Link to={analysisHref}>Inspect claim evidence ↗</Link>
+          </p>
+        )}
         <p className="ev-record-line" data-ev-record>
           {record === null ? (
             <span>Record Unknown</span>
@@ -869,7 +909,7 @@ export function EvFindingFrame(props: EvFindingFrameProps) {
       ) : (
         <>
           <FindingStrip finding={finding.value} siteName={props.siteName} />
-          <FindingPanels finding={finding.value} session={session} />
+          <FindingPanels finding={finding.value} session={session} analysisHref={props.analysisHref?.(selectedWindowSearch(finding.value))} />
         </>
       )}
     </main>

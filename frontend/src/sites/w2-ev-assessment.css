@@ -21,8 +21,10 @@
 [data-ev-view] col[data-ev-col="Session / connector"] { width: 20%; }
 [data-ev-view] col[data-ev-col="Period"] { width: 16%; }
 [data-ev-view] col[data-ev-col="Energy"] { width: 12%; }
-[data-ev-view] col[data-ev-col="Outcome"] { width: 13%; }
-[data-ev-view] col[data-ev-col="Evidence completeness"] { width: 22%; }
+/* post-W6 W2-EV R271 (Q5): the Outcome column is widened from 13% (Evidence completeness gives 4 points) so
+   "Completed · energy partial" fits on at most two lines; the 640 px table minimum keeps the 390 inner scroll. */
+[data-ev-view] col[data-ev-col="Outcome"] { width: 17%; }
+[data-ev-view] col[data-ev-col="Evidence completeness"] { width: 18%; }
 [data-ev-view] col[data-ev-col="Next step"] { width: 17%; }
 
 [data-ev-view] .ev-chips {
@@ -32,6 +34,14 @@
 }
 [data-ev-view] .ev-chip {
   white-space: nowrap;
+}
+/* post-W6 W2-EV R271 (Q5): a table cell's chips wrap inside their cell instead of painting over the next column. */
+[data-ev-view] .data-table td .ev-chip {
+  display: inline-block;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-align: left;
 }
 
 [data-ev-view] .badge.ev-tone--green {
