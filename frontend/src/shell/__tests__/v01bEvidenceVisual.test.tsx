@@ -228,7 +228,13 @@ describe("V-01b Site Evidence analysis", () => {
     // W1-F2: the panel also holds the readings-not-accepted part and closed record disclosures; the first table is
     // the accepted records list.
     const heads = Array.from(records.querySelector("table")?.querySelectorAll("thead th") ?? []).map((th) => th.textContent);
-    expect(heads).toEqual(["Source · reading", "Value", "Taken", "Sent", "Received", "Record"]);
+    // post-W6 shell R170 (Q18): the measured time is on the Site's clock (Africa/Addis_Ababa, EAT), HH:MM:SS, with the
+    // exact UTC instant on the cell's title.
+    expect(heads).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent", "Received", "Record"]);
+    const measured = records.querySelector("[data-evidence-measured]") as HTMLElement;
+    expect(measured.textContent).toMatch(/^(\d{1,2} [A-Z][a-z]{2} · )?\d{2}:\d{2}:\d{2}$/);
+    expect(measured.title).toContain(measured.getAttribute("data-evidence-measured") as string);
+    expect(measured.title).toContain("UTC");
     expect(within(records).getByRole("button", { name: `Open record ${EVIDENCE_UUID}` })).toBeTruthy();
 
     const limit = panel(V69_EVIDENCE_ANALYSIS_TITLE);

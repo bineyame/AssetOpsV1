@@ -1598,7 +1598,8 @@ function DomainActionRoute({
 
 export function SiteActionFrame({
   detail,
-  sitesPath,
+  // post-W6 shell R203: the Action trail is rooted at Actions, so the Sites root is no longer a crumb here.
+  sitesPath: _sitesPath,
   actions = DEFAULT_ACTIONS,
   domainActions = DEFAULT_DOMAIN_ACTIONS,
 }: {
@@ -1656,17 +1657,32 @@ export function SiteActionFrame({
         const href = (target: ActionView, chosen: ActionSelector) => siteActionHref(site.site_id, id, target, chosen);
         return (
           <main aria-labelledby={SITE_ACTION_HEADING_ID}>
-            <Breadcrumbs
-              trail={[
-                { label: "Sites", to: sitesPath },
-                { label: site.display_name, to: siteDetailHref(site.site_id) },
-                { label: "Findings", to: siteFindingsHref(site.site_id) },
-                view === "overview" || view === null
-                  ? { label: "Action" }
-                  : { label: "Action", to: href("overview", selector) },
-                ...(view === "overview" || view === null ? [] : [{ label: ACTION_VIEW_LABELS[view] }]),
-              ]}
-            />
+            {/* post-W6 shell R203 (Q19): the mock's Action-rooted trail, `Actions › {code} › {section} · site: {site}`,
+                in the existing domain Action crumb shape. The code appears only once the W1 Action read has named it
+                (SiteAction reports `{code} · Battery reserve trial` through onTitle; "Action" while loading). */}
+            <nav className="breadcrumbs mini-finding-crumbs" aria-label="Breadcrumb" data-action-crumbs>
+              <ol className="breadcrumbs__list">
+                <li className="breadcrumbs__item">
+                  <Link to="/actions">Actions</Link>
+                </li>
+                {w1ActionCode(title) === null ? null : (
+                  <li className="breadcrumbs__item" data-action-crumb-code>
+                    {w1ActionCode(title)}
+                  </li>
+                )}
+                {view === null ? null : (
+                  <li className="breadcrumbs__item">
+                    <span className="breadcrumbs__current" aria-current="page">
+                      {ACTION_VIEW_LABELS[view]}
+                    </span>
+                  </li>
+                )}
+              </ol>
+              <span className="mini-finding-crumbs__site" data-action-crumb-site>
+                <span className="mini-finding-crumbs__lead">· site:</span>{" "}
+                <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
+              </span>
+            </nav>
             <PageHeader
               title={title}
               headingId={SITE_ACTION_HEADING_ID}
@@ -1726,6 +1742,12 @@ export function SiteActionFrame({
  * is an explicit unavailable state: S6-01 has no Site change index.
  */
 export const SITE_CHANGE_HEADING_ID = "site-change-heading";
+
+/** post-W6 shell R203: the W1 Action code from SiteAction's reported title, or null while the read is pending. */
+export function w1ActionCode(title: string): string | null {
+  const separator = title.indexOf(" · ");
+  return separator > 0 ? title.slice(0, separator) : null;
+}
 
 function changeLinks(siteId: string): SiteFoundationChangeLinks {
   return {
