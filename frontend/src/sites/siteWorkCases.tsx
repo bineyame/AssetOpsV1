@@ -29,6 +29,7 @@ import { DataTable, Disclosure, Fact, FactList, Notice, Panel, ProductStatus, Ra
 import { globalWorkRequestHref } from "../work/globalWorkClient";
 import { READ_FULL_TEXT, coldCurrentnessNotice, coldCurrentnessTone, isLongText } from "./coldWorkPresentation";
 import type { DomainStatus } from "./domainActionClient";
+import { EV_ACTION_LINK_LIVE, EV_SOURCE_FINDING_UNAVAILABLE } from "./evWorkPresentation";
 import type { DecisionRead, MiniDecisionsClient, WorkContextsBody, WorkDecisionContext } from "./miniDecisionsClient";
 import { SOURCE_WORDS, SourceProvenanceRecord, sourceState } from "./sourceProvenance";
 import {
@@ -82,11 +83,28 @@ export interface SiteWorkCasesSite {
   code: string;
 }
 
-/** The COLDCHAIN case-cell context: the selected Site and the page's explicit cutoff. */
-interface ColdCells {
+/**
+ * The domain case-cell context (COLDCHAIN since W5-02 K3a, EV_CHARGING since W5-04 V3a): the selected Site and the
+ * page's explicit cutoff. `legacyCold` is true only on COLDCHAIN, which keeps its K3 `data-cold-work-*` attributes,
+ * `cold-work-*` classes and cell rules byte-for-byte; an EV Site gets only `data-domain-work-*` / `domain-work-*`
+ * names (W5-04 readiness rulings 18 and 45).
+ */
+interface DomainCells {
   site: SiteWorkCasesSite;
   knownAt: string | null;
+  legacyCold: boolean;
 }
+
+/** The Site types with the domain case presentation; MINIGRID (and any other type) keeps W4's. */
+const DOMAIN_CASE_SITE_TYPES = new Set(["COLDCHAIN", "EV_CHARGING"]);
+
+/** `data-cold-work-{name}` on COLDCHAIN, `data-domain-work-{name}` on EV (ruling 45: EV never gets cold names). */
+function caseAttrs(legacyCold: boolean, name: string, value: string): Record<string, string> {
+  return { [`data-${legacyCold ? "cold" : "domain"}-work-${name}`]: value };
+}
+
+/** `cold-work-{name}` on COLDCHAIN, `domain-work-{name}` on EV. */
+const caseClass = (legacyCold: boolean, name: string) => `${legacyCold ? "cold" : "domain"}-work-${name}`;
 
 /** One case's overlay state: `null` while unread (nothing shown), a list, or `"refused"`. */
 type CaseContexts = WorkDecisionContext[] | "refused" | null;
@@ -446,7 +464,19 @@ function Basis({ body }: { body: WorkIndexBody }) {
 }
 
 /** The exact identities and UTC times behind one row: never truncated, closed by default. */
-function RowDetail({ row, assetId = false }: { row: WorkRow; assetId?: boolean }) {
+function RowDetail({
+  row,
+  assetId = false,
+  plainDomainActions = false,
+}: {
+  row: WorkRow;
+  assetId?: boolean;
+  /**
+   * W5-04 V3a (MOCK DEVIATION (D1) R113, readiness ruling 46): on an EV Site a linked domain Action stays plain text
+   * until V4a mounts the EV detail route (`EV_ACTION_LINK_LIVE`); no interim dead link to the W1 presenter.
+   */
+  plainDomainActions?: boolean;
+}) {
   return (
     <Disclosure name={`work-row-${row.case_id}`} summary="UTC and IDs" variant="inline">
       <FactList>
@@ -481,7 +511,13 @@ function RowDetail({ row, assetId = false }: { row: WorkRow; assetId?: boolean }
             {row.action_links.map((a, i) => (
               <span key={`${a.kind ?? "ACTION"}:${a.action_id}:${a.action_event_id ?? a.finding_revision_id}`} data-work-action-link={a.action_id}>
                 {i > 0 ? ", " : null}
-                {a.href ? <Link to={a.href}>{a.label}</Link> : a.label}
+                {a.href && !(plainDomainActions && a.kind === "DOMAIN_ACTION") ? (
+                  <Link to={a.href}>{a.label}</Link>
+                ) : plainDomainActions && a.kind === "DOMAIN_ACTION" ? (
+                  <span data-work-action-plain>{a.label}</span>
+                ) : (
+                  a.label
+                )}
               </span>
             ))}
           </Fact>
@@ -619,7 +655,17 @@ function MaintenanceCells({ row, contexts }: { row: WorkRow; contexts: CaseConte
  * at two lines with the full value in a `Read full text` disclosure; while it is open the preview is removed and the
  * body shows the value once, and closing restores it (the K2 ruling 20 behaviour of the cold Actions list).
  */
-function CaseLongText({ text, name, children }: { text: string; name: string; children?: ReactNode }) {
+function CaseLongText({
+  text,
+  name,
+  legacyCold,
+  children,
+}: {
+  text: string;
+  name: string;
+  legacyCold: boolean;
+  children?: ReactNode;
+}) {
   const long = isLongText(text);
   const [open, setOpen] = useState(false);
   const wrapper = useRef<HTMLDivElement | null>(null);
@@ -635,9 +681,9 @@ function CaseLongText({ text, name, children }: { text: string; name: string; ch
   }, [long]);
   if (!long) return <span>{children ?? text}</span>;
   return (
-    <div className="cold-work-longtext" ref={wrapper} data-cold-work-longtext={open ? "open" : "closed"}>
+    <div className={caseClass(legacyCold, "longtext")} ref={wrapper} {...caseAttrs(legacyCold, "longtext", open ? "open" : "closed")}>
       {open ? null : (
-        <span className="work-cases-clamp" data-cold-work-preview={name}>
+        <span className="work-cases-clamp" {...caseAttrs(legacyCold, "preview", name)}>
           {children ?? text}
         </span>
       )}
@@ -649,15 +695,16 @@ function CaseLongText({ text, name, children }: { text: string; name: string; ch
 }
 
 /**
- * K3a: a cold case title. MOCK DEVIATION (D1) R73: the INC code stays plain (no Incident detail route is mounted).
- * MOCK DEVIATION (D1) R68: the WR code opens the mounted W6 C2 request Overview for the selected case ID (P-G-4).
+ * K3a: a domain case title. MOCK DEVIATION (D1) R73 (cold) / R85 (EV): the INC code stays plain (no Incident detail
+ * route is mounted). MOCK DEVIATION (D1) R68 (cold) / R83 (EV): the WR code opens the mounted W6 C2 request Overview
+ * for the selected case ID, stored Site code and explicit cutoff (P-G-4). R94 (cold) / R107 (EV): long titles preview.
  */
-function ColdCaseTitle({ kind, row, cold }: { kind: WorkKind; row: WorkRow; cold: ColdCells }) {
+function DomainCaseTitle({ kind, row, cells }: { kind: WorkKind; row: WorkRow; cells: DomainCells }) {
   const label = `${row.code} · ${row.title}`;
-  const href = kind === "maintenance" && row.case_id ? coldRequestHref(row.case_id, cold.site.code, cold.knownAt) : null;
+  const href = kind === "maintenance" && row.case_id ? coldRequestHref(row.case_id, cells.site.code, cells.knownAt) : null;
   return (
     <span data-work-case-title>
-      <CaseLongText text={label} name={`work-case-title-${row.case_id}`}>
+      <CaseLongText text={label} name={`work-case-title-${row.case_id}`} legacyCold={cells.legacyCold}>
         {href ? (
           <Link to={href} data-work-request-link>
             {label}
@@ -671,22 +718,31 @@ function ColdCaseTitle({ kind, row, cold }: { kind: WorkKind; row: WorkRow; cold
 }
 
 /**
- * K3a (K2 ruling 4, K3 pre-flight ruling 2). MOCK DEVIATION (D1) R65: the mock's F-118/F-119 slots show
- * `Finding {id8}`. MOCK DEVIATION (D1) R66: plain text, never an anchor, because the cold Finding frame does not read
- * `revision_id`; each selected revision is in its own `Finding version` disclosure.
+ * K3a (K2 ruling 4, K3 pre-flight ruling 2). MOCK DEVIATION (D1) R65 (cold) / R74 (EV): the mock's F-118/F-119 or
+ * F-130 slots show `Finding {id8}`. MOCK DEVIATION (D1) R66 (cold) / R75 (EV): plain text, never an anchor, because
+ * the domain Finding frame does not read `revision_id`; each selected revision is in its own `Finding version`
+ * disclosure, which on EV also carries the R75 sentence (as the EV Actions Source cell).
  */
-function ColdFindingLinks({ row }: { row: WorkRow }) {
+function DomainFindingLinks({ row, legacyCold }: { row: WorkRow; legacyCold: boolean }) {
   if (row.finding_links.length === 0) return <span className="muted">No linked finding</span>;
   return (
     <>
       {row.finding_links.map((f, i) => (
         <span key={`${f.finding_id}:${f.finding_revision_id}`} data-work-finding={f.finding_id}>
           {i > 0 ? " · " : null}
-          <span className="cold-work-code" data-work-finding-unlinked>{`Finding ${f.finding_id.slice(0, 8)}`}</span>
+          <span className={caseClass(legacyCold, "code")} data-work-finding-unlinked>{`Finding ${f.finding_id.slice(0, 8)}`}</span>
           <Disclosure name={`work-finding-${row.case_id}-${f.finding_revision_id}`} summary="Finding version" variant="inline">
             <code data-vocabulary-exempt="source-reference" data-work-finding-revision>
               {f.finding_revision_id}
             </code>
+            {legacyCold ? null : (
+              <>
+                {" "}
+                <span className="muted" data-domain-work-source-unavailable="">
+                  {EV_SOURCE_FINDING_UNAVAILABLE}
+                </span>
+              </>
+            )}
           </Disclosure>
         </span>
       ))}
@@ -694,21 +750,22 @@ function ColdFindingLinks({ row }: { row: WorkRow }) {
   );
 }
 
-function ColdIncidentCells({ row, cold }: { row: WorkRow; cold: ColdCells }) {
+function DomainIncidentCells({ row, cells }: { row: WorkRow; cells: DomainCells }) {
   return (
     <>
       <td className="work-cases-first">
-        <ColdCaseTitle kind="incidents" row={row} cold={cold} />
+        <DomainCaseTitle kind="incidents" row={row} cells={cells} />
       </td>
       <td>
-        <span data-work-window>{siteWindowText(row.occurred_at, cold.site.timezone)}</span>
-        <RowDetail row={row} />
+        {/* W5-02 K3a; W5-04 build spec E5 withdrawn (R-10): the occurrence time in the stored Site IANA zone. */}
+        <span data-work-window>{siteWindowText(row.occurred_at, cells.site.timezone)}</span>
+        <RowDetail row={row} plainDomainActions={!cells.legacyCold && !EV_ACTION_LINK_LIVE} />
       </td>
       <td data-work-narrative>
-        <CaseLongText text={row.narrative} name={`work-narrative-${row.case_id}`} />
+        <CaseLongText text={row.narrative} name={`work-narrative-${row.case_id}`} legacyCold={cells.legacyCold} />
       </td>
       <td>
-        <ColdFindingLinks row={row} />
+        <DomainFindingLinks row={row} legacyCold={cells.legacyCold} />
       </td>
       <td>
         <StateChip kind="incidents" state={row.state} />
@@ -717,48 +774,53 @@ function ColdIncidentCells({ row, cold }: { row: WorkRow; cold: ColdCells }) {
   );
 }
 
-function ColdMaintenanceCells({ row, cold }: { row: WorkRow; cold: ColdCells }) {
+function DomainMaintenanceCells({ row, cells }: { row: WorkRow; cells: DomainCells }) {
+  const lc = cells.legacyCold;
   return (
     <>
       <td className="work-cases-first">
-        <ColdCaseTitle kind="maintenance" row={row} cold={cold} />
+        <DomainCaseTitle kind="maintenance" row={row} cells={cells} />
       </td>
       <td>
-        {/* MOCK DEVIATION (D4) R89: the selected composite label, `generator-1 · backup generator`. */}
+        {/* Cold: MOCK DEVIATION (D4) R89, the selected composite label, `generator-1 · backup generator`, with its ID
+            in `UTC and IDs`. EV (readiness ruling 13): the selected W4 `asset_label` unchanged, else the gap. */}
         {row.asset_label ? (
-          <span data-work-asset>{coldAssetLabel(row.asset_label)}</span>
+          <span data-work-asset>{lc ? coldAssetLabel(row.asset_label) : row.asset_label}</span>
         ) : (
           <span className="muted">No asset linked</span>
         )}
-        <RowDetail row={row} assetId />
+        <RowDetail row={row} assetId={lc} plainDomainActions={!lc && !EV_ACTION_LINK_LIVE} />
       </td>
       <td data-work-activity-cell>
         {/* K3 pre-flight ruling 3: the selected request-state chip (`Completed` only for COMPLETED).
-            MOCK DEVIATION (D2) R70: the stored activity in a same-cell `Activity recorded` disclosure. */}
+            MOCK DEVIATION (D2) R70 (cold) / R81 (EV): the stored activity in a same-cell `Activity recorded`
+            disclosure. */}
         <StateChip kind="maintenance" state={row.request_state ?? row.state} />
         {row.activity ? (
           <Disclosure name={`work-activity-${row.case_id}`} summary="Activity recorded" variant="inline">
             <span data-work-activity>
-              <CaseLongText text={row.activity} name={`work-activity-text-${row.case_id}`} />
+              <CaseLongText text={row.activity} name={`work-activity-text-${row.case_id}`} legacyCold={lc} />
             </span>
           </Disclosure>
         ) : null}
       </td>
       <td data-work-outcome-cell>
-        {/* MOCK DEVIATION (D2) R71: the `Unverified` badge, then the selected outcome note in its own disclosure. */}
+        {/* MOCK DEVIATION (D2) R71 (cold) / R82 (EV): the `Unverified` badge, then the selected outcome note in its own
+            disclosure. */}
         <span className="w1f4-action-badge w1f4-action-badge--amber" data-work-outcome={row.outcome_state ?? "UNVERIFIED"}>
           Unverified
         </span>
         {row.outcome_note ? (
           <Disclosure name={`work-outcome-${row.case_id}`} summary="Outcome note" variant="inline">
             <span data-work-outcome-note>
-              <CaseLongText text={row.outcome_note} name={`work-outcome-text-${row.case_id}`} />
+              <CaseLongText text={row.outcome_note} name={`work-outcome-text-${row.case_id}`} legacyCold={lc} />
             </span>
           </Disclosure>
         ) : null}
       </td>
       <td data-work-next-evidence>
-        {/* MOCK DEVIATION (D1) R72: the selected next-evidence copy, or the honest gap; never a witnessed test. */}
+        {/* MOCK DEVIATION (D1) R72 (cold) / R84 (EV): the selected next-evidence copy, or the honest gap; never a
+            witnessed test. */}
         <span className="work-cases-clamp">{row.next_evidence_copy ?? "No next evidence recorded"}</span>
       </td>
     </>
@@ -770,13 +832,13 @@ function Rows({
   body,
   links,
   overlay,
-  cold,
+  cells,
 }: {
   copy: KindCopy;
   body: WorkIndexBody;
   links: SiteWorkCasesLinks;
   overlay: DecisionRead<WorkContextsBody> | null;
-  cold: ColdCells | null;
+  cells: DomainCells | null;
 }) {
   // PR-12.3: a refused Incident overlay is one line beside the table for the displayed rows, not one per row; the
   // rows keep their canonical Finding links and show no context. Maintenance keeps its row-level copy.
@@ -816,11 +878,11 @@ function Rows({
         <tbody>
           {body.rows.map((row) => (
             <tr key={row.case_id} data-work-row={row.case_id} data-work-revision={row.revision_id}>
-              {cold !== null ? (
+              {cells !== null ? (
                 copy.kind === "incidents" ? (
-                  <ColdIncidentCells row={row} cold={cold} />
+                  <DomainIncidentCells row={row} cells={cells} />
                 ) : (
-                  <ColdMaintenanceCells row={row} cold={cold} />
+                  <DomainMaintenanceCells row={row} cells={cells} />
                 )
               ) : copy.kind === "incidents" ? (
                 <IncidentCells row={row} links={links} contexts={contextsOf(row.case_id)} />
@@ -931,7 +993,7 @@ function Loaded({
   onScope,
   siteId,
   decisions,
-  cold,
+  cells,
 }: {
   copy: KindCopy;
   body: WorkIndexBody;
@@ -941,7 +1003,7 @@ function Loaded({
   onScope: SiteWorkCasesProps["onScope"];
   siteId: string;
   decisions?: MiniDecisionsClient;
-  cold: ColdCells | null;
+  cells: DomainCells | null;
 }) {
   const overlay = useDecisionOverlay(decisions, siteId, body);
   if (body.total_count === 0) {
@@ -962,11 +1024,12 @@ function Loaded({
   }
   return (
     <div data-work-loaded>
-      {/* K3 pre-flight ruling 4: COLDCHAIN hides the coverage line; its currentness notice sits above the panel. */}
-      {cold === null ? <CoverageLine body={body} /> : null}
-      <Rows copy={copy} body={body} links={links} overlay={overlay} cold={cold} />
-      {/* Cold: MOCK DEVIATION (D2) R93, the W4 Pages block below the table; MOCK DEVIATION (D2) R92, the selected
-          `What this list is based on` disclosure at the panel foot (also after the complete-zero empty card). */}
+      {/* K3 pre-flight ruling 4: COLDCHAIN and EV hide the coverage line; the currentness notice sits above the panel. */}
+      {cells === null ? <CoverageLine body={body} /> : null}
+      <Rows copy={copy} body={body} links={links} overlay={overlay} cells={cells} />
+      {/* MOCK DEVIATION (D2) R93 (cold) / R106 (EV): the W4 Pages block below the table; MOCK DEVIATION (D2) R92
+          (cold) / R105 (EV): the selected `What this list is based on` disclosure at the panel foot (also after the
+          complete-zero empty card). */}
       <div className="w1f4-work-foot">
         <Pages body={body} scope={scope} trail={trail} onScope={onScope} />
         <Basis body={body} />
@@ -975,9 +1038,18 @@ function Loaded({
   );
 }
 
-function Body({ copy, cold, children }: { copy: KindCopy; cold: boolean; children: ReactNode }) {
+/**
+ * W5-04 readiness ruling 18: `data-domain-cases` (the Site type) on both domain Site types, `data-cold-cases` on
+ * COLDCHAIN only (the K5 cold cell rules and regression keep it); MINIGRID gets neither.
+ */
+function Body({ copy, cells, children }: { copy: KindCopy; cells: DomainCells | null; children: ReactNode }) {
   return (
-    <div className="w1f4-changes-work work-cases" data-site-work={copy.kind} data-cold-cases={cold ? "" : undefined}>
+    <div
+      className="w1f4-changes-work work-cases"
+      data-site-work={copy.kind}
+      data-cold-cases={cells !== null && cells.legacyCold ? "" : undefined}
+      data-domain-cases={cells !== null ? cells.site.siteType : undefined}
+    >
       {children}
     </div>
   );
@@ -998,11 +1070,16 @@ export function SiteWorkCases({
   const copy = WORK_KIND_COPY[kind];
   const [result, setResult] = useState<WorkIndexResult | null>(null);
   const { from, to, knownAt, cursor } = scope;
-  const cold: ColdCells | null = site !== undefined && site.siteType === "COLDCHAIN" ? { site, knownAt: knownAt ?? null } : null;
+  // W5-02 K3a (COLDCHAIN) and W5-04 V3a (EV_CHARGING): the domain case presentation; MINIGRID keeps W4's.
+  const cells: DomainCells | null =
+    site !== undefined && DOMAIN_CASE_SITE_TYPES.has(site.siteType)
+      ? { site, knownAt: knownAt ?? null, legacyCold: site.siteType === "COLDCHAIN" }
+      : null;
+  const legacyCold = cells !== null && cells.legacyCold;
   const loadedBody = result !== null && result.status === "loaded" ? result.value : null;
-  // K3a (P-K3a-7, K3 pre-flight ruling 5): the cold notice comes from the W4 envelope `status`, never `coverage`.
+  // K3a (P-K3a-7, K3 pre-flight ruling 5): the domain notice comes from the W4 envelope `status`, never `coverage`.
   const currentness =
-    cold !== null && loadedBody !== null ? coldCurrentnessNotice(loadedBody.status as DomainStatus, loadedBody.known_at) : null;
+    cells !== null && loadedBody !== null ? coldCurrentnessNotice(loadedBody.status as DomainStatus, loadedBody.known_at) : null;
   useEffect(() => {
     let active = true;
     setResult(null);
@@ -1014,12 +1091,14 @@ export function SiteWorkCases({
     };
   }, [client, siteId, kind, from, to, knownAt, cursor]);
   return (
-    <Body copy={copy} cold={cold !== null}>
-      <WorkStrip copy={copy} result={result} scope={scope} cold={cold !== null} />
-      {/* MOCK DEVIATION (D2) R91 (K3 pre-flight ruling 5): the cold selected-state notice between strip and panel,
-          blue for Historical/Unknown and amber for Pending recompute/Stale source; absent on CURRENT. */}
+    <Body copy={copy} cells={cells}>
+      {/* Cold K3 pre-flight ruling 6 / EV pre-flight 35: the mock strip sentence and `Manage in {kind} →` to the
+          mounted W6 root; MOCK DEVIATION (D4) R111 (EV): the stored Site display name's short form. */}
+      <WorkStrip copy={copy} result={result} scope={scope} cold={cells !== null} />
+      {/* MOCK DEVIATION (D2) R91 (cold, K3 pre-flight ruling 5) / R80 + R104 (EV): the selected-state notice between
+          strip and panel, blue for Historical/Unknown and amber for Pending recompute/Stale source; absent on CURRENT. */}
       {loadedBody !== null && currentness !== null ? (
-        <Notice tone={coldCurrentnessTone(loadedBody.status as DomainStatus)} data={{ "data-cold-work-currentness": loadedBody.status }}>
+        <Notice tone={coldCurrentnessTone(loadedBody.status as DomainStatus)} data={caseAttrs(legacyCold, "currentness", loadedBody.status)}>
           <RailIcon name="info" />
           <p>{currentness}</p>
         </Notice>
@@ -1042,15 +1121,16 @@ export function SiteWorkCases({
             onScope={onScope}
             siteId={siteId}
             decisions={decisions}
-            cold={cold}
+            cells={cells}
           />
         ) : (
           <Refused copy={copy} result={result} scope={scope} onScope={onScope} />
         )}
       </Panel>
-      {cold !== null ? (
-        // MOCK DEVIATION (D1) R01: the mock notice's create-flow sentence is omitted (no create flow exists).
-        <Notice tone="blue" data={{ "data-work-notice": "", "data-cold-work-notice": "" }}>
+      {cells !== null ? (
+        // MOCK DEVIATION (D1) R01 (cold) / R03 (EV): the mock notice's create-flow sentence is omitted (no create
+        // flow exists).
+        <Notice tone="blue" data={{ "data-work-notice": "", ...caseAttrs(legacyCold, "notice", "") }}>
           <RailIcon name="info" />
           <p>{WORK_CONTEXT_NOTICE_DOMAIN}</p>
         </Notice>
