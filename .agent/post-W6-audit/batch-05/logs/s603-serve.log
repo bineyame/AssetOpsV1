@@ -1,0 +1,12 @@
+API (python -m uvicorn lab_app:app --host 127.0.0.1 --port 18501, from C:\Users\assef\Bineyame\AssetOpsV1-review6\var\s603_owner_audit\tree\host, DATABASE_URL = assetops_s603_owner_audit) on http://127.0.0.1:18501, pid 27996, log C:\Users\assef\Bineyame\AssetOpsV1-review6\var\s603_owner_audit\logs\api-18501.log
+Frontend, second PowerShell in frontend/:  $env:ASSETOPS_API_PORT="18501"; npm.cmd run dev -- --port 5185 --strictPort
+  Positive window (Actions created 2026-11-01T00:00:00Z to 2026-11-02T00:00:00Z, end excluded):
+    http://localhost:5185/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z
+  Same window, one Action per page (to see Next page):
+    http://localhost:5185/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1
+  Zero window (31 days ending where the first Action was created):
+    http://localhost:5185/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z
+  No window (choose-window state):
+    http://localhost:5185/sites/KOBO-001/work
+  ACT-000002  Action d1f3009b-4c2e-4036-9698-2b528451cebf  created 2026-11-01T00:05:00Z  Finding version 5714ab85-65ff-4475-a6c7-7541a9fa6949
+  ACT-000001  Action a663f86c-11c6-4bc4-a9be-48eccda64ea0  created 2026-11-01T00:00:00Z  Finding version 8886eded-ca6a-4d96-9436-bde7b81d5345

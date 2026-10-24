@@ -1,0 +1,7 @@
+[
+ {"id":"sitework","case":"positive","url":"http://localhost:5185/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"},
+ {"id":"sitework","case":"page1-limit1","url":"http://localhost:5185/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1"},
+ {"id":"sitework","case":"zero","url":"http://localhost:5185/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z"},
+ {"id":"sitework","case":"no-window","url":"http://localhost:5185/sites/KOBO-001/work"},
+ {"id":"sitework","case":"invalid-window","url":"http://localhost:5185/sites/KOBO-001/work?from=2026-11-02T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z"}
+]
