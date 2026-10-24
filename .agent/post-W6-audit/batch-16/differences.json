@@ -1,0 +1,191 @@
+[
+ {
+  "id": "B16-X1",
+  "screens": [
+   "availability",
+   "energy",
+   "ev-health",
+   "ev-scenarios",
+   "ev-work"
+  ],
+  "what": "Cross-cutting, cited not re-described: B1-01/B2-01 shell top bar missing (every pair; main starts y=24 vs mock 44 at 1440). B1-04/B2-36 rail 'Not available yet' (Assets, Settings; every pair). B2-02: the depth pages have NO window control (URL only); ev-work has the R112 page-local Window form. B1-07/B2-03: 14 px panel prose (Availability bound/next-evidence sentences, ev-work empty-state body) vs mock 12 px. B1-02/B2-04: tall dark header at 390 on the depth refused pages (288-318 px dark block, mainTop 304-334) and on the 503 Site-unavailable page (mainTop 397); normal 92 px elsewhere. B1-53: raw UUIDs (B16-05). B2-21/B3-04 does NOT apply: EV-LAB-001's timezone is Etc/UTC, so 'UTC' labels are Site-local. B3-01 does not recur (tabs and subtabs match the mock).",
+  "disp": "Cite existing IDs."
+ },
+ {
+  "id": "B16-01",
+  "screens": [
+   "availability",
+   "energy",
+   "ev-health",
+   "ev-scenarios"
+  ],
+  "cases": [
+   "refused-reversed"
+  ],
+  "what": "B14-01 recurs on EV. Refused window (real 422 EV_WINDOW_INVALID): strip, cards and every panel dropped (0 vs 1-3 mock panels); body 'EV depth unavailable' / 'EV scenarios unavailable' plus the raw code and server text \"EV_WINDOW_INVALID 'from' must be before 'to'.\" and a Retry that cannot succeed; no window control to correct the input.",
+  "disp": "Cite B14-01 (B6-13/B9-05 furniture; B1-53 raw code; D3 Low Retry; extend R88/R112 (D1) to EV depth pages)."
+ },
+ {
+  "id": "B16-02",
+  "screens": [
+   "ev-work"
+  ],
+  "cases": [
+   "refused-reversed",
+   "refused-span-32d"
+  ],
+  "what": "B14-02 recurs (carried domainActionClient check CONFIRMED on EV): a reversed one-day window and a 32-day window both render 'EV work unavailable · The window may span at most 31 days.' with Retry; false for the reversed case. Strip '— actions', subtabs '(—)'.",
+  "disp": "Cite B14-02 (D3 Low, shared domainActionClient copy owner)."
+ },
+ {
+  "id": "B16-03",
+  "screens": [
+   "ev-work"
+  ],
+  "what": "R112 verified built (register status still 'planned'): Window form after the Work subtabs, before the scope strip; 1440 one row 33 px; 390 stacked 136 px full width; labels 'From (UTC)' / 'To (UTC, exclusive)'. R113 verified: ACT-000001 links to /actions/<id>/verification with the selected from/to. Plural is correct on EV ('1 action'; cold's '1 actions' B14-03 does not recur). The scope strip replaces the mock's 'Manage in Actions ->' with the honest 'Global Actions does not include EV Actions yet.'",
+  "disp": "(a) R112/R113; update R112 status to built. Strip link: informational (honest omission)."
+ },
+ {
+  "id": "B16-04",
+  "screens": [
+   "ev-work"
+  ],
+  "cases": [
+   "no-window",
+   "zero"
+  ],
+  "what": "B14-09 recurs: the no-window default is 17-24 Oct (seven UTC days ending today 00:00Z), excluding today's ACT-000001/INC/WR: Actions (0) Incidents (0) Maintenance (0) and 'No accepted recommendation or evidence request has been raised here yet.' (a window-independent claim that is false for this Site). Same copy on the zero-mode prior day.",
+  "disp": "Cite B14-09 (D3 Low; window-scoped empty copy; Architect to rule whether the default includes today)."
+ },
+ {
+  "id": "B16-05",
+  "screens": [
+   "ev-health",
+   "ev-work"
+  ],
+  "what": "Raw identifiers (B14-05 analogue): ev-health Asset cells print the asset UUID under each name (3 rows) and 'Session <UUID>' in Supported assessment; ev-work Source prints 'Finding 60d41a5c' (UUID prefix; mock 'F-130') plus a 'Finding version' disclosure with the revision UUID and 'The selected Finding revision cannot be opened here yet.'",
+  "disp": "Cite B1-53 / B14-05."
+ },
+ {
+  "id": "B16-06",
+  "screens": [
+   "availability"
+  ],
+  "what": "New plural: the availability strip reads '2 connectors × 1 scheduled hours = 2 connector-hours' for a one-hour schedule. Card units differ from the mock (app '1 h 0 min' / '44 min' / '16 min'; mock '14 connector-h'), a units change with no register row.",
+  "disp": "Plural: D3 Low (shared copy owner, with B13-01). Card units: D4 candidate (needs a register row) or D3 Low back to connector-h."
+ },
+ {
+  "id": "B16-07",
+  "screens": [
+   "energy"
+  ],
+  "what": "Technical-to-financial bridge row 1 reads 'Unknown / No eligible tariff applied / Unpriced / The gross tariff scenario is being refreshed.' on a CURRENT read. The quantity says Unknown although the card shows 15.000 kWh metered (mock row 1 '120 kWh complete-record delivery'), and 'being refreshed' implies a pending recompute while no tariff is declared and ev-scenarios says 'No scenario defined yet'. The same 'being refreshed' sentence appears on the EV Overview money panel and on EV Financials (link check). The import chart draws points without a connecting line (mock: a line); its 18-row measure table sits in a closed 'Measure and value detail' disclosure.",
+  "disp": "Bridge copy/quantity: D3 Low (consequence-line state wording; show the metered quantity). Point-only chart: D4 candidate (sampled data, no interpolation) needing a register row."
+ },
+ {
+  "id": "B16-08",
+  "screens": [
+   "ev-scenarios"
+  ],
+  "what": "B14-08 recurs: every state keeps the mock literals 'Placeholder · to be designed with the owner' and subtitle 'Financials · scenarios (placeholder)' although authored scenarios are built (R27/R98); the empty copy cites 'stop setting, stock value' (cold/mini examples) on an EV Site.",
+  "disp": "Cite B14-08 (D4 under R27, or D2; copy D3 Low)."
+ },
+ {
+  "id": "B16-09",
+  "screens": [
+   "ev-scenarios"
+  ],
+  "what": "BLOCKER/gap (B14-16 analogue): no committed reviewed producer authors an EV scenario. W5-03b E6 captures used a throwaway seed test (deleted; W5-03b-ui-handoff 'Producers'). The w504 walkthrough authors none, so the authored, expanded-basis, historical-with-row, pending-with-row, R98 more-pages notice and five-row 160-char worst-case states could not be captured; only 0-item states were (current, empty, known-at-early, work-day, no-window, all-open, refused). B13-07 (capped inner scroll hides row 2) therefore cannot be checked on EV.",
+  "disp": "Architect: commit a reviewed EV authored-scenario producer mode before the fix-slice recapture (same owner as B14-16)."
+ },
+ {
+  "id": "B16-10",
+  "screens": [
+   "availability",
+   "energy",
+   "ev-health",
+   "ev-scenarios"
+  ],
+  "what": "Producer gaps for W5-03 depth states: the walkthrough's 'unknown' (ev-missing-meter) mode returned 'unavailable - the replay selected 0 SUPPORTED EV Findings' so it is not served; 'pending' and 'stale' are 'unavailable' by design (they need a modified replay). So energy-missing-meter, pending, historical (HISTORICAL selection) and stale depth states, and availability status-gap / declared-empty-schedule (W5-03a bespoke seeds), have no committed producer. A known_at before the watermark (08:30Z) shows the empty state 'No selected EV session assessment covers this window yet.', not HISTORICAL. The 'forbidden' API gates only domain-work routes (tool-local WorkGate), so availability under that principal still renders data: a producer limit, not a product authz defect (EV depth 403 is test-proven per the W5-03 spec).",
+  "disp": "Spec/producer note (like B14-15): correct the W5-03 producer column; Architect to decide whether a committed depth-state producer is required."
+ },
+ {
+  "id": "B16-11",
+  "screens": [
+   "ev-health"
+  ],
+  "what": "ev-health panel 324/198 at 1440 (1.64x) and 455/286 at 390 (1.59x). Measured reason: 3 rows vs mock 2 (R58 third connector), plus a UUID line under each asset and the session line (B16-05). Within the W5-03b ruled 410/540 cap. R56/R57/R59/R95/R96 present; R16 amber notice present; R103 subtitle; R60 verified (no Data sources panel; sole 'Condition and evidence').",
+  "disp": "(a) R56-R60/R95-R96/R103 verified; height: propose accept under cap (it would shrink with B16-05)."
+ },
+ {
+  "id": "B16-12",
+  "screens": [
+   "ev-work"
+  ],
+  "cases": [
+   "worstcase",
+   "worstcase-all-open"
+  ],
+  "what": "Worst case (5 Actions, 160-code-point titles/owners): panel 480 at both widths (2.6x/2.1x the 1-row mock) within ruling-25 caps 650/850; page 1000/1152 within 1600/2000; two-line clamp + 'Read full text' (8 disclosures, the intended preview). All-open: panel 777/930, page 1235/1602 (ruling-26 exemption), no horizontal overflow; the table scrolls inside its panel at 390 (820 in 318).",
+  "disp": "Informational; within ruled caps."
+ },
+ {
+  "id": "B16-13",
+  "screens": [
+   "ev-work",
+   "availability"
+  ],
+  "cases": [
+   "forbidden-403",
+   "store-unavailable-503"
+  ],
+  "what": "Real 403 SITE_SCOPE_FORBIDDEN renders inside the Actions panel (strip '— actions', subtabs '(—)'). The walkthrough's 503 vector stops the whole API, so the browser shows the shell-level 'Site unavailable' panel (1 panel, title differs from the mock) rather than a work-store refusal; the B14 cold store-only 503 is not reproduced by this producer.",
+  "disp": "Informational; 403 kept in panel (K2 ruling 3). 503: producer scope note."
+ },
+ {
+  "id": "B16-14",
+  "screens": [
+   "link-check"
+  ],
+  "what": "Cross-checks (not counted). B13-01 recurs on ev-work-incidents: strip 'Scoped to EV · 1 incidents' (and '1 maintenance'). Raw 'c1 · EV_CONNECTOR' CONFIRMED in the ev-work-maintenance Asset cell (WR-000002). B13-04 recurs on ev-work-incidents refused: \"This list cannot be shown `from` must be before `to`.\" with markdown backticks, 'As of: time not recorded' and strip 'Count unknown · work source unavailable'. Sessions page plurals '1 accepted starts', '1 observed aborts' and full session hashes ('ev-9ada0e59...').",
+  "disp": "Cite B13-01 (D3), B1-53 for EV_CONNECTOR (carried item confirmed: show the connector display name), B13-04 (D3 Low); Sessions plurals join the shared plural fix."
+ },
+ {
+  "id": "B16-15",
+  "screens": [
+   "link-check"
+  ],
+  "what": "B9-02 recurs against the now-built pages: EV Overview (/sites/EV-LAB-001/ev) card 'Availability · Not assessed · Connector availability is not assessed' links to the built Availability page, which shows 57.7% known-time availability for the same window; 'Charger condition · Not assessed' is unlinked although EV Health shows c1 'Needs attention'. Cards use label-as-link, no 'View detail'. The timeline prints 'REC <UUID>'; card '1 observed aborts · of 1 attempts'. B9-10 recurs: EV Site Findings (/sites/EV-LAB-001/findings) still renders the mini-grid index ('Mini-grid dispatch Findings at this site', 'No Performance comparison report exists for this Site', lens chips 'Not available yet'), although the Sessions page links 'Open Finding ->' to a real EV Finding.",
+  "disp": "Cite B9-02 and B9-10 / B7-01 (High D3, W2 fix slice); keep open; add the 57.7% vs 'Not assessed' contradiction to B9-02's card."
+ },
+ {
+  "id": "B16-16",
+  "screens": [
+   "availability",
+   "energy",
+   "ev-health",
+   "ev-scenarios",
+   "ev-work"
+  ],
+  "what": "New: on every EV page the Site main tabs route to non-EV pages. 'Overview' -> /sites/EV-LAB-001 ('Not shown: this Overview is awaiting evidence migration' in all five panels) while the built EV Overview is /sites/EV-LAB-001/ev. 'Evidence' -> /sites/EV-LAB-001/evidence (3 'awaiting evidence migration' panels) while /ev/evidence is built. 'Financials' -> /sites/EV-LAB-001/financials renders the mini-grid diesel money page ('Diesel price · Unpriced', 'Operating-cost exposure', subtab 'Scenarios · Not available yet') while /ev/financials and ev-scenarios are built; the ev-scenarios subtab row points at /ev/financials, so the Financials main tab and its subtabs disagree. /sites/EV-LAB-001/financials/scenarios says 'Scenarios are read for mini-grid sites only.' Main tabs also drop from/to/known_at (B14-10). B10-11 mentioned the placeholder Overview as 'batch 2/9 territory' without an ID.",
+  "disp": "(c) D3 Medium (shared Site tab seam): EV main tabs should reach the built /ev, /ev/evidence and /ev/financials pages, or those paths should become the Site-type dispatch. Architect to assign one fix owner together with B14-10."
+ },
+ {
+  "id": "B16-17",
+  "screens": [
+   "energy",
+   "ev-work",
+   "availability"
+  ],
+  "cases": [
+   "all-open",
+   "no-window",
+   "zero",
+   "empty-window",
+   "work-day-window",
+   "known-at-before-watermark"
+  ],
+  "what": "Other panels over 1.3x, with measured reasons: energy all-open 888/356 (1440) and 777/235 (390) = the opened 18-row 'Measure and value detail' table (disclosure exemption); ev-work no-window/zero 1440 262/183 (1.43x) = empty-state heading + body in place of the 1-row table (successful-zero cap 460/560); ev-work all-open 390 329/230 (1.43x) = the opened 'Finding version' UUID. Shorter than the mock: availability empty states 136/245 (no chart without a schedule) and energy bridge 183/243 (single-line rows). All pages are within the W5-03 page caps (availability 1000/1471 vs 1300/1950; energy 1066-1230/1582-1746 vs 1500/2320; ev-health 1000/1186-1194 vs 1200/1550; ev-scenarios 1000/900 vs 1250/1500). At 390 the energy bridge scrolls inside its panel (640 in 318) where the mock wraps four columns: that follows the W5-03 DataTable rule. No page horizontal overflow and no console errors on any pair.",
+  "disp": "Propose accept under existing caps/rules (no D3)."
+ }
+]

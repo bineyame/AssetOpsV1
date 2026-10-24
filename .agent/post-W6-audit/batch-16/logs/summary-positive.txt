@@ -1,0 +1,796 @@
+=== availability current 1440x1000 pageH app/mock 1000/1055 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Connector states over the service schedule' 275/245 (1.12) w=1160/1161 rows=0/0 cols=[] | []
+  P 'Full-schedule availability bound' 182/180 (1.01) w=734/735 rows=0/0 cols=[] | []
+  P 'Most useful next evidence' 182/180 (1.01) w=408/408 rows=0/0 cols=[] | []
+  strip: Evidence limited 2 connectors × 1 scheduled hours = 2 connector-hours
+  cards A: ['Known available1 h 0 minState-supported service time', 'Known unavailable44 minFaulted or unavailable state evidenced', 'Unknown16 minNo trustworthy state coverage', 'Known-time availability57.7%1 / 1.73 known hours; coverage 86.67%'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 8 details 0
+  fonts prose 12px ['14px'] pSizes {'10px': 2, '14px': 2, '11px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== availability current 390x900 pageH app/mock 1471/1714 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Connector states over the service schedule' 316/277 (1.14) w=358/360 rows=0/0 cols=[] | []
+  P 'Full-schedule availability bound' 182/176 (1.03) w=358/360 rows=0/0 cols=[] | []
+  P 'Most useful next evidence' 205/180 (1.14) w=358/360 rows=0/0 cols=[] | []
+  strip: Evidence limited 2 connectors × 1 scheduled hours = 2 connector-hours
+  cards A: ['Known available1 h 0 minState-supported service time', 'Known unavailable44 minFaulted or unavailable state evidenced', 'Unknown16 minNo trustworthy state coverage', 'Known-time availability57.7%1 / 1.73 known hours; coverage 86.67%'] | M: []
+  cardsH A/M: [127, 127, 127, 127] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 8 details 0
+  fonts prose 12px ['14px'] pSizes {'10px': 2, '14px': 2, '11px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== energy current 1440x1000 pageH app/mock 1066/1230 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Import power and configured limit' 375/356 (1.05) w=725/735 rows=18/0 cols=['Measure', 'Value'] | []
+  P 'What can be concluded' 375/356 (1.05) w=403/408 rows=0/0 cols=[] | []
+  P 'Technical-to-financial bridge' 183/243 (0.75) w=1145/1161 rows=3/3 cols=['Quantity', 'Assumption', 'Result', 'Limit'] | ['Quantity', 'Assumption', 'Result', 'Limit']
+  strip: Energy basis: measured Complete session meter records · incomplete session energy excludedInspect meter basis ↗
+  cards A: ['Metered session energy15.000 kWhComplete metered sessions only', 'Observed peak import60 kWSelected 1-hour window', 'Declared site limit80 kWTime-valid configuration', 'Gross tariff estimateUnpricedScenario tariff not established'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 1
+  fonts prose 12px [] pSizes {'11px': 6, '10px': 1} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1066}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== energy current 390x900 pageH app/mock 1582/2051 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Import power and configured limit' 264/235 (1.12) w=358/360 rows=18/0 cols=['Measure', 'Value'] | []
+  P 'What can be concluded' 339/308 (1.10) w=358/360 rows=0/0 cols=[] | []
+  P 'Technical-to-financial bridge' 211/401 (0.53) w=358/360 rows=3/3 cols=['Quantity', 'Assumption', 'Result', 'Limit'] | ['Quantity', 'Assumption', 'Result', 'Limit']
+  strip: Energy basis: measured Complete session meter records · incomplete session energy excludedInspect meter basis ↗
+  cards A: ['Metered session energy15.000 kWhComplete metered sessions only', 'Observed peak import60 kWSelected 1-hour window', 'Declared site limit80 kWTime-valid configuration', 'Gross tariff estimateUnpricedScenario tariff not established'] | M: []
+  cardsH A/M: [127, 127, 111, 111] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 1
+  fonts prose 12px [] pSizes {'11px': 6, '10px': 1} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Import power and configured limit'}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Technical-to-financial bridge'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-health current 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Condition and evidence' 324/198 (1.64) w=1160/1161 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+  strip: 
+  cards A: ['Connector c1Needs attention1 selected fault record; cause not diagnose', 'Connector c2UnknownNo charger condition assessmentView detail →', 'Stationary batteryUnknownBattery configuration is not established by t'] | M: []
+  cardsH A/M: [135, 135, 135] []
+  refusal[None]:   notice: ['Session and fault records show what was observed at each connector. They do not establish charger condition or diagnose ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 4 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-health current 390x900 pageH app/mock 1186/1227 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Condition and evidence' 455/286 (1.59) w=358/360 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+  strip: 
+  cards A: ['Connector c1Needs attention1 selected fault record; cause not diagnose', 'Connector c2UnknownNo charger condition assessmentView detail →', 'Stationary batteryUnknownBattery configuration is not established by t'] | M: []
+  cardsH A/M: [151, 151, 143] []
+  refusal[None]:   notice: ['Session and fault records show what was observed at each connector. They do not establish charger condition or diagnose ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 4 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios current 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Financial scenarios' 305/316 (0.97) w=1160/1161 rows=0/0 cols=[] | []
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios current 390x900 pageH app/mock 900/1125 ovX 0 hdr 58 mainTop 153/158 cerr []
+  P 'Financial scenarios' 345/355 (0.97) w=358/360 rows=0/0 cols=[] | []
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 137}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work positive 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Actions at this site' 184/183 (1.01) w=1160/1161 rows=1/1 cols=['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion'] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 1 actionEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 1
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 248, 'w': 1160, 'h': 33, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work positive 390x900 pageH app/mock 900/1108 ovX 0 hdr 58 mainTop 122/158 cerr []
+  P 'Actions at this site' 199/230 (0.87) w=358/360 rows=1/1 cols=['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion'] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 1 actionEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 1
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 821, 'cw': 318, 'panel': 'Actions at this site'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 106}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 16, 'w': 358, 'h': 136, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== availability empty-window 1440x1000 pageH app/mock 1000/1055 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Connector states over the service schedule' 136/245 (0.56) w=1160/1161 rows=0/0 cols=[] | []
+  P 'Full-schedule availability bound' 182/180 (1.01) w=734/735 rows=0/0 cols=[] | []
+  P 'Most useful next evidence' 182/180 (1.01) w=408/408 rows=0/0 cols=[] | []
+  strip: Evidence limited Scheduled connector-hours unknown
+  cards A: ['Known availableUnknownState-supported service time', 'Known unavailableUnknownFaulted or unavailable state evidenced', 'UnknownUnknownNo trustworthy state coverage', 'Known-time availabilityUnknownKnown hours and coverage unknown'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px ['14px'] pSizes {'13px': 1, '14px': 2, '11px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== availability empty-window 390x900 pageH app/mock 1307/1714 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Connector states over the service schedule' 136/277 (0.49) w=358/360 rows=0/0 cols=[] | []
+  P 'Full-schedule availability bound' 159/176 (0.90) w=358/360 rows=0/0 cols=[] | []
+  P 'Most useful next evidence' 205/180 (1.14) w=358/360 rows=0/0 cols=[] | []
+  strip: Evidence limited Scheduled connector-hours unknown
+  cards A: ['Known availableUnknownState-supported service time', 'Known unavailableUnknownFaulted or unavailable state evidenced', 'UnknownUnknownNo trustworthy state coverage', 'Known-time availabilityUnknownKnown hours and coverage unknown'] | M: []
+  cardsH A/M: [127, 127, 127, 127] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px ['14px'] pSizes {'13px': 1, '14px': 2, '11px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== energy empty-window 1440x1000 pageH app/mock 1230/1230 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Import power and configured limit' 411/356 (1.15) w=725/735 rows=4/0 cols=['Measure', 'Value'] | []
+  P 'What can be concluded' 411/356 (1.15) w=403/408 rows=0/0 cols=[] | []
+  P 'Technical-to-financial bridge' 183/243 (0.75) w=1145/1161 rows=3/3 cols=['Quantity', 'Assumption', 'Result', 'Limit'] | ['Quantity', 'Assumption', 'Result', 'Limit']
+  strip: Energy basis: limited Complete session meter records not established · incomplete session energy kept separateInspect meter basis ↗
+  cards A: ['Metered session energyUnknownComplete metered sessions only', 'Observed peak importUnknownSelected 1-hour window', 'Declared site limit80 kWTime-valid configuration', 'Gross tariff estimateUnknownScenario tariff not established'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 6, '13px': 1, '10px': 1} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1230}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== energy empty-window 390x900 pageH app/mock 1746/2051 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Import power and configured limit' 300/235 (1.28) w=358/360 rows=4/0 cols=['Measure', 'Value'] | []
+  P 'What can be concluded' 339/308 (1.10) w=358/360 rows=0/0 cols=[] | []
+  P 'Technical-to-financial bridge' 211/401 (0.53) w=358/360 rows=3/3 cols=['Quantity', 'Assumption', 'Result', 'Limit'] | ['Quantity', 'Assumption', 'Result', 'Limit']
+  strip: Energy basis: limited Complete session meter records not established · incomplete session energy kept separateInspect meter basis ↗
+  cards A: ['Metered session energyUnknownComplete metered sessions only', 'Observed peak importUnknownSelected 1-hour window', 'Declared site limit80 kWTime-valid configuration', 'Gross tariff estimateUnknownScenario tariff not established'] | M: []
+  cardsH A/M: [127, 127, 111, 111] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 6, '13px': 1, '10px': 1} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Import power and configured limit'}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Technical-to-financial bridge'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-health empty-window 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Condition and evidence' 306/198 (1.55) w=1160/1161 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+  strip: 
+  cards A: ['Connector c1UnknownNo charger condition assessmentView detail →', 'Connector c2UnknownNo charger condition assessmentView detail →', 'Stationary batteryUnknownBattery configuration is not established by t'] | M: []
+  cardsH A/M: [135, 135, 135] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.', 'Session and fault records show what was observed at each connector. They do not establish charger condition or diagnose ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 3 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-health empty-window 390x900 pageH app/mock 1194/1227 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Condition and evidence' 402/286 (1.41) w=358/360 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+  strip: 
+  cards A: ['Connector c1UnknownNo charger condition assessmentView detail →', 'Connector c2UnknownNo charger condition assessmentView detail →', 'Stationary batteryUnknownBattery configuration is not established by t'] | M: []
+  cardsH A/M: [151, 151, 143] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.', 'Session and fault records show what was observed at each connector. They do not establish charger condition or diagnose ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 3 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios empty-window 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Financial scenarios' 305/316 (0.97) w=1160/1161 rows=0/0 cols=[] | []
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.', 'Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios empty-window 390x900 pageH app/mock 900/1125 ovX 0 hdr 58 mainTop 123/158 cerr []
+  P 'Financial scenarios' 345/355 (0.97) w=358/360 rows=0/0 cols=[] | []
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.', 'Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 107}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== availability known-at-before-watermark 1440x1000 pageH app/mock 1000/1055 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Connector states over the service schedule' 136/245 (0.56) w=1160/1161 rows=0/0 cols=[] | []
+  P 'Full-schedule availability bound' 182/180 (1.01) w=734/735 rows=0/0 cols=[] | []
+  P 'Most useful next evidence' 182/180 (1.01) w=408/408 rows=0/0 cols=[] | []
+  strip: Evidence limited Scheduled connector-hours unknown
+  cards A: ['Known availableUnknownState-supported service time', 'Known unavailableUnknownFaulted or unavailable state evidenced', 'UnknownUnknownNo trustworthy state coverage', 'Known-time availabilityUnknownKnown hours and coverage unknown'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px ['14px'] pSizes {'13px': 1, '14px': 2, '11px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== availability known-at-before-watermark 390x900 pageH app/mock 1307/1714 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Connector states over the service schedule' 136/277 (0.49) w=358/360 rows=0/0 cols=[] | []
+  P 'Full-schedule availability bound' 159/176 (0.90) w=358/360 rows=0/0 cols=[] | []
+  P 'Most useful next evidence' 205/180 (1.14) w=358/360 rows=0/0 cols=[] | []
+  strip: Evidence limited Scheduled connector-hours unknown
+  cards A: ['Known availableUnknownState-supported service time', 'Known unavailableUnknownFaulted or unavailable state evidenced', 'UnknownUnknownNo trustworthy state coverage', 'Known-time availabilityUnknownKnown hours and coverage unknown'] | M: []
+  cardsH A/M: [127, 127, 127, 127] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px ['14px'] pSizes {'13px': 1, '14px': 2, '11px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== energy known-at-before-watermark 1440x1000 pageH app/mock 1230/1230 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Import power and configured limit' 411/356 (1.15) w=725/735 rows=4/0 cols=['Measure', 'Value'] | []
+  P 'What can be concluded' 411/356 (1.15) w=403/408 rows=0/0 cols=[] | []
+  P 'Technical-to-financial bridge' 183/243 (0.75) w=1145/1161 rows=3/3 cols=['Quantity', 'Assumption', 'Result', 'Limit'] | ['Quantity', 'Assumption', 'Result', 'Limit']
+  strip: Energy basis: limited Complete session meter records not established · incomplete session energy kept separateInspect meter basis ↗
+  cards A: ['Metered session energyUnknownComplete metered sessions only', 'Observed peak importUnknownSelected 1-hour window', 'Declared site limit80 kWTime-valid configuration', 'Gross tariff estimateUnknownScenario tariff not established'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 6, '13px': 1, '10px': 1} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1230}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== energy known-at-before-watermark 390x900 pageH app/mock 1746/2051 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Import power and configured limit' 300/235 (1.28) w=358/360 rows=4/0 cols=['Measure', 'Value'] | []
+  P 'What can be concluded' 339/308 (1.10) w=358/360 rows=0/0 cols=[] | []
+  P 'Technical-to-financial bridge' 211/401 (0.53) w=358/360 rows=3/3 cols=['Quantity', 'Assumption', 'Result', 'Limit'] | ['Quantity', 'Assumption', 'Result', 'Limit']
+  strip: Energy basis: limited Complete session meter records not established · incomplete session energy kept separateInspect meter basis ↗
+  cards A: ['Metered session energyUnknownComplete metered sessions only', 'Observed peak importUnknownSelected 1-hour window', 'Declared site limit80 kWTime-valid configuration', 'Gross tariff estimateUnknownScenario tariff not established'] | M: []
+  cardsH A/M: [127, 127, 111, 111] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 6, '13px': 1, '10px': 1} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Import power and configured limit'}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Technical-to-financial bridge'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-health known-at-before-watermark 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Condition and evidence' 306/198 (1.55) w=1160/1161 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+  strip: 
+  cards A: ['Connector c1UnknownNo charger condition assessmentView detail →', 'Connector c2UnknownNo charger condition assessmentView detail →', 'Stationary batteryUnknownBattery configuration is not established by t'] | M: []
+  cardsH A/M: [135, 135, 135] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.', 'Session and fault records show what was observed at each connector. They do not establish charger condition or diagnose ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 3 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-health known-at-before-watermark 390x900 pageH app/mock 1194/1227 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Condition and evidence' 402/286 (1.41) w=358/360 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+  strip: 
+  cards A: ['Connector c1UnknownNo charger condition assessmentView detail →', 'Connector c2UnknownNo charger condition assessmentView detail →', 'Stationary batteryUnknownBattery configuration is not established by t'] | M: []
+  cardsH A/M: [151, 151, 143] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.', 'Session and fault records show what was observed at each connector. They do not establish charger condition or diagnose ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 3 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios known-at-before-watermark 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Financial scenarios' 305/316 (0.97) w=1160/1161 rows=0/0 cols=[] | []
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.', 'Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios known-at-before-watermark 390x900 pageH app/mock 900/1125 ovX 0 hdr 58 mainTop 123/158 cerr []
+  P 'Financial scenarios' 345/355 (0.97) w=358/360 rows=0/0 cols=[] | []
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.', 'Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 107}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work historical 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Actions at this site' 184/183 (1.01) w=1160/1161 rows=1/1 cols=['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion'] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 1 actionEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Read as of 2026-10-24 17:49 UTC. Later work may differ.', 'Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 1
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 248, 'w': 1160, 'h': 33, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work historical 390x900 pageH app/mock 932/1108 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Actions at this site' 199/230 (0.87) w=358/360 rows=1/1 cols=['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion'] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 1 actionEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Read as of 2026-10-24 17:49 UTC. Later work may differ.', 'Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 1
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 821, 'cw': 318, 'panel': 'Actions at this site'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 16, 'w': 358, 'h': 136, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== availability refused-reversed 1440x1000 pageH app/mock 1000/1055 ovX 0 hdr 59 mainTop 24/44 cerr []
+  MISSING vs mock: ['Connector states over the service schedule', 'Full-schedule availability bound', 'Most useful next evidence']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[ev-depth]: EV depth unavailableEV_WINDOW_INVALID 'from' must be before 'to'.Retry  notice: []
+  NotRecorded 0 NAY 0 prepared False enums ['EV_WINDOW_INVALID'] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== availability refused-reversed 390x900 pageH app/mock 900/1714 ovX 0 hdr 58 mainTop 304/158 cerr []
+  MISSING vs mock: ['Connector states over the service schedule', 'Full-schedule availability bound', 'Most useful next evidence']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[ev-depth]: EV depth unavailableEV_WINDOW_INVALID 'from' must be before 'to'.Retry  notice: []
+  NotRecorded 0 NAY 0 prepared False enums ['EV_WINDOW_INVALID'] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 288}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== energy refused-reversed 1440x1000 pageH app/mock 1000/1230 ovX 0 hdr 59 mainTop 24/44 cerr []
+  MISSING vs mock: ['Import power and configured limit', 'What can be concluded', 'Technical-to-financial bridge']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[ev-depth]: EV depth unavailableEV_WINDOW_INVALID 'from' must be before 'to'.Retry  notice: []
+  NotRecorded 0 NAY 0 prepared False enums ['EV_WINDOW_INVALID'] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== energy refused-reversed 390x900 pageH app/mock 900/2051 ovX 0 hdr 58 mainTop 304/158 cerr []
+  MISSING vs mock: ['Import power and configured limit', 'What can be concluded', 'Technical-to-financial bridge']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[ev-depth]: EV depth unavailableEV_WINDOW_INVALID 'from' must be before 'to'.Retry  notice: []
+  NotRecorded 0 NAY 0 prepared False enums ['EV_WINDOW_INVALID'] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 288}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-health refused-reversed 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  MISSING vs mock: ['Condition and evidence']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[ev-depth]: EV depth unavailableEV_WINDOW_INVALID 'from' must be before 'to'.Retry  notice: []
+  NotRecorded 0 NAY 0 prepared False enums ['EV_WINDOW_INVALID'] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-health refused-reversed 390x900 pageH app/mock 900/1227 ovX 0 hdr 58 mainTop 334/158 cerr []
+  MISSING vs mock: ['Condition and evidence']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[ev-depth]: EV depth unavailableEV_WINDOW_INVALID 'from' must be before 'to'.Retry  notice: []
+  NotRecorded 0 NAY 0 prepared False enums ['EV_WINDOW_INVALID'] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 318}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios refused-reversed 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  MISSING vs mock: ['Financial scenarios']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[ev-scenarios]: EV scenarios unavailableEV_WINDOW_INVALID 'from' must be before 'to'.Retry  notice: []
+  NotRecorded 0 NAY 0 prepared False enums ['EV_WINDOW_INVALID'] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios refused-reversed 390x900 pageH app/mock 900/1125 ovX 0 hdr 58 mainTop 304/158 cerr []
+  MISSING vs mock: ['Financial scenarios']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[ev-scenarios]: EV scenarios unavailableEV_WINDOW_INVALID 'from' must be before 'to'.Retry  notice: []
+  NotRecorded 0 NAY 0 prepared False enums ['EV_WINDOW_INVALID'] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 288}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work refused-reversed 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Actions at this site' 198/183 (1.08) w=1160/1161 rows=0/1 cols=[] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · — actionsEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'14px': 3} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (—)*', 'Incidents (—)', 'Maintenance (—)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 248, 'w': 1160, 'h': 33, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work refused-reversed 390x900 pageH app/mock 900/1108 ovX 0 hdr 58 mainTop 122/158 cerr []
+  P 'Actions at this site' 198/230 (0.86) w=358/360 rows=0/1 cols=[] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · — actionsEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'14px': 3} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (—)*', 'Incidents (—)', 'Maintenance (—)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 106}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 16, 'w': 358, 'h': 136, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work refused-span-32d 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Actions at this site' 198/183 (1.08) w=1160/1161 rows=0/1 cols=[] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · — actionsEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'14px': 3} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (—)*', 'Incidents (—)', 'Maintenance (—)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 248, 'w': 1160, 'h': 33, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work refused-span-32d 390x900 pageH app/mock 900/1108 ovX 0 hdr 58 mainTop 122/158 cerr []
+  P 'Actions at this site' 198/230 (0.86) w=358/360 rows=0/1 cols=[] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · — actionsEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'14px': 3} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (—)*', 'Incidents (—)', 'Maintenance (—)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 106}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 16, 'w': 358, 'h': 136, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== availability no-window 1440x1000 pageH app/mock 1000/1055 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Connector states over the service schedule' 275/245 (1.12) w=1160/1161 rows=0/0 cols=[] | []
+  P 'Full-schedule availability bound' 182/180 (1.01) w=734/735 rows=0/0 cols=[] | []
+  P 'Most useful next evidence' 182/180 (1.01) w=408/408 rows=0/0 cols=[] | []
+  strip: Evidence limited 2 connectors × 1 scheduled hours = 2 connector-hours
+  cards A: ['Known available1 h 0 minState-supported service time', 'Known unavailable44 minFaulted or unavailable state evidenced', 'Unknown16 minNo trustworthy state coverage', 'Known-time availability57.7%1 / 1.73 known hours; coverage 86.67%'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 8 details 0
+  fonts prose 12px ['14px'] pSizes {'10px': 2, '14px': 2, '11px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== availability no-window 390x900 pageH app/mock 1471/1714 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Connector states over the service schedule' 316/277 (1.14) w=358/360 rows=0/0 cols=[] | []
+  P 'Full-schedule availability bound' 182/176 (1.03) w=358/360 rows=0/0 cols=[] | []
+  P 'Most useful next evidence' 205/180 (1.14) w=358/360 rows=0/0 cols=[] | []
+  strip: Evidence limited 2 connectors × 1 scheduled hours = 2 connector-hours
+  cards A: ['Known available1 h 0 minState-supported service time', 'Known unavailable44 minFaulted or unavailable state evidenced', 'Unknown16 minNo trustworthy state coverage', 'Known-time availability57.7%1 / 1.73 known hours; coverage 86.67%'] | M: []
+  cardsH A/M: [127, 127, 127, 127] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 8 details 0
+  fonts prose 12px ['14px'] pSizes {'10px': 2, '14px': 2, '11px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== energy no-window 1440x1000 pageH app/mock 1066/1230 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Import power and configured limit' 375/356 (1.05) w=725/735 rows=18/0 cols=['Measure', 'Value'] | []
+  P 'What can be concluded' 375/356 (1.05) w=403/408 rows=0/0 cols=[] | []
+  P 'Technical-to-financial bridge' 183/243 (0.75) w=1145/1161 rows=3/3 cols=['Quantity', 'Assumption', 'Result', 'Limit'] | ['Quantity', 'Assumption', 'Result', 'Limit']
+  strip: Energy basis: measured Complete session meter records · incomplete session energy excludedInspect meter basis ↗
+  cards A: ['Metered session energy15.000 kWhComplete metered sessions only', 'Observed peak import60 kWSelected 1-hour window', 'Declared site limit80 kWTime-valid configuration', 'Gross tariff estimateUnpricedScenario tariff not established'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 1
+  fonts prose 12px [] pSizes {'11px': 6, '10px': 1} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1066}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== energy no-window 390x900 pageH app/mock 1582/2051 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Import power and configured limit' 264/235 (1.12) w=358/360 rows=18/0 cols=['Measure', 'Value'] | []
+  P 'What can be concluded' 339/308 (1.10) w=358/360 rows=0/0 cols=[] | []
+  P 'Technical-to-financial bridge' 211/401 (0.53) w=358/360 rows=3/3 cols=['Quantity', 'Assumption', 'Result', 'Limit'] | ['Quantity', 'Assumption', 'Result', 'Limit']
+  strip: Energy basis: measured Complete session meter records · incomplete session energy excludedInspect meter basis ↗
+  cards A: ['Metered session energy15.000 kWhComplete metered sessions only', 'Observed peak import60 kWSelected 1-hour window', 'Declared site limit80 kWTime-valid configuration', 'Gross tariff estimateUnpricedScenario tariff not established'] | M: []
+  cardsH A/M: [127, 127, 111, 111] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 1
+  fonts prose 12px [] pSizes {'11px': 6, '10px': 1} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Import power and configured limit'}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Technical-to-financial bridge'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-health no-window 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Condition and evidence' 324/198 (1.64) w=1160/1161 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+  strip: 
+  cards A: ['Connector c1Needs attention1 selected fault record; cause not diagnose', 'Connector c2UnknownNo charger condition assessmentView detail →', 'Stationary batteryUnknownBattery configuration is not established by t'] | M: []
+  cardsH A/M: [135, 135, 135] []
+  refusal[None]:   notice: ['Session and fault records show what was observed at each connector. They do not establish charger condition or diagnose ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 4 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-health no-window 390x900 pageH app/mock 1186/1227 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Condition and evidence' 455/286 (1.59) w=358/360 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+  strip: 
+  cards A: ['Connector c1Needs attention1 selected fault record; cause not diagnose', 'Connector c2UnknownNo charger condition assessmentView detail →', 'Stationary batteryUnknownBattery configuration is not established by t'] | M: []
+  cardsH A/M: [151, 151, 143] []
+  refusal[None]:   notice: ['Session and fault records show what was observed at each connector. They do not establish charger condition or diagnose ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 4 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios no-window 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Financial scenarios' 305/316 (0.97) w=1160/1161 rows=0/0 cols=[] | []
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios no-window 390x900 pageH app/mock 900/1125 ovX 0 hdr 58 mainTop 153/158 cerr []
+  P 'Financial scenarios' 345/355 (0.97) w=358/360 rows=0/0 cols=[] | []
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 137}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work no-window 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Actions at this site' 262/183 (1.43) w=1160/1161 rows=0/1 cols=[] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 0 actionsEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'12px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (0)*', 'Incidents (0)', 'Maintenance (0)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 248, 'w': 1160, 'h': 33, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work no-window 390x900 pageH app/mock 955/1108 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Actions at this site' 282/230 (1.23) w=358/360 rows=0/1 cols=[] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 0 actionsEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'12px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (0)*', 'Incidents (0)', 'Maintenance (0)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 16, 'w': 358, 'h': 136, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== availability work-day-window 1440x1000 pageH app/mock 1000/1055 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Connector states over the service schedule' 136/245 (0.56) w=1160/1161 rows=0/0 cols=[] | []
+  P 'Full-schedule availability bound' 182/180 (1.01) w=734/735 rows=0/0 cols=[] | []
+  P 'Most useful next evidence' 182/180 (1.01) w=408/408 rows=0/0 cols=[] | []
+  strip: Evidence limited Scheduled connector-hours unknown
+  cards A: ['Known availableUnknownState-supported service time', 'Known unavailableUnknownFaulted or unavailable state evidenced', 'UnknownUnknownNo trustworthy state coverage', 'Known-time availabilityUnknownKnown hours and coverage unknown'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px ['14px'] pSizes {'13px': 1, '14px': 2, '11px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== availability work-day-window 390x900 pageH app/mock 1307/1714 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Connector states over the service schedule' 136/277 (0.49) w=358/360 rows=0/0 cols=[] | []
+  P 'Full-schedule availability bound' 159/176 (0.90) w=358/360 rows=0/0 cols=[] | []
+  P 'Most useful next evidence' 205/180 (1.14) w=358/360 rows=0/0 cols=[] | []
+  strip: Evidence limited Scheduled connector-hours unknown
+  cards A: ['Known availableUnknownState-supported service time', 'Known unavailableUnknownFaulted or unavailable state evidenced', 'UnknownUnknownNo trustworthy state coverage', 'Known-time availabilityUnknownKnown hours and coverage unknown'] | M: []
+  cardsH A/M: [127, 127, 127, 127] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px ['14px'] pSizes {'13px': 1, '14px': 2, '11px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== energy work-day-window 1440x1000 pageH app/mock 1230/1230 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Import power and configured limit' 411/356 (1.15) w=725/735 rows=4/0 cols=['Measure', 'Value'] | []
+  P 'What can be concluded' 411/356 (1.15) w=403/408 rows=0/0 cols=[] | []
+  P 'Technical-to-financial bridge' 183/243 (0.75) w=1145/1161 rows=3/3 cols=['Quantity', 'Assumption', 'Result', 'Limit'] | ['Quantity', 'Assumption', 'Result', 'Limit']
+  strip: Energy basis: limited Complete session meter records not established · incomplete session energy kept separateInspect meter basis ↗
+  cards A: ['Metered session energyUnknownComplete metered sessions only', 'Observed peak importUnknownSelected 24-hour window', 'Declared site limit80 kWTime-valid configuration', 'Gross tariff estimateUnknownScenario tariff not established'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 6, '13px': 1, '10px': 1} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1230}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== energy work-day-window 390x900 pageH app/mock 1746/2051 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Import power and configured limit' 300/235 (1.28) w=358/360 rows=4/0 cols=['Measure', 'Value'] | []
+  P 'What can be concluded' 339/308 (1.10) w=358/360 rows=0/0 cols=[] | []
+  P 'Technical-to-financial bridge' 211/401 (0.53) w=358/360 rows=3/3 cols=['Quantity', 'Assumption', 'Result', 'Limit'] | ['Quantity', 'Assumption', 'Result', 'Limit']
+  strip: Energy basis: limited Complete session meter records not established · incomplete session energy kept separateInspect meter basis ↗
+  cards A: ['Metered session energyUnknownComplete metered sessions only', 'Observed peak importUnknownSelected 24-hour window', 'Declared site limit80 kWTime-valid configuration', 'Gross tariff estimateUnknownScenario tariff not established'] | M: []
+  cardsH A/M: [127, 127, 111, 111] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 6, '13px': 1, '10px': 1} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Import power and configured limit'}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Technical-to-financial bridge'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-health work-day-window 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Condition and evidence' 306/198 (1.55) w=1160/1161 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+  strip: 
+  cards A: ['Connector c1UnknownNo charger condition assessmentView detail →', 'Connector c2UnknownNo charger condition assessmentView detail →', 'Stationary batteryUnknownBattery configuration is not established by t'] | M: []
+  cardsH A/M: [135, 135, 135] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.', 'Session and fault records show what was observed at each connector. They do not establish charger condition or diagnose ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 3 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-health work-day-window 390x900 pageH app/mock 1194/1227 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Condition and evidence' 402/286 (1.41) w=358/360 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+  strip: 
+  cards A: ['Connector c1UnknownNo charger condition assessmentView detail →', 'Connector c2UnknownNo charger condition assessmentView detail →', 'Stationary batteryUnknownBattery configuration is not established by t'] | M: []
+  cardsH A/M: [151, 151, 143] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.', 'Session and fault records show what was observed at each connector. They do not establish charger condition or diagnose ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 3 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios work-day-window 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Financial scenarios' 305/316 (0.97) w=1160/1161 rows=0/0 cols=[] | []
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.', 'Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios work-day-window 390x900 pageH app/mock 900/1125 ovX 0 hdr 58 mainTop 123/158 cerr []
+  P 'Financial scenarios' 345/355 (0.97) w=358/360 rows=0/0 cols=[] | []
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['No selected EV session assessment covers this window yet.', 'Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 107}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== availability all-open 1440x1000 pageH app/mock 1000/1055 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Connector states over the service schedule' 275/245 (1.12) w=1160/1161 rows=0/0 cols=[] | []
+  P 'Full-schedule availability bound' 182/180 (1.01) w=734/735 rows=0/0 cols=[] | []
+  P 'Most useful next evidence' 182/180 (1.01) w=408/408 rows=0/0 cols=[] | []
+  strip: Evidence limited 2 connectors × 1 scheduled hours = 2 connector-hours
+  cards A: ['Known available1 h 0 minState-supported service time', 'Known unavailable44 minFaulted or unavailable state evidenced', 'Unknown16 minNo trustworthy state coverage', 'Known-time availability57.7%1 / 1.73 known hours; coverage 86.67%'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 8 details 0
+  fonts prose 12px ['14px'] pSizes {'10px': 2, '14px': 2, '11px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== availability all-open 390x900 pageH app/mock 1471/1714 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Connector states over the service schedule' 316/277 (1.14) w=358/360 rows=0/0 cols=[] | []
+  P 'Full-schedule availability bound' 182/176 (1.03) w=358/360 rows=0/0 cols=[] | []
+  P 'Most useful next evidence' 205/180 (1.14) w=358/360 rows=0/0 cols=[] | []
+  strip: Evidence limited 2 connectors × 1 scheduled hours = 2 connector-hours
+  cards A: ['Known available1 h 0 minState-supported service time', 'Known unavailable44 minFaulted or unavailable state evidenced', 'Unknown16 minNo trustworthy state coverage', 'Known-time availability57.7%1 / 1.73 known hours; coverage 86.67%'] | M: []
+  cardsH A/M: [127, 127, 127, 127] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 8 details 0
+  fonts prose 12px ['14px'] pSizes {'10px': 2, '14px': 2, '11px': 1} | M 12px {'10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability*', 'Energy / site power']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== energy all-open 1440x1000 pageH app/mock 1579/1230 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Import power and configured limit' 888/356 (2.49) w=725/735 rows=18/0 cols=['Measure', 'Value'] | []
+  P 'What can be concluded' 888/356 (2.49) w=403/408 rows=0/0 cols=[] | []
+  P 'Technical-to-financial bridge' 183/243 (0.75) w=1145/1161 rows=3/3 cols=['Quantity', 'Assumption', 'Result', 'Limit'] | ['Quantity', 'Assumption', 'Result', 'Limit']
+  strip: Energy basis: measured Complete session meter records · incomplete session energy excludedInspect meter basis ↗
+  cards A: ['Metered session energy15.000 kWhComplete metered sessions only', 'Observed peak import60 kWSelected 1-hour window', 'Declared site limit80 kWTime-valid configuration', 'Gross tariff estimateUnpricedScenario tariff not established'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 16 details 1
+  fonts prose 12px [] pSizes {'11px': 6, '10px': 1} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1579}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 1, 'vscroll': []}
+=== energy all-open 390x900 pageH app/mock 2095/2051 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Import power and configured limit' 777/235 (3.31) w=358/360 rows=18/0 cols=['Measure', 'Value'] | []
+  P 'What can be concluded' 339/308 (1.10) w=358/360 rows=0/0 cols=[] | []
+  P 'Technical-to-financial bridge' 211/401 (0.53) w=358/360 rows=3/3 cols=['Quantity', 'Assumption', 'Result', 'Limit'] | ['Quantity', 'Assumption', 'Result', 'Limit']
+  strip: Energy basis: measured Complete session meter records · incomplete session energy excludedInspect meter basis ↗
+  cards A: ['Metered session energy15.000 kWhComplete metered sessions only', 'Observed peak import60 kWSelected 1-hour window', 'Declared site limit80 kWTime-valid configuration', 'Gross tariff estimateUnpricedScenario tariff not established'] | M: []
+  cardsH A/M: [127, 127, 111, 111] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 16 details 1
+  fonts prose 12px [] pSizes {'11px': 6, '10px': 1} | M 12px {'11px': 6, '10px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Sessions', 'Availability', 'Energy / site power*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Import power and configured limit'}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Technical-to-financial bridge'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 1, 'vscroll': []}
+=== ev-health all-open 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Condition and evidence' 324/198 (1.64) w=1160/1161 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+  strip: 
+  cards A: ['Connector c1Needs attention1 selected fault record; cause not diagnose', 'Connector c2UnknownNo charger condition assessmentView detail →', 'Stationary batteryUnknownBattery configuration is not established by t'] | M: []
+  cardsH A/M: [135, 135, 135] []
+  refusal[None]:   notice: ['Session and fault records show what was observed at each connector. They do not establish charger condition or diagnose ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 4 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-health all-open 390x900 pageH app/mock 1186/1227 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Condition and evidence' 455/286 (1.59) w=358/360 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+  strip: 
+  cards A: ['Connector c1Needs attention1 selected fault record; cause not diagnose', 'Connector c2UnknownNo charger condition assessmentView detail →', 'Stationary batteryUnknownBattery configuration is not established by t'] | M: []
+  cardsH A/M: [151, 151, 143] []
+  refusal[None]:   notice: ['Session and fault records show what was observed at each connector. They do not establish charger condition or diagnose ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 4 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios all-open 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Financial scenarios' 305/316 (0.97) w=1160/1161 rows=0/0 cols=[] | []
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-scenarios all-open 390x900 pageH app/mock 900/1125 ovX 0 hdr 58 mainTop 153/158 cerr []
+  P 'Financial scenarios' 345/355 (0.97) w=358/360 rows=0/0 cols=[] | []
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 137}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+=== ev-work all-open 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Actions at this site' 222/183 (1.21) w=1160/1161 rows=1/1 cols=['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion'] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 1 actionEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 1 Zcount 2 details 1
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 248, 'w': 1160, 'h': 33, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 1, 'vscroll': []}
+=== ev-work all-open 390x900 pageH app/mock 1002/1108 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Actions at this site' 329/230 (1.43) w=358/360 rows=1/1 cols=['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion'] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 1 actionEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 1 Zcount 2 details 1
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 821, 'cw': 318, 'panel': 'Actions at this site'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 16, 'w': 358, 'h': 136, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 1, 'vscroll': []}

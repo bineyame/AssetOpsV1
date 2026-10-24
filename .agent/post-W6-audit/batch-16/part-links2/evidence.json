@@ -1,0 +1,5116 @@
+{
+  "revision": "cb79b18b",
+  "captured_at": "2026-10-24T18:04:17.873Z",
+  "pairs": [
+    {
+      "screen": "link-check",
+      "case": "ev-site-overview-ev-route",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/ev?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "mock_hash": "#/ev",
+      "app_image": "link-check-ev-site-overview-ev-route-1440-app.png",
+      "mock_image": "link-check-ev-site-overview-ev-route-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened on the service day",
+          "Charging activity and site power",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 248,
+            "y": 457,
+            "w": 1145,
+            "h": 272,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened on the service dayPlain sequence from accepted charger and meter recordsReview sessions →08:01 UTCSession started · REC dd4e9a9f-7b36-4876-ae6e-ea09462b6e0608:16 UTCConnector fault · REC 742e113b-aeda-40fa-b29e-1608e9ce79dc08:16 UTCSession aborted · REC 96c087aa-c0c1-4749-bcba-764679703248—No accepted event—No accepted event—No accepted event—No accepted eventOnly accepted records are shown; the cause of an interruption is not established.Event detailsdd4e9a9f-7b36-4876-ae6e-ea09462b6e06 · Session started · Connector c1 · session · source 2026-10-06T08:01:00.000000Z · received 20",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 248,
+            "y": 747,
+            "w": 725,
+            "h": 374,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Charging activity and site powerPower is operating context, not proof of charger condition or cause.80 kW08:00 UTC09:00 UTCConnector energySite importConfigured limitChart detailsSite import: 3600/3600 s of selected window coveredConnector energyba891236-a754-4ac7-a0fb-fdefa7a33199 · 2026-10-06T08:01:00.000000Z to 2026-10-06T08:05:00.000000Z · 4 kWhb59341e9-122d-4335-9752-fdbe587d1ac4 · 2026-10-06T08:05:00.000000Z to 2026-10-06T08:10:00.000000Z · 5 kWhebc545d3-3e5b-4f14-b163-79f6fbff23b6 · 2026-10-06T08:10:00.000000Z to 2026-10-06T08:15:00.000000Z · 5 kWhe4bc4ba6-3793-4a80-8fd1-f553f2408ee4 · ",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 747,
+            "w": 403,
+            "h": 374,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1Fault-aborted sessionA session ended with a connector fault.Open Finding →",
+            "h3": [
+              "Fault-aborted session"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1139,
+            "w": 725,
+            "h": 211,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceWithheldThe gross tariff scenario is being refreshed.Scenario detailsExact amount: Not assessedTariff revision: Not declaredSource gate: Not recordedOverlap group: Not recordedOpen financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1139,
+            "w": 403,
+            "h": 211,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepPublish an EV gross tariffNeeded before a gross tariff scenario can be estimated.Review recommendation · Not available yet",
+            "h3": [
+              "Publish an EV gross tariff"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1401,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "cards": [
+            "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete · of 1 attempts",
+            "AvailabilityNot assessedConnector availability is not assessed",
+            "Site power60 kW observed peak3600/3600 s of selected window covered",
+            "Charger conditionNot assessedSource reporting is not equipment condition",
+            "EvidenceLimited4 capabilities · no single score"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 3,
+          "utc": 8,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete · of 1 atte | Session service -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "AvailabilityNot assessedConnector availability is not assessed | Availability -> /sites/EV-LAB-001/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "Site power60 kW observed peak3600/3600 s of selected window covered | Site power -> /sites/EV-LAB-001/performance/energy?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "Charger conditionNot assessedSource reporting is not equipment condition | ",
+            "EvidenceLimited4 capabilities · no single score | Evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+          ],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Inspect evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Session service -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Availability -> /sites/EV-LAB-001/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Site power -> /sites/EV-LAB-001/performance/energy?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Review sessions → -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Single line diagram → -> /sites/EV-LAB-001/foundation/sld?at=2026-10-06T09%3A00%3A00.000000Z",
+          "Open Finding → -> /sites/EV-LAB-001/findings/60d41a5c-8cdf-4d48-be7e-6f721edcf1f5?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:00:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+          "Open financial bridge → -> /sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:00:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+        ],
+        "cardsDom": [
+          {
+            "t": "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete ·",
+            "h": 126
+          },
+          {
+            "t": "AvailabilityNot assessedConnector availability is not assessed",
+            "h": 126
+          },
+          {
+            "t": "Site power60 kW observed peak3600/3600 s of selected window covered",
+            "h": 126
+          },
+          {
+            "t": "Charger conditionNot assessedSource reporting is not equipment condition",
+            "h": 126
+          },
+          {
+            "t": "EvidenceLimited4 capabilities · no single score",
+            "h": 126
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "10px": 7,
+          "14px": 6
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1401
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened on the service day",
+          "Charging activity and site power",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened on the service dayPlain sequence from accepted charger and meter recordsOpen Sessions →08:00Charging day startsBoth connectors available10:40Site peak 76 kWUnder the 80 kW limit14:03Session SES-011 startsConnector 214:11A fault stops the sessionConnector 2 · 3.6 kWh delivered14:11–15:00Connector 2 out of serviceStatus reports15:00–16:00Connector 2 status missingNo status reports15:04Session SES-012 starts; no end recordConnector 2Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not ca",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 356,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Charging activity and site power08:00–16:00 · two connectors · context, not a status sourceSingle line diagram →1007550250kW08:0009:2010:4012:0013:2014:4016:00Site importSite power limit",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 356,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1F-130 · Connector 2 stopped a sessionFault event and meter record agree; 3.6 kWh delivered.Findings › F-130 →2One session outcome unknownNo end record for SES-012; it counts as neither success nor failure.Performance › Sessions →3Connector 2 status missing for 1 hAvailability stays a range until the history is recovered.Evidence →",
+            "h3": [
+              "F-130 · Connector 2 stopped a session",
+              "One session outcome unknown",
+              "Connector 2 status missing for 1 h"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1210,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequence$36.00Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: unmet demand is not established.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1210,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepCheck connector 2 and witness a full sessionRetrieve the fault log for SES-011, then run a complete session on connector 2 with start, end and meter records.Review recommendation",
+            "h3": [
+              "Check connector 2 and witness a full session"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1470,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "View detail → -> #/sessions",
+          "View detail → -> #/availability",
+          "View detail → -> #/energy",
+          "View detail → -> #/ev-health",
+          "View detail → -> #/ev-evidence",
+          "Open Sessions → -> #/sessions",
+          "Single line diagram → -> #/ev-sld",
+          "Findings › F-130 → -> #/ev-finding",
+          "Performance › Sessions → -> #/sessions",
+          "Evidence → -> #/ev-evidence",
+          "Open financial bridge → -> #/ev-financials",
+          "Review recommendation -> #/ev-recommendation"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1426
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "ev-site-overview-ev-route",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/ev?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "mock_hash": "#/ev",
+      "app_image": "link-check-ev-site-overview-ev-route-390-app.png",
+      "mock_image": "link-check-ev-site-overview-ev-route-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened on the service day",
+          "Charging activity and site power",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 16,
+            "y": 926,
+            "w": 358,
+            "h": 592,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened on the service dayPlain sequence from accepted charger and meter recordsReview sessions →08:01 UTCSession started · REC dd4e9a9f-7b36-4876-ae6e-ea09462b6e0608:16 UTCConnector fault · REC 742e113b-aeda-40fa-b29e-1608e9ce79dc08:16 UTCSession aborted · REC 96c087aa-c0c1-4749-bcba-764679703248—No accepted event—No accepted event—No accepted event—No accepted eventOnly accepted records are shown; the cause of an interruption is not established.Event detailsdd4e9a9f-7b36-4876-ae6e-ea09462b6e06 · Session started · Connector c1 · session · source 2026-10-06T08:01:00.000000Z · received 20",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 16,
+            "y": 1536,
+            "w": 358,
+            "h": 315,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Charging activity and site powerPower is operating context, not proof of charger condition or cause.80 kW08:00 UTC09:00 UTCConnector energySite importConfigured limitChart detailsSite import: 3600/3600 s of selected window coveredConnector energyba891236-a754-4ac7-a0fb-fdefa7a33199 · 2026-10-06T08:01:00.000000Z to 2026-10-06T08:05:00.000000Z · 4 kWhb59341e9-122d-4335-9752-fdbe587d1ac4 · 2026-10-06T08:05:00.000000Z to 2026-10-06T08:10:00.000000Z · 5 kWhebc545d3-3e5b-4f14-b163-79f6fbff23b6 · 2026-10-06T08:10:00.000000Z to 2026-10-06T08:15:00.000000Z · 5 kWhe4bc4ba6-3793-4a80-8fd1-f553f2408ee4 · ",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 1867,
+            "w": 358,
+            "h": 153,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1Fault-aborted sessionA session ended with a connector fault.Open Finding →",
+            "h3": [
+              "Fault-aborted session"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2036,
+            "w": 358,
+            "h": 208,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceWithheldThe gross tariff scenario is being refreshed.Scenario detailsExact amount: Not assessedTariff revision: Not declaredSource gate: Not recordedOverlap group: Not recordedOpen financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2260,
+            "w": 358,
+            "h": 197,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepPublish an EV gross tariffNeeded before a gross tariff scenario can be estimated.Review recommendation · Not available yet",
+            "h3": [
+              "Publish an EV gross tariff"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2497,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "cards": [
+            "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete · of 1 attempts",
+            "AvailabilityNot assessedConnector availability is not assessed",
+            "Site power60 kW observed peak3600/3600 s of selected window covered",
+            "Charger conditionNot assessedSource reporting is not equipment condition",
+            "EvidenceLimited4 capabilities · no single score"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 3,
+          "utc": 8,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete · of 1 atte | Session service -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "AvailabilityNot assessedConnector availability is not assessed | Availability -> /sites/EV-LAB-001/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "Site power60 kW observed peak3600/3600 s of selected window covered | Site power -> /sites/EV-LAB-001/performance/energy?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "Charger conditionNot assessedSource reporting is not equipment condition | ",
+            "EvidenceLimited4 capabilities · no single score | Evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+          ],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Inspect evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Session service -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Availability -> /sites/EV-LAB-001/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Site power -> /sites/EV-LAB-001/performance/energy?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Review sessions → -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Single line diagram → -> /sites/EV-LAB-001/foundation/sld?at=2026-10-06T09%3A00%3A00.000000Z",
+          "Open Finding → -> /sites/EV-LAB-001/findings/60d41a5c-8cdf-4d48-be7e-6f721edcf1f5?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:00:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+          "Open financial bridge → -> /sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:00:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+        ],
+        "cardsDom": [
+          {
+            "t": "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete ·",
+            "h": 142
+          },
+          {
+            "t": "AvailabilityNot assessedConnector availability is not assessed",
+            "h": 142
+          },
+          {
+            "t": "Site power60 kW observed peak3600/3600 s of selected window covered",
+            "h": 146
+          },
+          {
+            "t": "Charger conditionNot assessedSource reporting is not equipment condition",
+            "h": 146
+          },
+          {
+            "t": "EvidenceLimited4 capabilities · no single score",
+            "h": 110
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "10px": 7,
+          "14px": 6
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened on the service day",
+          "Charging activity and site power",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 15,
+            "y": 1218,
+            "w": 360,
+            "h": 587,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened on the service dayPlain sequence from accepted charger and meter recordsOpen Sessions →08:00Charging day startsBoth connectors available10:40Site peak 76 kWUnder the 80 kW limit14:03Session SES-011 startsConnector 214:11A fault stops the sessionConnector 2 · 3.6 kWh delivered14:11–15:00Connector 2 out of serviceStatus reports15:00–16:00Connector 2 status missingNo status reports15:04Session SES-012 starts; no end recordConnector 2Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not ca",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 15,
+            "y": 1823,
+            "w": 360,
+            "h": 273,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Charging activity and site power08:00–16:00 · two connectors · context, not a status sourceSingle line diagram →1007550250kW08:0009:2010:4012:0013:2014:4016:00Site importSite power limit",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2115,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1F-130 · Connector 2 stopped a sessionFault event and meter record agree; 3.6 kWh delivered.Findings › F-130 →2One session outcome unknownNo end record for SES-012; it counts as neither success nor failure.Performance › Sessions →3Connector 2 status missing for 1 hAvailability stays a range until the history is recovered.Evidence →",
+            "h3": [
+              "F-130 · Connector 2 stopped a session",
+              "One session outcome unknown",
+              "Connector 2 status missing for 1 h"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2469,
+            "w": 360,
+            "h": 233,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequence$36.00Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: unmet demand is not established.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2720,
+            "w": 360,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepCheck connector 2 and witness a full sessionRetrieve the fault log for SES-011, then run a complete session on connector 2 with start, end and meter records.Review recommendation",
+            "h3": [
+              "Check connector 2 and witness a full session"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3007,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "View detail → -> #/sessions",
+          "View detail → -> #/availability",
+          "View detail → -> #/energy",
+          "View detail → -> #/ev-health",
+          "View detail → -> #/ev-evidence",
+          "Open Sessions → -> #/sessions",
+          "Single line diagram → -> #/ev-sld",
+          "Findings › F-130 → -> #/ev-finding",
+          "Performance › Sessions → -> #/sessions",
+          "Evidence → -> #/ev-evidence",
+          "Open financial bridge → -> #/ev-financials",
+          "Review recommendation -> #/ev-recommendation"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "ev-financials-main-tab",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/financials?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "mock_hash": "#/ev-financials",
+      "app_image": "link-check-ev-financials-main-tab-1440-app.png",
+      "mock_image": "link-check-ev-financials-main-tab-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 466,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened → what it means in moneyOpen a finding and choose “What this finding means in money” to see its money view here. Go to this site's findings",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 586,
+            "w": 734,
+            "h": 227,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Assumptions in useDiesel priceUnpriced: no price is recorded for todayDefault priceNone is used in its placeNo diesel price is recorded for today at this site.Review assumptions",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 1000,
+            "y": 586,
+            "w": 408,
+            "h": 295,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Trade-offs and exclusionsWhen an amount is shown. Only for a current finding version whose readings come from an established source and whose whole time one recorded diesel price covers. Every other state shows no amount, and no amount is ever zero by default.Not included. The maintenance allowance, revenue or service effects, asset value and realised savings are not added. No monthly figure is extrapolated, and lines with different bases are never added together.Generator time that was needed, or that could not be judged, is never priced.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "No finding selectedData confidence: not assessedselected finding window · no financial status here; status stays on the source finding",
+          "cards": [
+            "Operating-cost exposureNo finding selectedOpen a finding to see its bounded fuel cost. This is not zero.",
+            "Revenue / serviceNot establishedNo supported unserved-energy or revenue basis exists for this site, so no revenue or service consequence is stated.",
+            "Asset exposureNot establishedNo asset value, replacement cost or warranty terms are recorded for this site, so no asset exposure is stated.",
+            "Realised savingsNot establishedSavings need a verified comparison of energy and service with and without a change, which does not exist, so none is claimed."
+          ],
+          "notice": [
+            "Financials carry no status of their own. Exposure is not a statement of net or realised savings, and lines with different bases are not added together."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Operating-cost exposureNo finding selectedOpen a finding to see its bounded fuel cost. Thi | ",
+            "Revenue / serviceNot establishedNo supported unserved-energy or revenue basis exists for t | ",
+            "Asset exposureNot establishedNo asset value, replacement cost or warranty terms are record | ",
+            "Realised savingsNot establishedSavings need a verified comparison of energy and service wi | "
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Overview -> /sites/EV-LAB-001/financials",
+          "Assumptions -> /sites/EV-LAB-001/financials/assumptions",
+          "Go to this site's findings -> /sites/EV-LAB-001/findings",
+          "Review assumptions -> /sites/EV-LAB-001/financials/assumptions"
+        ],
+        "cardsDom": [
+          {
+            "t": "Operating-cost exposureNo finding selectedOpen a finding to see its bounded fuel",
+            "h": 140
+          },
+          {
+            "t": "Revenue / serviceNot establishedNo supported unserved-energy or revenue basis ex",
+            "h": 140
+          },
+          {
+            "t": "Asset exposureNot establishedNo asset value, replacement cost or warranty terms ",
+            "h": 140
+          },
+          {
+            "t": "Realised savingsNot establishedSavings need a verified comparison of energy and ",
+            "h": 140
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Assumptions",
+              "Scenarios · Not available yet(off)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 2,
+          "11px": 2,
+          "12px": 4
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 547,
+            "w": 1161,
+            "h": 285,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "What happened",
+              "How it becomes money",
+              "Consequence",
+              "Basis",
+              "Confidence",
+              "Source"
+            ],
+            "chips": [
+              "Scenario",
+              "Not assessed",
+              "Scenario"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "120 kWh delivered in complete sessions",
+                "Tariff $0.30/kWh",
+                "$36.00 gross estimate",
+                "Scenario",
+                "High · metered",
+                "Energy ↗"
+              ],
+              [
+                "Session SES-011 stopped after 3.6 kWh",
+                "Unmet demand × tariff",
+                "Not established",
+                "Not assessed",
+                "—",
+                "F-130 ↗"
+              ],
+              [
+                "Connector 2 fault",
+                "Warranty claim or local repair",
+                "$0 parts if claimed · $850 if repaired locally",
+                "Scenario",
+                "—",
+                "Warranty ↗"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Energy ↗ -> #/energy"
+              ],
+              [
+                "F-130 ↗ -> #/ev-finding"
+              ],
+              [
+                "Warranty ↗ -> #/assets-warranty"
+              ]
+            ],
+            "panelText": "What happened → what it means in moneySelect a source to return to its findingWhat happenedHow it becomes moneyConsequenceBasisConfidenceSource120 kWh delivered in complete sessionsTariff $0.30/kWh $36.00 gross estimateScenarioHigh · meteredEnergy ↗Session SES-011 stopped after 3.6 kWhUnmet demand × tariffNot establishedNot assessed—F-130 ↗Connector 2 faultWarranty claim or local repair$0 parts if claimed · $850 if repaired locallyScenario—Warranty ↗",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 850,
+            "w": 735,
+            "h": 234,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Assumptions in useTariff$0.30 / kWh · scenarioBilling / collectionsNot connectedCurrencyUSDReview assumptions",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Not included",
+            "x": 987,
+            "y": 850,
+            "w": 408,
+            "h": 234,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Not includedA tariff estimate is not cash collected, margin or loss. The incomplete session is not added. Portfolio reuses these lines unchanged.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1150,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Overview -> #/ev-financials",
+          "Assumptions -> #/ev-assumptions",
+          "Scenarios -> #/ev-scenarios",
+          "Portfolio roll-up → -> #/globalfinancials",
+          "Energy ↗ -> #/energy",
+          "F-130 ↗ -> #/ev-finding",
+          "Warranty ↗ -> #/assets-warranty",
+          "Review assumptions -> #/ev-assumptions"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview*",
+              "Assumptions",
+              "Scenarios"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 4,
+          "14px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1106
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "ev-financials-main-tab",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/financials?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "mock_hash": "#/ev-financials",
+      "app_image": "link-check-ev-financials-main-tab-390-app.png",
+      "mock_image": "link-check-ev-financials-main-tab-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 788,
+            "w": 358,
+            "h": 149,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened → what it means in moneyOpen a finding and choose “What this finding means in money” to see its money view here. Go to this site's findings",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 955,
+            "w": 358,
+            "h": 244,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Assumptions in useDiesel priceUnpriced: no price is recorded for todayDefault priceNone is used in its placeNo diesel price is recorded for today at this site.Review assumptions",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 16,
+            "y": 1215,
+            "w": 358,
+            "h": 315,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Trade-offs and exclusionsWhen an amount is shown. Only for a current finding version whose readings come from an established source and whose whole time one recorded diesel price covers. Every other state shows no amount, and no amount is ever zero by default.Not included. The maintenance allowance, revenue or service effects, asset value and realised savings are not added. No monthly figure is extrapolated, and lines with different bases are never added together.Generator time that was needed, or that could not be judged, is never priced.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1668,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "No finding selectedData confidence: not assessedselected finding window · no financial status here; status stays on the source finding",
+          "cards": [
+            "Operating-cost exposureNo finding selectedOpen a finding to see its bounded fuel cost. This is not zero.",
+            "Revenue / serviceNot establishedNo supported unserved-energy or revenue basis exists for this site, so no revenue or service consequence is stated.",
+            "Asset exposureNot establishedNo asset value, replacement cost or warranty terms are recorded for this site, so no asset exposure is stated.",
+            "Realised savingsNot establishedSavings need a verified comparison of energy and service with and without a change, which does not exist, so none is claimed."
+          ],
+          "notice": [
+            "Financials carry no status of their own. Exposure is not a statement of net or realised savings, and lines with different bases are not added together."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Operating-cost exposureNo finding selectedOpen a finding to see its bounded fuel cost. Thi | ",
+            "Revenue / serviceNot establishedNo supported unserved-energy or revenue basis exists for t | ",
+            "Asset exposureNot establishedNo asset value, replacement cost or warranty terms are record | ",
+            "Realised savingsNot establishedSavings need a verified comparison of energy and service wi | "
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Overview -> /sites/EV-LAB-001/financials",
+          "Assumptions -> /sites/EV-LAB-001/financials/assumptions",
+          "Go to this site's findings -> /sites/EV-LAB-001/findings",
+          "Review assumptions -> /sites/EV-LAB-001/financials/assumptions"
+        ],
+        "cardsDom": [
+          {
+            "t": "Operating-cost exposureNo finding selectedOpen a finding to see its bounded fuel",
+            "h": 160
+          },
+          {
+            "t": "Revenue / serviceNot establishedNo supported unserved-energy or revenue basis ex",
+            "h": 160
+          },
+          {
+            "t": "Asset exposureNot establishedNo asset value, replacement cost or warranty terms ",
+            "h": 172
+          },
+          {
+            "t": "Realised savingsNot establishedSavings need a verified comparison of energy and ",
+            "h": 172
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Assumptions",
+              "Scenarios · Not available yet(off)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "14px": 2,
+          "11px": 2,
+          "12px": 4
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 993,
+            "w": 360,
+            "h": 407,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "What happened",
+              "How it becomes money",
+              "Consequence",
+              "Basis",
+              "Confidence",
+              "Source"
+            ],
+            "chips": [
+              "Scenario",
+              "Not assessed",
+              "Scenario"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "120 kWh delivered in complete sessions",
+                "Tariff $0.30/kWh",
+                "$36.00 gross estimate",
+                "Scenario",
+                "High · metered",
+                "Energy ↗"
+              ],
+              [
+                "Session SES-011 stopped after 3.6 kWh",
+                "Unmet demand × tariff",
+                "Not established",
+                "Not assessed",
+                "—",
+                "F-130 ↗"
+              ],
+              [
+                "Connector 2 fault",
+                "Warranty claim or local repair",
+                "$0 parts if claimed · $850 if repaired locally",
+                "Scenario",
+                "—",
+                "Warranty ↗"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Energy ↗ -> #/energy"
+              ],
+              [
+                "F-130 ↗ -> #/ev-finding"
+              ],
+              [
+                "Warranty ↗ -> #/assets-warranty"
+              ]
+            ],
+            "panelText": "What happened → what it means in moneySelect a source to return to its findingWhat happenedHow it becomes moneyConsequenceBasisConfidenceSource120 kWh delivered in complete sessionsTariff $0.30/kWh $36.00 gross estimateScenarioHigh · meteredEnergy ↗Session SES-011 stopped after 3.6 kWhUnmet demand × tariffNot establishedNot assessed—F-130 ↗Connector 2 faultWarranty claim or local repair$0 parts if claimed · $850 if repaired locallyScenario—Warranty ↗",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1417,
+            "w": 360,
+            "h": 234,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Assumptions in useTariff$0.30 / kWh · scenarioBilling / collectionsNot connectedCurrencyUSDReview assumptions",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Not included",
+            "x": 15,
+            "y": 1670,
+            "w": 360,
+            "h": 142,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Not includedA tariff estimate is not cash collected, margin or loss. The incomplete session is not added. Portfolio reuses these lines unchanged.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1905,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Overview -> #/ev-financials",
+          "Assumptions -> #/ev-assumptions",
+          "Scenarios -> #/ev-scenarios",
+          "Portfolio roll-up → -> #/globalfinancials",
+          "Energy ↗ -> #/energy",
+          "F-130 ↗ -> #/ev-finding",
+          "Warranty ↗ -> #/assets-warranty",
+          "Review assumptions -> #/ev-assumptions"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview*",
+              "Assumptions",
+              "Scenarios"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 596,
+            "cw": 320,
+            "panel": "What happened → what it means in money"
+          }
+        ],
+        "pSizes": {
+          "11px": 4,
+          "14px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "ev-work-incidents",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-incidents",
+      "app_image": "link-check-ev-work-incidents-1440-app.png",
+      "mock_image": "link-check-ev-work-incidents-1440-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 248,
+            "y": 348,
+            "w": 1160,
+            "h": 212,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [
+              [
+                "INC-000001 · Charging session fault",
+                "24 Oct · from 17:49UTC and IDsOccurred2026-10-24 17:49 UTCRecorded2026-10-24 17:52 UTCCase IDdfa84c25-19a2-4902-a308-de54c8223e18Version IDa4e8e88c-d751-4799-8833-8b9c615bdb61Linked actionsAction 53730637Source of cited recordsGenerated test data",
+                "Connector fault ended a charging session; outcome remains unverified",
+                "No linked finding",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Action 53730637 -> /sites/EV-LAB-001/actions/53730637-255a-4452-90dd-4a806c98b7b5/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-000001 · Charging session fault24 Oct · from 17:49UTC and IDsOccurred2026-10-24 17:49 UTCRecorded2026-10-24 17:52 UTCCase IDdfa84c25-19a2-4902-a308-de54c8223e18Version IDa4e8e88c-d751-4799-8833-8b9c615bdb61Linked actionsAction 53730637Source of cited recordsGenerated test dataConnector fault ended a charging session; outcome remains unverifiedNo linked findingOpenShowing 1–1 of 1Scroll the table for more columns →What this list is based onWindow2026-10-24 00:00 UT",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to EV · 1 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 2,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 33,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (1) -> /sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Incidents (1) -> /sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Maintenance (1) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A04%3A49.057781Z",
+          "Action 53730637 -> /sites/EV-LAB-001/actions/53730637-255a-4452-90dd-4a806c98b7b5/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "ev-work-incidents",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-incidents",
+      "app_image": "link-check-ev-work-incidents-390-app.png",
+      "mock_image": "link-check-ev-work-incidents-390-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 16,
+            "y": 577,
+            "w": 358,
+            "h": 201,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [
+              [
+                "INC-000001 · Charging session fault",
+                "24 Oct · from 17:49UTC and IDsOccurred2026-10-24 17:49 UTCRecorded2026-10-24 17:52 UTCCase IDdfa84c25-19a2-4902-a308-de54c8223e18Version IDa4e8e88c-d751-4799-8833-8b9c615bdb61Linked actionsAction 53730637Source of cited recordsGenerated test data",
+                "Connector fault ended a charging session; outcome remains unverified",
+                "No linked finding",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Action 53730637 -> /sites/EV-LAB-001/actions/53730637-255a-4452-90dd-4a806c98b7b5/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-000001 · Charging session fault24 Oct · from 17:49UTC and IDsOccurred2026-10-24 17:49 UTCRecorded2026-10-24 17:52 UTCCase IDdfa84c25-19a2-4902-a308-de54c8223e18Version IDa4e8e88c-d751-4799-8833-8b9c615bdb61Linked actionsAction 53730637Source of cited recordsGenerated test dataConnector fault ended a charging session; outcome remains unverifiedNo linked findingOpenShowing 1–1 of 1Scroll the table for more columns →What this list is based onWindow2026-10-24 00:00 UT",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 129,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.4px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to EV · 1 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 2,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 136,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (1) -> /sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Incidents (1) -> /sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Maintenance (1) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A04%3A54.152410Z",
+          "Action 53730637 -> /sites/EV-LAB-001/actions/53730637-255a-4452-90dd-4a806c98b7b5/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 720,
+            "cw": 324,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 94
+          }
+        ],
+        "mainTop": 110,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 15,
+            "y": 689,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1215,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "ev-work-maintenance",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-maintenance",
+      "app_image": "link-check-ev-work-maintenance-1440-app.png",
+      "mock_image": "link-check-ev-work-maintenance-1440-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 248,
+            "y": 348,
+            "w": 1160,
+            "h": 195,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Work request",
+              "Asset",
+              "Activity",
+              "Outcome",
+              "Next evidence"
+            ],
+            "chips": [
+              "Open",
+              "Unverified"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "WR-000002 · Connector diagnostic inspection",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-24 17:50 UTCRecorded2026-10-24 17:52 UTCCase IDc371abf1-4281-4931-bcb5-ef94e2d3b658Version IDd3876084-4132-443e-ab80-6838223f4772Activity record IDf55bde32-5aab-4a74-953a-aaa1e115d6afLinked actionsAction 53730637Source of cited recordsGenerated test data",
+                "OpenActivity recordedInspect connector and witness a charging session",
+                "UnverifiedOutcome noteInspection recorded; recurrence and availability remain unverified",
+                "No next evidence recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000002 · Connector diagnostic inspection -> /maintenance/requests/c371abf1-4281-4931-bcb5-ef94e2d3b658?site_id=EV-LAB-001",
+                "Action 53730637 -> /sites/EV-LAB-001/actions/53730637-255a-4452-90dd-4a806c98b7b5/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+              ]
+            ],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyWork requestAssetActivityOutcomeNext evidenceWR-000002 · Connector diagnostic inspectionc1 · EV_CONNECTORUTC and IDsOccurred2026-10-24 17:50 UTCRecorded2026-10-24 17:52 UTCCase IDc371abf1-4281-4931-bcb5-ef94e2d3b658Version IDd3876084-4132-443e-ab80-6838223f4772Activity record IDf55bde32-5aab-4a74-953a-aaa1e115d6afLinked actionsAction 53730637Source of cited recordsGenerated test dataOpenActivity recordedInspect connector and witness a charging sessionUnverifiedOutcome noteInspection recorded; recurrence and a",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to EV · 1 maintenanceSame records and states as the global Maintenance listManage in Maintenance →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "EV_CONNECTORUTC"
+          ],
+          "uuids": 0,
+          "utc": 4,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 1,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 33,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [
+            "c1 · EV_CONNECTORUTC"
+          ],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (1) -> /sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Incidents (1) -> /sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Maintenance (1) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Manage in Maintenance → -> /maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A04%3A58.982139Z",
+          "WR-000002 · Connector diagnostic inspection -> /maintenance/requests/c371abf1-4281-4931-bcb5-ef94e2d3b658?site_id=EV-LAB-001",
+          "Action 53730637 -> /sites/EV-LAB-001/actions/53730637-255a-4452-90dd-4a806c98b7b5/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)",
+              "Maintenance (1)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 296,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Maintenance → -> #/maintenance"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "ev-work-maintenance",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-maintenance",
+      "app_image": "link-check-ev-work-maintenance-390-app.png",
+      "mock_image": "link-check-ev-work-maintenance-390-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 16,
+            "y": 575,
+            "w": 358,
+            "h": 216,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Work request",
+              "Asset",
+              "Activity",
+              "Outcome",
+              "Next evidence"
+            ],
+            "chips": [
+              "Open",
+              "Unverified"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "WR-000002 · Connector diagnostic inspection",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-24 17:50 UTCRecorded2026-10-24 17:52 UTCCase IDc371abf1-4281-4931-bcb5-ef94e2d3b658Version IDd3876084-4132-443e-ab80-6838223f4772Activity record IDf55bde32-5aab-4a74-953a-aaa1e115d6afLinked actionsAction 53730637Source of cited recordsGenerated test data",
+                "OpenActivity recordedInspect connector and witness a charging session",
+                "UnverifiedOutcome noteInspection recorded; recurrence and availability remain unverified",
+                "No next evidence recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000002 · Connector diagnostic inspection -> /maintenance/requests/c371abf1-4281-4931-bcb5-ef94e2d3b658?site_id=EV-LAB-001",
+                "Action 53730637 -> /sites/EV-LAB-001/actions/53730637-255a-4452-90dd-4a806c98b7b5/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+              ]
+            ],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyWork requestAssetActivityOutcomeNext evidenceWR-000002 · Connector diagnostic inspectionc1 · EV_CONNECTORUTC and IDsOccurred2026-10-24 17:50 UTCRecorded2026-10-24 17:52 UTCCase IDc371abf1-4281-4931-bcb5-ef94e2d3b658Version IDd3876084-4132-443e-ab80-6838223f4772Activity record IDf55bde32-5aab-4a74-953a-aaa1e115d6afLinked actionsAction 53730637Source of cited recordsGenerated test dataOpenActivity recordedInspect connector and witness a charging sessionUnverifiedOutcome noteInspection recorded; recurrence and a",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 911,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.4px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to EV · 1 maintenanceSame records and states as the global Maintenance listManage in Maintenance →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "EV_CONNECTORUTC"
+          ],
+          "uuids": 0,
+          "utc": 4,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 1,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 136,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [
+            "c1 · EV_CONNECTORUTC"
+          ],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (1) -> /sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Incidents (1) -> /sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Maintenance (1) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Manage in Maintenance → -> /maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A05%3A03.866064Z",
+          "WR-000002 · Connector diagnostic inspection -> /maintenance/requests/c371abf1-4281-4931-bcb5-ef94e2d3b658?site_id=EV-LAB-001",
+          "Action 53730637 -> /sites/EV-LAB-001/actions/53730637-255a-4452-90dd-4a806c98b7b5/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)",
+              "Maintenance (1)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 760,
+            "cw": 324,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 15,
+            "y": 689,
+            "w": 360,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1195,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Maintenance → -> #/maintenance"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "ev-work-incidents-refused",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-incidents",
+      "app_image": "link-check-ev-work-incidents-refused-1440-app.png",
+      "mock_image": "link-check-ev-work-incidents-refused-1440-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 248,
+            "y": 348,
+            "w": 1160,
+            "h": 145,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themThis list cannot be shown `from` must be before `to`. Incidents at this site · As of: time not recorded",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Count unknown · work source unavailableSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 33,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [
+            "`from`",
+            "`to`"
+          ],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (—) -> /sites/EV-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Incidents (—) -> /sites/EV-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Maintenance (—) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (—)",
+              "Incidents (—)*",
+              "Maintenance (—)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "ev-work-incidents-refused",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-incidents",
+      "app_image": "link-check-ev-work-incidents-refused-390-app.png",
+      "mock_image": "link-check-ev-work-incidents-refused-390-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 16,
+            "y": 601,
+            "w": 358,
+            "h": 153,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themThis list cannot be shown `from` must be before `to`. Incidents at this site · As of: time not recorded",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 153,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Count unknown · work source unavailableSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 136,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [
+            "`from`",
+            "`to`"
+          ],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (—) -> /sites/EV-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Incidents (—) -> /sites/EV-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Maintenance (—) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (—)",
+              "Incidents (—)*",
+              "Maintenance (—)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 118
+          }
+        ],
+        "mainTop": 134,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 15,
+            "y": 689,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1215,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "ev-foundation",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/foundation?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "mock_hash": "#/ev-foundation",
+      "app_image": "link-check-ev-foundation-1440-app.png",
+      "mock_image": "link-check-ev-foundation-1440-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 248,
+            "y": 312,
+            "w": 571,
+            "h": 327,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Physical siteSite IDEV-LAB-001Connectors2 × 60 kWSite import limit80 kWStationary storageNot declaredSession sourceCharger session events · 2 of 2 connectorsSite feed → Site import meter → Charger 1 60 kW → 2 connectors · 4 declared connections. Configured service hours: Tuesday 08:00–16:00 (Etc/UTC); a service window is not observed availability.How this was worked outFoundation version recorda7547e67-3e74-4a19-96f3-94e795509241Site feed asset5bf71d4f-e512-4c32-8165-7b50abb072efImport meter assetbc11957f-3bda-4d04-9827-67925ff9cfb0Site feed partAC_BUS · asset 5bf71d4f-e512-4c32-8165-7b50abb07",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 837,
+            "y": 312,
+            "w": 571,
+            "h": 327,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Configured",
+              "Mapped"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating interpretationSession identity mappingConfiguredTransaction completenessNot assessedConnector statusMappedConfigured clock error bound: 30 s; not an observed clock checkRevenue assumptionNo tariff set for estimatesEvery required connector reading has a configured source. Declared limits: site import 80 kW, Charger 1 60 kW, connectors 2 × 60 kW. A configured setting is not proof of energy delivered or charging status.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Configuration v1 Effective 2026-10-01 00:00 UTC to no end dateIn effect nowv1 · from 2026-10-01 00:00 UTCConfiguration readiness →How this was worked outSelected time (exact)2026-10-24T18:05:17.374622ZFoundation version recorda7547e67-3e74-4a19-96f3-94e795509241Reading-source version record1e7f3063-2c1c-480e-ba86-6c01e865d1b8",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "",
+          "details": 2,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Site model -> /sites/EV-LAB-001/foundation",
+          "Single line diagram -> /sites/EV-LAB-001/foundation/sld",
+          "Readiness -> /sites/EV-LAB-001/foundation/readiness",
+          "Configuration readiness → -> /sites/EV-LAB-001/foundation/readiness"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation*",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs foundation-views",
+            "items": [
+              "Site model*",
+              "Single line diagram",
+              "Readiness"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 9,
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 234,
+            "y": 416,
+            "w": 572,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Physical siteSite IDEV-DEMO-01Connectors2 × 60 kWSite import limit80 kWStationary storageNot installedSession sourceCharger transaction records",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 824,
+            "y": 416,
+            "w": 572,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating interpretationSession identity mappingConfiguredTransaction completenessLimitedConnector statusMappedRevenue assumption$0.30/kWh · scenario",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Site model -> #/ev-foundation",
+          "Single line diagram -> #/ev-sld",
+          "Readiness -> #/ev-readiness"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation*",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Site model*",
+              "Single line diagram",
+              "Readiness"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 9
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "ev-foundation",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5186/sites/EV-LAB-001/foundation?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "mock_hash": "#/ev-foundation",
+      "app_image": "link-check-ev-foundation-390-app.png",
+      "mock_image": "link-check-ev-foundation-390-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 16,
+            "y": 440,
+            "w": 358,
+            "h": 360,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Physical siteSite IDEV-LAB-001Connectors2 × 60 kWSite import limit80 kWStationary storageNot declaredSession sourceCharger session events · 2 of 2 connectorsSite feed → Site import meter → Charger 1 60 kW → 2 connectors · 4 declared connections. Configured service hours: Tuesday 08:00–16:00 (Etc/UTC); a service window is not observed availability.How this was worked outFoundation version recorda7547e67-3e74-4a19-96f3-94e795509241Site feed asset5bf71d4f-e512-4c32-8165-7b50abb072efImport meter assetbc11957f-3bda-4d04-9827-67925ff9cfb0Site feed partAC_BUS · asset 5bf71d4f-e512-4c32-8165-7b50abb07",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 16,
+            "y": 815,
+            "w": 358,
+            "h": 348,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Configured",
+              "Mapped"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating interpretationSession identity mappingConfiguredTransaction completenessNot assessedConnector statusMappedConfigured clock error bound: 30 s; not an observed clock checkRevenue assumptionNo tariff set for estimatesEvery required connector reading has a configured source. Declared limits: site import 80 kW, Charger 1 60 kW, connectors 2 × 60 kW. A configured setting is not proof of energy delivered or charging status.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1263,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Configuration v1 Effective 2026-10-01 00:00 UTC to no end dateIn effect nowv1 · from 2026-10-01 00:00 UTCConfiguration readiness →How this was worked outSelected time (exact)2026-10-24T18:05:22.059806ZFoundation version recorda7547e67-3e74-4a19-96f3-94e795509241Reading-source version record1e7f3063-2c1c-480e-ba86-6c01e865d1b8",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "",
+          "details": 2,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Site model -> /sites/EV-LAB-001/foundation",
+          "Single line diagram -> /sites/EV-LAB-001/foundation/sld",
+          "Readiness -> /sites/EV-LAB-001/foundation/readiness",
+          "Configuration readiness → -> /sites/EV-LAB-001/foundation/readiness"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation*",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs foundation-views",
+            "items": [
+              "Site model*",
+              "Single line diagram",
+              "Readiness"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 9,
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 15,
+            "y": 642,
+            "w": 360,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Physical siteSite IDEV-DEMO-01Connectors2 × 60 kWSite import limit80 kWStationary storageNot installedSession sourceCharger transaction records",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 15,
+            "y": 928,
+            "w": 360,
+            "h": 232,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating interpretationSession identity mappingConfiguredTransaction completenessLimitedConnector statusMappedRevenue assumption$0.30/kWh · scenario",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1332,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Site model -> #/ev-foundation",
+          "Single line diagram -> #/ev-sld",
+          "Readiness -> #/ev-readiness"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation*",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Site model*",
+              "Single line diagram",
+              "Readiness"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 9
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

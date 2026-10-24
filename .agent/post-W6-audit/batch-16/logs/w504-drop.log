@@ -1,0 +1,9 @@
+﻿stopped positive pid 20236
+stopped zero pid 12292
+stopped worstcase pid 11796
+stopped forbidden pid 23900
+dropped database w504a_positive_b16_test
+dropped database w504a_zero_b16_test
+dropped database w504a_worstcase_b16_test
+dropped database w504a_unknown_b16_test
+removed C:\Users\assef\Bineyame\AssetOpsV1-review5\var\w504a_b16

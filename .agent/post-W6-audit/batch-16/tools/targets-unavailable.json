@@ -1,0 +1,12 @@
+[
+ {
+  "id": "ev-work",
+  "case": "store-unavailable-503",
+  "url": "http://127.0.0.1:5186/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+ },
+ {
+  "id": "availability",
+  "case": "store-unavailable-503",
+  "url": "http://127.0.0.1:5186/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ }
+]

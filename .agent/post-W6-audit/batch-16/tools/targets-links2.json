@@ -1,0 +1,38 @@
+[
+ {
+  "id": "link-check",
+  "case": "ev-site-overview-ev-route",
+  "url": "http://127.0.0.1:5186/sites/EV-LAB-001/ev?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "mock": "ev"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-financials-main-tab",
+  "url": "http://127.0.0.1:5186/sites/EV-LAB-001/financials?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "mock": "ev-financials"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-work-incidents",
+  "url": "http://127.0.0.1:5186/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "mock": "ev-work-incidents"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-work-maintenance",
+  "url": "http://127.0.0.1:5186/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "mock": "ev-work-maintenance"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-work-incidents-refused",
+  "url": "http://127.0.0.1:5186/sites/EV-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+  "mock": "ev-work-incidents"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-foundation",
+  "url": "http://127.0.0.1:5186/sites/EV-LAB-001/foundation?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "mock": "ev-foundation"
+ }
+]
