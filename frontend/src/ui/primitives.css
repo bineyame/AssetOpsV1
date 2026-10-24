@@ -953,6 +953,49 @@ button:focus-visible {
   color: var(--text-secondary);
 }
 
+/* post-W6 shell Q13: the readable key of drawn parts, shown only at phone width where the drawing scales down. */
+.sld-key {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .sld-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    margin: var(--space-3) 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 12px;
+  }
+
+  .sld-key__choice[aria-pressed="true"] {
+    font-weight: 600;
+    text-decoration: underline;
+  }
+}
+
+.sld-key__rating {
+  color: var(--text-secondary);
+}
+
+/* post-W6 shell Q23: the opened reading scrolls inside itself past a bounded height; its table rows wrap in a wider
+   first column at phone width instead of a squeezed one. */
+.evidence-record-view__body {
+  max-height: 26rem;
+  overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+  .evidence-record-view__body {
+    max-height: 24rem;
+  }
+
+  [data-evidence-inspector] tbody th[scope="row"] {
+    min-width: 15rem;
+  }
+}
+
 .sld-legend__item {
   display: inline-flex;
   align-items: center;
@@ -4515,6 +4558,18 @@ ul.evidence-notes li { font-size: inherit; }
   text-align: right;
   font-weight: 550;
   overflow-wrap: anywhere;
+}
+
+/* post-W6 shell Q23: a long free-text value takes the full row under its term (no row is hidden or truncated). */
+.v69-key-values > div[data-key-value-wide] > dt {
+  grid-column: 1 / -1;
+  padding-bottom: 2px;
+  border-bottom: 0;
+}
+
+.v69-key-values > div[data-key-value-wide] > dd {
+  grid-column: 1 / -1;
+  padding-top: 0;
 }
 
 .v69-chart-note {

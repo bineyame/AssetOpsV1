@@ -1655,7 +1655,11 @@ function RecordView({ detail, onClose }: { detail: EvidenceRead<LedgerRecordDeta
       ) : detail.status === "unavailable" ? (
         <p data-record-state="unavailable">{detail.message ?? "The reading could not be read."}</p>
       ) : (
-        <RecordFacts item={detail.value} />
+        // post-W6 shell Q23: past a bounded height the opened reading scrolls inside itself (keyboard-focusable), so
+        // five long rows plus an opened reading stay within the closed caps. Nothing in it is hidden or clipped.
+        <div className="evidence-record-view__body" role="region" aria-label="Reading detail" tabIndex={0}>
+          <RecordFacts item={detail.value} />
+        </div>
       )}
     </div>
   );

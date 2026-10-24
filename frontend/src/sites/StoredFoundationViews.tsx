@@ -502,6 +502,10 @@ export function loadFacts(foundation: FoundationReadModel, site: SiteDetailReadM
   };
 }
 
+/** post-W6 shell Q23: past this many characters an Identity value stacks under its term instead of a half column. */
+const WIDE_VALUE_CHARS = 40;
+const wide = (text: string | null | undefined): boolean => (text ?? "").length > WIDE_VALUE_CHARS;
+
 /** Names, each marked as user-owned, joined by `separator`. */
 function joined(names: string[], separator: string): ReactNode {
   return names.map((name, index) => (
@@ -528,6 +532,7 @@ function IdentityPanel({
   const facts = loadFacts(foundation, site);
   return (
     <Panel heading="Identity and operating obligations" headingId="foundation-identity-heading">
+      {/* post-W6 shell Q23: a long free-text value (over WIDE_VALUE_CHARS) takes its own full-width line. */}
       {/* post-W6 shell R130 (Q11): the mock `.key-values` (right-aligned values, row rules). All ten stored rows stay;
           the mock's six-row panel is illustrative, and a code token never breaks mid-token. */}
       <KeyValues
@@ -539,10 +544,11 @@ function IdentityPanel({
               <UserName>{configuration.displayName}</UserName> · <ExactRef>{foundation.site.site_code}</ExactRef>
             </>,
             "site-identity",
+            wide(`${configuration.displayName} · ${foundation.site.site_code}`),
           ],
           ["Archetype", configuration.siteType, "archetype"],
-          ["Location", configuration.location, "location"],
-          ["Timezone", configuration.timezone, "timezone"],
+          ["Location", configuration.location, "location", wide(configuration.location)],
+          ["Timezone", configuration.timezone, "timezone", wide(configuration.timezone)],
           [
             "Critical service order",
             facts.firstCritical === null ? (
@@ -562,6 +568,7 @@ function IdentityPanel({
               </span>
             ),
             "critical-service-order",
+            facts.firstCritical !== null && wide(`${facts.firstCritical} ${facts.criticalOrder.join(" → ")}`),
           ],
           [
             "Configured supplied users",
@@ -569,6 +576,7 @@ function IdentityPanel({
               {facts.loads.length === 0 ? "No supplied users declared" : joined(facts.loads, ", ")}
             </span>,
             "configured-supplied-users",
+            wide(facts.loads.join(", ")),
           ],
           [
             "Productive-use designation",

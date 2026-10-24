@@ -27,7 +27,7 @@ import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
-import { UI_GAP_CATALOGUE } from "../../ui";
+import { KeyValues, UI_GAP_CATALOGUE } from "../../ui";
 
 /**
  * S1-01: the persisted Foundation version on the Foundation route - period
@@ -2341,6 +2341,40 @@ describe("post-W6 shell: Foundation identity layout and the no-version heading",
     expect(list.querySelector('[data-key-value="site-identity"] dd code')?.textContent).toBe(ID);
     // The Topology panel sits in the start-aligned pair, so it is not stretched to the Identity height.
     expect(identity.closest(".panel-pair")?.className).toContain("panel-pair--top");
+  });
+
+  it("Q23: a long free-text Identity value takes its own full-width line; short values keep the two columns", async () => {
+    renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    const identity = regionNamed("Identity and operating obligations");
+    expect(identity.querySelector('[data-key-value="archetype"]')?.hasAttribute("data-key-value-wide")).toBe(false);
+    expect(identity.querySelector('[data-key-value="timezone"]')?.hasAttribute("data-key-value-wide")).toBe(false);
+    cleanup();
+    const long = "x".repeat(41);
+    render(<KeyValues label="kv" rows={[["Short", "Mini-grid", "short"], ["Long", long, "long", true], ["Plain", "v", "plain", false]]} />);
+    expect(document.querySelector('[data-key-value="long"]')?.hasAttribute("data-key-value-wide")).toBe(true);
+    expect(document.querySelector('[data-key-value="short"]')?.hasAttribute("data-key-value-wide")).toBe(false);
+    expect(document.querySelector('[data-key-value="plain"]')?.hasAttribute("data-key-value-wide")).toBe(false);
+    expect(document.querySelector('[data-key-value="long"] dd')?.textContent).toBe(long);
+  });
+
+  it("Q13: a readable key of every drawn part follows the drawing and chooses the same part", async () => {
+    renderAt(`/sites/${ID}/foundation/sld`, fakeFoundation(READY));
+    await settledScreen();
+    const key = document.querySelector("[data-sld-key]") as HTMLElement;
+    expect(key).not.toBeNull();
+    const drawn = Array.from(document.querySelectorAll("svg.sld [role='button']"));
+    const entries = Array.from(key.querySelectorAll("[data-sld-key-part]"));
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries.length).toBe(drawn.length);
+    const choice = entries[0].querySelector("button") as HTMLButtonElement;
+    expect(choice.getAttribute("aria-pressed")).toBe("false");
+    fireEvent.click(choice);
+    await settledScreen();
+    const part = entries[0].getAttribute("data-sld-key-part");
+    const again = document.querySelector(`[data-sld-key-part='${part}'] button`) as HTMLButtonElement;
+    expect(again.getAttribute("aria-pressed")).toBe("true");
+    expect(document.querySelectorAll("svg.sld [data-selected]")).toHaveLength(1);
   });
 
   it("R133: the no-version Foundation and Readiness headings name the stored Site, not its code", async () => {

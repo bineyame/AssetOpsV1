@@ -759,6 +759,37 @@ function SldDrawing({
           </li>
         ))}
       </ul>
+      {/* post-W6 shell Q13: scaled to fit a phone column, the drawing's own labels fall below a readable size, so a
+          readable key of the drawn parts follows it. CSS shows it only at phone width; it never widens the drawing.
+          With a selection, each entry chooses the same part as the drawing, by keyboard or pointer. */}
+      <ul className="sld-key" aria-label="Parts in the drawing" data-sld-key="">
+        {diagram.nodes.map((node) => {
+          const rating = ratingText(node);
+          const words = (
+            <>
+              <span data-vocabulary-exempt="user-owned">{node.displayName}</span>
+              {rating ? <span className="sld-key__rating">{` · ${rating}`}</span> : null}
+            </>
+          );
+          const pressed = selection !== null && selection.selected === node.componentId;
+          return (
+            <li key={node.nodeId} className="sld-key__item" data-sld-key-part={node.componentId}>
+              {selection === null ? (
+                words
+              ) : (
+                <button
+                  type="button"
+                  className="link-button sld-key__choice"
+                  aria-pressed={pressed}
+                  onClick={() => selection.onSelect(pressed ? null : node.componentId)}
+                >
+                  {words}
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </>
   );
 }

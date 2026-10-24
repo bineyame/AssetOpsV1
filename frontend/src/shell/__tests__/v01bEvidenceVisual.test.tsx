@@ -355,6 +355,11 @@ describe("V-01b Site Evidence analysis", () => {
     expect(client.recordKeys.at(-1)).toBe(EVIDENCE_UUID);
     const detail = document.querySelector(`[data-record-detail='${EVIDENCE_UUID}']`) as HTMLElement;
     expect(detail.textContent).toContain("Exact message as received");
+    // post-W6 shell Q23: the opened reading sits in a keyboard-focusable inner scroll region.
+    const body = detail.closest(".evidence-record-view__body") as HTMLElement;
+    expect(body.getAttribute("role")).toBe("region");
+    expect(body.getAttribute("tabindex")).toBe("0");
+    expect(body.getAttribute("aria-label")).toBe("Reading detail");
     // W1-F5b review M3: ids, fingerprints, source codes and the raw message sit in ONE closed disclosure; the body is plain words.
     const refs = detail.querySelectorAll("details");
     expect(refs).toHaveLength(1);

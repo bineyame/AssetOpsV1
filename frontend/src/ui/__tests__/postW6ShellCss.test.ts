@@ -52,4 +52,22 @@ describe("post-W6 shell CSS contracts", () => {
     expect(SLD).toContain("style={{ maxWidth: lattice.width }}");
     expect(SLD).not.toMatch(/\n\s+width=\{lattice\.width\}/);
   });
+
+  it("Q13: the readable SLD key is hidden at desktop and shown at phone width", () => {
+    expect(block(CSS, ".sld-key")).toContain("display: none;");
+    const media = CSS.indexOf("@media (max-width: 640px) {\n  .sld-key {");
+    expect(media).toBeGreaterThanOrEqual(0);
+    const rule = block(CSS, "  .sld-key", media);
+    expect(rule).toContain("display: flex;");
+    expect(rule).toContain("font-size: 12px;");
+  });
+
+  it("Q23: long Identity values stack full width; the opened reading scrolls inside itself; phone rows wrap wider", () => {
+    expect(block(CSS, ".v69-key-values > div[data-key-value-wide] > dd")).toContain("grid-column: 1 / -1;");
+    expect(block(CSS, ".v69-key-values > div[data-key-value-wide] > dt")).toContain("grid-column: 1 / -1;");
+    const body = block(CSS, ".evidence-record-view__body");
+    expect(body).toContain("max-height: 26rem;");
+    expect(body).toContain("overflow-y: auto;");
+    expect(block(CSS, '  [data-evidence-inspector] tbody th[scope="row"]')).toContain("min-width: 15rem;");
+  });
 });
