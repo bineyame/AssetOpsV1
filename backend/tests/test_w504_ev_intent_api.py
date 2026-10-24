@@ -120,3 +120,124 @@ def test_ev_detail_and_index_wire(ev) -> None:
             "EV_CHARGING", "OPEN", "A complete witnessed session and no repeat fault")
     finally:
         api.close()
+
+
+# ==== W5-04a V1b producer (round 3): K0 route/shape and clock refusal (readiness 29) ==============================
+# Separate from the two tests above. Drives the non-test producer library `tools/w504_ev_work_cases.py` against the
+# real EV routes over W2-05b's `interrupted` replay (the merged registered path; the shifted EV-W504-DEPOT replay is
+# blocked, questions Q8-Q10).
+
+if URL:
+    import sys as _sys
+    from datetime import timedelta as _timedelta
+    from pathlib import Path as _Path
+    from types import SimpleNamespace as _NS
+
+    _sys.path.insert(0, str(_Path(__file__).resolve().parents[2] / "tools"))
+    import w504_ev_work_cases as producer  # noqa: E402
+
+    from ev_depth_cases import HI, LO  # noqa: E402
+
+
+def _ev_reads(ev):
+    from assetops_backend.analytics.composition import build_ev_read_service
+    from assetops_backend.ev_assessment_api import build_ev_assessment_router
+    from assetops_backend.ev_scenarios.service import EvScenarioService
+    from assetops_backend.ev_scenarios.store import PostgresEvScenarioStore
+    from assetops_backend.ev_scenarios_api import build_ev_scenarios_router
+    from assetops_backend.financials.composition import build_ev_site_read_service
+
+    site = _NS(id=ev.s, site_type="EV_CHARGING")
+    registry = _NS(imported=lambda code: site if code.upper() == ev.code else None,
+                   tenant=lambda: _NS(id=ev.t))
+    reads, site_reads = build_ev_read_service(URL), build_ev_site_read_service(URL)
+    store = PostgresEvScenarioStore.from_url(URL)
+    app = FastAPI()
+    app.include_router(build_ev_assessment_router(registry, reads))
+    app.include_router(build_ev_scenarios_router(registry, EvScenarioService(store, reads, site_reads)))
+    client = TestClient(app)
+
+    def get(path, params):
+        response = client.get(path, params=params)
+        return response.status_code, response.json()
+
+    def close():
+        for closing in (reads.dispose, site_reads.dispose, store.dispose):
+            try:
+                closing()
+            except Exception:  # noqa: BLE001 - teardown keeps going
+                pass
+    return get, close
+
+
+def test_producer_k0_route_shape_and_positive_payloads(ev) -> None:
+    """Readiness 29: K0 is the public `/ev/financials/scenarios` `window.committed_watermark` (no `known_at`), equal
+    to the `/ev/sessions` `window.known_at` with the same bounds; the Finding/session come from that window; the
+    producer's exact Action/intent bodies are accepted by the public domain-work routes."""
+    own, valid = members(ev)
+    get, close = _ev_reads(ev)
+    api = Api(ev)
+    try:
+        status, scenarios = get(f"/api/sites/{ev.code}/ev/financials/scenarios",
+                                {"from": producer.text_of(LO), "to": producer.text_of(HI)})
+        assert status == 200, scenarios
+        assert set(scenarios["window"]) == {"from", "to", "known_at", "committed_watermark"}
+        status, sessions = get(f"/api/sites/{ev.code}/ev/sessions",
+                               {"from": producer.text_of(LO), "to": producer.text_of(HI)})
+        assert status == 200, sessions
+        assert "committed_watermark" not in sessions["window"]
+        selected = producer.read_k0(get, ev.code, LO, HI)
+        assert selected.k0 == producer.instant(scenarios["window"]["committed_watermark"])
+        assert selected.k0 == producer.instant(sessions["window"]["known_at"])
+        assert (selected.finding_revision_id, selected.session_id.lower()) == (str(ev.revision["id"]), own.lower())
+        assert selected.accepted_evidence_ids and set(selected.accepted_evidence_ids) <= {v.lower() for v in valid}
+        raised = selected.k0 + _timedelta(seconds=1)
+        action = api.post("", producer.action_body(selected, raised, "w504a-producer-action"))
+        assert action.status_code == 201, action.text
+        body = action.json()
+        assert (body["title"], body["owner_label"], body["due_at"]) == (
+            "Investigate connector 2", "Charging operations", None)
+        declared = producer.instant(body["recorded_at"])
+        intent = api.post(f"/{body['id']}/intents", producer.intent_body(
+            selected, selected.finding_revision_id, declared, "w504a-producer-intent"))
+        assert intent.status_code == 201, intent.text
+        stored = intent.json()["basis"]
+        assert stored["session_ids"] == [selected.session_id.lower()]
+        assert stored["accepted_evidence_ids"] == sorted(selected.accepted_evidence_ids)
+        assert (stored["work_case_id"], stored["work_record_id"]) == (None, None)
+    finally:
+        api.close()
+        close()
+
+
+def test_producer_refuses_mismatched_window_or_clock(ev) -> None:
+    """Readiness 29: a session list read at another cutoff (explicit earlier `known_at`) or other bounds refuses
+    preparation; the producer never substitutes a clock."""
+    get, close = _ev_reads(ev)
+    try:
+        bounds = {"from": producer.text_of(LO), "to": producer.text_of(HI)}
+        _, scenarios = get(f"/api/sites/{ev.code}/ev/financials/scenarios", bounds)
+        k0 = producer.instant(scenarios["window"]["committed_watermark"])
+        earlier = producer.iso(k0 - _timedelta(seconds=30))
+        status, historical = get(f"/api/sites/{ev.code}/ev/sessions", {**bounds, "known_at": earlier})
+        # Either the selector answers the earlier cutoff (its known_at is then not K0) or it refuses that read;
+        # in both cases the producer cannot prepare from it.
+        assert status in (200, 404, 409, 422), historical
+        if status == 200:
+            assert producer.instant(historical["window"]["known_at"]) != k0
+            with pytest.raises(producer.ProducerRefused):
+                producer.cross_check_k0(scenarios, historical, LO, HI)
+        _, current = get(f"/api/sites/{ev.code}/ev/sessions", bounds)
+        assert producer.cross_check_k0(scenarios, current, LO, HI) == k0
+        with pytest.raises(producer.ProducerRefused):
+            producer.cross_check_k0(scenarios, current, LO, HI + _timedelta(hours=1))
+
+        def shifted(path, params):  # a sessions read answering another window than the one requested
+            status, body = get(path, params)
+            if path.endswith("/ev/sessions"):
+                body = {**body, "window": {**body["window"], "to": producer.iso(HI + _timedelta(minutes=5))}}
+            return status, body
+        with pytest.raises(producer.ProducerRefused):
+            producer.read_k0(shifted, ev.code, LO, HI)
+    finally:
+        close()
