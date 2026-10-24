@@ -1,16 +1,16 @@
 # V69 mock departure register
 
-Architect classification, 2026-10-23. Counts below count distinct screen/element rulings, including resolved temporary and withdrawn rulings; repeated mentions of one ruling in a spec are one row. A proposed D3 correction is a merge gate under `.ai/ROLE_CONFIG.md`, not an accepted exception. `planned` means specified but not proven built here.
+Architect classification, 2026-10-24. Distinct register rows: 109; open 103, resolved 5, withdrawn 1. Proposed audit classifications are recorded below; D3 remains open until a reviewed fix and paired recapture.
 
 | Category | Count |
 | --- | ---: |
-| D1 data or feature unavailable | 31 |
-| D2 improvement | 24 |
-| D3 structural oversight | 6 |
-| D4 illustrative placeholder | 28 |
+| D1 data or feature unavailable | 119 |
+| D2 improvement | 61 |
+| D3 structural oversight | 137 |
+| D4 illustrative placeholder | 47 |
 | D5 build order | 5 |
 | D6 technical constraint | 0 |
-| **Total** | **94** |
+| **Total** | **369** |
 
 ## D1 — data or feature unavailable
 
@@ -20,48 +20,48 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 | R02 | W5-02 K2a M4 | `cold-work` | Actions strip says same as global list and offers Manage | Cold-only scope text; global gap | D1 | W3 global Actions excludes cold roots. | Future cross-domain global Actions union | planned |
 | R03 | W5-04 V2a/V3a E1 | `ev-work`, `ev-work-incidents`, `ev-work-maintenance` | Work notice promises global create | First sentence only | D1 | No operator create flow exists. | W5-04 V2a/V3a; future global Work create flow | planned |
 | R04 | W5-04 V2a E4 | `ev-work` | Actions strip says same as global list and offers Manage | EV-only scope text; global gap | D1 | W3 global Actions excludes EV roots. | W5-04 V2a; future cross-domain global Actions union | planned |
-| R05 | W5-01 C2 | `cold-cooling` | Recovery temperature curves | Chart frame and selected categorical marks; no curve | D1 | Selected records have no accepted numeric recovery series. | Future selected recovery-series producer | planned |
+| R05 | W5-01 C2 | `cooling` | Recovery temperature curves | Chart frame and selected categorical marks; no curve | D1 | Selected records have no accepted numeric recovery series. | Future selected recovery-series producer | planned |
 | R06 | W5-03 E3 | `energy` | Continuous import-power line | Selected sample marks and declared limit; no connecting path | D1 | Accepted samples do not establish continuous coverage. | Future coverage-capable EV evidence read | planned |
 | R07 | W6-01 B2 | `maintenance` | Lifecycle notice describes active follow-up | Activity recorded, outcome unverified | D1 | No work-outcome evaluator or follow-up path exists. | Future work-outcome evaluator | planned |
 | R08 | W6-01 B3 | `maintenance-preventive` | Overdue badge and due cards | Due status not assessed | D1 | Authored due dates do not prove an operating schedule or evaluator. | Future due evaluator | planned |
 | R09 | W6-01 B3 | `maintenance-preventive` | Assets link in status strip and asset cells | Unavailable Assets control; plain asset label | D1 | General Assets destination is not mounted. | Future global Assets route | planned |
 | R10 | W6-01 B3 | `maintenance-preventive` | Monthly/Quarterly trigger and due-state badges | Calendar/running-hours fact and Draft | D1 | W4 has no recurrence rule or due evaluator. | Future preventive schedule model | planned |
 | R11 | W6-01 B3 | `maintenance-preventive` | Footer says completing a plan creates maintenance record | Completion unavailable; performed record is separate | D1 | No plan-completion command exists. | Future plan completion flow | planned |
-| R12 | W6-01 E2 | `oprecords` | Manual-reading submission promise | Inert form and submission unavailable text | D1 | No authorized operator submission service exists. | Future operator record command | built: W6-01 E2 `173cfc73`; review pending |
+| R12 | W6-01 E2 | `oprecords` | Manual-reading submission promise | Inert form and submission unavailable text | D1 | No authorized operator submission service exists. | Future operator record command | built: W6-01 E2 `173cfc73`; audit verified |
 | R35 | W4-01 B1; W2-04 | `cold-work`, `ev-work`, `cold-financials` | Global Work create flow and mock repair/stock money | Unavailable create destination and unpriced exposure gap | D1 | No operator create flow or declared stock-value/repair source supports those claims. | Future Work command and cold valuation units | built |
 | R36 | W2-05a QM–QP | `ev-sld`, `ev-readiness` | Load manager, breakers, feeder meters, investigation Action | Unknown equipment slots and unavailable Action entry | D1 | These components and Action are undeclared/unbuilt. | Future EV Foundation and Action units | built |
 | R41 | W6-01 C4 | `wr-history` | `Site visit started` (row 3) and `Verification pending` (row 5) in the authored chronology | Two in-table gaps, `Site visit start not recorded` and `Verification pending · no outcome assessment recorded`, with `—` in Time/By after the last authored row on the last page only | D1 | W4 has no selected site-visit event or work-outcome assessment; inserting undated gaps at the mock positions would imply an unsupported sequence among authored events. | Future site-visit event and work-outcome evaluator | planned |
 | R51 | W5-03 E3 | `energy` | `Stationary battery: Not configured` conclusion value | `Unknown` and the Foundation limitation | D1 | The merged EV Foundation cannot declare battery presence or absence. | Future EV battery configuration; W5-03 E3 gap | planned |
-| R56 | W5-03 E4 | `ev-health` | Stationary battery `Not applicable` / `None installed` | Always `Unknown` / `Battery configuration is not established by this Foundation.` | D1 | The merged EV Foundation cannot declare stationary storage present or absent. | Future EV battery configuration; W5-03 E4 | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), review pending |
+| R56 | W5-03 E4 | `ev-health` | Stationary battery `Not applicable` / `None installed` | Always `Unknown` / `Battery configuration is not established by this Foundation.` | D1 | The merged EV Foundation cannot declare stationary storage present or absent. | Future EV battery configuration; W5-03 E4 | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), built; audit verified |
 
 ## D2 — improvement on the mock; flag at walkthrough
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| R13 | W5-01 C2/C3 | `cold-cooling`, `cold-health` | No currentness notice | Amber pending/stale/historical/unknown notice | D2 | Explicit selection state prevents a stale reading appearing current. | W5-01 C2/C3, owner walkthrough | planned |
+| R13 | W5-01 C2/C3 | `cooling`, `cold-health` | No currentness notice | Amber pending/stale/historical/unknown notice | D2 | Explicit selection state prevents a stale reading appearing current. | W5-01 C2/C3, owner walkthrough | planned |
 | R14 | W5-01 C3 | `cold-health` | No condition ceiling notice | Amber condition/evidence limit notice | D2 | Fault/start evidence must not look like a physical diagnosis. | W5-01 C3, owner walkthrough | planned |
 | R15 | W5-03 E2/E3/E4/E6 | `availability`, `energy`, `ev-health`, `ev-scenarios` | No live-selection notices | Amber cutoff/currentness/pending notices | D2 | Selected read state needs visible qualification. | W5-03 E2–E6, owner walkthrough | planned |
-| R16 | W5-03 E4 | `ev-health` | No condition ceiling notice | Amber condition/evidence limit notice | D2 | Session/fault rows are not a charger diagnosis. | W5-03 E4, owner walkthrough | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), review pending |
+| R16 | W5-03 E4 | `ev-health` | No condition ceiling notice | Amber condition/evidence limit notice | D2 | Session/fault rows are not a charger diagnosis. | W5-03 E4, owner walkthrough | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), audit verified |
 | R17 | W6-01 A2 | `incidents` | Static source text | Selected-provenance disclosure | D2 | Exact source detail stays available without crowding the 390px table. | W6-01 A2, owner walkthrough | planned |
 | R18 | W6-01 A2 | `incidents` | No adjustable cutoff control | URL-preserved explicit `known_at` only | D2 | Explicit historical links are reproducible without a misleading arbitrary selector. | W6-01 A2, owner walkthrough | planned |
 | R19 | W6-01 C4 | `wr-history` | Short minute-only Time | UTC year and seconds; occurrence disclosure | D2 | One-second real events otherwise look tied. | W6-01 C4, owner walkthrough | planned |
-| R20 | W1/W2 decision | `temperature`, `cold-finding` | Claim boundary / Power-to-load wording | Plain-language limit and compressor-response headings | D2 | Terms identify the actual cold-chain meaning more clearly. | W2-03; owner W2 walkthrough | built |
+| R20 | W1/W2 decision | `temperature`, `coldbackup`, `cold-finding` | Claim boundary / Power-to-load wording | Plain-language limit and compressor-response headings | D2 | Terms identify the actual cold-chain meaning more clearly. | W2-03; owner W2 walkthrough | built |
 | R21 | W1 decision | Site/Finding/Work/Financials subtab screens | Mock live entries for unbuilt destinations | Visible noninteractive Not available yet entries | D2 | Preserves menu placement and prevents false navigation. | W1 F5; owner W1 walkthrough | built |
 | R46 | W5-03 E3 | `energy` | Import chart only | Chart followed by a collapsed `Measure`/`Value` detail disclosure | D2 | Exact sample facts remain keyboard and screen-reader accessible within the measured panel cap; an always-open table exceeded the cap. | W5-03 E3; owner walkthrough | planned |
 | R49 | W5-03 E3 | `energy` | No separate partial/unknown coverage disclosures under the cards | Selected partial-kWh and unknown-duration disclosure lines | D2 | Keeps incomplete meter evidence visible beside the summary without replacing any mock panel. | W5-03 E3; owner walkthrough | planned |
-| R27 | W5-03 E6 | `ev-scenarios` | Empty placeholder block inside `Financial scenarios` | Persisted authored rows replace that empty block only when items exist | D2 | A real authored list makes the mock's designed empty state useful after a scenario is defined; no observed outcome is implied. | W5-03 E5/E6; owner walkthrough | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), review pending |
-| R58 | W5-03 E4 | `ev-health` | Two condition-table rows: fault connector and Site meter | Optional third row for another selected connector with an honest no-assessment statement | D2 | The selected Foundation may include another connector that needs visible coverage. | W5-03 E4; owner walkthrough | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), review pending |
+| R27 | W5-03 E6 | `ev-scenarios` | Empty placeholder block inside `Financial scenarios` | Persisted authored rows replace that empty block only when items exist | D2 | A real authored list makes the mock's designed empty state useful after a scenario is defined; no observed outcome is implied. | W5-03 E5/E6; owner walkthrough | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), audit verified |
+| R58 | W5-03 E4 | `ev-health` | Two condition-table rows: fault connector and Site meter | Optional third row for another selected connector with an honest no-assessment statement | D2 | The selected Foundation may include another connector that needs visible coverage. | W5-03 E4; owner walkthrough | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), built; audit verified |
 
 ## D3 — structural oversight; correct before merge
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| R22 | W5-01 C3 | `cold-health` | Mock ends after Condition and evidence | Additional Data sources panel | D3 | A faithful alternative exists: keep cold Health panel set and point Foundation Data sources to the existing `cold-evidence` source panel. | W5-F1 F1-1: remove added panel and fix fragment destination; re-review | built: W5-F1 f0812934 |
-| R60 | W5-03 E4 | `ev-health` | Mock ends after Condition and evidence | Proposed additional S7 Data sources panel, withdrawn before build | D3 | Same structural oversight as R22; retain the sole mock panel and point Foundation at `/sites/{code}/ev/evidence#ev-site-sources-heading`. | W5-03 E4 correction and review | corrected in spec; never ship extra panel |
+| R22 | W5-01 C3 | `cold-health` | Mock ends after Condition and evidence | Additional Data sources panel | D3 | A faithful alternative exists: keep cold Health panel set and point Foundation Data sources to the existing `cold-evidence` source panel. | W5-F1 F1-1: remove added panel and fix fragment destination; re-review | resolved: W5-F1 f0812934; audit verified |
+| R60 | W5-03 E4 | `ev-health` | Mock ends after Condition and evidence | Proposed additional S7 Data sources panel, withdrawn before build | D3 | Same structural oversight as R22; retain the sole mock panel and point Foundation at `/sites/{code}/ev/evidence#ev-site-sources-heading`. | W5-03 E4 correction and review | withdrawn: corrected before build |
 | R23 | W5-02 K3a M5 withdrawn | `cold-work-incidents` | Site-local Window date/time | Fixed EAT/UTC formatting was proposed | D3 | `SiteDetailReadModel.timezone` already exists. Correct with `siteWindowText(occurred_at, site.timezone)` and two-zone/date-boundary tests. | W5-02 K3a | resolved |
 | R24 | W5-04 V3a E5 withdrawn | `ev-work-incidents` | Site-local Window date/time | Fixed UTC/offset formatting was proposed | D3 | Stored EV Site timezone already exists. Reuse K3a `siteWindowText` and test both zones/date boundary. | W5-04 V3a | resolved |
-| R37 | W2-03 retro correction | `cold-performance` | Loading / batch row | Row was omitted in first build | D3 | The mock row can be rendered faithfully; restore it in its original order. | W5-F1 F1-2: keep row, prove mock order and capture; re-review | built: W5-F1 42964500 |
-| R38 | W2-03 retro correction | `cold-evidence-analysis` | Exact target record links | Links were offered before target integration proof | D3 | Keep link placement but show labelled references/unavailable state until exact target is proved. | W5-F1 F1-3: remove unproved anchor and capture; re-review | built: W5-F1 89b88a40 |
+| R37 | W2-03 retro correction | `temperature`, `coldbackup` | Loading / batch row | Row was omitted in first build | D3 | The mock row can be rendered faithfully; restore it in its original order. | W5-F1 F1-2: keep row, prove mock order and capture; re-review | resolved: W5-F1 42964500; audit verified |
+| R38 | W2-03 retro correction | `cold-evidence-analysis` | Exact target record links | Links were offered before target integration proof | D3 | Keep link placement but show labelled references/unavailable state until exact target is proved. | W5-F1 F1-3: remove unproved anchor and capture; re-review | resolved: W5-F1 89b88a40; audit verified |
 
 ## D4 — illustrative mock placeholder
 
@@ -69,12 +69,12 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | R25 | W5-01 C5 | `cold-scenarios` | Empty illustrative scenarios only | Persisted authored rows/basis and honest pending state | D4 | Real selected authored facts replace a static example without claiming observed outcome. | W5-01 C4/C5 | planned |
 | R26 | W5-03 E2 | `availability` | Fixed percentages and 08:00/12:00/16:00 axis | Selected spans, derived percentages and window times | D4 | Mock numbers are examples, not accepted Site evidence. | W5-03 E1a/E2 | planned |
-| R57 | W5-03 E4 | `ev-health` | Connector card notes and `Needs attention`/gray/amber values for the illustrative fault pattern | Same positions and tones with selected fault count and honest Unknown when no condition assessment exists | D4 | The mock's normal and single-fault sentences are illustrative; no completed session proves hardware health. | W5-03 E4 | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), review pending |
-| R59 | W5-03 E4 | `ev-health` | Site-meter row says `Power limit respected in observed samples` | Always `Power limit not assessed from selected samples` for a selected `SITE_METER` | D4 | Health DTO carries no peak/limit comparison or interval-wide proof; the mock's positive statement is illustrative. | W5-03 E4; future reviewed Health claim field | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), review pending |
+| R57 | W5-03 E4 | `ev-health` | Connector card notes and `Needs attention`/gray/amber values for the illustrative fault pattern | Same positions and tones with selected fault count and honest Unknown when no condition assessment exists | D4 | The mock's normal and single-fault sentences are illustrative; no completed session proves hardware health. | W5-03 E4 | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), built; audit verified |
+| R59 | W5-03 E4 | `ev-health` | Site-meter row says `Power limit respected in observed samples` | Always `Power limit not assessed from selected samples` for a selected `SITE_METER` | D4 | Health DTO carries no peak/limit comparison or interval-wide proof; the mock's positive statement is illustrative. | W5-03 E4; future reviewed Health claim field | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), built; audit verified |
 | R28 | W6-01 B3 | `maintenance-preventive` | PM-0455/INC-203 narrative | No incident link or cause established | D4 | Selected stored plans have no cited incident relation. | W6-01 B3 | planned |
-| R29 | W6-01 E2 | `oprecords` | Cards 2–4 example counts/REC codes | No publication, review workflow or request list established | D4 | Mock counts and codes are illustrative; selected store cannot substantiate them. | W6-01 E2 | built: W6-01 E2 `173cfc73`; review pending |
-| R30 | W6-01 E2 | `oprecords` | Requested/accepted/in-review example rows and role names | Persisted Submitted heads and stored actor IDs | D4 | W4 stores submitted authored records and actor IDs, not example roles/statuses. | W6-01 E2 | built: W6-01 E2 `173cfc73`; review pending |
-| R31 | W6-01 E2 | `oprecords` | Prose says requested records support conclusions | Two bounded paragraphs on authored records and missing requests | D4 | Requested-record ledger and accepted-evidence link are absent. | W6-01 E2 | built: W6-01 E2 `173cfc73`; review pending |
+| R29 | W6-01 E2 | `oprecords` | Cards 2–4 example counts/REC codes | No publication, review workflow or request list established | D4 | Mock counts and codes are illustrative; selected store cannot substantiate them. | W6-01 E2 | built: W6-01 E2 `173cfc73`; audit verified |
+| R30 | W6-01 E2 | `oprecords` | Requested/accepted/in-review example rows and role names | Persisted Submitted heads and stored actor IDs | D4 | W4 stores submitted authored records and actor IDs, not example roles/statuses. | W6-01 E2 | built: W6-01 E2 `173cfc73`; audit verified |
+| R31 | W6-01 E2 | `oprecords` | Prose says requested records support conclusions | Two bounded paragraphs on authored records and missing requests | D4 | Requested-record ledger and accepted-evidence link are absent. | W6-01 E2 | built: W6-01 E2 `173cfc73`; audit verified |
 | R39 | W6-01 A2 and C4 | `incidents`, `wr-history` | Example incident rows and named people | Selected stored rows; stored actor disclosure or Name not recorded | D4 | Example people and statuses cannot be attributed to selected records. | W6-01 A2/C4 | planned |
 | R42 | W6-01 C4 | `wr-history` | `Marked completed · witness test outstanding` | `Completed · outcome not established · maintenance record {id}`; witness-test text only when authored | D4 | The mock witness-test phrase is illustrative; COMPLETE supplies a maintenance-record ID but no witness-test fact or verified outcome. | W6-01 C4 | planned |
 | R43 | W5-03 E2 | `availability` | `2 connectors × 8 scheduled hours = 16 connector-hours` status text | Same form with selected count/hours, or a truthful varying-schedule/unknown sentence | D4 | Fixed mock count and hours are examples. | W5-03 E1a/E2 | planned |
@@ -92,10 +92,10 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| R32 | W6-01 B2→C2 | `maintenance` | Request row opens Overview | Interim same-window Site maintenance link | D5 | Detail route is mounted by C2. | W6-01 C2 link promotion and review | planned |
-| R33 | W6-01 B2→B3 | `maintenance` | Preventive View detail link | Interim unavailable slot | D5 | Preventive route is mounted by B3. | W6-01 B3 link promotion and review | planned |
-| R34 | W6-01 C3→E2 | `wr-record` | Live Operational records link | Interim plain REC codes | D5 | Operational records route is mounted by E2. | W6-01 E2 link promotion and review | resolved: W6-01 E2 `173cfc73`; review pending |
-| R40 | W2-03→W5-01; W2-06→W5-03 | `cold-performance`, `cold-finding`, `sessions`, `ev-finding` | Cooling, Recommendation, Availability and Energy destinations | Visible Not available yet entries in mock order | D5 | Destinations were built in later W5 units; no early link may point to an unbuilt page. | W5-01/W5-03 route promotion and review | built |
+| R32 | W6-01 B2→C2 | `maintenance` | Request row opens Overview | Interim same-window Site maintenance link | D5 | Detail route is mounted by C2. | W6-01 C2 link promotion and review | resolved: built destination and link verified in audit |
+| R33 | W6-01 B2→B3 | `maintenance` | Preventive View detail link | Interim unavailable slot | D5 | Preventive route is mounted by B3. | W6-01 B3 link promotion and review | resolved: built destination and link verified in audit |
+| R34 | W6-01 C3→E2 | `wr-record` | Live Operational records link | Interim plain REC codes | D5 | Operational records route is mounted by E2. | W6-01 E2 link promotion and review | resolved: W6-01 E2 `173cfc73`; audit verified |
+| R40 | W2-03→W5-01; W2-06→W5-03 | `temperature`, `coldbackup`, `cold-finding`, `sessions`, `ev-finding` | Cooling, Availability and Energy destinations; Recommendation separately D1 | Visible Not available yet entries in mock order | D5 | Cooling/Availability/Energy destinations were built in W5; cold/EV Recommendation remains unbuilt and is D1. Overview card and link promotion remain D3 in this audit. | W5-01/W5-03 route promotion and review | resolved for built depth destinations; remaining link defects tracked as D3 |
 
 ## D6 — technical constraint
 
@@ -157,10 +157,10 @@ Mock selectors are `SITE_WORK.ev`, `WORK_COLS`, `WORK_EMPTY`, `siteWorkScreen('e
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| R95 | W5-03b E4 | `ev-health` | Cards labelled `Connector 1` and `Connector 2` | Selected Foundation `display_name` per `CONNECTOR` row | D4 | Mock names are illustrative; the selected Foundation label identifies the actual configured connector. | E4 | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), review pending |
-| R96 | W5-03b E4 | `ev-health` | Exactly two connector cards, then battery | One card per selected connector, then battery; zero connectors show the Health empty sentence and battery | D2 | The selected Foundation may have zero, one or more than two connectors; hiding configured assets would mislead. | E4; owner walkthrough | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), review pending |
-| R97 | W5-03b E4 | `ev-health` | Site-meter row in `Condition and evidence` | No Site-meter row when the selected meter lacks a Site-import role (`kind:"UNKNOWN"`) | D1 | The meter cannot be identified as a Site meter from the selected binding. | E4; future Site-import binding | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), review pending |
-| R98 | W5-03b E6 | `ev-scenarios` | Empty placeholder panel with no list paging | First page of at most 50 authored rows; a non-null cursor shows `Showing first {items.length} authored scenarios. More exist; later pages are not available in this view.` | D1 | E6 has no later-page control, so the list must disclose its visible limit. | E6; future scenario paging | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), review pending |
+| R95 | W5-03b E4 | `ev-health` | Cards labelled `Connector 1` and `Connector 2` | Selected Foundation `display_name` per `CONNECTOR` row | D4 | Mock names are illustrative; the selected Foundation label identifies the actual configured connector. | E4 | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), audit verified |
+| R96 | W5-03b E4 | `ev-health` | Exactly two connector cards, then battery | One card per selected connector, then battery; zero connectors show the Health empty sentence and battery | D2 | The selected Foundation may have zero, one or more than two connectors; hiding configured assets would mislead. | E4; owner walkthrough | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), audit verified |
+| R97 | W5-03b E4 | `ev-health` | Site-meter row in `Condition and evidence` | No Site-meter row when the selected meter lacks a Site-import role (`kind:"UNKNOWN"`) | D1 | The meter cannot be identified as a Site meter from the selected binding. | E4; future Site-import binding | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), audit verified |
+| R98 | W5-03b E6 | `ev-scenarios` | Empty placeholder panel with no list paging | First page of at most 50 authored rows; a non-null cursor shows `Showing first {items.length} authored scenarios. More exist; later pages are not available in this view.` | D1 | E6 has no later-page control, so the list must disclose its visible limit. | E6; future scenario paging | built: W5-03b E4/E6 (`task/W5-03b-ev-health-ui`), audit verified |
 
 ## W5-02c K4 Action-detail pre-flight refresh (2026-10-24)
 
@@ -175,7 +175,7 @@ Mock selectors are `SITE_WORK.ev`, `WORK_COLS`, `WORK_EMPTY`, `siteWorkScreen('e
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| R103 | W5-03b E4 | `ev-health` | Subtitle `2 × 60 kW connectors · 80 kW site limit · no stationary battery` | `Health · site-level asset-condition summary` | D4 | The mock equipment values describe its illustrative Site and the E4 Health DTO does not supply ratings or battery absence for every selected Foundation. | E4; inform owner | built: W5-03b E4 fix round (label in `EvHealthDepth.tsx`), review pending |
+| R103 | W5-03b E4 | `ev-health` | Subtitle `2 × 60 kW connectors · 80 kW site limit · no stationary battery` | `Health · site-level asset-condition summary` | D4 | The mock equipment values describe its illustrative Site and the E4 Health DTO does not supply ratings or battery absence for every selected Foundation. | E4; inform owner | built: W5-03b E4 fix round (label in `EvHealthDepth.tsx`), audit verified |
 
 ## W5-04 readiness refresh (2026-10-24)
 
@@ -195,7 +195,7 @@ R104–R110 carry the named cold departures to EV without changing the cold rows
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| R111 | W5-04 V2a/V3a/V4a | `ev-work`, `ev-work-incidents`, `ev-work-maintenance`, `ev-action` | Illustrative Depot Charging Hub Site name | Stored EV-LAB-001 display name; `Depot` remains a private manifest label | D4 | The registered unshifted EV replay is bound to EV-LAB-001, and the Site read has no short-name field. | V1b producer, V2a/V3a/V4a presentation | planned; owner walkthrough |
+| R111 | W5-04 V2a/V3a/V4a | `ev-work`, `ev-work-incidents`, `ev-work-maintenance`, `ev-action` | Illustrative Depot Charging Hub Site name | Stored EV-LAB-001 display name; `Depot` remains a private manifest label | D4 | The registered unshifted EV replay is bound to EV-LAB-001, and the Site read has no short-name field. | V1b producer, V2a/V3a/V4a presentation | built; owner approval pending |
 
 ## W5-04 UI readiness additions (2026-10-24)
 
@@ -203,5 +203,272 @@ Mock: `frontend/mockups/v69/index.html:337-343,710-713`. These follow R111, the 
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| R112 | W5-04 V2a/V3a | `ev-work`, `ev-work-incidents`, `ev-work-maintenance` | v69 topbar range picker | Compact page-local `Window` control after subtabs and before scope strip (cold R88) | D1 | The app has no topbar picker; Site-local selection must remain usable. | V2a/V3a; owner walkthrough | planned |
-| R113 | W5-04 V2a/V3a/V4a | `ev-work`, `ev-work-incidents`, `ev-work-maintenance`, `ev-action` | Linked EV Action code opens `ev-action` | EV Action code plain text until V4a mounts EV detail, then live selected link from the Work Action row and both case-row `UTC and IDs` disclosures; carry selected `from`, `to` and explicit `known_at` | D1 | A domain ID would otherwise reach the W1 battery presenter during interim merges; live case links must retain the selected read scope. | V2a/V3a interim; V4a resolves all named screens | closed in W5-04 V4a: `EV_ACTION_LINK_LIVE` is true; the EV Work row code and both case-row `UTC and IDs` Action links open the selected `links.action` (`/verification`) with the selected `from,to` and explicit `known_at` (rulings 67, 69+) |
+| R112 | W5-04 V2a/V3a | `ev-work`, `ev-work-incidents`, `ev-work-maintenance` | v69 topbar range picker | Compact page-local `Window` control after subtabs and before scope strip (cold R88) | D1 | The app has no topbar picker; Site-local selection must remain usable. | V2a/V3a; owner walkthrough | built; audit verified |
+| R113 | W5-04 V2a/V3a/V4a | `ev-work`, `ev-work-incidents`, `ev-work-maintenance`, `ev-action` | Linked EV Action code opens `ev-action` | EV Action code plain text until V4a mounts EV detail, then live selected link from the Work Action row and both case-row `UTC and IDs` disclosures; carry selected `from`, `to` and explicit `known_at` | D1 | A domain ID would otherwise reach the W1 battery presenter during interim merges; live case links must retain the selected read scope. | V2a/V3a interim; V4a resolves all named screens | closed in W5-04 V4a: `EV_ACTION_LINK_LIVE` is true; the EV Work row code and both case-row `UTC and IDs` Action links open the selected `links.action` (`/verification`) with the selected `from,to` and explicit `known_at` (rulings 67, 71) |
+
+## Post-W6 audit Architect rulings (2026-10-24)
+
+Each open D1/D2/D4/D5/D6 row must show `MOCK DEVIATION Dn` beside the affected element, with a short owner note. D2 remains proposed for owner approval at the later walkthrough. D3 is a fix gate and has no accepted label. The evidence/cap ruling is in `post-W6-audit/classification.md` and `fix-slices.md`. W1-F5b overage reasons are registered through these canonical observations and the panel-by-panel cap docket; a past overage alone does not close a current cap miss.
+
+| ID | Audit ID | Screen(s) | Category | Ruling and visible label | Status |
+| --- | --- | --- | --- | --- | --- |
+| R114 | B1-01 | * | D1 | `MOCK DEVIATION D1`: Mock topbar (org path 'Bineyame Operations / Demo estate', Find a screen, Site picker, Window picker, avatar) is absent on every screen at 1440 and 390. | open |
+| R115 | B1-02 | changes,asset | D3 | Fix in shell-typography-copy | open |
+| R116 | B1-03 | * | D2 | `MOCK DEVIATION D2`: At 390 the app shows a 92 px dark brand band with a Menu button where the mock shows a white topbar (org path, Site picker, Window, avatar) and hides the rail. | open |
+| R117 | B1-04 | * | D1 | `MOCK DEVIATION D1`: Rail: Assets and Settings show 'Not available yet' (mock live); mock rail footer 'Demo workspace / 3 sites - illustrative records' absent; 'Open Simulator Lab' vs mock 'Simulator Lab'. | open |
+| R118 | B1-05 | foundation,readiness,sld,changes,asset,sites | D2 | `MOCK DEVIATION D2`: W1 state-line pattern: status strip carries version select, 'As of', 'How this was worked out', and panels close with 'Advanced details'/'Technical details' disclosures; mock strips are one  | open |
+| R119 | B1-06 | readiness,sites,sld,changes,asset | D3 | Fix in shell-typography-copy | open |
+| R120 | B1-07 | sites,foundation,sld,asset,readiness | D3 | Fix in shell-typography-copy | open |
+| R121 | B1-10 | sites | D1 | `MOCK DEVIATION D1`: Sub-tab row Directory / Add site - form / From template / Batch upload / Setup history is absent; app shows a 'Create a site in the Simulator Lab' button instead, with no 'Not available yet' | open |
+| R122 | B1-11 | sites | D4 | `MOCK DEVIATION D4`: Type chips: All sites, Mini-grid only (mock adds Cold-chain, EV charging). | open |
+| R123 | B1-12 | sites | D1 | `MOCK DEVIATION D1`: Metric cards Needs attention and Evidence limited read 'Not available' with a reason, where the mock shows counts. | open |
+| R124 | B1-13 | sites | D1 | `MOCK DEVIATION D1`: Site inventory columns: mock Assessment / Top issue / Evidence / Last analysed are collapsed into one 'Operating view: Not available yet' column; app adds Setup details (disclosure) and Acti | open |
+| R125 | B1-14 | sites,foundation | D3 | Fix in shell-typography-copy | open |
+| R126 | B1-15 | sites | D1 | `MOCK DEVIATION D1`: In setup: header buttons (+ Form, From template, Batch upload) absent; columns Created by / State / Next step / Created replaced by Lifecycle; closing 'Setup progress not available' line. | open |
+| R127 | B1-16 | sites | D3 | Fix in shell-typography-copy | open |
+| R128 | B1-20 | foundation | D2 | `MOCK DEVIATION D2`: Panel title 'Identity and operating obligations' vs mock 'Identity & operating obligations'. Approved in W1-F1, but there is no register row. | open |
+| R129 | B1-21 | foundation | D3 | Fix in shell-typography-copy | open |
+| R130 | B1-22 | foundation | D3 | Fix in shell-typography-copy | open |
+| R131 | B1-23 | foundation | D1 | `MOCK DEVIATION D1`: Control table: 5 rows vs 4 (adds Critical service order); Evidence/change cells are plain text where the mock has links (Published policy, Review proposed change, Constraint evidence, See ac | open |
+| R132 | B1-24 | foundation | D2 | `MOCK DEVIATION D2`: The working 'Change the battery reserve' form (intro, two fields, Publish) and 'Advanced details' sit inside Time-valid control configuration, which is not drawn in the mock. Panel is 2.64x  | open |
+| R133 | B1-25 | foundation,readiness | D3 | Fix in shell-typography-copy | open |
+| R134 | B1-30 | readiness | D4 | `MOCK DEVIATION D4`: Panel title 'Gateway status - edge-kobo-001' vs mock 'GW-MG-01' (dynamic from the selected read; approved in W1-F1). No-version title 'Gateway status - No gateway selected'. | open |
+| R135 | B1-31 | readiness | D1 | `MOCK DEVIATION D1`: Readiness table: last column 'Next step' vs mock 'Owner'; 6 areas vs 5, with different area names; three note lines and a disclosure under the table (1.63x/1.99x). | open |
+| R136 | B1-32 | readiness | D1 | `MOCK DEVIATION D1`: Gateway panel: the contact timeline bar and legend are absent; Availability and Data completeness read 'Not available'; app adds a Registered gateway/Registration/Central contact block and a | open |
+| R137 | B1-40 | sld | D1 | `MOCK DEVIATION D1`: Panel title 'Kobo mini-grid' with no '- AC-coupled mini-grid' suffix; the subtitle says 'Topology type not stated in this version'. The W1-F1 packet recorded the title '{site name} - {site t | open |
+| R138 | B1-41 | sld | D1 | `MOCK DEVIATION D1`: Protection (CBs), feeder kWh meters, the Monitoring & communication row and reporting-status dots are absent; each part reads 'Readings not assessed here'; legend DC/AC/Fuel vs mock AC/DC/Mo | open |
+| R139 | B1-42 | sld | D1 | `MOCK DEVIATION D1`: 'What each part does' columns are Part / Type / Declared rating / Channels with 10 per-part rows, against mock Part / Role at this site / What it reports with 4 grouped rows. | open |
+| R140 | B1-43 | sld | D3 | Fix in shell-typography-copy | open |
+| R141 | B1-55 | changes | D3 | Fix in shell-typography-copy | open |
+| R142 | B1-51 | changes | D1 | `MOCK DEVIATION D1`: No-selection and unknown-ID states: an amber notice 'No change selected... no list of Foundation changes yet' and two panels with one-line gap statements; the mock has a strip, 4 KPI cards,  | open |
+| R143 | B1-60 | asset | D1 | `MOCK DEVIATION D1`: Asset-rooted chrome absent: the mock has the Assets rail entry active, breadcrumb Assets > BAT-001 > Health, asset tabs (Overview, Health, Performance, Configuration, Work, Evidence, Warrant | open |
+| R144 | B1-61 | asset | D2 | `MOCK DEVIATION D2`: Panel 3 title 'Condition evidence and its limits' vs mock 'Condition evidence and claim boundary'. | open |
+| R145 | B1-62 | asset | D1 | `MOCK DEVIATION D1`: Reserve exposure and Power stress read 'Not available'; the weekly breach bars are absent (a KV list stands in); KPI top-border tones are absent. | open |
+| R146 | B1-63 | asset | D1 | `MOCK DEVIATION D1`: Interpretation: 3 numbered missing inputs vs 2 actions; 'Create test action' and 'Review capability gap' links absent (capacity-test action stated unavailable). 1.31x at 390. | open |
+| R147 | B1-64 | asset | D1 | `MOCK DEVIATION D1`: Warranty callout replaced by 'Unknown here means not yet measurable... Back to Health'; 'Technical details' disclosure added. | open |
+| R148 | B1-65 | asset | D4 | `MOCK DEVIATION D4`: h1 'Battery energy storage' (Foundation display name) vs 'Kobo battery'; subtitle has no asset code (mock BAT-001). | open |
+| R149 | B1-66 | asset | D3 | Fix in shell-typography-copy | open |
+| R150 | B1-52 | changes | D1 | `MOCK DEVIATION D1`: Applied state: table header 'After' vs mock 'Proposed'; 2 rows (Battery reserve, Foundation version) vs 4; the Target and Guardrails cards read 'Not recorded yet' and Outcome reads 'No verif | open |
+| R151 | B1-53 | changes | D3 | Fix in shell-typography-copy | open |
+| R152 | B1-54 | changes | D3 | Fix in shell-typography-copy | open |
+| R153 | B2-02 | mini, evidence, evidence-analysis, dispatch, analysis | D1 | `MOCK DEVIATION D1`: Page-local period controls replace the topbar Window: mini 'UTC day' + Previous/Next day; evidence From/To (UTC) + Show this period/Show all readings; evidence-analysis adds an 'Assessment d | open |
+| R154 | B2-05 | mini, evidence, dispatch, analysis, health | D1 | `MOCK DEVIATION D1`: Status strip content differs: mock shows assessment chips (Needs attention, Confidence: Low, Evidence limited, Asset assessment: Watch) and a right-aligned link (Inspect evidence / Portfolio | open |
+| R155 | B2-06 | mini | D4 | `MOCK DEVIATION D4`: Page subtitle: mock '60 kWp PV · 200 kWh battery · 40 kW genset · residential, clinic & grain mill'; app 'Overview · operating objectives for the selected period'. | open |
+| R156 | B2-07 | mini | D3 | Fix in W1-mini-Action | open |
+| R157 | B2-08 | mini | D3 | Fix in W1-mini-Action | open |
+| R158 | B2-09 | mini | D1 | `MOCK DEVIATION D1`: 'What happened in the selected hour': mock is a 5-event hour timeline with a conclusion sentence and a panel-head 'Open Dispatch' link; app reads a whole UTC day (single period, 'Hour not se | open |
+| R159 | B2-10 | mini | D3 | Fix in W1-mini-Action | open |
+| R160 | B2-11 | mini | D4 | `MOCK DEVIATION D4`: Needs attention: mock 3 numbered items each with a destination link; app 1 Finding item + overlap line + disclosure; at 1440 stretched to the Operating context row height (1.39-1.60x). | open |
+| R161 | B2-12 | mini | D2 | `MOCK DEVIATION D2`: Bounded money consequence: amount format '0.00 to 15.82 USD' vs mock '$3.31-3.97'; the link is in the panel head ('Open fuel cost') vs in the body ('Open financial bridge'); app adds a chip, | open |
+| R162 | B2-13 | mini | D1 | `MOCK DEVIATION D1`: Next step: mock primary button 'Review recommendation'; app secondary 'Open the Finding' button + 'Open this day in Dispatch' link. | open |
+| R163 | B2-14 | mini | D2 | `MOCK DEVIATION D2`: App adds a closed bottom disclosure 'Site record: identity, provenance and actions' that the mock lacks. | open |
+| R164 | B2-15 | mini | D3 | Fix in W1-mini-Action | open |
+| R165 | B2-16 | evidence | D1 | `MOCK DEVIATION D1`: 'What we can conclude now': mock is a 5-row capability table (Capability / Evidence chip / What we can say / What is missing / Next step links); app shows readings-arrived bars, notes and 'N | open |
+| R166 | B2-17 | evidence, health | D1 | `MOCK DEVIATION D1`: Data sources: mock per-source table (Status at window end / Quality chip / What it provides / Affects); evidence app = 3 status-fact rows + table (Accepted in period / Latest taken / Latest  | open |
+| R167 | B2-18 | evidence | D1 | `MOCK DEVIATION D1`: 'Most useful next evidence': mock is a ranked 3-item list with action links; app shows 'Not available yet: ranking ...' and a factual list of sources with no accepted reading (0.60-0.72x). | open |
+| R168 | B2-19 | evidence | D1 | `MOCK DEVIATION D1`: The bottom notice drops the mock's first sentence ('Each next step can become a managed action'), keeping only 'Record-level detail ... on Evidence > Analysis'. The page description reads 'a | open |
+| R169 | B2-20 | evidence-analysis | D2 | `MOCK DEVIATION D2`: The panel 2 title reads 'How each limit is set'; the mock has 'How a claim limit is set'. This follows coordinator ruling 2026-10-17 (APPROVED_TITLE_CHANGES, W1-F2), which has no register ro | open |
+| R170 | B2-21 | evidence-analysis | D3 | Fix in shell-typography-copy | open |
+| R171 | B2-22 | evidence-analysis | D3 | Fix in W1-mini-Action | open |
+| R172 | B2-23 | dispatch, analysis | D2 | `MOCK DEVIATION D2`: A third tab row 'Overview / Analysis' sits under the Performance subtabs. The mock has no such row: dispatch reaches analysis through 'How this was worked out', and the mock's analysis is a  | open |
+| R173 | B2-24 | dispatch | D2 | `MOCK DEVIATION D2`: Metric card labels read 'Needed / Possibly avoidable / Cannot determine'; the mock has 'Candidate avoidable / Necessary / Indeterminate'. | open |
+| R174 | B2-25 | dispatch | D1 | `MOCK DEVIATION D1`: Sources and 15-minute blocks: the mock has a kW chart and 4 equal block tiles; the app has a generator bar, legend, chip, a 22-30 tile block grid and 2 disclosures. Measured 1.13-1.20x at 14 | open |
+| R175 | B2-26 | dispatch | D1 | `MOCK DEVIATION D1`: Selected block: the mock has key/value rows with OBSERVED/DECLARED provenance tags, a 'How this was worked out' button and 'Open F-104'. The app has bullets, period facts and 'See how the re | open |
+| R176 | B2-27 | dispatch | D1 | `MOCK DEVIATION D1`: The mock's amber notice between the panel pair and Coverage ('generator supplied useful battery charging ... not a demonstrated net saving') is absent. The DispatchSlots 'between' slot exist | open |
+| R177 | B2-28 | dispatch | D1 | `MOCK DEVIATION D1`: Accepted sample coverage columns are Input / Set up / Accepted readings / Not good quality (11 rows + 'Show all 11 inputs'); the mock has Input / Endpoint support / What the samples cover /  | open |
+| R178 | B2-29 | dispatch | D3 | Fix in W1-mini-Action | open |
+| R179 | B2-30 | analysis | D1 | `MOCK DEVIATION D1`: Context: the mock `analysis` is the Finding F-104 Analysis tab (Findings breadcrumb, Finding title, Finding tabs, 'Open site'). The app renders the same three-panel grid as Site Performance  | open |
+| R180 | B2-32 | analysis | D1 | `MOCK DEVIATION D1`: Constraint comparison: the app columns are Block (UTC) / Outcome / Demand / Spare capacity / Recorded reason (1 or 30 rows) plus three explanation cards; the mock has Observed-declared input | open |
+| R181 | B2-33 | analysis | D1 | `MOCK DEVIATION D1`: Bounded fuel calculation: the mock shows a monospace calculation block; the app shows 'Not yet available ... no fuel quantity, saving or money claim'. | open |
+| R182 | B2-34 | analysis | D1 | `MOCK DEVIATION D1`: Coverage, confidence and alternatives: the mock has an Issue / Evidence interpretation / Effect table (4 rows) and a footer notice; the app has a key/value list, a versions list and a disclo | open |
+| R183 | B2-35 | health | D1 | `MOCK DEVIATION D1`: Physical asset condition: the app shows 1 battery row against the mock's 3 assets (battery, generator, inverter). The app's 'Open findings' and 'Open work' read 'Not recorded'; it adds a lea | open |
+| R184 | B3-01 | finding, finding-evidence, finding-history | D3 | Fix in W1-mini-Action | open |
+| R185 | B3-02 | finding, finding-evidence, finding-history | D3 | Fix in W1-mini-Action | open |
+| R186 | B3-03 | finding, finding-evidence, finding-history | D3 | Fix in W1-mini-Action | open |
+| R187 | B3-04 | finding | D3 | Fix in W1-mini-Action | open |
+| R188 | B3-05 | finding | D3 | Fix in W1-mini-Action | open |
+| R189 | B3-06 | finding | D3 | Fix in W1-mini-Action | open |
+| R190 | B3-07 | finding | D3 | Fix in W1-mini-Action | open |
+| R191 | B3-08 | finding | D3 | Fix in W1-mini-Action | open |
+| R192 | B3-09 | finding | D3 | Fix in W1-mini-Action | open |
+| R193 | B3-10 | finding, finding-evidence, finding-history | D3 | Fix in W1-mini-Action | open |
+| R194 | B3-11 | finding-evidence | D1 | `MOCK DEVIATION D1`: Evidence bundle: adds a Records column (5 vs 4); Source 'Source not named' / '3 sources, not named' vs device codes; Coverage/Use 'Not available'; adds a state paragraph, a 'not available ye | open |
+| R195 | B3-12 | finding-history | D3 | Fix in W1-mini-Action | open |
+| R196 | B3-13 | sitefindings | D3 | Fix in W1-mini-Action | open |
+| R197 | B3-14 | sitefindings | D3 | Fix in W1-mini-Action | open |
+| R198 | B3-15 | financials | D3 | Fix in W1-mini-Action | open |
+| R199 | B3-16 | financials | D3 | Fix in W1-mini-Action | open |
+| R200 | B3-17 | assumptions | D3 | Fix in W1-mini-Action | open |
+| R201 | B3-18 | assumptions | D3 | Fix in W1-mini-Action | open |
+| R202 | B4-01 | recommendation | D3 | Fix in W1-mini-Action | open |
+| R203 | B4-03 | action-* (all five) | D3 | Fix in shell-typography-copy | open |
+| R204 | B4-04 | all six | D3 | Fix in W1-mini-Action | open |
+| R205 | B4-05 | all six | D3 | Fix in W1-mini-Action | open |
+| R206 | B4-06 | all six | D4 | `MOCK DEVIATION D4`: Subtitle: Action reads 'Kobo mini-grid · an action raised from a finding' where the mock has 'What is the current intervention and outcome state?'. Recommendation reads 'Kobo mini-grid · gen | open |
+| R207 | B4-07 | action-* (all five) | D2 | `MOCK DEVIATION D2`: Sub-tab 'Application' vs mock 'Execution'. It is deliberate: SiteAction.tsx:81 'the label is the operator's word', and the URL segment stays /execution. There is no register row. | open |
+| R208 | B4-09 | recommendation | D1 | `MOCK DEVIATION D1`: Breadcrumb reads 'Findings / Finding code unavailable / Recommendation' where the mock has F-104. The h1 'Generator support review' comes from the record (mock: 'Generator support merits rev | open |
+| R209 | B4-10 | recommendation | D3 | Fix in W1-mini-Action | open |
+| R210 | B4-11 | all six | D2 | `MOCK DEVIATION D2`: W1 state-line pattern: Recommendation, Plan and Evidence carry a page-level status strip (badge, current-state chip, sentence, As of, Open Verification, 'How this was worked out'), and Overv | open |
+| R211 | B4-12 | recommendation | D2 | `MOCK DEVIATION D2`: Proposed intervention adds a 'Trial only' paragraph, a Source row, accepted-note lines and a disclosure. When held, the Accept button is a disabled 'Accept trial (SYSTEM demonstration)' with | open |
+| R212 | B4-13 | recommendation | D1 | `MOCK DEVIATION D1`: Declare success adds the lead 'How the trial will be judged' and a footer note. Role 'Limit' vs mock 'Guardrail'. Held, unavailable and guardrail-hold cases show no criteria table, only the  | open |
+| R213 | B4-14 | recommendation | D1 | `MOCK DEVIATION D1`: The closing notice 'Accepting creates managed work...' is a left-bar callout at about 14 px; the mock has an 11 px info callout with an icon. | open |
+| R214 | B4-15 | recommendation | D1 | `MOCK DEVIATION D1`: Evidence needed to verify: items 'Applied change record' / 'Later operating readings' vs mock 'Applied configuration record' / 'Later operating evidence'. The app adds a verification chip an | open |
+| R215 | B4-16 | action-overview | D1 | `MOCK DEVIATION D1`: Action scope has 6 rows vs 5 (adds Application). Source carries multiple links. Outcome is a chip plus a Verification link. Two note lines and a disclosure follow. Owner reads 'Not recorded' | open |
+| R216 | B4-17 | action-execution | D2 | `MOCK DEVIATION D2`: Activity log has 5 columns vs 3 (adds Recorded, and Acted by = 'SYSTEM demonstration'), plus a state badge line, a note, a 'Show all N steps' footer and a disclosure. The failed-pending case | open |
+| R217 | B4-18 | action-history | D2 | `MOCK DEVIATION D2`: Action history has 4 columns vs 2 (adds Recorded, and Select with adjacent 'This event' / 'Through this time' links and no separator). Meaning shows raw failure codes (ACTION_VALUE_INVALID,  | open |
+| R218 | B4-19 | action-history (s602b verified-replay) | D3 | Fix in W1-mini-Action | open |
+| R219 | B4-20 | action-history | D3 | Fix in W1-mini-Action | open |
+| R220 | B4-21 | action-plan | D3 | Fix in W1-mini-Action | open |
+| R221 | B4-22 | action-evidence | D3 | Fix in W1-mini-Action | open |
+| R222 | B4-24 | action-overview (unknown section /nosuch) | D3 | Fix in W1-mini-Action | open |
+| R223 | B5-01 | verification | D3 | Fix in W1-mini-Action | open |
+| R224 | B5-02 | verification | D2 | `MOCK DEVIATION D2`: Action tab label 'Application' where the mock says 'Execution'. No register row found. | open |
+| R225 | B5-03 | verification | D1 | `MOCK DEVIATION D1`: Header: h1 'ACT-000001 · Battery reserve trial', subtitle 'Kobo mini-grid · an action raised from a finding'; the mock h1 is the intervention title with subtitle 'ACT-048 · source F-104 · ow | open |
+| R226 | B5-04 | verification | D1 | `MOCK DEVIATION D1`: Status strip: mock one line ('ACT-048 · Verification window', 'Provisional target pass', pending sentence); app shows two outcome chips (selected + 'Current state'), an outcome sentence, a S | open |
+| R227 | B5-06 | verification | D1 | `MOCK DEVIATION D1`: Activity evidence rows Policy application record / Change status / Resolution / Owner vs mock Policy application record (Captured chip) / Execution state / Change reference CHG-019 / Owner,  | open |
+| R228 | B5-07 | verification | D3 | Fix in W1-mini-Action | open |
+| R229 | B5-08 | verification | D3 | Fix in W1-mini-Action | open |
+| R230 | B5-09 | sitework | D3 | Fix in W1-mini-Action | open |
+| R231 | B5-10 | sitework | D1 | `MOCK DEVIATION D1`: Actions table: same 6 columns; Source 'Finding, version N' vs 'F-104'; Owner and Success criterion 'Not recorded'; State chips 'Accepted · not applied (1 failed attempt)' / 'Applied · result | open |
+| R232 | B5-11 | sitework | D1 | `MOCK DEVIATION D1`: States with no mock equivalent: zero ('No Actions created at this site in this window', with proved-zero read time), no-window ('Choose a window', subrow counts '(—)'), invalid window ('This | open |
+| R233 | B6-01 | cold-foundation, cold-readiness, cold-sld | D2 | `MOCK DEVIATION D2`: Status strip carries extra W1 state-line items: 'Configuration only'/'Set up to report'/'Configured site' chip, 'Effective ... UTC to no end date', 'This is the configuration in effect now', | open |
+| R234 | B6-02 | cold-foundation | D4 | `MOCK DEVIATION D4`: Physical site 8 rows vs 6 (Site ID, Cold rooms, Power supply, Cooling equipment, Chamber temperature probe, Other sensors, Declared connections, Night outage rule) vs mock (Site ID, Primary  | open |
+| R235 | B6-03 | cold-foundation, cold-readiness, cold-sld, temperature, coldbackup, cold-finding | D4 | `MOCK DEVIATION D4`: h1/badge/subtitle are record-derived: 'Cold replay lab', 'Demonstration data · COLD-LAB-001' (purple, so B1-14 green tone does not recur), subtitles 'Cold room · stored configuration for the | open |
+| R236 | B6-05 | cold-readiness | D4 | `MOCK DEVIATION D4`: Readiness table 9 rows vs 4; Declared cells are a chip plus caption; every row is 'Unconfirmed' with the identical 'Commissioning record' (W2 M2 stays closed: no blank 'What is needed'); 8 o | open |
+| R237 | B6-06 | cold-readiness | D1 | `MOCK DEVIATION D1`: Gateway panel: title 'Gateway status · edge-cold-lab-001' (raw gateway id); tiles 'No contact received yet' / 'Not available' / 'Not available' / 'Unknown'; contact bar is a hatched 'No hist | open |
+| R238 | B6-07 | cold-readiness, cold-sld | D2 | `MOCK DEVIATION D2`: Breadcrumb adds the sub-tab leaf ('... / Foundation / Readiness', '... / Single line diagram'); the mock trail ends at Foundation. | open |
+| R239 | B6-08 | cold-sld | D1 | `MOCK DEVIATION D1`: Diagram is the replay site's 8 configured parts: no solar/battery/DC bus, no circuit breakers, feeders or kWh meter; every reporting dot is 'not assessed'; Monitoring row shows 11 reading na | open |
+| R240 | B6-09 | cold-sld | D1 | `MOCK DEVIATION D1`: 'What each part does' has 8 per-part rows whose Role is a type word (Cold room, Sensor, Cooling, Switch...) vs mock 5 grouped rows with descriptive roles; footnote 'Function description not  | open |
+| R241 | B6-10 | temperature | D3 | Fix in W2-cold | open |
+| R242 | B6-11 | temperature, coldbackup | D3 | Fix in W2-cold | open |
+| R243 | B6-12 | temperature | D1 | `MOCK DEVIATION D1`: Chart legend 'Policy band' vs 'Upper policy limit'; axis labels carry 'UTC'; timeline 4 events vs 3; Excursion context adds a disclosure, the Power outage row has no 'Observed' chip, and 'Op | open |
+| R244 | B6-13 | temperature, coldbackup | D3 | Fix in W2-cold | open |
+| R245 | B6-14 | temperature | D3 | Fix in W2-cold | open |
+| R246 | B6-15 | coldbackup | D3 | Fix in W2-cold | open |
+| R247 | B6-17 | coldbackup | D3 | Fix in W2-cold | open |
+| R248 | B6-19 | cold-finding | D1 | `MOCK DEVIATION D1`: Sub-tab 'Recommendation · Not available yet' (mock live); Recommended next step is an italic gap 'No recorded next step. No Action or Recommendation record is linked to this Finding.' + 'Ope | open |
+| R249 | B6-20 | cold-finding | D3 | Fix in W2-cold | open |
+| R250 | B6-21 | cold-finding | D4 | `MOCK DEVIATION D4`: Bounded conclusion lead 'A commanded automatic generator start failed.' (mock adds recovery and peak), adds the bullet 'Not observed: transfer to backup.' and 'Inspect the backup chain →' (m | open |
+| R251 | B6-22 | cold-finding | D1 | `MOCK DEVIATION D1`: Unknown ID and refused window: generic h1 'Finding', 'Not found' / 'Window cannot be read' banner, three panels with one gap line each, 'No recorded next step.' No mock state. | open |
+| R252 | B6-24 | cold-foundation, cold-readiness, cold-sld | D1 | `MOCK DEVIATION D1`: No-version (?at=2026-09-01): h1 keeps the display name (B1-25 does not recur on cold); every panel is a single gap sentence (0.14-0.49x); at 390 the dark header band is 141-143 px. | open |
+| R253 | B7-01 | cold-findings | D3 | Fix in W2-cold | open |
+| R254 | B7-03 | cold | D3 | Fix in W2-cold | open |
+| R255 | B7-04 | cold | D3 | Fix in W2-cold | open |
+| R256 | B7-05 | cold | D3 | Fix in W2-cold | open |
+| R257 | B7-06 | cold | D1 | `MOCK DEVIATION D1`: Status strip lacks the mock narrative 'Power -> backup -> cooling chain fully reconstructed · no spoilage determination'. Money panel adds 'Consequence basis: at least 19 °C·min; upper bound | open |
+| R258 | B7-07 | cold-evidence | D3 | Fix in W2-cold | open |
+| R259 | B7-08 | cold-evidence-analysis | D3 | Fix in W2-cold | open |
+| R260 | B7-10 | cold-assumptions | D2 | `MOCK DEVIATION D2`: Close match (3 rows, same columns). Adds a Selected window line (mock none); the read is site-scoped yet an invalid window refuses the whole panel; subtitle carries 'in W2' (B1-53). | open |
+| R261 | B7-11 | cold, cold-evidence, cold-financials, cold-assumptions, cold-evidence-analysis | D3 | Fix in W2-cold | open |
+| R262 | B8-02 | ev-foundation | D4 | `MOCK DEVIATION D4`: Physical site: same 5 row labels; values 'Not declared' (Stationary storage; mock 'Not installed') and 'Charger session events · 2 of 2 connectors' (mock 'Charger transaction records'), plus | open |
+| R263 | B8-03 | ev-foundation, ev-readiness | D4 | `MOCK DEVIATION D4`: Tariff statement: Foundation 'Revenue assumption: No tariff set for estimates' and Readiness Tariff row 'No tariff set for estimates · Not assessed', while the same producer authors a golden | open |
+| R264 | B8-04 | ev-foundation, ev-readiness, ev-sld, sessions, ev-finding | D4 | `MOCK DEVIATION D4`: h1/badge/subtitle are record-derived: 'EV charging lab', 'Demonstration data · EV-LAB-001' (purple), subtitles 'EV charging · stored configuration for the period shown', 'Definition, commiss | open |
+| R265 | B8-06 | ev-readiness | D3 | Fix in W2-EV | open |
+| R266 | B8-07 | ev-readiness | D1 | `MOCK DEVIATION D1`: Gateway panel: title 'Gateway status · edge-ev-lab-001' (raw gateway id); subtitle 'configuration selected 2026-10-24 16:14 UTC' (request time); tiles 'No gateway contact recorded' / 'Not as | open |
+| R267 | B8-08 | ev-readiness | D3 | Fix in W2-EV | open |
+| R268 | B8-12 | sessions | D3 | Fix in W2-EV | open |
+| R269 | B8-13 | sessions | D1 | `MOCK DEVIATION D1`: Session service records: 1 row in every producer case (one session per replay case) vs mock 4; session cell 'Session ev-9ada0e59… · Connector c1' (truncated raw external session id) vs 'SES- | open |
+| R270 | B8-14 | sessions | D3 | Fix in W2-EV | open |
+| R271 | B8-15 | sessions | D3 | Fix in W2-EV | open |
+| R272 | B8-16 | sessions | D4 | `MOCK DEVIATION D4`: 'How to read the denominator' is a bold count line + 'Orphan end records: 0' + 'Unknown is separate from failure.' + disclosure at 14 px (.prose) vs mock one 12 px sentence with the equation | open |
+| R273 | B8-17 | sessions, ev-finding | D1 | `MOCK DEVIATION D1`: Refused window (from > to): Sessions keeps the strip and four 'Unknown' tiles (the cold B6-13 drop does not recur) and each panel shows one italic gap line; the Finding keeps strip + three p | open |
+| R274 | B8-18 | ev-finding | D1 | `MOCK DEVIATION D1`: Finding chrome: rail selects Sites (mock Findings); breadcrumb is Site-rooted 'Sites / EV charging lab / Findings / Finding' (mock 'Findings › F-130 › Overview · site: Depot Charging Hub');  | open |
+| R275 | B8-19 | ev-finding | D3 | Fix in W2-EV | open |
+| R276 | B8-20 | ev-finding | D3 | Fix in W2-EV | open |
+| R277 | B8-21 | ev-finding | D1 | `MOCK DEVIATION D1`: Operational context: Session value is the full 64-character external id 'SES ev-9ada0e5946…afa8e9' wrapping to 2 lines at 1440 and 3 at 390 (mock 'SES-011'); Connector 'Connector c1' (mock ' | open |
+| R278 | B8-22 | ev-finding | D1 | `MOCK DEVIATION D1`: Sub-tab 'Recommendation · Not available yet' and 'Review recommendation · Not available yet' under the recorded next-step sentence, where the mock has a live 'Review recommendation' button. | open |
+| R279 | B8-23 | ev-finding | D1 | `MOCK DEVIATION D1`: Unknown ID and refused window: generic h1 'Finding', strip 'Unknown · Confidence: Unknown' + reason ('This EV Site or record was not found.' / window copy) with no site name, three panels wi | open |
+| R280 | B8-24 | ev-finding | D3 | Fix in W2-EV | open |
+| R281 | B8-27 | sessions | D3 | Fix in W2-EV | open |
+| R282 | B8-26 | ev-foundation, ev-readiness, ev-sld | D1 | `MOCK DEVIATION D1`: No-version (?at=2026-09-01): h1 keeps the display name; every panel is one gap sentence (0.17-0.49x); 390 dark band 134 px (Foundation) and 118 px (SLD), 92 px on Readiness. | open |
+| R283 | B9-03 | ev | D3 | Fix in W2-EV | open |
+| R284 | B9-05 | ev, ev-evidence, ev-evidence-analysis, ev-financials, ev-assumptions | D3 | Fix in W2-EV | open |
+| R285 | B9-08 | ev-financials | D3 | Fix in W2-EV | open |
+| R286 | B9-09 | ev-assumptions | D3 | Fix in W2-EV | open |
+| R287 | B10-01 | findings, findings-cost, findings-risks, findings-opportunities, actions | D1 | `MOCK DEVIATION D1`: Register gap: the departure register has no row for any of the five estate screens, although W3-01 ruled many visible departures in its build spec (Run 13 rulings 2, 3, 5-8; q14-1; commit-3  | open |
+| R288 | B10-02 | findings, findings-cost, findings-risks, findings-opportunities, actions | D1 | `MOCK DEVIATION D1`: Summary cards: 'Open findings' -> 'Supported findings'; High priority and Low confidence show 'Not assessed' as the headline value (no number); Awaiting verification adds a 2-3 line sentence | open |
+| R289 | B10-03 | findings, findings-cost, findings-risks, findings-opportunities | D2 | `MOCK DEVIATION D2`: State filter chips: mock 'All states / Open / Recommendation'; app 'All states / Supported / Unconfirmed / No longer supported / Merged' on every lens (Run 13 ruling 2). At 390 the chip row  | open |
+| R290 | B10-04 | findings | D1 | `MOCK DEVIATION D1`: Finding destinations by domain: only the mini-grid (KOBO-001) title is a link; the cold (2 rows) and EV (1 row) titles are inert and the notice says 'other titles are shown without a link' ( | open |
+| R291 | B10-05 | findings, findings-cost, findings-risks, findings-opportunities | D1 | `MOCK DEVIATION D1`: Rows: Priority and Confidence are plain 'Not assessed' text (mock: High/Medium/Low chips with info marks); State chip 'Supported' (mock 'Open'/'Recommendation'); Main consequence 'No consequ | open |
+| R292 | B10-06 | findings-cost, findings-risks, findings-opportunities | D1 | `MOCK DEVIATION D1`: All three lenses are empty in every producer state: Cost 'No supported priced consequence in this selection.', Risks 'No supported risk classification in this selection.', Opportunities 'No  | open |
+| R293 | B10-07 | actions | D3 | Fix in W3-estate | open |
+| R294 | B10-08 | findings, findings-cost, findings-risks, findings-opportunities | D3 | Fix in W3-estate | open |
+| R295 | B10-09 | findings | D3 | Fix in W3-estate | open |
+| R296 | B11-01 | globalfinancials | D3 | Fix in W3-estate | open |
+| R297 | B11-02 | portfolio | D3 | Fix in W3-estate | open |
+| R298 | B11-03 | globalevidence, globalfinancials, portfolio | D1 | `MOCK DEVIATION D1`: Mini-grid rows open the current Site view without the estate window: Evidence row 'Kobo mini-grid · mini-grid' links /sites/KOBO-001 (not Site Evidence); Financials 'Site bridge →' links /si | open |
+| R299 | B11-04 | globalevidence | D2 | `MOCK DEVIATION D2`: Capability coverage granularity and cap. The app has one row per Site x capability (13 rows clean, 17 partial/historical, 22 W3-02 week, 9 W3-02 day) where the mock has one row per Site (3). | open |
+| R300 | B11-05 | globalevidence | D3 | Fix in W3-estate | open |
+| R301 | B11-06 | globalevidence | D1 | `MOCK DEVIATION D1`: KPI tiles: 'Sites with limited claims 4 of 4' vs mock '3'; 'Priority evidence actions Not assessed' vs '3'; 'Unsupported claims Not assessed' vs 'Excluded'. | open |
+| R302 | B11-07 | globalfinancials | D3 | Fix in W3-estate | open |
+| R303 | B11-08 | globalfinancials | D2 | `MOCK DEVIATION D2`: Aggregation rule adds state chips (Single line / Comparable / Not totalled; Coverage incomplete in partial and historical) and a 'Results (n) · ...' disclosure; 1.14-1.22x (under 1.3). The o | open |
+| R304 | B11-09 | portfolio | D1 | `MOCK DEVIATION D1`: Cards, context, pulse, opportunity and footer: mock values replaced by honest states (Operating-cost $0.00–$3.44 from the selected Kobo line; the others 'Not assessed'/'Not established'); co | open |
+| R305 | B11-10 | portfolio | D1 | `MOCK DEVIATION D1`: Priority table: 3 rows vs 6; Priority and Confidence chips all 'Not assessed'; cells 'Basis not recorded', 'Episode window not recorded', 'Next move not recorded', 'Recommendation not accept | open |
+| R306 | B11-11 | portfolio | D2 | `MOCK DEVIATION D2`: The Objectives matrix with 4-5 Sites scrolls horizontally inside a 275 px box at 1440 (third column clipped to 'EV charg…', scroll width 390-467 px), where the mock's 3 columns fit. W3-03 bu | open |
+| R307 | B11-12 | portfolio | D3 | Fix in W3-estate | open |
+| R308 | B11-13 | globalevidence, globalfinancials, portfolio | D3 | Fix in W3-estate | open |
+| R309 | B12-02 | renewable, service, fuel, backup | D3 | Fix in W4-mini | open |
+| R310 | B12-03 | renewable | D3 | Fix in W4-mini | open |
+| R311 | B12-04 | renewable | D3 | Fix in W4-mini | open |
+| R312 | B12-05 | renewable | D3 | Fix in W4-mini | open |
+| R313 | B12-06 | renewable, service, fuel, backup | D3 | Fix in W4-mini | open |
+| R314 | B12-07 | renewable, service | D1 | `MOCK DEVIATION D1`: Built destinations shown as 'Not available yet'. Renewable: 'Compare with Dispatch evidence · Not available yet' on every multi-UTC-day window (q9-8: a link only when one UTC day contains ev | open |
+| R315 | B12-08 | renewable, service, fuel, backup | D1 | `MOCK DEVIATION D1`: Mock example content replaced or relabelled. Renewable: grain-mill 10 kW x 1 h scenario becomes 'No productive-use scenario has been assessed'; 'Day N' becomes dated rows plus 'N cited recor | open |
+| R316 | B12-09 | service | D3 | Fix in W4-mini | open |
+| R317 | B12-10 | renewable, service, fuel, backup | D1 | `MOCK DEVIATION D1`: Raw identifiers on screen: service load cells append raw asset codes ('Clinic feeder delivered power · load-clinic', 'load-mill', 'load-res'); backup readiness 'Inspect IDs' disclosures list | open |
+| R318 | B12-11 | renewable, service, fuel, backup | D3 | Fix in W4-mini | open |
+| R319 | B13-01 | sitework-incidents, sitework-maintenance | D3 | Fix in shell-typography-copy | open |
+| R320 | B13-02 | sitework-incidents | D3 | Fix in W4-mini | open |
+| R321 | B13-03 | opportunity-finding | D3 | Fix in W4-mini | open |
+| R322 | B13-04 | sitework-incidents, sitework-maintenance | D3 | Fix in W4-mini | open |
+| R323 | B13-05 | sitework-incidents, sitework-maintenance | D2 | `MOCK DEVIATION D2`: Every row carries a 'UTC and IDs' disclosure link. On Maintenance (no Window column) it sits in the Asset column after 'No asset linked'. Mock rows have no such link. | open |
+| R324 | B13-06 | sitework-incidents | D3 | Fix in W4-mini | open |
+| R325 | B13-07 | scenarios | D3 | Fix in W4-mini | open |
+| R326 | B13-08 | scenarios | D4 | `MOCK DEVIATION D4`: Populated authored rows (Scenario / Declared change / Physical basis / Illustrative result / State, 'Scenario detail unavailable', 'Inspect pinned revisions') and 'Scenario creation unavaila | open |
+| R327 | B13-09 | scenarios | D1 | `MOCK DEVIATION D1`: A reversed window shows only 'Select a valid Site-local window.' (server message; the 'created through' line disappears). Only the reversed input was producer-offered, so whether distinct in | open |
+| R328 | B13-11 | alternatives | D3 | Fix in W4-mini | open |
+| R329 | B13-13 | opportunity-finding | D1 | `MOCK DEVIATION D1`: The Opportunity breadcrumb root is the disabled sentence 'Global Findings unavailable; this opportunity is reached from Renewable evaluation.' in the 'Findings' slot (spec PR-9 / closure 3,  | open |
+| R330 | B13-14 | opportunity-finding | D1 | `MOCK DEVIATION D1`: Opportunity cards/basis: 'Linked scenario (name unavailable)', 'Scenario energy: Unavailable in this read' and 'Tariff: Unavailable in this read', while Gross sales shows '$2.50 · scenario'  | open |
+| R331 | B13-15 | opportunity-finding | D3 | Fix in W4-mini | open |
+| R332 | B13-17 | sitework-incidents | D1 | `MOCK DEVIATION D1`: The stocked five-row Incidents panel is 443/316 = 1.40x at 1440 (1.23x at 390). Measured reason: five 1-2 line rows plus paging vs the mock's empty state; within the reviewed W4-01/W4-03 u9  | open |
+| R333 | B13-18 | sitework-incidents, sitework-maintenance, scenarios | D3 | Fix in W4-mini | open |
+| R334 | B14-03 | cold-work | D3 | Fix in W5-cold-Work | open |
+| R335 | B14-06 | cooling | D1 | `MOCK DEVIATION D1`: Recovery curves 390: 412 px vs mock 235 (1.75x). Measured reason: the panel holds the categorical-lane chart (480 px scroller in 318) PLUS the accessible selected-point table ruled by Codex  | open |
+| R336 | B14-07 | cooling, cold-health | D3 | Fix in W5-cold-Work | open |
+| R337 | B14-08 | cold-scenarios | D3 | Fix in W5-cold-Work | open |
+| R338 | B14-09 | cold-work | D3 | Fix in W5-cold-Work | open |
+| R339 | B14-10 | cooling, cold-health, cold-scenarios, cold-work | D3 | Fix in W5-cold-Work | open |
+| R340 | B14-14 | link-check | D1 | `MOCK DEVIATION D1`: Cross-check (not counted). Cold Overview at the W5-01 window: Temperature, Backup and Evidence cards link with exact window; the Cooling card ('Limited · Cooling recovery is not established. | open |
+| R341 | B14-17 | cold-health, cold-work | D1 | `MOCK DEVIATION D1`: Other panels over 1.3x, with measured reasons: cold-health all-open 390 472/269 (1.75x) = the three opened 'Full ID' UUID disclosures (all-disclosures-open exemption; would shrink with B14-0 | open |
+| R342 | B15-01 | cold-action | D1 | `MOCK DEVIATION D1`: Action chrome VERIFIED: B4-03, B4-04, B4-05 and B5-01 do NOT recur on cold-action. Breadcrumb is Action-rooted 'Actions / ACT-000001 / Verification · site: Cold replay lab' (mock 'Actions >  | open |
+| R343 | B15-07 | cold-work-incidents, cold-work-maintenance | D1 | `MOCK DEVIATION D1`: The closing notice keeps only 'Opening a record moves you to its own area; the breadcrumb keeps this site.' The mock's second sentence 'New work starts from the global create flow with this  | open |
+| R344 | B15-10 | cold-action | D3 | Fix in W5-cold-Work | open |
+| R345 | B16-06 | availability | D3 | Fix in W5-EV-Work | open |
+| R346 | B16-07 | energy | D3 | Fix in W5-EV-Work | open |
+| R347 | B16-16 | availability, energy, ev-health, ev-scenarios, ev-work | D3 | Fix in W5-EV-Work | open |
+| R348 | B17-04 | ev-action | D3 | Fix in W5-EV-Work | open |
+| R349 | B17-06 | ev-action | D3 | Fix in W5-EV-Work | open |
+| R350 | B17-08 | link-check | D3 | Fix in W5-EV-Work | open |
+| R351 | B17-11 | ev-work-incidents, ev-work-maintenance | D4 | `MOCK DEVIATION D4`: Strip and notice copy differ from the mock. B13-16 recurs: the notice drops the mock's 'New work starts from the global create flow with this site filled in.' (R35, no create flow). The stri | open |
+| R352 | B18-03 | incidents, maintenance | D3 | Fix in W6-global-Work | open |
+| R353 | B18-04 | incidents, maintenance, maintenance-preventive, oprecords | D3 | Fix in W6-global-Work | open |
+| R354 | B18-05 | incidents, maintenance, oprecords | D3 | Fix in W6-global-Work | open |
+| R355 | B18-06 | maintenance | D1 | `MOCK DEVIATION D1`: The Corrective work requests panel is capped at 609 px at 1440 with an inner vertical scroll: five rows leave rows 4-5 behind a nested scrollbar while the viewport has free space below (posi | open |
+| R356 | B18-07 | oprecords | D3 | Fix in W6-global-Work | open |
+| R357 | B18-08 | incidents | D3 | Fix in W6-global-Work | open |
+| R358 | B18-09 | incidents, maintenance | D1 | `MOCK DEVIATION D1`: Incidents cards 2-4 read 'Not assessed' (High severity / Awaiting evidence / Closed verified) and the Severity column 'Not recorded' for every row, against mock values 1 / 1 / 0 and 'High'.  | open |
+| R359 | B18-10 | incidents | D3 | Fix in W6-global-Work | open |
+| R360 | B18-11 | incidents | D3 | Fix in W6-global-Work | open |
+| R361 | B18-13 | incidents, maintenance, maintenance-preventive, oprecords | D3 | Fix in W6-global-Work | open |
+| R362 | B18-14 | oprecords | D4 | `MOCK DEVIATION D4`: The inert 'Record a manual reading' form shows mock facts as values: Site options 'Kobo Mini-grid' and 'GreenHarvest Cold Room' (GreenHarvest is a mock-only Site; the options are the same on | open |
+| R363 | B19-02 | wr-overview, wr-record, wr-history | D2 | `MOCK DEVIATION D2`: Added date-bar row between the tabs and the strip: 'As known at 24 Oct 2026, 18:58 UTC · Reload' (current) or 'Historical as of ... UTC · Reload' (explicit known_at); about +50 px at 1440/39 | open |
+| R364 | B19-03 | wr-overview, wr-record, wr-history | D3 | Fix in W6-global-Work | open |
+| R365 | B19-04 | wr-overview, wr-record | D1 | `MOCK DEVIATION D1`: Honest gaps replace mock facts, all spec-ruled (C2/C3) but unregistered for wr-*: strip 'DUE / SLA Not set', 'SOURCE Not recorded' (when no incident/Finding), 'SUCCESS CRITERION Not recorded | open |
+| R366 | B19-05 | wr-overview, wr-record, wr-history | D3 | Fix in W6-global-Work | open |
+| R367 | B19-07 | wr-overview, wr-record, wr-history | D3 | Fix in W6-global-Work | open |
+| R368 | B19-08 | wr-record | D3 | Fix in W6-global-Work | open |
+| R369 | B19-09 | wr-history | D2 | `MOCK DEVIATION D2`: History verified against its rulings: R19 (UTC with seconds plus an 'Occurrence time' disclosure per row), R39 ('Name not recorded' + 'Stored actor' disclosure), R41 (the two in-table gaps ' | open |
+| R370 | B19-10 | wr-overview, wr-record, wr-history | D3 | Fix in W6-global-Work | open |
+| R371 | B19-12 | link-check | D3 | Fix in W6-global-Work | open |
+| R372 | B19-13 | wr-overview, wr-record, wr-history | D3 | Fix in W6-global-Work | open |
+| R373 | B19-15 | wr-overview, wr-record, wr-history | D3 | Fix in W6-global-Work | open |
