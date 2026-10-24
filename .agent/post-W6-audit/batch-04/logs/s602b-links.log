@@ -1,0 +1,32 @@
+Replayed Action ACT-000001 (7f678c85-0f11-4634-8fab-aa61c09a57ff), manifest backend/conversions/d-verification-window-v2.json
+  Finding (origin version)
+    http://localhost:5184/sites/KOBO-001/findings/bd96cfc9-a2b0-4e6c-b987-1ac36a7366f4?revision_id=8ae175fc-a00c-479d-a0e6-78dc44463365
+  Recommendation with success panels
+    http://localhost:5184/sites/KOBO-001/findings/bd96cfc9-a2b0-4e6c-b987-1ac36a7366f4/recommendation?revision_id=8ae175fc-a00c-479d-a0e6-78dc44463365
+  Action overview
+    http://localhost:5184/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff
+  Plan (current)
+    http://localhost:5184/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/plan
+  Evidence (current)
+    http://localhost:5184/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/evidence
+  Verification (current: VERIFIED)
+    http://localhost:5184/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/verification
+  Verification, exact outcome (Historical label)
+    http://localhost:5184/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/verification?outcome_id=51851f5b-ed1f-45b1-b8f1-4aa983dc972e
+  Plan, exact plan
+    http://localhost:5184/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/plan?plan_revision_id=504af0fd-35a7-402e-8671-e0e9d8220d55
+  Selector conflict
+    http://localhost:5184/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/verification?outcome_id=51851f5b-ed1f-45b1-b8f1-4aa983dc972e&recorded_at=2026-10-16T01:00:00+00:00
+  Foundation change (later effect)
+    http://localhost:5184/sites/KOBO-001/foundation/changes/278f510c-e031-4b25-8991-ada084a2f0c3
+TEST-SCOPED examples (not Lab runs) on the second frontend, port 5185, one case at a time (serve --case NAME):
+  [target_miss] TEST-SCOPED: Target not met (INEFFECTIVE, TARGET_MISS) - authored complete windows
+    http://localhost:5185/sites/KOBO-001/actions/1d706630-e8a2-4878-a264-31049fe1a014/verification
+  [guardrail] TEST-SCOPED: Trial missed a safety or service limit (INEFFECTIVE, GUARDRAIL_FAIL) and the hold on a different Finding - authored complete windows
+    http://localhost:5185/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75/verification
+    hold: http://localhost:5185/sites/KOBO-001/findings/fee50247-6779-4dda-9d3b-38902951ff11/recommendation?revision_id=c7bf62bc-c3ea-4d7f-9fd6-1a2206d25911
+  [inconclusive] TEST-SCOPED: Could not conclude (INCONCLUSIVE) - the real roles-2 windows are incomplete; no fake
+    http://localhost:5185/sites/KOBO-001/actions/660c3e01-c6e0-4e21-873e-c165848fba0e/verification
+  [withdrawn] TEST-SCOPED: VERIFIED, then late evidence: resolution withdrawn, overlap hold, re-settled INCONCLUSIVE - authored complete windows plus the real late reading
+    http://localhost:5185/sites/KOBO-001/actions/bde7626f-6772-4f2b-928f-63af8afeec9b/verification
+    hold: http://localhost:5185/sites/KOBO-001/findings/58193998-8433-4dd2-b2f6-cbd5389db2f3/recommendation?revision_id=ed00ae9a-c2c3-4727-9087-4c66b85bddfe
