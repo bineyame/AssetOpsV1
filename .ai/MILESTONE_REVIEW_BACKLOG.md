@@ -2433,3 +2433,7 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 
 ## Recurring flake (2026-10-24)
 - test_s4_schedule_tick_postgres.py::TestKillableStagesAndServerTimeouts::test_a_hung_stage_is_killed... failed in 3 consecutive full suites under -n 4 (PENDING vs LEASED / FAILED vs COMPLETED) and passes alone every time. Deflake (timing bound or lease wait) in the post-W6 hardening pass.
+
+## W5-04a Lows
+- Per-mode walkthrough DB URLs are built by string concatenation; a harness URL with a query string (?sslmode=) would break them.
+- Two Vite dev servers died during V2b captures (suspected shared Vite cache across several dev servers); restarted and recaptured green. Investigate before the structural audit capture runs.
