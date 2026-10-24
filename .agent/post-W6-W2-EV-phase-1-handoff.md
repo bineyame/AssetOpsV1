@@ -116,7 +116,7 @@ Line anchors are from main 7554111e.
 
 ## Progress (second builder)
 
-- U1 fc95d2e3, U2 74c86e64, U3 620a5902. Each commit message lists its R-IDs and behaviour.
+- U1 fc95d2e3, U2 74c86e64, U3 620a5902, U4 landed (see git log: EvFindingIndex.tsx, SiteFindingsFrame EV branch, App prop, tests evFindingIndex.test.tsx). Resume at U5. Each commit message lists its R-IDs and behaviour.
 - Mechanism: `sites/evSelectedWindow.ts` holds `selectedWindowSearch(read)` and `EvTabs` = ReactNode | (search) => ReactNode.
   The EV Site screens report through `WindowBar` (context in `EvSiteViews.tsx`). Sessions and Finding use their own
   read. Depth pages (availability, energy) pass "" for W5-EV-Work. The EV Foundation mount gets hrefs only, with no

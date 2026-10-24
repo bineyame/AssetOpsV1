@@ -80,6 +80,7 @@ import { EvEnergy } from "../sites/EvEnergy";
 import { type EvDepthClient, createEvDepthClient } from "../sites/evDepthClient";
 import { EV_SITE_TAB_HREFS, evSiteRoutes } from "./evSiteRoutes";
 import type { EvAssessmentClient } from "../sites/evAssessmentClient";
+import { EvFindingIndex } from "../sites/EvFindingIndex";
 import { coldSiteRoutes, coldSiteScreen } from "./coldSiteRoutes";
 import { createColdDepthClient, type ColdDepthClient } from "../sites/ColdDepthClient";
 import { presentationProfileFor } from "../sites/presentationProfile";
@@ -454,11 +455,13 @@ export function SiteFindingsFrame({
   analytics,
   sitesPath,
   findingIndex = DEFAULT_FINDING_INDEX,
+  evAssessment,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   sitesPath: string;
   findingIndex?: FindingIndexClient;
+  evAssessment?: EvAssessmentClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -488,6 +491,18 @@ export function SiteFindingsFrame({
             description={SITE_SCREEN_DESCRIPTIONS.sitefindings}
             headingId={SITE_FINDINGS_HEADING_ID}
           />
+          {site.site_type === "EV_CHARGING" && evAssessment !== undefined ? (
+            <EvFindingIndex
+              siteId={site.site_id}
+              siteName={site.display_name}
+              window={coldWindowFromParams(params)}
+              client={evAssessment}
+              findingHref={evFindingHref((id) => siteFindingHref(site.site_id, id), coldWindowFromParams(params))}
+              sessionsHref={`${sitePerformanceHref(site.site_id, "sessions")}${coldWindowSearch(coldWindowFromParams(params))}`}
+              tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={EV_SITE_TAB_HREFS} search={search} />}
+            />
+          ) : (
+          <>
           <OperatorSiteTabs siteId={siteId} current="Findings" />
           <SiteFindingIndex
             siteId={site.site_id}
@@ -509,6 +524,8 @@ export function SiteFindingsFrame({
               />
             }
           />
+          </>
+          )}
         </main>
       )}
     </SiteScoped>

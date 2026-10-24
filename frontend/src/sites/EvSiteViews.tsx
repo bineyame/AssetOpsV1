@@ -280,7 +280,7 @@ const FINANCIAL_TILES = ["Delivered energy", "Gross tariff estimate", "Lost reve
  * A refused page keeps its strip and tile labels: a window refusal is titled "Window cannot be read" and never echoes
  * the invalid window; any other refusal keeps its own wording and the requested-window line. No page banner.
  */
-function RefusedHead({ read, window, label, tiles }: { read: EvRead<unknown>; window: EvWindowQuery; label: string; tiles?: string[] }) {
+export function RefusedHead({ read, window, label, tiles }: { read: EvRead<unknown>; window: EvWindowQuery; label: string; tiles?: string[] }) {
   if (read.status === "loaded") return null;
   const windowRefusal = isEvWindowRefusal(read);
   const requested = !windowRefusal && date(window.from) !== null && date(window.to) !== null;
@@ -308,7 +308,7 @@ function RefusedHead({ read, window, label, tiles }: { read: EvRead<unknown>; wi
 }
 
 /** The one in-panel refusal sentence, with the typed status and code in a technical disclosure. */
-function RefusedGap({ id, read }: { id: string; read: EvRead<unknown> }) {
+export function RefusedGap({ id, read }: { id: string; read: EvRead<unknown> }) {
   if (read.status === "loaded") return null;
   const references =
     read.status === "refused"
