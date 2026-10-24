@@ -1,0 +1,247 @@
+
+## finding open 1440  pageH 1800/1516 ovX 0 hdr 59/65 dark 1800 err []
+  h1: Generator support merits review | Generator support merits review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]
+  tabs mock: [['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]
+  pSizes {'11px': 6, '19px': 1, '12px': 8, '10px': 2, '14px': 26} {'11px': 5, '19px': 1, '12px': 4, '14px': 3}
+  [0] 'What happened' 318 | 'What happened' 279 r=1.14 rows 0/0 cols []/[] chips []/[] links 0/0 det 1 xy 248,409 w1145|234,367 w1161
+  [1] 'What limits this conclusion' 282 | 'What limits this conclusion' 233 r=1.21 rows 0/0 cols []/[] chips []/[] links 1/1 det 1 xy 248,909 w725|234,794 w735
+  [2] 'What to do next' 179 | 'What to do next' 233 r=0.77 rows 0/0 cols []/[] chips []/[] links 1/2 det 0 xy 991,909 w403|987,794 w408
+  [3] 'Where to look next' 525 | 'Where to look next' 404 r=1.3 rows 0/0 cols []/[] chips []/[] links 6/4 det 1 xy 248,1225 w1145|234,1046 w1161
+
+## finding open 390  pageH 2684/2324 ovX 0 hdr 58/90 dark 92 err []
+  h1: Generator support merits review | Generator support merits review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]
+  tabs mock: [['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]
+  pSizes {'11px': 6, '19px': 1, '12px': 8, '10px': 2, '14px': 26} {'11px': 5, '19px': 1, '12px': 4, '14px': 3}
+  [0] 'What happened' 463 | 'What happened' 379 r=1.22 rows 0/0 cols []/[] chips []/[] links 0/0 det 1 xy 16,579 w358|15,612 w360
+  [1] 'What limits this conclusion' 389 | 'What limits this conclusion' 244 r=1.59 rows 0/0 cols []/[] chips []/[] links 1/1 det 1 xy 16,1378 w358|15,1291 w360
+  [2] 'What to do next' 199 | 'What to do next' 255 r=0.78 rows 0/0 cols []/[] chips []/[] links 1/2 det 0 xy 16,1783 w358|15,1553 w360
+  [3] 'Where to look next' 628 | 'Where to look next' 404 r=1.55 rows 0/0 cols []/[] chips []/[] links 6/4 det 1 xy 16,2014 w358|15,1826 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]
+
+## finding version1 1440  pageH 1799/1516 ovX 0 hdr 59/65 dark 1799 err []
+  h1: Generator support merits review | Generator support merits review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]
+  tabs mock: [['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]
+  pSizes {'11px': 6, '19px': 1, '12px': 8, '10px': 2, '14px': 13} {'11px': 5, '19px': 1, '12px': 4, '14px': 3}
+  [0] 'What happened' 337 | 'What happened' 279 r=1.21 rows 0/0 cols []/[] chips []/[] links 1/0 det 1 xy 248,409 w1145|234,367 w1161
+  [1] 'What limits this conclusion' 263 | 'What limits this conclusion' 233 r=1.13 rows 0/0 cols []/[] chips []/[] links 1/1 det 1 xy 248,928 w725|234,794 w735
+  [2] 'What to do next' 179 | 'What to do next' 233 r=0.77 rows 0/0 cols []/[] chips []/[] links 1/2 det 0 xy 991,928 w403|987,794 w408
+  [3] 'Where to look next' 525 | 'Where to look next' 404 r=1.3 rows 0/0 cols []/[] chips []/[] links 6/4 det 1 xy 248,1225 w1145|234,1046 w1161
+
+## finding version1 390  pageH 2693/2324 ovX 0 hdr 58/90 dark 92 err []
+  h1: Generator support merits review | Generator support merits review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]
+  tabs mock: [['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]
+  pSizes {'11px': 6, '19px': 1, '12px': 8, '10px': 2, '14px': 13} {'11px': 5, '19px': 1, '12px': 4, '14px': 3}
+  [0] 'What happened' 471 | 'What happened' 379 r=1.24 rows 0/0 cols []/[] chips []/[] links 1/0 det 1 xy 16,579 w358|15,612 w360
+  [1] 'What limits this conclusion' 390 | 'What limits this conclusion' 244 r=1.6 rows 0/0 cols []/[] chips []/[] links 1/1 det 1 xy 16,1386 w358|15,1291 w360
+  [2] 'What to do next' 199 | 'What to do next' 255 r=0.78 rows 0/0 cols []/[] chips []/[] links 1/2 det 0 xy 16,1792 w358|15,1553 w360
+  [3] 'Where to look next' 628 | 'Where to look next' 404 r=1.55 rows 0/0 cols []/[] chips []/[] links 6/4 det 1 xy 16,2023 w358|15,1826 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]
+
+## finding notfound 1440  pageH 1000/1516 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Finding | Generator support merits review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis · Not available yet(off)', 'Evidence(off)', 'Alternatives for this Finding unavailable(off)', 'Recommendation(off)', 'History(off)']]
+  tabs mock: [['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]
+  pSizes {'12px': 4} {'11px': 5, '19px': 1, '12px': 4, '14px': 3}
+  [0] 'What happened' 99 | 'What happened' 279 r=0.35 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 248,496 w1160|234,367 w1161
+  [1] 'What limits this conclusion' 99 | 'What limits this conclusion' 233 r=0.42 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 248,629 w734|234,794 w735
+  [2] 'What to do next' 119 | 'What to do next' 233 r=0.51 rows 0/0 cols []/[] chips []/[] links 0/2 det 0 xy 1000,629 w408|987,794 w408
+  [3] 'Where to look next' 99 | 'Where to look next' 404 r=0.25 rows 0/0 cols []/[] chips []/[] links 0/4 det 0 xy 248,782 w1160|234,1046 w1161
+
+## finding notfound 390  pageH 1225/2324 ovX 0 hdr 58/90 dark 92 err []
+  h1: Finding | Generator support merits review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis · Not available yet(off)', 'Evidence(off)', 'Alternatives for this Finding unavailable(off)', 'Recommendation(off)', 'History(off)']]
+  tabs mock: [['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]
+  pSizes {'12px': 4} {'11px': 5, '19px': 1, '12px': 4, '14px': 3}
+  [0] 'What happened' 119 | 'What happened' 379 r=0.31 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 16,625 w358|15,612 w360
+  [1] 'What limits this conclusion' 119 | 'What limits this conclusion' 244 r=0.49 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 16,778 w358|15,1291 w360
+  [2] 'What to do next' 119 | 'What to do next' 255 r=0.47 rows 0/0 cols []/[] chips []/[] links 0/2 det 0 xy 16,913 w358|15,1553 w360
+  [3] 'Where to look next' 119 | 'Where to look next' 404 r=0.29 rows 0/0 cols []/[] chips []/[] links 0/4 det 0 xy 16,1064 w358|15,1826 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 483, 'cw': 358, 'panel': ''}]
+
+## finding-evidence latest 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Generator support merits review | Generator support review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence*', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)']]
+  tabs mock: [['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]
+  pSizes {'12px': 8, '14px': 1} {'14px': 1}
+  [0] 'Evidence bundle · Generator support merits review' 411 | 'Evidence bundle · F-104' 287 r=1.43 rows 4/4 cols ['Input', 'Source', 'Records', 'Coverage', 'Use']/['Input', 'Source', 'Coverage', 'Use'] chips []/[] links 54/0 det 5 xy 248,272 w1160|234,304 w1161
+  [1] 'Inspect source lineage' 126 | 'Inspect source lineage' 100 r=1.26 rows 0/0 cols []/[] chips []/[] links 1/0 det 0 xy 248,717 w1160|234,609 w1161
+
+## finding-evidence latest 390  pageH 1429/1107 ovX 0 hdr 58/90 dark 92 err []
+  h1: Generator support merits review | Generator support review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence*', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)']]
+  tabs mock: [['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]
+  pSizes {'12px': 8, '14px': 1} {'14px': 1}
+  [0] 'Evidence bundle · Generator support merits review' 728 | 'Evidence bundle · F-104' 463 r=1.57 rows 4/4 cols ['Input', 'Source', 'Records', 'Coverage', 'Use']/['Input', 'Source', 'Coverage', 'Use'] chips []/[] links 54/0 det 5 xy 16,407 w358|15,432 w360
+  [1] 'Inspect source lineage' 218 | 'Inspect source lineage' 100 r=2.18 rows 0/0 cols []/[] chips []/[] links 1/0 det 0 xy 16,1169 w358|15,913 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 332, 'cw': 318, 'panel': 'Evidence bundle · Generator support merits review'}]
+
+## finding-evidence notfound 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Generator support review | Generator support review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis · Not available yet(off)', 'Evidence(off)', 'Alternatives for this Finding unavailable(off)', 'Recommendation(off)', 'History(off)']]
+  tabs mock: [['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]
+  pSizes {'12px': 2} {'14px': 1}
+  [0] 'Evidence bundle · Selected Finding' 99 | 'Evidence bundle · F-104' 287 r=0.34 rows 0/4 cols []/['Input', 'Source', 'Coverage', 'Use'] chips []/[] links 0/0 det 0 xy 248,520 w1160|234,304 w1161
+  [1] 'Inspect source lineage' 99 | 'Inspect source lineage' 100 r=0.99 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 248,653 w1160|234,609 w1161
+
+## finding-evidence notfound 390  pageH 981/1107 ovX 0 hdr 58/90 dark 92 err []
+  h1: Generator support review | Generator support review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis · Not available yet(off)', 'Evidence(off)', 'Alternatives for this Finding unavailable(off)', 'Recommendation(off)', 'History(off)']]
+  tabs mock: [['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]
+  pSizes {'12px': 2} {'14px': 1}
+  [0] 'Evidence bundle · Selected Finding' 119 | 'Evidence bundle · F-104' 463 r=0.26 rows 0/4 cols []/['Input', 'Source', 'Coverage', 'Use'] chips []/[] links 0/0 det 0 xy 16,667 w358|15,432 w360
+  [1] 'Inspect source lineage' 119 | 'Inspect source lineage' 100 r=1.19 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 16,820 w358|15,913 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 483, 'cw': 358, 'panel': ''}]
+
+## finding-history latest 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Generator support merits review | Generator support review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]
+  tabs mock: [['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]
+  pSizes {'11px': 4, '12px': 4} {}
+  [0] 'Revision history' 512 | 'Revision history' 243 r=2.11 rows 1/3 cols ['Version recorded', 'Event', 'Basis']/['Time', 'Event', 'Basis'] chips []/[] links 11/0 det 6 xy 248,272 w1160|234,304 w1161
+
+## finding-history latest 390  pageH 1546/1015 ovX 0 hdr 58/90 dark 92 err []
+  h1: Generator support merits review | Generator support review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]
+  tabs mock: [['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]
+  pSizes {'11px': 4, '12px': 4} {}
+  [0] 'Revision history' 1097 | 'Revision history' 313 r=3.5 rows 1/3 cols ['Version recorded', 'Event', 'Basis']/['Time', 'Event', 'Basis'] chips []/[] links 11/0 det 6 xy 16,407 w358|15,432 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]
+
+## finding-history version1 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Generator support merits review | Generator support review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]
+  tabs mock: [['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]
+  pSizes {'11px': 5, '12px': 4} {}
+  [0] 'Revision history' 635 | 'Revision history' 243 r=2.61 rows 1/3 cols ['Version recorded', 'Event', 'Basis']/['Time', 'Event', 'Basis'] chips []/[] links 11/0 det 6 xy 248,272 w1160|234,304 w1161
+
+## finding-history version1 390  pageH 1777/1015 ovX 0 hdr 58/90 dark 92 err []
+  h1: Generator support merits review | Generator support review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]
+  tabs mock: [['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]
+  pSizes {'11px': 5, '12px': 4} {}
+  [0] 'Revision history' 1329 | 'Revision history' 313 r=4.25 rows 1/3 cols ['Version recorded', 'Event', 'Basis']/['Time', 'Event', 'Basis'] chips []/[] links 11/0 det 6 xy 16,407 w358|15,432 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]
+
+## finding-history notfound 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Generator support review | Generator support review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis · Not available yet(off)', 'Evidence(off)', 'Alternatives for this Finding unavailable(off)', 'Recommendation(off)', 'History(off)']]
+  tabs mock: [['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]
+  pSizes {'11px': 1, '12px': 5} {}
+  [0] 'Revision history' 244 | 'Revision history' 243 r=1.0 rows 0/3 cols []/['Time', 'Event', 'Basis'] chips []/[] links 0/0 det 0 xy 248,270 w1160|234,304 w1161
+
+## finding-history notfound 390  pageH 900/1015 ovX 0 hdr 58/90 dark 189 err []
+  h1: Generator support review | Generator support review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis · Not available yet(off)', 'Evidence(off)', 'Alternatives for this Finding unavailable(off)', 'Recommendation(off)', 'History(off)']]
+  tabs mock: [['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]
+  pSizes {'11px': 1, '12px': 5} {}
+  [0] 'Revision history' 263 | 'Revision history' 313 r=0.84 rows 0/3 cols []/['Time', 'Event', 'Basis'] chips []/[] links 0/0 det 0 xy 16,497 w358|15,432 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 483, 'cw': 358, 'panel': ''}]
+
+## sitefindings stocked 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 10, '12px': 1} {'11px': 1}
+  [0] 'Findings at this site' 507 | 'Findings at this site' 288 r=1.76 rows 3/3 cols ['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens', 'Period']/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 9/6 det 1 xy 248,250 w1160|234,406 w1161
+
+## sitefindings stocked 390  pageH 1342/1317 ovX 0 hdr 58/131 dark 92 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 10, '12px': 1} {'11px': 1}
+  [0] 'Findings at this site' 763 | 'Findings at this site' 460 r=1.66 rows 3/3 cols ['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens', 'Period']/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 9/6 det 1 xy 16,423 w358|15,667 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 1223, 'cw': 318, 'panel': 'Findings at this site'}]
+
+## sitefindings page2 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 8, '12px': 1} {'11px': 1}
+  [0] 'Findings at this site' 455 | 'Findings at this site' 288 r=1.58 rows 2/3 cols ['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens', 'Period']/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 7/6 det 1 xy 248,250 w1160|234,406 w1161
+
+## sitefindings page2 390  pageH 1272/1317 ovX 0 hdr 58/131 dark 92 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 8, '12px': 1} {'11px': 1}
+  [0] 'Findings at this site' 693 | 'Findings at this site' 460 r=1.51 rows 2/3 cols ['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens', 'Period']/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 7/6 det 1 xy 16,423 w358|15,667 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 1223, 'cw': 318, 'panel': 'Findings at this site'}]
+
+## sitefindings empty 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 3} {'11px': 1}
+  [0] 'Findings at this site' 318 | 'Findings at this site' 288 r=1.1 rows 0/3 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 0/6 det 1 xy 248,250 w1160|234,406 w1161
+
+## sitefindings empty 390  pageH 1019/1317 ovX 0 hdr 58/131 dark 92 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 3} {'11px': 1}
+  [0] 'Findings at this site' 555 | 'Findings at this site' 460 r=1.21 rows 0/3 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 0/6 det 1 xy 16,423 w358|15,667 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## sitefindings stale 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 3} {'11px': 1}
+  [0] 'Findings at this site' 298 | 'Findings at this site' 288 r=1.03 rows 0/3 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 0/6 det 1 xy 248,291 w1160|234,406 w1161
+
+## sitefindings stale 390  pageH 1016/1317 ovX 0 hdr 58/131 dark 92 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 3} {'11px': 1}
+  [0] 'Findings at this site' 516 | 'Findings at this site' 460 r=1.12 rows 0/3 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 0/6 det 1 xy 16,458 w358|15,667 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## sitefindings failed 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 3} {'11px': 1}
+  [0] 'Findings at this site' 298 | 'Findings at this site' 288 r=1.03 rows 0/3 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 0/6 det 1 xy 248,291 w1160|234,406 w1161
+
+## sitefindings failed 390  pageH 1031/1317 ovX 0 hdr 58/131 dark 92 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 3} {'11px': 1}
+  [0] 'Findings at this site' 531 | 'Findings at this site' 460 r=1.15 rows 0/3 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 0/6 det 1 xy 16,458 w358|15,667 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## sitefindings unassessed 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 4} {'11px': 1}
+  [0] 'Findings at this site' 324 | 'Findings at this site' 288 r=1.12 rows 0/3 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 0/6 det 1 xy 248,273 w1160|234,406 w1161
+
+## sitefindings unassessed 390  pageH 1043/1317 ovX 0 hdr 58/131 dark 92 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 4} {'11px': 1}
+  [0] 'Findings at this site' 562 | 'Findings at this site' 460 r=1.22 rows 0/3 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 0/6 det 1 xy 16,439 w358|15,667 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## sitefindings nowindow 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 4} {'11px': 1}
+  [0] 'Findings at this site' 324 | 'Findings at this site' 288 r=1.12 rows 0/3 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 0/6 det 1 xy 248,273 w1160|234,406 w1161
+
+## sitefindings nowindow 390  pageH 1043/1317 ovX 0 hdr 58/131 dark 92 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 4} {'11px': 1}
+  [0] 'Findings at this site' 562 | 'Findings at this site' 460 r=1.22 rows 0/3 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'Lowⓘ', 'Open', 'Medium', 'High', 'Open', 'Medium', 'Mediumⓘ', 'Recommendation'] links 0/6 det 1 xy 16,439 w358|15,667 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
