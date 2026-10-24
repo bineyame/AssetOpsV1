@@ -1,0 +1,3740 @@
+{
+  "revision": null,
+  "captured_at": "2026-10-24T17:03:38.794Z",
+  "pairs": [
+    {
+      "screen": "link00",
+      "case": "portfolio",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "app_image": "link00-portfolio-1440-app.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Record details",
+            "bodyLen": 3901,
+            "body": "CapabilityBackup responseSiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentNoneSelected record references00000002-0000-4000-8000-000000000173Evidence record references00000002-0000-4000-8000-0000000000b6, 00000002-0000-4000-8000-0000000000b8, 00000002-0000-4000-8000-0000000000ba, 00000002-0000-4000-8000-0000000000bb, 00000002-0000-4000-8000-0000000000bd, 00000002-0000-4000-8000-0000000000be, 00000002-0000-4000-8000-0000000000c0, 00000002-0000-4000-8000-0000000000c2, 00000002-0000-4000-8000-0000000000c4, 00000002-0000-4000-8000-0000000000c6, 00000002-0000-4000",
+            "scrollH": 7020
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 3935,
+            "body": "CapabilityCooling recoverySiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-000000000173Evidence record references00000002-0000-4000-8000-0000000000b6, 00000002-0000-4000-8000-0000000000b8, 00000002-0000-4000-8000-0000000000ba, 00000002-0000-4000-8000-0000000000bb, 00000002-0000-4000-8000-0000000000bd, 00000002-0000-4000-8000-0000000000be, 00000002-0000-4000-8000-0000000000c0, 00000002-0000-4000-8000-0000000000c2, 00000002-0000-4000-8000-0000000000c4, 00000002-0000-4000-8000-0000000000c6, 00000002-0000-",
+            "scrollH": 7038
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 3867,
+            "body": "CapabilityProduct exposureSiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentNoneSelected record references00000002-0000-4000-8000-00000000016dEvidence record references00000002-0000-4000-8000-0000000000b6, 00000002-0000-4000-8000-0000000000b8, 00000002-0000-4000-8000-0000000000ba, 00000002-0000-4000-8000-0000000000bb, 00000002-0000-4000-8000-0000000000bd, 00000002-0000-4000-8000-0000000000be, 00000002-0000-4000-8000-0000000000c0, 00000002-0000-4000-8000-0000000000c2, 00000002-0000-4000-8000-0000000000c4, 00000002-0000-4000-8000-0000000000c6, 00000002-0000-400",
+            "scrollH": 6951
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 3834,
+            "body": "CapabilityTemperature complianceSiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-00000000016dEvidence record references00000002-0000-4000-8000-0000000000b6, 00000002-0000-4000-8000-0000000000b8, 00000002-0000-4000-8000-0000000000ba, 00000002-0000-4000-8000-0000000000bb, 00000002-0000-4000-8000-0000000000bd, 00000002-0000-4000-8000-0000000000be, 00000002-0000-4000-8000-0000000000c0, 00000002-0000-4000-8000-0000000000c2, 00000002-0000-4000-8000-0000000000c4, 00000002-0000-4000-8000-0000000000c6, 00000002-00",
+            "scrollH": 6881
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 4994,
+            "body": "CapabilityConnector availabilitySiteEV charging lab · EV-LAB-001Evidence window2026-10-06 08:00–09:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-0000000003d1Evidence record references00000002-0000-4000-8000-00000000024e, 00000002-0000-4000-8000-000000000250, 00000002-0000-4000-8000-000000000254, 00000002-0000-4000-8000-00000000025a, 00000002-0000-4000-8000-00000000025e, 00000002-0000-4000-8000-000000000260, 00000002-0000-4000-8000-000000000262, 00000002-0000-4000-8000-000000000264, 00000002-0000-4000-8000-000000000266, 00000002-0000-4000-8000-000000000268, 00000002-0",
+            "scrollH": 8968
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 400,
+            "body": "CapabilityCause of interruptionSiteEV charging lab · EV-LAB-001Evidence window2026-10-06 08:00–09:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-0000000003d1Evidence record referencesNone recordedSelected observationsCause of interruption — Limited. Cause is not established. Coverage duration cannot be calculated from the selected records. Missing: Connector fault report.",
+            "scrollH": 551
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 510,
+            "body": "CapabilityDelivered energySiteEV charging lab · EV-LAB-001Evidence window2026-10-06 08:00–09:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-0000000003d1Evidence record references00000002-0000-4000-8000-00000000026e, 00000002-0000-4000-8000-00000000028d, 00000002-0000-4000-8000-0000000002ac, 00000002-0000-4000-8000-0000000002cb, 00000002-0000-4000-8000-0000000002ea, 00000002-0000-4000-8000-000000000309, 00000002-0000-4000-8000-00000000031aSelected observationsDelivered energy — Full.",
+            "scrollH": 812
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 320,
+            "body": "CapabilitySession outcomesSiteEV charging lab · EV-LAB-001Evidence window2026-10-06 08:00–09:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-0000000003d1Evidence record references00000002-0000-4000-8000-000000000252, 00000002-0000-4000-8000-000000000314Selected observationsSession outcomes — Full.",
+            "scrollH": 464
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 4996,
+            "body": "CapabilityConnector availabilitySiteEV charging lab 2 · EV-LAB-002Evidence window2026-10-06 08:00–09:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-00000000062fEvidence record references00000002-0000-4000-8000-0000000004ac, 00000002-0000-4000-8000-0000000004ae, 00000002-0000-4000-8000-0000000004b2, 00000002-0000-4000-8000-0000000004b8, 00000002-0000-4000-8000-0000000004bc, 00000002-0000-4000-8000-0000000004be, 00000002-0000-4000-8000-0000000004c0, 00000002-0000-4000-8000-0000000004c2, 00000002-0000-4000-8000-0000000004c4, 00000002-0000-4000-8000-0000000004c6, 00000002",
+            "scrollH": 8968
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 402,
+            "body": "CapabilityCause of interruptionSiteEV charging lab 2 · EV-LAB-002Evidence window2026-10-06 08:00–09:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-00000000062fEvidence record referencesNone recordedSelected observationsCause of interruption — Limited. Cause is not established. Coverage duration cannot be calculated from the selected records. Missing: Connector fault report.",
+            "scrollH": 551
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 512,
+            "body": "CapabilityDelivered energySiteEV charging lab 2 · EV-LAB-002Evidence window2026-10-06 08:00–09:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-00000000062fEvidence record references00000002-0000-4000-8000-0000000004cc, 00000002-0000-4000-8000-0000000004eb, 00000002-0000-4000-8000-00000000050a, 00000002-0000-4000-8000-000000000529, 00000002-0000-4000-8000-000000000548, 00000002-0000-4000-8000-000000000567, 00000002-0000-4000-8000-000000000578Selected observationsDelivered energy — Full.",
+            "scrollH": 812
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 322,
+            "body": "CapabilitySession outcomesSiteEV charging lab 2 · EV-LAB-002Evidence window2026-10-06 08:00–09:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-00000000062fEvidence record references00000002-0000-4000-8000-0000000004b0, 00000002-0000-4000-8000-000000000572Selected observationsSession outcomes — Full.",
+            "scrollH": 464
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 2144,
+            "body": "CapabilityGenerator supportSiteKobo mini-grid · KOBO-001Evidence window2026-10-06 00:00 – 2026-10-07 00:00 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-000000000745Evidence record references00000002-0000-4000-8000-0000000006c7, 00000002-0000-4000-8000-0000000006c8, 00000002-0000-4000-8000-0000000006c9, 00000002-0000-4000-8000-0000000006ca, 00000002-0000-4000-8000-0000000006cb, 00000002-0000-4000-8000-0000000006cc, 00000002-0000-4000-8000-0000000006cd, 00000002-0000-4000-8000-0000000006d2, 00000002-0000-4000-8000-0000000006d3, 00000002-0000-4000-8000-0000000006d4, 00000",
+            "scrollH": 3736
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 205,
+            "body": "CapabilityConnector availabilitySiteEmpty test Site · W303-EMPTY-001Evidence windowNot recordedAssessmentUnknown · Not assessedSelected record referencesNone selectedEvidence record referencesNone recorded",
+            "scrollH": 219
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 204,
+            "body": "CapabilityCause of interruptionSiteEmpty test Site · W303-EMPTY-001Evidence windowNot recordedAssessmentUnknown · Not assessedSelected record referencesNone selectedEvidence record referencesNone recorded",
+            "scrollH": 219
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 199,
+            "body": "CapabilityDelivered energySiteEmpty test Site · W303-EMPTY-001Evidence windowNot recordedAssessmentUnknown · Not assessedSelected record referencesNone selectedEvidence record referencesNone recorded",
+            "scrollH": 219
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 199,
+            "body": "CapabilitySession outcomesSiteEmpty test Site · W303-EMPTY-001Evidence windowNot recordedAssessmentUnknown · Not assessedSelected record referencesNone selectedEvidence record referencesNone recorded",
+            "scrollH": 219
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 69,
+            "body": "Gap codeMISSING_ROLEMissing roletransfer_resultSite codesCOLD-LAB-001",
+            "scrollH": 56
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Cold replay lab · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Cold replay lab · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Cold replay lab · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Cold replay lab · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab 2 · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab 2 · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab 2 · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab 2 · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid · mini-grid",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/W303-EMPTY-001",
+            "text": "Empty test Site · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/W303-EMPTY-001",
+            "text": "Empty test Site · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/W303-EMPTY-001",
+            "text": "Empty test Site · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/W303-EMPTY-001",
+            "text": "Empty test Site · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/operational-records?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Operational records →",
+            "panel": "Recurring evidence gaps"
+          },
+          {
+            "href": "/maintenance/preventive?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Preventive plan →",
+            "panel": "Recurring evidence gaps"
+          }
+        ],
+        "titles": [
+          "Capability coverage across sites",
+          "Recurring evidence gaps"
+        ],
+        "panels": [
+          {
+            "title": "Capability coverage across sites",
+            "x": 248,
+            "y": 327,
+            "w": 1160,
+            "h": 302,
+            "tables": 1,
+            "rows": 17,
+            "columns": [
+              "Site / domain",
+              "Operational capability",
+              "Readiness",
+              "Current ceiling",
+              "Next evidence"
+            ],
+            "chips": [
+              "None",
+              "Limited",
+              "None",
+              "Full",
+              "Limited",
+              "Limited",
+              "Full",
+              "Full",
+              "Limited",
+              "Limited",
+              "Full",
+              "Full",
+              "Limited",
+              "Unknown",
+              "Not assessed",
+              "Unknown",
+              "Not assessed",
+              "Unknown",
+              "Not assessed",
+              "Unknown"
+            ],
+            "links": 17,
+            "buttons": 0,
+            "details": 17,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Recurring evidence gaps",
+            "x": 248,
+            "y": 647,
+            "w": 1160,
+            "h": 183,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Gap",
+              "Sites",
+              "Unlocks",
+              "Next step"
+            ],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio evidence",
+          "top": 43,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "600",
+            "lineHeight": "15px",
+            "color": "rgb(107, 118, 144)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.95px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "13.05px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Evidence Portfolio evidence Cross-site claim readiness, recurring gaps and instrumentation priorities Window 2026-10-06 to 2026-10-06 (UTC days) Evidence cutoff 2026-10-30 09:03:00 UTC (latest at read time) From to (included) Evidence cutoff (UTC) Show Sites with limited claims Not assessed Some Site evidence is unavailable Priority evidence actions Not assessed Priority is not recorded for estate evidence gaps Unsupported claims Not assessed No cross-domain unsupported-claim count is recorded Capability coverage across sites Each row links to site-owned readiness; this page does not independently score the claims SITE / DOMAIN OPERATIONAL CAPABILITY READINESS CURRENT CEILING NEXT EVIDENCE C"
+      }
+    },
+    {
+      "screen": "link01",
+      "case": "portfolio",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "app_image": "link01-portfolio-1440-app.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Basis details",
+            "bodyLen": 795,
+            "body": "SiteCold replay lab · COLD-LAB-001Assumption referencesNone recordedAssumption fingerprintNot comparableConsequence reference00000002-0000-4000-8000-000000000178Line referencecold_chain:00000002-0000-4000-8000-000000000178Technical inputsNone recordedEvidence references00000002-0000-4000-8000-0000000000d3, 00000002-0000-4000-8000-0000000000e1, 00000002-0000-4000-8000-0000000000ef, 00000002-0000-4000-8000-0000000000fd, 00000002-0000-4000-8000-00000000010b, 00000002-0000-4000-8000-000000000119, 00000002-0000-4000-8000-000000000127, 00000002-0000-4000-8000-000000000135, 00000002-0000-4000-8000-00",
+            "scrollH": 868
+          },
+          {
+            "summary": "Basis details",
+            "bodyLen": 2152,
+            "body": "SiteKobo mini-grid · KOBO-001Assumption references00000002-0000-4000-8000-00000000074eAssumption fingerprintsha256:ab3584c587578b58757644133d24abac1ea65b90fd14c499097276438cbce101Consequence reference00000002-0000-4000-8000-000000000757Line referencemini_grid:00000002-0000-4000-8000-000000000757Technical inputs00000002-0000-4000-8000-0000000006c9, 00000002-0000-4000-8000-0000000006ca, 00000002-0000-4000-8000-0000000006cb, 00000002-0000-4000-8000-0000000006cc, 00000002-0000-4000-8000-0000000006cdEvidence references00000002-0000-4000-8000-0000000006c9, 00000002-0000-4000-8000-0000000006ca, 00000",
+            "scrollH": 2762
+          },
+          {
+            "summary": "Basis details",
+            "bodyLen": 716,
+            "body": "SiteEV charging lab · EV-LAB-001Assumption references00000002-0000-4000-8000-000000000639Assumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000002-0000-4000-8000-00000000063bLine referenceev_charging:00000002-0000-4000-8000-00000000063bTechnical inputs00000002-0000-4000-8000-0000000003d3Evidence references00000002-0000-4000-8000-00000000026e, 00000002-0000-4000-8000-00000000028d, 00000002-0000-4000-8000-0000000002ac, 00000002-0000-4000-8000-0000000002cb, 00000002-0000-4000-8000-0000000002ea, 00000002-0000-4000-8000-000000000309, ",
+            "scrollH": 779
+          },
+          {
+            "summary": "Basis details",
+            "bodyLen": 718,
+            "body": "SiteEV charging lab 2 · EV-LAB-002Assumption references00000002-0000-4000-8000-00000000063fAssumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000002-0000-4000-8000-000000000641Line referenceev_charging:00000002-0000-4000-8000-000000000641Technical inputs00000002-0000-4000-8000-000000000631Evidence references00000002-0000-4000-8000-0000000004cc, 00000002-0000-4000-8000-0000000004eb, 00000002-0000-4000-8000-00000000050a, 00000002-0000-4000-8000-000000000529, 00000002-0000-4000-8000-000000000548, 00000002-0000-4000-8000-000000000567",
+            "scrollH": 779
+          },
+          {
+            "summary": "Results (3) · No comparable total 3 grouping results. Comparable total unavailab",
+            "bodyLen": 511,
+            "body": "Single lineCandidate operating-cost exposure · 1 lineCoverage incompleteGross tariff estimate · 2 linesSome Sites have no complete selectionExcluded: 2 linesEV charging lab · Gross tariff estimate: Some Sites have no complete selectionEV charging lab 2 · Gross tariff estimate: Some Sites have no complete selectionNot totalledPotential product exposure · 1 lineNo price is recordedExcluded: 1 lineCold replay lab · Potential product exposure: No price is recordedComparable total unavailable for this selection",
+            "scrollH": 269
+          },
+          {
+            "summary": "Excluded: 2 lines",
+            "bodyLen": 158,
+            "body": "EV charging lab · Gross tariff estimate: Some Sites have no complete selectionEV charging lab 2 · Gross tariff estimate: Some Sites have no complete selection",
+            "scrollH": 269
+          },
+          {
+            "summary": "Excluded: 1 line",
+            "bodyLen": 66,
+            "body": "Cold replay lab · Potential product exposure: No price is recorded",
+            "scrollH": 118
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "Cold replay lab",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Site evidence →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/KOBO-001/financials",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-001",
+            "text": "EV charging lab",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-002",
+            "text": "EV charging lab 2",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          }
+        ],
+        "titles": [
+          "Consequence register",
+          "Aggregation rule"
+        ],
+        "panels": [
+          {
+            "title": "Consequence register",
+            "x": 248,
+            "y": 265,
+            "w": 1160,
+            "h": 302,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Value",
+              "Basis / limit",
+              "Source"
+            ],
+            "chips": [
+              "Unpriced"
+            ],
+            "links": 8,
+            "buttons": 0,
+            "details": 4,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Aggregation rule",
+            "x": 248,
+            "y": 646,
+            "w": 1160,
+            "h": 121,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Single line",
+              "Coverage incomplete",
+              "Not totalled"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 3,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio financials",
+          "top": 43,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "600",
+            "lineHeight": "15px",
+            "color": "rgb(107, 118, 144)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.95px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "13.05px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Financials Portfolio financials Estate consequences with source-site ownership and bounded interpretation Window 2026-10-06 to 2026-10-06 (UTC days) Evidence cutoff 2026-10-30 09:03:00 UTC (latest at read time) From to (included) Evidence cutoff (UTC) Show Site-owned consequences Values grouped by basis and period; no financial assessment Consequence register No independent repricing or technical re-derivation SITE CATEGORY WINDOW / QUANTITY VALUE BASIS / LIMIT SOURCE Cold replay lab Potential product exposure 6 Oct 2026 · 19:00–20:05 UTC 19 °C-min Unpriced The excursion has no recorded end, so its total exposure has no upper bound. Basis details Site evidence → Kobo mini-grid Candidate oper"
+      }
+    },
+    {
+      "screen": "link02",
+      "case": "portfolio",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "app_image": "link02-portfolio-1440-app.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Finding 00000002",
+            "bodyLen": 114,
+            "body": "Finding 00000002-0000-4000-8000-000000000170 · revision 00000002-0000-4000-8000-000000000171 · Generated test data",
+            "scrollH": 58
+          },
+          {
+            "summary": "Finding 00000002",
+            "bodyLen": 114,
+            "body": "Finding 00000002-0000-4000-8000-000000000176 · revision 00000002-0000-4000-8000-000000000177 · Generated test data",
+            "scrollH": 58
+          },
+          {
+            "summary": "Finding 00000002",
+            "bodyLen": 116,
+            "body": "Finding 00000002-0000-4000-8000-000000000749 · revision 00000002-0000-4000-8000-00000000074b · Prepared example data",
+            "scrollH": 58
+          }
+        ],
+        "links": [
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All states",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=supported",
+            "text": "Supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=unconfirmed",
+            "text": "Unconfirmed",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=no_longer_supported",
+            "text": "No longer supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=merged",
+            "text": "Merged",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "COLD-LAB-001",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "COLD-LAB-001",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001/findings/00000002-0000-4000-8000-000000000749?revision_id=00000002-0000-4000-8000-00000000074b",
+            "text": "Generator support merits review: bounded candidate avoidable running",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "KOBO-001",
+            "panel": "Findings across the estate"
+          }
+        ],
+        "titles": [
+          "Findings across the estate"
+        ],
+        "panels": [
+          {
+            "title": "Findings across the estate",
+            "x": 248,
+            "y": 400,
+            "w": 1160,
+            "h": 391,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "Supported",
+              "Supported",
+              "Supported"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 3,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings*",
+              "Cost",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Findings Evidence-backed operating conclusions · one global object model All findings Cost Risks Opportunities Window 2026-10-06 to 2026-10-06 (UTC days) Evidence cutoff 2026-10-30 09:03:00 UTC (latest at read time) From to (included) Evidence cutoff (UTC) Show Supported findings Coverage incomplete High priority Not assessed Low confidence Not assessed Awaiting verification Coverage incomplete All states Supported Unconfirmed No longer supported Merged Findings across the estate Lens is how a finding is read, not a second object · state is a filter FINDING SITE PRIORITY CONFIDENCE STATE MAIN CONSEQUENCE LENS Cold room temperature outside its policy band Finding 00000002 COLD-LAB-001 Cold re"
+      }
+    },
+    {
+      "screen": "link03",
+      "case": "portfolio",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "app_image": "link03-portfolio-1440-app.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All states",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=supported",
+            "text": "Supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=unconfirmed",
+            "text": "Unconfirmed",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=no_longer_supported",
+            "text": "No longer supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=merged",
+            "text": "Merged",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Risks lens"
+        ],
+        "panels": [
+          {
+            "title": "Risks lens",
+            "x": 248,
+            "y": 400,
+            "w": 1160,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks*",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Findings Evidence-backed operating conclusions · one object model All findings Cost Risks Opportunities Window 2026-10-06 to 2026-10-06 (UTC days) Evidence cutoff 2026-10-30 09:03:00 UTC (latest at read time) From to (included) Evidence cutoff (UTC) Show Supported findings Coverage incomplete High priority Not assessed Low confidence Not assessed Awaiting verification Coverage incomplete All states Supported Unconfirmed No longer supported Merged Risks lens Lens is how a finding is read, not a second object · state is a filter Some sites have no selected result; totals are unknown. Some sites are not yet assessed; estate totals are unknown. Priority, confidence and workflow state stay separa"
+      }
+    },
+    {
+      "screen": "link04",
+      "case": "globalevidence",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/maintenance/preventive?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+      "app_image": "link04-globalevidence-1440-app.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+            "text": "Maintenance",
+            "panel": ""
+          },
+          {
+            "href": "/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+            "text": "Corrective",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Preventive plan"
+        ],
+        "panels": [
+          {
+            "title": "Preventive plan",
+            "x": 248,
+            "y": 366,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Maintenance",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs global-work-tabs",
+            "items": [
+              "Corrective",
+              "Preventive · scheduled*(off)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Maintenance Preventive · scheduled Maintenance Scheduled maintenance by calendar or running hours Corrective Preventive · scheduled From (UTC) To (UTC, exclusive) Show records Reload Due status not assessed Scheduled by calendar or running hours · due dates are plan facts Assets · Not available yet Work records could not be read. Reload. Preventive plan Completing a draft plan here is unavailable; a performed record and later evidence are separate. No incident link or cause is established by these draft plans."
+      }
+    },
+    {
+      "screen": "link05",
+      "case": "globalevidence",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/operational-records?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+      "app_image": "link05-globalevidence-1440-app.png",
+      "app": {
+        "closedDetails": [],
+        "links": [],
+        "titles": [
+          "Operational records",
+          "Record a manual reading",
+          "How records are used"
+        ],
+        "panels": [
+          {
+            "title": "Operational records",
+            "x": 248,
+            "y": 287,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Record a manual reading",
+            "x": 248,
+            "y": 408,
+            "w": 734,
+            "h": 298,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How records are used",
+            "x": 1000,
+            "y": 408,
+            "w": 408,
+            "h": 298,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Operational records",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Operational records Operational records Operator logs, manual readings, shift notes and site visits From (UTC) To (UTC, exclusive) Show records Reload Work records could not be read. Reload. All Operator log Manual reading Shift note Site visit Operational records What people on site recorded, and the evidence each one feeds Record a manual reading Manual readings cannot be submitted from this page. Site Kobo Mini-grid GreenHarvest Cold Room Reading Fuel tank dip Stock in chamber Meter reading Value Taken at Submit for review · Not available yet Recording requires an authorized work service. How records are used Authored records are kept apart from measured readings. This page shows them as "
+      }
+    },
+    {
+      "screen": "link06",
+      "case": "globalevidence",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/sites/COLD-LAB-001",
+      "app_image": "link06-globalevidence-1440-app.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Inspect evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Temperature",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Backup",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Open Finding →",
+            "panel": "What happened · power → cooling → product conditions"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Open Finding →",
+            "panel": "Needs attention"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Performance › Backup →",
+            "panel": "Needs attention"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Open financial bridge →",
+            "panel": "Bounded money consequence"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A58%3A37.139372Z",
+            "text": "Open Finding →",
+            "panel": "Next step"
+          }
+        ],
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 248,
+            "y": 473,
+            "w": 1145,
+            "h": 252,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 248,
+            "y": 743,
+            "w": 725,
+            "h": 386,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 743,
+            "w": 403,
+            "h": 386,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Automatic generator start failed in the accepted record",
+              "Transfer-switch position was not observed"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1147,
+            "w": 725,
+            "h": 222,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1147,
+            "w": 403,
+            "h": 222,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Automatic generator start failed in the accepted record"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1419,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 6,
+          "10px": 9,
+          "14px": 7
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1419
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Sites Cold replay lab Cold replay lab Demonstration data · COLD-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence Selected window 6 Oct 2026 19:00–20:05 UTC Selected evidence through 24 Oct 16:58:37 UTC Degraded Confidence: Bounded Potential product exposure Inspect evidence Keep the chamber between 2–4°C through power, cooling and operating disturbances. Temperature Needs attention 1 excursion · latest 4.8 °C · policy 2–4 °C · coverage 13 / 13 readings Backup Degraded 1 start attempt · 0 started · 1 failed Cooling Limited Cooling recovery is not established by the selected start chain. · Recovery comparis"
+      }
+    },
+    {
+      "screen": "link07",
+      "case": "globalevidence",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A42%3A49.107407Z",
+      "app_image": "link07-globalevidence-1440-app.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "Cold replay lab",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A42%3A49.107407Z",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A42%3A49.107407Z&view=analysis",
+            "text": "Analysis",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/foundation?at=2026-10-06T20%3A05%3A00.000000Z",
+            "text": "Configuration at window end",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-24T16%3A42%3A49.107407Z&view=analysis",
+            "text": "Evidence › Analysis",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 248,
+            "y": 339,
+            "w": 1160,
+            "h": 119,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 476,
+            "w": 734,
+            "h": 119,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 1000,
+            "y": 476,
+            "w": 408,
+            "h": 119,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Analysis"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "10px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Sites Cold replay lab Evidence Cold replay lab Demonstration data · COLD-LAB-001 Evidence · accepted readings and what is missing Overview Foundation Health Performance Findings Work Financials Evidence Overview Analysis Selected window 6 Oct 2026 19:00–20:05 UTC Selected evidence through 24 Oct 16:42:49 UTC Evidence unknown 4 capabilities · 0 full · 0 limited · 4 none · no single score · Earlier evidence cutoff Configuration at window end What we can conclude now Evidence readiness is not equipment condition No cold assessment for this window Data sources · data quality, not equipment condition Source contact and accepted facts are separate; neither establishes equipment condition. No cold "
+      }
+    },
+    {
+      "screen": "link08",
+      "case": "globalevidence",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/sites/EV-LAB-001",
+      "app_image": "link08-globalevidence-1440-app.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Site record: identity, provenance and actions",
+            "bodyLen": 1659,
+            "body": "Site informationSite IDEV-LAB-001NameEV charging labTypeEV_CHARGINGLocationAddis Ababa, EthiopiaTimezoneEtc/UTCLifecycle statusPlannedFoundation version1Valid from2026-10-01T00:00:00ZSummaryRegistered EV charging lab for W2-05a (D-2026-10-18-w2-05-buildspec): one site feed through an import meter to one charger with two connectors, each enabled on Tuesdays 08:00-16:00 UTC. Configuration only: nothing here says any charging session, energy or connector state has been observed.The foundation is the site's configured content, copied from the template when the site was created. It is component tru",
+            "scrollH": 435
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/evidence",
+            "text": "Evidence",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 301,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 422,
+            "w": 734,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 1000,
+            "y": 422,
+            "w": 408,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 566,
+            "w": 734,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 1000,
+            "y": 566,
+            "w": 408,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 5
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Sites EV charging lab EV charging lab Demonstration data · EV-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence Awaiting evidence migration This site's configuration has moved to its stored Foundation versions. Its overview is awaiting evidence migration, so earlier results are not shown beside the updated configuration. What happened in the selected hour Not shown: this Overview is awaiting evidence migration. This is not an empty result. Operating context Not shown: this Overview is awaiting evidence migration. This is not an empty result. Needs attention Not shown: this Overview is awaiting evidence mig"
+      }
+    },
+    {
+      "screen": "link09",
+      "case": "globalevidence",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+      "app_image": "link09-globalevidence-1440-app.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Capability details",
+            "bodyLen": 1836,
+            "body": "Session outcomes: Full · 1800/1800 session-seconds covered · requires Session start and end reports · 2 accepted records · source REGISTERED_SIMULATION · known at 2026-10-06T09:00:00.000000ZConnector availability: Limited · Availability is not assessed. Coverage duration cannot be calculated from the selected records. · requires Connector status reports · 122 accepted records · source REGISTERED_SIMULATION · known at 2026-10-06T09:00:00.000000Z · Availability is not assessed. Coverage duration cannot be calculated from the selected records.Delivered energy: Full · 1800/1800 session-seconds cov",
+            "scrollH": 360
+          },
+          {
+            "summary": "Source details",
+            "bodyLen": 2383,
+            "body": "Connector 1 · Connector c1Contact Unknown · No source-specific recordSource 00000002-0000-4000-8000-000000000186 · Unknown · diagnostic No source-specific record · received No source-specific record · cadence No source-specific record · contact No source-specific record · age No source-specific recordSource 00000002-0000-4000-8000-000000000187 · Unknown · diagnostic No source-specific record · received No source-specific record · cadence No source-specific record · contact No source-specific record · age No source-specific recordSource 00000002-0000-4000-8000-000000000188 · Unknown · diagnosti",
+            "scrollH": 371
+          },
+          {
+            "summary": "Evidence request details",
+            "bodyLen": 362,
+            "body": "Connector status coverage not assessed · limits Connector availability to LimitedConnector fault reports · limits Cause of interruption to Limited3600/3900 s of selected window covered · limits Site power context to Limited3600/3900 s of selected window covered · limits Site power constraint to LimitedGross scenario only. · limits Gross tariff scenario to Full",
+            "scrollH": 205
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001",
+            "text": "EV charging lab",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Analysis",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Review sessions",
+            "panel": "What we can conclude now"
+          },
+          {
+            "href": "/sites/EV-LAB-001/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Review availability",
+            "panel": "What we can conclude now"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+            "text": "Review financials",
+            "panel": "What we can conclude now"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+            "text": "Financials →",
+            "panel": "Most useful next evidence"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+            "text": "Evidence › Analysis",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 248,
+            "y": 339,
+            "w": 1145,
+            "h": 356,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Capability",
+              "Evidence",
+              "What we can say",
+              "What is missing",
+              "Next step"
+            ],
+            "chips": [
+              "Full",
+              "Limited",
+              "Full",
+              "Limited"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 713,
+            "w": 725,
+            "h": 421,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Source",
+              "Contact at window end",
+              "Accepted quality",
+              "What it provides",
+              "Affects"
+            ],
+            "chips": [
+              "Unknown",
+              "Good",
+              "Unknown",
+              "Good",
+              "Unknown",
+              "Good",
+              "Unknown",
+              "No fact"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 991,
+            "y": 713,
+            "w": 403,
+            "h": 421,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [
+              "Connect billing records",
+              "No further evidence request recorded",
+              "No further evidence request recorded"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1245,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Analysis"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3,
+          "10px": 1,
+          "14px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1245
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Sites EV charging lab Evidence EV charging lab Demonstration data · EV-LAB-001 Evidence · accepted readings and what is missing Overview Foundation Health Performance Findings Work Financials Evidence Overview Analysis 6 Oct 08:00–6 Oct 09:05 UTC · known at 6 Oct 09:00 UTC Evidence limited 4 capabilities · 2 full · 2 limited · 0 none · no single score Generated test dataRegistered test reports; not physical charger observations. Portfolio evidence · Not available yet What we can conclude now Evidence readiness is not equipment condition CAPABILITY EVIDENCE WHAT WE CAN SAY WHAT IS MISSING NEXT STEP Session outcomes Full 1 completed · 0 observed aborts · 0 incomplete Nothing required for this "
+      }
+    },
+    {
+      "screen": "link10",
+      "case": "globalfinancials",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+      "app_image": "link10-globalfinancials-1440-app.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Basis details",
+            "bodyLen": 576,
+            "body": "Unrounded amount: KES 8.33250000 · state ESTIMATED · ELIGIBLE_COMPLETE_INTERVALSMeter records: 00000002-0000-4000-8000-00000000026e, 00000002-0000-4000-8000-00000000028d, 00000002-0000-4000-8000-0000000002ac, 00000002-0000-4000-8000-0000000002cb, 00000002-0000-4000-8000-0000000002ea, 00000002-0000-4000-8000-000000000309, 00000002-0000-4000-8000-00000000031aSession revisions: 00000002-0000-4000-8000-0000000003d3Tariff revision: 00000002-0000-4000-8000-000000000639 · source gate REGISTERED_SIMULATION · source REGISTERED_SIMULATIONGross tariff scenario; not cash collected.",
+            "scrollH": 142
+          },
+          {
+            "summary": "Assumption details",
+            "bodyLen": 424,
+            "body": "Tariff revision 00000002-0000-4000-8000-000000000639 · currency/kWh · Authored estimateValid 2026-10-06T08:00:00.000000Z to 2026-10-06T09:00:00.000000Z · recorded 2026-10-24T16:59:31.335305Z · 1 published revisionsTariff published 2026-10-24 16:59 UTC; applied as a scenario to the selected delivery window. Evidence through 2026-10-06 09:00 UTC.Billing / collections: No record · source: published Site financial assumption",
+            "scrollH": 139
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001",
+            "text": "EV charging lab",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Assumptions",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Scenarios",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Sessions ↗",
+            "panel": "What happened → what it means in money"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Review assumptions",
+            "panel": "Assumptions in use"
+          }
+        ],
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 494,
+            "w": 1145,
+            "h": 216,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "What happened",
+              "How it becomes money",
+              "Consequence",
+              "Basis",
+              "Confidence",
+              "Source"
+            ],
+            "chips": [
+              "Scenario"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 728,
+            "w": 725,
+            "h": 269,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Not included",
+            "x": 991,
+            "y": 728,
+            "w": 403,
+            "h": 269,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1047,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Assumptions",
+              "Scenarios"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 4,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1047
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Sites EV charging lab Financials EV charging lab Demonstration data · EV-LAB-001 Financials · what the site's technical behaviour means in money Overview Foundation Health Performance Findings Work Financials Evidence Overview Assumptions Scenarios 6 Oct 08:00–6 Oct 09:05 UTC · known at 6 Oct 09:00 UTC 1 consequence line KES · selected window · gross scenario only · Displayed rows include unpriced context Generated test dataRegistered test reports; not physical charger observations. Portfolio roll-up · Not available yet Delivered energy 30.000 kWh Metered, complete sessions Gross tariff estimate KES 8.33 Gross scenario · not cash collected Lost revenue Unknown Unmet demand not established Co"
+      }
+    },
+    {
+      "screen": "link11",
+      "case": "globalevidence",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/sites/EV-LAB-002",
+      "app_image": "link11-globalevidence-1440-app.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Site record: identity, provenance and actions",
+            "bodyLen": 1663,
+            "body": "Site informationSite IDEV-LAB-002NameEV charging lab 2TypeEV_CHARGINGLocationAddis Ababa, EthiopiaTimezoneEtc/UTCLifecycle statusPlannedFoundation version1Valid from2026-10-01T00:00:00ZSummarySecond registered EV charging lab (W3-02 estate comparability fixture): one site feed through an import meter to one charger with two connectors, each enabled on Tuesdays 08:00-16:00 UTC. Configuration only: nothing here says any charging session, energy or connector state has been observed.The foundation is the site's configured content, copied from the template when the site was created. It is component",
+            "scrollH": 435
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/evidence",
+            "text": "Evidence",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 301,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 422,
+            "w": 734,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 1000,
+            "y": 422,
+            "w": 408,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 566,
+            "w": 734,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 1000,
+            "y": 566,
+            "w": 408,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab 2",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 5
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Sites EV charging lab 2 EV charging lab 2 Demonstration data · EV-LAB-002 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence Awaiting evidence migration This site's configuration has moved to its stored Foundation versions. Its overview is awaiting evidence migration, so earlier results are not shown beside the updated configuration. What happened in the selected hour Not shown: this Overview is awaiting evidence migration. This is not an empty result. Operating context Not shown: this Overview is awaiting evidence migration. This is not an empty result. Needs attention Not shown: this Overview is awaiting evidence"
+      }
+    },
+    {
+      "screen": "link12",
+      "case": "globalevidence",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+      "app_image": "link12-globalevidence-1440-app.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Capability details",
+            "bodyLen": 1836,
+            "body": "Session outcomes: Full · 1800/1800 session-seconds covered · requires Session start and end reports · 2 accepted records · source REGISTERED_SIMULATION · known at 2026-10-06T09:00:00.000000ZConnector availability: Limited · Availability is not assessed. Coverage duration cannot be calculated from the selected records. · requires Connector status reports · 122 accepted records · source REGISTERED_SIMULATION · known at 2026-10-06T09:00:00.000000Z · Availability is not assessed. Coverage duration cannot be calculated from the selected records.Delivered energy: Full · 1800/1800 session-seconds cov",
+            "scrollH": 360
+          },
+          {
+            "summary": "Source details",
+            "bodyLen": 2383,
+            "body": "Connector 1 · Connector c1Contact Unknown · No source-specific recordSource 00000002-0000-4000-8000-0000000003e4 · Unknown · diagnostic No source-specific record · received No source-specific record · cadence No source-specific record · contact No source-specific record · age No source-specific recordSource 00000002-0000-4000-8000-0000000003e5 · Unknown · diagnostic No source-specific record · received No source-specific record · cadence No source-specific record · contact No source-specific record · age No source-specific recordSource 00000002-0000-4000-8000-0000000003e6 · Unknown · diagnosti",
+            "scrollH": 371
+          },
+          {
+            "summary": "Evidence request details",
+            "bodyLen": 362,
+            "body": "Connector status coverage not assessed · limits Connector availability to LimitedConnector fault reports · limits Cause of interruption to Limited3600/3900 s of selected window covered · limits Site power context to Limited3600/3900 s of selected window covered · limits Site power constraint to LimitedGross scenario only. · limits Gross tariff scenario to Full",
+            "scrollH": 205
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002",
+            "text": "EV charging lab 2",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence/analysis?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Analysis",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Review sessions",
+            "panel": "What we can conclude now"
+          },
+          {
+            "href": "/sites/EV-LAB-002/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Review availability",
+            "panel": "What we can conclude now"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+            "text": "Review financials",
+            "panel": "What we can conclude now"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+            "text": "Financials →",
+            "panel": "Most useful next evidence"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence/analysis?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+            "text": "Evidence › Analysis",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 248,
+            "y": 339,
+            "w": 1145,
+            "h": 356,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Capability",
+              "Evidence",
+              "What we can say",
+              "What is missing",
+              "Next step"
+            ],
+            "chips": [
+              "Full",
+              "Limited",
+              "Full",
+              "Limited"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 713,
+            "w": 725,
+            "h": 421,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Source",
+              "Contact at window end",
+              "Accepted quality",
+              "What it provides",
+              "Affects"
+            ],
+            "chips": [
+              "Unknown",
+              "Good",
+              "Unknown",
+              "Good",
+              "Unknown",
+              "Good",
+              "Unknown",
+              "No fact"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 991,
+            "y": 713,
+            "w": 403,
+            "h": 421,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [
+              "Connect billing records",
+              "No further evidence request recorded",
+              "No further evidence request recorded"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1245,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab 2",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Analysis"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3,
+          "10px": 1,
+          "14px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1245
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Sites EV charging lab 2 Evidence EV charging lab 2 Demonstration data · EV-LAB-002 Evidence · accepted readings and what is missing Overview Foundation Health Performance Findings Work Financials Evidence Overview Analysis 6 Oct 08:00–6 Oct 09:05 UTC · known at 6 Oct 09:00 UTC Evidence limited 4 capabilities · 2 full · 2 limited · 0 none · no single score Generated test dataRegistered test reports; not physical charger observations. Portfolio evidence · Not available yet What we can conclude now Evidence readiness is not equipment condition CAPABILITY EVIDENCE WHAT WE CAN SAY WHAT IS MISSING NEXT STEP Session outcomes Full 1 completed · 0 observed aborts · 0 incomplete Nothing required for t"
+      }
+    },
+    {
+      "screen": "link13",
+      "case": "globalfinancials",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/sites/EV-LAB-002/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+      "app_image": "link13-globalfinancials-1440-app.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Basis details",
+            "bodyLen": 576,
+            "body": "Unrounded amount: KES 8.33250000 · state ESTIMATED · ELIGIBLE_COMPLETE_INTERVALSMeter records: 00000002-0000-4000-8000-0000000004cc, 00000002-0000-4000-8000-0000000004eb, 00000002-0000-4000-8000-00000000050a, 00000002-0000-4000-8000-000000000529, 00000002-0000-4000-8000-000000000548, 00000002-0000-4000-8000-000000000567, 00000002-0000-4000-8000-000000000578Session revisions: 00000002-0000-4000-8000-000000000631Tariff revision: 00000002-0000-4000-8000-00000000063f · source gate REGISTERED_SIMULATION · source REGISTERED_SIMULATIONGross tariff scenario; not cash collected.",
+            "scrollH": 142
+          },
+          {
+            "summary": "Assumption details",
+            "bodyLen": 424,
+            "body": "Tariff revision 00000002-0000-4000-8000-00000000063f · currency/kWh · Authored estimateValid 2026-10-06T08:00:00.000000Z to 2026-10-06T09:00:00.000000Z · recorded 2026-10-24T16:59:31.702472Z · 1 published revisionsTariff published 2026-10-24 16:59 UTC; applied as a scenario to the selected delivery window. Evidence through 2026-10-06 09:00 UTC.Billing / collections: No record · source: published Site financial assumption",
+            "scrollH": 139
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002",
+            "text": "EV charging lab 2",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/financial-assumptions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Assumptions",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/financials/scenarios?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Scenarios",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-002/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Sessions ↗",
+            "panel": "What happened → what it means in money"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/financial-assumptions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Review assumptions",
+            "panel": "Assumptions in use"
+          }
+        ],
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 494,
+            "w": 1145,
+            "h": 216,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "What happened",
+              "How it becomes money",
+              "Consequence",
+              "Basis",
+              "Confidence",
+              "Source"
+            ],
+            "chips": [
+              "Scenario"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 728,
+            "w": 725,
+            "h": 269,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Not included",
+            "x": 991,
+            "y": 728,
+            "w": 403,
+            "h": 269,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1047,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab 2",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Assumptions",
+              "Scenarios"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 4,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1047
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Sites EV charging lab 2 Financials EV charging lab 2 Demonstration data · EV-LAB-002 Financials · what the site's technical behaviour means in money Overview Foundation Health Performance Findings Work Financials Evidence Overview Assumptions Scenarios 6 Oct 08:00–6 Oct 09:05 UTC · known at 6 Oct 09:00 UTC 1 consequence line KES · selected window · gross scenario only · Displayed rows include unpriced context Generated test dataRegistered test reports; not physical charger observations. Portfolio roll-up · Not available yet Delivered energy 30.000 kWh Metered, complete sessions Gross tariff estimate KES 8.33 Gross scenario · not cash collected Lost revenue Unknown Unmet demand not establishe"
+      }
+    },
+    {
+      "screen": "link14",
+      "case": "globalevidence",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/sites/KOBO-001",
+      "app_image": "link14-globalevidence-1440-app.png",
+      "app": {
+        "closedDetails": [],
+        "links": [],
+        "titles": [
+          "Site unavailable"
+        ],
+        "panels": [
+          {
+            "title": "Site unavailable",
+            "x": 248,
+            "y": 76,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Site",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Site Site unavailable The site store could not be read, so this site cannot be shown. This is a statement about the store: nothing is known about whether the site is configured."
+      }
+    },
+    {
+      "screen": "link15",
+      "case": "globalfinancials",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/sites/KOBO-001/financials",
+      "app_image": "link15-globalfinancials-1440-app.png",
+      "app": {
+        "closedDetails": [],
+        "links": [],
+        "titles": [
+          "Site unavailable"
+        ],
+        "panels": [
+          {
+            "title": "Site unavailable",
+            "x": 248,
+            "y": 76,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Financials",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Financials Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+      }
+    },
+    {
+      "screen": "link16",
+      "case": "portfolio",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/sites/KOBO-001/findings/00000002-0000-4000-8000-000000000749?revision_id=00000002-0000-4000-8000-00000000074b",
+      "app_image": "link16-portfolio-1440-app.png",
+      "app": {
+        "closedDetails": [],
+        "links": [],
+        "titles": [
+          "Site unavailable"
+        ],
+        "panels": [
+          {
+            "title": "Site unavailable",
+            "x": 248,
+            "y": 76,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Finding",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Finding Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+      }
+    },
+    {
+      "screen": "link17",
+      "case": "globalevidence",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5181/sites/W303-EMPTY-001",
+      "app_image": "link17-globalevidence-1440-app.png",
+      "app": {
+        "closedDetails": [],
+        "links": [],
+        "titles": [
+          "No such site"
+        ],
+        "panels": [
+          {
+            "title": "No such site",
+            "x": 248,
+            "y": 76,
+            "w": 1160,
+            "h": 140,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Site not found",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Site not found No such site No site with that site ID is configured. A site is addressed by its site ID and by nothing else, so it cannot be reached by its name or by the template it was created from. This is a statement that the site does not exist, not a site with nothing in it."
+      }
+    }
+  ]
+}

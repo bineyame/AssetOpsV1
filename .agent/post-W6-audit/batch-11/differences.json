@@ -1,0 +1,154 @@
+[
+ {
+  "id": "B11-X1",
+  "screens": [
+   "globalevidence",
+   "globalfinancials",
+   "portfolio"
+  ],
+  "what": "Cross-cutting, cited not re-described. B1-01/B2-01 (no white topbar with breadcrumb, Find, Window picker, avatar): every pair. B1-04/B2-36 (rail Assets/Settings 'Not available yet'): every pair. B2-02 (page-local Window controls): every non-refused pair has the W3 shared date bar (Window line, From, to (included), Evidence cutoff (UTC), Show), wrapping to two lines at 1440; the mock has only the topbar 'Window: Event window 6 Oct 2026'. R88/R112 cover Work screens only. B1-02/B2-04 (tall dark 390 header on short pages): 299 px on globalevidence and globalfinancials refused (4 pairs), 309 px on portfolio refused-reversed, refused-over-31d, refusal-401, refusal-503 and the three W3-02-producer portfolio 503 pairs; every other 390 pair is 92 px (mock 90). B1-07/B2-03 (14 px prose) does NOT recur: .prose is 12 px as in the mock; table text 10-11 px equals the mock. B1-53 (system vocabulary/IDs): Record details disclosures (UUID lists up to ~5,000 characters per row, 'Gap code MISSING_ROLE', 'Missing role transfer_result'), Basis details ('Line reference cold_chain:<uuid>', 'Assumption fingerprint sha256:...'), visible Portfolio Finding cells ('Finding COLD-LAB-001 · 00000002-0000-4000-8000-000000000170'), Portfolio Energy basis ('Classification: REGISTERED_SIMULATION', 'Basis SHA-256', UUIDs), scope disclosure 'Cold-chain · UNKNOWN', '0 surviving VERIFIED outcomes'. B2-21/B3-04 (UTC): estate windows are UTC days by W3 contract; Site row windows (cold 19:00-20:05 UTC) are also UTC. B3-01 not applicable (no tab rows). '1 incidents' and raw 'c1 · EV_CONNECTOR' not present. The domainActionClient window-error item has a W3 analogue (B11-13).",
+  "disp": "cite existing IDs; B2-02 needs the topbar fix or an R88/R112-style D1 row naming the W3 roots"
+ },
+ {
+  "id": "B11-01",
+  "screens": [
+   "globalfinancials"
+  ],
+  "severity": "Medium",
+  "what": "EV Site-name links land on the wrong view. The Financials register Site cells 'EV charging lab' and 'EV charging lab 2' link /sites/EV-LAB-001 and /sites/EV-LAB-002 (financials.py/portfolio.py `links.site` is `/sites/{code}` for every domain). That route renders the generic Overview reading 'Awaiting evidence migration ... This is not an empty result' with every panel 'Not shown', not the built EV Overview at /sites/{code}/ev (batch 9 `ev`). Captured in part-w303-links link08/link11. The same `links.site` feeds Portfolio rows (no EV row in this fixture). The EV Site's own tab-row 'Overview' tab also links /sites/EV-LAB-001 (cross-check, batch-9 territory). Cold Site links (/sites/COLD-LAB-001) land correctly on the cold Overview.",
+  "disp": "(c) D3 Medium, same seam family as B7-01/B9-10 (a domain route wired to the mini/legacy view): either the estate link uses the EV Overview route or /sites/:siteId becomes EV-aware. W3 estate fix slice plus the W2 EV slice."
+ },
+ {
+  "id": "B11-02",
+  "screens": [
+   "portfolio"
+  ],
+  "what": "Built destinations left inert. Priority table: both cold Findings read 'Finding detail unavailable' (portfolio.py:168-171 links only MINIGRID Findings: 'S12 ... cold/EV stay inert until those exact routes are reviewed'), although cold-finding (W2-03) and ev-finding (W2-06) routes are built and reviewed and the Site Overviews link 'Open Finding' to them. Objectives matrix: every cell says 'Site detail unavailable' because `_cell()` hard-codes destination None (portfolio.py:298-300), although Site Health, Performance, Financials and Evidence pages exist for all three domains. Mock: 19 links in 'Where management should act first' and 18 in the matrix; app 6 and 0.",
+  "disp": "(c) D3 Low: an expired build-order restriction not applied (D5-style expiry). Alternatively (b) D5 naming the resolving unit."
+ },
+ {
+  "id": "B11-03",
+  "screens": [
+   "globalevidence",
+   "globalfinancials",
+   "portfolio"
+  ],
+  "what": "Mini-grid rows open the current Site view without the estate window: Evidence row 'Kobo mini-grid · mini-grid' links /sites/KOBO-001 (not Site Evidence); Financials 'Site bridge →' links /sites/KOBO-001/financials with 'Opens current Site view'; the Portfolio Kobo Site link is /sites/KOBO-001 (closure 5 B5 design: evidence_money.py window_links, financials.py _money_links). The landing could not be verified: in both W3 producers GET /api/sites/KOBO-001 returned 503 SITE_STORE_UNAVAILABLE 'var/sites/kobo-001.yaml has changed since Site KOBO-001 was imported', so /sites/KOBO-001, its Financials and the Finding route all show 'Site unavailable' (link14-link16). This is the producer harness's file-backed Site document versus its import, not an estate-page defect.",
+  "disp": "Targets: spec-ruled, need a D1 register row (no windowed mini-grid Site Evidence link). Landing: unverified (environment); recheck with a W1 producer that serves KOBO-001."
+ },
+ {
+  "id": "B11-04",
+  "screens": [
+   "globalevidence"
+  ],
+  "what": "Capability coverage granularity and cap. The app has one row per Site x capability (13 rows clean, 17 partial/historical, 22 W3-02 week, 9 W3-02 day) where the mock has one row per Site (3). The Site link text repeats on every row; order is cold, EV, EV 2, Kobo (mock Kobo first). The table body is capped with an internal vertical scroll, so about 3 rows are visible at 1440 and the panel stays 0.98-1.09x the mock. Each row carries a 'Record details' disclosure.",
+  "disp": "Granularity: (b) D2 register row (W3-02 build-spec ruling exists, no Rxx). Internal vertical scroll cap: needs a worst-case ruling (lesson 15: a short mock row cannot set a production cap)."
+ },
+ {
+  "id": "B11-05",
+  "screens": [
+   "globalevidence"
+  ],
+  "what": "Recurring evidence gaps: 1 row (clean, pending, W3-02) or 0 rows (historical) against 4 in the mock. Next step reads 'Connect or record Transfer result · Not available yet'. The mock's per-row CTA links move into an 'Example destinations' line that prints mock-only Action IDs 'ACT-049, ACT-061 · Not available yet' and 'Map transfer switch · Not available yet' (EstateEvidence.tsx:46 EXAMPLE_DESTINATIONS, closure 2 Q27) beside live 'Operational records →' and 'Preventive plan →' links. Panel 0.52-0.64x (0.34x historical at 390).",
+  "disp": "Mock IDs on screen: (c) D3 Low (false placeholder facts; remove or replace per D4). Row count: (b) D1 (one typed gap source)."
+ },
+ {
+  "id": "B11-06",
+  "screens": [
+   "globalevidence"
+  ],
+  "what": "KPI tiles: 'Sites with limited claims 4 of 4' vs mock '3'; 'Priority evidence actions Not assessed' vs '3'; 'Unsupported claims Not assessed' vs 'Excluded'.",
+  "disp": "(b) D1 (no priority or unsupported-claim producer); needs register rows"
+ },
+ {
+  "id": "B11-07",
+  "screens": [
+   "globalfinancials"
+  ],
+  "what": "Consequence register rows grow to 3-6 lines: Basis/limit carries long semicolon-joined sentences ('Modelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount.; This is not measured fuel saved, ...'), and the body is capped with an internal vertical scroll, so in the clean positive state (4 rows) both EV rows sit below the scroll at 1440. Mock: 3 single-line rows, all visible. Height 1.05-1.14x. Under the W3-02 producer only 1 row (EV) appears for 10-06: no mini-grid line (W3-02 accepted limitation c4-q3) and no cold line (late-reading case).",
+  "disp": "(c) D3 Low for the Basis cell text (doubled '.;' joins, length); the cap is the W3-02 c4 ruling and needs a register row"
+ },
+ {
+  "id": "B11-08",
+  "screens": [
+   "globalfinancials"
+  ],
+  "what": "Aggregation rule adds state chips (Single line / Comparable / Not totalled; Coverage incomplete in partial and historical) and a 'Results (n) · ...' disclosure; 1.14-1.22x (under 1.3). The only comparable total (positive: 'Gross tariff estimate · KES 16.66–KES 16.67 · 2 lines') is visible only inside that closed disclosure. The notice has no info icon (W3-02 accepted limitation).",
+  "disp": "(b) D2 register row for the W3-02 c4/c4b ruling; no Rxx exists"
+ },
+ {
+  "id": "B11-09",
+  "screens": [
+   "portfolio"
+  ],
+  "what": "Cards, context, pulse, opportunity and footer: mock values replaced by honest states (Operating-cost $0.00–$3.44 from the selected Kobo line; the others 'Not assessed'/'Not established'); context chip 'Selected Site records' and 'Portfolio: Review selected Sites' (partial: 'Some Sites cannot be compared yet') vs 'Portfolio: Needs attention'; pulse 'Not assessed priority sites · 0 opportunity · 1 site evidence gaps'; opportunity 'No reviewed scenario' with both CTAs inert 'Not available yet'; footer 'EV charging lab delivered 30 kWh ...; KES 8.33 gross tariff scenario' with both an 'Energy basis ↗' disclosure and an 'Inspect energy basis →' link (mock: one link).",
+  "disp": "(b) D1/D4 per the W3-03 spec; needs register rows (no Rxx covers any W3 screen)"
+ },
+ {
+  "id": "B11-10",
+  "screens": [
+   "portfolio"
+  ],
+  "what": "Priority table: 3 rows vs 6; Priority and Confidence chips all 'Not assessed'; cells 'Basis not recorded', 'Episode window not recorded', 'Next move not recorded', 'Recommendation not accepted'; the Finding cell shows the raw revision UUID (B1-53). No EV Finding row, although batch 9 found a current EV Finding on EV-LAB-001 under the W2 producer; whether the estate Finding root admits EV Findings or this W3-03 fixture simply has none is unverified here. Panel 0.74-0.81x (0.38-0.43x empty/historical at 390).",
+  "disp": "(b) D1 for unassessed priority/confidence; Architect check of EV Finding admission (R04 covers Actions only)"
+ },
+ {
+  "id": "B11-11",
+  "screens": [
+   "portfolio"
+  ],
+  "what": "The Objectives matrix with 4-5 Sites scrolls horizontally inside a 275 px box at 1440 (third column clipped to 'EV charg…', scroll width 390-467 px), where the mock's 3 columns fit. W3-03 build spec line 212 requires the scroll at four or more Sites.",
+  "disp": "(b) D2 or D6 register row for the spec ruling"
+ },
+ {
+  "id": "B11-12",
+  "screens": [
+   "portfolio"
+  ],
+  "what": "The 'Assessment scope & periods ↗' disclosure holds ~23,700 characters (the cold row comma-joins hundreds of evidence revision UUIDs) in a 320 px scroll box with scrollHeight 32,259 px, plus raw coverage states ('Cold-chain · UNKNOWN') and exclusion line keys and reason codes. The mock drawer is a short scope table. Historical state: 1,078 characters. (This also produced 9000 px first-run screenshots; recaptured after a capture-height fix.)",
+  "disp": "(c) D3 Low (B1-53 plus an unusable disclosure); summarise counts and keep IDs behind a per-Site detail"
+ },
+ {
+  "id": "B11-13",
+  "screens": [
+   "globalevidence",
+   "globalfinancials",
+   "portfolio"
+  ],
+  "cases": [
+   "refused-reversed",
+   "refused-over-31d"
+  ],
+  "what": "Refused windows: reversed (from > to) and over-31-day windows both read 'Choose a valid date range of at most 31 days.' (estateClient.ts INVALID_WINDOW), and the window line echoes the reversed range 'Window 2026-10-07 to 2026-10-05 (UTC days)'. All panels are removed (by design for refusals).",
+  "disp": "cite B7-11 (one generic window error); W3 analogue of the domainActionClient carried item, same copy fix owner"
+ },
+ {
+  "id": "B11-14",
+  "screens": [
+   "globalevidence",
+   "globalfinancials",
+   "portfolio"
+  ],
+  "what": "Same-cutoff check (informational, passes). Clean W3-03 fixture: /evidence, /financials and /portfolio show the same Window 2026-10-06 and Evidence cutoff 2026-10-30 09:03:00 UTC (frozen fixture clock), and root links keep from/to and drop the cursor. Row-level Site links carry the row's own window and cutoff (cold known_at 2026-10-24T16:42:49, the cold settle DB time; EV 2026-10-06T09:00) by closure 5 B5 design, and the cold/EV Site pages show those cutoffs. Partial (empty EV Site added): the EV comparable total is withdrawn ('Some Sites have no complete selection'). Historical (known_at 2026-09-30): every capability Unknown, register empty. Pending (a_lineless_cold): no cold financial line, other content unchanged. Portfolio empty (foreign tenant): no Site names.",
+  "disp": "informational; no difference"
+ },
+ {
+  "id": "B11-15",
+  "screens": [],
+  "what": "B3-15 recurrence check: the targets /financials, /portfolio and /evidence are mounted and render (link00/link01 checks). The EV Site Financials pages (link10/link13) and the cold Overview and Evidence pages offer no 'Portfolio roll-up' / 'Portfolio evidence' link back to them.",
+  "disp": "cite B3-15 / B7-07 / B9-06 (D3 Low); these batch-11 screens are the link targets"
+ },
+ {
+  "id": "B11-16",
+  "screens": [
+   "portfolio"
+  ],
+  "cases": [
+   "w302-positive",
+   "w302-partial-week",
+   "w302-pending-late-kobo"
+  ],
+  "what": "The W3-02 producer (serve.py, which predates W3-03) does not set ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX, so /portfolio refuses with 503 'Estate records are unavailable right now. Try again.' in all three W3-02 cases: a configuration failure presented as a transient one.",
+  "disp": "informational; the W3-03 M2 docs-only ruling covers the key; the copy is a possible D3 Low for the Architect"
+ }
+]
