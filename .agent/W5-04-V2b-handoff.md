@@ -165,7 +165,7 @@ three runs.
   errors=0. Run with this worktree on `PYTHONPATH`.
 - `tsc --noEmit`: clean.
 - Targeted vitest: 10 files, **247/247**. The frontend is unchanged since `35b01c25`.
-- `tools/check-all.ps1`: CHECKALL_RR.
+- `tools/check-all.ps1` on `0fc6da09`: **All 11 guards passed**.
 
 ## Checks on the first V2b revision
 
