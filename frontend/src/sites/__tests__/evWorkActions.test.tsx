@@ -39,6 +39,7 @@ import {
   EV_TO,
   EV_W1_ID,
   evIndexBody,
+  evPinUnavailableRow,
   evRow,
   evRows,
   evW1Row,
@@ -416,6 +417,60 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
   });
 });
 
+/* ---------- V2a review Low-3 and ruling 53: pager, 409 restart and the pinned Source ---------- */
+
+describe("EV Actions pager, changed basis and pinned Source (review Low-3, ruling 53)", () => {
+  it("Next page pins the response known_at and First page drops the cursor", async () => {
+    const { client } = domainClient(() => loaded(evIndexBody(evRows(5), { total_count: 7, next_cursor: "next1" })));
+    const { main } = await mountWork(workPath(`from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}&cursor=prev`), client);
+    expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to EV · 7 actions");
+    const next = new URL(main.querySelector("[data-domain-work-next]")?.getAttribute("href") ?? "", "http://x");
+    expect(next.searchParams.get("cursor")).toBe("next1");
+    expect(next.searchParams.get("known_at")).toBe(EV_KNOWN);
+    expect(next.searchParams.get("limit")).toBeNull();
+    const first = new URL(main.querySelector("[data-domain-work-first]")?.getAttribute("href") ?? "", "http://x");
+    expect(first.searchParams.get("cursor")).toBeNull();
+    expect(first.searchParams.get("from")).toBe(EV_FROM);
+    expect(first.searchParams.get("to")).toBe(EV_TO);
+  });
+
+  it("restarts page one without the stale cursor after a 409 WORK_BASIS_CHANGED, keeping known_at", async () => {
+    const { client, calls } = domainClient((scope) =>
+      scope.cursor
+        ? { status: "basis_changed", http: 409, code: "WORK_BASIS_CHANGED", message: "The work list changed; request page one without a cursor." }
+        : loaded(evIndexBody([evRow()])),
+    );
+    const { main } = await mountWork(workPath(`${new URLSearchParams({ from: EV_FROM, to: EV_TO, known_at: EV_KNOWN, cursor: "stale" })}`), client);
+    const panel = main.querySelector("[data-domain-work-refusal]") as HTMLElement;
+    expect(panel.getAttribute("data-domain-work-refusal")).toBe("WORK_BASIS_CHANGED");
+    expect(text(panel)).toContain("EV work unavailable");
+    expect(text(panel)).toContain("The work list changed; request page one without a cursor.");
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    await waitFor(() => expect(where()).not.toContain("cursor"));
+    expect(new URL(where(), "http://x").searchParams.get("known_at")).toBe(EV_KNOWN);
+    await settledScreen();
+    expect(calls.at(-1)?.scope.cursor).toBeNull();
+    expect(main.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"]`)).not.toBeNull();
+  });
+
+  it("shows the selected row Source as supplied, pinned or unavailable, with no list/detail disagreement copy (ruling 53)", async () => {
+    for (const [row, status] of [
+      [evRow(), "CURRENT"],
+      [evPinUnavailableRow(), "UNKNOWN"],
+    ] as const) {
+      const { client } = domainClient(() => loaded(evIndexBody([row], { status })));
+      const { main } = await mountWork(workPath(), client);
+      const source = main.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"] td:nth-child(2)`) as HTMLElement;
+      expect(source.querySelector("a")).toBeNull();
+      expect(text(source.querySelector("[data-domain-work-source]"))).toBe(`Finding ${EV_FINDING.slice(0, 8)}`);
+      expect(source.querySelector("[data-domain-work-revision]")?.textContent).toBe(EV_FINDING_REV);
+      expect(main.querySelector("[data-domain-work-currentness]") === null).toBe(status === "CURRENT");
+      expect(main.textContent ?? "").not.toMatch(/differ from the detail|disagree/i);
+      cleanup();
+    }
+  });
+});
+
 /* ---------- The EV case tabs' shared Work chrome (V2a scope only; V3a owns the case cells) ---------- */
 
 describe("EV Work case tabs: subtitle and subrow (ruling 45, R78)", () => {
@@ -441,5 +496,9 @@ describe("EV Work case tabs: subtitle and subrow (ruling 45, R78)", () => {
     const href = main.querySelector(".site-subtabs a")?.getAttribute("href") ?? "";
     expect(new URL(href, "http://x").searchParams.get("known_at")).toBe(EV_KNOWN);
     expect(coldNames(main)).toEqual([]);
+    // Ruling 57 interim: subrow only in V2a; the EV case tab keeps its single W4 window form and has no page-local
+    // Window until V3a mounts it together with `windowForm=false`.
+    expect(main.querySelector("[data-domain-work-window]")).toBeNull();
+    expect(main.querySelectorAll("form").length).toBe(1);
   });
 });

@@ -373,6 +373,12 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(main.querySelector(`[data-cold-work-row="${DOMAIN_ID}"] td a`)?.getAttribute("href")).toBe(`/sites/${SITE}/actions/${DOMAIN_ID}/verification`);
     expect(main.querySelector("[data-domain-work-source-unavailable]")).toBeNull();
     for (const call of vi.mocked(client.getIndex).mock.calls) expect(call).toHaveLength(2);
+    // V2a review Low-1: the K2 presence-only cold attributes keep their `="true"` rendering byte-for-byte.
+    for (const name of ["strip", "global-gap", "revision", "owner", "due", "criterion", "window", "window-from", "window-to", "window-apply"]) {
+      expect(main.querySelector(`[data-cold-work-${name}]`)?.getAttribute(`data-cold-work-${name}`), name).toBe("true");
+      expect(main.querySelector(`[data-domain-work-${name}]`)?.getAttribute(`data-domain-work-${name}`), name).toBe("");
+    }
+    expect(main.querySelector("[data-cold-work-notice]")?.getAttribute("data-cold-work-notice")).toBe("");
   });
 
   it("shows the Source as plain `Finding {id8}` with the selected revision in a disclosure, never an anchor (R65/R66)", async () => {

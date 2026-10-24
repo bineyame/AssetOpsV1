@@ -4,6 +4,12 @@
  * `backend/assetops_backend/work/domain_action_index.py` `_select`, `DomainActionReadService.index`) and make no
  * producer-backed claim: every ID, clock and name below is a test literal, never a mock SES/ACT/INC identifier or the
  * private manifest-only `Depot` label (ruling 52).
+ *
+ * Ruling 53 (V1 fix round): an intent-bearing EV row resolves its exact origin Finding at
+ * `min(intent.recorded_at, index.known_at)`, as detail does; a later selected head leaves its `origin.href` non-null and
+ * its status contribution CURRENT, and only an unavailable exact pinned selection yields `origin.href: null` with an
+ * honest non-CURRENT status. The row shape is unchanged; `evRow()` is the pinned intent-bearing row, and
+ * `evPinUnavailableRow()` the honest unavailable one.
  */
 import type { DomainIndexBody, DomainIndexRow } from "../domainActionClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
@@ -119,4 +125,10 @@ export function evRows(n: number): DomainIndexRow[] {
       links: { action: `/sites/${EV_SITE_CODE}/actions/3e0a9b1c-7d2f-4e6a-8b5c-0f1e2d3c4b${String(i).padStart(2, "0")}/verification`, history: null },
     }),
   );
+}
+
+/** Ruling 53: the exact pinned selection is unavailable, so the server keeps the honest null source href. */
+export function evPinUnavailableRow(): DomainIndexRow {
+  const row = evRow();
+  return { ...row, origin: { ...row.origin, href: null } } as DomainIndexRow;
 }

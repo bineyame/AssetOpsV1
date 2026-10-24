@@ -68,6 +68,7 @@ import {
 } from "./coldWorkPresentation";
 import {
   EV_CRITERION_MISSING,
+  EV_ACTION_LINK_LIVE,
   EV_DUE_MISSING,
   EV_OWNER_MISSING,
   EV_SOURCE_FINDING_UNAVAILABLE,
@@ -689,7 +690,7 @@ export const EV_WORK_PRESENTATION: DomainWorkPresentation = {
   stateOpen: EV_STATE_OPEN,
   count: evActionCount,
   showAll: evShowAll,
-  domainActionLink: false,
+  domainActionLink: EV_ACTION_LINK_LIVE,
   sourceUnavailable: EV_SOURCE_FINDING_UNAVAILABLE,
   notice: coldCurrentnessNotice,
   tone: coldCurrentnessTone,
@@ -702,11 +703,15 @@ export function domainWorkPresentation(siteType: string): DomainWorkPresentation
   return null;
 }
 
-/** Ruling 45: `data-domain-work-{name}`, plus the cold K2 `data-cold-work-{name}` on the cold surface only. */
-function workAttrs(legacyCold: boolean, name: string, value: string = ""): Record<string, string> {
+/**
+ * Ruling 45: `data-domain-work-{name}`, plus the cold K2 `data-cold-work-{name}` on the cold surface only. Without a
+ * value the attribute is presence-only: the cold name keeps the K2 boolean-prop rendering `="true"` byte-for-byte
+ * (V2a review Low-1) and the domain name renders empty.
+ */
+function workAttrs(legacyCold: boolean, name: string, value?: string): Record<string, string> {
   const suffix = name === "" ? "" : `-${name}`;
-  const attrs: Record<string, string> = { [`data-domain-work${suffix}`]: value };
-  if (legacyCold) attrs[`data-cold-work${suffix}`] = value;
+  const attrs: Record<string, string> = { [`data-domain-work${suffix}`]: value ?? "" };
+  if (legacyCold) attrs[`data-cold-work${suffix}`] = value ?? "true";
   return attrs;
 }
 
@@ -1098,7 +1103,7 @@ export function DomainSiteWorkActions({ siteId, siteName, siteType, client, scop
         )}
       </Panel>
       {/* MOCK DEVIATION (D1) R01 (cold) / R03 (EV): the mock notice's create-flow sentence is omitted (no create flow). */}
-      <Notice tone="blue" data={workAttrs(lc, "notice")}>
+      <Notice tone="blue" data={workAttrs(lc, "notice", "")}>
         <RailIcon name="info" />
         <p>{WORK_CONTEXT_NOTICE_DOMAIN}</p>
       </Notice>
