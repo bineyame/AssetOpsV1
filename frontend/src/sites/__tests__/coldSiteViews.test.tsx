@@ -251,6 +251,8 @@ interface Reads {
   findings?: ColdRead<never>;
   /** post-W6 W2-cold Q9: the Overview's backup-chain read (default: unavailable, so no step is joined). */
   backup?: ColdRead<ColdBackupRead>;
+  /** post-W6 W2-cold R259: a Site detail override (its timezone). */
+  site?: SiteDetailReadModel;
 }
 const STOCKED: Reads = {
   overview: ok(STOCKED_OVERVIEW),
@@ -316,7 +318,7 @@ function renderCold(path: string, reads: Reads) {
   };
   render(
     <MemoryRouter initialEntries={[path]}>
-      <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} coldSite={coldSite} coldAssessment={coldAssessment} />
+      <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={reads.site === undefined ? detail : { getSite: () => Promise.resolve({ status: "loaded", site: reads.site! }) }} siteAnalytics={EMPTY_ANALYTICS_CLIENT} coldSite={coldSite} coldAssessment={coldAssessment} />
     </MemoryRouter>,
   );
   return { coldSite, coldAssessment };
@@ -576,7 +578,9 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     await settledScreen();
     expect(text(document.querySelector(".status-strip")!)).toContain("Evidence limited");
     expect(text(document.querySelector(".status-strip")!)).toContain("4 capabilities · 1 full · 2 limited · 1 none · no single score");
-    expect(screen.getByRole("link", { name: "Configuration at window end" }).getAttribute("href")).toBe(`/sites/COLD-001/foundation?at=${encodeURIComponent(TO)}`);
+    // R258: the strip links to portfolio Evidence, not the Configuration tab.
+    expect(screen.getByRole("link", { name: "Portfolio evidence" }).getAttribute("href")).toBe("/evidence");
+    expect(screen.queryByRole("link", { name: "Configuration at window end" })).toBeNull();
     const rows = Array.from(panelTitled("What we can conclude now").querySelectorAll("[data-capability-row]"));
     expect(rows.map((r) => r.querySelector("th")?.textContent)).toEqual(["Temperature compliance", "Backup response", "Cooling recovery", "Product exposure"]);
     expect(text(rows[0])).toContain("Full");
@@ -691,12 +695,13 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     const records = panelTitled("Accepted records behind the conclusions");
     const visible = () => Array.from(records.querySelectorAll<HTMLElement>("[data-accepted-record]")).filter((r) => !r.hidden);
     expect(visible()).toHaveLength(3);
-    // Run-7 time copy: Sent (UTC) and Received (UTC) headers over bare clock values; only Measured (EAT) is East Africa Time.
+    // R259 (Q11): Measured, Sent and Received in the Site timezone (Addis, EAT) with seconds; exact UTC in `title`.
     const cells = visible()[0].querySelectorAll("td");
     expect(cells[1].textContent).toBe(eatTime("2026-10-06T16:19:00Z"));
-    expect(cells[2].textContent).toBe("16:19:01");
-    expect(cells[3].textContent).toBe("16:19:02");
-    expect(Array.from(records.querySelectorAll("thead th")).map((h) => h.textContent)).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (UTC)", "Received (UTC)", "Record"]);
+    expect(cells[2].textContent).toBe("19:19:01");
+    expect(cells[2].getAttribute("title")).toContain("2026-10-06T16:19:01");
+    expect(cells[3].textContent).toBe("19:19:02");
+    expect(Array.from(records.querySelectorAll("thead th")).map((h) => h.textContent)).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (EAT)", "Received (EAT)", "Record"]);
     expect(records.querySelector("[data-cold-more]")).toBeNull();
     const details = records.querySelectorAll("details");
     expect(details).toHaveLength(1);
@@ -908,7 +913,7 @@ describe("W2-F 1b: one honest cooling and product rule across the cold screens",
       "Limited",
       "Selected records support only part of this claim.",
       `Compressor state · ${COOLING_LIMITATION}`,
-      "Review evidence",
+      "Review cooling →",
     ]);
     expect(cells("exposure")).toEqual([
       "Product exposure",
@@ -967,11 +972,13 @@ describe("W2-F 1b: one honest cooling and product rule across the cold screens",
     renderCold(ROUTES[1][1], { ...STOCKED, evidence: ok(noGaps(true)) });
     await settledScreen();
     expect(text(panelTitled("Most useful next evidence"))).toContain("Declare stock identity and value");
-    expect(text(panelTitled("Most useful next evidence"))).not.toContain("Next evidence not identified");
+    expect(text(panelTitled("Most useful next evidence"))).not.toContain("No missing record blocks");
     cleanup();
     renderCold(ROUTES[1][1], { ...STOCKED, evidence: ok(noGaps(false)) });
     await settledScreen();
-    expect(text(panelTitled("Most useful next evidence"))).toContain("Next evidence not identified");
+    // Q10: the normal case names the basis still needed; the stock prompt still follows only a selected excursion.
+    expect(text(panelTitled("Most useful next evidence"))).toContain("No missing record blocks this window's claims. Pricing a future exposure still needs the required basis stated above.");
+    expect(text(panelTitled("Most useful next evidence"))).not.toContain("Declare stock identity");
   });
 
   // S7/S8: Financials names the thermal claim and its consequence basis; Evidence keeps Product exposure at None.
@@ -1162,7 +1169,7 @@ describe("W2-F 2: cold frame on refusal, consequence counts and record IDs", () 
     renderCold(ROUTES[2][1], { ...STOCKED, analysis: ok(analysis as unknown as ColdAnalysisRead) });
     await settledScreen();
     const records = panelTitled("Accepted records behind the conclusions");
-    expect(Array.from(records.querySelectorAll("thead th")).map((h) => h.textContent)).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (UTC)", "Received (UTC)", "Record"]);
+    expect(Array.from(records.querySelectorAll("thead th")).map((h) => h.textContent)).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (EAT)", "Received (EAT)", "Record"]);
     expect(Array.from(records.querySelectorAll<HTMLElement>("[data-accepted-record]")).map((r) => r.getAttribute("data-accepted-record"))).toEqual([a, b, id(13)]);
     const codes = Array.from(records.querySelectorAll<HTMLElement>("table code[data-record-id]"));
     expect(codes.map((c) => text(c))).toEqual([`REC ${a}`, `REC ${b}`, `REC ${id(13)}`]);
@@ -1256,5 +1263,59 @@ describe("W2-cold unit 2: cold Overview", () => {
     expect(bodies).toHaveLength(2);
     expect(bodies[0]).toMatch(/Not observed: transfer to backup/i);
     expect(bodies[1]).not.toMatch(/Not observed:/);
+  });
+});
+
+// post-W6 W2-cold unit 3: Evidence links, normal next-evidence copy and Site-timezone record times (R258, R259, Q10).
+describe("W2-cold unit 3: cold Evidence and Analysis", () => {
+  const recordsFor = (row: Partial<ColdAnalysisRead["accepted_records"]["items"][number]>, site?: SiteDetailReadModel) => {
+    const base = STOCKED_ANALYSIS.accepted_records.items[0];
+    const analysis = { ...STOCKED_ANALYSIS, accepted_records: { items: [{ ...base, ...row }], next_cursor: null, total_count: 1 } };
+    renderCold(ROUTES[2][1], { ...STOCKED, analysis: ok(analysis as ColdAnalysisRead), site });
+  };
+  const records = () => panelTitled("Accepted records behind the conclusions");
+  const cell = (name: string) => records().querySelector(`[data-cold-time="${name}"]`) as HTMLElement;
+  const heads = () => Array.from(records().querySelectorAll("thead th")).map((h) => h.textContent);
+
+  it("r259_addis_dates_received_on_a_later_local_day", async () => {
+    // Measured 20:59:58 UTC = 23:59:58 EAT; received 21:00:03 UTC = 00:00:03 EAT on 7 Oct.
+    recordsFor({ source_time: "2026-10-06T20:59:58Z", sent_at: "2026-10-06T20:59:59Z", received_at: "2026-10-06T21:00:03Z" });
+    await settledScreen();
+    expect(cell("measured").textContent).toBe("23:59:58");
+    expect(cell("sent").textContent).toBe("23:59:59");
+    expect(cell("received").textContent).toBe("7 Oct 00:00:03");
+    expect(cell("received").getAttribute("title")).toContain("2026-10-06T21:00:03");
+    expect(heads().slice(2, 5)).toEqual(["Measured (EAT)", "Sent (EAT)", "Received (EAT)"]);
+  });
+
+  it("r259_utc_site_and_midnight_crossing", async () => {
+    recordsFor({ source_time: "2026-10-06T23:59:58Z", sent_at: "2026-10-06T23:59:59Z", received_at: "2026-10-07T00:00:02Z" }, { ...SITE, timezone: "UTC" } as SiteDetailReadModel);
+    await settledScreen();
+    expect(cell("measured").textContent).toBe("23:59:58");
+    expect(cell("sent").textContent).toBe("23:59:59");
+    expect(cell("received").textContent).toBe("7 Oct 00:00:02");
+    expect(heads().slice(2, 5)).toEqual(["Measured (UTC)", "Sent (UTC)", "Received (UTC)"]);
+  });
+
+  it("r259_missing_timezone_falls_back_to_utc", async () => {
+    recordsFor({ source_time: "2026-10-06T16:19:00Z", sent_at: "2026-10-06T16:19:01Z", received_at: "2026-10-06T16:19:02Z" }, { ...SITE, timezone: null } as unknown as SiteDetailReadModel);
+    await settledScreen();
+    expect(cell("measured").textContent).toBe("16:19:00");
+    expect(cell("received").textContent).toBe("16:19:02");
+    expect(heads().slice(2, 5)).toEqual(["Measured (UTC)", "Sent (UTC)", "Received (UTC)"]);
+  });
+
+  it("r258_cooling_links_at_the_window", async () => {
+    renderCold(ROUTES[1][1], STOCKED);
+    await settledScreen();
+    const rowLink = panelTitled("What we can conclude now").querySelector('[data-capability-row="cooling"] a')!;
+    expect(rowLink.textContent).toBe("Review cooling →");
+    expect(rowLink.getAttribute("href")).toBe(`/sites/COLD-001/performance/cooling${Q}`);
+    const next = Array.from(panelTitled("Most useful next evidence").querySelectorAll("[data-cold-review-cooling]"));
+    expect(next.length).toBeGreaterThan(0);
+    for (const a of next) {
+      expect(a.textContent).toBe("Review cooling →");
+      expect(a.getAttribute("href")).toBe(`/sites/COLD-001/performance/cooling${Q}`);
+    }
   });
 });

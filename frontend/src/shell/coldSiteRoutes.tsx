@@ -7,6 +7,7 @@ import { ColdSiteFrame, type ColdSiteRoutes, type ColdSiteView } from "../sites/
 import type { SiteDetailReadModel } from "../sites/siteReadModel";
 import { deriveSiteView } from "../sites/siteViewModel";
 import {
+  EVIDENCE_PATH,
   siteDetailHref,
   siteEvidenceHref,
   siteFinancialAssumptionsHref,
@@ -36,6 +37,7 @@ export function coldSiteRoutes(siteId: string): ColdSiteRoutes {
     // The Foundation SLD view with no `at` (the same base as `siteFoundationViewHref(siteId, "sld", null)`).
     sld: `${siteFoundationHref(siteId)}/sld`,
     workMaintenance: siteWorkMaintenanceHref(siteId),
+    portfolioEvidence: EVIDENCE_PATH,
   };
 }
 
@@ -73,6 +75,7 @@ export function coldSiteScreen({
       routes={coldSiteRoutes(site.site_id)}
       tabs={tabs}
       sections={sections}
+      timeZone={site.timezone}
       parentTrail={[
         { label: "Sites", to: sitesPath },
         overview ? { label: site.display_name } : { label: site.display_name, to: siteDetailHref(site.site_id) },

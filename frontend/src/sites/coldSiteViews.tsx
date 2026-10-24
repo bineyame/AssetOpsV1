@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { siteTime } from "./siteTime";
+import { siteTime, siteZoneLabel } from "./siteTime";
 
 import {
   AttentionList,
@@ -89,6 +89,8 @@ export interface ColdSiteRoutes {
   sld: string;
   /** post-W6 W2-cold R254 (Q8): cold Work › Maintenance. */
   workMaintenance: string;
+  /** post-W6 W2-cold R258: the portfolio Evidence page. */
+  portfolioEvidence: string;
 }
 
 /* ---------- words ---------- */
@@ -347,6 +349,8 @@ export interface ColdSiteFrameProps {
   /** The Financials subtab row for `financials` / `assumptions`, from the shell. */
   sections?: ReactNode;
   parentTrail: Crumb[];
+  /** post-W6 W2-cold R259 (Q11): the Site's IANA timezone; missing or invalid falls back to UTC, stated in the headers. */
+  timeZone?: string | null;
 }
 
 const DESCRIPTION: Record<ColdSiteView, string> = {
@@ -863,9 +867,10 @@ function EvidenceScreen(p: ScreenProps) {
   const caps = e?.capabilities ?? [];
   const analysis = e === null ? null : coldUiHref(e.links.analysis, p.routes);
   const financials = e === null ? null : selected(p.routes.financials, e.window);
-  const foundation = e === null ? null : coldUiHref(e.links.foundation, p.routes);
-  const missing: { role: string; label: string }[] = [];
-  for (const row of CAP_ROWS) for (const role of rowMissing(caps, row.claims)) if (!missing.some((m) => m.role === role)) missing.push({ role, label: row.label });
+  // R258: cooling items go to Performance › Cooling at the read's window.
+  const cooling = e === null ? null : selected(p.routes.cooling, e.window);
+  const missing: { role: string; label: string; key: string }[] = [];
+  for (const row of CAP_ROWS) for (const role of rowMissing(caps, row.claims)) if (!missing.some((m) => m.role === role)) missing.push({ role, label: row.label, key: row.key });
   // W2-F S5: the stock prompt follows a selected excursion (basis presence), never the product capability chip.
   const excursionPresent = e?.selected_excursion_present === true;
   const channels = e?.sources ?? [];
@@ -882,7 +887,12 @@ function EvidenceScreen(p: ScreenProps) {
       ) : (
         <StatusBar
           label="Evidence state"
-          action={foundation === null ? <span>Configuration link not available</span> : <Link to={foundation}>Configuration at window end</Link>}
+          action={
+            // R258: the strip links to portfolio Evidence (mock); Configuration stays one tab away.
+            <Link to={p.routes.portfolioEvidence} data-cold-portfolio-evidence>
+              Portfolio evidence
+            </Link>
+          }
         >
           <Badge tone="neutral" className={toneClass(evidenceChip(caps))}>{evidenceChip(caps)}</Badge> {countSentence(caps)}
           {stateSentence(e) === null ? null : ` · ${stateSentence(e)}`}
@@ -924,7 +934,13 @@ function EvidenceScreen(p: ScreenProps) {
                     <td>{row.key === "exposure" ? `${SAY[chip]} Thermal exposure does not prove product loss.` : SAY[chip]}</td>
                     <td>{row.key === "exposure" ? `${missText} · Required basis: ${PRODUCT_REQUIRED_BASIS}` : missText}</td>
                     <td>
-                      {row.next === "financials" ? <ToLink href={financials}>Review financials</ToLink> : <ToLink href={analysis}>Review evidence</ToLink>}
+                      {row.next === "financials" ? (
+                        <ToLink href={financials}>Review financials</ToLink>
+                      ) : row.key === "cooling" ? (
+                        <ToLink href={cooling} data={{ "data-cold-review-cooling": "" }}>Review cooling →</ToLink>
+                      ) : (
+                        <ToLink href={analysis}>Review evidence</ToLink>
+                      )}
                     </td>
                   </tr>
                 );
@@ -1063,7 +1079,8 @@ function EvidenceScreen(p: ScreenProps) {
           ) : none ? (
             <Gap id="cold-site-next-evidence">{NO_COLD_ASSESSMENT}</Gap>
           ) : missing.length === 0 && !excursionPresent ? (
-            <Gap id="cold-site-next-evidence">Next evidence not identified</Gap>
+            // Q10 (W2-F S5 kept): the normal case names the basis still needed to price a future exposure.
+            <Gap id="cold-site-next-evidence">No missing record blocks this window's claims. Pricing a future exposure still needs the required basis stated above.</Gap>
           ) : (
             <AttentionList
               label="Most useful next evidence"
@@ -1074,7 +1091,11 @@ function EvidenceScreen(p: ScreenProps) {
                   body: `Needed to assess ${m.label}`,
                   action: (
                     <p className="cold-panel-link">
-                      <ToLink href={analysis}>Review evidence</ToLink>
+                      {m.key === "cooling" ? (
+                        <ToLink href={cooling} data={{ "data-cold-review-cooling": m.role }}>Review cooling →</ToLink>
+                      ) : (
+                        <ToLink href={analysis}>Review evidence</ToLink>
+                      )}
                     </p>
                   ),
                 })),
@@ -1132,6 +1153,22 @@ export function utcClock(value: string | null | undefined): string {
   return d === null ? NOT_RECORDED : `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
 }
 
+/**
+ * R259 (Q11, shell Q18): one record time in the Site timezone with seconds; the local date is shown when its local day
+ * differs from the record's Measured time; the exact UTC instant is the cell's `title`. A missing or invalid Site
+ * timezone shows UTC, and the column headers say `(UTC)`.
+ */
+function ColdTimeCell({ value, timeZone, reference, cell }: { value: string | null; timeZone: string | null | undefined; reference?: string | null; cell: string }) {
+  const t = siteTime(value, timeZone, reference);
+  return t === null ? (
+    <td data-cold-time={cell}>{NOT_RECORDED}</td>
+  ) : (
+    <td data-cold-time={cell} title={`${t.utc} (exact UTC)`}>
+      {t.text}
+    </td>
+  );
+}
+
 /** Shortest truthful first-cell label; the bound source name and kind stay in Record details. */
 const RECORD_LABEL: Record<string, string> = {
   chamber_temperature: "Chamber temperature",
@@ -1154,6 +1191,8 @@ function AnalysisScreen(p: ScreenProps) {
   const refused = refusalOf(first);
   const none = a !== null && !isSelected(a);
   const key = keyOf(p, "a");
+  // R259: the column headers name the zone the cells use (`EAT` for Addis; `UTC` when the Site zone is missing).
+  const zone = siteZoneLabel(p.timeZone, a?.window.to ?? null);
   const pages = more.key === key ? more.pages : [];
   const rows = a === null ? [] : [a, ...pages].flatMap((x) => x.accepted_records.items);
   const cursor = a === null ? null : (pages.length > 0 ? pages[pages.length - 1] : a).accepted_records.next_cursor;
@@ -1182,7 +1221,7 @@ function AnalysisScreen(p: ScreenProps) {
             <DataTable labelledBy="cold-site-records-heading">
               <thead>
                 <tr>
-                  {["Source · reading", "Value", "Measured (EAT)", "Sent (UTC)", "Received (UTC)", "Record"].map((h) => (
+                  {["Source · reading", "Value", `Measured (${zone})`, `Sent (${zone})`, `Received (${zone})`, "Record"].map((h) => (
                     <th key={h} scope="col">
                       {h}
                     </th>
@@ -1201,9 +1240,9 @@ function AnalysisScreen(p: ScreenProps) {
                     <tr key={r.evidence_id} data-accepted-record={r.evidence_id} hidden={!expanded && index >= RECORDS_SHOWN}>
                       <th scope="row">{r.role === null ? NOT_RECORDED : recordLabel(r.role)}</th>
                       <td>{r.value_display === null ? NOT_RECORDED : `${recordValue(r.value_display)}${r.unit === null ? "" : ` ${r.unit}`}`}</td>
-                      <td>{eatTime(r.source_time) ?? NOT_RECORDED}</td>
-                      <td>{utcClock(r.sent_at)}</td>
-                      <td>{utcClock(r.received_at)}</td>
+                      <ColdTimeCell value={r.source_time} timeZone={p.timeZone} cell="measured" />
+                      <ColdTimeCell value={r.sent_at} timeZone={p.timeZone} reference={r.source_time} cell="sent" />
+                      <ColdTimeCell value={r.received_at} timeZone={p.timeZone} reference={r.source_time} cell="received" />
                       <td>
                         {/* W5-F1 F1-3 (R38): a labelled reference to the selected accepted record, never an anchor.
                             No exact record route is integrated; a wire link, even PROVED, is not a record destination. */}
