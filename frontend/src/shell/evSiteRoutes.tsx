@@ -8,7 +8,7 @@ import type { EvScenariosClient } from "../sites/evScenariosClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { deriveSiteView } from "../sites/siteViewModel";
 import { siteDetailHref, siteEvHref, siteFindingHref, siteFoundationViewHref, sitePerformanceHref } from "./operatorSiteRoutes";
-import { OperatorSiteTabs } from "./operatorSiteTabs";
+import { OperatorSiteTabs, type OperatorSiteTabHrefs } from "./operatorSiteTabs";
 import { SiteScoped } from "./SiteAnalyticsFrames";
 
 /** W2-07: the UI route bases (no query) the five EV Site screens link to. */
@@ -28,6 +28,16 @@ export function evSiteRoutes(siteId: string): EvSiteRoutes {
     sld: (at) => siteFoundationViewHref(siteId, "sld", at),
   };
 }
+
+/**
+ * post-W6 W2-EV (R347 common mechanism, ruling Q14): an EV_CHARGING Site's main tabs open its built EV pages, never
+ * the mini Overview, Evidence or Financials. W5-EV-Work reuses this on its depth/work mounts.
+ */
+export const EV_SITE_TAB_HREFS: OperatorSiteTabHrefs = {
+  Overview: (siteId) => siteEvHref(siteId),
+  Evidence: (siteId) => siteEvHref(siteId, "evidence"),
+  Financials: (siteId) => siteEvHref(siteId, "financials"),
+};
 
 const CURRENT_TAB: Record<EvSiteView, string> = {
   overview: "Overview",

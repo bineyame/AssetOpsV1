@@ -98,9 +98,35 @@ export interface OperatorSiteTabsProps {
   siteId: string | undefined;
   /** The label of the tab the reader is currently on. */
   current: string;
+  /**
+   * post-W6 W2-EV (R347 common mechanism): a domain Site's own destinations for
+   * some tabs (EV Overview -> `/ev`, Evidence -> `/ev/evidence`, ...). Tabs not
+   * named keep the canonical href. Never point a domain at the mini pages.
+   */
+  hrefs?: OperatorSiteTabHrefs;
+  /**
+   * post-W6 W2-EV: the selected read's window as a query (`?from=..&to=..&known_at=..`),
+   * appended to every tab. Pass nothing (or "") without a loaded selected read.
+   */
+  search?: string;
 }
 
-export function OperatorSiteTabs({ siteId, current }: OperatorSiteTabsProps) {
+/** The fixed tab labels of the canonical inventory. */
+export type OperatorSiteTabLabel = "Overview" | "Foundation" | "Health" | "Performance" | "Findings" | "Work" | "Financials" | "Evidence";
+
+/** post-W6 W2-EV: per-label href overrides for a domain Site. */
+export type OperatorSiteTabHrefs = Partial<Record<OperatorSiteTabLabel, (siteId: string) => string>>;
+
+/** post-W6 W2-EV: the address one tab opens, after overrides and the selected-window query. */
+export function operatorSiteTabHref(tab: OperatorSiteTab, siteId: string, hrefs?: OperatorSiteTabHrefs, search?: string): string {
+  const base = (hrefs?.[tab.label as OperatorSiteTabLabel] ?? tab.href)(siteId);
+  if (!search) return base;
+  const query = search.startsWith("?") ? search.slice(1) : search;
+  if (query === "") return base;
+  return `${base}${base.includes("?") ? "&" : "?"}${query}`;
+}
+
+export function OperatorSiteTabs({ siteId, current, hrefs, search }: OperatorSiteTabsProps) {
   const rowRef = useCurrentTabInView<HTMLElement>();
   if (siteId === undefined) {
     return null;
@@ -113,7 +139,7 @@ export function OperatorSiteTabs({ siteId, current }: OperatorSiteTabsProps) {
           <li className="site-tabs__item" key={tab.label}>
             <Link
               className="site-tabs__link"
-              to={tab.href(siteId)}
+              to={operatorSiteTabHref(tab, siteId, hrefs, search)}
               aria-current={tab.label === current ? "page" : undefined}
             >
               {tab.label}
