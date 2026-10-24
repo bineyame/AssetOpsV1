@@ -46,7 +46,8 @@ if URL:
     from assetops_backend.mini_decisions.model import GRANT_PREFIX, DecisionPrincipal
     from assetops_backend.sites.ports import SiteStoreUnavailable
 
-HEAD = "0034_w5_ev_scenarios"
+MIGRATION = "0034_w5_ev_scenarios"
+HEAD = "0035_w5_ev_work"  # W5-04a: the sole head sits above the 0034 migration under test
 PREVIOUS = "0033_w5_cold_work"
 REFUSED = "Downgrade of 0034_w5_ev_scenarios refused: EV scenario history exists"
 TABLES = ("ev_scenario_revision", "ev_scenario")
@@ -208,7 +209,7 @@ def test_schema_constraints(site, engine) -> None:  # noqa: F811
 
     script = ScriptDirectory.from_config(_alembic())
     assert script.get_heads() == [HEAD]
-    assert script.get_revision(HEAD).down_revision == PREVIOUS
+    assert script.get_revision(MIGRATION).down_revision == PREVIOUS
     assert head(engine) == HEAD and catalog(engine) == expected_catalog()
 
     with engine.connect() as c:

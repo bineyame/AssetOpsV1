@@ -14,6 +14,7 @@ import type {
 } from "../../sites/siteReadModel";
 import { EMPTY_EVIDENCE_CLIENT } from "../../sites/__tests__/evidenceFixtures";
 import { COLD_SITE, FROM, KNOWN, SITE as COLD_CODE, TO, coldFetch } from "../../sites/__tests__/coldWorkFixtures";
+import { EV_SITE, EV_SITE_CODE, evIndexBody, evRow } from "../../sites/__tests__/evWorkFixtures";
 import { settledScreen } from "../../test/settled";
 import {
   OPERATOR_SITE_TABS,
@@ -422,6 +423,29 @@ describe("Work subtab query preservation by Site type", () => {
         `/sites/${COLD_CODE}/work?${kept}`,
         `/sites/${COLD_CODE}/work/incidents?${kept}`,
         `/sites/${COLD_CODE}/work/maintenance?${kept}`,
+      ]);
+      expect(within(tabRow()).getByRole("link", { name: "Work" }).getAttribute("aria-current")).toBe("page");
+    });
+  }
+
+  // W5-04 V2a (pre-flight 30, ruling 45): an EV_CHARGING Site reuses the same domain Work query helper.
+  for (const kind of ["", "/incidents", "/maintenance"]) {
+    it(`an EV_CHARGING Site's Work${kind || " Actions"} subtabs keep from, to and known_at and drop the cursor`, async () => {
+      vi.stubGlobal("fetch", async (url: string) =>
+        url.split("?")[0] === `/api/sites/${EV_SITE_CODE}/domain-work/action-index`
+          ? new Response(JSON.stringify(evIndexBody([evRow()])), { status: 200 })
+          : new Response(JSON.stringify({ detail: { code: "WORK_STORE_UNAVAILABLE", message: "Unavailable in this test." } }), { status: 503 }),
+      );
+      render(
+        <MemoryRouter initialEntries={[`/sites/${EV_SITE_CODE}/work${kind}?${query}`]}>
+          <App flags={ENABLED} siteDirectory={directoryWith([EV_SITE])} siteDetail={detailClientFor([EV_SITE])} siteEvidence={EMPTY_EVIDENCE_CLIENT} />
+        </MemoryRouter>,
+      );
+      await settledScreen();
+      expect(subtabHrefs()).toEqual([
+        `/sites/${EV_SITE_CODE}/work?${kept}`,
+        `/sites/${EV_SITE_CODE}/work/incidents?${kept}`,
+        `/sites/${EV_SITE_CODE}/work/maintenance?${kept}`,
       ]);
       expect(within(tabRow()).getByRole("link", { name: "Work" }).getAttribute("aria-current")).toBe("page");
     });

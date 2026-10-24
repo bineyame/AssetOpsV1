@@ -70,6 +70,9 @@ const SCREEN_LEADING: Record<string, string> = {
   "cold-work-maintenance": "[data-cold-work-currentness]",
   // W5-02c K4a ruling 3 (R91 extended): the cold Action selected-state notice, between strip and first panel.
   "cold-action": "[data-domain-action-currentness]",
+  // W5-04 V2a (readiness ruling 17, MOCK DEVIATION (D2) R80): the EV Actions selected-state notice, between strip and
+  // first panel.
+  "ev-work": "[data-domain-work-currentness]",
 };
 
 /** Section-like elements that must not render outside a panel or leading pattern. */

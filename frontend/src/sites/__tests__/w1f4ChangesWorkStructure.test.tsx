@@ -22,6 +22,7 @@ import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClie
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 import { COLD_SITE, SITE as COLD_CODE, coldFetch, domainRow, indexBody } from "./coldWorkFixtures";
+import { EV_SITE, EV_SITE_CODE, evIndexBody, evRow } from "./evWorkFixtures";
 
 type Case = { request: { path: string }; status: number; body: any };
 type Served = { status: number; body: unknown };
@@ -257,5 +258,48 @@ describe("W5-02 K2a: cold-work keeps the v69 panel structure", () => {
     expectV69Panels("cold-work");
     expect(panelTitled("Actions at this site").querySelector("[data-cold-work-refusal]")).not.toBeNull();
     expect(q("[data-cold-work-empty]")).toBeNull();
+  });
+});
+
+/* W5-04 V2a: the EV_CHARGING Actions tab keeps the v69 `ev-work` structure through the App routes (pure fixtures). */
+describe("W5-04 V2a: ev-work keeps the v69 panel structure", () => {
+  function mountEv(path: string) {
+    const ev: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: EV_SITE }) };
+    const dir: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [EV_SITE] }) };
+    return render(
+      <MemoryRouter initialEntries={[path]}>
+        <App flags={featureFlagsWith(false)} siteDirectory={dir} siteDetail={ev} siteAnalytics={EMPTY_ANALYTICS_CLIENT} />
+      </MemoryRouter>,
+    );
+  }
+  const evFetch = (status: number, body: unknown) => async (url: string) =>
+    url.split("?")[0] === `/api/sites/${EV_SITE_CODE}/domain-work/action-index`
+      ? new Response(JSON.stringify(body), { status })
+      : new Response(JSON.stringify({ detail: { code: "WORK_STORE_UNAVAILABLE", message: "Unavailable in this test." } }), { status: 503 });
+
+  for (const [name, body] of [
+    ["positive", evIndexBody([evRow()])],
+    ["complete zero", evIndexBody([])],
+  ] as const) {
+    it(`${name}: one Actions at this site panel; a planted panel is rejected; the EV code is plain text`, async () => {
+      vi.stubGlobal("fetch", evFetch(200, body));
+      mountEv(`/sites/${EV_SITE_CODE}/work`);
+      await settledScreen();
+      expectV69Panels("ev-work");
+      expectPlantedPanelRejected("ev-work");
+      expect(panelTitled("Actions at this site").querySelector("form")).toBeNull();
+      expect(q("[data-cold-work]")).toBeNull();
+      expect(q("main a[href*='/verification']")).toBeNull();
+    });
+  }
+
+  it("refused: the EV refusal sits inside the one panel, never as a zero", async () => {
+    vi.stubGlobal("fetch", evFetch(503, { detail: { code: "WORK_STORE_UNAVAILABLE", message: "Unavailable." } }));
+    mountEv(`/sites/${EV_SITE_CODE}/work`);
+    await settledScreen();
+    expectV69Panels("ev-work");
+    const refusal = panelTitled("Actions at this site").querySelector("[data-domain-work-refusal]");
+    expect(refusal?.textContent).toContain("EV work unavailable");
+    expect(q("[data-domain-work-empty]")).toBeNull();
   });
 });

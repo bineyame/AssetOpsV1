@@ -9,7 +9,8 @@ is the DB `clock_timestamp()` taken once as the snapshot's first statement (a pr
 
 The selected cold Finding pin (`pin_of`, the W4 linked-selection pin), the selected cold envelope (`envelope_of`,
 `ColdReadService._snapshot` + `envelope_on` on this connection; ruling B1), the W3 link-row reader and the W1 Action
-window (`PostgresActionStore.site_window_on`; ruling B2, no second W1 SQL) are injected by `work/composition.py`;
+window (`PostgresActionStore.site_window_on`; ruling B2, no second W1 SQL) and the selected EV basis (`ev_basis_of`,
+W5-04a V1b) are injected by `work/composition.py`;
 no analytics adapter is imported here. No SQL here writes: `postgres_domain_intent.py` remains the sole writer of
 the three domain Action tables.
 """
@@ -35,6 +36,7 @@ _LINK_COLS = ("CAST(l.id AS text) AS id, CAST(l.action_id AS text) AS action_id,
 
 PinOf = Callable[[Connection, UUID, UUID, str, dict[str, Any], datetime], "dict[str, Any] | None"]
 EnvelopeOf = Callable[[Connection, UUID, UUID, str, dict[str, Any], datetime], dict[str, Any]]
+EvBasisOf = Callable[[Connection, UUID, UUID, str, dict[str, Any], datetime, str], "dict[str, Any] | None"]
 
 
 def _rows(result) -> list[dict[str, Any]]:
@@ -133,6 +135,12 @@ class _IndexTx:
             raise WorkStoreUnavailable("The domain Action read has no selected cold envelope reader.")
         return self._r.envelope_of(self._c, self._t, self._s, self._code, pin, known_at)
 
+    def ev_basis(self, pin: dict[str, Any], known_at: datetime, revision_id: str) -> dict[str, Any] | None:
+        """W5-04a V1b: the selected EV basis of one pin at the selection cutoff (readiness 27/30)."""
+        if self._r.ev_basis_of is None:
+            raise WorkStoreUnavailable("The domain Action read has no selected EV basis reader.")
+        return self._r.ev_basis_of(self._c, self._t, self._s, self._code, pin, known_at, revision_id)
+
     # ---- W1 battery Actions and provenance link rows ---------------------------------------------------------
 
     def w1_window(self, lo: datetime, hi: datetime, known_at: datetime) -> dict[str, Any]:
@@ -150,10 +158,12 @@ class PostgresDomainActionRead:
     def __init__(self, database_url: str | None, *,
                  link_rows: Callable[[Connection, UUID, UUID, list[str]], list[Any]] | None = None,
                  pin_of: PinOf | None = None, envelope_of: EnvelopeOf | None = None,
+                 ev_basis_of: EvBasisOf | None = None,
                  action_window: Callable[..., dict[str, Any]] | None = None, statement_timeout_ms: int = 30_000,
                  test_read_clock_override: Callable[[], datetime] | None = None) -> None:
         self._database_url = database_url
         self.link_rows, self.pin_of, self.envelope_of, self.action_window = link_rows, pin_of, envelope_of, action_window
+        self.ev_basis_of = ev_basis_of
         self.test_read_clock_override = test_read_clock_override
         self._options = f"-c statement_timeout={int(statement_timeout_ms)}"
         self._engine: Engine | None = None

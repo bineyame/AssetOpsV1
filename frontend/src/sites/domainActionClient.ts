@@ -3,13 +3,15 @@
  * client for the Site domain Action reads mounted by `backend/assetops_backend/domain_work_api.py`.
  *
  * - `GET /api/sites/{site}/domain-work/action-index?from=&to=&limit=5[&known_at=][&cursor=]` is the union of the
- *   Site's W1 battery Actions and its cold-chain domain Actions (`site-domain-action-index-1`).
+ *   Site's W1 battery Actions and its cold-chain or EV domain Actions (`site-domain-action-index-1`; W5-04 V2a
+ *   readiness ruling 46 parses an EV row as a domain Action).
  * - `GET /api/sites/{site}/domain-work/actions/{id}[?known_at=]` is one domain Action's declared intent
  *   (`domain-action-intent-read-1`).
  *
  * Every refusal is a named state, never a thrown error and never an empty list. A network failure and a malformed
- * success each carry their own fixed sentence. The page size is fixed to five here; it is not a URL query. The client
- * owns parsing only; labels and criterion copy live in `coldWorkPresentation.ts`.
+ * success each carry their own fixed sentence, chosen by the Site type for the index (W5-04 readiness ruling 44;
+ * the detail read stays cold until V4a). The page size is fixed to five here; it is not a URL query. The client
+ * owns parsing only; labels and criterion copy live in `coldWorkPresentation.ts` and `evWorkPresentation.ts`.
  */
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { isObject } from "./evidenceRead";
@@ -20,10 +22,17 @@ export const DOMAIN_DETAIL_SCHEMA = "domain-action-intent-read-1";
 /** U3: the client requests five rows; the list folds after four. */
 export const DOMAIN_INDEX_LIMIT = 5;
 export const COLD_DOMAIN = "COLDCHAIN";
+/** W5-04 V2a: the EV domain Action's stored domain literal (`work/domain_action.py` `EV_DOMAIN`). */
+export const EV_DOMAIN = "EV_CHARGING";
+/** The domain Action domains the union index parses as domain rows. */
+export type DomainActionDomain = typeof COLD_DOMAIN | typeof EV_DOMAIN;
 
 /** Spec "Mock element and literal ledger": network error and malformed 200. */
 export const COLD_WORK_UNREACHABLE = "The cold work read could not be reached.";
 export const COLD_WORK_UNEXPECTED = "The cold work read answered in an unexpected shape.";
+/** W5-04 readiness ruling 44: the EV Site's index network-failure and malformed-200 sentences. */
+export const EV_WORK_UNREACHABLE = "The EV work read could not be reached.";
+export const EV_WORK_UNEXPECTED = "The EV work read answered in an unexpected shape.";
 
 export const DOMAIN_STATUSES = ["CURRENT", "HISTORICAL", "PENDING_RECOMPUTE", "STALE_SOURCE", "UNKNOWN"] as const;
 export type DomainStatus = (typeof DOMAIN_STATUSES)[number];
@@ -51,9 +60,9 @@ interface DomainRowBase {
   links: { action: string; history: string | null };
 }
 
-/** A cold-chain domain Action row: stored title/owner/due, state always `OPEN`. */
+/** A cold-chain or EV domain Action row: stored title/owner/due, state always `OPEN`. */
 export interface DomainActionRow extends DomainRowBase {
-  domain: "COLDCHAIN";
+  domain: DomainActionDomain;
   title: string;
   state: "OPEN";
 }
@@ -132,7 +141,8 @@ export type DomainDetailResult =
   | DomainRefusal;
 
 export interface DomainActionClient {
-  getIndex(siteCode: string, scope: DomainIndexScope): Promise<DomainIndexResult>;
+  /** `siteType` selects only the fixed network/shape sentences (ruling 44); omitted, the cold sentences apply. */
+  getIndex(siteCode: string, scope: DomainIndexScope, siteType?: string): Promise<DomainIndexResult>;
   getDetail(siteCode: string, actionId: string, knownAt: string | null): Promise<DomainDetailResult>;
 }
 
@@ -214,7 +224,8 @@ function isRow(value: unknown): value is DomainIndexRow {
     isString(links.action) &&
     isNullableString(links.history);
   if (!shared) return false;
-  if (value.domain === COLD_DOMAIN) {
+  if (value.domain === COLD_DOMAIN || value.domain === EV_DOMAIN) {
+    // W5-04 readiness ruling 46: an EV row (string title, `OPEN`) is a domain Action, never an invalid W1 row.
     return isString(value.title) && value.state === "OPEN" && links.history === null;
   }
   // A W1 battery row: no title, no criterion, the W1 state object.
@@ -343,8 +354,13 @@ async function readJson(path: string): Promise<{ http: number; body: unknown } |
   return { http: response.status, body };
 }
 
-const unreachable = (): DomainRefusal => ({ status: "refused", http: null, code: null, message: COLD_WORK_UNREACHABLE });
-const unexpected = (http: number): DomainRefusal => ({ status: "refused", http, code: null, message: COLD_WORK_UNEXPECTED });
+/** Ruling 44: the EV Site's fallback sentences; every other caller keeps the cold sentences byte-for-byte. */
+const fallbackOf = (siteType?: string) =>
+  siteType === EV_DOMAIN
+    ? { unreachable: EV_WORK_UNREACHABLE, unexpected: EV_WORK_UNEXPECTED }
+    : { unreachable: COLD_WORK_UNREACHABLE, unexpected: COLD_WORK_UNEXPECTED };
+const unreachable = (siteType?: string): DomainRefusal => ({ status: "refused", http: null, code: null, message: fallbackOf(siteType).unreachable });
+const unexpected = (http: number, siteType?: string): DomainRefusal => ({ status: "refused", http, code: null, message: fallbackOf(siteType).unexpected });
 
 /** One UTC instant (`Z` or `+00:00`), as the server's window and cutoff parsers accept. */
 export function isUtcInstant(value: string): boolean {
@@ -387,12 +403,12 @@ export function domainDetailPath(basePath: string, siteCode: string, actionId: s
   return knownAt ? `${base}?${new URLSearchParams({ known_at: knownAt }).toString()}` : base;
 }
 
-export async function readDomainIndex(path: string, siteCode: string): Promise<DomainIndexResult> {
+export async function readDomainIndex(path: string, siteCode: string, siteType?: string): Promise<DomainIndexResult> {
   const read = await readJson(path);
-  if (read === null) return unreachable();
-  if (read.http === 200) return isIndexBody(read.body, siteCode) ? { status: "loaded", value: read.body } : unexpected(200);
+  if (read === null) return unreachable(siteType);
+  if (read.http === 200) return isIndexBody(read.body, siteCode) ? { status: "loaded", value: read.body } : unexpected(200, siteType);
   const refusal = refusalOf(read.http, read.body);
-  if (refusal === null) return unexpected(read.http);
+  if (refusal === null) return unexpected(read.http, siteType);
   if (read.http === 409 && refusal.code === "WORK_BASIS_CHANGED") {
     return { status: "basis_changed", http: 409, code: "WORK_BASIS_CHANGED", message: refusal.message };
   }
@@ -415,10 +431,10 @@ export async function readDomainDetail(path: string, siteCode: string, actionId:
 
 export function createDomainActionClient(basePath: string = SITES_API_PATH): DomainActionClient {
   return {
-    getIndex(siteCode, scope) {
+    getIndex(siteCode, scope, siteType) {
       const invalid = invalidScope(scope);
       if (invalid !== null) return Promise.resolve(invalid);
-      return readDomainIndex(domainIndexPath(basePath, siteCode, scope), siteCode);
+      return readDomainIndex(domainIndexPath(basePath, siteCode, scope), siteCode, siteType);
     },
     getDetail(siteCode, actionId, knownAt) {
       if (knownAt !== null && !isUtcInstant(knownAt)) return Promise.resolve(invalidKnownAt());

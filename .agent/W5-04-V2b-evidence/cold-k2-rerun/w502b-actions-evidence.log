@@ -1,0 +1,463 @@
+chrome pid 17332
+PASS  manifest positive: not blocked, INC links COLD_START_FAILURE+COLD_EXCURSION  {"blocked":null,"links":["COLD_START_FAILURE","COLD_EXCURSION"],"limit":null}
+PASS  manifest worstcase: not blocked, INC links COLD_START_FAILURE+COLD_EXCURSION  {"blocked":null,"links":["COLD_START_FAILURE","COLD_EXCURSION"],"limit":null}
+PASS  manifest pending: not blocked, INC links COLD_START_FAILURE+COLD_EXCURSION  {"blocked":null,"links":["COLD_START_FAILURE","COLD_EXCURSION"],"limit":null}
+PASS  manifest stale: not blocked, INC links COLD_START_FAILURE+COLD_EXCURSION  {"blocked":null,"links":["COLD_START_FAILURE","COLD_EXCURSION"],"limit":null}
+PASS  manifest unknown: not blocked, INC links COLD_START_FAILURE with the one-link limit recorded  {"blocked":null,"links":["COLD_START_FAILURE"],"limit":"UNKNOWN one-link limit: the no-probe replay selects no COLD_EXCURSION Finding revision, so the INC links only the returned COLD_START_FAILURE Finding (ruling 21; no synthetic excursion)"}
+PASS  desktop positive: settled  "rows"
+PASS  desktop positive: rows panel, CURRENT  {"panel":"rows","currentness":null}
+PASS  desktop positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop positive: page main <= 1600  {"main":568,"docHeight":1000}
+PASS  desktop positive: strip <= 100  39
+PASS  desktop positive: panel <= 650  {"panel":184,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop positive: context notice <= 110  42
+PASS  desktop positive: 1 visible row(s) measured  1
+PASS  desktop positive: every row's code is on one line  [[1,1,1]]
+PASS  desktop positive: every 'Read full text' summary is on one line  [1]
+PASS  desktop positive: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  desktop positive: first column is position:sticky  true
+PASS  desktop positive: no clipped State badge  {"badges":1,"clipped":0}
+PASS  desktop positive: every State badge is on one line  [1]
+PASS  desktop positive: Window control after the Work subtabs and before the scope strip  {"afterSubtabs":true,"beforeStrip":true,"from":"2026-10-23","to":"2026-10-25","width":1160,"parentWidth":1160,"height":33,"rightGap":0,"leftGap":0,"error":null}
+PASS  desktop positive: Window shows the selected from/to dates  {"from":"2026-10-23","to":"2026-10-25","want":{"from":"2026-10-23","to":"2026-10-25"}}
+PASS  desktop positive: Window control right-aligned  {"rightGap":0}
+PASS  desktop zero: settled  "empty"
+PASS  desktop zero: empty panel  {"panel":"empty","empty":"No actions at this site No accepted recommendation or evidence request has been raised here yet."}
+PASS  desktop zero: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop zero: page main <= 1600  {"main":646,"docHeight":1000}
+PASS  desktop zero: strip <= 100  39
+PASS  desktop zero: panel <= 650  {"panel":262,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop zero: context notice <= 110  42
+PASS  desktop historical: settled  "rows"
+PASS  desktop historical: HISTORICAL notice  "HISTORICAL"
+PASS  desktop historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop historical: page main <= 1600  {"main":628,"docHeight":1000}
+PASS  desktop historical: strip <= 100  39
+PASS  desktop historical: panel <= 650  {"panel":184,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop historical: context notice <= 110  42
+PASS  desktop historical: currentness notice <= 110  42
+PASS  desktop historical: 1 visible row(s) measured  1
+PASS  desktop historical: every row's code is on one line  [[1,1,1]]
+PASS  desktop historical: every 'Read full text' summary is on one line  [1]
+PASS  desktop historical: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  desktop historical: first column is position:sticky  true
+PASS  desktop historical: no clipped State badge  {"badges":1,"clipped":0}
+PASS  desktop historical: every State badge is on one line  [1]
+PASS  desktop worstcase-folded: settled  "rows"
+PASS  desktop worstcase-folded: 'Show all 5 Actions' visible  "Show all 5 Actions"
+PASS  desktop worstcase-folded: 5 rows on page, 4 visible  {"total":5,"visible":4}
+PASS  desktop worstcase-folded: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop worstcase-folded: page main <= 1600  {"main":840,"docHeight":1000}
+PASS  desktop worstcase-folded: strip <= 100  39
+PASS  desktop worstcase-folded: panel <= 650  {"panel":457,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop worstcase-folded: context notice <= 110  42
+PASS  desktop worstcase-folded: 4 visible row(s) measured  4
+PASS  desktop worstcase-folded: every row's code is on one line  [[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+PASS  desktop worstcase-folded: every 'Read full text' summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  desktop worstcase-folded: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  desktop worstcase-folded: every long-text preview is at most two lines  [2,2,2,2,2,2,2,2]
+PASS  desktop worstcase-folded: first column is position:sticky  true
+PASS  desktop worstcase-folded: no clipped State badge  {"badges":4,"clipped":0}
+PASS  desktop worstcase-folded: every State badge is on one line  [1,1,1,1]
+PASS  desktop worstcase-expanded: settled  "rows"
+PASS  desktop worstcase-expanded: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop worstcase-expanded: page main <= 1600  {"main":919,"docHeight":1000}
+PASS  desktop worstcase-expanded: strip <= 100  39
+PASS  desktop worstcase-expanded: panel <= 650  {"panel":535,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop worstcase-expanded: context notice <= 110  42
+PASS  desktop worstcase-expanded: 5 visible row(s) measured  5
+PASS  desktop worstcase-expanded: every row's code is on one line  [[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+PASS  desktop worstcase-expanded: every 'Read full text' summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  desktop worstcase-expanded: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  desktop worstcase-expanded: every long-text preview is at most two lines  [2,2,2,2,2,2,2,2,2,2]
+PASS  desktop worstcase-expanded: first column is position:sticky  true
+PASS  desktop worstcase-expanded: no clipped State badge  {"badges":5,"clipped":0}
+PASS  desktop worstcase-expanded: every State badge is on one line  [1,1,1,1,1]
+PASS  desktop worstcase-expanded-open: settled  "rows"
+PASS  desktop worstcase-expanded-open: five title disclosures open  {"open":5,"of":5,"rows":5}
+PASS  desktop worstcase-expanded-open: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1425,"clientWidth":1425}
+PASS  desktop worstcase-expanded-open: page main <= 1600  {"main":1115,"docHeight":1189}
+PASS  desktop worstcase-expanded-open: strip <= 100  39
+PASS  desktop worstcase-expanded-open: context notice <= 110  42
+PASS  desktop worstcase-expanded-open: 5 visible row(s) measured  5
+PASS  desktop worstcase-expanded-open: every row's code is on one line  [[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+PASS  desktop worstcase-expanded-open: every 'Read full text' summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  desktop worstcase-expanded-open: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  desktop worstcase-expanded-open: every opened Read full text body stays inside its cell with no horizontal clip  []
+PASS  desktop worstcase-expanded-open: first column is position:sticky  true
+PASS  desktop worstcase-expanded-open: no clipped State badge  {"badges":5,"clipped":0}
+PASS  desktop worstcase-expanded-open: every State badge is on one line  [1,1,1,1,1]
+PASS  desktop worstcase-disclosure: settled  "rows"
+PASS  desktop worstcase-disclosure: one disclosure open  {"open":1,"of":5}
+PASS  desktop worstcase-disclosure: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop worstcase-disclosure: page main <= 1600  {"main":862,"docHeight":1000}
+PASS  desktop worstcase-disclosure: strip <= 100  39
+PASS  desktop worstcase-disclosure: panel <= 650  {"panel":478,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop worstcase-disclosure: context notice <= 110  42
+PASS  desktop worstcase-disclosure: 4 visible row(s) measured  4
+PASS  desktop worstcase-disclosure: every row's code is on one line  [[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+PASS  desktop worstcase-disclosure: every 'Read full text' summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  desktop worstcase-disclosure: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  desktop worstcase-disclosure: every opened Read full text body stays inside its cell with no horizontal clip  []
+PASS  desktop worstcase-disclosure: every long-text preview is at most two lines  [2,2,2,2,2,2,2]
+PASS  desktop worstcase-disclosure: first column is position:sticky  true
+PASS  desktop worstcase-disclosure: no clipped State badge  {"badges":4,"clipped":0}
+PASS  desktop worstcase-disclosure: every State badge is on one line  [1,1,1,1]
+PASS  desktop worstcase: Next page link present  "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A36%3A41.290283Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTI0VDA3OjMwOjA5LjIxODgzMFoiLCI4MmM1OWU3Mi05MTkzLTRhOGQtODU1Ni1kZWQ3MDM2NWFlYTgiXSwiZnJvbSI6IjIwMjYtMTAtMjNUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjRUMDc6MzY6NDEuMjkwMjgzWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo4ZjU1ZWVmODk0ODVjNGIxYjUxZjFlNzE2NmM4NjdjODY3MjczMDU0OTM1MDM2NTg3MTVhMzA1Y2MxZTllYjNmIiwic2l0ZV9pZCI6IjVjOTJjYTk1LWY0ZTktNDlkYS1hMzY3LWYzMWM0Mjc0NWE3NSIsInRlbmFudF9pZCI6ImJiZDhjZGE5LTNkYTEtNDQyZi1iNTUzLTNlZTIxZWM5MWVhYSIsInRvIjoiMjAyNi0xMC0yNVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+PASS  desktop worstcase-next: settled  "rows"
+PASS  desktop worstcase-next: cursor + known_at in URL, First page link  "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A36%3A41.290283Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTI0VDA3OjMwOjA5LjIxODgzMFoiLCI4MmM1OWU3Mi05MTkzLTRhOGQtODU1Ni1kZWQ3MDM2NWFlYTgiXSwiZnJvbSI6IjIwMjYtMTAtMjNUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjRUMDc6MzY6NDEuMjkwMjgzWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo4ZjU1ZWVmODk0ODVjNGIxYjUxZjFlNzE2NmM4NjdjODY3MjczMDU0OTM1MDM2NTg3MTVhMzA1Y2MxZTllYjNmIiwic2l0ZV9pZCI6IjVjOTJjYTk1LWY0ZTktNDlkYS1hMzY3LWYzMWM0Mjc0NWE3NSIsInRlbmFudF9pZCI6ImJiZDhjZGE5LTNkYTEtNDQyZi1iNTUzLTNlZTIxZWM5MWVhYSIsInRvIjoiMjAyNi0xMC0yNVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+PASS  desktop worstcase-next: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop worstcase-next: page main <= 1600  {"main":627,"docHeight":1000}
+PASS  desktop worstcase-next: strip <= 100  39
+PASS  desktop worstcase-next: panel <= 650  {"panel":183,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop worstcase-next: context notice <= 110  42
+PASS  desktop worstcase-next: currentness notice <= 110  42
+PASS  desktop worstcase-next: 1 visible row(s) measured  1
+PASS  desktop worstcase-next: every row's code is on one line  [[1,1,1]]
+PASS  desktop worstcase-next: every 'Read full text' summary is on one line  [1]
+PASS  desktop worstcase-next: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  desktop worstcase-next: first column is position:sticky  true
+PASS  desktop worstcase-next: no clipped State badge  {"badges":1,"clipped":0}
+PASS  desktop worstcase-next: every State badge is on one line  [1]
+PASS  desktop window-apply: settled  "rows"
+PASS  desktop window-apply: URL carries the new from,to and the same known_at, no cursor  "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T07%3A36%3A41.290283Z"
+PASS  desktop window-apply: page one read (rows panel, 'Show all 5 Actions')  {"panel":"rows","rows":5,"first":false}
+PASS  desktop window-apply: Window control after the Work subtabs and before the scope strip  {"afterSubtabs":true,"beforeStrip":true,"from":"2026-10-22","to":"2026-10-25","width":1160,"parentWidth":1160,"height":33,"rightGap":0,"leftGap":0,"error":null}
+PASS  desktop window-apply: Window shows the selected from/to dates  {"from":"2026-10-22","to":"2026-10-25","want":{"from":"2026-10-22","to":"2026-10-25"}}
+PASS  desktop window-apply: Window control right-aligned  {"rightGap":0}
+PASS  desktop window-apply: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop window-apply: page main <= 1600  {"main":901,"docHeight":1000}
+PASS  desktop window-apply: strip <= 100  39
+PASS  desktop window-apply: panel <= 650  {"panel":457,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop window-apply: context notice <= 110  42
+PASS  desktop window-apply: currentness notice <= 110  42
+PASS  desktop window-invalid: settled  "rows"
+PASS  desktop window-invalid: window error shown, URL unchanged  {"error":"The window may span at most 31 days.","href":"/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z"}
+PASS  desktop window-invalid: Window control after the Work subtabs and before the scope strip  {"afterSubtabs":true,"beforeStrip":true,"from":"2026-10-23","to":"2026-10-23","width":1160,"parentWidth":1160,"height":57,"rightGap":0,"leftGap":0,"error":"The window may span at most 31 days."}
+PASS  desktop window-invalid: Window control right-aligned  {"rightGap":0}
+PASS  desktop window-invalid: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop window-invalid: page main <= 1600  {"main":592,"docHeight":1000}
+PASS  desktop window-invalid: strip <= 100  39
+PASS  desktop window-invalid: panel <= 650  {"panel":184,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop window-invalid: context notice <= 110  42
+PASS  desktop cold-incidents: settled  "settled"
+PASS  desktop cold-incidents: exactly one visible date form, the page-local Window control (no W4 in-panel form)  {"forms":["cold-window"],"w4Form":false}
+PASS  desktop cold-incidents: Window control after the Work subtabs, showing the selected dates  {"after":true,"from":"2026-10-23","to":"2026-10-25"}
+PASS  desktop cold-incidents: page URL keeps from,to,known_at  "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z"
+PASS  desktop cold-incidents: every Work subtab href keeps from,to,known_at  {"got":["/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z"],"want":["/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z"]}
+PASS  desktop cold-incidents: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop cold-maintenance: settled  "settled"
+PASS  desktop cold-maintenance: exactly one visible date form, the page-local Window control (no W4 in-panel form)  {"forms":["cold-window"],"w4Form":false}
+PASS  desktop cold-maintenance: Window control after the Work subtabs, showing the selected dates  {"after":true,"from":"2026-10-23","to":"2026-10-25"}
+PASS  desktop cold-maintenance: page URL keeps from,to,known_at  "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z"
+PASS  desktop cold-maintenance: every Work subtab href keeps from,to,known_at  {"got":["/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z"],"want":["/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z"]}
+PASS  desktop cold-maintenance: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop pending: settled  "rows"
+PASS  desktop pending: PENDING_RECOMPUTE notice  "PENDING_RECOMPUTE"
+PASS  desktop pending: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop pending: page main <= 1600  {"main":628,"docHeight":1000}
+PASS  desktop pending: strip <= 100  39
+PASS  desktop pending: panel <= 650  {"panel":184,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop pending: context notice <= 110  42
+PASS  desktop pending: currentness notice <= 110  42
+PASS  desktop pending: 1 visible row(s) measured  1
+PASS  desktop pending: every row's code is on one line  [[1,1,1]]
+PASS  desktop pending: every 'Read full text' summary is on one line  [1]
+PASS  desktop pending: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  desktop pending: first column is position:sticky  true
+PASS  desktop pending: no clipped State badge  {"badges":1,"clipped":0}
+PASS  desktop pending: every State badge is on one line  [1]
+PASS  desktop stale: settled  "rows"
+PASS  desktop stale: STALE_SOURCE notice  "STALE_SOURCE"
+PASS  desktop stale: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop stale: page main <= 1600  {"main":628,"docHeight":1000}
+PASS  desktop stale: strip <= 100  39
+PASS  desktop stale: panel <= 650  {"panel":184,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop stale: context notice <= 110  42
+PASS  desktop stale: currentness notice <= 110  42
+PASS  desktop stale: 1 visible row(s) measured  1
+PASS  desktop stale: every row's code is on one line  [[1,1,1]]
+PASS  desktop stale: every 'Read full text' summary is on one line  [1]
+PASS  desktop stale: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  desktop stale: first column is position:sticky  true
+PASS  desktop stale: no clipped State badge  {"badges":1,"clipped":0}
+PASS  desktop stale: every State badge is on one line  [1]
+PASS  desktop unknown: settled  "rows"
+PASS  desktop unknown: UNKNOWN notice  "UNKNOWN"
+PASS  desktop unknown: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop unknown: page main <= 1600  {"main":628,"docHeight":1000}
+PASS  desktop unknown: strip <= 100  39
+PASS  desktop unknown: panel <= 650  {"panel":184,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop unknown: context notice <= 110  42
+PASS  desktop unknown: currentness notice <= 110  42
+PASS  desktop unknown: 1 visible row(s) measured  1
+PASS  desktop unknown: every row's code is on one line  [[1,1,1]]
+PASS  desktop unknown: every 'Read full text' summary is on one line  [1]
+PASS  desktop unknown: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  desktop unknown: first column is position:sticky  true
+PASS  desktop unknown: no clipped State badge  {"badges":1,"clipped":0}
+PASS  desktop unknown: every State badge is on one line  [1]
+PASS  desktop forbidden-403: settled  "refused"
+PASS  desktop forbidden-403: refused panel SITE_SCOPE_FORBIDDEN  {"panel":"refused","refusal":"SITE_SCOPE_FORBIDDEN","message":"No access to Site 'COLD-LAB-001'."}
+PASS  desktop forbidden-403: Retry visible  true
+PASS  desktop forbidden-403: no row and no mock zero  {"rows":0,"scope":"Scoped to Cold · — actions"}
+PASS  desktop forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop forbidden-403: page main <= 1600  {"main":582,"docHeight":1000}
+PASS  desktop forbidden-403: strip <= 100  39
+PASS  desktop forbidden-403: panel <= 650  {"panel":198,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop forbidden-403: context notice <= 110  42
+PASS  desktop cold-work-503: settled  "refused"
+PASS  desktop cold-work-503: Site read healthy (cold Work page mounted, no Site refusal)  {"siteRefusal":null}
+PASS  desktop cold-work-503: refused panel WORK_STORE_UNAVAILABLE  {"panel":"refused","refusal":"WORK_STORE_UNAVAILABLE","message":"Work records could not be read or saved."}
+PASS  desktop cold-work-503: Retry visible  true
+PASS  desktop cold-work-503: panel says 'Cold work unavailable' with the server message and Retry  {"text":"Cold work unavailable Work records could not be read or saved. Retry","message":"Work records could not be read or saved."}
+PASS  desktop cold-work-503: no row and no mock zero  {"rows":0,"scope":"Scoped to Cold · — actions"}
+PASS  desktop cold-work-503: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop cold-work-503: page main <= 1600  {"main":582,"docHeight":1000}
+PASS  desktop cold-work-503: strip <= 100  39
+PASS  desktop cold-work-503: panel <= 650  {"panel":198,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop cold-work-503: context notice <= 110  42
+PASS  desktop action-positive: settled  "loaded"
+PASS  desktop action-positive: shell/panel state  {"shell":"loaded","panel":null}
+PASS  desktop action-positive: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop action-positive: page main <= 1500  755
+PASS  desktop action-positive: strip <= 140  42
+PASS  desktop action-positive: notice <= 110  42
+PASS  desktop action-not-found: settled  "not-found"
+PASS  desktop action-not-found: shell/panel state  {"shell":"not_found","panel":"not-found"}
+PASS  desktop action-not-found: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop action-not-found: page main <= 1500  220
+PASS  narrow positive: settled  "rows"
+PASS  narrow positive: rows panel, CURRENT  {"panel":"rows","currentness":null}
+PASS  narrow positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow positive: page main <= 2000  {"main":745,"docHeight":900}
+PASS  narrow positive: strip <= 150  84
+PASS  narrow positive: panel <= 850  {"panel":199,"tableScrollWidth":818,"tableClientWidth":318}
+PASS  narrow positive: context notice <= 160  60
+PASS  narrow positive: 1 visible row(s) measured  1
+PASS  narrow positive: every row's code is on one line  [[1,1,1]]
+PASS  narrow positive: every 'Read full text' summary is on one line  [1]
+PASS  narrow positive: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  narrow positive: first column is position:sticky  true
+PASS  narrow positive: no clipped State badge  {"badges":1,"clipped":0}
+PASS  narrow positive: every State badge is on one line  [1]
+PASS  narrow positive: table scrolls inside its panel  {"scrollWidth":818,"clientWidth":318}
+PASS  narrow positive: Window control after the Work subtabs and before the scope strip  {"afterSubtabs":true,"beforeStrip":true,"from":"2026-10-23","to":"2026-10-25","width":358,"parentWidth":358,"height":136,"rightGap":0,"leftGap":0,"error":null}
+PASS  narrow positive: Window shows the selected from/to dates  {"from":"2026-10-23","to":"2026-10-25","want":{"from":"2026-10-23","to":"2026-10-25"}}
+PASS  narrow positive: Window control full width  {"width":358,"parent":358,"leftGap":0}
+PASS  narrow zero: settled  "empty"
+PASS  narrow zero: empty panel  {"panel":"empty","empty":"No actions at this site No accepted recommendation or evidence request has been raised here yet."}
+PASS  narrow zero: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow zero: page main <= 2000  {"main":828,"docHeight":977}
+PASS  narrow zero: strip <= 150  84
+PASS  narrow zero: panel <= 850  {"panel":282,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow zero: context notice <= 160  60
+PASS  narrow historical: settled  "rows"
+PASS  narrow historical: HISTORICAL notice  "HISTORICAL"
+PASS  narrow historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow historical: page main <= 2000  {"main":805,"docHeight":954}
+PASS  narrow historical: strip <= 150  84
+PASS  narrow historical: panel <= 850  {"panel":199,"tableScrollWidth":818,"tableClientWidth":318}
+PASS  narrow historical: context notice <= 160  60
+PASS  narrow historical: currentness notice <= 160  42
+PASS  narrow historical: 1 visible row(s) measured  1
+PASS  narrow historical: every row's code is on one line  [[1,1,1]]
+PASS  narrow historical: every 'Read full text' summary is on one line  [1]
+PASS  narrow historical: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  narrow historical: first column is position:sticky  true
+PASS  narrow historical: no clipped State badge  {"badges":1,"clipped":0}
+PASS  narrow historical: every State badge is on one line  [1]
+PASS  narrow historical: table scrolls inside its panel  {"scrollWidth":818,"clientWidth":318}
+PASS  narrow worstcase-folded: settled  "rows"
+PASS  narrow worstcase-folded: 'Show all 5 Actions' visible  "Show all 5 Actions"
+PASS  narrow worstcase-folded: 5 rows on page, 4 visible  {"total":5,"visible":4}
+PASS  narrow worstcase-folded: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow worstcase-folded: page main <= 2000  {"main":1002,"docHeight":1152}
+PASS  narrow worstcase-folded: strip <= 150  84
+PASS  narrow worstcase-folded: panel <= 850  {"panel":457,"tableScrollWidth":819,"tableClientWidth":318}
+PASS  narrow worstcase-folded: context notice <= 160  60
+PASS  narrow worstcase-folded: 4 visible row(s) measured  4
+PASS  narrow worstcase-folded: every row's code is on one line  [[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+PASS  narrow worstcase-folded: every 'Read full text' summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  narrow worstcase-folded: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  narrow worstcase-folded: every long-text preview is at most two lines  [2,2,2,2,2,2,2,2]
+PASS  narrow worstcase-folded: first column is position:sticky  true
+PASS  narrow worstcase-folded: no clipped State badge  {"badges":4,"clipped":0}
+PASS  narrow worstcase-folded: every State badge is on one line  [1,1,1,1]
+PASS  narrow worstcase-folded: table scrolls inside its panel  {"scrollWidth":819,"clientWidth":318}
+PASS  narrow worstcase-expanded: settled  "rows"
+PASS  narrow worstcase-expanded: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow worstcase-expanded: page main <= 2000  {"main":1081,"docHeight":1230}
+PASS  narrow worstcase-expanded: strip <= 150  84
+PASS  narrow worstcase-expanded: panel <= 850  {"panel":535,"tableScrollWidth":819,"tableClientWidth":318}
+PASS  narrow worstcase-expanded: context notice <= 160  60
+PASS  narrow worstcase-expanded: 5 visible row(s) measured  5
+PASS  narrow worstcase-expanded: every row's code is on one line  [[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+PASS  narrow worstcase-expanded: every 'Read full text' summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  narrow worstcase-expanded: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  narrow worstcase-expanded: every long-text preview is at most two lines  [2,2,2,2,2,2,2,2,2,2]
+PASS  narrow worstcase-expanded: first column is position:sticky  true
+PASS  narrow worstcase-expanded: no clipped State badge  {"badges":5,"clipped":0}
+PASS  narrow worstcase-expanded: every State badge is on one line  [1,1,1,1,1]
+PASS  narrow worstcase-expanded: table scrolls inside its panel  {"scrollWidth":819,"clientWidth":318}
+PASS  narrow worstcase-expanded-open: settled  "rows"
+PASS  narrow worstcase-expanded-open: five title disclosures open  {"open":5,"of":5,"rows":5}
+PASS  narrow worstcase-expanded-open: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow worstcase-expanded-open: page main <= 2000  {"main":1629,"docHeight":1778}
+PASS  narrow worstcase-expanded-open: strip <= 150  84
+PASS  narrow worstcase-expanded-open: context notice <= 160  60
+PASS  narrow worstcase-expanded-open: 5 visible row(s) measured  5
+PASS  narrow worstcase-expanded-open: every row's code is on one line  [[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+PASS  narrow worstcase-expanded-open: every 'Read full text' summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  narrow worstcase-expanded-open: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  narrow worstcase-expanded-open: every opened Read full text body stays inside its cell with no horizontal clip  []
+PASS  narrow worstcase-expanded-open: first column is position:sticky  true
+PASS  narrow worstcase-expanded-open: no clipped State badge  {"badges":5,"clipped":0}
+PASS  narrow worstcase-expanded-open: every State badge is on one line  [1,1,1,1,1]
+PASS  narrow worstcase-expanded-open: table scrolls inside its panel  {"scrollWidth":819,"clientWidth":318}
+PASS  narrow worstcase-disclosure: settled  "rows"
+PASS  narrow worstcase-disclosure: one disclosure open  {"open":1,"of":5}
+PASS  narrow worstcase-disclosure: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow worstcase-disclosure: page main <= 2000  {"main":1059,"docHeight":1208}
+PASS  narrow worstcase-disclosure: strip <= 150  84
+PASS  narrow worstcase-disclosure: panel <= 850  {"panel":513,"tableScrollWidth":819,"tableClientWidth":318}
+PASS  narrow worstcase-disclosure: context notice <= 160  60
+PASS  narrow worstcase-disclosure: 4 visible row(s) measured  4
+PASS  narrow worstcase-disclosure: every row's code is on one line  [[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+PASS  narrow worstcase-disclosure: every 'Read full text' summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  narrow worstcase-disclosure: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  narrow worstcase-disclosure: every opened Read full text body stays inside its cell with no horizontal clip  []
+PASS  narrow worstcase-disclosure: every long-text preview is at most two lines  [2,2,2,2,2,2,2]
+PASS  narrow worstcase-disclosure: first column is position:sticky  true
+PASS  narrow worstcase-disclosure: no clipped State badge  {"badges":4,"clipped":0}
+PASS  narrow worstcase-disclosure: every State badge is on one line  [1,1,1,1]
+PASS  narrow worstcase-disclosure: table scrolls inside its panel  {"scrollWidth":819,"clientWidth":318}
+PASS  narrow worstcase: Next page link present  "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A37%3A39.880060Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTI0VDA3OjMwOjA5LjIxODgzMFoiLCI4MmM1OWU3Mi05MTkzLTRhOGQtODU1Ni1kZWQ3MDM2NWFlYTgiXSwiZnJvbSI6IjIwMjYtMTAtMjNUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjRUMDc6Mzc6MzkuODgwMDYwWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo2YzAzODdiMzFiYTc2NmU1ZGEyYjA3ODliOWEyODBmMTI5YTI1MjlhODhlYTI0NGYwZmNjMGU5NzM4NzY4MWZmIiwic2l0ZV9pZCI6IjVjOTJjYTk1LWY0ZTktNDlkYS1hMzY3LWYzMWM0Mjc0NWE3NSIsInRlbmFudF9pZCI6ImJiZDhjZGE5LTNkYTEtNDQyZi1iNTUzLTNlZTIxZWM5MWVhYSIsInRvIjoiMjAyNi0xMC0yNVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+PASS  narrow worstcase-next: settled  "rows"
+PASS  narrow worstcase-next: cursor + known_at in URL, First page link  "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A37%3A39.880060Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTI0VDA3OjMwOjA5LjIxODgzMFoiLCI4MmM1OWU3Mi05MTkzLTRhOGQtODU1Ni1kZWQ3MDM2NWFlYTgiXSwiZnJvbSI6IjIwMjYtMTAtMjNUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjRUMDc6Mzc6MzkuODgwMDYwWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo2YzAzODdiMzFiYTc2NmU1ZGEyYjA3ODliOWEyODBmMTI5YTI1MjlhODhlYTI0NGYwZmNjMGU5NzM4NzY4MWZmIiwic2l0ZV9pZCI6IjVjOTJjYTk1LWY0ZTktNDlkYS1hMzY3LWYzMWM0Mjc0NWE3NSIsInRlbmFudF9pZCI6ImJiZDhjZGE5LTNkYTEtNDQyZi1iNTUzLTNlZTIxZWM5MWVhYSIsInRvIjoiMjAyNi0xMC0yNVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+PASS  narrow worstcase-next: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow worstcase-next: page main <= 2000  {"main":804,"docHeight":954}
+PASS  narrow worstcase-next: strip <= 150  84
+PASS  narrow worstcase-next: panel <= 850  {"panel":199,"tableScrollWidth":819,"tableClientWidth":318}
+PASS  narrow worstcase-next: context notice <= 160  60
+PASS  narrow worstcase-next: currentness notice <= 160  42
+PASS  narrow worstcase-next: 1 visible row(s) measured  1
+PASS  narrow worstcase-next: every row's code is on one line  [[1,1,1]]
+PASS  narrow worstcase-next: every 'Read full text' summary is on one line  [1]
+PASS  narrow worstcase-next: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  narrow worstcase-next: first column is position:sticky  true
+PASS  narrow worstcase-next: no clipped State badge  {"badges":1,"clipped":0}
+PASS  narrow worstcase-next: every State badge is on one line  [1]
+PASS  narrow worstcase-next: table scrolls inside its panel  {"scrollWidth":819,"clientWidth":318}
+PASS  narrow window-apply: settled  "rows"
+PASS  narrow window-apply: URL carries the new from,to and the same known_at, no cursor  "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T07%3A37%3A39.880060Z"
+PASS  narrow window-apply: page one read (rows panel, 'Show all 5 Actions')  {"panel":"rows","rows":5,"first":false}
+PASS  narrow window-apply: Window control after the Work subtabs and before the scope strip  {"afterSubtabs":true,"beforeStrip":true,"from":"2026-10-22","to":"2026-10-25","width":358,"parentWidth":358,"height":136,"rightGap":0,"leftGap":0,"error":null}
+PASS  narrow window-apply: Window shows the selected from/to dates  {"from":"2026-10-22","to":"2026-10-25","want":{"from":"2026-10-22","to":"2026-10-25"}}
+PASS  narrow window-apply: Window control full width  {"width":358,"parent":358,"leftGap":0}
+PASS  narrow window-apply: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow window-apply: page main <= 2000  {"main":1062,"docHeight":1212}
+PASS  narrow window-apply: strip <= 150  84
+PASS  narrow window-apply: panel <= 850  {"panel":457,"tableScrollWidth":819,"tableClientWidth":318}
+PASS  narrow window-apply: context notice <= 160  60
+PASS  narrow window-apply: currentness notice <= 160  42
+PASS  narrow window-invalid: settled  "rows"
+PASS  narrow window-invalid: window error shown, URL unchanged  {"error":"The window may span at most 31 days.","href":"/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z"}
+PASS  narrow window-invalid: Window control after the Work subtabs and before the scope strip  {"afterSubtabs":true,"beforeStrip":true,"from":"2026-10-23","to":"2026-10-23","width":358,"parentWidth":358,"height":161,"rightGap":0,"leftGap":0,"error":"The window may span at most 31 days."}
+PASS  narrow window-invalid: Window control full width  {"width":358,"parent":358,"leftGap":0}
+PASS  narrow window-invalid: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow window-invalid: page main <= 2000  {"main":769,"docHeight":919}
+PASS  narrow window-invalid: strip <= 150  84
+PASS  narrow window-invalid: panel <= 850  {"panel":199,"tableScrollWidth":818,"tableClientWidth":318}
+PASS  narrow window-invalid: context notice <= 160  60
+PASS  narrow cold-incidents: settled  "settled"
+PASS  narrow cold-incidents: exactly one visible date form, the page-local Window control (no W4 in-panel form)  {"forms":["cold-window"],"w4Form":false}
+PASS  narrow cold-incidents: Window control after the Work subtabs, showing the selected dates  {"after":true,"from":"2026-10-23","to":"2026-10-25"}
+PASS  narrow cold-incidents: page URL keeps from,to,known_at  "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z"
+PASS  narrow cold-incidents: every Work subtab href keeps from,to,known_at  {"got":["/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z"],"want":["/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z"]}
+PASS  narrow cold-incidents: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow cold-maintenance: settled  "settled"
+PASS  narrow cold-maintenance: exactly one visible date form, the page-local Window control (no W4 in-panel form)  {"forms":["cold-window"],"w4Form":false}
+PASS  narrow cold-maintenance: Window control after the Work subtabs, showing the selected dates  {"after":true,"from":"2026-10-23","to":"2026-10-25"}
+PASS  narrow cold-maintenance: page URL keeps from,to,known_at  "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z"
+PASS  narrow cold-maintenance: every Work subtab href keeps from,to,known_at  {"got":["/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z"],"want":["/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z","/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T07%3A29%3A48.315661Z"]}
+PASS  narrow cold-maintenance: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow pending: settled  "rows"
+PASS  narrow pending: PENDING_RECOMPUTE notice  "PENDING_RECOMPUTE"
+PASS  narrow pending: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow pending: page main <= 2000  {"main":823,"docHeight":973}
+PASS  narrow pending: strip <= 150  84
+PASS  narrow pending: panel <= 850  {"panel":199,"tableScrollWidth":818,"tableClientWidth":318}
+PASS  narrow pending: context notice <= 160  60
+PASS  narrow pending: currentness notice <= 160  60
+PASS  narrow pending: 1 visible row(s) measured  1
+PASS  narrow pending: every row's code is on one line  [[1,1,1]]
+PASS  narrow pending: every 'Read full text' summary is on one line  [1]
+PASS  narrow pending: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  narrow pending: first column is position:sticky  true
+PASS  narrow pending: no clipped State badge  {"badges":1,"clipped":0}
+PASS  narrow pending: every State badge is on one line  [1]
+PASS  narrow pending: table scrolls inside its panel  {"scrollWidth":818,"clientWidth":318}
+PASS  narrow stale: settled  "rows"
+PASS  narrow stale: STALE_SOURCE notice  "STALE_SOURCE"
+PASS  narrow stale: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow stale: page main <= 2000  {"main":823,"docHeight":973}
+PASS  narrow stale: strip <= 150  84
+PASS  narrow stale: panel <= 850  {"panel":199,"tableScrollWidth":822,"tableClientWidth":318}
+PASS  narrow stale: context notice <= 160  60
+PASS  narrow stale: currentness notice <= 160  60
+PASS  narrow stale: 1 visible row(s) measured  1
+PASS  narrow stale: every row's code is on one line  [[1,1,1]]
+PASS  narrow stale: every 'Read full text' summary is on one line  [1]
+PASS  narrow stale: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  narrow stale: first column is position:sticky  true
+PASS  narrow stale: no clipped State badge  {"badges":1,"clipped":0}
+PASS  narrow stale: every State badge is on one line  [1]
+PASS  narrow stale: table scrolls inside its panel  {"scrollWidth":822,"clientWidth":318}
+PASS  narrow unknown: settled  "rows"
+PASS  narrow unknown: UNKNOWN notice  "UNKNOWN"
+PASS  narrow unknown: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow unknown: page main <= 2000  {"main":823,"docHeight":973}
+PASS  narrow unknown: strip <= 150  84
+PASS  narrow unknown: panel <= 850  {"panel":199,"tableScrollWidth":821,"tableClientWidth":318}
+PASS  narrow unknown: context notice <= 160  60
+PASS  narrow unknown: currentness notice <= 160  60
+PASS  narrow unknown: 1 visible row(s) measured  1
+PASS  narrow unknown: every row's code is on one line  [[1,1,1]]
+PASS  narrow unknown: every 'Read full text' summary is on one line  [1]
+PASS  narrow unknown: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)  []
+PASS  narrow unknown: first column is position:sticky  true
+PASS  narrow unknown: no clipped State badge  {"badges":1,"clipped":0}
+PASS  narrow unknown: every State badge is on one line  [1]
+PASS  narrow unknown: table scrolls inside its panel  {"scrollWidth":821,"clientWidth":318}
+PASS  narrow forbidden-403: settled  "refused"
+PASS  narrow forbidden-403: refused panel SITE_SCOPE_FORBIDDEN  {"panel":"refused","refusal":"SITE_SCOPE_FORBIDDEN","message":"No access to Site 'COLD-LAB-001'."}
+PASS  narrow forbidden-403: Retry visible  true
+PASS  narrow forbidden-403: no row and no mock zero  {"rows":0,"scope":"Scoped to Cold · — actions"}
+PASS  narrow forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow forbidden-403: page main <= 2000  {"main":743,"docHeight":900}
+PASS  narrow forbidden-403: strip <= 150  84
+PASS  narrow forbidden-403: panel <= 850  {"panel":198,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow forbidden-403: context notice <= 160  60
+PASS  narrow cold-work-503: settled  "refused"
+PASS  narrow cold-work-503: Site read healthy (cold Work page mounted, no Site refusal)  {"siteRefusal":null}
+PASS  narrow cold-work-503: refused panel WORK_STORE_UNAVAILABLE  {"panel":"refused","refusal":"WORK_STORE_UNAVAILABLE","message":"Work records could not be read or saved."}
+PASS  narrow cold-work-503: Retry visible  true
+PASS  narrow cold-work-503: panel says 'Cold work unavailable' with the server message and Retry  {"text":"Cold work unavailable Work records could not be read or saved. Retry","message":"Work records could not be read or saved."}
+PASS  narrow cold-work-503: no row and no mock zero  {"rows":0,"scope":"Scoped to Cold · — actions"}
+PASS  narrow cold-work-503: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow cold-work-503: page main <= 2000  {"main":743,"docHeight":900}
+PASS  narrow cold-work-503: strip <= 150  84
+PASS  narrow cold-work-503: panel <= 850  {"panel":198,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow cold-work-503: context notice <= 160  60
+PASS  narrow action-positive: settled  "loaded"
+PASS  narrow action-positive: shell/panel state  {"shell":"loaded","panel":null}
+PASS  narrow action-positive: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow action-positive: page main <= 1900  1115
+PASS  narrow action-positive: strip <= 200  65
+PASS  narrow action-positive: notice <= 160  60
+PASS  narrow action-not-found: settled  "not-found"
+PASS  narrow action-not-found: shell/panel state  {"shell":"not_found","panel":"not-found"}
+PASS  narrow action-not-found: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow action-not-found: page main <= 1900  266
+461 PASS, 0 FAIL

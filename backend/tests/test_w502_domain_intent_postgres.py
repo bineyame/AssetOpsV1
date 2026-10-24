@@ -34,7 +34,7 @@ if URL:
     from assetops_backend.work.composition import build_domain_intent_service, build_work_service
     from assetops_backend.work.model import WorkRefused
 
-HEAD = "0034_w5_ev_scenarios"
+HEAD = "0035_w5_ev_work"
 PREVIOUS = "0032_w5_cold_scenarios"
 REFUSED = "Downgrade of 0033_w5_cold_work refused: domain Action rows exist."
 TABLES = ("domain_action", "domain_action_intent", "domain_action_case_link")
@@ -344,9 +344,9 @@ def test_db_checks_triggers_and_downgrade(cold) -> None:
         c.execute(text(ROOT_INSERT), root)
     _rejects(engine, ROOT_INSERT, _root_sql(cold, no=900002), "domain_action_code")  # same code twice
     four, base = json.dumps(criteria()), json.dumps({"finding_revision_id": cold.revision_id})
-    three = json.dumps(criteria()[:3])
+    two = json.dumps(criteria()[:2])  # W5-04a: 0035 admits 3 or 4 structurally; the service enforces four cold
     ip = {"t": cold.t, "s": cold.s, "a": root["id"], "p": None, "sha": SHA}
-    _rejects(engine, INTENT_INSERT, {**ip, "id": str(uuid4()), "c": three, "b": base, "key": "w502-i-0001"},
+    _rejects(engine, INTENT_INSERT, {**ip, "id": str(uuid4()), "c": two, "b": base, "key": "w502-i-0001"},
              "domain_action_intent_criteria_count_chk")
     _rejects(engine, INTENT_INSERT, {**ip, "id": str(uuid4()), "c": four, "b": "[]", "key": "w502-i-0001"})
     first = str(uuid4())
@@ -589,3 +589,17 @@ def test_k5_cold_action_lineage_through_product_get(cold, monkeypatch) -> None:
                     api.get(f"/api/sites/{cold.code}/domain-work/actions/{uuid4()}")):
         assert missing.status_code == 404, missing.text
         assert missing.json()["detail"]["code"] == "ACTION_NOT_FOUND"
+
+
+def test_cold_site_refuses_ev_domain_and_neutral_unknown_domain_with_zero_writes(cold) -> None:
+    """W5-04a review L3 (readiness 11/28): against the **cold** Site's database, a full otherwise-valid body of the
+    other supported domain is the Site-type mismatch (the EV literal of the body's own domain), and a full valid body
+    whose domain is unknown is the neutral literal. Neither writes."""
+    ev_spec = d.DOMAINS[d.EV_DOMAIN]
+    for domain, code, message in (
+            ("EV_CHARGING", "DOMAIN_INTENT_LINK_INVALID", ev_spec.messages["DOMAIN_INTENT_LINK_INVALID"]),
+            ("MINIGRID", "DOMAIN_INTENT_INVALID", d.NEUTRAL_DOMAIN_INVALID)):
+        with pytest.raises(d.DomainIntentRefused) as caught:
+            create(cold, action_body(cold, f"w504-cold-{domain.lower()}", domain=domain))
+        assert (caught.value.status, caught.value.code, caught.value.message) == (422, code, message)
+        assert counts(cold.engine) == [0, 0, 0]

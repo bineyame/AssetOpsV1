@@ -403,6 +403,10 @@ describe("mini-grid Work Actions stay on W1 beside the cold dispatch", () => {
     expect(q("[data-site-work-window]")).not.toBeNull();
     expect(q("[data-cold-work-strip]")).toBeNull();
     expect(q("[data-cold-work-notice]")).toBeNull();
+    // W5-04 V2a (ruling 45, R-9): mini-grid receives no domain Work attribute and keeps its W1 window form.
+    expect(q("[data-domain-work]")).toBeNull();
+    expect(q("[data-domain-work-window]")).toBeNull();
+    expect(document.body.textContent ?? "").not.toContain("EV Actions recorded at this site");
     const text = document.body.textContent ?? "";
     expect(text).toContain("Opening an Action moves you to its own page; the breadcrumb keeps this site.");
     expect(text).toContain("This list holds Actions only. Incidents and maintenance work are not part of it.");

@@ -199,3 +199,110 @@ Today `prepare` creates the five DBs, writes `blocked` modes and exits 3; run `d
 3. INC/WR asset = selected session `connector_asset_id` (returned); `finding_links: []` on both (spec silent).
 4. WR narrative provisional (Q11). Separate `positive` and `zero` DBs so mock-zero stays zero after `attest`.
 5. The walkthrough runs from the repo tree (records `git rev-parse HEAD` and dirty flag), not a `git archive` copy.
+
+---
+
+# Round 4 (V1b producer rebuilt per rulings 32-38) - ready positive and mock-zero manifests
+
+## Commits
+- `f5f44f79` producer: `tools/w504_ev_work_cases.py` (shifted Site/documents, `ProducerBlocked`, `WR_NARRATIVE_PENDING_RULING`
+  deleted; `E_START/E_END`, `work_window`, `bounded_work_window`, `clock_order`, `listed_ids`, DB-time `action_body`
+  check, `submitted_case_times(db_now)`); `tools/w504_ev_work_walkthrough.py` (child `native_replay`; `_declare`,
+  `_unknown`, `_attest` rewritten); DB-free `backend/tests/test_w504_ev_work_cases.py` rewritten (16 tests); new
+  Postgres fixture test `backend/tests/test_w504_ev_work_producer_postgres.py` (3 tests).
+- `0d7cbfba` B: `test_producer_k0_route_shape_and_positive_payloads` asserts the literals on the posted body, the
+  stored `domain_action`/`domain_action_intent` row and the GET detail; K1/intent response key sets asserted exactly;
+  raised_at = DB now.
+- `0ef0b17a` C: `test_rejected_disposition_advances_the_shared_cutoff_without_accepted_evidence` (ruling 32).
+  Ruling 33 was already covered by `test_ev_detail_without_intent_and_unselected_finding_is_unknown` and
+  `test_ev_pin_is_immutable_across_later_evidence_and_heads`; nothing added there. `test_w502_*` untouched.
+
+## Landed
+- Native path (ruling 36): `native_replay` (walkthrough child only) adds `backend/tests`, `host`, `host/tests`,
+  `gateway/tests` to `sys.path` and imports `test_w205b_ev_replay_postgres` (Chain, CASES, EV, WINDOW) and
+  `test_w206_ev_store_postgres` (run_worker, select_exact); asserts EV-LAB-001, E, the registered case, ACCEPTED
+  dispositions; closes the Chain and refuses if the gateway PID survives. No `hold_uuids` (no fixed UUIDs). The
+  child gets `ASSETOPS_TEST_DATABASE_URL` = its private DB (`Walk.env(replay=True)`).
+- K0 from `/ev/financials/scenarios` cross-checked with `/ev/sessions` over E; Action `raised_at` = DB now; W from
+  the DB day; Action listed in the domain-work index over W; zero mode W4 reads over W complete zero. Attest posts
+  INC/WR/record at DB now - 3/2/1 min, reads back the WR narrative from `work_case_revision`, enforces
+  `clock_order`, recomputes W only if needed, and asserts Action/INC/WR in the three W lists.
+- DB modes are now `positive`, `zero`, `unknown`; `pending`/`stale` are manifest-only `unavailable` (no DB).
+- Guards: library AST no-test-import kept; new test pins the walkthrough's test imports to exactly the two modules
+  inside `native_replay` and forbids `decision_clock`/`FIRST_DECISION` names. Non-vacuous: an extra
+  `ev_depth_cases` import in the walkthrough and a disabled K0 check each failed a test; reverted with `git checkout`.
+
+## Runs
+- Focused Postgres at `0ef0b17a`, base `assetops_w504a_test`, from `backend`: `-m pytest
+  tests/test_w504_ev_intent_postgres.py tests/test_w504_ev_intent_api.py tests/test_w504_ev_work_cases.py
+  tests/test_w504_ev_intent_model.py tests/test_w504_ev_work_producer_postgres.py -n 4 -q -p no:cacheprovider`:
+  **44 passed, 0 skipped, 0 failed**, 273 s (275 s wall). Includes `test_ev_action_and_intent_round_trip_with_detail`
+  (coordinator fix confirmed) and the fixed B test.
+- C subagent (private `assetops_w504a_c_test`, dropped): focused 1 passed (36 s); mutation `AND decision='ACCEPTED'`
+  in `postgres_work_read._cold_ev` failed it (restored); whole file `-n 2` 12 passed (3m13s).
+- `tools/check-all.ps1`: **All 11 guards passed**, rc 0.
+
+## Walkthrough (`--work var/w504a_ev_work --tag k1`, revision `0ef0b17a`, clean tree)
+- `prepare` rc 0 (160 s): positive ready, zero ready, unknown unavailable ("the replay selected 0 SUPPORTED EV
+  Findings, so no Action detail state"), pending/stale unavailable. `serve` (26 s): positive 21468:8981,
+  zero 15336:8982, forbidden 18596:8986, unavailable 23968:8987, all healthy. `attest` (10 s): forbidden 403
+  `SITE_SCOPE_FORBIDDEN`; unavailable PID 23968 stopped, connection refused.
+- Manifest copy: `.agent/W5-04a-round4-walkthrough-manifest.json` (the work-folder original is removed by drop).
+  Site EV-LAB-001 'EV charging lab' Etc/UTC (Depot manifest-only); replay run `run-54a3a919...`, 221 ACCEPTED.
+  E=[2026-10-06T08:00Z,09:00Z); W=[2026-10-24T00:00Z,2026-10-25T00:00Z) not recomputed.
+  Finding 083858da / rev 38929ef8, session 5e6fbef5, connector asset ac210564, 3 accepted evidence IDs.
+  Action ACT-000001 402a32bc (detail CURRENT), intent 295ea341; INC-000001 1797b636, WR-000002 f9771c43,
+  record d75110ec. K0=2026-10-06T09:00:00Z, K1=2026-10-24T03:52:03.028022Z, K2=03:52:03.393151Z,
+  K3=03:54:31.483297/.622413/.704047Z, K4=03:54:32.157431/.258383Z. Zero: Action 8602db6f, 0 incidents, 0 maintenance.
+- `drop`: stopped the 3 live recorded PIDs, dropped the 3 `w504a_*_k1_test` DBs, removed the work folder; all four
+  PIDs absent from `tasklist`. Base `assetops_w504a_test` dropped last; the `LIKE '%w504a%'` query returns nothing.
+
+## Judgment calls
+1. Ruling-36 "fixture test" = in-process Postgres tests of the child functions (`native_replay`, `_declare`,
+   `_attest`) plus `Walk.drop` on a throwaway DB and a sleeper PID, not a subprocess CLI run.
+2. Unknown vector: `ev-missing-meter` selects no SUPPORTED Finding, so no Action detail state can be read; recorded
+   unavailable (ruling 34). pending/stale get no DB (no unmodified replay produces them).
+3. Maintenance `created_at` and the case event IDs are read from `work_case`/`work_event` (read-only), as W5-02 did;
+   the case command response carries no `created_at`.
+4. Work URLs in the manifest carry W as `from`/`to` (the detail API itself takes only `known_at`).
+5. No questions raised; nothing contradicted the merged code.
+
+## Fix round (branch `task/W5-04a-fix`, from V1 head 71e5cdc9 + main 50d515bd; rulings 53-66)
+
+Index wire change (ruling 53), exact: `work/domain_action_index.py::_select` now reads intents first and resolves each
+EV row that has a selected intent through a per-cutoff `_Lineage` at `min(intent.recorded_at, known_at)`; every other
+row (no intent, cold) keeps `known_at`. Source href, source state and the fence entry (`frev if selected`) come from
+that pin. Envelope `known_at`, historical flag, membership, cursor and fence shape are unchanged. A V2 builder merges
+this as is.
+
+| Item | Commit | What |
+|---|---|---|
+| V1 item 1 / ruling 53 | 5739ad6d (code + DB-free), 7f8ca89c (Postgres/API) | `_select` reorder; `test_w504_ev_intent_model.py::test_index_ev_intent_row_resolves_at_the_intent_pin_not_the_read_known_at` (fake rx: href, status, recorded cutoffs, exact fence token; mutation to old order fails it); `test_w504_ev_intent_postgres.py::test_ev_index_row_uses_the_intent_pin_and_no_intent_row_reads_known_at` (later head, no-intent displaced row null/UNKNOWN, historical before/at/after intent, cursor pages); `test_w504_ev_intent_api.py::test_ev_index_wire_after_a_later_head_and_conflict_409s` |
+| L1 | 7f8ca89c | `test_ev_conflict_paths_are_409_with_the_ev_literal_and_write_nothing` (Action key/body, intent key/body, second root, stale supersedes, repeated exact case link, reused link key) + HTTP 409 wire in the API test; table counts asserted after each |
+| L2 / ruling 55 | 7f8ca89c | Existing vector relabelled BACKDATED; new `test_ev_db_time_disposition_after_the_intent_leaves_the_pin_fixed` uses `add_import(..., db_time=True)` (new optional kw in `ev_depth_cases.py`, `decided_at = clock_timestamp()`), asserts `decided > intent.recorded_at`, pin, evidence cutoff at intent, status, token, intent, provenance fixed, shared cutoff advanced |
+| L3 | 5739ad6d | `test_w502_domain_intent_postgres.py` and `test_w502_domain_intent_api.py`: `EV_CHARGING` body (EV link literal) and `MINIGRID` body (neutral literal) on the **cold** Site, zero writes |
+| L4 | 7f8ca89c | `zero_reads_complete` requires `total_count == 0` (int, not bool, present) and `next_cursor is None`; unit test (fails on old code) |
+| L5 | this note | Not extended. Disclosed limit: ruling-32 cutoff test proves the shared advanced cutoff on the EV pin, EV snapshot and the W4 linked selection of an EV Action only; no cold pin/link and no `link_coverage` read. Cold and EV share `_ReadTx._cold_ev`; builder's `decision='ACCEPTED'` mutation failed the test |
+| L6 | 7f8ca89c | walkthrough `drop` and the `unavailable` stop kill a recorded PID only if its command line is still `uvicorn serve_entry:app --port <recorded>` (`is_recorded_server`, `_stop_owned`); otherwise skipped and logged; unit test |
+| Ruling 54 | none | pending/stale stay pure vectors; V2b packet names them (no code) |
+| Ruling 56 (unused port) | none | `ev_selected_provenance` left bound and unused as an optional V5 seam; no cleanup |
+
+Second pass (coordinator: suite failures in the Linux container):
+- Producer test `test_native_replay_and_k0_refusals` used `tasklist`; `test_drop_stops_only_recorded_pids...` used the
+  hard-coded `127.0.0.1:55432`. Fixed without skipping or weakening: `tools/w504_ev_work_walkthrough.py` now has
+  `pid_alive`, `_command_line`, `_kill_tree` branching on `os.name` (Windows: `tasklist`, CIM command line,
+  `taskkill /T`; POSIX: `kill 0` + zombie check, `/proc/<pid>/cmdline`, `/proc` descendant scan with SIGKILL, no
+  `pkill`, since the slim image lacks it). `PG_ADMIN` and the per-mode DB URLs derive from
+  `ASSETOPS_TEST_DATABASE_URL` (harness server/port/credentials, admin database `postgres`) when set, else the local
+  defaults. L6's `_stop_owned` uses the same portable helpers. The drop test now records an "ours" PID (command line
+  `... uvicorn serve_entry:app --port 55999`, killed) and an unrelated reused PID (must survive); stronger than before.
+  psutil is not a dependency, so `os.name` branching.
+- Runs (private base `assetops_w504f_test`, dropped afterwards; no leftover `%w504%` DB): w504 Postgres/API/producer/
+  model/cases + cold w502 domain intent/index/links/producer files, `-n 4`, Windows: 86 passed, 2 failed in 331 s; both
+  failures were my new tests (reversed criteria is a 422 shape error, so the L1 "other body" now changes `declared_at`;
+  the L2 pin's own `state` word legitimately moves CURRENT -> HISTORICAL at the advanced watermark, so it is excluded and
+  asserted separately, while revision, window, seqs, evidence cutoff, detail status, token, intent and provenance stay
+  fixed). Both re-run: 2 passed. Producer + cases files re-run on Windows: 21 passed. Same two producer files in the
+  Linux container (python:3.12.7-slim-bookworm, shared venv volume, network `assetopsv1_default`): 21 passed (the first
+  container run caught the missing `pkill`, fixed). check-all earlier: 11 guards passed (before this pass; only tools/
+  and tests changed since).

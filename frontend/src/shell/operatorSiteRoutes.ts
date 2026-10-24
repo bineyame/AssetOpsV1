@@ -319,23 +319,27 @@ export function siteWorkHref(siteId: string, query?: string): string {
 }
 
 /**
- * W5-02 K2a (P-K2a-38/39, U3): the COLDCHAIN Work query. The validated `[from,to)` window and an explicit cutoff ride
- * on every cold Work subtab; a cursor rides only on the Actions page it belongs to (never between kinds). Mini-grid
- * Work hrefs do not use this.
+ * W5-02 K2a (P-K2a-38/39, U3) / W5-04 V2a (pre-flight 30, ruling 45): the domain (COLDCHAIN and EV_CHARGING) Work
+ * query. The validated `[from,to)` window and an explicit cutoff ride on every domain Work subtab; a cursor rides only
+ * on the Actions page it belongs to (never between kinds). Mini-grid Work hrefs do not use this.
  */
-export interface ColdWorkQueryScope {
+export interface DomainWorkQueryScope {
   from: string;
   to: string;
   knownAt: string | null;
   cursor?: string | null;
 }
 
-export function coldWorkQuery(scope: ColdWorkQueryScope): string {
+export function domainWorkQuery(scope: DomainWorkQueryScope): string {
   const query = new URLSearchParams({ from: scope.from, to: scope.to });
   if (scope.knownAt) query.set("known_at", scope.knownAt);
   if (scope.cursor) query.set("cursor", scope.cursor);
   return query.toString();
 }
+
+/** The K2 name of the same helper (one route grammar; the cold callers and tests keep it). */
+export type ColdWorkQueryScope = DomainWorkQueryScope;
+export const coldWorkQuery = domainWorkQuery;
 
 /**
  * W4-01 (`sitework-incidents`, `sitework-maintenance`): the Work subrow's

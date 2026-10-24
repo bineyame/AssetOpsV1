@@ -1,0 +1,952 @@
+chrome pid 372
+PASS  manifest positive: not blocked, case reads present with expected counts  {"blocked":null,"reads":[["positive:incidents","HISTORICAL",1],["positive:maintenance","HISTORICAL",1],["historical:incidents","HISTORICAL",1],["historical:maintenance","HISTORICAL",1],["zero:incidents","CURRENT",0],["zero:maintenance","CURRENT",0],["current:incidents","CURRENT",1],["current:maintenance","CURRENT",1]]}
+PASS  manifest worstcase: not blocked, case reads present with expected counts  {"blocked":null,"reads":[["worstcase:incidents","HISTORICAL",5],["worstcase:maintenance","HISTORICAL",5]]}
+PASS  manifest pending: not blocked, case reads present with expected counts  {"blocked":null,"reads":[["pending:incidents","PENDING_RECOMPUTE",1],["pending:maintenance","PENDING_RECOMPUTE",1]]}
+PASS  manifest stale: not blocked, case reads present with expected counts  {"blocked":null,"reads":[["stale:incidents","STALE_SOURCE",1],["stale:maintenance","STALE_SOURCE",1]]}
+PASS  manifest unknown: not blocked, case reads present with expected counts  {"blocked":null,"reads":[["unknown:incidents","UNKNOWN",1],["unknown:maintenance","UNKNOWN",1]]}
+PASS  manifest worstcase: four extra INC/WR pairs at the ruled minute offsets  [["2026-10-23T16:12:00.000000Z","2026-10-23T16:21:00.000000Z","2026-10-23T16:41:00.000000Z"],["2026-10-23T16:13:00.000000Z","2026-10-23T16:22:00.000000Z","2026-10-23T16:42:00.000000Z"],["2026-10-23T16:14:00.000000Z","2026-10-23T16:23:00.000000Z","2026-10-23T16:43:00.000000Z"],["2026-10-23T16:15:00.000000Z","2026-10-23T16:24:00.000000Z","2026-10-23T16:44:00.000000Z"]]
+PASS  desktop incidents-positive: settled  "rows"
+PASS  desktop incidents-positive: rows, notice follows the returned status HISTORICAL  {"panel":"rows","currentness":"HISTORICAL"}
+PASS  desktop incidents-positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents-positive: page main <= 1400  {"main":656,"docHeight":1000}
+PASS  desktop incidents-positive: strip <= 100  39
+PASS  desktop incidents-positive: panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop incidents-positive: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop incidents-positive: currentness notice <= 110  42
+PASS  desktop incidents-positive: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop incidents-positive: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop incidents-positive: 1 row(s) measured  1
+PASS  desktop incidents-positive: every row cell contains its content  []
+PASS  desktop incidents-positive: no clipped chip or badge  {"badges":1,"clipped":0}
+PASS  desktop incidents-positive: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  desktop incidents-positive: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop incidents-positive: Window value on one line (ruling 20)  [1]
+PASS  desktop incidents-positive: mock columns in order  ["Case","Window","What happened","Linked findings","State"]
+PASS  desktop incidents-positive: strip reads the mock sentence and Manage in Incidents →, no strip status label  {"strip":"Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →","href":"/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A40%3A00.266407Z","statusLabel":false}
+PASS  desktop incidents-positive: no in-panel coverage line on cold  false
+PASS  desktop incidents-positive: Site-local Window text ("{d} {Mon} · from HH:MM"), fixture INC at 19:11  ["23 Oct · from 19:11"]
+PASS  desktop incidents-positive: every INC shows 2 plain Finding label(s), no Finding anchor, plain INC code (R65/R66/R73)  {"findings":[["Finding 3edd072b","Finding dbfdecf4"]],"anchors":0,"caseAnchors":[null]}
+PASS  desktop incidents-current: settled  "rows"
+PASS  desktop incidents-current: URL has no known_at, manifest status CURRENT, no currentness notice  {"href":"/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z","status":"CURRENT","returnedKnownAt":"2026-10-24T05:40:01.438614Z","currentness":null}
+PASS  desktop incidents-current: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents-current: page main <= 1400  {"main":595,"docHeight":1000}
+PASS  desktop incidents-current: strip <= 100  39
+PASS  desktop incidents-current: panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop incidents-current: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop incidents-current: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop incidents-current: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop incidents-current: 1 row(s) measured  1
+PASS  desktop incidents-current: every row cell contains its content  []
+PASS  desktop incidents-current: no clipped chip or badge  {"badges":1,"clipped":0}
+PASS  desktop incidents-current: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  desktop incidents-current: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop incidents-current: Window value on one line (ruling 20)  [1]
+PASS  desktop incidents-current: mock columns in order  ["Case","Window","What happened","Linked findings","State"]
+PASS  desktop incidents-current: strip reads the mock sentence and Manage in Incidents →, no strip status label  {"strip":"Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →","href":"/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A45%3A43.509400Z","statusLabel":false}
+PASS  desktop incidents-current: no in-panel coverage line on cold  false
+PASS  desktop incidents-current: Site-local Window text ("{d} {Mon} · from HH:MM"), fixture INC at 19:11  ["23 Oct · from 19:11"]
+PASS  desktop incidents-current: every INC shows 2 plain Finding label(s), no Finding anchor, plain INC code (R65/R66/R73)  {"findings":[["Finding 3edd072b","Finding dbfdecf4"]],"anchors":0,"caseAnchors":[null]}
+PASS  desktop incidents-historical: settled  "rows"
+PASS  desktop incidents-historical: notice reads the returned status HISTORICAL  "HISTORICAL"
+PASS  desktop incidents-historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents-historical: page main <= 1400  {"main":656,"docHeight":1000}
+PASS  desktop incidents-historical: strip <= 100  39
+PASS  desktop incidents-historical: panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop incidents-historical: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop incidents-historical: currentness notice <= 110  42
+PASS  desktop incidents-historical: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop incidents-historical: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop incidents-historical: 1 row(s) measured  1
+PASS  desktop incidents-historical: every row cell contains its content  []
+PASS  desktop incidents-historical: no clipped chip or badge  {"badges":1,"clipped":0}
+PASS  desktop incidents-historical: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  desktop incidents-historical: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop incidents-historical: Window value on one line (ruling 20)  [1]
+PASS  desktop incidents-zero: settled  "empty"
+PASS  desktop incidents-zero: v69 WORK_EMPTY title/body, basis kept, no Pages block  {"empty":"No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.","basis":true,"showing":null,"status":null}
+PASS  desktop incidents-zero: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents-zero: page main <= 1400  {"main":721,"docHeight":1000}
+PASS  desktop incidents-zero: strip <= 100  39
+PASS  desktop incidents-zero: panel <= 650  {"panel":337,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop incidents-zero: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop incidents-zero: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop incidents-zero: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop incidents-worstcase: settled  "rows"
+PASS  desktop incidents-worstcase: Showing 1–5 of 5, notice follows the returned status  {"showing":"Showing 1–5 of 5","currentness":"HISTORICAL"}
+PASS  desktop incidents-worstcase: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1425,"clientWidth":1425}
+PASS  desktop incidents-worstcase: page main <= 1400  {"main":930,"docHeight":1004}
+PASS  desktop incidents-worstcase: strip <= 100  39
+PASS  desktop incidents-worstcase: panel <= 650  {"panel":486,"tableScrollWidth":1105,"tableClientWidth":1105}
+PASS  desktop incidents-worstcase: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop incidents-worstcase: currentness notice <= 110  42
+PASS  desktop incidents-worstcase: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop incidents-worstcase: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop incidents-worstcase: 5 row(s) measured  5
+PASS  desktop incidents-worstcase: every row cell contains its content  []
+PASS  desktop incidents-worstcase: every long-text preview is at most two lines  [2,2,2,2,2,2,2,2]
+PASS  desktop incidents-worstcase: no clipped chip or badge  {"badges":5,"clipped":0}
+PASS  desktop incidents-worstcase: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  desktop incidents-worstcase: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop incidents-worstcase: Window value on one line (ruling 20)  [1,1,1,1,1]
+PASS  desktop incidents-worstcase: mock columns in order  ["Case","Window","What happened","Linked findings","State"]
+PASS  desktop incidents-worstcase: strip reads the mock sentence and Manage in Incidents →, no strip status label  {"strip":"Scoped to Cold · 5 incidents Same records and states as the global Incidents list Manage in Incidents →","href":"/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A40%3A24.040071Z","statusLabel":false}
+PASS  desktop incidents-worstcase: no in-panel coverage line on cold  false
+PASS  desktop incidents-worstcase: Site-local Window text ("{d} {Mon} · from HH:MM"), fixture INC at 19:11  ["23 Oct · from 19:15","23 Oct · from 19:14","23 Oct · from 19:13","23 Oct · from 19:12","23 Oct · from 19:11"]
+PASS  desktop incidents-worstcase: every INC shows 2 plain Finding label(s), no Finding anchor, plain INC code (R65/R66/R73)  {"findings":[["Finding 24b13d12","Finding d5972c2b"],["Finding 24b13d12","Finding d5972c2b"],["Finding 24b13d12","Finding d5972c2b"],["Finding 24b13d12","Finding d5972c2b"],["Finding 24b13d12","Finding d5972c2b"]],"anchors":0,"caseAnchors":[null,null,null,null,null]}
+PASS  desktop incidents-worstcase-one-open: settled  "rows"
+PASS  desktop incidents-worstcase-one-open: one Read full text open  {"open":1,"of":23}
+PASS  desktop incidents-worstcase-one-open: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1425,"clientWidth":1425}
+PASS  desktop incidents-worstcase-one-open: page main <= 1400  {"main":983,"docHeight":1057}
+PASS  desktop incidents-worstcase-one-open: strip <= 100  39
+PASS  desktop incidents-worstcase-one-open: panel <= 650  {"panel":539,"tableScrollWidth":1105,"tableClientWidth":1105}
+PASS  desktop incidents-worstcase-one-open: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop incidents-worstcase-one-open: currentness notice <= 110  42
+PASS  desktop incidents-worstcase-one-open: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop incidents-worstcase-one-open: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop incidents-worstcase-one-open: 5 row(s) measured  5
+PASS  desktop incidents-worstcase-one-open: every row cell contains its content  []
+PASS  desktop incidents-worstcase-one-open: every opened disclosure body stays inside its cell  []
+PASS  desktop incidents-worstcase-one-open: every long-text preview is at most two lines  [2,2,2,2,2,2,2]
+PASS  desktop incidents-worstcase-one-open: no clipped chip or badge  {"badges":5,"clipped":0}
+PASS  desktop incidents-worstcase-one-open: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  desktop incidents-worstcase-one-open: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop incidents-worstcase-one-open: Window value on one line (ruling 20)  [1,1,1,1,1]
+PASS  desktop incidents-worstcase-all-open: settled  "rows"
+PASS  desktop incidents-worstcase-all-open: every Read full text open, previews replaced, each value once, other disclosures closed  {"readFull":{"total":8,"open":8,"previewsWhileOpen":0,"valuesOnce":true},"otherOpen":[]}
+PASS  desktop incidents-worstcase-all-open: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1425,"clientWidth":1425}
+INFO  desktop incidents-worstcase-all-open: page main 1144 vs 1600 (K3 ruling 18: information only, no page-height cap)
+PASS  desktop incidents-worstcase-all-open: strip <= 100  39
+INFO  desktop incidents-worstcase-all-open: panel height 700 (K3 ruling 18: no panel-height cap; recorded)
+PASS  desktop incidents-worstcase-all-open: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop incidents-worstcase-all-open: currentness notice <= 110  42
+PASS  desktop incidents-worstcase-all-open: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop incidents-worstcase-all-open: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop incidents-worstcase-all-open: 5 row(s) measured  5
+PASS  desktop incidents-worstcase-all-open: every row cell contains its content  []
+PASS  desktop incidents-worstcase-all-open: every opened disclosure body stays inside its cell  []
+PASS  desktop incidents-worstcase-all-open: no clipped chip or badge  {"badges":5,"clipped":0}
+PASS  desktop incidents-worstcase-all-open: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  desktop incidents-worstcase-all-open: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop incidents-worstcase-all-open: Window value on one line (ruling 20)  [1,1,1,1,1]
+PASS  desktop incidents-worstcase-all-open: every disclosure summary takes keyboard focus and is not clipped  {"summaries":23,"failing":[]}
+PASS  desktop incidents-worstcase-every-disclosure: settled  "rows"
+PASS  desktop incidents-worstcase-every-disclosure: every row disclosure open  {"open":23,"of":23}
+PASS  desktop incidents-worstcase-every-disclosure: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1425,"clientWidth":1425}
+INFO  desktop incidents-worstcase-every-disclosure: page main 2178 vs 1600 (K3 ruling 18: information only, no page-height cap)
+PASS  desktop incidents-worstcase-every-disclosure: strip <= 100  39
+INFO  desktop incidents-worstcase-every-disclosure: panel height 1734 (K3 ruling 18: no panel-height cap; recorded)
+PASS  desktop incidents-worstcase-every-disclosure: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop incidents-worstcase-every-disclosure: currentness notice <= 110  42
+PASS  desktop incidents-worstcase-every-disclosure: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop incidents-worstcase-every-disclosure: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop incidents-worstcase-every-disclosure: 5 row(s) measured  5
+PASS  desktop incidents-worstcase-every-disclosure: every row cell contains its content  []
+PASS  desktop incidents-worstcase-every-disclosure: every opened disclosure body stays inside its cell  []
+PASS  desktop incidents-worstcase-every-disclosure: no clipped chip or badge  {"badges":5,"clipped":0}
+PASS  desktop incidents-worstcase-every-disclosure: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  desktop incidents-worstcase-every-disclosure: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop incidents-worstcase-every-disclosure: Window value on one line (ruling 20)  [1,1,1,1,1]
+PASS  desktop incidents-worstcase-every-disclosure: every opened UUID is one line and fully reachable in its body without widening the cell (ruling 20)  []
+PASS  desktop incidents-pending: settled  "rows"
+PASS  desktop incidents-pending: notice follows the returned status PENDING_RECOMPUTE (amber), between strip and panel  {"currentness":"PENDING_RECOMPUTE","tone":"amber","afterStrip":true,"beforePanel":true}
+PASS  desktop incidents-pending: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents-pending: page main <= 1400  {"main":656,"docHeight":1000}
+PASS  desktop incidents-pending: strip <= 100  39
+PASS  desktop incidents-pending: panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop incidents-pending: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop incidents-pending: currentness notice <= 110  42
+PASS  desktop incidents-pending: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop incidents-pending: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop incidents-pending: 1 row(s) measured  1
+PASS  desktop incidents-pending: every row cell contains its content  []
+PASS  desktop incidents-pending: no clipped chip or badge  {"badges":1,"clipped":0}
+PASS  desktop incidents-pending: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  desktop incidents-pending: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop incidents-pending: Window value on one line (ruling 20)  [1]
+PASS  desktop incidents-pending: mock columns in order  ["Case","Window","What happened","Linked findings","State"]
+PASS  desktop incidents-pending: strip reads the mock sentence and Manage in Incidents →, no strip status label  {"strip":"Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →","href":"/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A40%3A45.682189Z","statusLabel":false}
+PASS  desktop incidents-pending: no in-panel coverage line on cold  false
+PASS  desktop incidents-pending: Site-local Window text ("{d} {Mon} · from HH:MM"), fixture INC at 19:11  ["23 Oct · from 19:11"]
+PASS  desktop incidents-pending: every INC shows 2 plain Finding label(s), no Finding anchor, plain INC code (R65/R66/R73)  {"findings":[["Finding c44099fe","Finding d7850b9d"]],"anchors":0,"caseAnchors":[null]}
+PASS  desktop incidents-stale: settled  "rows"
+PASS  desktop incidents-stale: notice follows the returned status STALE_SOURCE (amber), between strip and panel  {"currentness":"STALE_SOURCE","tone":"amber","afterStrip":true,"beforePanel":true}
+PASS  desktop incidents-stale: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents-stale: page main <= 1400  {"main":656,"docHeight":1000}
+PASS  desktop incidents-stale: strip <= 100  39
+PASS  desktop incidents-stale: panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop incidents-stale: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop incidents-stale: currentness notice <= 110  42
+PASS  desktop incidents-stale: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop incidents-stale: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop incidents-stale: 1 row(s) measured  1
+PASS  desktop incidents-stale: every row cell contains its content  []
+PASS  desktop incidents-stale: no clipped chip or badge  {"badges":1,"clipped":0}
+PASS  desktop incidents-stale: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  desktop incidents-stale: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop incidents-stale: Window value on one line (ruling 20)  [1]
+PASS  desktop incidents-stale: mock columns in order  ["Case","Window","What happened","Linked findings","State"]
+PASS  desktop incidents-stale: strip reads the mock sentence and Manage in Incidents →, no strip status label  {"strip":"Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →","href":"/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A41%3A05.632169Z","statusLabel":false}
+PASS  desktop incidents-stale: no in-panel coverage line on cold  false
+PASS  desktop incidents-stale: Site-local Window text ("{d} {Mon} · from HH:MM"), fixture INC at 19:11  ["23 Oct · from 19:11"]
+PASS  desktop incidents-stale: every INC shows 2 plain Finding label(s), no Finding anchor, plain INC code (R65/R66/R73)  {"findings":[["Finding 5fab450f","Finding 9202ed92"]],"anchors":0,"caseAnchors":[null]}
+PASS  desktop incidents-unknown: settled  "rows"
+PASS  desktop incidents-unknown: notice follows the returned status UNKNOWN (blue), between strip and panel  {"currentness":"UNKNOWN","tone":"blue","afterStrip":true,"beforePanel":true}
+PASS  desktop incidents-unknown: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents-unknown: page main <= 1400  {"main":656,"docHeight":1000}
+PASS  desktop incidents-unknown: strip <= 100  39
+PASS  desktop incidents-unknown: panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop incidents-unknown: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop incidents-unknown: currentness notice <= 110  42
+PASS  desktop incidents-unknown: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop incidents-unknown: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop incidents-unknown: 1 row(s) measured  1
+PASS  desktop incidents-unknown: every row cell contains its content  []
+PASS  desktop incidents-unknown: no clipped chip or badge  {"badges":1,"clipped":0}
+PASS  desktop incidents-unknown: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  desktop incidents-unknown: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop incidents-unknown: Window value on one line (ruling 20)  [1]
+PASS  desktop incidents-unknown: mock columns in order  ["Case","Window","What happened","Linked findings","State"]
+PASS  desktop incidents-unknown: strip reads the mock sentence and Manage in Incidents →, no strip status label  {"strip":"Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →","href":"/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A41%3A24.495159Z","statusLabel":false}
+PASS  desktop incidents-unknown: no in-panel coverage line on cold  false
+PASS  desktop incidents-unknown: Site-local Window text ("{d} {Mon} · from HH:MM"), fixture INC at 19:11  ["23 Oct · from 19:11"]
+PASS  desktop incidents-unknown: every INC shows 1 plain Finding label(s), no Finding anchor, plain INC code (R65/R66/R73)  {"findings":[["Finding 9f8154f2"]],"anchors":0,"caseAnchors":[null]}
+PASS  desktop incidents-forbidden-403: settled  "refused"
+PASS  desktop incidents-forbidden-403: Site read healthy, W4 refusal forbidden/SITE_SCOPE_FORBIDDEN titled 'No access' inside the case panel  {"siteRefusal":null,"refused":"forbidden","code":"SITE_SCOPE_FORBIDDEN","text":"No access You do not have access to this site's work. Incidents at this site · As of: time not recorded","sentence":"You do not have access to this site's work."}
+PASS  desktop incidents-forbidden-403: no row and no zero count  {"rows":0,"strip":"Count unknown · work source unavailable Same records and states as the global Incidents list Manage in Incidents →"}
+PASS  desktop incidents-forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents-forbidden-403: page main <= 1400  {"main":529,"docHeight":1000}
+PASS  desktop incidents-forbidden-403: strip <= 100  39
+PASS  desktop incidents-forbidden-403: panel <= 650  {"panel":145,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop incidents-forbidden-403: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop incidents-forbidden-403: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop incidents-forbidden-403: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop incidents-unavailable-503: settled  "refused"
+PASS  desktop incidents-unavailable-503: Site read healthy, W4 refusal unavailable/WORK_STORE_UNAVAILABLE titled 'Work records unavailable' inside the case panel  {"siteRefusal":null,"refused":"unavailable","code":"WORK_STORE_UNAVAILABLE","text":"Work records unavailable Work records are unavailable right now. Try again. Incidents at this site · As of: time not recorded","sentence":"Work records are unavailable right now. Try again."}
+PASS  desktop incidents-unavailable-503: no row and no zero count  {"rows":0,"strip":"Count unknown · work source unavailable Same records and states as the global Incidents list Manage in Incidents →"}
+PASS  desktop incidents-unavailable-503: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents-unavailable-503: page main <= 1400  {"main":529,"docHeight":1000}
+PASS  desktop incidents-unavailable-503: strip <= 100  39
+PASS  desktop incidents-unavailable-503: panel <= 650  {"panel":145,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop incidents-unavailable-503: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop incidents-unavailable-503: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop incidents-unavailable-503: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop maintenance-positive: settled  "rows"
+PASS  desktop maintenance-positive: rows, notice follows the returned status HISTORICAL  {"panel":"rows","currentness":"HISTORICAL"}
+PASS  desktop maintenance-positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance-positive: page main <= 1400  {"main":656,"docHeight":1000}
+PASS  desktop maintenance-positive: strip <= 100  39
+PASS  desktop maintenance-positive: panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop maintenance-positive: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop maintenance-positive: currentness notice <= 110  42
+PASS  desktop maintenance-positive: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop maintenance-positive: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop maintenance-positive: 1 row(s) measured  1
+PASS  desktop maintenance-positive: every row cell contains its content  []
+PASS  desktop maintenance-positive: no clipped chip or badge  {"badges":2,"clipped":0}
+PASS  desktop maintenance-positive: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  desktop maintenance-positive: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop maintenance-positive: mock columns in order  ["Work request","Asset","Activity","Outcome","Next evidence"]
+PASS  desktop maintenance-positive: strip reads the mock sentence and Manage in Maintenance →, no strip status label  {"strip":"Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →","href":"/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A40%3A00.266407Z","statusLabel":false}
+PASS  desktop maintenance-positive: no in-panel coverage line on cold  false
+PASS  desktop maintenance-positive: Asset cell reads generator-1 · backup generator (R89)  ["generator-1 · backup generator"]
+PASS  desktop maintenance-positive: Activity chips are the selected states Completed  ["Completed"]
+PASS  desktop maintenance-positive: Next evidence is the honest gap (R72)  ["No next evidence recorded"]
+PASS  desktop maintenance-positive: WR code opens the W6 C2 Overview with site_id (R68)  ["/maintenance/requests/b5cbd42b-1694-47df-a6e6-f83385d96075?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A00.266407Z"]
+PASS  desktop maintenance-current: settled  "rows"
+PASS  desktop maintenance-current: URL has no known_at, manifest status CURRENT, no currentness notice  {"href":"/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z","status":"CURRENT","returnedKnownAt":"2026-10-24T05:40:01.555855Z","currentness":null}
+PASS  desktop maintenance-current: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance-current: page main <= 1400  {"main":595,"docHeight":1000}
+PASS  desktop maintenance-current: strip <= 100  39
+PASS  desktop maintenance-current: panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop maintenance-current: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop maintenance-current: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop maintenance-current: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop maintenance-current: 1 row(s) measured  1
+PASS  desktop maintenance-current: every row cell contains its content  []
+PASS  desktop maintenance-current: no clipped chip or badge  {"badges":2,"clipped":0}
+PASS  desktop maintenance-current: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  desktop maintenance-current: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop maintenance-current: mock columns in order  ["Work request","Asset","Activity","Outcome","Next evidence"]
+PASS  desktop maintenance-current: strip reads the mock sentence and Manage in Maintenance →, no strip status label  {"strip":"Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →","href":"/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A46%3A31.254129Z","statusLabel":false}
+PASS  desktop maintenance-current: no in-panel coverage line on cold  false
+PASS  desktop maintenance-current: Asset cell reads generator-1 · backup generator (R89)  ["generator-1 · backup generator"]
+PASS  desktop maintenance-current: Activity chips are the selected states Completed  ["Completed"]
+PASS  desktop maintenance-current: Next evidence is the honest gap (R72)  ["No next evidence recorded"]
+PASS  desktop maintenance-current: WR code opens the W6 C2 Overview with site_id (R68)  ["/maintenance/requests/b5cbd42b-1694-47df-a6e6-f83385d96075?site_id=COLD-LAB-001"]
+PASS  desktop maintenance-historical: settled  "rows"
+PASS  desktop maintenance-historical: notice reads the returned status HISTORICAL  "HISTORICAL"
+PASS  desktop maintenance-historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance-historical: page main <= 1400  {"main":656,"docHeight":1000}
+PASS  desktop maintenance-historical: strip <= 100  39
+PASS  desktop maintenance-historical: panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop maintenance-historical: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop maintenance-historical: currentness notice <= 110  42
+PASS  desktop maintenance-historical: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop maintenance-historical: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop maintenance-historical: 1 row(s) measured  1
+PASS  desktop maintenance-historical: every row cell contains its content  []
+PASS  desktop maintenance-historical: no clipped chip or badge  {"badges":2,"clipped":0}
+PASS  desktop maintenance-historical: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  desktop maintenance-historical: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop maintenance-zero: settled  "empty"
+PASS  desktop maintenance-zero: v69 WORK_EMPTY title/body, basis kept, no Pages block  {"empty":"No maintenance work at this site No inspection or repair has been raised here in the selected period.","basis":true,"showing":null,"status":null}
+PASS  desktop maintenance-zero: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance-zero: page main <= 1400  {"main":701,"docHeight":1000}
+PASS  desktop maintenance-zero: strip <= 100  39
+PASS  desktop maintenance-zero: panel <= 650  {"panel":317,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop maintenance-zero: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop maintenance-zero: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop maintenance-zero: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop maintenance-worstcase: settled  "rows"
+PASS  desktop maintenance-worstcase: Showing 1–5 of 5, notice follows the returned status  {"showing":"Showing 1–5 of 5","currentness":"HISTORICAL"}
+PASS  desktop maintenance-worstcase: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1425,"clientWidth":1425}
+PASS  desktop maintenance-worstcase: page main <= 1400  {"main":930,"docHeight":1004}
+PASS  desktop maintenance-worstcase: strip <= 100  39
+PASS  desktop maintenance-worstcase: panel <= 650  {"panel":486,"tableScrollWidth":1105,"tableClientWidth":1105}
+PASS  desktop maintenance-worstcase: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop maintenance-worstcase: currentness notice <= 110  42
+PASS  desktop maintenance-worstcase: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop maintenance-worstcase: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop maintenance-worstcase: 5 row(s) measured  5
+PASS  desktop maintenance-worstcase: every row cell contains its content  []
+PASS  desktop maintenance-worstcase: every long-text preview is at most two lines  [2,2,2,2,2,2,2,2,2,2,2,2]
+PASS  desktop maintenance-worstcase: no clipped chip or badge  {"badges":10,"clipped":0}
+PASS  desktop maintenance-worstcase: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  desktop maintenance-worstcase: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop maintenance-worstcase: mock columns in order  ["Work request","Asset","Activity","Outcome","Next evidence"]
+PASS  desktop maintenance-worstcase: strip reads the mock sentence and Manage in Maintenance →, no strip status label  {"strip":"Scoped to Cold · 5 maintenance Same records and states as the global Maintenance list Manage in Maintenance →","href":"/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A40%3A24.040071Z","statusLabel":false}
+PASS  desktop maintenance-worstcase: no in-panel coverage line on cold  false
+PASS  desktop maintenance-worstcase: Asset cell reads generator-1 · backup generator (R89)  ["generator-1 · backup generator","generator-1 · backup generator","generator-1 · backup generator","generator-1 · backup generator","generator-1 · backup generator"]
+PASS  desktop maintenance-worstcase: Activity chips are the selected states Completed/Open/Open/Open/Open  ["Open","Open","Open","Open","Completed"]
+PASS  desktop maintenance-worstcase: Next evidence is the honest gap (R72)  ["No next evidence recorded","No next evidence recorded","No next evidence recorded","No next evidence recorded","No next evidence recorded"]
+PASS  desktop maintenance-worstcase: WR code opens the W6 C2 Overview with site_id (R68)  ["/maintenance/requests/cdec81d0-8b0b-4abe-8253-d6ca4cac7995?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A24.040071Z","/maintenance/requests/2cd9d356-efb0-41bb-9814-6afae7576e84?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A24.040071Z","/maintenance/requests/d4c0766d-89f5-468e-bf30-3a253248c743?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A24.040071Z","/maintenance/requests/6ff65090-f08e-4ec1-b46e-f740b6ee5854?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A24.040071Z","/maintenance/requests/f14cbb0d-2c38-4da2-91f3-b70b8801f82a?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A24.040071Z"]
+PASS  desktop maintenance-worstcase-one-open: settled  "rows"
+PASS  desktop maintenance-worstcase-one-open: one Read full text open  {"open":1,"of":27}
+PASS  desktop maintenance-worstcase-one-open: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1425,"clientWidth":1425}
+PASS  desktop maintenance-worstcase-one-open: page main <= 1400  {"main":983,"docHeight":1057}
+PASS  desktop maintenance-worstcase-one-open: strip <= 100  39
+PASS  desktop maintenance-worstcase-one-open: panel <= 650  {"panel":539,"tableScrollWidth":1105,"tableClientWidth":1105}
+PASS  desktop maintenance-worstcase-one-open: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop maintenance-worstcase-one-open: currentness notice <= 110  42
+PASS  desktop maintenance-worstcase-one-open: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop maintenance-worstcase-one-open: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop maintenance-worstcase-one-open: 5 row(s) measured  5
+PASS  desktop maintenance-worstcase-one-open: every row cell contains its content  []
+PASS  desktop maintenance-worstcase-one-open: every opened disclosure body stays inside its cell  []
+PASS  desktop maintenance-worstcase-one-open: every long-text preview is at most two lines  [2,2,2,2,2,2,2,2,2,2,2]
+PASS  desktop maintenance-worstcase-one-open: no clipped chip or badge  {"badges":10,"clipped":0}
+PASS  desktop maintenance-worstcase-one-open: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  desktop maintenance-worstcase-one-open: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop maintenance-worstcase-all-open: settled  "rows"
+PASS  desktop maintenance-worstcase-all-open: every Read full text open, previews replaced, each value once, other disclosures closed  {"readFull":{"total":12,"open":12,"previewsWhileOpen":0,"valuesOnce":true},"otherOpen":[]}
+PASS  desktop maintenance-worstcase-all-open: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1425,"clientWidth":1425}
+INFO  desktop maintenance-worstcase-all-open: page main 1593 vs 1600 (K3 ruling 18: information only, no page-height cap)
+PASS  desktop maintenance-worstcase-all-open: strip <= 100  39
+INFO  desktop maintenance-worstcase-all-open: panel height 1149 (K3 ruling 18: no panel-height cap; recorded)
+PASS  desktop maintenance-worstcase-all-open: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop maintenance-worstcase-all-open: currentness notice <= 110  42
+PASS  desktop maintenance-worstcase-all-open: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop maintenance-worstcase-all-open: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop maintenance-worstcase-all-open: 5 row(s) measured  5
+PASS  desktop maintenance-worstcase-all-open: every row cell contains its content  []
+PASS  desktop maintenance-worstcase-all-open: every opened disclosure body stays inside its cell  []
+PASS  desktop maintenance-worstcase-all-open: no clipped chip or badge  {"badges":10,"clipped":0}
+PASS  desktop maintenance-worstcase-all-open: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  desktop maintenance-worstcase-all-open: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop maintenance-worstcase-all-open: every disclosure summary takes keyboard focus and is not clipped  {"summaries":27,"failing":[]}
+PASS  desktop maintenance-worstcase-every-disclosure: settled  "rows"
+PASS  desktop maintenance-worstcase-every-disclosure: every row disclosure open  {"open":27,"of":27}
+PASS  desktop maintenance-worstcase-every-disclosure: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1425,"clientWidth":1425}
+INFO  desktop maintenance-worstcase-every-disclosure: page main 3078 vs 1600 (K3 ruling 18: information only, no page-height cap)
+PASS  desktop maintenance-worstcase-every-disclosure: strip <= 100  39
+INFO  desktop maintenance-worstcase-every-disclosure: panel height 2634 (K3 ruling 18: no panel-height cap; recorded)
+PASS  desktop maintenance-worstcase-every-disclosure: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop maintenance-worstcase-every-disclosure: currentness notice <= 110  42
+PASS  desktop maintenance-worstcase-every-disclosure: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop maintenance-worstcase-every-disclosure: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop maintenance-worstcase-every-disclosure: 5 row(s) measured  5
+PASS  desktop maintenance-worstcase-every-disclosure: every row cell contains its content  []
+PASS  desktop maintenance-worstcase-every-disclosure: every opened disclosure body stays inside its cell  []
+PASS  desktop maintenance-worstcase-every-disclosure: no clipped chip or badge  {"badges":10,"clipped":0}
+PASS  desktop maintenance-worstcase-every-disclosure: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  desktop maintenance-worstcase-every-disclosure: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop maintenance-worstcase-every-disclosure: every opened UUID is one line and fully reachable in its body without widening the cell (ruling 20)  []
+PASS  desktop maintenance-pending: settled  "rows"
+PASS  desktop maintenance-pending: notice follows the returned status PENDING_RECOMPUTE (amber), between strip and panel  {"currentness":"PENDING_RECOMPUTE","tone":"amber","afterStrip":true,"beforePanel":true}
+PASS  desktop maintenance-pending: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance-pending: page main <= 1400  {"main":656,"docHeight":1000}
+PASS  desktop maintenance-pending: strip <= 100  39
+PASS  desktop maintenance-pending: panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop maintenance-pending: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop maintenance-pending: currentness notice <= 110  42
+PASS  desktop maintenance-pending: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop maintenance-pending: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop maintenance-pending: 1 row(s) measured  1
+PASS  desktop maintenance-pending: every row cell contains its content  []
+PASS  desktop maintenance-pending: no clipped chip or badge  {"badges":2,"clipped":0}
+PASS  desktop maintenance-pending: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  desktop maintenance-pending: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop maintenance-pending: mock columns in order  ["Work request","Asset","Activity","Outcome","Next evidence"]
+PASS  desktop maintenance-pending: strip reads the mock sentence and Manage in Maintenance →, no strip status label  {"strip":"Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →","href":"/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A40%3A45.682189Z","statusLabel":false}
+PASS  desktop maintenance-pending: no in-panel coverage line on cold  false
+PASS  desktop maintenance-pending: Asset cell reads generator-1 · backup generator (R89)  ["generator-1 · backup generator"]
+PASS  desktop maintenance-pending: Activity chips are the selected states Completed  ["Completed"]
+PASS  desktop maintenance-pending: Next evidence is the honest gap (R72)  ["No next evidence recorded"]
+PASS  desktop maintenance-pending: WR code opens the W6 C2 Overview with site_id (R68)  ["/maintenance/requests/14422699-233f-4427-84fc-162c628baa28?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A45.682189Z"]
+PASS  desktop maintenance-stale: settled  "rows"
+PASS  desktop maintenance-stale: notice follows the returned status STALE_SOURCE (amber), between strip and panel  {"currentness":"STALE_SOURCE","tone":"amber","afterStrip":true,"beforePanel":true}
+PASS  desktop maintenance-stale: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance-stale: page main <= 1400  {"main":656,"docHeight":1000}
+PASS  desktop maintenance-stale: strip <= 100  39
+PASS  desktop maintenance-stale: panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop maintenance-stale: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop maintenance-stale: currentness notice <= 110  42
+PASS  desktop maintenance-stale: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop maintenance-stale: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop maintenance-stale: 1 row(s) measured  1
+PASS  desktop maintenance-stale: every row cell contains its content  []
+PASS  desktop maintenance-stale: no clipped chip or badge  {"badges":2,"clipped":0}
+PASS  desktop maintenance-stale: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  desktop maintenance-stale: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop maintenance-stale: mock columns in order  ["Work request","Asset","Activity","Outcome","Next evidence"]
+PASS  desktop maintenance-stale: strip reads the mock sentence and Manage in Maintenance →, no strip status label  {"strip":"Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →","href":"/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A41%3A05.632169Z","statusLabel":false}
+PASS  desktop maintenance-stale: no in-panel coverage line on cold  false
+PASS  desktop maintenance-stale: Asset cell reads generator-1 · backup generator (R89)  ["generator-1 · backup generator"]
+PASS  desktop maintenance-stale: Activity chips are the selected states Completed  ["Completed"]
+PASS  desktop maintenance-stale: Next evidence is the honest gap (R72)  ["No next evidence recorded"]
+PASS  desktop maintenance-stale: WR code opens the W6 C2 Overview with site_id (R68)  ["/maintenance/requests/69ff9ed5-744b-42db-a65f-94dda253a839?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A41%3A05.632169Z"]
+PASS  desktop maintenance-unknown: settled  "rows"
+PASS  desktop maintenance-unknown: notice follows the returned status UNKNOWN (blue), between strip and panel  {"currentness":"UNKNOWN","tone":"blue","afterStrip":true,"beforePanel":true}
+PASS  desktop maintenance-unknown: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance-unknown: page main <= 1400  {"main":656,"docHeight":1000}
+PASS  desktop maintenance-unknown: strip <= 100  39
+PASS  desktop maintenance-unknown: panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop maintenance-unknown: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop maintenance-unknown: currentness notice <= 110  42
+PASS  desktop maintenance-unknown: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop maintenance-unknown: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop maintenance-unknown: 1 row(s) measured  1
+PASS  desktop maintenance-unknown: every row cell contains its content  []
+PASS  desktop maintenance-unknown: no clipped chip or badge  {"badges":2,"clipped":0}
+PASS  desktop maintenance-unknown: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  desktop maintenance-unknown: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  desktop maintenance-unknown: mock columns in order  ["Work request","Asset","Activity","Outcome","Next evidence"]
+PASS  desktop maintenance-unknown: strip reads the mock sentence and Manage in Maintenance →, no strip status label  {"strip":"Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →","href":"/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A41%3A24.495159Z","statusLabel":false}
+PASS  desktop maintenance-unknown: no in-panel coverage line on cold  false
+PASS  desktop maintenance-unknown: Asset cell reads generator-1 · backup generator (R89)  ["generator-1 · backup generator"]
+PASS  desktop maintenance-unknown: Activity chips are the selected states Completed  ["Completed"]
+PASS  desktop maintenance-unknown: Next evidence is the honest gap (R72)  ["No next evidence recorded"]
+PASS  desktop maintenance-unknown: WR code opens the W6 C2 Overview with site_id (R68)  ["/maintenance/requests/ff018b9b-42b3-48d0-b2f5-a1741918cded?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A41%3A24.495159Z"]
+PASS  desktop maintenance-forbidden-403: settled  "refused"
+PASS  desktop maintenance-forbidden-403: Site read healthy, W4 refusal forbidden/SITE_SCOPE_FORBIDDEN titled 'No access' inside the case panel  {"siteRefusal":null,"refused":"forbidden","code":"SITE_SCOPE_FORBIDDEN","text":"No access You do not have access to this site's work. Maintenance at this site · As of: time not recorded","sentence":"You do not have access to this site's work."}
+PASS  desktop maintenance-forbidden-403: no row and no zero count  {"rows":0,"strip":"Count unknown · work source unavailable Same records and states as the global Maintenance list Manage in Maintenance →"}
+PASS  desktop maintenance-forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance-forbidden-403: page main <= 1400  {"main":529,"docHeight":1000}
+PASS  desktop maintenance-forbidden-403: strip <= 100  39
+PASS  desktop maintenance-forbidden-403: panel <= 650  {"panel":145,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop maintenance-forbidden-403: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop maintenance-forbidden-403: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop maintenance-forbidden-403: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  desktop maintenance-unavailable-503: settled  "refused"
+PASS  desktop maintenance-unavailable-503: Site read healthy, W4 refusal unavailable/WORK_STORE_UNAVAILABLE titled 'Work records unavailable' inside the case panel  {"siteRefusal":null,"refused":"unavailable","code":"WORK_STORE_UNAVAILABLE","text":"Work records unavailable Work records are unavailable right now. Try again. Maintenance at this site · As of: time not recorded","sentence":"Work records are unavailable right now. Try again."}
+PASS  desktop maintenance-unavailable-503: no row and no zero count  {"rows":0,"strip":"Count unknown · work source unavailable Same records and states as the global Maintenance list Manage in Maintenance →"}
+PASS  desktop maintenance-unavailable-503: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance-unavailable-503: page main <= 1400  {"main":529,"docHeight":1000}
+PASS  desktop maintenance-unavailable-503: strip <= 100  39
+PASS  desktop maintenance-unavailable-503: panel <= 650  {"panel":145,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop maintenance-unavailable-503: context notice <= 110 and is the domain notice  {"height":42,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  desktop maintenance-unavailable-503: no banner on the product screen (K3 ruling 1)  false
+PASS  desktop maintenance-unavailable-503: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow incidents-positive: settled  "rows"
+PASS  narrow incidents-positive: rows, notice follows the returned status HISTORICAL  {"panel":"rows","currentness":"HISTORICAL"}
+PASS  narrow incidents-positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents-positive: page main <= 1800  {"main":853,"docHeight":1002}
+PASS  narrow incidents-positive: strip <= 150  84
+PASS  narrow incidents-positive: panel <= 650  {"panel":247,"tableScrollWidth":720,"tableClientWidth":324}
+PASS  narrow incidents-positive: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow incidents-positive: currentness notice <= 160  42
+PASS  narrow incidents-positive: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow incidents-positive: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow incidents-positive: 1 row(s) measured  1
+PASS  narrow incidents-positive: every row cell contains its content  []
+PASS  narrow incidents-positive: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow incidents-positive: no clipped chip or badge  {"badges":1,"clipped":0}
+PASS  narrow incidents-positive: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  narrow incidents-positive: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents-positive: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow incidents-positive: Window value on one line (ruling 20)  [1]
+PASS  narrow incidents-positive: mock columns in order  ["Case","Window","What happened","Linked findings","State"]
+PASS  narrow incidents-positive: strip reads the mock sentence and Manage in Incidents →, no strip status label  {"strip":"Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →","href":"/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A40%3A00.266407Z","statusLabel":false}
+PASS  narrow incidents-positive: no in-panel coverage line on cold  false
+PASS  narrow incidents-positive: Site-local Window text ("{d} {Mon} · from HH:MM"), fixture INC at 19:11  ["23 Oct · from 19:11"]
+PASS  narrow incidents-positive: every INC shows 2 plain Finding label(s), no Finding anchor, plain INC code (R65/R66/R73)  {"findings":[["Finding 3edd072b","Finding dbfdecf4"]],"anchors":0,"caseAnchors":[null]}
+PASS  narrow incidents-current: settled  "rows"
+PASS  narrow incidents-current: URL has no known_at, manifest status CURRENT, no currentness notice  {"href":"/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z","status":"CURRENT","returnedKnownAt":"2026-10-24T05:40:01.438614Z","currentness":null}
+PASS  narrow incidents-current: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents-current: page main <= 1800  {"main":793,"docHeight":942}
+PASS  narrow incidents-current: strip <= 150  84
+PASS  narrow incidents-current: panel <= 650  {"panel":247,"tableScrollWidth":720,"tableClientWidth":324}
+PASS  narrow incidents-current: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow incidents-current: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow incidents-current: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow incidents-current: 1 row(s) measured  1
+PASS  narrow incidents-current: every row cell contains its content  []
+PASS  narrow incidents-current: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow incidents-current: no clipped chip or badge  {"badges":1,"clipped":0}
+PASS  narrow incidents-current: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  narrow incidents-current: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents-current: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow incidents-current: Window value on one line (ruling 20)  [1]
+PASS  narrow incidents-current: mock columns in order  ["Case","Window","What happened","Linked findings","State"]
+PASS  narrow incidents-current: strip reads the mock sentence and Manage in Incidents →, no strip status label  {"strip":"Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →","href":"/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A47%3A14.849640Z","statusLabel":false}
+PASS  narrow incidents-current: no in-panel coverage line on cold  false
+PASS  narrow incidents-current: Site-local Window text ("{d} {Mon} · from HH:MM"), fixture INC at 19:11  ["23 Oct · from 19:11"]
+PASS  narrow incidents-current: every INC shows 2 plain Finding label(s), no Finding anchor, plain INC code (R65/R66/R73)  {"findings":[["Finding 3edd072b","Finding dbfdecf4"]],"anchors":0,"caseAnchors":[null]}
+PASS  narrow incidents-historical: settled  "rows"
+PASS  narrow incidents-historical: notice reads the returned status HISTORICAL  "HISTORICAL"
+PASS  narrow incidents-historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents-historical: page main <= 1800  {"main":853,"docHeight":1002}
+PASS  narrow incidents-historical: strip <= 150  84
+PASS  narrow incidents-historical: panel <= 650  {"panel":247,"tableScrollWidth":720,"tableClientWidth":324}
+PASS  narrow incidents-historical: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow incidents-historical: currentness notice <= 160  42
+PASS  narrow incidents-historical: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow incidents-historical: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow incidents-historical: 1 row(s) measured  1
+PASS  narrow incidents-historical: every row cell contains its content  []
+PASS  narrow incidents-historical: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow incidents-historical: no clipped chip or badge  {"badges":1,"clipped":0}
+PASS  narrow incidents-historical: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  narrow incidents-historical: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents-historical: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow incidents-historical: Window value on one line (ruling 20)  [1]
+PASS  narrow incidents-zero: settled  "empty"
+PASS  narrow incidents-zero: v69 WORK_EMPTY title/body, basis kept, no Pages block  {"empty":"No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.","basis":true,"showing":null,"status":null}
+PASS  narrow incidents-zero: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents-zero: page main <= 1800  {"main":889,"docHeight":1039}
+PASS  narrow incidents-zero: strip <= 150  84
+PASS  narrow incidents-zero: panel <= 650  {"panel":344,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow incidents-zero: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow incidents-zero: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow incidents-zero: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow incidents-worstcase: settled  "rows"
+PASS  narrow incidents-worstcase: Showing 1–5 of 5, notice follows the returned status  {"showing":"Showing 1–5 of 5","currentness":"HISTORICAL"}
+PASS  narrow incidents-worstcase: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents-worstcase: page main <= 1800  {"main":1204,"docHeight":1354}
+PASS  narrow incidents-worstcase: strip <= 150  84
+PASS  narrow incidents-worstcase: panel <= 650  {"panel":599,"tableScrollWidth":720,"tableClientWidth":324}
+PASS  narrow incidents-worstcase: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow incidents-worstcase: currentness notice <= 160  42
+PASS  narrow incidents-worstcase: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow incidents-worstcase: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow incidents-worstcase: 5 row(s) measured  5
+PASS  narrow incidents-worstcase: every row cell contains its content  []
+PASS  narrow incidents-worstcase: every long-text preview is at most two lines  [2,2,2,2,2,2,2,2]
+PASS  narrow incidents-worstcase: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow incidents-worstcase: no clipped chip or badge  {"badges":5,"clipped":0}
+PASS  narrow incidents-worstcase: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  narrow incidents-worstcase: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents-worstcase: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow incidents-worstcase: Window value on one line (ruling 20)  [1,1,1,1,1]
+PASS  narrow incidents-worstcase: mock columns in order  ["Case","Window","What happened","Linked findings","State"]
+PASS  narrow incidents-worstcase: strip reads the mock sentence and Manage in Incidents →, no strip status label  {"strip":"Scoped to Cold · 5 incidents Same records and states as the global Incidents list Manage in Incidents →","href":"/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A40%3A24.040071Z","statusLabel":false}
+PASS  narrow incidents-worstcase: no in-panel coverage line on cold  false
+PASS  narrow incidents-worstcase: Site-local Window text ("{d} {Mon} · from HH:MM"), fixture INC at 19:11  ["23 Oct · from 19:15","23 Oct · from 19:14","23 Oct · from 19:13","23 Oct · from 19:12","23 Oct · from 19:11"]
+PASS  narrow incidents-worstcase: every INC shows 2 plain Finding label(s), no Finding anchor, plain INC code (R65/R66/R73)  {"findings":[["Finding 24b13d12","Finding d5972c2b"],["Finding 24b13d12","Finding d5972c2b"],["Finding 24b13d12","Finding d5972c2b"],["Finding 24b13d12","Finding d5972c2b"],["Finding 24b13d12","Finding d5972c2b"]],"anchors":0,"caseAnchors":[null,null,null,null,null]}
+PASS  narrow incidents-worstcase-one-open: settled  "rows"
+PASS  narrow incidents-worstcase-one-open: one Read full text open  {"open":1,"of":23}
+PASS  narrow incidents-worstcase-one-open: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents-worstcase-one-open: page main <= 1800  {"main":1270,"docHeight":1420}
+PASS  narrow incidents-worstcase-one-open: strip <= 150  84
+PASS  narrow incidents-worstcase-one-open: panel <= 680  {"panel":664,"tableScrollWidth":720,"tableClientWidth":324}
+PASS  narrow incidents-worstcase-one-open: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow incidents-worstcase-one-open: currentness notice <= 160  42
+PASS  narrow incidents-worstcase-one-open: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow incidents-worstcase-one-open: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow incidents-worstcase-one-open: 5 row(s) measured  5
+PASS  narrow incidents-worstcase-one-open: every row cell contains its content  []
+PASS  narrow incidents-worstcase-one-open: every opened disclosure body stays inside its cell  []
+PASS  narrow incidents-worstcase-one-open: every long-text preview is at most two lines  [2,2,2,2,2,2,2]
+PASS  narrow incidents-worstcase-one-open: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow incidents-worstcase-one-open: no clipped chip or badge  {"badges":5,"clipped":0}
+PASS  narrow incidents-worstcase-one-open: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  narrow incidents-worstcase-one-open: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents-worstcase-one-open: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow incidents-worstcase-one-open: Window value on one line (ruling 20)  [1,1,1,1,1]
+PASS  narrow incidents-worstcase-all-open: settled  "rows"
+PASS  narrow incidents-worstcase-all-open: every Read full text open, previews replaced, each value once, other disclosures closed  {"readFull":{"total":8,"open":8,"previewsWhileOpen":0,"valuesOnce":true},"otherOpen":[]}
+PASS  narrow incidents-worstcase-all-open: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+INFO  narrow incidents-worstcase-all-open: page main 1467 vs 2000 (K3 ruling 18: information only, no page-height cap)
+PASS  narrow incidents-worstcase-all-open: strip <= 150  84
+INFO  narrow incidents-worstcase-all-open: panel height 861 (K3 ruling 18: no panel-height cap; recorded)
+PASS  narrow incidents-worstcase-all-open: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow incidents-worstcase-all-open: currentness notice <= 160  42
+PASS  narrow incidents-worstcase-all-open: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow incidents-worstcase-all-open: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow incidents-worstcase-all-open: 5 row(s) measured  5
+PASS  narrow incidents-worstcase-all-open: every row cell contains its content  []
+PASS  narrow incidents-worstcase-all-open: every opened disclosure body stays inside its cell  []
+PASS  narrow incidents-worstcase-all-open: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow incidents-worstcase-all-open: no clipped chip or badge  {"badges":5,"clipped":0}
+PASS  narrow incidents-worstcase-all-open: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  narrow incidents-worstcase-all-open: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents-worstcase-all-open: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow incidents-worstcase-all-open: Window value on one line (ruling 20)  [1,1,1,1,1]
+PASS  narrow incidents-worstcase-all-open: every disclosure summary takes keyboard focus and is not clipped  {"summaries":23,"failing":[]}
+PASS  narrow incidents-worstcase-every-disclosure: settled  "rows"
+PASS  narrow incidents-worstcase-every-disclosure: every row disclosure open  {"open":23,"of":23}
+PASS  narrow incidents-worstcase-every-disclosure: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+INFO  narrow incidents-worstcase-every-disclosure: page main 2319 vs 2000 (K3 ruling 18: information only, no page-height cap)
+PASS  narrow incidents-worstcase-every-disclosure: strip <= 150  84
+INFO  narrow incidents-worstcase-every-disclosure: panel height 1714 (K3 ruling 18: no panel-height cap; recorded)
+PASS  narrow incidents-worstcase-every-disclosure: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow incidents-worstcase-every-disclosure: currentness notice <= 160  42
+PASS  narrow incidents-worstcase-every-disclosure: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow incidents-worstcase-every-disclosure: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow incidents-worstcase-every-disclosure: 5 row(s) measured  5
+PASS  narrow incidents-worstcase-every-disclosure: every row cell contains its content  []
+PASS  narrow incidents-worstcase-every-disclosure: every opened disclosure body stays inside its cell  []
+PASS  narrow incidents-worstcase-every-disclosure: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow incidents-worstcase-every-disclosure: no clipped chip or badge  {"badges":5,"clipped":0}
+PASS  narrow incidents-worstcase-every-disclosure: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  narrow incidents-worstcase-every-disclosure: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents-worstcase-every-disclosure: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow incidents-worstcase-every-disclosure: Window value on one line (ruling 20)  [1,1,1,1,1]
+PASS  narrow incidents-worstcase-every-disclosure: every opened UUID is one line and fully reachable in its body without widening the cell (ruling 20)  []
+PASS  narrow incidents-pending: settled  "rows"
+PASS  narrow incidents-pending: notice follows the returned status PENDING_RECOMPUTE (amber), between strip and panel  {"currentness":"PENDING_RECOMPUTE","tone":"amber","afterStrip":true,"beforePanel":true}
+PASS  narrow incidents-pending: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents-pending: page main <= 1800  {"main":871,"docHeight":1020}
+PASS  narrow incidents-pending: strip <= 150  84
+PASS  narrow incidents-pending: panel <= 650  {"panel":247,"tableScrollWidth":720,"tableClientWidth":324}
+PASS  narrow incidents-pending: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow incidents-pending: currentness notice <= 160  60
+PASS  narrow incidents-pending: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow incidents-pending: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow incidents-pending: 1 row(s) measured  1
+PASS  narrow incidents-pending: every row cell contains its content  []
+PASS  narrow incidents-pending: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow incidents-pending: no clipped chip or badge  {"badges":1,"clipped":0}
+PASS  narrow incidents-pending: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  narrow incidents-pending: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents-pending: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow incidents-pending: Window value on one line (ruling 20)  [1]
+PASS  narrow incidents-pending: mock columns in order  ["Case","Window","What happened","Linked findings","State"]
+PASS  narrow incidents-pending: strip reads the mock sentence and Manage in Incidents →, no strip status label  {"strip":"Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →","href":"/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A40%3A45.682189Z","statusLabel":false}
+PASS  narrow incidents-pending: no in-panel coverage line on cold  false
+PASS  narrow incidents-pending: Site-local Window text ("{d} {Mon} · from HH:MM"), fixture INC at 19:11  ["23 Oct · from 19:11"]
+PASS  narrow incidents-pending: every INC shows 2 plain Finding label(s), no Finding anchor, plain INC code (R65/R66/R73)  {"findings":[["Finding c44099fe","Finding d7850b9d"]],"anchors":0,"caseAnchors":[null]}
+PASS  narrow incidents-stale: settled  "rows"
+PASS  narrow incidents-stale: notice follows the returned status STALE_SOURCE (amber), between strip and panel  {"currentness":"STALE_SOURCE","tone":"amber","afterStrip":true,"beforePanel":true}
+PASS  narrow incidents-stale: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents-stale: page main <= 1800  {"main":871,"docHeight":1020}
+PASS  narrow incidents-stale: strip <= 150  84
+PASS  narrow incidents-stale: panel <= 650  {"panel":247,"tableScrollWidth":720,"tableClientWidth":324}
+PASS  narrow incidents-stale: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow incidents-stale: currentness notice <= 160  60
+PASS  narrow incidents-stale: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow incidents-stale: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow incidents-stale: 1 row(s) measured  1
+PASS  narrow incidents-stale: every row cell contains its content  []
+PASS  narrow incidents-stale: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow incidents-stale: no clipped chip or badge  {"badges":1,"clipped":0}
+PASS  narrow incidents-stale: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  narrow incidents-stale: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents-stale: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow incidents-stale: Window value on one line (ruling 20)  [1]
+PASS  narrow incidents-stale: mock columns in order  ["Case","Window","What happened","Linked findings","State"]
+PASS  narrow incidents-stale: strip reads the mock sentence and Manage in Incidents →, no strip status label  {"strip":"Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →","href":"/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A41%3A05.632169Z","statusLabel":false}
+PASS  narrow incidents-stale: no in-panel coverage line on cold  false
+PASS  narrow incidents-stale: Site-local Window text ("{d} {Mon} · from HH:MM"), fixture INC at 19:11  ["23 Oct · from 19:11"]
+PASS  narrow incidents-stale: every INC shows 2 plain Finding label(s), no Finding anchor, plain INC code (R65/R66/R73)  {"findings":[["Finding 5fab450f","Finding 9202ed92"]],"anchors":0,"caseAnchors":[null]}
+PASS  narrow incidents-unknown: settled  "rows"
+PASS  narrow incidents-unknown: notice follows the returned status UNKNOWN (blue), between strip and panel  {"currentness":"UNKNOWN","tone":"blue","afterStrip":true,"beforePanel":true}
+PASS  narrow incidents-unknown: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents-unknown: page main <= 1800  {"main":825,"docHeight":974}
+PASS  narrow incidents-unknown: strip <= 150  84
+PASS  narrow incidents-unknown: panel <= 650  {"panel":201,"tableScrollWidth":720,"tableClientWidth":324}
+PASS  narrow incidents-unknown: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow incidents-unknown: currentness notice <= 160  60
+PASS  narrow incidents-unknown: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow incidents-unknown: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow incidents-unknown: 1 row(s) measured  1
+PASS  narrow incidents-unknown: every row cell contains its content  []
+PASS  narrow incidents-unknown: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow incidents-unknown: no clipped chip or badge  {"badges":1,"clipped":0}
+PASS  narrow incidents-unknown: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  narrow incidents-unknown: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents-unknown: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow incidents-unknown: Window value on one line (ruling 20)  [1]
+PASS  narrow incidents-unknown: mock columns in order  ["Case","Window","What happened","Linked findings","State"]
+PASS  narrow incidents-unknown: strip reads the mock sentence and Manage in Incidents →, no strip status label  {"strip":"Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →","href":"/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A41%3A24.495159Z","statusLabel":false}
+PASS  narrow incidents-unknown: no in-panel coverage line on cold  false
+PASS  narrow incidents-unknown: Site-local Window text ("{d} {Mon} · from HH:MM"), fixture INC at 19:11  ["23 Oct · from 19:11"]
+PASS  narrow incidents-unknown: every INC shows 1 plain Finding label(s), no Finding anchor, plain INC code (R65/R66/R73)  {"findings":[["Finding 9f8154f2"]],"anchors":0,"caseAnchors":[null]}
+PASS  narrow incidents-forbidden-403: settled  "refused"
+PASS  narrow incidents-forbidden-403: Site read healthy, W4 refusal forbidden/SITE_SCOPE_FORBIDDEN titled 'No access' inside the case panel  {"siteRefusal":null,"refused":"forbidden","code":"SITE_SCOPE_FORBIDDEN","text":"No access You do not have access to this site's work. Incidents at this site · As of: time not recorded","sentence":"You do not have access to this site's work."}
+PASS  narrow incidents-forbidden-403: no row and no zero count  {"rows":0,"strip":"Count unknown · work source unavailable Same records and states as the global Incidents list Manage in Incidents →"}
+PASS  narrow incidents-forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents-forbidden-403: page main <= 1800  {"main":698,"docHeight":900}
+PASS  narrow incidents-forbidden-403: strip <= 150  84
+PASS  narrow incidents-forbidden-403: panel <= 650  {"panel":153,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow incidents-forbidden-403: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow incidents-forbidden-403: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow incidents-forbidden-403: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow incidents-unavailable-503: settled  "refused"
+PASS  narrow incidents-unavailable-503: Site read healthy, W4 refusal unavailable/WORK_STORE_UNAVAILABLE titled 'Work records unavailable' inside the case panel  {"siteRefusal":null,"refused":"unavailable","code":"WORK_STORE_UNAVAILABLE","text":"Work records unavailable Work records are unavailable right now. Try again. Incidents at this site · As of: time not recorded","sentence":"Work records are unavailable right now. Try again."}
+PASS  narrow incidents-unavailable-503: no row and no zero count  {"rows":0,"strip":"Count unknown · work source unavailable Same records and states as the global Incidents list Manage in Incidents →"}
+PASS  narrow incidents-unavailable-503: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents-unavailable-503: page main <= 1800  {"main":719,"docHeight":900}
+PASS  narrow incidents-unavailable-503: strip <= 150  84
+PASS  narrow incidents-unavailable-503: panel <= 650  {"panel":174,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow incidents-unavailable-503: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow incidents-unavailable-503: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow incidents-unavailable-503: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow maintenance-positive: settled  "rows"
+PASS  narrow maintenance-positive: rows, notice follows the returned status HISTORICAL  {"panel":"rows","currentness":"HISTORICAL"}
+PASS  narrow maintenance-positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance-positive: page main <= 1800  {"main":807,"docHeight":957}
+PASS  narrow maintenance-positive: strip <= 150  84
+PASS  narrow maintenance-positive: panel <= 650  {"panel":201,"tableScrollWidth":760,"tableClientWidth":324}
+PASS  narrow maintenance-positive: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow maintenance-positive: currentness notice <= 160  42
+PASS  narrow maintenance-positive: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow maintenance-positive: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow maintenance-positive: 1 row(s) measured  1
+PASS  narrow maintenance-positive: every row cell contains its content  []
+PASS  narrow maintenance-positive: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow maintenance-positive: no clipped chip or badge  {"badges":2,"clipped":0}
+PASS  narrow maintenance-positive: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  narrow maintenance-positive: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance-positive: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow maintenance-positive: mock columns in order  ["Work request","Asset","Activity","Outcome","Next evidence"]
+PASS  narrow maintenance-positive: strip reads the mock sentence and Manage in Maintenance →, no strip status label  {"strip":"Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →","href":"/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A40%3A00.266407Z","statusLabel":false}
+PASS  narrow maintenance-positive: no in-panel coverage line on cold  false
+PASS  narrow maintenance-positive: Asset cell reads generator-1 · backup generator (R89)  ["generator-1 · backup generator"]
+PASS  narrow maintenance-positive: Activity chips are the selected states Completed  ["Completed"]
+PASS  narrow maintenance-positive: Next evidence is the honest gap (R72)  ["No next evidence recorded"]
+PASS  narrow maintenance-positive: WR code opens the W6 C2 Overview with site_id (R68)  ["/maintenance/requests/b5cbd42b-1694-47df-a6e6-f83385d96075?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A00.266407Z"]
+PASS  narrow maintenance-current: settled  "rows"
+PASS  narrow maintenance-current: URL has no known_at, manifest status CURRENT, no currentness notice  {"href":"/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z","status":"CURRENT","returnedKnownAt":"2026-10-24T05:40:01.555855Z","currentness":null}
+PASS  narrow maintenance-current: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance-current: page main <= 1800  {"main":747,"docHeight":900}
+PASS  narrow maintenance-current: strip <= 150  84
+PASS  narrow maintenance-current: panel <= 650  {"panel":201,"tableScrollWidth":760,"tableClientWidth":324}
+PASS  narrow maintenance-current: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow maintenance-current: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow maintenance-current: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow maintenance-current: 1 row(s) measured  1
+PASS  narrow maintenance-current: every row cell contains its content  []
+PASS  narrow maintenance-current: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow maintenance-current: no clipped chip or badge  {"badges":2,"clipped":0}
+PASS  narrow maintenance-current: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  narrow maintenance-current: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance-current: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow maintenance-current: mock columns in order  ["Work request","Asset","Activity","Outcome","Next evidence"]
+PASS  narrow maintenance-current: strip reads the mock sentence and Manage in Maintenance →, no strip status label  {"strip":"Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →","href":"/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A47%3A56.844143Z","statusLabel":false}
+PASS  narrow maintenance-current: no in-panel coverage line on cold  false
+PASS  narrow maintenance-current: Asset cell reads generator-1 · backup generator (R89)  ["generator-1 · backup generator"]
+PASS  narrow maintenance-current: Activity chips are the selected states Completed  ["Completed"]
+PASS  narrow maintenance-current: Next evidence is the honest gap (R72)  ["No next evidence recorded"]
+PASS  narrow maintenance-current: WR code opens the W6 C2 Overview with site_id (R68)  ["/maintenance/requests/b5cbd42b-1694-47df-a6e6-f83385d96075?site_id=COLD-LAB-001"]
+PASS  narrow maintenance-historical: settled  "rows"
+PASS  narrow maintenance-historical: notice reads the returned status HISTORICAL  "HISTORICAL"
+PASS  narrow maintenance-historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance-historical: page main <= 1800  {"main":807,"docHeight":957}
+PASS  narrow maintenance-historical: strip <= 150  84
+PASS  narrow maintenance-historical: panel <= 650  {"panel":201,"tableScrollWidth":760,"tableClientWidth":324}
+PASS  narrow maintenance-historical: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow maintenance-historical: currentness notice <= 160  42
+PASS  narrow maintenance-historical: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow maintenance-historical: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow maintenance-historical: 1 row(s) measured  1
+PASS  narrow maintenance-historical: every row cell contains its content  []
+PASS  narrow maintenance-historical: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow maintenance-historical: no clipped chip or badge  {"badges":2,"clipped":0}
+PASS  narrow maintenance-historical: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  narrow maintenance-historical: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance-historical: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow maintenance-zero: settled  "empty"
+PASS  narrow maintenance-zero: v69 WORK_EMPTY title/body, basis kept, no Pages block  {"empty":"No maintenance work at this site No inspection or repair has been raised here in the selected period.","basis":true,"showing":null,"status":null}
+PASS  narrow maintenance-zero: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance-zero: page main <= 1800  {"main":869,"docHeight":1019}
+PASS  narrow maintenance-zero: strip <= 150  84
+PASS  narrow maintenance-zero: panel <= 650  {"panel":324,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow maintenance-zero: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow maintenance-zero: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow maintenance-zero: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow maintenance-worstcase: settled  "rows"
+PASS  narrow maintenance-worstcase: Showing 1–5 of 5, notice follows the returned status  {"showing":"Showing 1–5 of 5","currentness":"HISTORICAL"}
+PASS  narrow maintenance-worstcase: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance-worstcase: page main <= 1800  {"main":1036,"docHeight":1185}
+PASS  narrow maintenance-worstcase: strip <= 150  84
+PASS  narrow maintenance-worstcase: panel <= 650  {"panel":430,"tableScrollWidth":760,"tableClientWidth":324}
+PASS  narrow maintenance-worstcase: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow maintenance-worstcase: currentness notice <= 160  42
+PASS  narrow maintenance-worstcase: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow maintenance-worstcase: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow maintenance-worstcase: 5 row(s) measured  5
+PASS  narrow maintenance-worstcase: every row cell contains its content  []
+PASS  narrow maintenance-worstcase: every long-text preview is at most two lines  [2,2,2,2,2,2,2,2,2,2,2,2]
+PASS  narrow maintenance-worstcase: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow maintenance-worstcase: no clipped chip or badge  {"badges":10,"clipped":0}
+PASS  narrow maintenance-worstcase: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  narrow maintenance-worstcase: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance-worstcase: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow maintenance-worstcase: mock columns in order  ["Work request","Asset","Activity","Outcome","Next evidence"]
+PASS  narrow maintenance-worstcase: strip reads the mock sentence and Manage in Maintenance →, no strip status label  {"strip":"Scoped to Cold · 5 maintenance Same records and states as the global Maintenance list Manage in Maintenance →","href":"/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A40%3A24.040071Z","statusLabel":false}
+PASS  narrow maintenance-worstcase: no in-panel coverage line on cold  false
+PASS  narrow maintenance-worstcase: Asset cell reads generator-1 · backup generator (R89)  ["generator-1 · backup generator","generator-1 · backup generator","generator-1 · backup generator","generator-1 · backup generator","generator-1 · backup generator"]
+PASS  narrow maintenance-worstcase: Activity chips are the selected states Completed/Open/Open/Open/Open  ["Open","Open","Open","Open","Completed"]
+PASS  narrow maintenance-worstcase: Next evidence is the honest gap (R72)  ["No next evidence recorded","No next evidence recorded","No next evidence recorded","No next evidence recorded","No next evidence recorded"]
+PASS  narrow maintenance-worstcase: WR code opens the W6 C2 Overview with site_id (R68)  ["/maintenance/requests/cdec81d0-8b0b-4abe-8253-d6ca4cac7995?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A24.040071Z","/maintenance/requests/2cd9d356-efb0-41bb-9814-6afae7576e84?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A24.040071Z","/maintenance/requests/d4c0766d-89f5-468e-bf30-3a253248c743?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A24.040071Z","/maintenance/requests/6ff65090-f08e-4ec1-b46e-f740b6ee5854?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A24.040071Z","/maintenance/requests/f14cbb0d-2c38-4da2-91f3-b70b8801f82a?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A24.040071Z"]
+PASS  narrow maintenance-worstcase-one-open: settled  "rows"
+PASS  narrow maintenance-worstcase-one-open: one Read full text open  {"open":1,"of":27}
+PASS  narrow maintenance-worstcase-one-open: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance-worstcase-one-open: page main <= 1800  {"main":1132,"docHeight":1282}
+PASS  narrow maintenance-worstcase-one-open: strip <= 150  84
+PASS  narrow maintenance-worstcase-one-open: panel <= 650  {"panel":526,"tableScrollWidth":760,"tableClientWidth":324}
+PASS  narrow maintenance-worstcase-one-open: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow maintenance-worstcase-one-open: currentness notice <= 160  42
+PASS  narrow maintenance-worstcase-one-open: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow maintenance-worstcase-one-open: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow maintenance-worstcase-one-open: 5 row(s) measured  5
+PASS  narrow maintenance-worstcase-one-open: every row cell contains its content  []
+PASS  narrow maintenance-worstcase-one-open: every opened disclosure body stays inside its cell  []
+PASS  narrow maintenance-worstcase-one-open: every long-text preview is at most two lines  [2,2,2,2,2,2,2,2,2,2,2]
+PASS  narrow maintenance-worstcase-one-open: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow maintenance-worstcase-one-open: no clipped chip or badge  {"badges":10,"clipped":0}
+PASS  narrow maintenance-worstcase-one-open: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  narrow maintenance-worstcase-one-open: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance-worstcase-one-open: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow maintenance-worstcase-all-open: settled  "rows"
+PASS  narrow maintenance-worstcase-all-open: every Read full text open, previews replaced, each value once, other disclosures closed  {"readFull":{"total":12,"open":12,"previewsWhileOpen":0,"valuesOnce":true},"otherOpen":[]}
+PASS  narrow maintenance-worstcase-all-open: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+INFO  narrow maintenance-worstcase-all-open: page main 2075 vs 2000 (K3 ruling 18: information only, no page-height cap)
+PASS  narrow maintenance-worstcase-all-open: strip <= 150  84
+INFO  narrow maintenance-worstcase-all-open: panel height 1469 (K3 ruling 18: no panel-height cap; recorded)
+PASS  narrow maintenance-worstcase-all-open: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow maintenance-worstcase-all-open: currentness notice <= 160  42
+PASS  narrow maintenance-worstcase-all-open: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow maintenance-worstcase-all-open: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow maintenance-worstcase-all-open: 5 row(s) measured  5
+PASS  narrow maintenance-worstcase-all-open: every row cell contains its content  []
+PASS  narrow maintenance-worstcase-all-open: every opened disclosure body stays inside its cell  []
+PASS  narrow maintenance-worstcase-all-open: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow maintenance-worstcase-all-open: no clipped chip or badge  {"badges":10,"clipped":0}
+PASS  narrow maintenance-worstcase-all-open: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  narrow maintenance-worstcase-all-open: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance-worstcase-all-open: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow maintenance-worstcase-all-open: every disclosure summary takes keyboard focus and is not clipped  {"summaries":27,"failing":[]}
+PASS  narrow maintenance-worstcase-every-disclosure: settled  "rows"
+PASS  narrow maintenance-worstcase-every-disclosure: every row disclosure open  {"open":27,"of":27}
+PASS  narrow maintenance-worstcase-every-disclosure: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+INFO  narrow maintenance-worstcase-every-disclosure: page main 2804 vs 2000 (K3 ruling 18: information only, no page-height cap)
+PASS  narrow maintenance-worstcase-every-disclosure: strip <= 150  84
+INFO  narrow maintenance-worstcase-every-disclosure: panel height 2199 (K3 ruling 18: no panel-height cap; recorded)
+PASS  narrow maintenance-worstcase-every-disclosure: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow maintenance-worstcase-every-disclosure: currentness notice <= 160  42
+PASS  narrow maintenance-worstcase-every-disclosure: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow maintenance-worstcase-every-disclosure: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow maintenance-worstcase-every-disclosure: 5 row(s) measured  5
+PASS  narrow maintenance-worstcase-every-disclosure: every row cell contains its content  []
+PASS  narrow maintenance-worstcase-every-disclosure: every opened disclosure body stays inside its cell  []
+PASS  narrow maintenance-worstcase-every-disclosure: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow maintenance-worstcase-every-disclosure: no clipped chip or badge  {"badges":10,"clipped":0}
+PASS  narrow maintenance-worstcase-every-disclosure: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–5 of 5","basis":true}
+PASS  narrow maintenance-worstcase-every-disclosure: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance-worstcase-every-disclosure: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow maintenance-worstcase-every-disclosure: every opened UUID is one line and fully reachable in its body without widening the cell (ruling 20)  []
+PASS  narrow maintenance-pending: settled  "rows"
+PASS  narrow maintenance-pending: notice follows the returned status PENDING_RECOMPUTE (amber), between strip and panel  {"currentness":"PENDING_RECOMPUTE","tone":"amber","afterStrip":true,"beforePanel":true}
+PASS  narrow maintenance-pending: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance-pending: page main <= 1800  {"main":825,"docHeight":975}
+PASS  narrow maintenance-pending: strip <= 150  84
+PASS  narrow maintenance-pending: panel <= 650  {"panel":201,"tableScrollWidth":760,"tableClientWidth":324}
+PASS  narrow maintenance-pending: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow maintenance-pending: currentness notice <= 160  60
+PASS  narrow maintenance-pending: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow maintenance-pending: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow maintenance-pending: 1 row(s) measured  1
+PASS  narrow maintenance-pending: every row cell contains its content  []
+PASS  narrow maintenance-pending: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow maintenance-pending: no clipped chip or badge  {"badges":2,"clipped":0}
+PASS  narrow maintenance-pending: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  narrow maintenance-pending: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance-pending: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow maintenance-pending: mock columns in order  ["Work request","Asset","Activity","Outcome","Next evidence"]
+PASS  narrow maintenance-pending: strip reads the mock sentence and Manage in Maintenance →, no strip status label  {"strip":"Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →","href":"/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A40%3A45.682189Z","statusLabel":false}
+PASS  narrow maintenance-pending: no in-panel coverage line on cold  false
+PASS  narrow maintenance-pending: Asset cell reads generator-1 · backup generator (R89)  ["generator-1 · backup generator"]
+PASS  narrow maintenance-pending: Activity chips are the selected states Completed  ["Completed"]
+PASS  narrow maintenance-pending: Next evidence is the honest gap (R72)  ["No next evidence recorded"]
+PASS  narrow maintenance-pending: WR code opens the W6 C2 Overview with site_id (R68)  ["/maintenance/requests/14422699-233f-4427-84fc-162c628baa28?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A40%3A45.682189Z"]
+PASS  narrow maintenance-stale: settled  "rows"
+PASS  narrow maintenance-stale: notice follows the returned status STALE_SOURCE (amber), between strip and panel  {"currentness":"STALE_SOURCE","tone":"amber","afterStrip":true,"beforePanel":true}
+PASS  narrow maintenance-stale: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance-stale: page main <= 1800  {"main":825,"docHeight":975}
+PASS  narrow maintenance-stale: strip <= 150  84
+PASS  narrow maintenance-stale: panel <= 650  {"panel":201,"tableScrollWidth":760,"tableClientWidth":324}
+PASS  narrow maintenance-stale: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow maintenance-stale: currentness notice <= 160  60
+PASS  narrow maintenance-stale: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow maintenance-stale: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow maintenance-stale: 1 row(s) measured  1
+PASS  narrow maintenance-stale: every row cell contains its content  []
+PASS  narrow maintenance-stale: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow maintenance-stale: no clipped chip or badge  {"badges":2,"clipped":0}
+PASS  narrow maintenance-stale: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  narrow maintenance-stale: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance-stale: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow maintenance-stale: mock columns in order  ["Work request","Asset","Activity","Outcome","Next evidence"]
+PASS  narrow maintenance-stale: strip reads the mock sentence and Manage in Maintenance →, no strip status label  {"strip":"Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →","href":"/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A41%3A05.632169Z","statusLabel":false}
+PASS  narrow maintenance-stale: no in-panel coverage line on cold  false
+PASS  narrow maintenance-stale: Asset cell reads generator-1 · backup generator (R89)  ["generator-1 · backup generator"]
+PASS  narrow maintenance-stale: Activity chips are the selected states Completed  ["Completed"]
+PASS  narrow maintenance-stale: Next evidence is the honest gap (R72)  ["No next evidence recorded"]
+PASS  narrow maintenance-stale: WR code opens the W6 C2 Overview with site_id (R68)  ["/maintenance/requests/69ff9ed5-744b-42db-a65f-94dda253a839?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A41%3A05.632169Z"]
+PASS  narrow maintenance-unknown: settled  "rows"
+PASS  narrow maintenance-unknown: notice follows the returned status UNKNOWN (blue), between strip and panel  {"currentness":"UNKNOWN","tone":"blue","afterStrip":true,"beforePanel":true}
+PASS  narrow maintenance-unknown: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance-unknown: page main <= 1800  {"main":825,"docHeight":975}
+PASS  narrow maintenance-unknown: strip <= 150  84
+PASS  narrow maintenance-unknown: panel <= 650  {"panel":201,"tableScrollWidth":760,"tableClientWidth":324}
+PASS  narrow maintenance-unknown: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow maintenance-unknown: currentness notice <= 160  60
+PASS  narrow maintenance-unknown: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow maintenance-unknown: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow maintenance-unknown: 1 row(s) measured  1
+PASS  narrow maintenance-unknown: every row cell contains its content  []
+PASS  narrow maintenance-unknown: first column is position:sticky (spec: at 390 px)  true
+PASS  narrow maintenance-unknown: no clipped chip or badge  {"badges":2,"clipped":0}
+PASS  narrow maintenance-unknown: R93 Pages block and R92 basis disclosure present  {"showing":"Showing 1–1 of 1","basis":true}
+PASS  narrow maintenance-unknown: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance-unknown: every row visible inside the table scroller (no vertical case box)  {"inside":true,"maxHeight":"none","overflowY":"auto"}
+PASS  narrow maintenance-unknown: mock columns in order  ["Work request","Asset","Activity","Outcome","Next evidence"]
+PASS  narrow maintenance-unknown: strip reads the mock sentence and Manage in Maintenance →, no strip status label  {"strip":"Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →","href":"/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T05%3A41%3A24.495159Z","statusLabel":false}
+PASS  narrow maintenance-unknown: no in-panel coverage line on cold  false
+PASS  narrow maintenance-unknown: Asset cell reads generator-1 · backup generator (R89)  ["generator-1 · backup generator"]
+PASS  narrow maintenance-unknown: Activity chips are the selected states Completed  ["Completed"]
+PASS  narrow maintenance-unknown: Next evidence is the honest gap (R72)  ["No next evidence recorded"]
+PASS  narrow maintenance-unknown: WR code opens the W6 C2 Overview with site_id (R68)  ["/maintenance/requests/ff018b9b-42b3-48d0-b2f5-a1741918cded?site_id=COLD-LAB-001&known_at=2026-10-24T05%3A41%3A24.495159Z"]
+PASS  narrow maintenance-forbidden-403: settled  "refused"
+PASS  narrow maintenance-forbidden-403: Site read healthy, W4 refusal forbidden/SITE_SCOPE_FORBIDDEN titled 'No access' inside the case panel  {"siteRefusal":null,"refused":"forbidden","code":"SITE_SCOPE_FORBIDDEN","text":"No access You do not have access to this site's work. Maintenance at this site · As of: time not recorded","sentence":"You do not have access to this site's work."}
+PASS  narrow maintenance-forbidden-403: no row and no zero count  {"rows":0,"strip":"Count unknown · work source unavailable Same records and states as the global Maintenance list Manage in Maintenance →"}
+PASS  narrow maintenance-forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance-forbidden-403: page main <= 1800  {"main":698,"docHeight":900}
+PASS  narrow maintenance-forbidden-403: strip <= 150  84
+PASS  narrow maintenance-forbidden-403: panel <= 650  {"panel":153,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow maintenance-forbidden-403: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow maintenance-forbidden-403: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow maintenance-forbidden-403: one visible date form (the page-local Window control)  ["cold-window"]
+PASS  narrow maintenance-unavailable-503: settled  "refused"
+PASS  narrow maintenance-unavailable-503: Site read healthy, W4 refusal unavailable/WORK_STORE_UNAVAILABLE titled 'Work records unavailable' inside the case panel  {"siteRefusal":null,"refused":"unavailable","code":"WORK_STORE_UNAVAILABLE","text":"Work records unavailable Work records are unavailable right now. Try again. Maintenance at this site · As of: time not recorded","sentence":"Work records are unavailable right now. Try again."}
+PASS  narrow maintenance-unavailable-503: no row and no zero count  {"rows":0,"strip":"Count unknown · work source unavailable Same records and states as the global Maintenance list Manage in Maintenance →"}
+PASS  narrow maintenance-unavailable-503: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance-unavailable-503: page main <= 1800  {"main":719,"docHeight":900}
+PASS  narrow maintenance-unavailable-503: strip <= 150  84
+PASS  narrow maintenance-unavailable-503: panel <= 650  {"panel":174,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow maintenance-unavailable-503: context notice <= 160 and is the domain notice  {"height":60,"text":"Opening a record moves you to its own area; the breadcrumb keeps this site."}
+PASS  narrow maintenance-unavailable-503: no banner on the product screen (K3 ruling 1)  false
+PASS  narrow maintenance-unavailable-503: one visible date form (the page-local Window control)  ["cold-window"]
+934 PASS, 0 FAIL

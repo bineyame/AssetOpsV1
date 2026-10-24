@@ -8,8 +8,9 @@ explicitly to the inserted `recorded_at`. Idempotency is a transaction-scoped ad
 
 The cross-table Action code trigger's named failure (`action_cross_domain_code_conflict`, ruling A4) and the two
 intent-chain uniques are typed 409 `DOMAIN_INTENT_CONFLICT` at this transaction boundary; any other integrity
-failure propagates. The selected cold Finding pin is an injected caller-connection read (`pin_of`), composed
-in `work/composition.py` from the W4 linked-selection reader; no analytics adapter is imported here.
+failure propagates. The selected Finding pin is an injected caller-connection read (`pin_of`), composed in
+`work/composition.py` from the W4 linked-selection reader; the selected EV basis of that pin (`ev_basis_of`, W5-04a
+V1, readiness 27/30) is injected the same way. No analytics adapter is imported here.
 """
 
 from __future__ import annotations
@@ -31,6 +32,8 @@ _CONFLICT_CONSTRAINTS = (CODE_CONFLICT_CONSTRAINT, "domain_action_intent_root", 
 
 #: (connection, tenant, site, site_code, finding_revision pin row, cutoff) -> the selected pin or None.
 PinOf = Callable[[Connection, UUID, UUID, str, dict[str, Any], datetime], "dict[str, Any] | None"]
+#: (connection, tenant, site, site_code, selected pin, cutoff, finding revision ID) -> the selected EV basis or None.
+EvBasisOf = Callable[[Connection, UUID, UUID, str, dict[str, Any], datetime, str], "dict[str, Any] | None"]
 
 _ACTION_COLS = ("CAST(id AS text) AS id, action_no, action_code, domain, CAST(origin_finding_id AS text) AS "
                 "origin_finding_id, CAST(origin_finding_revision_id AS text) AS origin_finding_revision_id, title, "
@@ -52,8 +55,9 @@ class _DomainTx:
     """One command's scoped transaction: reads and INSERTs on the caller's connection, bounded by `command_now`."""
 
     def __init__(self, c: Connection, tenant_id: UUID, site_id: UUID, site_code: str, command_now: datetime,
-                 pin_of: PinOf | None) -> None:
+                 pin_of: PinOf | None, ev_basis_of: EvBasisOf | None = None) -> None:
         self._c, self._t, self._s, self._code, self._now, self._pin_of = c, tenant_id, site_id, site_code, command_now, pin_of
+        self._ev_basis_of = ev_basis_of
 
     def _p(self, **extra: Any) -> dict[str, Any]:
         return {"t": self._t, "s": self._s, "now": self._now, **extra}
@@ -87,6 +91,17 @@ class _DomainTx:
         if self._pin_of is None:
             raise WorkStoreUnavailable("The domain Action store has no selected Finding reader.")
         return self._pin_of(self._c, self._t, self._s, self._code, revision, self._now)
+
+    def site_type(self) -> str | None:
+        """The scoped Site's upper-case `site_type` (pre-flight 11: it must equal the declared Action domain)."""
+        return self._c.execute(text("SELECT site_type FROM site WHERE tenant_id = :t AND id = :s"),
+                               self._p()).scalar()
+
+    def selected_ev_basis(self, pin: dict[str, Any], revision_id: str) -> dict[str, Any] | None:
+        """W5-04a V1 (readiness 27/30): the selected EV basis of this pin at `command_now` on this connection."""
+        if self._ev_basis_of is None:
+            raise WorkStoreUnavailable("The domain Action store has no selected EV basis reader.")
+        return self._ev_basis_of(self._c, self._t, self._s, self._code, pin, self._now, revision_id)
 
     def cited_evidence(self, revision_id: str) -> set[str]:
         """The revision's cited accepted evidence received by `command_now`, scoped to this tenant/Site."""
@@ -180,10 +195,12 @@ class _DomainTx:
 
 
 class PostgresDomainIntentStore:
-    def __init__(self, database_url: str | None, *, pin_of: PinOf | None = None, statement_timeout_ms: int = 30_000,
+    def __init__(self, database_url: str | None, *, pin_of: PinOf | None = None,
+                 ev_basis_of: EvBasisOf | None = None, statement_timeout_ms: int = 30_000,
                  lock_timeout_ms: int = 5_000, test_db_clock_override: Callable[[], datetime] | None = None) -> None:
         self._database_url = database_url
         self._pin_of = pin_of
+        self._ev_basis_of = ev_basis_of
         # Test-only virtual DB instant; production composition never passes it.
         self.test_db_clock_override = test_db_clock_override
         self._options = f"-c statement_timeout={int(statement_timeout_ms)} -c lock_timeout={int(lock_timeout_ms)}"
@@ -212,7 +229,8 @@ class PostgresDomainIntentStore:
                         command_now = (self.test_db_clock_override() if self.test_db_clock_override is not None
                                        else c.execute(text("SELECT clock_timestamp()")).scalar_one().astimezone(timezone.utc))
                         assert command_now.tzinfo is not None and command_now.utcoffset() == timedelta(0)
-                    return work(_DomainTx(c, tenant_id, site_id, site_code, command_now, self._pin_of))
+                    return work(_DomainTx(c, tenant_id, site_id, site_code, command_now, self._pin_of,
+                                          self._ev_basis_of))
             except IntegrityError as error:
                 if getattr(error.orig, "sqlstate", None) == "40001" and attempt + 1 < SERIALIZATION_ATTEMPTS:
                     continue
