@@ -448,10 +448,19 @@ class DomainActionReadService:
             fence.append((KIND_W1, w1["action_id"], m.iso(created), None, origin["finding_revision_id"]))
             states.append(CURRENT)  # ruling B2: W1 contributes CURRENT/COMPLETE
         actions = rx.actions_in_window(lo, hi, known_at)
-        lineage = _Lineage(rx, known_at).resolve(actions)
         intents: dict[str, list[dict[str, Any]]] = {}
         for i in rx.intents([a["id"] for a in actions], known_at) if actions else []:
             intents.setdefault(i["action_id"], []).append(i)
+        # Readiness 53: an EV row with a selected intent resolves its exact Finding at the intent's immutable pin
+        # `min(intent.recorded_at, known_at)`, as the detail does; every other row keeps the read `known_at`.
+        cutoffs: dict[str, datetime] = {}
+        for a in actions:
+            head = _head(intents.get(a["id"], []))
+            cutoffs[a["id"]] = (known_at if head is None or a["domain"] != d.EV_DOMAIN
+                                else min(head["recorded_at"], known_at))
+        lineage: dict[str, dict[str, Any]] = {}
+        for cutoff in sorted(set(cutoffs.values())):
+            lineage.update(_Lineage(rx, cutoff).resolve([a for a in actions if cutoffs[a["id"]] == cutoff]))
         for a in actions:
             pin = lineage[a["id"]]["pin"]
             intent = _head(intents.get(a["id"], []))

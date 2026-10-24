@@ -291,3 +291,71 @@ def test_unsupported_stored_domain_is_a_store_fault() -> None:
     with pytest.raises(m.WorkStoreUnavailable):
         DomainIntentService(FakeStore(FakeTx(action_domain="MINIGRID"))).post_intent(T, S, "EV-1", F, ev_intent(),
                                                                                      PRINCIPAL)
+
+
+# ---- V1 item 1 (readiness 53): the index row's source pin, over a fake read transaction ----------------------------
+
+class IndexRx:
+    """Fake `_ReadTx` for `DomainActionReadService._select`: revision `R` is selected only at cutoffs before
+    `displaced` (a later selected head), and every `finding_revisions` cutoff asked for is recorded."""
+
+    def __init__(self, actions, intents, displaced):
+        self.actions, self.all_intents, self.displaced, self.cutoffs = actions, intents, displaced, []
+
+    def w1_window(self, lo, hi, known_at):
+        return {"actions": [], "events": []}
+
+    def actions_in_window(self, lo, hi, known_at):
+        return [a for a in self.actions if a["recorded_at"] <= known_at]
+
+    def intents(self, ids, known_at):
+        return [i for i in self.all_intents if i["action_id"] in ids and i["recorded_at"] <= known_at]
+
+    def finding_revisions(self, ids, cutoff):
+        self.cutoffs.append(cutoff)
+        return {r: {"finding_id": F, "domain": d.EV_FINDING_DOMAIN if r == R else "cold_chain"}
+                for r in ids if cutoff < self.displaced}
+
+    def pin(self, revision, known_at):
+        return {"state": "CURRENT"}
+
+
+def _index_fixture():
+    from assetops_backend.work import domain_action_index as dai  # noqa: F401 - imported lazily with the fixture
+
+    recorded = NOW - timedelta(hours=2)
+    displaced = NOW - timedelta(hours=1)
+    base = {"origin_finding_id": F, "origin_finding_revision_id": R, "title": "t", "owner_label": None,
+            "due_at": None, "raised_at": recorded, "recorded_at": recorded}
+    a_ev = {**base, "id": str(uuid4()), "action_code": "ACT-000001", "domain": d.EV_DOMAIN}
+    b_ev = {**base, "id": str(uuid4()), "action_code": "ACT-000002", "domain": d.EV_DOMAIN}
+    cold = {**base, "id": str(uuid4()), "action_code": "ACT-000003", "domain": d.DOMAIN}
+    intent_at = NOW - timedelta(hours=1, minutes=30)  # before the later head
+    intents = [{"id": str(uuid4()), "action_id": x["id"], "recorded_at": intent_at, "criteria": crit(), "basis": {}}
+               for x in (a_ev, cold)]
+    return dai, a_ev, b_ev, cold, intents, intent_at, displaced
+
+
+def test_index_ev_intent_row_resolves_at_the_intent_pin_not_the_read_known_at() -> None:
+    dai, a_ev, b_ev, cold, intents, intent_at, displaced = _index_fixture()
+    rx = IndexRx([a_ev, b_ev, cold], intents, displaced)
+    chosen = dai.DomainActionReadService._select(rx, T, S, "EV-LAB-001", NOW - timedelta(days=1), NOW, NOW)
+    hrefs = {r["wire"]["action_id"]: r["wire"]["origin"]["href"] for r in chosen["rows"]}
+    live = f"/sites/EV-LAB-001/findings/{F}?revision_id={R}"
+    assert hrefs == {a_ev["id"]: live, b_ev["id"]: None, cold["id"]: None}, "the later head displaces only the rows "\
+        "without an EV intent: the no-intent EV row and the (unchanged) cold row keep the read known_at selection"
+    assert chosen["states"].count(dai.CURRENT) == 1 and chosen["states"].count(dai.UNKNOWN) == 2
+    assert sorted(set(rx.cutoffs)) == sorted({NOW, intent_at}), "the intent row asked at its immutable recorded_at"
+    fence = [(dai.KIND_DOMAIN, x["id"], m.iso(x["raised_at"]), i, R if x is a_ev else None)
+             for x, i in sorted(((a_ev, intents[0]["id"]), (b_ev, None), (cold, None)), key=lambda p: p[0]["id"])]
+    # `cold` has an intent but is displaced: its fence carries the intent id and no revision.
+    fence = [(k, a, r, intents[1]["id"] if a == cold["id"] else i, rev) for k, a, r, i, rev in fence]
+    assert chosen["selection_token"] == dai._sha({
+        "version": dai.FENCE_VERSION, "tenant_id": str(T), "site_id": str(S), "from": m.iso(NOW - timedelta(days=1)),
+        "to": m.iso(NOW), "known_at": m.iso(NOW), "rows": [list(f) for f in fence]})
+    # Cutoff is bounded by the read: a read before the intent has no intent, so uses its own known_at (live then).
+    early = IndexRx([a_ev, b_ev, cold], intents, displaced)
+    before = NOW - timedelta(hours=1, minutes=45)
+    chosen = dai.DomainActionReadService._select(early, T, S, "EV-LAB-001", NOW - timedelta(days=1), NOW, before)
+    assert all(r["wire"]["origin"]["href"] == live for r in chosen["rows"]) and early.cutoffs == [before]
+    assert all(r["wire"]["criterion_summary"] is None for r in chosen["rows"])

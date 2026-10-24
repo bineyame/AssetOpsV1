@@ -217,3 +217,17 @@ def test_detail_read_gate_refusals_and_wire(cold) -> None:
         assert body["action"]["action_code"] == created["action_code"] and body["selection_token"].startswith("sha256:")
     finally:
         api.close()
+
+
+def test_cold_site_wire_refuses_ev_domain_and_neutral_unknown_domain(cold) -> None:
+    """W5-04a review L3: an `EV_CHARGING` body and an unknown-domain body, each otherwise valid, posted to the cold
+    Site over the wire: 422 with the EV body-domain literal and the neutral literal; zero writes."""
+    api = Api(cold.t, cold.s)
+    try:
+        refused(api.post("", action_body(cold, "w504-api-cold-ev", domain="EV_CHARGING")), 422,
+                "DOMAIN_INTENT_LINK_INVALID", d.EV_MESSAGES["DOMAIN_INTENT_LINK_INVALID"])
+        refused(api.post("", action_body(cold, "w504-api-cold-neutral", domain="MINIGRID")), 422,
+                "DOMAIN_INTENT_INVALID", d.NEUTRAL_DOMAIN_INVALID)
+        assert counts(cold.engine) == [0, 0, 0]
+    finally:
+        api.close()

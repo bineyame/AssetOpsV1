@@ -589,3 +589,17 @@ def test_k5_cold_action_lineage_through_product_get(cold, monkeypatch) -> None:
                     api.get(f"/api/sites/{cold.code}/domain-work/actions/{uuid4()}")):
         assert missing.status_code == 404, missing.text
         assert missing.json()["detail"]["code"] == "ACTION_NOT_FOUND"
+
+
+def test_cold_site_refuses_ev_domain_and_neutral_unknown_domain_with_zero_writes(cold) -> None:
+    """W5-04a review L3 (readiness 11/28): against the **cold** Site's database, a full otherwise-valid body of the
+    other supported domain is the Site-type mismatch (the EV literal of the body's own domain), and a full valid body
+    whose domain is unknown is the neutral literal. Neither writes."""
+    ev_spec = d.DOMAINS[d.EV_DOMAIN]
+    for domain, code, message in (
+            ("EV_CHARGING", "DOMAIN_INTENT_LINK_INVALID", ev_spec.messages["DOMAIN_INTENT_LINK_INVALID"]),
+            ("MINIGRID", "DOMAIN_INTENT_INVALID", d.NEUTRAL_DOMAIN_INVALID)):
+        with pytest.raises(d.DomainIntentRefused) as caught:
+            create(cold, action_body(cold, f"w504-cold-{domain.lower()}", domain=domain))
+        assert (caught.value.status, caught.value.code, caught.value.message) == (422, code, message)
+        assert counts(cold.engine) == [0, 0, 0]
