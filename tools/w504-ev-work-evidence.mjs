@@ -473,6 +473,7 @@ async function caseRecord(W, wi, kind, state, url, afterLoad) {
   // The previous capture's settled DOM would satisfy CASE_READY before the navigation commits: leave it first.
   await send("Page.navigate", { url: "about:blank" });
   await waitFor("location.href === 'about:blank' && document.readyState === 'complete'");
+  await requireWidth(viewport[0], viewport[1], "left the previous capture", { record: false });
   const ok = await go(url, CASE_READY);
   if (afterLoad) await afterLoad();
   const m = await js(caseMeasure(kind));
