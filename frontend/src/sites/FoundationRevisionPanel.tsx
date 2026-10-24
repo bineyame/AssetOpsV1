@@ -525,7 +525,8 @@ function ReservePublishForm({
   return (
     <form className="action-form" aria-label="Change battery reserve" onSubmit={submit}>
       <h3 className="action-form__heading">Change the battery reserve</h3>
-      <p>
+      {/* post-W6 shell R120 (Q7): the mock `.prose` body size (12 px). */}
+      <p className="v69-prose">
         Change the battery reserve ({assetCode}) from a chosen instant.{" "}
         {periodIsCurrent ? "In effect now, the reserve" : "In the period shown, the reserve"}
         {shown === null ? " is not configured" : ` is ${shown}%`}. Earlier periods keep their

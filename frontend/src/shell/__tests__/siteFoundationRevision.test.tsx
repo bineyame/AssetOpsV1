@@ -2269,7 +2269,8 @@ describe("W1-F1: Foundation, Readiness and SLD keep the v69 panel structure in e
   it.each([
     ["foundation", "", {}, 3],
     ["readiness", "/readiness", { gateway: "No gateway selected" }, 4],
-    ["sld", "/sld", { site: ID }, 2],
+    // post-W6 shell R133 (Q12): the skeleton names the stored Site, not its code.
+    ["sld", "/sld", { site: SITE.display_name }, 2],
   ] as const)("no stored version for the selected time: %s keeps its slots with in-panel gaps", async (screenId, segment, values, slots) => {
     renderAt(`/sites/${ID}/foundation${segment}?at=2020-01-01T00:00:00Z`, stocked());
     await settledScreen();
@@ -2351,5 +2352,20 @@ describe("post-W6 shell: Foundation identity layout and the no-version heading",
       expect(screen.getByRole("heading", { level: 1 }).textContent).not.toBe(ID);
       cleanup();
     }
+  });
+});
+
+describe("post-W6 shell: readiness and selected-part notices use the mock notice primitive", () => {
+  it("R119/R120: the readiness closing sentence is a blue boxed notice and the unknown-part notice is an amber notice", async () => {
+    renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY));
+    await settledScreen();
+    const note = document.querySelector("[data-readiness-scope]") as HTMLElement;
+    expect(note.className).toBe("notice v69-notice v69-notice--blue");
+    cleanup();
+    renderAt(`/sites/${ID}/foundation/sld?component=c-not-declared`, fakeFoundation(READY));
+    await settledScreen();
+    const missing = document.querySelector("[data-selected-part-missing]") as HTMLElement;
+    expect(missing.className).toBe("notice v69-notice");
+    expect(missing.getAttribute("role")).toBe("status");
   });
 });

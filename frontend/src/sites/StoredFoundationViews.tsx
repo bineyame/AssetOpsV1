@@ -19,7 +19,7 @@
 import { Fragment, useMemo, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, Breadcrumbs, DataTable, Disclosure, Fact, FactList, KeyValues, MissingClaim, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader, type Crumb } from "../ui";
+import { Badge, Breadcrumbs, DataTable, Disclosure, Fact, FactList, KeyValues, MissingClaim, Notice, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader, type Crumb } from "../ui";
 import {
   AcquisitionDetailsPanel,
   knownReadiness,
@@ -142,11 +142,12 @@ export function StoredFoundationViews(props: StoredFoundationViewsProps) {
       {tabs}
       <FoundationSubtabs current={view} hrefFor={viewHref} />
       {props.missingComponent ? (
-        <p className="notice notice--attention" role="status" data-selected-part-missing={props.missingComponent}>
+        // post-W6 shell R120 (Q7): the mock `.notice` primitive at 11 px, not a 14 px body paragraph.
+        <Notice data={{ role: "status", "data-selected-part-missing": props.missingComponent }}>
           <strong>Selected part is not in this Foundation period.</strong> Part{" "}
           <code>{props.missingComponent}</code> is not declared in Foundation v{foundation.revision.version}, so
           the selection was cleared. No other part was chosen in its place.
-        </p>
+        </Notice>
       ) : null}
       {view === "model" ? (
         <SiteModelView {...props} site={site} configuration={configuration} />
@@ -424,7 +425,9 @@ function TopologyCards({ cards, selection }: { cards: TopologyCard[]; selection:
           key={item.key}
           data-selected={item.parts.some((p) => p.componentId === selection.selected) ? "" : undefined}
         >
-          {/* V-01a round 2: one icon per declared part, named by its type. */}
+          {/* V-01a round 2: one icon per declared part, named by its type. MOCK DEVIATION D2 (post-W6 shell Q10,
+              register R129 note): paired icons and linked part names stay where the mock draws one centred icon,
+              because each part selection carries ?component to the SLD and Readiness. */}
           <span className="plant-card__icons">
             {item.parts.map((part) => (
               <ComponentTypeIcon key={part.componentId} componentType={part.componentType} size={44} />
@@ -576,6 +579,8 @@ function IdentityPanel({
             </span>,
             "productive-use",
           ],
+          // MOCK DEVIATION D4 (post-W6 shell Q3, register R125 note): the truthful "Demonstration data" wording, not the
+          // mock's "Simulated"; only the tone follows the mock.
           ["Evidence mode", <Badge tone="provenance">{configuration.sourceMode}</Badge>, "evidence-mode"],
           ["Lifecycle status", <Badge tone="lifecycle">{configuration.lifecycleStatus}</Badge>, "lifecycle-status"],
           [
@@ -1015,11 +1020,12 @@ function ReadinessView(props: ViewProps) {
         evidenceHref={evidenceHref}
         healthHref={props.healthHref}
       />
-      <p className="note" data-readiness-scope="">
+      {/* post-W6 shell R119/R120 (Q6/Q7): the mock's closing blue `.notice` (11 px, boxed); the copy stays this view's own. */}
+      <Notice tone="blue" data={{ "data-readiness-scope": "" }}>
         This view assesses configuration: roles, channel links, Foundation gaps and registrations. Gateway status
         reports central server contact only. What the readings can support, accepted evidence and source diagnostics are on{" "}
         <Link to={evidenceHref}>Site Evidence</Link>.
-      </p>
+      </Notice>
     </>
   );
 }

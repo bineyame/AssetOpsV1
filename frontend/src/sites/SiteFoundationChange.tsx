@@ -33,6 +33,7 @@ import {
   KeyValues,
   MetricCard,
   MetricCards,
+  Notice,
   Panel,
   plainTime,
   SITE_SCREEN_DESCRIPTIONS,
@@ -371,10 +372,11 @@ export function SiteFoundationChange({
         </Panel>
       </div>
 
-      <p className="notice notice--info" data-change-later-sections>
+      {/* post-W6 shell R119 (Q6): the mock's closing blue `.notice` (11 px, boxed); the copy stays this page's own. */}
+      <Notice tone="blue" data={{ "data-change-later-sections": "" }}>
         There is no list of Site changes yet; a change is reached from the Action that made it.{" "}
         <Link to={links.foundation}>Back to the Foundation</Link>
-      </p>
+      </Notice>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 import type { FeatureFlags } from "../config/featureFlags";
-import { PageHeader } from "../ui";
+import { Breadcrumbs, PageHeader } from "../ui";
 import { SitesIndex } from "../sites/SitesIndex";
 import type { SiteDirectoryClient } from "../sites/siteDirectoryClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
@@ -74,6 +74,10 @@ export function SitesFrame({ flags, directory, templateLineage }: SitesFrameProp
        * settled assertions check. The mockup is authoritative about layout,
        * not about what a gate-off build may say.
        */}
+      {/* post-W6 shell R127 (Q9): the mock's root crumb above the h1 ("Sites ›"). */}
+      <Breadcrumbs trail={[{ label: "Sites" }]} />
+      {/* MOCK DEVIATION D4 (post-W6 shell Q9, register R127 note): the subtitle keeps this build's truthful wording
+          instead of the mock's "Find and compare sites across the operating estate". */}
       <PageHeader
         title="Sites"
         headingId="sites-heading"

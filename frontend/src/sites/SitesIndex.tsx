@@ -145,7 +145,8 @@ export function SitesIndex({
       <>
         <SitesMetrics count={0} />
         <Panel heading="Site inventory" headingId="sites-list-heading" description={INVENTORY_DESCRIPTION}>
-          <div data-sites-state="empty">
+          {/* post-W6 shell R120 (Q7): the mock `.prose` body size (12 px) for the empty-state sentences. */}
+          <div className="v69-prose" data-sites-state="empty">
             <p>
               <strong>No sites configured</strong>
             </p>
