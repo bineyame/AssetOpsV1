@@ -289,7 +289,15 @@ describe("W2-03: cold assessment routes keep the v69 panel structure", () => {
   ] as const)("refused: %s keeps every slot with an in-panel gap", async (screenId, path, slots) => {
     renderCold(path, REFUSED);
     await settledScreen();
-    expect(document.querySelector("[data-page-refusal]")).not.toBeNull();
+    // R244 (Q4): temperature and backup drop the page banner for the strip-and-tiles form; the Finding keeps its banner.
+    if (screenId === "cold-finding") expect(document.querySelector("[data-page-refusal]")).not.toBeNull();
+    else {
+      expect(document.querySelector("[data-page-refusal]")).toBeNull();
+      expect(document.querySelector("[data-cold-refused-strip]")?.textContent).toContain("Source permission refused");
+      expect(document.querySelector("[data-cold-refused-strip]")?.textContent).not.toContain("Window cannot be read");
+      expect(document.querySelectorAll("[data-cold-refused-card]")).toHaveLength(4);
+      expect(document.querySelector('[data-disclosure="cold-refusal-references"]')).not.toBeNull();
+    }
     expectV69Panels(screenId);
     expect(gaps()).toHaveLength(slots);
   });
@@ -680,7 +688,7 @@ describe("W2-03 follow-up: M5 chip tones on the selected state and result badge 
       expect(chip.classList.contains(AMBER)).toBe(false);
       expect(wrapper.className).toContain(tone === "green" ? "cold-result--neutral" : `cold-result--${tone}`);
     }
-    const evidence = Array.from(bar.querySelectorAll(".badge")).find((e) => e.textContent?.startsWith("Evidence:")) as HTMLElement;
+    const evidence = Array.from(bar.querySelectorAll(".badge")).find((e) => e.textContent?.startsWith("Confidence:")) as HTMLElement;
     expect(evidence.className).not.toMatch(/cold-temperature-tone/);
     expect(evidence.closest(".cold-result")).toBeNull();
   });
@@ -790,7 +798,8 @@ describe("W2-F 1b: cold truth on the assessment screens", () => {
     expect(refusal).not.toBeNull();
     expect(strip().nextElementSibling).toBe(refusal);
     expect(strip().querySelector(".badge, [class*='badge']")?.textContent).toBe("Unknown");
-    expect(strip().textContent).toBe("Unknown Confidence: Unknown Kobo vaccine cold store");
+    // R249: the same order and separator as the loaded Finding strip.
+    expect(strip().textContent).toBe("Unknown Kobo vaccine cold store · Confidence: Unknown");
     expect(strip().textContent).not.toMatch(/Open|Bounded|Observed|Selected source|Newer readings/);
     expect(main().querySelector("[data-cold-date-bar]")).toBeNull();
     expect(main().querySelectorAll('[aria-label="Finding state"]')).toHaveLength(1);
@@ -823,3 +832,99 @@ describe("W2-F 1b: cold truth on the assessment screens", () => {
     }
   });
 });
+
+// post-W6 W2-cold unit 1: refusal copy by code, the refused strip-and-tiles form, KPI units and the R241-R249 copy.
+describe("W2-cold unit 1: temperature and backup", () => {
+  const body = () => main().textContent ?? "";
+  const refused = (code: string, httpStatus = 422) => ({ status: "refused", httpStatus, code, message: "bad" }) as const;
+
+  it.each([
+    ["COLD_TIME_INVALID", "The selected window start or end is not a UTC time."],
+    ["COLD_WINDOW_INVALID", "The selected window needs both a start and an end, with the start before the end."],
+    ["COLD_WINDOW_TOO_LONG", "The selected window is longer than 31 days."],
+    ["SOMETHING_ELSE", "The selected window is invalid."],
+  ])("r261_refusal_copy %s", async (code, sentence) => {
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: refused(code), backup: refused(code), findings: refused(code) });
+    await settledScreen();
+    expect(body()).toContain(sentence);
+    expect(document.querySelector("[data-cold-refused-strip]")?.textContent).toContain("Window cannot be read");
+    // Invalid window: no echoed window line, four Not assessed tiles, no page banner, no duration callout.
+    expect(document.querySelector("[data-cold-date-bar]")).toBeNull();
+    expect(Array.from(document.querySelectorAll("[data-cold-refused-card]")).map((c) => c.getAttribute("data-cold-refused-card"))).toEqual([
+      "Time outside policy",
+      "Peak",
+      "Exposure size",
+      "Product outcome",
+    ]);
+    expect(document.querySelector("[data-page-refusal]")).toBeNull();
+    expect(body()).not.toContain("Durations are bounded");
+    expect(panelTitled("Temperature with operating context").querySelector('[data-disclosure="cold-refusal-references"]')).not.toBeNull();
+  });
+
+  it("r244_backup_503_keeps_requested_window_and_tiles", async () => {
+    renderCold(`${ROUTES[1][1]}?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`, { ...STOCKED, backup: DOWN });
+    await settledScreen();
+    expect(document.querySelector("[data-cold-date-bar-requested]")).not.toBeNull();
+    const strip = document.querySelector("[data-cold-refused-strip]")!;
+    expect(strip.textContent).toContain("Assessment unavailable");
+    expect(strip.textContent).not.toContain("Window cannot be read");
+    expect(Array.from(document.querySelectorAll("[data-cold-refused-card]")).map((c) => c.getAttribute("data-cold-refused-card"))).toEqual([
+      "Grid-loss event",
+      "Automatic start",
+      "Manual recovery",
+      "Cooling resumed",
+    ]);
+  });
+
+  it("r241_r242_claim_link_and_units", async () => {
+    renderCold(ROUTES[0][1], STOCKED);
+    await settledScreen();
+    const link = document.querySelector("[data-cold-claim-link]") as HTMLAnchorElement;
+    expect(link.textContent).toBe("Inspect temperature claim");
+    const href = new URL(link.getAttribute("href")!, "http://x");
+    expect(href.pathname).toBe("/sites/COLD-001/evidence");
+    expect(href.searchParams.get("view")).toBe("analysis");
+    expect(href.searchParams.get("from")).toBe(FROM);
+    expect(href.searchParams.get("to")).toBe(TO);
+    expect(href.searchParams.get("known_at")).toBe(KNOWN);
+    expect(body()).toContain("Durations are bounded");
+    const peak = document.querySelector('[data-cold-card="peak"] .v69-metric__value')!;
+    expect(peak.querySelector("small")?.textContent).toBe("°C");
+    for (const card of Array.from(document.querySelectorAll("[data-cold-card]"))) expect(card.className).not.toMatch(/word/);
+    cleanup();
+    renderCold(ROUTES[1][1], STOCKED);
+    await settledScreen();
+    expect(strip("Backup chain state").textContent).toContain("Confidence: Observed");
+    expect(strip("Backup chain state").textContent).not.toContain("Evidence:");
+  });
+
+  it("r241_no_link_without_a_loaded_read", async () => {
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: DOWN });
+    await settledScreen();
+    expect(document.querySelector("[data-cold-claim-link]")).toBeNull();
+  });
+
+  it("r245_no_selection_policy_copy", async () => {
+    renderCold(ROUTES[0][1], EMPTY);
+    await settledScreen();
+    expect(strip("Temperature state").textContent).toContain("Policy not read for this window");
+    expect(strip("Temperature state").textContent).not.toContain("Policy not recorded");
+    expect(panelTitled("Excursion context").textContent).toContain("Not read for this window");
+  });
+
+  it.each([
+    ["OBSERVED_FAILURE", "Which part failed, if any, is not determined here.", "A failed start needs inspection"],
+    ["OBSERVED_SUCCESS", null, "One successful start is not a reliability test"],
+    ["UNKNOWN", "Whether any part failed is not determined here.", "Start result not established"],
+  ] as const)("r247_backup_copy %s", async (result, prose, limit) => {
+    const base = STOCKED_BACKUP.chains[0];
+    renderCold(ROUTES[1][1], { ...STOCKED, backup: ok({ ...STOCKED_BACKUP, chains: [{ ...base, result }] }) });
+    await settledScreen();
+    const shows = panelTitled("What the chain shows").textContent ?? "";
+    if (prose === null) expect(shows).not.toMatch(/part failed/);
+    else expect(shows).toContain(prose);
+    expect(document.querySelector('[data-cold-step="START_RESULT"]')?.textContent).toContain(limit);
+  });
+});
+
+const strip = (label: string) => document.querySelector(`[aria-label="${label}"]`) as HTMLElement;

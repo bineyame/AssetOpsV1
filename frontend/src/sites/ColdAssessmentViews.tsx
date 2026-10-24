@@ -55,7 +55,7 @@ import { NOT_ASSESSED, NOT_RECORDED, between, date, dayHm, decimal, deg, degreeM
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import { ColdCooling } from "./ColdCooling";
 import type { ColdDepthClient } from "./ColdDepthClient";
-import { RequestedWindowBar, type ColdSiteRoutes } from "./coldSiteViews";
+import { RefusedStrip, RefusedTiles, RequestedWindowBar, selected, type ColdSiteRoutes } from "./coldSiteViews";
 import "./w2-cold-assessment.css";
 
 /*
@@ -90,6 +90,20 @@ export interface ColdLinks {
 }
 
 const unique = (items: string[]) => Array.from(new Set(items));
+
+/** R242 (Q6): a formatted value with its trailing unit set small, as the mock's `8.2 <small>°C</small>`. */
+function unitValue(text: string, unit: string): ReactNode {
+  const suffix = ` ${unit}`;
+  if (!text.endsWith(suffix)) return text;
+  return (
+    <>
+      {text.slice(0, -suffix.length)} <small>{unit}</small>
+    </>
+  );
+}
+
+/** R245: a temperature read with no selected assessment has read no policy for this window. */
+const hasSelection = (read: ColdTemperatureRead) => read.currentness.watermark.assessment_revision_ids.length > 0;
 
 /* ---------- reads ---------- */
 
@@ -126,6 +140,15 @@ function Gap({ id, children }: { id: string; children: ReactNode }) {
   );
 }
 
+export const WINDOW_REFUSAL_TITLE = "Window cannot be read";
+export const WINDOW_REFUSAL_GENERIC = "The selected window is invalid.";
+/** Cross-card ruling 5: one refusal sentence per cold window code. */
+export const WINDOW_REFUSAL_BODY: Record<string, string> = {
+  COLD_TIME_INVALID: "The selected window start or end is not a UTC time.",
+  COLD_WINDOW_INVALID: "The selected window needs both a start and an end, with the start before the end.",
+  COLD_WINDOW_TOO_LONG: "The selected window is longer than 31 days.",
+};
+
 export function refusalText(read: Exclude<ColdRead<unknown>, { status: "loaded" }>): { key: string; title: string; body: string } {
   if (read.status === "refused" && read.httpStatus === 403) {
     return {
@@ -138,12 +161,56 @@ export function refusalText(read: Exclude<ColdRead<unknown>, { status: "loaded" 
     return { key: "not-found", title: "Not found", body: "No cold-chain record with this address is stored for this site." };
   }
   if (read.status === "refused" && read.httpStatus === 422) {
-    return { key: "invalid-window", title: "Window cannot be read", body: "The selected window is not a valid UTC window of at most 31 days." };
+    // Cross-card ruling 5: classify the cold window codes before the generic 422 sentence; the key stays `invalid-window`.
+    return { key: "invalid-window", title: WINDOW_REFUSAL_TITLE, body: WINDOW_REFUSAL_BODY[read.code] ?? WINDOW_REFUSAL_GENERIC };
   }
   if (read.status === "refused" && read.httpStatus === 401) {
     return { key: "unauthenticated", title: "Sign in required", body: "Sign in to read this site's cold-chain assessment." };
   }
   return { key: "unavailable", title: "Assessment unavailable", body: "The cold-chain assessment could not be read. Nothing is shown as assessed until it can be." };
+}
+
+/** The refusal's technical disclosure: code, server message and the exact requested window. */
+function RefusalReferences({ read, window }: { read: Exclude<ColdRead<unknown>, { status: "loaded" }>; window: ColdWindowQuery }) {
+  return (
+    <ExactReferences
+      name="cold-refusal-references"
+      variant="tech"
+      references={[
+        { label: "Refusal code", value: read.status === "refused" ? read.code : null },
+        { label: "Server message", value: read.message },
+        { label: "Selected window start (exact)", value: window.from },
+        { label: "Selected window end (exact)", value: window.to },
+      ]}
+    />
+  );
+}
+
+/**
+ * R244 (Q4): a refused temperature or backup read keeps the requested-window line, the state strip (its chip names the
+ * refusal) and the four tiles as `Not assessed`; panel 1 carries the sentence and the technical disclosure.
+ */
+function PerformanceRefusal({
+  read,
+  window,
+  strip,
+  tiles,
+  cards,
+}: {
+  read: Exclude<ColdRead<unknown>, { status: "loaded" }>;
+  window: ColdWindowQuery;
+  strip: string;
+  tiles: string;
+  cards: string[];
+}) {
+  const text = refusalText(read);
+  return (
+    <>
+      <RequestedWindowBar window={window} refusal={{ sentence: text.body, retry: false, key: text.key }} />
+      <RefusedStrip label={strip} title={text.title} />
+      <RefusedTiles label={tiles} cards={cards} />
+    </>
+  );
 }
 
 function PageRefusal({ read, window }: { read: Exclude<ColdRead<unknown>, { status: "loaded" }>; window: ColdWindowQuery }) {
@@ -236,14 +303,22 @@ function findingFor(findings: ColdFindingsRead | null, episodeId: string | null,
   return findings.items.find((f) => f.kind === kind && (episodeId === null || f.claim.episode_id === episodeId)) ?? null;
 }
 
-function TemperatureStatus({ read }: { read: ColdTemperatureRead | null }) {
+function TemperatureStatus({ read, routes }: { read: ColdTemperatureRead | null; routes: ColdSiteRoutes }) {
   if (read === null) return null;
   const cadence = cadenceMinutes(read);
   const policy = read.policy;
   const known = read.coverage.known_points;
   const expected = read.coverage.expected_points;
   return (
-    <StatusBar label="Temperature state">
+    <StatusBar
+      label="Temperature state"
+      action={
+        // R241 (Q7): the claim opens cold Evidence Analysis at this read's resolved window.
+        <Link to={selected(routes.evidence, read.window, "analysis")} data-cold-claim-link>
+          Inspect temperature claim
+        </Link>
+      }
+    >
       <Badge
         tone="neutral"
         className={read.state === "NO_EXCURSION_OBSERVED" ? "cold-temperature-tone--green" : read.state === "OBSERVED_EXCURSION" || read.state === "CONTRADICTORY" ? "cold-temperature-tone--amber" : undefined}
@@ -252,7 +327,7 @@ function TemperatureStatus({ read }: { read: ColdTemperatureRead | null }) {
       </Badge>{" "}
       <Badge tone="neutral">{known === null ? "Coverage not assessed" : `Coverage: ${known} / ${expected} readings`}</Badge>{" "}
       {[
-        policy === null ? "Policy not recorded" : `Policy ${decimal(policy.low_deg_c) ?? "?"}–${decimal(policy.high_deg_c) ?? "?"} °C`,
+        !hasSelection(read) ? "Policy not read for this window" : policy === null ? "Policy not recorded" : `Policy ${decimal(policy.low_deg_c) ?? "?"}–${decimal(policy.high_deg_c) ?? "?"} °C`,
         policy?.probe_asset_id ? "one chamber probe" : "no chamber probe selected",
         cadence === null ? null : `readings every ${cadence} min`,
         windowText(read.window.from, read.window.to),
@@ -274,26 +349,23 @@ function TemperatureCards({ read }: { read: ColdTemperatureRead }) {
     <MetricCards label="Temperature exposure">
       <MetricCard
         label={`Time ${limit.word} ${limit.value === null ? "policy" : `${decimal(limit.value)}°C`}`}
-        value={x === undefined ? none : range(x.duration_bounds.low, x.duration_bounds.high, "min")}
+        value={x === undefined ? none : unitValue(range(x.duration_bounds.low, x.duration_bounds.high, "min"), "min")}
         note={x === undefined ? "No confirmed excursion in this window" : x.open ? "Still outside policy at the window end" : "Between the last in-policy and first out-of-policy readings"}
-        word={x === undefined || x.duration_bounds.low === null}
         data={{ "data-cold-card": "duration" }}
       />
       <MetricCard
         label="Peak"
-        value={x === undefined ? none : deg(x.peak_observed)}
+        value={x === undefined ? none : unitValue(deg(x.peak_observed), "°C")}
         note={peak !== null && lim !== null ? `${decimal(Math.abs(peak - lim))} °C ${limit.word} the ${decimal(lim)} °C limit` : "Highest observed reading, never interpolated"}
-        word={x === undefined}
         data={{ "data-cold-card": "peak" }}
       />
       <MetricCard
         label="Exposure size"
-        value={x === undefined ? none : degreeMinutes(x.degree_minute_bounds.low, x.degree_minute_bounds.high)}
+        value={x === undefined ? none : unitValue(degreeMinutes(x.degree_minute_bounds.low, x.degree_minute_bounds.high), "°C·min")}
         note="Observed excursion estimate · area beyond the limit, bounded by the readings"
-        word={x === undefined}
         data={{ "data-cold-card": "exposure" }}
       />
-      <MetricCard label="Product outcome" value="Not determined" note="Temperature exposure is not spoilage" word data={{ "data-cold-card": "product" }} />
+      <MetricCard label="Product outcome" value="Not determined" note="Temperature exposure is not spoilage" data={{ "data-cold-card": "product" }} />
     </MetricCards>
   );
 }
@@ -325,12 +397,15 @@ function TemperaturePanels({
   findings,
   links,
   gap,
+  refs,
 }: {
   read: ColdTemperatureRead | null;
   backup: ColdBackupRead | null;
   findings: ColdFindingsRead | null;
   links: ColdLinks;
   gap: string | null;
+  /** R244: the refusal's technical disclosure, inside panel 1 after its sentence. */
+  refs?: ReactNode;
 }) {
   const x = read?.excursions[0];
   const selSrc = read === null ? null : selectedSourceBlock(read);
@@ -345,7 +420,10 @@ function TemperaturePanels({
       <div className="panel-pair">
         <Panel heading="Temperature with operating context" headingId="cold-temperature-chart-heading">
           {read === null ? (
+            <>
             <Gap id="cold-temperature-chart-heading">{gap}</Gap>
+            {refs}
+          </>
           ) : (
             <>
               <ColdTemperatureChart read={read} label={`Chamber temperature, ${windowText(read.window.from, read.window.to)}, with the policy band`} />
@@ -373,7 +451,7 @@ function TemperaturePanels({
                         }`,
                     "window",
                   ],
-                  [`${limit.word === "below" ? "Lower" : "Upper"} policy limit`, deg(limit.value), "limit"],
+                  [`${limit.word === "below" ? "Lower" : "Upper"} policy limit`, hasSelection(read) ? deg(limit.value) : "Not read for this window", "limit"],
                   [
                     "Peak observed",
                     x === undefined ? NOT_ASSESSED : `${deg(x.peak_observed)}${peakPoint(read, x.peak_observed) ? ` at ${hm(peakPoint(read, x.peak_observed))}` : ""}`,
@@ -418,10 +496,12 @@ function TemperaturePanels({
           )}
         </Panel>
       </div>
-      <Notice>
-        Durations are bounded by the reading spacing. Exposure size is bounded the same way (lowest and highest reading in each step); it does not
-        describe what happened to the product.
-      </Notice>
+      {read === null ? null : (
+        <Notice>
+          Durations are bounded by the reading spacing. Exposure size is bounded the same way (lowest and highest reading in each step); it does not
+          describe what happened to the product.
+        </Notice>
+      )}
       <Panel heading="Claim boundary" headingId="cold-claim-boundary-heading">
         {read === null ? (
           <Gap id="cold-claim-boundary-heading">{gap}</Gap>
@@ -475,13 +555,13 @@ function TemperaturePanels({
 /* ---------- backup chain ---------- */
 
 /** The step's observed outcome in words; a probe step's outcome is its temperature. */
-function outcomeText(s: ColdStepRead): string | null {
+export function outcomeText(s: ColdStepRead): string | null {
   if (s.outcome === null) return null;
   return s.kind === "PROBE" ? deg(s.outcome) : plainCode(s.outcome);
 }
 
-const ADVERSE = /FAIL|LOSS|LOST|^OFF$|UNPOWERED|STOPPED/;
-const RUNNING = /^(RUNNING|ON|POWERED|STARTED)$/;
+export const ADVERSE = /FAIL|LOSS|LOST|^OFF$|UNPOWERED|STOPPED/;
+export const RUNNING = /^(RUNNING|ON|POWERED|STARTED)$/;
 
 /** The compressor step only when it shows cooling running (an observed OFF is not "cooling resumed"). */
 function coolingRunning(chain: ColdChainRead | undefined): ColdStepRead | undefined {
@@ -494,6 +574,11 @@ function establishes(s: ColdStepRead, chain?: ColdChainRead): [string, string] {
   if (s.kind === "PROBE" && !coolingRunning(chain)) return ["Chamber temperature after the compressor record", "No spoilage determination"];
   if (["GENERATOR", "BUS", "COMPRESSOR"].includes(s.kind) && s.outcome !== null && ADVERSE.test(s.outcome)) {
     return [`${stepLabel(s.kind)} recorded ${outcomeText(s)?.toLowerCase()}`, "Does not identify the cause"];
+  }
+  // R247: the start-result limit follows the chain's result; only a failed start needs inspection.
+  if (s.kind === "START_RESULT" && chain !== undefined && chain.result !== "OBSERVED_FAILURE") {
+    const what = STEP_ESTABLISHES.START_RESULT?.[0] ?? "Whether the start succeeded";
+    return [what, chain.result === "OBSERVED_SUCCESS" ? "One successful start is not a reliability test" : "Start result not established"];
   }
   return STEP_ESTABLISHES[s.kind] ?? ["—", "—"];
 }
@@ -531,7 +616,7 @@ function BackupStatus({ read }: { read: ColdBackupRead | null }) {
           {chain === undefined ? NOT_ASSESSED : startResultWord(chain.result)}
         </Badge>
       </span>{" "}
-      <Badge tone="neutral">Evidence: {claimWord(read.claim_level)}</Badge>{" "}
+      <Badge tone="neutral">Confidence: {claimWord(read.claim_level)}</Badge>{" "}
       {[
         `${read.chains.length === 1 ? "One outage" : `${read.chains.length} outages`} in the selected window`,
         windowText(read.window.from, read.window.to),
@@ -567,11 +652,14 @@ function BackupPanels({
   temperature,
   links,
   gap,
+  refs,
 }: {
   read: ColdBackupRead | null;
   temperature: ColdTemperatureRead | null;
   links: ColdLinks;
   gap: string | null;
+  /** R244: the refusal's technical disclosure, inside panel 1 after its sentence. */
+  refs?: ReactNode;
 }) {
   const chain = read?.chains[0];
   const contradicted = (read?.contradictions.length ?? 0) > 0;
@@ -581,7 +669,10 @@ function BackupPanels({
     <>
       <Panel heading="What the chain shows" headingId="cold-chain-shows-heading">
         {read === null ? (
-          <Gap id="cold-chain-shows-heading">{gap}</Gap>
+          <>
+            <Gap id="cold-chain-shows-heading">{gap}</Gap>
+            {refs}
+          </>
         ) : (
           <>
             <BigClaim data={{ "data-cold-chain-claim": chain?.result ?? "none" }}>{chainSentence(chain, contradicted)}</BigClaim>
@@ -589,7 +680,12 @@ function BackupPanels({
               {[
                 chain === undefined ? null : missingLine(chain),
                 contradicted ? "Conflicting accepted start outcomes are kept as excluded records." : null,
-                "Which part failed, if any, is not determined here.",
+                // R247: success omits failed-part prose; only an observed failure keeps the inspection sentence.
+                chain?.result === "OBSERVED_FAILURE"
+                  ? "Which part failed, if any, is not determined here."
+                  : chain?.result === "OBSERVED_SUCCESS"
+                    ? null
+                    : "Whether any part failed is not determined here.",
               ]
                 .filter(Boolean)
                 .join(" ")}
@@ -599,10 +695,10 @@ function BackupPanels({
       </Panel>
       {read === null ? null : (
         <MetricCards label="Backup chain">
-          <MetricCard label="Grid-loss event" value={stepOf(chain, "GRID")?.state === "OBSERVED" ? hm(stepOf(chain, "GRID")?.at) : NOT_RECORDED} note="Grid supply record" word={stepOf(chain, "GRID")?.state !== "OBSERVED"} />
-          <MetricCard label="Automatic start" value={chain === undefined ? NOT_ASSESSED : startResultWord(chain.result)} note="Start request and result records" word />
-          <MetricCard label="Manual recovery" value={NOT_RECORDED} note="No operational log is connected" word />
-          <MetricCard label="Cooling resumed" value={coolingRunning(chain) ? hm(coolingRunning(chain)?.at) : NOT_RECORDED} note={stepOf(chain, "COMPRESSOR")?.state === "OBSERVED" && !coolingRunning(chain) ? `Compressor ${outcomeText(stepOf(chain, "COMPRESSOR")!)?.toLowerCase()} at ${hm(stepOf(chain, "COMPRESSOR")?.at)}; no running record` : "Compressor record"} word={!coolingRunning(chain)} />
+          <MetricCard label="Grid-loss event" value={stepOf(chain, "GRID")?.state === "OBSERVED" ? hm(stepOf(chain, "GRID")?.at) : NOT_RECORDED} note="Grid supply record" />
+          <MetricCard label="Automatic start" value={chain === undefined ? NOT_ASSESSED : startResultWord(chain.result)} note="Start request and result records" />
+          <MetricCard label="Manual recovery" value={NOT_RECORDED} note="No operational log is connected" />
+          <MetricCard label="Cooling resumed" value={coolingRunning(chain) ? hm(coolingRunning(chain)?.at) : NOT_RECORDED} note={stepOf(chain, "COMPRESSOR")?.state === "OBSERVED" && !coolingRunning(chain) ? `Compressor ${outcomeText(stepOf(chain, "COMPRESSOR")!)?.toLowerCase()} at ${hm(stepOf(chain, "COMPRESSOR")?.at)}; no running record` : "Compressor record"} />
         </MetricCards>
       )}
       <Panel heading="Reconstructed event chain" headingId="cold-chain-steps-heading">
@@ -757,6 +853,9 @@ export interface ColdPerformanceFrameProps {
   routes: ColdSiteRoutes;
 }
 
+const TEMPERATURE_TILES = ["Time outside policy", "Peak", "Exposure size", "Product outcome"];
+const BACKUP_TILES = ["Grid-loss event", "Automatic start", "Manual recovery", "Cooling resumed"];
+
 export function ColdPerformanceFrame(props: ColdPerformanceFrameProps) {
   const { view, siteId, window, client, links } = props;
   const key = `${siteId}|${windowKey(window)}`;
@@ -801,14 +900,24 @@ export function ColdPerformanceFrame(props: ColdPerformanceFrameProps) {
         <p>{COLD_ASSESSMENT_LOADING}</p>
       ) : view === "temperature" ? (
         <>
-          {temperature.status === "loaded" ? <TemperatureStatus read={temperature.value} /> : <PageRefusal read={temperature} window={window} />}
-          {temperature.status === "loaded" ? <TemperatureCards read={temperature.value} /> : null}
-          <TemperaturePanels read={loaded(temperature)} backup={loaded(backup)} findings={loaded(findings)} links={links} gap={gap} />
+          {temperature.status === "loaded" ? (
+            <>
+              <TemperatureStatus read={temperature.value} routes={props.routes} />
+              <TemperatureCards read={temperature.value} />
+            </>
+          ) : (
+            <PerformanceRefusal read={temperature} window={window} strip="Temperature state" tiles="Temperature exposure" cards={TEMPERATURE_TILES} />
+          )}
+          <TemperaturePanels read={loaded(temperature)} backup={loaded(backup)} findings={loaded(findings)} links={links} gap={gap} refs={primary !== null && primary.status !== "loaded" ? <RefusalReferences read={primary} window={window} /> : null} />
         </>
       ) : (
         <>
-          {backup.status === "loaded" ? <BackupStatus read={backup.value} /> : <PageRefusal read={backup} window={window} />}
-          <BackupPanels read={loaded(backup)} temperature={loaded(temperature)} links={links} gap={gap} />
+          {backup.status === "loaded" ? (
+            <BackupStatus read={backup.value} />
+          ) : (
+            <PerformanceRefusal read={backup} window={window} strip="Backup chain state" tiles="Backup chain" cards={BACKUP_TILES} />
+          )}
+          <BackupPanels read={loaded(backup)} temperature={loaded(temperature)} links={links} gap={gap} refs={primary !== null && primary.status !== "loaded" ? <RefusalReferences read={primary} window={window} /> : null} />
         </>
       )}
     </main>
@@ -1093,7 +1202,7 @@ export function ColdFindingFrame(props: ColdFindingFrameProps) {
           {/* W5-01b C5 (W2-F L1, P-C5-17/18/21): the requested-window line (none for an invalid period), then the
               Finding state strip with Unknown state and confidence, directly above the refusal. */}
           <RequestedWindowBar window={window} refusal={{ sentence: refusalText(finding).title, retry: false, key: refusalText(finding).key }} />
-          <StatusBar label="Finding state"><Badge tone="neutral">Unknown</Badge>{" "}<span>Confidence: Unknown</span>{" "}<span>{props.siteName}</span></StatusBar>
+          <StatusBar label="Finding state"><Badge tone="neutral">Unknown</Badge>{" "}<span>{[props.siteName, "Confidence: Unknown"].join(" · ")}</span></StatusBar>
           <PageRefusal read={finding} window={window} />
           <FindingSkeleton gap={refusalText(finding).body} />
         </>

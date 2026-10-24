@@ -1051,7 +1051,9 @@ describe("W2-F 2: cold frame on refusal, consequence counts and record IDs", () 
       expect(text(bar)).toContain("Selected window 6 Oct 2026 16:00–17:05 UTC");
       expect(text(bar)).toContain("Selected evidence through 6 Oct 17:06 UTC");
       expect(document.querySelectorAll(".status-strip")).toHaveLength(1);
-      expect(text(strip())).toContain("Window cannot be read");
+      // Cross-card ruling 5: a 503 is never called a window error; the strip names it by its own title.
+      expect(text(strip())).toContain("Assessment unavailable");
+      expect(text(strip())).not.toContain("Window cannot be read");
       expect(tiles().map((t) => t.getAttribute("data-cold-refused-card"))).toEqual(cards);
       for (const t of tiles()) expect(text(t.querySelector(".v69-metric__value")!)).toBe("Not assessed");
       if (screenId === "cold-evidence") expect(document.querySelector(".v69-cards")).toBeNull();

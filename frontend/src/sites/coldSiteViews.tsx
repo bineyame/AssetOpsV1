@@ -210,7 +210,7 @@ export function coldUiHref(api: string | null | undefined, routes: ColdSiteRoute
 }
 
 /** A route of this Site at the read's resolved selection. */
-function selected(base: string, window: ColdWindowQuery, view?: "analysis"): string {
+export function selected(base: string, window: ColdWindowQuery, view?: "analysis"): string {
   const params = new URLSearchParams(coldWindowSearch(window).slice(1));
   if (view !== undefined) params.set("view", view);
   return withQuery(base, params);
@@ -251,16 +251,19 @@ const isSelected = (read: { currentness: { watermark?: { assessment_revision_ids
   (read.currentness.watermark?.assessment_revision_ids?.length ?? 0) > 0;
 
 /** The in-panel statement for a read that did not load, or null when it loaded. */
-interface Refusal {
+export interface Refusal {
   sentence: string;
   retry: boolean;
   key: string;
+  /** Ruling 5: the strip chip names the refusal (a 403/404/503 is never called a window error). */
+  title?: string;
 }
 function refusalOf(read: ColdRead<unknown> | null): Refusal | null {
   if (read === null || read.status === "loaded") return null;
-  if (read.status === "refused" && read.httpStatus === 403) return { sentence: SOURCE_FORBIDDEN, retry: false, key: "forbidden" };
-  if (read.status === "unavailable" || read.httpStatus === 503) return { sentence: COLD_SITE_UNAVAILABLE, retry: true, key: "unavailable" };
-  return { sentence: refusalText(read).body, retry: false, key: refusalText(read).key };
+  const title = refusalText(read).title;
+  if (read.status === "refused" && read.httpStatus === 403) return { sentence: SOURCE_FORBIDDEN, retry: false, key: "forbidden", title };
+  if (read.status === "unavailable" || read.httpStatus === 503) return { sentence: COLD_SITE_UNAVAILABLE, retry: true, key: "unavailable", title };
+  return { sentence: refusalText(read).body, retry: false, key: refusalText(read).key, title };
 }
 
 function Gap({ id, children }: { id: string; children: ReactNode }) {
@@ -404,8 +407,11 @@ export function RequestedWindowBar({ window, refusal }: { window: ColdWindowQuer
   );
 }
 export const WINDOW_CANNOT_BE_READ = "Window cannot be read";
-/** W2-F M3: the refused-window status strip; `chip` fills the strip's own chip slot where the screen has one. */
-function RefusedStrip({ label, chip }: { label: string; chip?: string }) {
+/**
+ * W2-F M3: the refused-window status strip; `chip` fills the strip's own chip slot where the screen has one.
+ * Ruling 5: `title` names a non-window refusal (403/404/503) by its own title; the default is the window title.
+ */
+export function RefusedStrip({ label, chip, title }: { label: string; chip?: string; title?: string }) {
   return (
     <StatusBar label={label} data={{ "data-cold-refused-strip": "" }}>
       {chip === undefined ? null : (
@@ -413,12 +419,12 @@ function RefusedStrip({ label, chip }: { label: string; chip?: string }) {
           <Badge tone="neutral">{chip}</Badge>{" "}
         </>
       )}
-      <Badge tone="neutral">{WINDOW_CANNOT_BE_READ}</Badge>
+      <Badge tone="neutral">{title ?? WINDOW_CANNOT_BE_READ}</Badge>
     </StatusBar>
   );
 }
 /** W2-F M3: the screen's tile slots, each `Not assessed`, so a refusal is never read as a zero. */
-function RefusedTiles({ label, cards, columns }: { label: string; cards: string[]; columns?: 5 }) {
+export function RefusedTiles({ label, cards, columns }: { label: string; cards: string[]; columns?: 5 }) {
   return (
     <MetricCards columns={columns} label={label}>
       {cards.map((c) => (
@@ -563,7 +569,7 @@ function OverviewScreen(p: ScreenProps) {
         refused === null ? null : (
           <>
             <RequestedWindowBar window={p.window} refusal={refused} />
-            <RefusedStrip label="Cold room state" />
+            <RefusedStrip label="Cold room state" title={refused.title} />
             <RefusedTiles label="Cold room conditions" columns={5} cards={["Temperature", "Backup", "Cooling", "Maintenance", "Evidence"]} />
           </>
         )
@@ -807,7 +813,7 @@ function EvidenceScreen(p: ScreenProps) {
         refused === null ? null : (
           <>
             <RequestedWindowBar window={p.window} refusal={refused} />
-            <RefusedStrip label="Evidence state" />
+            <RefusedStrip label="Evidence state" title={refused.title} />
           </>
         )
       ) : (
@@ -1260,7 +1266,7 @@ function FinancialsScreen(p: ScreenProps) {
         refused === null ? null : (
           <>
             <RequestedWindowBar window={p.window} refusal={refused} />
-            <RefusedStrip label="Financial consequence" chip={NOT_ASSESSED} />
+            <RefusedStrip label="Financial consequence" chip={NOT_ASSESSED} title={refused.title} />
             <RefusedTiles label="Money consequence" cards={["Chamber thermal exposure", "Confirmed loss", "Repair and call-out", "Verified savings"]} />
           </>
         )
