@@ -21,7 +21,16 @@ import {
   StatusBar,
   type TimelineEvent,
 } from "../ui";
-import { type ColdAssessmentClient, type ColdRead, type ColdTemperatureRead, type ColdWindowQuery, type ColdFindingsRead, coldWindowSearch } from "./coldAssessmentClient";
+import {
+  type ColdAssessmentClient,
+  type ColdBackupRead,
+  type ColdRead,
+  type ColdStepRead,
+  type ColdTemperatureRead,
+  type ColdWindowQuery,
+  type ColdFindingsRead,
+  coldWindowSearch,
+} from "./coldAssessmentClient";
 import type {
   ColdAnalysisRead,
   ColdAssumptionsRead,
@@ -31,7 +40,7 @@ import type {
   ColdSiteClient,
   ColdSource,
 } from "./coldSiteClient";
-import { COLD_ASSESSMENT_LOADING, refusalText } from "./ColdAssessmentViews";
+import { ADVERSE, COLD_ASSESSMENT_LOADING, RUNNING, outcomeText, refusalText } from "./ColdAssessmentViews";
 import { ColdTemperatureChart } from "./assessmentGraphics";
 import { selectedClassification } from "./sourceProvenance";
 import { claimWord, classificationWord, plainCode, plainLimitation, reasonWord, STEP_LABELS } from "./coldAssessmentWords";
@@ -76,6 +85,10 @@ export interface ColdSiteRoutes {
   findings: string;
   finding: (findingId: string) => string;
   foundation: string;
+  /** post-W6 W2-cold R256: the Foundation single line diagram view. */
+  sld: string;
+  /** post-W6 W2-cold R254 (Q8): cold Work › Maintenance. */
+  workMaintenance: string;
 }
 
 /* ---------- words ---------- */
@@ -505,11 +518,17 @@ function OverviewCards({ o, evidence, routes }: { o: ColdOverviewRead; evidence:
   const caps = evidence?.capabilities ?? [];
   // The same row-based rule as the Evidence status chip (Run-7), so Overview and Evidence agree.
   const evidenceChip = evidenceState(caps);
-  const card = (label: string, href: string | null) => (href === null ? label : <Link to={href}>{label}</Link>);
+  // R254: plain labels; each card's own `View detail →` link (mock 539), at the read's selected window.
+  const detail = (key: string, href: string | null) =>
+    href === null ? undefined : (
+      <Link to={href} data-cold-card-link={key}>
+        View detail →
+      </Link>
+    );
   return (
     <MetricCards columns={5} label="Cold room conditions">
-      <MetricCard label={card("Temperature", coldUiHref(o.links.temperature, routes))} value={tempChip} note={tempNote} tone={proved ? "amber" : "muted"} assessment data={{ "data-cold-card": "temperature" }} />
-      <MetricCard label={card("Backup", coldUiHref(o.links.backup, routes))} value={backupChip} note={backupNote} tone={b.observed_failure > 0 ? "red" : "muted"} assessment data={{ "data-cold-card": "backup" }} />
+      <MetricCard label="Temperature" value={tempChip} note={tempNote} tone={proved ? "amber" : "muted"} assessment data={{ "data-cold-card": "temperature" }} link={detail("temperature", coldUiHref(o.links.temperature, routes))} />
+      <MetricCard label="Backup" value={backupChip} note={backupNote} tone={b.observed_failure > 0 ? "red" : "muted"} assessment data={{ "data-cold-card": "backup" }} link={detail("backup", coldUiHref(o.links.backup, routes))} />
       <MetricCard
         label="Cooling"
         value={coolingChip}
@@ -517,10 +536,21 @@ function OverviewCards({ o, evidence, routes }: { o: ColdOverviewRead; evidence:
         tone="muted"
         assessment
         data={{ "data-cold-card": "cooling" }}
+        link={detail("cooling", selected(routes.cooling, o.window))}
       />
-      <MetricCard label="Maintenance" value="Not recorded" note={`${o.maintenance.text} · Work record not available`} tone="muted" assessment data={{ "data-cold-card": "maintenance" }} />
+      {/* Q8: the overview read carries no maintenance summary; the cases are listed under Work. */}
       <MetricCard
-        label={card("Evidence", coldUiHref(o.links.evidence, routes))}
+        label="Maintenance"
+        value="Not summarised here"
+        note="Maintenance cases are listed under Work"
+        tone="muted"
+        assessment
+        data={{ "data-cold-card": "maintenance" }}
+        link={detail("maintenance", selected(routes.workMaintenance, o.window))}
+      />
+      <MetricCard
+        label="Evidence"
+        link={detail("evidence", coldUiHref(o.links.evidence, routes))}
         value={evidenceChip}
         note={caps.length === 0 ? "Evidence coverage not assessed" : countSentence(caps)}
         tone="muted"
@@ -531,17 +561,36 @@ function OverviewCards({ o, evidence, routes }: { o: ColdOverviewRead; evidence:
   );
 }
 
-function stripEvents(o: ColdOverviewRead): TimelineEvent[] {
+/**
+ * R255 (Q9): the overview strip omits each step's outcome, so an observed step is joined to the selected backup-chain
+ * step with the same accepted record (`evidence_id`): `{stepLabel} · {outcomeText}`, danger on an adverse outcome and
+ * ok on a running one. An unmatched step keeps its state label and neutral tone.
+ */
+function stripEvents(o: ColdOverviewRead, backup: ColdBackupRead | null): TimelineEvent[] {
   const steps = [...o.causal_strip].sort((a, b) => STEP_ORDER.indexOf(a.step) - STEP_ORDER.indexOf(b.step));
+  const byEvidence = new Map<string, ColdStepRead>();
+  for (const chain of backup?.chains ?? []) for (const step of chain.steps) if (step.evidence_id !== null && !byEvidence.has(step.evidence_id)) byEvidence.set(step.evidence_id, step);
   return steps.map((s) => {
     const name = STEP_LABELS[s.step] ?? plainCode(s.step);
+    const match = s.state === "OBSERVED" && s.evidence_id !== null ? byEvidence.get(s.evidence_id) : undefined;
+    const outcome = match === undefined ? null : outcomeText(match);
+    const known = match?.outcome ?? null;
     return {
       key: s.step,
-      // UTC like the chamber chart beside it; only the Analysis `Measured (EAT)` column is East Africa Time.
+      // UTC like the chamber chart beside it; only the Analysis `Measured` column is in the Site timezone.
       time: s.at === null ? "—" : `${hm(s.at)} UTC`,
-      title: `${name} · ${STEP_CHIP[s.state] ?? plainCode(s.state)}`,
+      title: outcome !== null ? `${name} · ${outcome}` : `${name} · ${STEP_CHIP[s.state] ?? plainCode(s.state)}`,
       detail: s.state === "MISSING" ? `No accepted ${name.toLowerCase()} report for this chain` : (limitText(s.limitation) ?? undefined),
-      tone: s.state === "OBSERVED" ? undefined : s.state === "CONTRADICTORY" ? "danger" : "gap",
+      tone:
+        s.state === "OBSERVED"
+          ? known !== null && ADVERSE.test(known)
+            ? "danger"
+            : known !== null && RUNNING.test(known)
+              ? "ok"
+              : undefined
+          : s.state === "CONTRADICTORY"
+            ? "danger"
+            : "gap",
     };
   });
 }
@@ -550,7 +599,8 @@ function OverviewScreen(p: ScreenProps) {
   const overview = useColdRead(() => p.client.getOverview(p.siteId, p.window), keyOf(p, "o"));
   const evidence = useColdRead(() => p.client.getEvidence(p.siteId, p.window), keyOf(p, "e"));
   const temperature = useColdRead(() => p.assessment.getTemperature(p.siteId, p.window), keyOf(p, "t"));
-  if (overview === null || evidence === null || temperature === null) return <p>{COLD_ASSESSMENT_LOADING}</p>;
+  const backupChain = useColdRead(() => p.assessment.getBackupChain(p.siteId, p.window), keyOf(p, "b"));
+  if (overview === null || evidence === null || temperature === null || backupChain === null) return <p>{COLD_ASSESSMENT_LOADING}</p>;
   const o = value(overview);
   const refused = refusalOf(overview);
   const none = o !== null && !isSelected(o);
@@ -605,13 +655,22 @@ function OverviewScreen(p: ScreenProps) {
           <p className="prose">The power-to-cooling sequence is not established for this window.</p>
         ) : (
           <>
-            <CausalTimeline events={stripEvents(o!)} label="Power to cooling sequence" />
-            <p className="prose">The steps below are based on the selected accepted records. Missing steps remain unobserved.</p>
+            <CausalTimeline events={stripEvents(o!, value(backupChain))} label="Power to cooling sequence" />
+            <p className="prose">The steps above are based on the selected accepted records. Missing steps remain unobserved.</p>
           </>
         )}
       </Panel>
       <div className="panel-pair">
-        <Panel heading="Chamber temperature" headingId="cold-site-temperature-heading" description="Operating conditions, not an inventory-loss model">
+        <Panel
+          heading="Chamber temperature"
+          headingId="cold-site-temperature-heading"
+          description="Operating conditions, not an inventory-loss model"
+          actions={
+            <Link to={p.routes.sld} data-cold-sld-link>
+              Single line diagram →
+            </Link>
+          }
+        >
           {refused !== null ? (
             <RefusedGap id="cold-site-temperature" refusal={refused} />
           ) : none ? (
@@ -637,10 +696,11 @@ function OverviewScreen(p: ScreenProps) {
           ) : (
             <AttentionList
               label="Needs attention"
-              items={o!.needs_attention.map((n) => ({
+              items={o!.needs_attention.map((n, i, all) => ({
                 key: n.code,
                 title: n.text,
-                body: limitText(n.limitation) ?? "",
+                // R256: a limitation shared by several items is shown once, on the first item that carries it.
+                body: all.slice(0, i).some((m) => limitText(m.limitation) === limitText(n.limitation)) ? "" : (limitText(n.limitation) ?? ""),
                 // Run-7: a null destination shows noninteractive "No linked page for this item".
                 action: (
                   <p className="cold-panel-link">

@@ -16,6 +16,7 @@ import {
   siteFoundationHref,
   siteHealthHref,
   sitePerformanceHref,
+  siteWorkMaintenanceHref,
 } from "./operatorSiteRoutes";
 
 /** W2-04: the UI route bases (no query) the five cold Site screens link to. */
@@ -32,6 +33,9 @@ export function coldSiteRoutes(siteId: string): ColdSiteRoutes {
     findings: siteFindingsHref(siteId),
     finding: (findingId) => siteFindingHref(siteId, findingId),
     foundation: siteFoundationHref(siteId),
+    // The Foundation SLD view with no `at` (the same base as `siteFoundationViewHref(siteId, "sld", null)`).
+    sld: `${siteFoundationHref(siteId)}/sld`,
+    workMaintenance: siteWorkMaintenanceHref(siteId),
   };
 }
 

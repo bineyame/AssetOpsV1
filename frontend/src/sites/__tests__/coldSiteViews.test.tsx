@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
-import type { ColdAssessmentClient, ColdEnvelope, ColdRead, ColdTemperatureRead } from "../coldAssessmentClient";
+import type { ColdAssessmentClient, ColdBackupRead, ColdEnvelope, ColdRead, ColdTemperatureRead } from "../coldAssessmentClient";
 import type {
   ColdAnalysisRead,
   ColdAssumptionsRead,
@@ -249,6 +249,8 @@ interface Reads {
   temperature: ColdRead<ColdTemperatureRead>;
   /** W2-F N9: overrides the Findings list read, which otherwise follows the Financials read. */
   findings?: ColdRead<never>;
+  /** post-W6 W2-cold Q9: the Overview's backup-chain read (default: unavailable, so no step is joined). */
+  backup?: ColdRead<ColdBackupRead>;
 }
 const STOCKED: Reads = {
   overview: ok(STOCKED_OVERVIEW),
@@ -293,7 +295,7 @@ function renderCold(path: string, reads: Reads) {
   };
   const coldAssessment: ColdAssessmentClient = {
     getTemperature: vi.fn(() => Promise.resolve(reads.temperature)),
-    getBackupChain: vi.fn(() => Promise.resolve(DOWN)),
+    getBackupChain: vi.fn(() => Promise.resolve(reads.backup ?? DOWN)),
     listFindings: vi.fn(() =>
       Promise.resolve(
         reads.findings !== undefined
@@ -502,7 +504,10 @@ describe("W2-04: cold Overview", () => {
     ]);
     expect(text(document.querySelector('[data-cold-card="cooling"]')!)).toContain("Recovery comparison not assessed");
     expect(text(document.querySelector('[data-cold-card="cooling"]')!)).not.toContain("Not available yet");
-    expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).toContain("Not recorded");
+    // Q8: no false maintenance summary from the overview DTO; the cases are under Work.
+    expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).toContain("Not summarised here");
+    expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).toContain("Maintenance cases are listed under Work");
+    expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).not.toContain("No maintenance work record");
     const happened = panelTitled(PANELS.cold[0]);
     expect(happened.querySelectorAll("[data-timeline-event]")).toHaveLength(3);
     expect(text(happened)).toContain("No accepted transfer to backup report for this chain");
@@ -1188,5 +1193,68 @@ describe("W2-F 2: cold frame on refusal, consequence counts and record IDs", () 
     expect(rule).toContain("overflow-wrap: anywhere");
     expect(rule).not.toMatch(/max-width|text-overflow|nowrap/);
     expect(css).not.toContain(".cold-site-clip");
+  });
+});
+
+// post-W6 W2-cold unit 2: Overview cards, causal-strip outcomes, SLD link and limitation dedupe (R254-R256).
+describe("W2-cold unit 2: cold Overview", () => {
+  const step = (kind: string, outcome: string | null, evidence: string | null, state = "OBSERVED") => ({ kind, at: "2026-10-06T16:11:00Z", outcome, evidence_id: evidence, state, limitation: null });
+  const chain = (steps: ReturnType<typeof step>[]) =>
+    ok({
+      ...envelope(),
+      state: "OBSERVED_FAILURE",
+      claim_level: "OBSERVED",
+      chains: [{ correlation_id: "corr-1", episode_id: id(80), revision_id: id(81), result: "OBSERVED_FAILURE", steps, missing_steps: ["TRANSFER"], claim_level: "OBSERVED", start_timeout_min: "2", limitation: null }],
+      contradictions: [],
+    } as ColdBackupRead);
+
+  it("r254_five_view_detail_links_at_the_window", async () => {
+    renderCold(ROUTES[0][1], STOCKED);
+    await settledScreen();
+    const links = Array.from(document.querySelectorAll("[data-cold-card-link]"));
+    expect(links.map((a) => a.getAttribute("data-cold-card-link"))).toEqual(["temperature", "backup", "cooling", "maintenance", "evidence"]);
+    for (const a of links) expect(a.textContent).toBe("View detail →");
+    const href = (k: string) => document.querySelector(`[data-cold-card-link="${k}"]`)!.getAttribute("href");
+    expect(href("cooling")).toBe(`/sites/COLD-001/performance/cooling${Q}`);
+    expect(href("maintenance")).toBe(`/sites/COLD-001/work/maintenance${Q}`);
+    // Labels are plain text; the link is the card's own `View detail →`.
+    for (const card of Array.from(document.querySelectorAll("[data-cold-card]"))) expect(card.querySelectorAll("a")).toHaveLength(1);
+  });
+
+  it("r255_steps_join_outcomes_by_record_in_order", async () => {
+    renderCold(ROUTES[0][1], { ...STOCKED, backup: chain([step("GRID", "LOST", id(11)), step("START_RESULT", "START_FAILED", id(12))]) });
+    await settledScreen();
+    const happened = panelTitled(PANELS.cold[0]);
+    const events = Array.from(happened.querySelectorAll("[data-timeline-event]"));
+    expect(events.map((e) => e.getAttribute("data-timeline-event"))).toEqual(["GRID", "START_RESULT", "TRANSFER"]);
+    expect(text(events[0].querySelector("strong")!)).toBe("Grid supply · Lost");
+    expect(events[0].className).toContain("--danger");
+    expect(text(events[1].querySelector("strong")!)).toMatch(/· Start failed$/);
+    expect(events[2].className).toContain("--gap");
+    expect(text(happened)).toContain("The steps above are based on the selected accepted records. Missing steps remain unobserved.");
+    expect(text(happened)).not.toContain("steps below");
+  });
+
+  it("r255_running_outcome_is_ok_and_unmatched_step_keeps_its_label", async () => {
+    renderCold(ROUTES[0][1], { ...STOCKED, backup: chain([step("GRID", "RUNNING", id(11)), step("START_RESULT", "START_FAILED", id(99))]) });
+    await settledScreen();
+    const events = Array.from(panelTitled(PANELS.cold[0]).querySelectorAll("[data-timeline-event]"));
+    expect(events[0].className).toContain("--ok");
+    expect(text(events[1].querySelector("strong")!)).toMatch(/· Observed$/);
+    expect(events[1].className).not.toMatch(/--(ok|danger)/);
+  });
+
+  it("r256_sld_link_and_limitation_shown_once", async () => {
+    const shared = "Not observed: TRANSFER.";
+    const o: ColdOverviewRead = { ...STOCKED_OVERVIEW, needs_attention: STOCKED_OVERVIEW.needs_attention.map((n) => ({ ...n, limitation: shared })) };
+    renderCold(ROUTES[0][1], { ...STOCKED, overview: ok(o) });
+    await settledScreen();
+    const sld = panelTitled("Chamber temperature").querySelector("[data-cold-sld-link]")!;
+    expect(sld.textContent).toBe("Single line diagram →");
+    expect(sld.getAttribute("href")).toBe("/sites/COLD-001/foundation/sld");
+    const bodies = Array.from(panelTitled("Needs attention").querySelectorAll("[data-attention-item]")).map((i) => text(i));
+    expect(bodies).toHaveLength(2);
+    expect(bodies[0]).toMatch(/Not observed: transfer to backup/i);
+    expect(bodies[1]).not.toMatch(/Not observed:/);
   });
 });
