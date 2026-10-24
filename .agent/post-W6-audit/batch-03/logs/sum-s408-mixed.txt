@@ -1,0 +1,55 @@
+
+## financials mixed-withheld 1440  pageH 1287/1327 ovX 0 hdr 59/65 dark 1287 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  pSizes {'11px': 4, '12px': 6, '10px': 2, '14px': 1} {'11px': 6, '14px': 2, '12px': 2}
+  [0] 'What happened → what it means in money' 397 | 'What happened → what it means in money' 288 r=1.38 rows 1/3 cols ['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source']/['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source'] chips ['Modelled', 'Not assessed']/['Modelled', 'Lowⓘ', 'Scenario', 'Lowⓘ', 'Unknown'] links 5/2 det 2 xy 248,466 w1145|234,589 w1161
+  [1] 'Assumptions in use' 275 | 'Assumptions in use' 306 r=0.9 rows 0/0 cols []/[] chips []/[] links 2/1 det 1 xy 248,881 w725|234,895 w735
+  [2] 'Trade-offs and exclusions' 295 | 'Trade-offs and exclusions' 306 r=0.96 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 991,881 w403|987,895 w408
+
+## financials mixed-withheld 390  pageH 2263/2149 ovX 0 hdr 58/131 dark 92 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  pSizes {'11px': 4, '12px': 6, '10px': 2, '14px': 1} {'11px': 6, '14px': 2, '12px': 2}
+  [0] 'What happened → what it means in money' 683 | 'What happened → what it means in money' 372 r=1.84 rows 1/3 cols ['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source']/['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source'] chips ['Modelled', 'Not assessed']/['Modelled', 'Lowⓘ', 'Scenario', 'Lowⓘ', 'Unknown'] links 5/2 det 2 xy 16,784 w358|15,1001 w360
+  [1] 'Assumptions in use' 308 | 'Assumptions in use' 306 r=1.01 rows 0/0 cols []/[] chips []/[] links 2/1 det 1 xy 16,1485 w358|15,1391 w360
+  [2] 'Trade-offs and exclusions' 315 | 'Trade-offs and exclusions' 244 r=1.29 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 16,1809 w358|15,1715 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 605, 'cw': 318, 'panel': 'What happened → what it means in money'}]
+
+## assumptions mixed-withheld 1440  pageH 1434/1077 ovX 0 hdr 59/65 dark 1434 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  pSizes {'11px': 2, '12px': 4, '10px': 3, '23px': 1} {'11px': 1, '12px': 2}
+  [0] 'Financial assumptions' 506 | 'Financial assumptions' 368 r=1.38 rows 1/0 cols ['Applies', 'Price', 'Version', 'What it was']/[] chips []/[] links 1/1 det 2 xy 248,247 w725|234,414 w735
+  [1] 'Impact preview' 256 | 'Impact preview' 368 r=0.7 rows 0/0 cols []/[] chips []/['Lowⓘ', 'Technical result unchanged'] links 0/0 det 0 xy 991,247 w403|987,414 w408
+  [2] 'Interpretation history' 554 | 'Interpretation history' 211 r=2.63 rows 1/2 cols ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']/['Version', 'Fuel price', 'Maintenance', 'Provenance', 'Status'] chips ['Latest at this moment', 'First price']/['Retained', 'Mockup only'] links 5/0 det 2 xy 248,831 w1145|234,800 w1161
+
+## assumptions mixed-withheld 390  pageH 2664/1851 ovX 0 hdr 58/131 dark 92 err []
+  h1: Kobo mini-grid | Kobo Mini-grid
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  pSizes {'11px': 2, '12px': 4, '10px': 3, '23px': 1} {'11px': 1, '12px': 2}
+  [0] 'Financial assumptions' 822 | 'Financial assumptions' 563 r=1.46 rows 1/0 cols ['Applies', 'Price', 'Version', 'What it was']/[] chips []/[] links 1/1 det 2 xy 16,325 w358|15,619 w360
+  [1] 'Impact preview' 256 | 'Impact preview' 270 r=0.95 rows 0/0 cols []/[] chips []/['Lowⓘ', 'Technical result unchanged'] links 0/0 det 0 xy 16,1163 w358|15,1200 w360
+  [2] 'Interpretation history' 1091 | 'Interpretation history' 269 r=4.06 rows 1/2 cols ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']/['Version', 'Fuel price', 'Maintenance', 'Provenance', 'Status'] chips ['Latest at this moment', 'First price']/['Retained', 'Mockup only'] links 5/0 det 2 xy 16,1532 w358|15,1488 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 486, 'cw': 318, 'panel': 'Interpretation history'}, {'cls': 'data-table__scroll', 'sw': 721, 'cw': 318, 'panel': 'Interpretation history'}]
+
+## finding-evidence mixed-source 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Generator support merits review | Generator support review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence*', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)']]
+  tabs mock: [['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]
+  pSizes {'12px': 8, '14px': 1} {'14px': 1}
+  [0] 'Evidence bundle · Generator support merits review' 411 | 'Evidence bundle · F-104' 287 r=1.43 rows 4/4 cols ['Input', 'Source', 'Records', 'Coverage', 'Use']/['Input', 'Source', 'Coverage', 'Use'] chips []/[] links 53/0 det 5 xy 248,272 w1160|234,304 w1161
+  [1] 'Inspect source lineage' 126 | 'Inspect source lineage' 100 r=1.26 rows 0/0 cols []/[] chips []/[] links 1/0 det 0 xy 248,717 w1160|234,609 w1161
+
+## finding-evidence mixed-source 390  pageH 1429/1107 ovX 0 hdr 58/90 dark 92 err []
+  h1: Generator support merits review | Generator support review
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence*', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)']]
+  tabs mock: [['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]
+  pSizes {'12px': 8, '14px': 1} {'14px': 1}
+  [0] 'Evidence bundle · Generator support merits review' 728 | 'Evidence bundle · F-104' 463 r=1.57 rows 4/4 cols ['Input', 'Source', 'Records', 'Coverage', 'Use']/['Input', 'Source', 'Coverage', 'Use'] chips []/[] links 53/0 det 5 xy 16,407 w358|15,432 w360
+  [1] 'Inspect source lineage' 218 | 'Inspect source lineage' 100 r=2.18 rows 0/0 cols []/[] chips []/[] links 1/0 det 0 xy 16,1169 w358|15,913 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 332, 'cw': 318, 'panel': 'Evidence bundle · Generator support merits review'}]
