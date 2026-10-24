@@ -20,6 +20,12 @@
  *   (Show all plus every `Read full text` open: ruling 26 exempts page/panel/strip heights; full text, containment,
  *   one-line codes and zero document overflow stay gated).
  *
+ * W5-04 V3b, `W504B_EVIDENCE=cases`: the EV Incidents and Maintenance tabs (`ev-work-incidents`, `ev-work-maintenance`)
+ *   per width and kind: submitted (the attested INC/WR + record + explicit case links), submitted-ids-open (every row
+ *   disclosure open; exempt), historical, zero, forbidden-403 (W4 refusal in the case panel), worst (the walkthrough's
+ *   five long rows, closed), worst-one-open (one `Read full text`; 390 cap 680) and worst-all-open (exempt). Writes
+ *   <out>/w504b-cases-measurements.json.
+ *
  * Pending, stale and unknown are not producer states (manifest `status: unavailable`, ruling 54): they are recorded
  * here as unavailable captures and remain pure component vectors (`frontend/src/sites/__tests__/evWorkActions.test.tsx`).
  * Every claim prints PASS/FAIL with its measured value; row claims require a non-empty measured row set. Writes
@@ -94,7 +100,7 @@ function send(method, params = {}) {
   seq += 1;
   const id = seq;
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(`timeout ${method}`)), 60000);
+    const timer = setTimeout(() => reject(new Error(`timeout ${method}`)), Number(process.env.W504B_CDP_TIMEOUT_MS ?? 60000));
     pending.set(id, (msg) => {
       clearTimeout(timer);
       msg.error ? reject(new Error(JSON.stringify(msg.error))) : resolve(msg.result);
@@ -103,7 +109,17 @@ function send(method, params = {}) {
   });
 }
 async function js(expression) {
-  const r = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
+  // V3b: under a loaded machine an evaluation issued while a navigation commits can stay unanswered; retry it
+  // (bounded) instead of waiting out the whole CDP timeout. Expressions here are read-only or idempotent.
+  let r;
+  for (let attempt = 1; ; attempt += 1) {
+    const call = send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
+    call.catch(() => {});
+    r = await Promise.race([call, sleep(20000).then(() => null)]);
+    if (r !== null) break;
+    if (attempt >= 5) throw new Error("Runtime.evaluate unanswered after 5 attempts");
+    console.log(`INFO  evaluate retry ${attempt}`);
+  }
   if (r.exceptionDetails) throw new Error(`page eval: ${JSON.stringify(r.exceptionDetails).slice(0, 400)}`);
   return r.result.value;
 }
@@ -305,6 +321,280 @@ const q = (params) => new URLSearchParams(params).toString();
 const W_ = P.work_window_W;
 const dayBefore = (iso) => new Date(Date.parse(iso) - 86400000).toISOString().replace(".000Z", "Z");
 
+// ---- W5-04 V3b: `W504B_EVIDENCE=cases` (EV Incidents / Maintenance, v69 `ev-work-incidents`, `ev-work-maintenance`) --
+// Build spec "Measurements" and readiness rulings 25/26: populated case panel 650/650 (one open preview at 390: 680),
+// empty case panel with the closed basis 460/560, Work page 1600/2000, strip 100/150, notice 110/160. A W4 case refusal
+// keeps its titled case panel, so it is measured against the populated case-panel cap (the W5-02 K3b cold precedent).
+// Every row is a walkthrough row (pre-flight 23): `positive` after `attest` (the submitted INC/WR + record + explicit
+// domain Action case links), `zero`, `worstcase` (five long INC and five long WR from the walkthrough) and `forbidden`.
+const CASE_CAPS = { main: [1600, 2000], strip: [100, 150], panel: [650, 650], panelOneOpen: [650, 680], emptyPanel: [460, 560], notice: [110, 160] };
+// Every cases-mode state renders the case panel (no Site-level refusal is captured here), so only a settled case panel counts.
+const CASE_READY = `document.querySelector('.work-cases [data-work-loaded], .work-cases [data-work-empty], .work-cases [data-work-refused]')`;
+const caseMeasure = (kind) => `(() => {
+  const h = (e) => (e ? Math.round(e.getBoundingClientRect().height) : null);
+  const main = document.querySelector('main');
+  const body = document.querySelector('.work-cases');
+  const panel = document.querySelector('#site-work-${kind}-heading')?.closest('section.panel') ?? null;
+  const scroller = document.querySelector('.work-cases .data-table__scroll');
+  const firstCell = scroller?.querySelector('tbody tr > :first-child') ?? scroller?.querySelector('thead th');
+  const rows = [...document.querySelectorAll('[data-work-row]')];
+  const lines = (e) => {
+    const range = document.createRange();
+    range.selectNodeContents(e);
+    const tops = [...range.getClientRects()].filter((r) => r.width > 0).map((r) => r.top).sort((a, b) => a - b);
+    return tops.reduce((n, t, i) => (i === 0 || t - tops[i - 1] > 4 ? n + 1 : n), 0);
+  };
+  const coldNames = [...document.querySelectorAll('main, main *')].flatMap((el) => [...el.attributes]
+    .filter((a) => a.name.startsWith('data-cold-') || (a.name === 'class' && /\\bcold-work/.test(a.value)) || (a.name === 'data-disclosure' && a.value.startsWith('cold-work')))
+    .map((a) => a.name));
+  const badges = [...document.querySelectorAll('[data-work-row] [data-work-state], [data-work-row] [data-work-outcome]')];
+  const window = (() => {
+    const form = document.querySelector('form[data-domain-work-window]');
+    if (!form) return null;
+    return { afterSubtabs: form.previousElementSibling?.matches('nav.site-subtabs') === true,
+      beforeStrip: form.nextElementSibling?.querySelector(':scope > .status-strip') !== null && form.nextElementSibling !== null,
+      labels: form.innerText.replace(/\\s+/g, ' ').trim() };
+  })();
+  return {
+    href: location.pathname + location.search,
+    h1: document.querySelector('main h1')?.textContent?.trim() ?? null,
+    subtitle: document.querySelector('main header')?.innerText?.includes('EV charging operations at this site.') ?? false,
+    domainCases: body?.getAttribute('data-domain-cases') ?? null,
+    forms: document.querySelectorAll('main form').length,
+    w4Form: document.querySelectorAll('main form[data-work-window]').length,
+    window,
+    scope: document.querySelector('[data-work-scope]')?.textContent?.replace(/\\s+/g, ' ').trim() ?? null,
+    stripDetail: document.querySelector('[data-work-strip-detail]')?.textContent?.replace(/\\s+/g, ' ').trim() ?? null,
+    manage: (() => { const a = document.querySelector('[data-work-manage-link]'); return a ? { text: a.textContent.trim(), href: a.getAttribute('href') } : null; })(),
+    panelDescription: panel?.querySelector('.panel__description')?.textContent?.trim() ?? null,
+    headings: [...document.querySelectorAll('.work-cases thead th')].map((t) => t.textContent.trim()),
+    currentness: document.querySelector('[data-domain-work-currentness]')?.getAttribute('data-domain-work-currentness') ?? null,
+    currentnessText: document.querySelector('[data-domain-work-currentness]')?.innerText?.trim() ?? null,
+    currentnessBetween: (() => { const n = document.querySelector('[data-domain-work-currentness]'); return n ? n.previousElementSibling?.classList.contains('status-strip') === true && n.nextElementSibling?.matches('section.panel') === true : null; })(),
+    noticeText: document.querySelector('[data-domain-work-notice]')?.innerText?.trim() ?? null,
+    docScrollWidth: document.documentElement.scrollWidth,
+    docClientWidth: document.documentElement.clientWidth,
+    docHeight: document.documentElement.scrollHeight,
+    main: h(main),
+    strip: h(document.querySelector('.work-cases .status-strip')),
+    panel: h(panel),
+    currentnessNotice: h(document.querySelector('[data-domain-work-currentness]')),
+    contextNotice: h(document.querySelector('[data-domain-work-notice]')),
+    scrollerScrollWidth: scroller?.scrollWidth ?? null,
+    scrollerClientWidth: scroller?.clientWidth ?? null,
+    stickyFirstColumn: firstCell ? getComputedStyle(firstCell).position === 'sticky' : null,
+    rowCount: rows.length,
+    rowIds: rows.map((r) => r.getAttribute('data-work-row')),
+    anchorsHrefs: [...document.querySelectorAll('.work-cases a')].map((a) => a.getAttribute('href') ?? ''),
+    actionHrefs: [...document.querySelectorAll('main a')].map((a) => a.getAttribute('href') ?? '').filter((x) => /\\/actions\\//.test(x)),
+    actionPlain: document.querySelectorAll('[data-work-action-plain]').length,
+    coldNames: coldNames.length,
+    rows: rows.map((r) => ({ id: r.getAttribute('data-work-row'), height: h(r),
+      title: r.querySelector('[data-work-case-title]')?.innerText?.replace(/\\s+/g, ' ').trim().slice(0, 200) ?? null,
+      titleHref: r.querySelector('[data-work-case-title] a')?.getAttribute('href') ?? null,
+      window: r.querySelector('[data-work-window]')?.textContent?.trim() ?? null,
+      windowLines: (() => { const w = r.querySelector('[data-work-window]'); return w ? lines(w) : null; })(),
+      asset: r.querySelector('[data-work-asset]')?.textContent?.trim() ?? null,
+      assetGap: /No asset linked/.test(r.querySelectorAll('td')[1]?.innerText ?? ''),
+      state: r.querySelector('[data-work-state]')?.textContent?.trim() ?? null,
+      outcome: r.querySelector('[data-work-outcome]')?.textContent?.trim() ?? null,
+      next: r.querySelector('[data-work-next-evidence]')?.textContent?.trim() ?? null,
+      findingCodes: [...r.querySelectorAll('.domain-work-code')].map((c) => lines(c)),
+      cellSummaries: [...r.querySelectorAll('td')].map((td) => [...td.querySelectorAll('summary')].map((s) => s.textContent.trim())),
+      summaryLines: [...r.querySelectorAll('summary')].map((x) => lines(x)) })),
+    cells: rows.flatMap((r) => [...r.querySelectorAll('td')]).map((td) => {
+      const box = td.getBoundingClientRect();
+      const inside = (e) => { const b = e.getBoundingClientRect(); return b.width === 0 || (b.left >= box.left - 1 && b.right <= box.right + 1); };
+      const lineBox = (e) => { const cs = getComputedStyle(e); const lh = parseFloat(cs.lineHeight); return Number.isFinite(lh) && lh > 0 ? lh : parseFloat(cs.fontSize) * 1.2; };
+      const previews = [...td.querySelectorAll('.work-cases-clamp')].filter((c) => c.closest('[data-domain-work-longtext]'));
+      const bodies = [...td.querySelectorAll('details[open] > .disclosure__body')];
+      const codes = [...td.querySelectorAll('details[open] .disclosure__body > code, details[open] .fact-list__value > code')];
+      // W5-02c rulings 12/14 (the cold K3b precedent): a UUID code may overflow only inside its own scroller (a
+      // direct-code disclosure body or \`.fact-list__value:has(> code)\`), and only while that scroller stays in the cell.
+      const codeScroller = (x) => x != null && x.matches('.disclosure__body, .fact-list__value') && x.querySelector(':scope > code') !== null && getComputedStyle(x).overflowX === 'auto';
+      const contained = (e) => inside(e) || (e.tagName === 'CODE' && codeScroller(e.parentElement) && inside(e.parentElement));
+      const outside = [...td.querySelectorAll('*')].filter((e) => !contained(e));
+      return { col: td.cellIndex, fits: td.scrollWidth <= td.clientWidth + 1, kidsInside: outside.length === 0,
+        outside: outside.slice(0, 3).map((e) => { const b = e.getBoundingClientRect(); return { tag: e.tagName, cls: e.className, attrs: e.getAttributeNames().join(' '), left: Math.round(b.left - box.left), right: Math.round(b.right - box.right), text: e.textContent.trim().slice(0, 40) }; }),
+        clampFits: previews.every((c) => c.scrollWidth <= c.clientWidth + 1),
+        previewLines: previews.map((c) => Math.round(c.getBoundingClientRect().height / lineBox(c))),
+        openBodyInside: bodies.every(inside), openBodies: bodies.length,
+        uuidOneLine: codes.every((c) => lines(c) === 1), uuidScrollerInside: codes.every((c) => codeScroller(c.parentElement) && inside(c.parentElement)), uuids: codes.length,
+        fullText: [...td.querySelectorAll('[data-domain-work-longtext="open"] details[open] > .disclosure__body')].map((b) => b.textContent.trim().length) };
+    }),
+    badgesClipped: badges.filter((b) => b.scrollWidth > b.clientWidth + 1).length,
+    badgeCount: badges.length,
+    badgeLines: badges.map((x) => lines(x)),
+    readFull: document.querySelectorAll('.work-cases [data-domain-work-longtext] > details').length,
+    readFullOpen: document.querySelectorAll('.work-cases [data-domain-work-longtext] > details[open]').length,
+    showing: document.querySelector('[data-work-showing]')?.textContent?.trim() ?? null,
+    basis: [...document.querySelectorAll('.work-cases summary')].some((s) => s.textContent.trim() === 'What this list is based on'),
+    basisOpen: [...document.querySelectorAll('.work-cases details[open] > summary')].some((s) => s.textContent.trim() === 'What this list is based on'),
+    empty: document.querySelector('[data-work-empty]')?.innerText?.replace(/\\s+/g, ' ').trim() ?? null,
+    refused: document.querySelector('[data-work-refused]')?.getAttribute('data-work-refused') ?? null,
+    refusedText: document.querySelector('[data-work-refused]')?.innerText?.replace(/\\s+/g, ' ').trim() ?? null,
+    siteRefusal: body ? null : (main?.innerText?.replace(/\\s+/g, ' ').trim().slice(0, 200) ?? null),
+  };
+})()`;
+
+function caseCaps(W, label, m, wi, { panelCap = CASE_CAPS.panel, heights = true } = {}) {
+  claim(`${W} ${label}: no document horizontal overflow`, m.docScrollWidth <= m.docClientWidth + 1, { scrollWidth: m.docScrollWidth, clientWidth: m.docClientWidth });
+  claim(`${W} ${label}: no cold-named attribute, class or disclosure on the EV page (ruling 45)`, m.coldNames === 0, m.coldNames);
+  claim(`${W} ${label}: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)`, m.domainCases === "EV_CHARGING" && m.forms === 1 && m.w4Form === 0 && m.window !== null, { domainCases: m.domainCases, forms: m.forms, w4Form: m.w4Form });
+  claim(`${W} ${label}: Window after the subtabs and before the strip, UTC labels (R112, R77)`, m.window !== null && m.window.afterSubtabs && m.window.beforeStrip && /From \(UTC\)/.test(m.window.labels) && /To \(UTC, exclusive\)/.test(m.window.labels), m.window);
+  if (m.currentness !== null) claim(`${W} ${label}: currentness notice between the strip and the panel (R80)`, m.currentnessBetween === true, m.currentnessBetween);
+  if (!heights) {
+    info(`${W} ${label}: expanded heights (ruling 26 exempt)`, { main: m.main, strip: m.strip, panel: m.panel, docHeight: m.docHeight });
+    return;
+  }
+  claim(`${W} ${label}: page main <= ${CASE_CAPS.main[wi]}`, m.main !== null && m.main <= CASE_CAPS.main[wi], { main: m.main, docHeight: m.docHeight });
+  claim(`${W} ${label}: strip <= ${CASE_CAPS.strip[wi]}`, m.strip !== null && m.strip <= CASE_CAPS.strip[wi], m.strip);
+  claim(`${W} ${label}: case panel <= ${panelCap[wi]}`, m.panel !== null && m.panel <= panelCap[wi], { panel: m.panel, tableScrollWidth: m.scrollerScrollWidth, tableClientWidth: m.scrollerClientWidth });
+  claim(`${W} ${label}: context notice <= ${CASE_CAPS.notice[wi]}`, m.contextNotice !== null && m.contextNotice <= CASE_CAPS.notice[wi], m.contextNotice);
+  if (m.currentnessNotice !== null) claim(`${W} ${label}: currentness notice <= ${CASE_CAPS.notice[wi]}`, m.currentnessNotice <= CASE_CAPS.notice[wi], m.currentnessNotice);
+}
+function caseRowClaims(W, label, m, expectRows) {
+  claim(`${W} ${label}: ${expectRows} row(s) measured`, m.rowCount === expectRows && m.rows.length > 0, m.rowCount);
+  claim(`${W} ${label}: every row cell contains its content`, m.cells.length > 0 && m.cells.every((c) => c.fits && c.kidsInside && c.clampFits), m.cells.filter((c) => !(c.fits && c.kidsInside && c.clampFits)));
+  const previews = m.cells.flatMap((c) => c.previewLines);
+  if (previews.length > 0) claim(`${W} ${label}: every long-text preview is at most two lines (R107)`, previews.every((n) => n >= 1 && n <= 2), previews);
+  if (m.cells.some((c) => c.openBodies > 0)) claim(`${W} ${label}: every opened disclosure body stays inside its cell`, m.cells.every((c) => c.openBodyInside), m.cells.filter((c) => !c.openBodyInside));
+  if (m.cells.some((c) => c.uuids > 0)) claim(`${W} ${label}: every opened UUID is one line in its own contained scroller`, m.cells.every((c) => c.uuidOneLine && c.uuidScrollerInside), m.cells.filter((c) => !(c.uuidOneLine && c.uuidScrollerInside)));
+  const summaries = m.rows.flatMap((r) => r.summaryLines);
+  if (summaries.length > 0) claim(`${W} ${label}: every disclosure summary is on one line`, summaries.every((n) => n === 1), summaries);
+  claim(`${W} ${label}: no clipped state/outcome badge, each on one line`, m.badgeCount > 0 && m.badgesClipped === 0 && m.badgeLines.every((n) => n === 1), { badges: m.badgeCount, clipped: m.badgesClipped, lines: m.badgeLines });
+  claim(`${W} ${label}: no /actions/ href on the page (R113: the EV domain Action link is plain)`, m.actionHrefs.length === 0, m.actionHrefs);
+  if (W === "narrow") {
+    claim(`${W} ${label}: first column is position:sticky`, m.stickyFirstColumn === true, m.stickyFirstColumn);
+    claim(`${W} ${label}: table scrolls inside its panel`, m.scrollerScrollWidth > m.scrollerClientWidth, { scrollWidth: m.scrollerScrollWidth, clientWidth: m.scrollerClientWidth });
+  }
+}
+async function caseRecord(W, wi, kind, state, url, afterLoad) {
+  // The previous capture's settled DOM would satisfy CASE_READY before the navigation commits: leave it first.
+  await send("Page.navigate", { url: "about:blank" });
+  await waitFor("location.href === 'about:blank' && document.readyState === 'complete'");
+  await requireWidth(viewport[0], viewport[1], "left the previous capture", { record: false });
+  const ok = await go(url, CASE_READY);
+  if (afterLoad) await afterLoad();
+  const m = await js(caseMeasure(kind));
+  claim(`${W} ${kind} ${state}: settled`, ok, m.refused ?? m.siteRefusal ?? m.rowCount);
+  const file = await shot(`w504b-cases-${W}-${kind}-${state}`);
+  captures.push({ kind, state, width: WIDTHS[wi][1], file, url, measurements: m });
+  return m;
+}
+const openAll = (selector) => `(() => { const ds = [...document.querySelectorAll(${JSON.stringify(selector)})]; ds.forEach((d) => { d.open = true; d.dispatchEvent(new Event('toggle')); }); return ds.length; })()`;
+const KIND_WORDS = {
+  incidents: { noun: "incidents", global: "Incidents", columns: ["Case", "Window", "What happened", "Linked findings", "State"], subtitle: "A case links chronology, findings and work without copying them",
+    empty: "No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap." },
+  maintenance: { noun: "maintenance", global: "Maintenance", columns: ["Work request", "Asset", "Activity", "Outcome", "Next evidence"], subtitle: "Completed work is activity; the outcome is verified separately",
+    empty: "No maintenance work at this site No inspection or repair has been raised here in the selected period." },
+};
+
+async function mainCases() {
+  const S = P.submitted ?? {};
+  const SW = S.work_window_W ?? W_;
+  const WCC = WC?.worstcase_cases ?? null;
+  claim("manifest: positive attested with the submitted INC, WR, record and two explicit case links (V3b; build spec EV producer)",
+    P?.status === "ready" && Boolean(S.incident?.id && S.request?.id && S.record?.id && S.links?.incident && S.links?.request), { incident: S.incident?.id ?? null, request: S.request?.id ?? null, links: Object.keys(S.links ?? {}) });
+  claim("manifest: zero ready (complete zero, no INC or WR posted)", Z?.status === "ready", Z?.status ?? null);
+  claim("manifest: walkthrough worstcase has five 160-code-point INC and five WR with records, listed under W (pre-flight 23)",
+    WC?.status === "ready" && WCC?.list_total_count?.incidents === 5 && WCC?.list_total_count?.maintenance === 5 && (WCC?.requests ?? []).every((r) => r.record_id) && Boolean(proc.worstcase),
+    { status: WC?.status, totals: WCC?.list_total_count ?? null });
+  claim("manifest: forbidden served", Boolean(proc.forbidden), proc.forbidden?.port ?? null);
+  for (const k of ["pending", "stale", "unknown"]) {
+    const mode = manifest.modes[k] ?? {};
+    info(`manifest ${k}: case browser capture ${mode.status === "ready" ? "available" : "unavailable"} (ruling 54; pure component vector in evWorkCases.test.tsx)`, { status: mode.status ?? null, reason: mode.reason ?? null });
+  }
+  info("in-panel W4 case 503 with a healthy Site read: unavailable (the walkthrough stops the whole API; pure vector in evWorkCases.test.tsx)", manifest.vectors?.unavailable ?? null);
+
+  const WW = WC.work_window_W;
+  const want = { incidents: S.incident, maintenance: S.request };
+  for (const [wi, [W, width, height]] of WIDTHS.entries()) {
+    await size(width, height);
+    for (const kind of ["incidents", "maintenance"]) {
+      const words = KIND_WORDS[kind];
+      const path = `/sites/${SITE}/work/${kind}`;
+      let m;
+      m = await caseRecord(W, wi, kind, "submitted", `${base("positive")}${path}?${q({ from: SW.from, to: SW.to })}`);
+      claim(`${W} ${kind} submitted: stored Site name, R78 subtitle, mock strip and Manage link to the mounted W6 root`,
+        m.h1?.includes(P.site.display_name) && m.subtitle && m.scope === `Scoped to ${P.site.display_name.split(/\s+/)[0]} · 1 ${words.noun}` && m.stripDetail?.startsWith(`Same records and states as the global ${words.global} list`)
+          // W6-01a A2: the Site window plus the cutoff (no explicit `known_at` here, so the loaded list's own `known_at`).
+          && m.manage?.text === `Manage in ${words.global} →` && (m.manage?.href ?? "").startsWith(`/${kind}?${q({ from: SW.from, to: SW.to })}&known_at=`),
+        { h1: m.h1, scope: m.scope, strip: m.stripDetail, manage: m.manage });
+      claim(`${W} ${kind} submitted: mock columns and panel-head subtitle`, JSON.stringify(m.headings) === JSON.stringify(words.columns) && m.panelDescription === words.subtitle, { headings: m.headings, subtitle: m.panelDescription });
+      claim(`${W} ${kind} submitted: CURRENT, no notice; R105 basis and R106 pages`, m.currentness === null && m.basis && m.showing === "Showing 1–1 of 1", { currentness: m.currentness, showing: m.showing });
+      claim(`${W} ${kind} submitted: R03 notice first sentence only`, m.noticeText === "Opening a record moves you to its own area; the breadcrumb keeps this site.", m.noticeText);
+      const row = m.rows[0] ?? {};
+      claim(`${W} ${kind} submitted: the row is the walkthrough's attested case`, row.id === want[kind]?.id, { row: row.id, want: want[kind]?.id });
+      if (kind === "incidents") {
+        claim(`${W} incidents submitted: plain INC code and title (R85), Site-zone Window, red Open`,
+          row.title === `${S.incident.code} · Charging session fault` && row.titleHref === null && /^\d{1,2} [A-Z][a-z]{2} · from \d{2}:\d{2}$/.test(row.window ?? "") && row.windowLines === 1 && row.state === "Open",
+          { title: row.title, href: row.titleHref, window: row.window, state: row.state });
+      } else {
+        const overview = `/maintenance/requests/${S.request.id}?site_id=${SITE}`;
+        claim(`${W} maintenance submitted: WR opens the mounted W6 Overview with the Site ID (R83)`, row.title === `${S.request.code} · Connector diagnostic inspection` && row.titleHref === overview, { title: row.title, href: row.titleHref, want: overview });
+        claim(`${W} maintenance submitted: asset label as selected or 'No asset linked' (ruling 13), Unverified, next-evidence copy (R82, R84)`,
+          (row.asset !== null || row.assetGap) && row.outcome === "Unverified" && Boolean(row.next), { asset: row.asset, gap: row.assetGap, outcome: row.outcome, next: row.next, state: row.state });
+        claim(`${W} maintenance submitted: Activity recorded and Outcome note disclosures (R81, R82)`, JSON.stringify(row.cellSummaries?.[2]) === JSON.stringify(["Activity recorded"]) && JSON.stringify(row.cellSummaries?.[3]) === JSON.stringify(["Outcome note"]), row.cellSummaries);
+      }
+      caseCaps(W, `${kind} submitted`, m, wi);
+      caseRowClaims(W, `${kind} submitted`, m, 1);
+
+      m = await caseRecord(W, wi, kind, "submitted-ids-open", `${base("positive")}${path}?${q({ from: SW.from, to: SW.to })}`, async () => {
+        await js(openAll(".work-cases [data-work-row] details"));
+        await sleep(400);
+      });
+      claim(`${W} ${kind} submitted-ids-open: the explicit EV domain Action case link is plain text (R113)`, m.actionPlain >= 1 && m.actionHrefs.length === 0, { plain: m.actionPlain, hrefs: m.actionHrefs });
+      caseCaps(W, `${kind} submitted-ids-open`, m, wi, { heights: false });
+      caseRowClaims(W, `${kind} submitted-ids-open`, m, 1);
+
+      const historicalAt = S.list_known_at?.[kind];
+      m = await caseRecord(W, wi, kind, "historical", `${base("positive")}${path}?${q({ from: SW.from, to: SW.to, known_at: historicalAt })}`);
+      claim(`${W} ${kind} historical: the returned HISTORICAL state's notice (R80, R104 blue) with the row`, m.currentness === "HISTORICAL" && /^Read as of .* UTC\. Later work may differ\.$/.test(m.currentnessText ?? "") && m.rowCount === 1, { status: m.currentness, text: m.currentnessText, known_at: historicalAt });
+      caseCaps(W, `${kind} historical`, m, wi);
+
+      m = await caseRecord(W, wi, kind, "zero", `${base("zero")}${path}?${q({ from: Z.work_window_W.from, to: Z.work_window_W.to })}`);
+      claim(`${W} ${kind} zero: exact mock empty card, '0 ${words.noun}', closed basis, no pages, no notice`, m.empty === words.empty && m.scope?.endsWith(`· 0 ${words.noun}`) && m.basis && !m.basisOpen && m.showing === null && m.currentness === null, { empty: m.empty, scope: m.scope });
+      caseCaps(W, `${kind} zero`, m, wi, { panelCap: CASE_CAPS.emptyPanel });
+
+      m = await caseRecord(W, wi, kind, "forbidden-403", `${base("forbidden")}${path}?${q({ from: SW.from, to: SW.to })}`);
+      claim(`${W} ${kind} forbidden-403: Site read healthy, W4 refusal in the case panel; no zero, no Retry`, m.siteRefusal === null && m.refused === "forbidden" && /No access/.test(m.refusedText ?? "") && !/Retry|EV work unavailable/.test(m.refusedText ?? "") && !/· 0 /.test(m.scope ?? "") && m.empty === null, { refused: m.refused, text: m.refusedText, scope: m.scope });
+      caseCaps(W, `${kind} forbidden-403`, m, wi);
+
+      const worstPath = `${base("worstcase")}${path}?${q({ from: WW.from, to: WW.to })}`;
+      const worstIds = ((kind === "incidents" ? WCC?.incidents : WCC?.requests) ?? []).map((r) => r.case_id);
+      m = await caseRecord(W, wi, kind, "worst", worstPath);
+      claim(`${W} ${kind} worst: five walkthrough rows with 36-character IDs, '5 ${words.noun}'`, m.rowCount === 5 && m.rowIds.every((id) => (id ?? "").length === 36 && worstIds.includes(id)) && m.scope?.endsWith(`· 5 ${words.noun}`), { rows: m.rowIds, scope: m.scope });
+      caseCaps(W, `${kind} worst`, m, wi);
+      caseRowClaims(W, `${kind} worst`, m, 5);
+
+      m = await caseRecord(W, wi, kind, "worst-one-open", worstPath, async () => {
+        await js(openAll(".work-cases [data-work-row]:first-child [data-work-case-title] [data-domain-work-longtext] > details"));
+        await sleep(400);
+      });
+      claim(`${W} ${kind} worst-one-open: one Read full text open`, m.readFullOpen === 1, m.readFullOpen);
+      caseCaps(W, `${kind} worst-one-open`, m, wi, { panelCap: CASE_CAPS.panelOneOpen });
+      caseRowClaims(W, `${kind} worst-one-open`, m, 5);
+
+      m = await caseRecord(W, wi, kind, "worst-all-open", worstPath, async () => {
+        await js(openAll(".work-cases [data-work-row] details"));
+        await sleep(300);
+        await js(openAll(".work-cases [data-work-row] details"));
+        await sleep(400);
+      });
+      const full = m.cells.flatMap((c) => c.fullText);
+      claim(`${W} ${kind} worst-all-open: every Read full text open, full 160-code-point values`, m.readFull > 0 && m.readFullOpen === m.readFull && full.length > 0 && full.every((n) => n >= 160), { readFull: m.readFull, open: m.readFullOpen, full });
+      caseCaps(W, `${kind} worst-all-open`, m, wi, { heights: false });
+      caseRowClaims(W, `${kind} worst-all-open`, m, 5);
+    }
+  }
+
+  const failed = results.filter((r) => !r.ok).length;
+  writeFileSync(join(OUT, "w504b-cases-measurements.json"), JSON.stringify({ manifest_revision: manifest.revision, caps: CASE_CAPS, worstcase_cases: WCC, submitted: { incident: S.incident?.id, request: S.request?.id, record: S.record?.id }, captures, claims: results, failed }, null, 2));
+  console.log(`${results.filter((r) => r.ok && !r.info).length} PASS, ${failed} FAIL, ${results.filter((r) => r.info).length} INFO`);
+  return failed;
+}
+
 async function main() {
   ws = await connect();
   ws.addEventListener("message", (e) => {
@@ -316,6 +606,7 @@ async function main() {
   });
   await send("Page.enable");
   await send("Runtime.enable");
+  if (process.env.W504B_EVIDENCE === "cases") return mainCases();
 
   claim("manifest: positive and zero ready (ruling 39)", P?.status === "ready" && Z?.status === "ready", { positive: P?.status, zero: Z?.status });
   const worstIds = [WC?.action?.id, ...(WC?.worstcase?.actions ?? []).map((a) => a.action_id)];

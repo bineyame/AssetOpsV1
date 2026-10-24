@@ -459,12 +459,20 @@ describe("W5-02 K3a: mini-grid isolation", () => {
     expect(main.querySelector("[data-work-finding-revision]")).toBeNull();
     // W5-02c K5 (ruling 12): the cold case-cell CSS scope never applies to a mini-grid Site.
     expect(main.querySelector("[data-cold-cases]")).toBeNull();
+    // W5-04 V3a (readiness ruling 18): nor the domain case scope, the page-local Window or a domain notice.
+    expect(main.querySelector("[data-domain-cases]")).toBeNull();
+    expect(main.querySelector("[data-domain-work-window]")).toBeNull();
+    expect(main.querySelector("[data-domain-work-currentness], [data-domain-work-notice]")).toBeNull();
   });
 
   it("scopes the cold case-cell CSS to COLDCHAIN with [data-cold-cases] on both case tabs (W5-02c K5, ruling 12)", async () => {
     for (const kind of ["incidents", "maintenance"] as const) {
       const { main } = await mountCases(kind, loaded(body([incident(1)])));
       expect(main.querySelectorAll(".work-cases[data-cold-cases]")).toHaveLength(1);
+      // W5-04 V3a (readiness ruling 18): COLDCHAIN also carries `data-domain-cases`, and keeps every cold-only name.
+      expect(main.querySelector(".work-cases")?.getAttribute("data-domain-cases")).toBe("COLDCHAIN");
+      expect(main.querySelector("[data-cold-work-notice]")).not.toBeNull();
+      expect(main.querySelector("[data-domain-work-notice], [data-domain-work-source-unavailable], .domain-work-code")).toBeNull();
       cleanup();
     }
   });
