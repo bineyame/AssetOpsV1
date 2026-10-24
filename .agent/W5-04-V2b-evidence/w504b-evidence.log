@@ -1,0 +1,212 @@
+chrome pid 18032
+PASS  manifest: positive and zero ready (ruling 39)  {"positive":"ready","zero":"ready"}
+INFO  manifest pending: browser capture unavailable (ruling 54; pure component vector)  {"status":"unavailable","reason":"a late accepted event before W5-03 reassessment needs a modified replay; use the pure adapter/component vector"}
+INFO  manifest stale: browser capture unavailable (ruling 54; pure component vector)  {"status":"unavailable","reason":"a superseded source binding before reselection needs a modified replay; use the pure adapter/component vector"}
+INFO  manifest unknown: browser capture unavailable (ruling 54; pure component vector)  {"status":"unavailable","reason":"the replay selected 0 SUPPORTED EV Findings, so no Action detail state"}
+PASS  manifest: forbidden and unavailable processes recorded; unavailable stopped by attest  {"vectors":{"forbidden":{"http":403,"code":"SITE_SCOPE_FORBIDDEN"},"unavailable":{"stopped_pid":16904,"port":8987,"http_after_stop":0,"expected":"connection refused; the browser proxy reports 503"}}}
+PASS  desktop positive: settled  "rows"
+PASS  desktop positive: rows panel, CURRENT, stored Site name and R78 subtitle  {"panel":"rows","h1":"EV charging lab","subtitle":true}
+PASS  desktop positive: strip 'Scoped to … · 1 action' with the EV gap and no link (R79, R04)  {"scope":"Scoped to EV · 1 action","strip":"Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet."}
+PASS  desktop positive: row is the walkthrough Action with the mock criterion and Source label  {"id":"02d9d03a-c95b-4760-aebc-820c5947d9d2","codeOneLine":true,"codes":[{"text":"ACT-000001","lines":1},{"text":"Finding 721cde36","lines":1},{"text":"Not set","lines":1}],"height":47,"source":"Finding 721cde36","cellText":["ACT-000001 · Investigate connector 2","Finding 721cde36Finding version","Charging operations","Not set","Open","A complete witnessed session and no repeat fault"],"summaryLines":[1]}
+PASS  desktop positive: 'Due dates are not yet set' (R76)  "Due dates are not yet set"
+PASS  desktop positive: no 'Depot' text (ruling 52)  {"strip":"Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet."}
+PASS  desktop positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop positive: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop positive: page main <= 1600  {"main":568,"docHeight":1000}
+PASS  desktop positive: strip <= 100  39
+PASS  desktop positive: panel <= 650  {"panel":184,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop positive: context notice <= 110  42
+PASS  desktop positive: 1 visible row(s) measured  1
+PASS  desktop positive: every row's code is on one line  [[1,1,1]]
+PASS  desktop positive: EV Action codes are plain text (R113), no /actions/ href on the page  {"anchors":0,"hrefs":[]}
+PASS  desktop positive: every disclosure summary is on one line  [1]
+PASS  desktop positive: every row cell contains its content  []
+PASS  desktop positive: first column is position:sticky  true
+PASS  desktop positive: no clipped State badge, each on one line  {"badges":1,"clipped":0,"lines":[1]}
+PASS  desktop positive: Window control after the Work subtabs and before the scope strip (R112)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply","from":"2026-10-24","to":"2026-10-25","width":1160,"parentWidth":1160,"height":33,"rightGap":0,"leftGap":0,"error":null,"errorInside":null}
+PASS  desktop positive: Window labels are From (UTC) / To (UTC, exclusive) (R77)  "Window From (UTC) To (UTC, exclusive) Apply"
+PASS  desktop positive: Window shows the selected from/to dates  {"from":"2026-10-24","to":"2026-10-25","want":{"from":"2026-10-24","to":"2026-10-25"}}
+PASS  desktop positive: Window control right-aligned  {"rightGap":0}
+PASS  desktop positive: subtabs keep from, to and drop the cursor  [{"text":"Actions (1)","href":"/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"},{"text":"Incidents (1)","href":"/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"},{"text":"Maintenance (1)","href":"/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"}]
+PASS  desktop historical: settled  "rows"
+PASS  desktop historical: HISTORICAL notice (R80) with the row  {"status":"HISTORICAL","text":"Read as of 2026-10-24 05:33 UTC. Later work may differ."}
+PASS  desktop historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop historical: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop historical: page main <= 1600  {"main":628,"docHeight":1000}
+PASS  desktop historical: strip <= 100  39
+PASS  desktop historical: panel <= 650  {"panel":184,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop historical: context notice <= 110  42
+PASS  desktop historical: currentness notice <= 110  42
+PASS  desktop historical: 1 visible row(s) measured  1
+PASS  desktop historical: every row's code is on one line  [[1,1,1]]
+PASS  desktop historical: EV Action codes are plain text (R113), no /actions/ href on the page  {"anchors":0,"hrefs":[]}
+PASS  desktop historical: every disclosure summary is on one line  [1]
+PASS  desktop historical: every row cell contains its content  []
+PASS  desktop historical: first column is position:sticky  true
+PASS  desktop historical: no clipped State badge, each on one line  {"badges":1,"clipped":0,"lines":[1]}
+PASS  desktop zero: settled  "empty"
+PASS  desktop zero: exact mock successful zero, '0 actions'  {"panel":"empty","empty":"No actions at this site No accepted recommendation or evidence request has been raised here yet.","scope":"Scoped to EV · 0 actions"}
+PASS  desktop zero: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop zero: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop zero: page main <= 1600  {"main":646,"docHeight":1000}
+PASS  desktop zero: strip <= 100  39
+PASS  desktop zero: panel <= 460  {"panel":262,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop zero: context notice <= 110  42
+PASS  desktop forbidden-403: settled  "refused"
+PASS  desktop forbidden-403: Site read healthy, refusal inside the Actions panel  {"siteRefusal":null,"panel":"refused","refusal":"SITE_SCOPE_FORBIDDEN"}
+PASS  desktop forbidden-403: 'EV work unavailable', server message, Retry visible; no row, no zero  {"text":"EV work unavailable No access to Site 'EV-LAB-001'. Retry","scope":"Scoped to EV · — actions"}
+PASS  desktop forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop forbidden-403: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop forbidden-403: page main <= 1600  {"main":582,"docHeight":1000}
+PASS  desktop forbidden-403: strip <= 100  39
+PASS  desktop forbidden-403: panel <= 650  {"panel":198,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop forbidden-403: context notice <= 110  42
+PASS  desktop unavailable-503: settled  "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+INFO  desktop unavailable-503: the walkthrough stops this API, so every read fails at the proxy (Site-level refusal, not an in-panel EV 503)  {"siteRefusal":"Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.","panel":null}
+PASS  desktop unavailable-503: page states a refusal with no rows and no zero  {"siteRefusal":"Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.","panel":null}
+PASS  desktop unavailable-503: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop window-error: settled  "rows"
+PASS  desktop window-error: the window error is shown, readable and contained, URL unchanged (ruling 51)  {"error":"The window may span at most 31 days.","inside":true,"href":"/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"}
+PASS  desktop window-error: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop window-error: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+INFO  desktop window-error: expanded heights (ruling 26/51 exempt)  {"main":592,"strip":39,"panel":184,"docHeight":1000}
+INFO  desktop window-error: Window height  57
+PASS  narrow positive: settled  "rows"
+PASS  narrow positive: rows panel, CURRENT, stored Site name and R78 subtitle  {"panel":"rows","h1":"EV charging lab","subtitle":true}
+PASS  narrow positive: strip 'Scoped to … · 1 action' with the EV gap and no link (R79, R04)  {"scope":"Scoped to EV · 1 action","strip":"Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet."}
+PASS  narrow positive: row is the walkthrough Action with the mock criterion and Source label  {"id":"02d9d03a-c95b-4760-aebc-820c5947d9d2","codeOneLine":true,"codes":[{"text":"ACT-000001","lines":1},{"text":"Finding 721cde36","lines":1},{"text":"Not set","lines":1}],"height":62,"source":"Finding 721cde36","cellText":["ACT-000001 · Investigate connector 2","Finding 721cde36Finding version","Charging operations","Not set","Open","A complete witnessed session and no repeat fault"],"summaryLines":[1]}
+PASS  narrow positive: 'Due dates are not yet set' (R76)  "Due dates are not yet set"
+PASS  narrow positive: no 'Depot' text (ruling 52)  {"strip":"Scoped to EV · 1 action EV Actions recorded at this site Global Actions does not include EV Actions yet."}
+PASS  narrow positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow positive: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow positive: page main <= 2000  {"main":722,"docHeight":900}
+PASS  narrow positive: strip <= 150  61
+PASS  narrow positive: panel <= 850  {"panel":199,"tableScrollWidth":821,"tableClientWidth":318}
+PASS  narrow positive: context notice <= 160  60
+PASS  narrow positive: 1 visible row(s) measured  1
+PASS  narrow positive: every row's code is on one line  [[1,1,1]]
+PASS  narrow positive: EV Action codes are plain text (R113), no /actions/ href on the page  {"anchors":0,"hrefs":[]}
+PASS  narrow positive: every disclosure summary is on one line  [1]
+PASS  narrow positive: every row cell contains its content  []
+PASS  narrow positive: first column is position:sticky  true
+PASS  narrow positive: no clipped State badge, each on one line  {"badges":1,"clipped":0,"lines":[1]}
+PASS  narrow positive: table scrolls inside its panel  {"scrollWidth":821,"clientWidth":318}
+PASS  narrow positive: Window control after the Work subtabs and before the scope strip (R112)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply","from":"2026-10-24","to":"2026-10-25","width":358,"parentWidth":358,"height":136,"rightGap":0,"leftGap":0,"error":null,"errorInside":null}
+PASS  narrow positive: Window labels are From (UTC) / To (UTC, exclusive) (R77)  "Window From (UTC) To (UTC, exclusive) Apply"
+PASS  narrow positive: Window shows the selected from/to dates  {"from":"2026-10-24","to":"2026-10-25","want":{"from":"2026-10-24","to":"2026-10-25"}}
+PASS  narrow positive: Window control full width  {"width":358,"parent":358,"leftGap":0}
+PASS  narrow positive: subtabs keep from, to and drop the cursor  [{"text":"Actions (1)","href":"/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"},{"text":"Incidents (1)","href":"/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"},{"text":"Maintenance (1)","href":"/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"}]
+PASS  narrow historical: settled  "rows"
+PASS  narrow historical: HISTORICAL notice (R80) with the row  {"status":"HISTORICAL","text":"Read as of 2026-10-24 05:33 UTC. Later work may differ."}
+PASS  narrow historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow historical: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow historical: page main <= 2000  {"main":782,"docHeight":932}
+PASS  narrow historical: strip <= 150  61
+PASS  narrow historical: panel <= 850  {"panel":199,"tableScrollWidth":821,"tableClientWidth":318}
+PASS  narrow historical: context notice <= 160  60
+PASS  narrow historical: currentness notice <= 160  42
+PASS  narrow historical: 1 visible row(s) measured  1
+PASS  narrow historical: every row's code is on one line  [[1,1,1]]
+PASS  narrow historical: EV Action codes are plain text (R113), no /actions/ href on the page  {"anchors":0,"hrefs":[]}
+PASS  narrow historical: every disclosure summary is on one line  [1]
+PASS  narrow historical: every row cell contains its content  []
+PASS  narrow historical: first column is position:sticky  true
+PASS  narrow historical: no clipped State badge, each on one line  {"badges":1,"clipped":0,"lines":[1]}
+PASS  narrow historical: table scrolls inside its panel  {"scrollWidth":821,"clientWidth":318}
+PASS  narrow zero: settled  "empty"
+PASS  narrow zero: exact mock successful zero, '0 actions'  {"panel":"empty","empty":"No actions at this site No accepted recommendation or evidence request has been raised here yet.","scope":"Scoped to EV · 0 actions"}
+PASS  narrow zero: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow zero: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow zero: page main <= 2000  {"main":805,"docHeight":955}
+PASS  narrow zero: strip <= 150  61
+PASS  narrow zero: panel <= 560  {"panel":282,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow zero: context notice <= 160  60
+PASS  narrow forbidden-403: settled  "refused"
+PASS  narrow forbidden-403: Site read healthy, refusal inside the Actions panel  {"siteRefusal":null,"panel":"refused","refusal":"SITE_SCOPE_FORBIDDEN"}
+PASS  narrow forbidden-403: 'EV work unavailable', server message, Retry visible; no row, no zero  {"text":"EV work unavailable No access to Site 'EV-LAB-001'. Retry","scope":"Scoped to EV · — actions"}
+PASS  narrow forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow forbidden-403: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow forbidden-403: page main <= 2000  {"main":721,"docHeight":900}
+PASS  narrow forbidden-403: strip <= 150  61
+PASS  narrow forbidden-403: panel <= 850  {"panel":198,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow forbidden-403: context notice <= 160  60
+PASS  narrow unavailable-503: settled  "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+INFO  narrow unavailable-503: the walkthrough stops this API, so every read fails at the proxy (Site-level refusal, not an in-panel EV 503)  {"siteRefusal":"Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.","panel":null}
+PASS  narrow unavailable-503: page states a refusal with no rows and no zero  {"siteRefusal":"Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.","panel":null}
+PASS  narrow unavailable-503: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow window-error: settled  "rows"
+PASS  narrow window-error: the window error is shown, readable and contained, URL unchanged (ruling 51)  {"error":"The window may span at most 31 days.","inside":true,"href":"/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"}
+PASS  narrow window-error: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow window-error: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+INFO  narrow window-error: expanded heights (ruling 26/51 exempt)  {"main":747,"strip":61,"panel":199,"docHeight":900}
+INFO  narrow window-error: Window height  161
+PASS  seed: child exited 0 and reported its POSTs  {"exit":0,"stderr":"C:\\Users\\assef\\Bineyame\\AssetOpsV1-review3\\.venv\\Lib\\site-packages\\fastapi\\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\r\n  from starlette.testclient import TestClient as TestClient  # noqa\r\n"}
+PASS  seed 2: Action 201 and intent 201 through the public domain-work routes (SERVICE principal, in-process)  {"n":2,"action_status":201,"action_id":"1754c549-8e1f-4bc5-9586-25e5ca7a137f","action_code":"ACT-000002","title_code_points":160,"owner_code_points":160,"intent_status":201,"intent_id":"1cd382fa-095a-48d9-80cf-45301be93467","refusal":null}
+PASS  seed 3: Action 201 and intent 201 through the public domain-work routes (SERVICE principal, in-process)  {"n":3,"action_status":201,"action_id":"7b515825-fa8e-4cb2-911c-db72c0c248c2","action_code":"ACT-000003","title_code_points":160,"owner_code_points":160,"intent_status":201,"intent_id":"e5663371-4d54-45c9-abe4-ff841351a210","refusal":null}
+PASS  seed 4: Action 201 and intent 201 through the public domain-work routes (SERVICE principal, in-process)  {"n":4,"action_status":201,"action_id":"711d6dd0-dfc8-4065-aa21-d72567ede4c3","action_code":"ACT-000004","title_code_points":160,"owner_code_points":160,"intent_status":201,"intent_id":"88931a2a-afad-4587-9920-6599727fd5e6","refusal":null}
+PASS  seed 5: Action 201 and intent 201 through the public domain-work routes (SERVICE principal, in-process)  {"n":5,"action_status":201,"action_id":"5abf4a94-18eb-496a-98fb-0a88117e177d","action_code":"ACT-000005","title_code_points":160,"owner_code_points":160,"intent_status":201,"intent_id":"50113718-d42b-42de-b91c-1af84b7dc168","refusal":null}
+PASS  desktop worst-folded: settled  "rows"
+PASS  desktop worst-folded: 5 rows on the page, 4 visible, 'Show all 5 Actions' (R108)  {"total":5,"visible":4,"showAll":"Show all 5 Actions"}
+PASS  desktop worst-folded: '5 actions' count and 36-character Action IDs  {"scope":"Scoped to EV · 5 actions"}
+PASS  desktop worst-folded: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop worst-folded: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop worst-folded: page main <= 1600  {"main":864,"docHeight":1000}
+PASS  desktop worst-folded: strip <= 100  39
+PASS  desktop worst-folded: panel <= 650  {"panel":480,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop worst-folded: context notice <= 110  42
+PASS  desktop worst-folded: 4 visible row(s) measured  4
+PASS  desktop worst-folded: every row's code is on one line  [[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+PASS  desktop worst-folded: EV Action codes are plain text (R113), no /actions/ href on the page  {"anchors":0,"hrefs":[]}
+PASS  desktop worst-folded: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  desktop worst-folded: every row cell contains its content  []
+PASS  desktop worst-folded: every long-text preview is at most two lines  [2,2,2,2,2,2,2,2]
+PASS  desktop worst-folded: first column is position:sticky  true
+PASS  desktop worst-folded: no clipped State badge, each on one line  {"badges":4,"clipped":0,"lines":[1,1,1,1]}
+PASS  desktop worst-expanded: settled  "rows"
+PASS  desktop worst-expanded: all 5 rows visible, every long title disclosure open  {"rows":5,"title":4,"open":4}
+PASS  desktop worst-expanded: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1425,"clientWidth":1425}
+PASS  desktop worst-expanded: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+INFO  desktop worst-expanded: expanded heights (ruling 26/51 exempt)  {"main":1200,"strip":39,"panel":816,"docHeight":1274}
+PASS  desktop worst-expanded: 5 visible row(s) measured  5
+PASS  desktop worst-expanded: every row's code is on one line  [[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+PASS  desktop worst-expanded: EV Action codes are plain text (R113), no /actions/ href on the page  {"anchors":0,"hrefs":[]}
+PASS  desktop worst-expanded: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  desktop worst-expanded: every row cell contains its content  []
+PASS  desktop worst-expanded: every opened disclosure body stays inside its cell with no horizontal clip  []
+PASS  desktop worst-expanded: first column is position:sticky  true
+PASS  desktop worst-expanded: no clipped State badge, each on one line  {"badges":5,"clipped":0,"lines":[1,1,1,1,1]}
+PASS  desktop worst-expanded: opened bodies show the full 160-code-point values  [173,160,173,160,173,160,173,160]
+PASS  narrow worst-folded: settled  "rows"
+PASS  narrow worst-folded: 5 rows on the page, 4 visible, 'Show all 5 Actions' (R108)  {"total":5,"visible":4,"showAll":"Show all 5 Actions"}
+PASS  narrow worst-folded: '5 actions' count and 36-character Action IDs  {"scope":"Scoped to EV · 5 actions"}
+PASS  narrow worst-folded: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow worst-folded: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow worst-folded: page main <= 2000  {"main":1003,"docHeight":1152}
+PASS  narrow worst-folded: strip <= 150  61
+PASS  narrow worst-folded: panel <= 850  {"panel":480,"tableScrollWidth":821,"tableClientWidth":318}
+PASS  narrow worst-folded: context notice <= 160  60
+PASS  narrow worst-folded: 4 visible row(s) measured  4
+PASS  narrow worst-folded: every row's code is on one line  [[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+PASS  narrow worst-folded: EV Action codes are plain text (R113), no /actions/ href on the page  {"anchors":0,"hrefs":[]}
+PASS  narrow worst-folded: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  narrow worst-folded: every row cell contains its content  []
+PASS  narrow worst-folded: every long-text preview is at most two lines  [2,2,2,2,2,2,2,2]
+PASS  narrow worst-folded: first column is position:sticky  true
+PASS  narrow worst-folded: no clipped State badge, each on one line  {"badges":4,"clipped":0,"lines":[1,1,1,1]}
+PASS  narrow worst-folded: table scrolls inside its panel  {"scrollWidth":821,"clientWidth":318}
+PASS  narrow worst-expanded: settled  "rows"
+PASS  narrow worst-expanded: all 5 rows visible, every long title disclosure open  {"rows":5,"title":4,"open":4}
+PASS  narrow worst-expanded: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow worst-expanded: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+INFO  narrow worst-expanded: expanded heights (ruling 26/51 exempt)  {"main":1409,"strip":61,"panel":886,"docHeight":1559}
+PASS  narrow worst-expanded: 5 visible row(s) measured  5
+PASS  narrow worst-expanded: every row's code is on one line  [[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+PASS  narrow worst-expanded: EV Action codes are plain text (R113), no /actions/ href on the page  {"anchors":0,"hrefs":[]}
+PASS  narrow worst-expanded: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  narrow worst-expanded: every row cell contains its content  []
+PASS  narrow worst-expanded: every opened disclosure body stays inside its cell with no horizontal clip  []
+PASS  narrow worst-expanded: first column is position:sticky  true
+PASS  narrow worst-expanded: no clipped State badge, each on one line  {"badges":5,"clipped":0,"lines":[1,1,1,1,1]}
+PASS  narrow worst-expanded: table scrolls inside its panel  {"scrollWidth":821,"clientWidth":318}
+PASS  narrow worst-expanded: opened bodies show the full 160-code-point values  [173,160,173,160,173,160,173,160]
+199 PASS, 0 FAIL, 11 INFO
