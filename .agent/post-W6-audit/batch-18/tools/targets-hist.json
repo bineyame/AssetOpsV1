@@ -1,0 +1,22 @@
+[
+ {
+  "id": "incidents",
+  "case": "historical",
+  "url": "http://127.0.0.1:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z"
+ },
+ {
+  "id": "incidents",
+  "case": "historical-current",
+  "url": "http://127.0.0.1:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "historical",
+  "url": "http://127.0.0.1:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A03Z"
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "historical-current",
+  "url": "http://127.0.0.1:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ }
+]

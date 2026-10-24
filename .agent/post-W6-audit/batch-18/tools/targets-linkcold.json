@@ -1,0 +1,38 @@
+[
+ {
+  "id": "link",
+  "case": "linkcold-site-incidents",
+  "url": "http://127.0.0.1:5188/sites/COLD-LAB-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A48%3A29Z",
+  "mock": "cold-work-incidents"
+ },
+ {
+  "id": "link",
+  "case": "linkcold-site-overview",
+  "url": "http://127.0.0.1:5188/sites/COLD-LAB-001",
+  "mock": "cold"
+ },
+ {
+  "id": "link",
+  "case": "linkcold-finding",
+  "url": "http://127.0.0.1:5188/sites/COLD-LAB-001/findings/05280089-bd9e-4845-b6fc-abdb0352bb8c?revision_id=58fd6449-3dcd-4d83-b7c6-aab56a324e34",
+  "mock": "cold-finding"
+ },
+ {
+  "id": "link",
+  "case": "linkcold-finding2",
+  "url": "http://127.0.0.1:5188/sites/COLD-LAB-001/findings/29553f83-8f0c-4fef-a8cc-89a9ca76d7b5?revision_id=3133d48c-5f18-42b2-88b7-d755a392b2e0",
+  "mock": "cold-finding"
+ },
+ {
+  "id": "link",
+  "case": "linkcold-action",
+  "url": "http://127.0.0.1:5188/sites/COLD-LAB-001/actions/3728c61a-0d38-4f19-a3b0-adb86ad31b53/verification",
+  "mock": "cold-action"
+ },
+ {
+  "id": "link",
+  "case": "linkcold-request",
+  "url": "http://127.0.0.1:5188/maintenance/requests/b5701561-1a30-4545-9536-ac4a57fb4fd8?site_id=COLD-LAB-001",
+  "mock": "wr-overview"
+ }
+]

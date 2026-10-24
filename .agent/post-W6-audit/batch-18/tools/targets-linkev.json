@@ -1,0 +1,26 @@
+[
+ {
+  "id": "link",
+  "case": "linkev-site-incidents",
+  "url": "http://127.0.0.1:5188/sites/EV-LAB-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A52%3A41Z",
+  "mock": "ev-work-incidents"
+ },
+ {
+  "id": "link",
+  "case": "linkev-site-overview",
+  "url": "http://127.0.0.1:5188/sites/EV-LAB-001",
+  "mock": "ev"
+ },
+ {
+  "id": "link",
+  "case": "linkev-action",
+  "url": "http://127.0.0.1:5188/sites/EV-LAB-001/actions/8bf35356-500f-418e-b864-ede581cf6f0b/verification",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link",
+  "case": "linkev-request",
+  "url": "http://127.0.0.1:5188/maintenance/requests/c2b6a2b2-879f-4fa7-8d08-53f0aa6e02d4?site_id=EV-LAB-001",
+  "mock": "wr-overview"
+ }
+]

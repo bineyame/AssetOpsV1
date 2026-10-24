@@ -1,0 +1,81 @@
+{
+  "clock": "2026-10-20T12:00:00Z",
+  "commands": [],
+  "fixture": "preventive",
+  "sites": [
+    {
+      "site_code": "KOBO-001",
+      "site_id": "802d48d4-bf9d-48f2-8d91-8785b43ab145",
+      "tenant": "demo",
+      "tenant_id": "444378aa-bd94-4671-8580-8a411b42fba1"
+    },
+    {
+      "site_code": "KOBO-002",
+      "site_id": "9b05b78e-5829-457a-ba70-7c703a2578cd",
+      "tenant": "demo",
+      "tenant_id": "444378aa-bd94-4671-8580-8a411b42fba1"
+    },
+    {
+      "site_code": "KOBO-001",
+      "site_id": "e1a08ab2-2d34-4355-9997-0dac997c35a4",
+      "tenant": "w601-other",
+      "tenant_id": "f3fb6e68-1482-4635-a312-550294f3d1bf"
+    }
+  ],
+  "written": [
+    {
+      "code": "PM-000001",
+      "kind": "PLAN",
+      "plan_id": "0b7c2ab4-bcbe-41c5-994d-599f077bcefa",
+      "site_code": "KOBO-001",
+      "supersedes_plan_id": null,
+      "tenant": "demo",
+      "title": "Inspect filters"
+    },
+    {
+      "code": "PM-000002",
+      "kind": "PLAN",
+      "plan_id": "bd535b04-2c27-4024-bb92-734c22481240",
+      "site_code": "KOBO-001",
+      "supersedes_plan_id": null,
+      "tenant": "demo",
+      "title": "Generator 500-hour service"
+    },
+    {
+      "code": "PM-000003",
+      "kind": "PLAN",
+      "plan_id": "95ba1b50-d399-4e95-bded-b1cdf9fe710f",
+      "site_code": "KOBO-001",
+      "supersedes_plan_id": null,
+      "tenant": "demo",
+      "title": "Check battery cabinet"
+    },
+    {
+      "code": "PM-000004",
+      "kind": "PLAN",
+      "plan_id": "15ed8195-0576-4c24-969f-1898817e98d6",
+      "site_code": "KOBO-002",
+      "supersedes_plan_id": null,
+      "tenant": "demo",
+      "title": "Inspect pump seals"
+    },
+    {
+      "code": "PM-000005",
+      "kind": "PLAN",
+      "plan_id": "64a469a7-6587-400f-90ed-409783e31b32",
+      "site_code": "KOBO-002",
+      "supersedes_plan_id": null,
+      "tenant": "demo",
+      "title": "Review switchgear"
+    },
+    {
+      "code": "PM-000006",
+      "kind": "PLAN",
+      "plan_id": "0c4158b5-8a3b-4575-acca-008ffaadad0a",
+      "site_code": "KOBO-001",
+      "supersedes_plan_id": null,
+      "tenant": "w601-other",
+      "title": "Other tenant plan"
+    }
+  ]
+}

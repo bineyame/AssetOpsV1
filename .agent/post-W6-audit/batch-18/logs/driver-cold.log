@@ -1,0 +1,7 @@
+VITE_PID scope 29220
+DONE scope 48/48 claims passed; evidence in ..\part-scope
+VITE_PID cold 7796
+DONE cold 84/84 claims passed; evidence in ..\part-cold
+VITE_PID coldwc 500
+DONE coldwc 84/84 claims passed; evidence in ..\part-coldwc
+ALL_DONE

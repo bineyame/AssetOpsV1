@@ -1,0 +1,19 @@
+VITE_PID inc 7140
+DONE inc 96/96 claims passed; evidence in ..\part-inc
+VITE_PID maint 28616
+DONE maint 96/96 claims passed; evidence in ..\part-maint
+VITE_PID prev 13112
+DONE prev 84/84 claims passed; evidence in ..\part-prev
+VITE_PID op 15012
+DONE op 180/180 claims passed; evidence in ..\part-op
+VITE_PID zero 6176
+DONE zero 48/48 claims passed; evidence in ..\part-zero
+VITE_PID hist 6328
+DONE hist 48/48 claims passed; evidence in ..\part-hist
+VITE_PID stress 22372
+DONE stress 96/96 claims passed; evidence in ..\part-stress
+VITE_PID linked 30912
+DONE linked 36/36 claims passed; evidence in ..\part-linked
+VITE_PID absent 24500
+DONE absent 48/48 claims passed; evidence in ..\part-absent
+ALL_DONE
