@@ -26,6 +26,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, OperationalError
 
+from assetops_backend.work.domain_action import DOMAINS
 from assetops_backend.work.link_coverage import DOMAIN_ACTION
 from assetops_backend.work.model import WorkStoreUnavailable
 
@@ -46,7 +47,7 @@ _MICROSECOND = timedelta(microseconds=1)
 _DOMAIN_LINKS = (
     "SELECT DISTINCT ON (l.action_id) CAST(l.action_id AS text) AS action_id, "
     "CAST(a.origin_finding_id AS text) AS origin_finding_id, "
-    "CAST(a.origin_finding_revision_id AS text) AS origin_finding_revision_id "
+    "CAST(a.origin_finding_revision_id AS text) AS origin_finding_revision_id, a.domain AS action_domain "
     "FROM domain_action_case_link l "
     "JOIN work_case_revision cur ON cur.tenant_id = l.tenant_id AND cur.site_id = l.site_id AND cur.id = :r "
     "AND cur.case_id = l.case_id "
@@ -70,6 +71,9 @@ _ELIGIBLE = ("SELECT CAST(c.id AS text) AS id, c.kind, c.public_code, CAST(c.ass
              "AND c.{member} >= :lo AND c.{member} < :hi AND EXISTS (SELECT 1 FROM work_case_revision v "
              "WHERE v.tenant_id = c.tenant_id AND v.site_id = c.site_id AND v.case_id = c.id AND v.recorded_at <= :k)")
 _MEMBER = {"INCIDENT": "occurred_at", "MAINTENANCE_REQUEST": "created_at"}
+#: W5-04a pre-flight 9 / readiness 12: the stored domain Action literal -> its Finding (analytics) domain, from the
+#: closed `DOMAINS`; an unreviewed domain maps to nothing and its link stays UNKNOWN.
+_FINDING_DOMAIN_OF = {name: spec.finding_domain for name, spec in DOMAINS.items()}
 
 
 def _rows(result) -> list[dict[str, Any]]:
@@ -92,6 +96,13 @@ class LinkReadPorts:
     action_window: Callable[..., dict[str, Any]] | None = None
     # W5-02a ruling B1: `ColdReadService.envelope_on` of the same cold read owner, for the K1b domain Action detail.
     cold_envelope: Callable[..., dict[str, Any]] | None = None
+    # W5-04a V1a (readiness ruling 5): `EvReadService.sessions_on`, `findings_on` and `selected_provenance_on` of the
+    # same EV read owner as `ev_snapshot`, each `(connection, snap, ...)`; bound in `work/composition.py`.
+    ev_sessions: Callable[..., list[dict[str, Any]]] | None = None
+    ev_findings: Callable[..., list[dict[str, Any]]] | None = None
+    ev_selected_provenance: Callable[..., dict[str, Any]] | None = None
+    # W5-04a V1 (readiness 30): `EvReadService.accepted_on`, the window's accepted public records (set A).
+    ev_accepted: Callable[..., list[dict[str, Any]]] | None = None
 
 
 class _ReadTx:
@@ -205,19 +216,22 @@ class _ReadTx:
             "LEFT JOIN finding_revision fr ON fr.tenant_id = a.tenant_id AND fr.site_id = a.site_id "
             "AND fr.id = a.origin_finding_revision_id AND fr.finding_id = a.origin_finding_id AND fr.created_at <= :k "
             "WHERE l.tenant_id = :t AND l.site_id = :s AND l.case_revision_id = :r"), p))
-        # Ruling C1: an explicit domain link's selected ID is its root's pinned cold Finding revision; lineage
-        # needs that exact stored `cold_chain` revision of the origin Finding by the cutoff.
+        # Ruling C1: an explicit domain link's selected ID is its root's pinned Finding revision; lineage needs that
+        # exact stored revision of the origin Finding by the cutoff, in the Finding domain mapped from the Action
+        # row's own domain (W5-04a readiness ruling 12: `cold_chain` or `ev_charging`, never a hard-coded cold).
         domain_rows = []
         for link in self._domain_links(revision_id, known_at):
-            fr = _rows(self._c.execute(text(
+            finding_domain = _FINDING_DOMAIN_OF.get(link["action_domain"])
+            fr = [] if finding_domain is None else _rows(self._c.execute(text(
                 f"SELECT fr.id AS pinned, {_FINDING_PIN} FROM finding_revision fr WHERE fr.tenant_id = :t "
-                "AND fr.site_id = :s AND fr.id = :f AND fr.finding_id = :fid AND fr.domain = 'cold_chain' "
+                "AND fr.site_id = :s AND fr.id = :f AND fr.finding_id = :fid AND fr.domain = :fd "
                 "AND fr.created_at <= :k"),
-                self._p(f=link["origin_finding_revision_id"], fid=link["origin_finding_id"], k=known_at)))
+                self._p(f=link["origin_finding_revision_id"], fid=link["origin_finding_id"], fd=finding_domain,
+                        k=known_at)))
             domain_rows.append({"root_id": link["action_id"], "selected_id": link["origin_finding_revision_id"],
                                 "origin_finding_id": link["origin_finding_id"],
                                 "origin_finding_revision_id": link["origin_finding_revision_id"],
-                                **(fr[0] if fr else {"pinned": None, "domain": "cold_chain"})})
+                                **(fr[0] if fr else {"pinned": None, "domain": finding_domain})})
         out = []
         for kind, rows in (("FINDING", finding), ("ACTION", action), (DOMAIN_ACTION, domain_rows)):
             for row in rows:

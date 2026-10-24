@@ -1,4 +1,4 @@
-"""W5-02a K1b: the cold domain Action detail and the Site Action union index (reads only).
+"""W5-02a K1b / W5-04a V1b: the domain Action detail (cold, EV) and the Site Action union index (reads only).
 
 `.agent/W5-02-build-spec.md` "Command/read wire", "Site Action index", "Backend wire ... (K1a-K1c)" lines K1b,
 and the Architect pre-flight ruling B1-B3:
@@ -49,9 +49,10 @@ KIND_W1, KIND_DOMAIN = "ACTION", "DOMAIN_ACTION"
 _CURSOR_TEXT = ("kind", "tenant_id", "site_id", "from", "to", "known_at", "selection_token")
 
 #: Initial supported replay results, in criteria display order (spec "Criteria keys").
-INITIAL_RESULTS = ("NOT_TESTED", "NOT_TESTED", "NOT_ESTABLISHED", "PENDING")
-#: `criterion_summary` from the selected intent's exact criterion keys (never a fixture constant).
-CRITERION_SUMMARY = {tuple(k for k, _, _ in d.CRITERIA): "Start requested → generator runs → power → cooling"}
+INITIAL_RESULTS = d.DOMAINS[d.DOMAIN].initial_results
+#: `criterion_summary` from the selected intent's exact criterion keys (never a fixture constant); one entry per
+#: closed domain contract (W5-04a pre-flight 9).
+CRITERION_SUMMARY = {tuple(k for k, _, _ in spec.criteria): spec.summary for spec in d.DOMAINS.values()}
 
 
 @dataclass(frozen=True)
@@ -144,10 +145,20 @@ def _head(intents: list[dict[str, Any]]) -> dict[str, Any] | None:
     return intents[-1] if intents else None
 
 
-def _summary(intent: Mapping[str, Any] | None) -> str | None:
+def _summary(intent: Mapping[str, Any] | None, spec: d.DomainSpec | None = None) -> str | None:
+    """The domain's summary only for its exact ordered criterion keys (W5-04 build spec "EV closure contract")."""
     if intent is None:
         return None
-    return CRITERION_SUMMARY.get(tuple(c.get("key") for c in intent["criteria"] or ()))
+    keys = tuple(c.get("key") for c in intent["criteria"] or ())
+    if spec is None:
+        return CRITERION_SUMMARY.get(keys)
+    return spec.summary if keys == tuple(k for k, _, _ in spec.criteria) else None
+
+
+def _finding_domain(action: Mapping[str, Any]) -> str | None:
+    """The analytics Finding domain of the Action row's stored domain (readiness 12); None outside `DOMAINS`."""
+    spec = d.spec_of(action["domain"])
+    return None if spec is None else spec.finding_domain
 
 
 def _finding_href(site_code: str, finding_id: str, revision_id: str, selected: bool) -> str | None:
@@ -155,7 +166,8 @@ def _finding_href(site_code: str, finding_id: str, revision_id: str, selected: b
 
 
 class _Lineage:
-    """Per-snapshot cache of the selected cold Finding pin of each pinned revision (ruling B1/B2)."""
+    """Per-snapshot cache of the selected Finding pin of each pinned revision (ruling B1/B2), by the Action row's
+    domain (W5-04a V1b)."""
 
     def __init__(self, rx: Any, known_at: datetime) -> None:
         self._rx, self._k, self._pins = rx, known_at, {}
@@ -168,16 +180,17 @@ class _Lineage:
             rid = a["origin_finding_revision_id"]
             if rid not in self._pins:
                 rev = revisions.get(rid)
-                ok = rev is not None and rev["finding_id"] == a["origin_finding_id"] and rev["domain"] == d.FINDING_DOMAIN
+                ok = (rev is not None and rev["finding_id"] == a["origin_finding_id"]
+                      and rev["domain"] == _finding_domain(a))
                 self._pins[rid] = {"revision": rev if ok else None,
                                    "pin": self._rx.pin(rev, self._k) if ok else None}
             out[a["id"]] = self._pins[rid]
         return out
 
 
-def _source_state(pin: Mapping[str, Any] | None) -> str:
-    """The pinned cold Finding's source state without HISTORICAL (the cutoff is applied once, envelope-wide)."""
-    return link_state({"domain": d.FINDING_DOMAIN, "pin": pin}, False)
+def _source_state(pin: Mapping[str, Any] | None, finding_domain: str | None = d.FINDING_DOMAIN) -> str:
+    """The pinned Finding's source state without HISTORICAL (the cutoff is applied once, envelope-wide)."""
+    return link_state({"domain": finding_domain, "pin": pin}, False)
 
 
 class DomainActionReadService:
@@ -199,6 +212,8 @@ class DomainActionReadService:
             action = None if aid is None else rx.action(aid, known_at)
             if action is None:
                 raise d.refuse("ACTION_NOT_FOUND")
+            if action["domain"] == d.EV_DOMAIN:
+                return self._ev_detail(rx, tenant_id, site_id, site_code, action, known_at, historical)
             lineage = _Lineage(rx, known_at).resolve([action])[action["id"]]
             pin = lineage["pin"]
             if pin is not None:
@@ -258,6 +273,82 @@ class DomainActionReadService:
             }
 
         return self._reads.snapshot(tenant_id, site_id, site_code, work)
+
+    @staticmethod
+    def _ev_selection(rx: Any, action: Mapping[str, Any], cutoff: datetime) -> dict[str, Any] | None:
+        """Readiness 27: the Action's exact EV Finding revision re-selected at `cutoff` (its run window, the pin's
+        evidence cutoff and seqs) with its selected basis; None when that exact revision is not selected."""
+        rid = action["origin_finding_revision_id"]
+        rev = rx.finding_revisions([rid], cutoff).get(rid)
+        if rev is None or rev["finding_id"] != action["origin_finding_id"] or rev["domain"] != d.EV_FINDING_DOMAIN:
+            return None
+        pin = rx.pin(rev, cutoff)
+        if pin is None:
+            return None
+        ev = rx.ev_basis(pin, cutoff, rid)
+        return ev if d.ev_selects_finding(ev, rid) else None
+
+    def _ev_detail(self, rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, action: Mapping[str, Any],
+                   known_at: datetime, historical: bool) -> dict[str, Any]:
+        """W5-04a V1b: the EV Action detail (no cold envelope). The selection cutoff is the selected intent's
+        `recorded_at` bounded by the read `known_at` (readiness 27), else `known_at`; with an intent, the exact
+        Finding revision, every declared session root with its selected revision and every declared citation are
+        rechecked there, and any miss is 409 `DOMAIN_INTENT_BASIS_CHANGED` - no later head is substituted. Status is
+        the selected EV read's own state; results are the three fixed PENDING rows citing nothing."""
+        spec = d.DOMAINS[d.EV_DOMAIN]
+        intent = _head(rx.intents([action["id"]], known_at))
+        cutoff = known_at if intent is None else min(intent["recorded_at"], known_at)
+        ev = self._ev_selection(rx, action, cutoff)
+        rid = action["origin_finding_revision_id"]
+        if intent is not None and (ev is None or intent["basis"]["finding_revision_id"] != rid
+                                   or not d.ev_members_selected(ev, intent["basis"])):
+            raise spec.refuse("DOMAIN_INTENT_BASIS_CHANGED")
+        selected = ev is not None
+        states = [_source_state(None if ev is None else {"state": ev["state"]}, spec.finding_domain)]
+        token_case, record_id, cited, session_revisions = None, None, [], []
+        if intent is not None:
+            basis = intent["basis"]
+            cited = sorted(basis["accepted_evidence_ids"])
+            record_id = basis["work_record_id"]
+            roots = {str(k).lower(): v for k, v in ev["sessions"].items()}
+            session_revisions = [roots[str(s).lower()] for s in basis["session_ids"]]
+            if basis["work_case_id"] is not None:
+                token_case = rx.selected_case_link(action["id"], basis["work_case_id"], intent["recorded_at"])
+                states.append(CURRENT if token_case is not None else UNKNOWN)
+        status = worst(states)
+        if status == CURRENT and historical:
+            status = HISTORICAL
+        token = d.selection_token(tenant_id, site_id, action, rid, None if intent is None else intent["id"],
+                                  token_case, record_id, cited)
+        ids = [action["id"], rid, *session_revisions]
+        if intent is not None:
+            ids.append(intent["id"])
+        if token_case is not None:
+            ids += [token_case["case_revision_id"], token_case["case_event_id"]]
+        if record_id is not None:
+            ids.append(record_id)
+        provenance = provenance_dto(rx, tenant_id, site_id, cited, sorted(set(ids)))
+        if not selected:
+            provenance = missing_lineage(provenance)
+        fid = action["origin_finding_id"]
+        return {
+            "schema_version": SCHEMA_DETAIL, "site_code": site_code,
+            "action": {"id": action["id"], "action_code": action["action_code"], "domain": action["domain"],
+                       "title": action["title"], "owner_label": action["owner_label"],
+                       "due_at": _iso(action["due_at"]), "raised_at": m.iso(action["raised_at"]),
+                       "recorded_at": m.iso(action["recorded_at"]), "state": STATE_OPEN},
+            "known_at": m.iso(known_at), "status": status,
+            "intent": None if intent is None else {
+                "id": intent["id"], "recorded_at": m.iso(intent["recorded_at"]), "criteria": intent["criteria"],
+                "basis": intent["basis"]},
+            "results": None if intent is None else [
+                {"key": c["key"], "result": r, "evidence_ids": []}
+                for c, r in zip(intent["criteria"], spec.initial_results)],
+            "links": {"finding": {"label": f"Finding {fid[:8]}",
+                                  "href": _finding_href(site_code, fid, rid, selected)},
+                      "work": self._work(rx, action["id"], known_at)},
+            "source_provenance": provenance, "selection_token": token,
+        }
 
     @staticmethod
     def _work(rx: Any, action_id: str, known_at: datetime) -> dict[str, Any]:
@@ -357,10 +448,19 @@ class DomainActionReadService:
             fence.append((KIND_W1, w1["action_id"], m.iso(created), None, origin["finding_revision_id"]))
             states.append(CURRENT)  # ruling B2: W1 contributes CURRENT/COMPLETE
         actions = rx.actions_in_window(lo, hi, known_at)
-        lineage = _Lineage(rx, known_at).resolve(actions)
         intents: dict[str, list[dict[str, Any]]] = {}
         for i in rx.intents([a["id"] for a in actions], known_at) if actions else []:
             intents.setdefault(i["action_id"], []).append(i)
+        # Readiness 53: an EV row with a selected intent resolves its exact Finding at the intent's immutable pin
+        # `min(intent.recorded_at, known_at)`, as the detail does; every other row keeps the read `known_at`.
+        cutoffs: dict[str, datetime] = {}
+        for a in actions:
+            head = _head(intents.get(a["id"], []))
+            cutoffs[a["id"]] = (known_at if head is None or a["domain"] != d.EV_DOMAIN
+                                else min(head["recorded_at"], known_at))
+        lineage: dict[str, dict[str, Any]] = {}
+        for cutoff in sorted(set(cutoffs.values())):
+            lineage.update(_Lineage(rx, cutoff).resolve([a for a in actions if cutoffs[a["id"]] == cutoff]))
         for a in actions:
             pin = lineage[a["id"]]["pin"]
             intent = _head(intents.get(a["id"], []))
@@ -373,11 +473,11 @@ class DomainActionReadService:
                 "recorded_at": m.iso(a["recorded_at"]),
                 "origin": {"finding_id": fid, "finding_revision_id": frev, "label": f"Finding {fid[:8]}",
                            "href": _finding_href(site_code, fid, frev, selected)},
-                "state": STATE_OPEN, "criterion_summary": _summary(intent),
+                "state": STATE_OPEN, "criterion_summary": _summary(intent, d.spec_of(a["domain"])),
                 "links": {"action": f"/sites/{site_code}/actions/{a['id']}/verification", "history": None}}})
             fence.append((KIND_DOMAIN, a["id"], m.iso(raised), None if intent is None else intent["id"],
                           frev if selected else None))
-            states.append(_source_state(pin))
+            states.append(_source_state(pin, _finding_domain(a)))
         rows.sort(key=lambda r: r["after"][1])
         rows.sort(key=lambda r: r["after"][0], reverse=True)
         fence.sort(key=lambda f: f[1])

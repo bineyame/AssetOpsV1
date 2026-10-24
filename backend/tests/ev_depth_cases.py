@@ -115,13 +115,15 @@ def declared_empty(built: Chain) -> str:
     return str(new_id).lower()
 
 
-def add_import(built: Chain, value: str, *, quality: str | None = None, unit: str | None = None) -> str:
+def add_import(built: Chain, value: str, *, quality: str | None = None, unit: str | None = None,
+               db_time: bool = False) -> str:
     """W5-03a fix (ruling 2): a persisted accepted `ev_site_import` row cloned from the first replayed import row with
     a new identity, the given stored value and optionally a different quality or normalized unit, plus its ACCEPTED
     disposition at the original clock. Inserted after `select_exact` it is accepted but outside the selected evidence
     set; inserted before a fresh `select_exact` it is selected. Each call queues a PENDING recompute job over the
     window (the enqueue trigger), so reads stay PENDING_RECOMPUTE until `run_worker(built)` settles it. Returns the new
-    evidence ID (lowercase)."""
+    evidence ID (lowercase). `db_time=True` (W5-04a review L2) stamps the disposition `decided_at` with DB
+    `clock_timestamp()` instead of the replay's virtual clock, i.e. a genuinely late decision."""
     new_id = uuid4()
     with built.engine.begin() as c:
         old = c.execute(text("SELECT id, batch_id FROM accepted_evidence WHERE site_id = :s AND role = 'ev_site_import' "
@@ -137,7 +139,8 @@ def add_import(built: Chain, value: str, *, quality: str | None = None, unit: st
                        "normalized_value_text = :v, original_value_text = :v, "
                        "quality = COALESCE(:q, quality), normalized_unit = COALESCE(:u, normalized_unit)"),
                   {"n": new_id, "o": ordinal, "m": message, "v": value, "q": quality, "u": unit})
-        c.execute(text("UPDATE _w503a_d SET ordinal = :o, message_id = :m, accepted_evidence_id = :n"),
+        c.execute(text("UPDATE _w503a_d SET ordinal = :o, message_id = :m, accepted_evidence_id = :n"
+                       + (", decided_at = clock_timestamp()" if db_time else "")),
                   {"o": ordinal, "m": message, "n": new_id})
         c.execute(text("INSERT INTO accepted_evidence SELECT * FROM _w503a_e"))
         c.execute(text("INSERT INTO ingestion_disposition SELECT * FROM _w503a_d"))
