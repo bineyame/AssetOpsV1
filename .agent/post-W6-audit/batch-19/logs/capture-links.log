@@ -1,0 +1,63 @@
+﻿chrome pid 12768
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/overview?site_id=KOBO-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-unknown-subtab-overview 1440: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-unknown-subtab-overview 1440: mock rendered
+FAIL  link-check-unknown-subtab-overview 1440: same panel count  {"app":["This address is not served"],"mock":["Work done","Lifecycle"]}
+PASS  link-check-unknown-subtab-overview 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/overview?site_id=KOBO-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-unknown-subtab-overview 390: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-unknown-subtab-overview 390: mock rendered
+FAIL  link-check-unknown-subtab-overview 390: same panel count  {"app":["This address is not served"],"mock":["Work done","Lifecycle"]}
+PASS  link-check-unknown-subtab-overview 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/evidence?site_id=KOBO-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-unknown-subtab-evidence 1440: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-unknown-subtab-evidence 1440: mock rendered
+FAIL  link-check-unknown-subtab-evidence 1440: same panel count  {"app":["This address is not served"],"mock":["Work done","Lifecycle"]}
+PASS  link-check-unknown-subtab-evidence 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/evidence?site_id=KOBO-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-unknown-subtab-evidence 390: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-unknown-subtab-evidence 390: mock rendered
+FAIL  link-check-unknown-subtab-evidence 390: same panel count  {"app":["This address is not served"],"mock":["Work done","Lifecycle"]}
+PASS  link-check-unknown-subtab-evidence 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/execution?site_id=KOBO-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-unknown-subtab-execution 1440: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-unknown-subtab-execution 1440: mock rendered
+FAIL  link-check-unknown-subtab-execution 1440: same panel count  {"app":["This address is not served"],"mock":["Work done","Lifecycle"]}
+PASS  link-check-unknown-subtab-execution 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/execution?site_id=KOBO-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-unknown-subtab-execution 390: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-unknown-subtab-execution 390: mock rendered
+FAIL  link-check-unknown-subtab-execution 390: same panel count  {"app":["This address is not served"],"mock":["Work done","Lifecycle"]}
+PASS  link-check-unknown-subtab-execution 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/records?site_id=KOBO-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-unknown-subtab-records 1440: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-unknown-subtab-records 1440: mock rendered
+FAIL  link-check-unknown-subtab-records 1440: same panel count  {"app":["This address is not served"],"mock":["Work done","Lifecycle"]}
+PASS  link-check-unknown-subtab-records 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/records?site_id=KOBO-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-unknown-subtab-records 390: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-unknown-subtab-records 390: mock rendered
+FAIL  link-check-unknown-subtab-records 390: same panel count  {"app":["This address is not served"],"mock":["Work done","Lifecycle"]}
+PASS  link-check-unknown-subtab-records 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-maintenance-list 1440: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-maintenance-list 1440: mock rendered
+PASS  link-check-maintenance-list 1440: same panel count  {"app":["Corrective work requests"],"mock":["Corrective work requests"]}
+PASS  link-check-maintenance-list 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-maintenance-list 390: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-maintenance-list 390: mock rendered
+PASS  link-check-maintenance-list 390: same panel count  {"app":["Corrective work requests"],"mock":["Corrective work requests"]}
+PASS  link-check-maintenance-list 390: no app page overflow  {"overflowX":0}
+
+52/60 claims passed; evidence in part-links

@@ -1,0 +1,35 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "ev-wr-000002",
+  "url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-wr-000002",
+  "url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-wr-000002",
+  "url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001"
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-all-open-wr-000002",
+  "url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-all-open-wr-000002",
+  "url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-all-open-wr-000002",
+  "url": "http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001",
+  "openAll": true
+ }
+]

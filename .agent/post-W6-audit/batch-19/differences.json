@@ -1,0 +1,200 @@
+[
+ {
+  "id": "B19-X1",
+  "screens": [
+   "wr-overview",
+   "wr-record",
+   "wr-history"
+  ],
+  "what": "Cross-cutting, cited not re-described. B1-01/B2-01 shell top bar missing on every pair (main top 24 px vs mock 44 px at 1440; 108 vs 158 px at 390). B1-04/B2-36 rail 'Assets/Settings · Not available yet'. B1-07/B2-03 14 px prose only on the record empty sentence 'No maintenance activity recorded' (pSizes 14px x1); every other panel sentence is 12/11 px and h1/h2/td/th/body fonts match the mock exactly (27/23, 15, 11, 9, 14 px system-ui). B1-02/B2-04 tall dark header at 390 on short pages: every refusal (dark block 234-296 px, main top 250-312 px) and short empty record pages (126 px). B2-21/B3-04 UTC instead of Site-local time: KOBO-001/002 and COLD-LAB-001 are stored Africa/Addis_Ababa, yet the date bar, record 'Record 1 · ... UTC', 'Time on site' and History Time all print UTC (R19 rules UTC+seconds for History only; EV-LAB-001 is Etc/UTC so it holds there). B1-53 raw identifiers: see B19-05/B19-06. B2-02 and B3-01 do not apply (no Window control, no duplicate tab row).",
+  "disp": "Cite existing IDs."
+ },
+ {
+  "id": "B19-01",
+  "screens": [
+   "wr-overview",
+   "wr-record",
+   "wr-history"
+  ],
+  "what": "Structure matches v69 on every loaded pair (all lifecycle states, mini/cold/EV, historical, linked, worst case, all-open). Panel count/order/titles: Overview 'Work done' | 'Lifecycle'; Record 'Maintenance record · activity' (Item/Detail/Status/Basis, the six mock item labels in order); History 'History' (Time/Event/By). The five-cell strip (OWNER, DUE / SLA, STATE, SOURCE, SUCCESS CRITERION), tab order (Overview, Maintenance record, Verification, History), breadcrumb 'Maintenance > WR-... > <section> · site: <Site>' and header 'Open site' all follow the mock. Panel colours/borders/radius equal the mock tokens. Page horizontal overflow is 0 on all pairs. The batch 4/5 Action chrome findings do not have an analogue here: B4-03 (code-rooted breadcrumb present), B4-04 (no Site tab row), B4-05 ('Open site' present) and B5-01 do not recur.",
+  "disp": "(a) Verified; informational."
+ },
+ {
+  "id": "B19-02",
+  "screens": [
+   "wr-overview",
+   "wr-record",
+   "wr-history"
+  ],
+  "what": "Added date-bar row between the tabs and the strip: 'As known at 24 Oct 2026, 18:58 UTC · Reload' (current) or 'Historical as of ... UTC · Reload' (explicit known_at); about +50 px at 1440/390. The mock has no such row (its window sits in the missing topbar). It is ruled in the W6-01 build spec (C2 P-C2-4, '.site-date-bar slot') but has no register row and no MOCK DEVIATION label.",
+  "disp": "(b) candidate D2 register row (URL-explicit cutoff, same family as R18), or fold into the B1-01 topbar fix."
+ },
+ {
+  "id": "B19-03",
+  "screens": [
+   "wr-overview",
+   "wr-record",
+   "wr-history"
+  ],
+  "what": "Verification tab rendered as non-interactive 'Verification · Not available yet' (spec C2 UnavailableTab). The mock has a live Verification tab. No register row covers wr-* (R21 is the Finding analogue). At 390 the longer label makes the context tab row 411 px in 358 px: a grey scrollbar shows and 'History' is pushed off-screen on every 390 pair (the mock shows all four tabs within 358 px).",
+  "disp": "Tab state: (b) candidate D1 row (no work-outcome evaluator / verification surface). 390 clipping of History: (c) D3 Low (shorter suffix or wrap), cite B13-18/B4-04 family."
+ },
+ {
+  "id": "B19-04",
+  "screens": [
+   "wr-overview",
+   "wr-record"
+  ],
+  "what": "Honest gaps replace mock facts, all spec-ruled (C2/C3) but unregistered for wr-*: strip 'DUE / SLA Not set', 'SOURCE Not recorded' (when no incident/Finding), 'SUCCESS CRITERION Not recorded', 'STATE <state> · outcome not established' (mock 'Completed · unverified'); Work done adds a 'Latest activity:' line and 'Full ... text' disclosures; rows 'No asset recorded', 'Warranty not recorded', 'No linked action recorded'; Lifecycle note 'Completed is not Verified. No work-case outcome evaluator is available.'; Record rows Parts/Return-to-service/Configuration readback/Witnessed start 'Not recorded · Not established · No stored field' (amber), an extra 'Record n · <time>' group row (7 rows vs 6), panel description 'What was recorded on site; no outcome verification follows from this entry.' (mock 'per v6.9 8.34 work evidence'), notice without the mock's info icon. Lifecycle step marking follows the C2 rule in every state (verified: OPEN none, assigned Triage+Assigned, record Visit, COMPLETED Completed, after REOPEN Completed off, CANCELLED 'Cancelled · work stopped', pinned Finding marks Finding).",
+  "disp": "(b) candidate D1/D4 rows for wr-overview and wr-record (the register has only R34 for these screens). R34 verified resolved: 'REC-000003' is a live link to /operational-records with the root-occurrence day window and kind."
+ },
+ {
+  "id": "B19-05",
+  "screens": [
+   "wr-overview",
+   "wr-record",
+   "wr-history"
+  ],
+  "what": "Raw/short identifiers on screen. (1) History COMPLETE row: 'Completed · outcome not established · maintenance record 881bd5d1-cafa-4762-9049-54bb19fe7c8d' (full UUID; WorkRequestHistory.tsx:117-121) on mini detail, maint WR-000006 and cold. The R42 wording is verified built, but the {id} renders as a UUID. (2) Source and Linked action labels are UUID prefixes: 'Finding a1e1219d', 'Action 98b2dfc6' (mini linked), 'Finding 00f893d3', 'Action 39984beb' (cold), 'Action e12db79d' (EV); the mock shows 'F-118' and 'ACT-051 · witnessed start test'. (3) The opened 'Stored actor' disclosure prints 'SERVICE · service:w401-fixture' (R39 D4, verified as built).",
+  "disp": "Cite B17-05 / B1-53: D3 Low (use the Action/Finding codes, and 'Record 1 · <time>' or the record code instead of the UUID). R39/R42 (a) verified."
+ },
+ {
+  "id": "B19-06",
+  "screens": [
+   "wr-overview"
+  ],
+  "what": "Raw asset labels in the Work done 'Asset' row. MANDATORY CHECK CONFIRMED: EV shows 'c1 · EV_CONNECTOR' (positive, all-open, worst case, 1440 and 390). Cold shows 'generator-1 · GENERATOR' (the Site cold Maintenance tab maps it to ' · backup generator'; the global detail does not). Mini fixtures carry no asset ('No asset recorded'). The mock reads 'GEN-CR-01 · backup generator · diagram ->'.",
+  "disp": "Cite B16-14 / B17-02 / B1-53 (shared asset-label helper); the W6 detail (global_detail work_asset / WorkRequestOverview) must use it too. D3 Low."
+ },
+ {
+  "id": "B19-07",
+  "screens": [
+   "wr-overview",
+   "wr-record",
+   "wr-history"
+  ],
+  "cases": [
+   "not-found-404",
+   "no-site-id",
+   "bad-known-at",
+   "wrong-site-kobo002",
+   "malformed-case-id",
+   "before-created-known-at",
+   "other-tenant-wr8-404",
+   "forbidden-403",
+   "store-unavailable-503",
+   "ev-api-stopped-503"
+  ],
+  "what": "Refusal and no-fetch states. Copy is typed, plain and distinct (no backticks, so the B13-04 raw-text part does NOT recur): 404 and other-tenant/wrong-site/before-created 'No work case with this ID at this site.'; 403 'No access to this Site's work request.'; invalid known_at 'Choose a valid cutoff time.'; 503 'Work records could not be read. Reload.'. Defects: (i) the empty 'Work done' and 'Lifecycle' panels still render on Overview refusals, and Lifecycle still asserts 'Completed is not Verified. No work-case outcome evaluator is available.' about a request that was not read; Record keeps its panel description; (ii) a 'Reload' button is offered on 404, 403 and other-tenant states where retrying cannot succeed (B13-04/B15-03/B17-06 false Retry), and 503 shows both 'Reload.' in the sentence and the Reload button; (iii) 'Open site' renders as an inert, button-styled element with no href on every refusal; (iv) no site_id: subtitle 'Choose a request at a site.' but sentence 'No work case with this ID at this site.' (no site was given; spec-literal); (v) the 390 dark header block is 234-296 px (B1-02).",
+  "disp": "(c) D3 Low (W6 global Work fix slice): hide the empty panels or show one refusal panel, no Reload for 403/404/input errors, hide or visibly disable 'Open site', no-site sentence 'Choose a request at a site.'. Cite B17-06 / B15-03."
+ },
+ {
+  "id": "B19-08",
+  "screens": [
+   "wr-record"
+  ],
+  "what": "DEFECT: console error on every loaded wr-record pair with an outcome note (mini, cold, EV, 1440 and 390): 'Warning: validateDOMNesting(...): <div> cannot appear as a descendant of <p>' at Clamp (globalWorkParts.tsx:67) inside TechnicianNotes (WorkRequestRecord.tsx:116-121, the <p className='work-record-outcome'> wrapping <Clamp>). Rendering is correct, but it is invalid HTML and a React warning in the console.",
+  "disp": "(c) D3 Low: make the outcome wrapper a <div> or the clamp a <span>."
+ },
+ {
+  "id": "B19-09",
+  "screens": [
+   "wr-history"
+  ],
+  "what": "History verified against its rulings: R19 (UTC with seconds plus an 'Occurrence time' disclosure per row), R39 ('Name not recorded' + 'Stored actor' disclosure), R41 (the two in-table gaps 'Site visit start not recorded' and 'Verification pending · no outcome assessment recorded' with '-' only after the last authored row on the last page: page 2 of WR-000001, and the single-page cancelled/assigned/linked/EV/cold rows), R42 ('Completed · outcome not established · maintenance record ...'). Linked source row 1 reads 'Raised from Incident INC-000004' with its link, like the mock 'Raised from INC-203'. Unregistered addition: an in-panel client pager 'Showing 1-5 of 6 · Next/Previous' (C4 five rows per page); the mock shows five rows and no pager. The historical cutoff 11:59:04Z gives 4 rows, revision 1 and COMPLETED, as specified.",
+  "disp": "(a) R19/R39/R41/R42 verified (statuses can move from planned to built). Pager: (b) candidate D2 row."
+ },
+ {
+  "id": "B19-10",
+  "screens": [
+   "wr-overview",
+   "wr-record",
+   "wr-history"
+  ],
+  "what": "Lifecycle-state coverage. Captured with real producer data: OPEN (maint WR-000001, linked WR-000005, EV WR-000002, cold worst-case WR-000004), IN_PROGRESS by assignment (maint WR-000005) and after REOPEN (detail WR-000001), COMPLETED (maint WR-000006, cold WR-000002, and detail WR-000001 at known_at 11:59:04Z), CANCELLED from OPEN (maint WR-000004, detail WR-000002): strip 'Cancelled · outcome not established', Lifecycle note 'Cancelled · work stopped', History 'Cancelled: <reason>'. This closes the CANCELLED half of the carried B17-12 item for the WR screens. VERIFICATION_WINDOW is NOT producible: no W4 command enters it (OPEN_VERIFICATION is reserved, work/model.py:93-114). Static only: stateLabel (workRequestShared.tsx:50-58) has no entry, so it would print the raw 'VERIFICATION_WINDOW', and History prints 'Event OPEN_VERIFICATION · meaning not established' for a reserved kind (WorkRequestHistory.tsx:105). That is honest, not a wrong meaning (B4-19 does not recur), but it is a raw code.",
+  "disp": "VERIFICATION_WINDOW: the Architect item stays open (rule a label when OPEN_VERIFICATION ships). D3 Low latent for the raw fall-through (B1-53)."
+ },
+ {
+  "id": "B19-11",
+  "screens": [
+   "wr-overview",
+   "wr-record",
+   "wr-history"
+  ],
+  "what": "Heights. Closed states are within the C2-C4 manifest caps (work_done 430/510, lifecycle 430/300, record_panel 650/780, history_panel 600/690 px at 1440/390). Panels over 1.3x the mock, with measured reasons: History positive 465/332 = 1.40x at 1440 (each of 5 rows carries the R19 'Occurrence time' and R39 'Stored actor' summary lines, about +13 px per row, plus a 30 px pager row); worst-case History 467/332 = 1.41x (500-char reason clamped to 3 lines, 128-char assignee); worst-case Overview Work done 422/286 = 1.48x (mini stress: 4000-char narrative and activity each clamped with disclosures) and 384/286 = 1.34x (cold/EV 160-char); worst-case Record 577-603/438 = 1.32-1.38x (4000-char activity clamp plus outcome line). Lifecycle matches Work done because of grid stretch. At 390 every closed state is at or below 1.25x. All-open is exempt (stress Overview 1243 px at 1440, 2263 px at 390). The caps are slice-manifest caps, not an audit-time Architect ruling.",
+  "disp": "Accept under the C2-C4 caps; the Architect should confirm the caps once (spec 'rules layout caps once from worst-case fixtures')."
+ },
+ {
+  "id": "B19-12",
+  "screens": [
+   "link-check"
+  ],
+  "what": "Unknown request sub-tab addresses ('/overview', '/evidence', '/execution', '/records' under /maintenance/requests/<id>) render the app-level 'Page not available · This address is not served' page with NO shell: no rail, no breadcrumb, no padding, no way back (main top 0, no dark block). Unlike B17-08 there is no silent mis-render, which is better. The bare catch-all is still a structural gap.",
+  "disp": "Cite B17-08 (unknown sub-tab addresses). D3 Low: render the not-served panel inside the operator shell, or redirect unknown request sections to the Overview."
+ },
+ {
+  "id": "B19-13",
+  "screens": [
+   "wr-overview",
+   "wr-record",
+   "wr-history"
+  ],
+  "cases": [
+   "historical-120001-rev2"
+  ],
+  "what": "Historical date bar prints minutes only: known_at 2026-10-20T12:00:01Z reads 'Historical as of 20 Oct 2026, 12:00 UTC', while the revision that the cutoff excludes was recorded at 12:00:02. The tab links carry the full 'known_at=2026-10-20T12:00:01.000000Z'.",
+  "disp": "(c) D3 Low: show seconds in the historical line, consistent with R19."
+ },
+ {
+  "id": "B19-14",
+  "screens": [
+   "link-check"
+  ],
+  "what": "Global Maintenance cross-check (batch 18 screen): the list rows open the exact request Overview with site_id, so R32 is resolved. The first card reads 'Open work 1 · 1 requests in progress or open' (fixed plural), the B13-01 family on the global page.",
+  "disp": "Note for batch 18 / Architect: cite B13-01 (shared plural fix); R32 (a) resolved."
+ },
+ {
+  "id": "B19-15",
+  "screens": [
+   "wr-overview",
+   "wr-record",
+   "wr-history"
+  ],
+  "cases": [
+   "ev-forbidden-403",
+   "cold-forbidden-principal"
+  ],
+  "what": "Access-scope observation (not visual). Under the W5 walkthroughs' 'forbidden' API (a principal granted no Site; it gets a real 403 SITE_SCOPE_FORBIDDEN on the Site domain-work/W4 routes), the global request detail /api/work/requests/<id>?site_id=EV-LAB-001 or COLD-LAB-001 answers 200, and all three WR pages render the full request. The global router is composed with development_access (main.py:582-585) and does not consult the domain-work principal. Only the reviewed W6 test-only api_403 composition produces the WR 403 (captured: 'No access to this Site's work request.'). The EV case name 'ev-forbidden-403' is the producer mode name; the page loaded.",
+  "disp": "Architect/security note: confirm that the global work routes will share the Site-scope principal seam before any real grants exist. No visual disposition."
+ },
+ {
+  "id": "B19-16",
+  "screens": [
+   "wr-overview",
+   "wr-record",
+   "wr-history"
+  ],
+  "what": "Mandatory carried checks. '1 incidents' plural: no count on these screens (only B19-14 on the global list). Raw 'c1 · EV_CONNECTOR': CONFIRMED (B19-06). domainActionClient window error: not applicable, because the WR pages use globalWorkClient and have no window. An invalid known_at gets its own sentence ('Choose a valid cutoff time.'), and bad UUID / no site get the 404 sentence without a fetch. R88/R112 Window control: not present by design (date bar instead, B19-02). Prose 12 px matches, except B19-X1. Tall 390 header: refusals and short empty pages (B19-X1). D3 rows R22/R23/R24/R37/R38/R60: none touches these screens. R24's Site-local precedent applies to B2-21 (B19-X1). Capture note: in full-height 390 screenshots of very tall pages (mini stress), the shell's dark header block grows with the screenshot viewport (about 540 px in the PNG), while the DOM measurement at 390x900 is 92 px. This is B1-02 behaviour amplified by the capture's viewport resize, not a separate defect.",
+  "disp": "Informational; cite B1-02 for the header."
+ },
+ {
+  "id": "B19-17",
+  "screens": [
+   "wr-overview",
+   "wr-record",
+   "wr-history"
+  ],
+  "what": "Breadcrumb styling differs from the mock: blue link crumbs separated by '/' at body size, against grey 11 px crumbs separated by '>'. The text order and content match. This is shared with the other W6 global pages.",
+  "disp": "(c) D3 Low shared shell/typography item, or cite the batch-18 equivalent if it was recorded there."
+ },
+ {
+  "id": "B19-18",
+  "screens": [
+   "wr-overview",
+   "wr-record",
+   "wr-history"
+  ],
+  "what": "Producer and capture notes. All data comes from unmodified producers: w601_seed (detail, detail-history, detail-linked, stress, maintenance; DBs assetops_w601_b19*_test, dropped after capture), the w504 EV walkthrough (W504_API_PORT_BASE=18900) and the w502 cold walkthrough (hard-coded ports 8971-8977, confirmed free). The 403/503 vectors are the reviewed TEST-ONLY W6 compositions (.agent/W6-01-evidence/C2/api_403.py and C4/api_503.py) and the EV stopped-API vector. History page 2 is reached by clicking the client-only pager 'Next' (no request, no URL state; documented in capture-b19.mjs). The first EV worst-case run had a transient render miss on 4 targets; it was rerun clean (96/96), and the first run is kept in logs/. The mini worst case uses the W6 stress fixture (200-char unbroken title, 128-char owner, 4000-char text); 160-code-point text comes from the cold/EV worst cases.",
+  "disp": "Informational."
+ }
+]

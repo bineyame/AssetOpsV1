@@ -1,0 +1,39 @@
+﻿chrome pid 23992
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  wr-overview-ev-forbidden-403 1440: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-overview-ev-forbidden-403 1440: mock rendered
+PASS  wr-overview-ev-forbidden-403 1440: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  wr-overview-ev-forbidden-403 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2?site_id=EV-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-overview-ev-forbidden-403 390: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-overview-ev-forbidden-403 390: mock rendered
+PASS  wr-overview-ev-forbidden-403 390: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  wr-overview-ev-forbidden-403 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  wr-record-ev-forbidden-403 1440: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-record: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-record-ev-forbidden-403 1440: mock rendered
+PASS  wr-record-ev-forbidden-403 1440: same panel count  {"app":["Maintenance record · activity"],"mock":["Maintenance record · activity"]}
+PASS  wr-record-ev-forbidden-403 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/record?site_id=EV-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-record-ev-forbidden-403 390: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-record: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-record-ev-forbidden-403 390: mock rendered
+PASS  wr-record-ev-forbidden-403 390: same panel count  {"app":["Maintenance record · activity"],"mock":["Maintenance record · activity"]}
+PASS  wr-record-ev-forbidden-403 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  wr-history-ev-forbidden-403 1440: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-history-ev-forbidden-403 1440: mock rendered
+PASS  wr-history-ev-forbidden-403 1440: same panel count  {"app":["History"],"mock":["History"]}
+PASS  wr-history-ev-forbidden-403 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5189/maintenance/requests/c820b83c-8376-4e89-8456-9a43fea8bef2/history?site_id=EV-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-history-ev-forbidden-403 390: app rendered
+PASS  loaded http://127.0.0.1:5189/mockups/v69/index.html#/wr-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-history-ev-forbidden-403 390: mock rendered
+PASS  wr-history-ev-forbidden-403 390: same panel count  {"app":["History"],"mock":["History"]}
+PASS  wr-history-ev-forbidden-403 390: no app page overflow  {"overflowX":0}
+
+36/36 claims passed; evidence in part-ev-forbidden

@@ -1,0 +1,3258 @@
+{
+  "revision": "731126a9",
+  "captured_at": "2026-10-24T19:08:44.978Z",
+  "pairs": [
+    {
+      "screen": "link-check",
+      "case": "unknown-subtab-overview",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/overview?site_id=KOBO-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-check-unknown-subtab-overview-1440-app.png",
+      "mock_image": "link-check-unknown-subtab-overview-1440-mock.png",
+      "app": {
+        "titles": [
+          "This address is not served"
+        ],
+        "panels": [
+          {
+            "title": "This address is not served",
+            "x": 0,
+            "y": 52,
+            "w": 1440,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "This address is not servedNo page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "page-header",
+          "h": 34,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Page not available",
+          "top": 0,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Page not available This address is not served No page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 0,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 234,
+            "y": 409,
+            "w": 735,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 987,
+            "y": 409,
+            "w": 408,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "unknown-subtab-overview",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/overview?site_id=KOBO-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-check-unknown-subtab-overview-390-app.png",
+      "mock_image": "link-check-unknown-subtab-overview-390-mock.png",
+      "app": {
+        "titles": [
+          "This address is not served"
+        ],
+        "panels": [
+          {
+            "title": "This address is not served",
+            "x": 0,
+            "y": 47,
+            "w": 390,
+            "h": 149,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "This address is not servedNo page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "page-header",
+          "h": 29,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Page not available",
+          "top": 0,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Page not available This address is not served No page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 0,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 15,
+            "y": 746,
+            "w": 360,
+            "h": 338,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 15,
+            "y": 1102,
+            "w": 360,
+            "h": 161,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1357,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "unknown-subtab-evidence",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/evidence?site_id=KOBO-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-check-unknown-subtab-evidence-1440-app.png",
+      "mock_image": "link-check-unknown-subtab-evidence-1440-mock.png",
+      "app": {
+        "titles": [
+          "This address is not served"
+        ],
+        "panels": [
+          {
+            "title": "This address is not served",
+            "x": 0,
+            "y": 52,
+            "w": 1440,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "This address is not servedNo page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "page-header",
+          "h": 34,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Page not available",
+          "top": 0,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Page not available This address is not served No page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 0,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 234,
+            "y": 409,
+            "w": 735,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 987,
+            "y": 409,
+            "w": 408,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "unknown-subtab-evidence",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/evidence?site_id=KOBO-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-check-unknown-subtab-evidence-390-app.png",
+      "mock_image": "link-check-unknown-subtab-evidence-390-mock.png",
+      "app": {
+        "titles": [
+          "This address is not served"
+        ],
+        "panels": [
+          {
+            "title": "This address is not served",
+            "x": 0,
+            "y": 47,
+            "w": 390,
+            "h": 149,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "This address is not servedNo page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "page-header",
+          "h": 29,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Page not available",
+          "top": 0,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Page not available This address is not served No page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 0,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 15,
+            "y": 746,
+            "w": 360,
+            "h": 338,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 15,
+            "y": 1102,
+            "w": 360,
+            "h": 161,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1357,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "unknown-subtab-execution",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/execution?site_id=KOBO-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-check-unknown-subtab-execution-1440-app.png",
+      "mock_image": "link-check-unknown-subtab-execution-1440-mock.png",
+      "app": {
+        "titles": [
+          "This address is not served"
+        ],
+        "panels": [
+          {
+            "title": "This address is not served",
+            "x": 0,
+            "y": 52,
+            "w": 1440,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "This address is not servedNo page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "page-header",
+          "h": 34,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Page not available",
+          "top": 0,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Page not available This address is not served No page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 0,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 234,
+            "y": 409,
+            "w": 735,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 987,
+            "y": 409,
+            "w": 408,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "unknown-subtab-execution",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/execution?site_id=KOBO-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-check-unknown-subtab-execution-390-app.png",
+      "mock_image": "link-check-unknown-subtab-execution-390-mock.png",
+      "app": {
+        "titles": [
+          "This address is not served"
+        ],
+        "panels": [
+          {
+            "title": "This address is not served",
+            "x": 0,
+            "y": 47,
+            "w": 390,
+            "h": 149,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "This address is not servedNo page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "page-header",
+          "h": 29,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Page not available",
+          "top": 0,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Page not available This address is not served No page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 0,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 15,
+            "y": 746,
+            "w": 360,
+            "h": 338,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 15,
+            "y": 1102,
+            "w": 360,
+            "h": 161,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1357,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "unknown-subtab-records",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/records?site_id=KOBO-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-check-unknown-subtab-records-1440-app.png",
+      "mock_image": "link-check-unknown-subtab-records-1440-mock.png",
+      "app": {
+        "titles": [
+          "This address is not served"
+        ],
+        "panels": [
+          {
+            "title": "This address is not served",
+            "x": 0,
+            "y": 52,
+            "w": 1440,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "This address is not servedNo page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "page-header",
+          "h": 34,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Page not available",
+          "top": 0,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Page not available This address is not served No page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 0,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 234,
+            "y": 409,
+            "w": 735,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 987,
+            "y": 409,
+            "w": 408,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "unknown-subtab-records",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5189/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/records?site_id=KOBO-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-check-unknown-subtab-records-390-app.png",
+      "mock_image": "link-check-unknown-subtab-records-390-mock.png",
+      "app": {
+        "titles": [
+          "This address is not served"
+        ],
+        "panels": [
+          {
+            "title": "This address is not served",
+            "x": 0,
+            "y": 47,
+            "w": 390,
+            "h": 149,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "This address is not servedNo page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "page-header",
+          "h": 29,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Page not available",
+          "top": 0,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Page not available This address is not served No page is served at this address. The address may come from a build with different features enabled, or it may not exist at all.",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 0,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 15,
+            "y": 746,
+            "w": 360,
+            "h": 338,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 15,
+            "y": 1102,
+            "w": 360,
+            "h": 161,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1357,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "maintenance-list",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5189/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+      "mock_hash": "#/maintenance",
+      "app_image": "link-check-maintenance-list-1440-app.png",
+      "mock_image": "link-check-maintenance-list-1440-mock.png",
+      "app": {
+        "titles": [
+          "Corrective work requests"
+        ],
+        "panels": [
+          {
+            "title": "Corrective work requests",
+            "x": 248,
+            "y": 394,
+            "w": 1160,
+            "h": 388,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Work request",
+              "Asset / site",
+              "Owner",
+              "State",
+              "Verification",
+              "Warranty"
+            ],
+            "chips": [
+              "Cancelled",
+              "Not established",
+              "Not recorded",
+              "In progress",
+              "Not established",
+              "Not recorded"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "WR-000002 · Check spare relayFull title textCheck spare relayNo linked Finding or ActionSource unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "No asset recorded · Kobo mini-grid",
+                "Not assigned",
+                "Cancelled",
+                "Not established",
+                "Not recorded"
+              ],
+              [
+                "WR-000001 · Inspect starter and control circuit againFull title textInspect starter and control circuit againNo linked Finding or ActionSource unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "No asset recorded · Kobo mini-grid",
+                "Maintenance lead",
+                "In progress",
+                "Not established",
+                "Not recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000002 · Check spare relay -> /maintenance/requests/00e15acc-12ef-4966-aa47-62fc00db3c69?site_id=KOBO-001",
+                "Kobo mini-grid -> /sites/KOBO-001"
+              ],
+              [
+                "WR-000001 · Inspect starter and control circuit again -> /maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105?site_id=KOBO-001",
+                "Kobo mini-grid -> /sites/KOBO-001"
+              ]
+            ],
+            "panelText": "Corrective work requestsCompleted is activity evidence only; outcome is verified separatelyScroll table horizontallyWork requestAsset / siteOwnerStateVerificationWarrantyWR-000002 · Check spare relayFull title textCheck spare relayNo linked Finding or ActionSource unverifiedThe origin of this authored work record is not established. No work outcome is verified.No asset recorded · Kobo mini-gridNot assignedCancelledNot establishedNot recordedWR-000001 · Inspect starter and control circuit againFull title textInspect starter and control circuit againNo linked Finding or ActionSource unverifiedTh",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Maintenance",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [
+            "Open work11 requests in progress or open",
+            "Verification overdueNot assessedNo work-outcome verification clock",
+            "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+            "Repeat findingsNot assessedNo repeat-finding assessment"
+          ],
+          "notice": [
+            "A completed request records activity; an equipment outcome remains unverified."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 2,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "From (UTC) To (UTC, exclusive) Show recordsReload",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Open work11 requests in progress or open | ",
+            "Verification overdueNot assessedNo work-outcome verification clock | ",
+            "Preventive due in 30 daysNot assessedSee PreventiveView detail → | View detail → -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+            "Repeat findingsNot assessedNo repeat-finding assessment | "
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Preventive · scheduled -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "View detail → -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "WR-000002 · Check spare relay -> /maintenance/requests/00e15acc-12ef-4966-aa47-62fc00db3c69?site_id=KOBO-001",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "WR-000001 · Inspect starter and control circuit again -> /maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105?site_id=KOBO-001",
+          "Kobo mini-grid -> /sites/KOBO-001"
+        ],
+        "cardsDom": [
+          {
+            "t": "Open work11 requests in progress or open",
+            "h": 130
+          },
+          {
+            "t": "Verification overdueNot assessedNo work-outcome verification clock",
+            "h": 130
+          },
+          {
+            "t": "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+            "h": 130
+          },
+          {
+            "t": "Repeat findingsNot assessedNo repeat-finding assessment",
+            "h": 130
+          }
+        ],
+        "extra": {
+          "crumb": "Maintenance",
+          "mainText": "Maintenance Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled From (UTC) To (UTC, exclusive) Show records Reload As known at 24 Oct 2026, 19:09 UTC Open work 1 1 requests in progress or open Verification overdue Not assessed No work-outcome verification clock Preventive due in 30 days Not assessed See Preventive View detail → Repeat findings Not assessed No repeat-finding assessment Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-000002 · Check spare relay Full title text No linked Finding or Action Source unverified No asset recorded · Kobo mini-grid Not assigned Cancelled Not established Not recorded WR-000001 · Inspect starter and control circuit again Full title text No linked Finding or Action Source unverified No asset recorded · Kobo mini-grid Maintenance lead In progress Not established Not recorded Showing 1–2 of 2 A completed request records activity; an equipment outcome remains unverified.",
+          "buttons": [
+            "Show records",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs global-work-tabs",
+            "items": [
+              "Corrective*(off)",
+              "Preventive · scheduled"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Corrective work requests"
+        ],
+        "panels": [
+          {
+            "title": "Corrective work requests",
+            "x": 234,
+            "y": 460,
+            "w": 1161,
+            "h": 234,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Work request",
+              "Asset / site",
+              "Owner",
+              "State",
+              "Verification",
+              "Warranty"
+            ],
+            "chips": [
+              "Completed",
+              "Pending · witness test missing",
+              "Expired",
+              "Open · waiting for diagnostics",
+              "Required",
+              "Claimable"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "WR-019 · Starter and control inspection",
+                "GEN-CR-01 · GreenHarvest",
+                "Maintenance lead",
+                "Completed",
+                "Pending · witness test missing",
+                "Expired"
+              ],
+              [
+                "WR-021 · Connector 2 repair",
+                "CHG-002 · Depot",
+                "Charging operations lead",
+                "Open · waiting for diagnostics",
+                "Required",
+                "Claimable"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-019 · Starter and control inspection -> #/wr-overview"
+              ],
+              []
+            ],
+            "panelText": "Corrective work requestsCompleted is activity evidence only; outcome is verified separatelyWork requestAsset / siteOwnerStateVerificationWarrantyWR-019 · Starter and control inspectionGEN-CR-01 · GreenHarvestMaintenance leadCompletedPending · witness test missingExpiredWR-021 · Connector 2 repairCHG-002 · DepotCharging operations leadOpen · waiting for diagnosticsRequiredClaimable",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Maintenance",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "Corrective -> #/maintenance",
+          "Preventive · scheduled -> #/maintenance-preventive",
+          "View detail → -> #/maintenance-preventive",
+          "WR-019 · Starter and control inspection -> #/wr-overview"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · each site’s event window ▾ BY Maintenance › Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled Open work 2 WR-019, WR-021 Verification overdue 1 WR-019 · witnessed start test missing Preventive due in 30 days 4 See Preventive View detail → Repeat findings 0 No repeat after completed work Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-019 · Starter and control inspection GEN-CR-01 · GreenHarvest Maintenance lead Completed Pending · witness test missing Expired WR-021 · Connector 2 repair CHG-002 · Depot Charging operations lead Open · waiting for diagnostics Required Claimable Work requests share the managed-task lifecycle with Actions: Open → In progress → Completed → Verification window → Verified, Ineffective or Inconclusive. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · each site’s event window▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Corrective*",
+              "Preventive · scheduled"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "maintenance-list",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5189/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+      "mock_hash": "#/maintenance",
+      "app_image": "link-check-maintenance-list-390-app.png",
+      "mock_image": "link-check-maintenance-list-390-mock.png",
+      "app": {
+        "titles": [
+          "Corrective work requests"
+        ],
+        "panels": [
+          {
+            "title": "Corrective work requests",
+            "x": 16,
+            "y": 776,
+            "w": 358,
+            "h": 428,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Work request",
+              "Asset / site",
+              "Owner",
+              "State",
+              "Verification",
+              "Warranty"
+            ],
+            "chips": [
+              "Cancelled",
+              "Not established",
+              "Not recorded",
+              "In progress",
+              "Not established",
+              "Not recorded"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "WR-000002 · Check spare relayFull title textCheck spare relayNo linked Finding or ActionSource unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "No asset recorded · Kobo mini-grid",
+                "Not assigned",
+                "Cancelled",
+                "Not established",
+                "Not recorded"
+              ],
+              [
+                "WR-000001 · Inspect starter and control circuit againFull title textInspect starter and control circuit againNo linked Finding or ActionSource unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "No asset recorded · Kobo mini-grid",
+                "Maintenance lead",
+                "In progress",
+                "Not established",
+                "Not recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000002 · Check spare relay -> /maintenance/requests/00e15acc-12ef-4966-aa47-62fc00db3c69?site_id=KOBO-001",
+                "Kobo mini-grid -> /sites/KOBO-001"
+              ],
+              [
+                "WR-000001 · Inspect starter and control circuit again -> /maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105?site_id=KOBO-001",
+                "Kobo mini-grid -> /sites/KOBO-001"
+              ]
+            ],
+            "panelText": "Corrective work requestsCompleted is activity evidence only; outcome is verified separatelyScroll table horizontallyWork requestAsset / siteOwnerStateVerificationWarrantyWR-000002 · Check spare relayFull title textCheck spare relayNo linked Finding or ActionSource unverifiedThe origin of this authored work record is not established. No work outcome is verified.No asset recorded · Kobo mini-gridNot assignedCancelledNot establishedNot recordedWR-000001 · Inspect starter and control circuit againFull title textInspect starter and control circuit againNo linked Finding or ActionSource unverifiedTh",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1324,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Maintenance",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [
+            "Open work11 requests in progress or open",
+            "Verification overdueNot assessedNo work-outcome verification clock",
+            "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+            "Repeat findingsNot assessedNo repeat-finding assessment"
+          ],
+          "notice": [
+            "A completed request records activity; an equipment outcome remains unverified."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 2,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "From (UTC) To (UTC, exclusive) Show recordsReload",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Open work11 requests in progress or open | ",
+            "Verification overdueNot assessedNo work-outcome verification clock | ",
+            "Preventive due in 30 daysNot assessedSee PreventiveView detail → | View detail → -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+            "Repeat findingsNot assessedNo repeat-finding assessment | "
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Preventive · scheduled -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "View detail → -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "WR-000002 · Check spare relay -> /maintenance/requests/00e15acc-12ef-4966-aa47-62fc00db3c69?site_id=KOBO-001",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "WR-000001 · Inspect starter and control circuit again -> /maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105?site_id=KOBO-001",
+          "Kobo mini-grid -> /sites/KOBO-001"
+        ],
+        "cardsDom": [
+          {
+            "t": "Open work11 requests in progress or open",
+            "h": 126
+          },
+          {
+            "t": "Verification overdueNot assessedNo work-outcome verification clock",
+            "h": 126
+          },
+          {
+            "t": "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+            "h": 130
+          },
+          {
+            "t": "Repeat findingsNot assessedNo repeat-finding assessment",
+            "h": 130
+          }
+        ],
+        "extra": {
+          "crumb": "Maintenance",
+          "mainText": "Maintenance Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled From (UTC) To (UTC, exclusive) Show records Reload As known at 24 Oct 2026, 19:09 UTC Open work 1 1 requests in progress or open Verification overdue Not assessed No work-outcome verification clock Preventive due in 30 days Not assessed See Preventive View detail → Repeat findings Not assessed No repeat-finding assessment Corrective work requests Completed is activity evidence only; outcome is verified separately Scroll table horizontally WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-000002 · Check spare relay Full title text No linked Finding or Action Source unverified No asset recorded · Kobo mini-grid Not assigned Cancelled Not established Not recorded WR-000001 · Inspect starter and control circuit again Full title text No linked Finding or Action Source unverified No asset recorded · Kobo mini-grid Maintenance lead In progress Not established Not recorded Showing 1–2 of 2 A completed request records activity; an equipment outcome remains unverified.",
+          "buttons": [
+            "Show records",
+            "Reload"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs global-work-tabs",
+            "items": [
+              "Corrective*(off)",
+              "Preventive · scheduled"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 1030,
+            "cw": 318,
+            "panel": "Corrective work requests"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Corrective work requests"
+        ],
+        "panels": [
+          {
+            "title": "Corrective work requests",
+            "x": 15,
+            "y": 722,
+            "w": 360,
+            "h": 327,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Work request",
+              "Asset / site",
+              "Owner",
+              "State",
+              "Verification",
+              "Warranty"
+            ],
+            "chips": [
+              "Completed",
+              "Pending · witness test missing",
+              "Expired",
+              "Open · waiting for diagnostics",
+              "Required",
+              "Claimable"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "WR-019 · Starter and control inspection",
+                "GEN-CR-01 · GreenHarvest",
+                "Maintenance lead",
+                "Completed",
+                "Pending · witness test missing",
+                "Expired"
+              ],
+              [
+                "WR-021 · Connector 2 repair",
+                "CHG-002 · Depot",
+                "Charging operations lead",
+                "Open · waiting for diagnostics",
+                "Required",
+                "Claimable"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-019 · Starter and control inspection -> #/wr-overview"
+              ],
+              []
+            ],
+            "panelText": "Corrective work requestsCompleted is activity evidence only; outcome is verified separatelyWork requestAsset / siteOwnerStateVerificationWarrantyWR-019 · Starter and control inspectionGEN-CR-01 · GreenHarvestMaintenance leadCompletedPending · witness test missingExpiredWR-021 · Connector 2 repairCHG-002 · DepotCharging operations leadOpen · waiting for diagnosticsRequiredClaimable",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1240,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Maintenance",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "Corrective -> #/maintenance",
+          "Preventive · scheduled -> #/maintenance-preventive",
+          "View detail → -> #/maintenance-preventive",
+          "WR-019 · Starter and control inspection -> #/wr-overview"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled Open work 2 WR-019, WR-021 Verification overdue 1 WR-019 · witnessed start test missing Preventive due in 30 days 4 See Preventive View detail → Repeat findings 0 No repeat after completed work Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-019 · Starter and control inspection GEN-CR-01 · GreenHarvest Maintenance lead Completed Pending · witness test missing Expired WR-021 · Connector 2 repair CHG-002 · Depot Charging operations lead Open · waiting for diagnostics Required Claimable Work requests share the managed-task lifecycle with Actions: Open → In progress → Completed → Verification window → Verified, Ineffective or Inconclusive. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · each site’s event window▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Corrective*",
+              "Preventive · scheduled"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 696,
+            "cw": 320,
+            "panel": "Corrective work requests"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

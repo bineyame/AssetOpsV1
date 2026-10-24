@@ -1,0 +1,17 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "cold-forbidden-principal",
+  "url": "http://127.0.0.1:5189/maintenance/requests/00c2bf9f-68f1-439c-a607-42fcb0115fad?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-forbidden-principal",
+  "url": "http://127.0.0.1:5189/maintenance/requests/00c2bf9f-68f1-439c-a607-42fcb0115fad/record?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "cold-forbidden-principal",
+  "url": "http://127.0.0.1:5189/maintenance/requests/00c2bf9f-68f1-439c-a607-42fcb0115fad/history?site_id=COLD-LAB-001"
+ }
+]

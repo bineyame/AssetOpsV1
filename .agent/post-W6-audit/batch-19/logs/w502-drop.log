@@ -1,0 +1,13 @@
+stopped positive pid 8204
+stopped worstcase pid 23924
+stopped pending pid 15336
+stopped stale pid 12356
+stopped unknown pid 9352
+stopped forbidden pid 26984
+stopped unavailable pid 5844
+dropped database w502b_pending_b19_test
+dropped database w502b_positive_b19_test
+dropped database w502b_stale_b19_test
+dropped database w502b_unknown_b19_test
+dropped database w502b_worstcase_b19_test
+removed C:\Users\assef\Bineyame\AssetOpsV1-review5\var\w502b_b19
