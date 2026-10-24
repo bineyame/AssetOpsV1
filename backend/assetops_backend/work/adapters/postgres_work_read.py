@@ -101,6 +101,8 @@ class LinkReadPorts:
     ev_sessions: Callable[..., list[dict[str, Any]]] | None = None
     ev_findings: Callable[..., list[dict[str, Any]]] | None = None
     ev_selected_provenance: Callable[..., dict[str, Any]] | None = None
+    # W5-04a V1 (readiness 30): `EvReadService.accepted_on`, the window's accepted public records (set A).
+    ev_accepted: Callable[..., list[dict[str, Any]]] | None = None
 
 
 class _ReadTx:

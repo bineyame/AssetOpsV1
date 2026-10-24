@@ -36,11 +36,17 @@ def intent(**over) -> dict:
             "actor": dict(ACTOR), "idempotency_key": "w502-model-02", **over}
 
 
-def invalid(call, *args) -> None:
+COLD = "The cold Action declaration is incomplete or invalid."
+#: W5-04 readiness 28: the neutral literals while the domain is unknown (pre-resolution shape, unknown domain).
+NEUTRAL_DOMAIN = "The Action domain is missing or unsupported."
+NEUTRAL_INTENT = "The Action declaration is incomplete or invalid."
+NEUTRAL_LINK = "The Action case link is incomplete or invalid."
+
+
+def invalid(call, *args, message: str = COLD) -> None:
     with pytest.raises(d.DomainIntentRefused) as caught:
         call(*args)
-    assert (caught.value.status, caught.value.code, caught.value.message) == (
-        422, "DOMAIN_INTENT_INVALID", "The cold Action declaration is incomplete or invalid.")
+    assert (caught.value.status, caught.value.code, caught.value.message) == (422, "DOMAIN_INTENT_INVALID", message)
 
 
 def test_four_exact_messages_and_statuses() -> None:
@@ -64,14 +70,17 @@ def test_action_body_closed_trimmed_and_bounded() -> None:
     assert body["raised_at"] == datetime(2026, 10, 20, 10, tzinfo=timezone.utc) and body["due_at"] is None
     assert d.action_body(action(owner_label=None))["owner_label"] is None
     assert len(d.action_body(action(title="é" * 160))["title"]) == 160  # code points, not bytes
-    for over in ({"domain": "MINIGRID"}, {"title": "   "}, {"title": "x" * 161}, {"owner_label": ""},
+    for over in ({"title": "   "}, {"title": "x" * 161}, {"owner_label": ""},
                  {"owner_label": "y" * 161}, {"raised_at": "2026-10-20T10:00:00"},
                  {"raised_at": "2026-10-20T13:00:00+03:00"}, {"due_at": "2026-10-20T09:59:59Z"},
                  {"due_at": "2027-10-21T10:00:00Z"}, {"origin_finding_id": "x"}, {"idempotency_key": "short"},
                  {"extra": 1}):
         invalid(d.action_body, action(**over))
     invalid(d.action_body, {k: v for k, v in action().items() if k != "owner_label"})
-    invalid(d.action_body, "not an object")
+    # W5-04 pre-flight 10 / readiness 11: a missing or unsupported domain is neutral, never defaulted to cold.
+    for body in ("not an object", action(domain="MINIGRID"), action(domain="coldchain"), action(domain=None),
+                 {k: v for k, v in action().items() if k != "domain"}):
+        invalid(d.action_body, body, message=NEUTRAL_DOMAIN)
     assert d.action_body(action(due_at="2027-10-20T10:00:00Z"))["due_at"] is not None  # exactly 365 days
 
 
@@ -86,16 +95,22 @@ def test_intent_criteria_and_basis() -> None:
     relabel[2] = {**relabel[2], "label": "Cooling"}
     extra = crit()
     extra[3] = {**extra[3], "note": "x"}
-    for criteria in (crit()[:3], swapped, relabel, extra, crit() + crit()[:1], {}):
+    # Domain-specific count/order/triples after resolution carry the cold literal (readiness 28) ...
+    for criteria in (crit()[:3], swapped, relabel, crit() + crit()[:1]):
         invalid(d.intent_body, intent(criteria=criteria))
+    # ... a shared-shape failure before resolution is the neutral intent literal.
+    for criteria in (extra, {}):
+        invalid(d.intent_body, intent(criteria=criteria), message=NEUTRAL_INTENT)
     for basis in ({"finding_revision_id": R, "work_case_id": None, "work_record_id": str(uuid4()),
                    "accepted_evidence_ids": []},
                   {"finding_revision_id": R, "work_case_id": None, "work_record_id": None,
                    "accepted_evidence_ids": [E1, E1]},
                   {"finding_revision_id": R, "work_case_id": None, "accepted_evidence_ids": []}):
-        invalid(d.intent_body, intent(basis=basis))
-    invalid(d.intent_body, intent(declared_at="yesterday"))
-    invalid(d.intent_body, intent(supersedes_id="x"))
+        invalid(d.intent_body, intent(basis=basis), message=NEUTRAL_INTENT)
+    invalid(d.intent_body, intent(declared_at="yesterday"), message=NEUTRAL_INTENT)
+    invalid(d.intent_body, intent(supersedes_id="x"), message=NEUTRAL_INTENT)
+    # An EV-only basis key passes the shared shape but is refused by the cold contract with the cold literal.
+    invalid(d.intent_body, intent(basis={**intent()["basis"], "session_ids": [E1]}))
 
 
 def test_case_link_body_and_path_id() -> None:
@@ -103,8 +118,8 @@ def test_case_link_body_and_path_id() -> None:
     body = {"case_id": ids[0], "case_revision_id": ids[1], "case_event_id": ids[2], "actor": dict(ACTOR),
             "idempotency_key": "w502-model-03"}
     assert d.case_link_body(body)["case_event_id"] == ids[2]
-    invalid(d.case_link_body, {**body, "case_event_id": None})
-    invalid(d.case_link_body, {k: v for k, v in body.items() if k != "case_revision_id"})
+    invalid(d.case_link_body, {**body, "case_event_id": None}, message=NEUTRAL_LINK)
+    invalid(d.case_link_body, {k: v for k, v in body.items() if k != "case_revision_id"}, message=NEUTRAL_LINK)
     assert d.path_action_id("nope") is None and d.path_action_id(ids[0].upper()) == ids[0]
 
 

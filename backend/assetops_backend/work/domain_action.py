@@ -1,4 +1,4 @@
-"""W5-02a K1a: the cold domain Action model - refusals, the closed command bodies and the canonical digests.
+"""W5-02a K1a / W5-04a V1: the domain Action model - refusals, the closed command bodies and the canonical digests.
 
 `.agent/W5-02-build-spec.md` "Command/read wire", "Backend wire, validation and lineage (K1a-K1c)" and the
 Architect pre-flight ruling A2/A3. Pure: no I/O. Shape and static-bound violations are 422
@@ -64,9 +64,12 @@ EV_MESSAGES = {
     "DOMAIN_INTENT_BASIS_CHANGED": "The selected EV work basis changed; reload the Action.",
     "ACTION_NOT_FOUND": "Action was not found at this site.",
 }
-#: Pre-flight 10: neutral literals used only before a domain or an Action is resolved.
+#: Pre-flight 10 / readiness 28: neutral literals used only while the domain is unknown - a creation POST whose
+#: `domain` is missing or unsupported, and an intent or case-link body that fails the domain-independent checks
+#: before its Action is resolved. An unresolved Action is 404, never a neutral link refusal.
 NEUTRAL_DOMAIN_INVALID = "The Action domain is missing or unsupported."
-NEUTRAL_LINK_INVALID = "The Action could not be resolved at this site and cutoff."
+NEUTRAL_INTENT_INVALID = "The Action declaration is incomplete or invalid."
+NEUTRAL_CASE_LINK_INVALID = "The Action case link is incomplete or invalid."
 
 
 @dataclass(frozen=True)
@@ -102,6 +105,35 @@ def spec_of(domain: Any) -> DomainSpec | None:
     return DOMAINS.get(domain) if isinstance(domain, str) else None
 
 
+#: The only EV Finding lifecycle that can originate or support an EV Action (pre-flight 15).
+EV_SUPPORTED = "SUPPORTED"
+
+
+def _lower(values: Any) -> set[str]:
+    return {str(v).lower() for v in values or ()}
+
+
+def ev_selects_finding(ev: Mapping[str, Any] | None, revision_id: str) -> bool:
+    """The selected EV basis (`composition.selected_ev_basis`) selects exactly this SUPPORTED Finding revision."""
+    finding = None if ev is None else ev.get("finding")
+    return (finding is not None and str(finding["revision_id"]).lower() == str(revision_id).lower()
+            and finding["lifecycle"] == EV_SUPPORTED)
+
+
+def ev_members_selected(ev: Mapping[str, Any], basis: Mapping[str, Any]) -> bool:
+    """Readiness 7, 9, 13 and 30, without intersection: every declared session root is selected at the pin and the
+    Finding's own session is among them; every declared evidence ID is in the window's accepted set (A), the selected
+    assessment head's cited set (B) and the exact Finding revision's citations. UUID case is normalized."""
+    finding = ev["finding"]
+    declared = _lower(basis["session_ids"])
+    own = finding.get("session_id")
+    if own is None or str(own).lower() not in declared or not declared <= _lower(ev["sessions"]):
+        return False
+    evidence = _lower(basis["accepted_evidence_ids"])
+    return (evidence <= _lower(ev["accepted_evidence_ids"]) and evidence <= _lower(ev["selected_evidence_ids"])
+            and evidence <= _lower(finding["evidence_ids"]))
+
+
 #: The cross-table Action code collision trigger's constraint name (migration 0033, ruling A4).
 CODE_CONFLICT_CONSTRAINT = "action_cross_domain_code_conflict"
 
@@ -125,6 +157,26 @@ def invalid() -> DomainIntentRefused:
     return DomainIntentRefused.of("DOMAIN_INTENT_INVALID")
 
 
+def neutral(message: str) -> DomainIntentRefused:
+    """A 422 `DOMAIN_INTENT_INVALID` carrying one of the neutral literals (readiness 28)."""
+    return DomainIntentRefused(STATUS["DOMAIN_INTENT_INVALID"], "DOMAIN_INTENT_INVALID", message)
+
+
+class _Malformed(DomainIntentRefused):
+    """A value-parser refusal; each closed-body function re-types it to the literal its stage selects (neutral
+    before the domain is known, else that domain's). Standalone callers still see the cold 422 it defaults to."""
+
+    def __init__(self) -> None:
+        super().__init__(STATUS["DOMAIN_INTENT_INVALID"], "DOMAIN_INTENT_INVALID", MESSAGES["DOMAIN_INTENT_INVALID"])
+
+
+def _as(refusal: DomainIntentRefused, parse, *args: Any) -> Any:
+    try:
+        return parse(*args)
+    except _Malformed:
+        raise refusal from None
+
+
 def refuse(code: str) -> DomainIntentRefused:
     return DomainIntentRefused.of(code)
 
@@ -135,7 +187,7 @@ def _w4(parse, *args: Any) -> Any:
     try:
         return parse(*args)
     except m.WorkRefused:
-        raise invalid() from None
+        raise _Malformed() from None
 
 
 def closed(body: Any, required: tuple[str, ...]) -> dict[str, Any]:
@@ -163,18 +215,21 @@ def key(value: Any) -> str:
     return _w4(m.idempotency_key, value)
 
 
-def actor_shape(value: Any) -> dict[str, Any]:
-    """W4 `actor_shape` (public, ruling A2); its closed-shape refusal is this contract's 422."""
-    return _w4(m.actor_shape, value)
+def actor_shape(value: Any, refusal: DomainIntentRefused | None = None) -> dict[str, Any]:
+    """W4 `actor_shape` (public, ruling A2); its closed-shape refusal is the caller's stage literal (cold 422 by
+    default)."""
+    if refusal is None:
+        return _w4(m.actor_shape, value)
+    return _as(refusal, _w4, m.actor_shape, value)
 
 
 def evidence_ids(value: Any) -> list[str]:
     """Distinct UUIDs, canonically sorted; a duplicate is an invalid declaration, never silently merged."""
     if not isinstance(value, list):
-        raise invalid()
+        raise _Malformed()
     ids = [uuid_text(v) for v in value]
     if len(set(ids)) != len(ids):
-        raise invalid()
+        raise _Malformed()
     return sorted(ids)
 
 
@@ -186,56 +241,132 @@ def within_command_window(value: datetime, db_now: datetime) -> bool:
 # ---- closed bodies ---------------------------------------------------------------------------------------------
 
 def action_body(body: Any) -> dict[str, Any]:
-    """The normalized closed Action creation body (actor excluded; validated by the caller)."""
+    """The normalized closed Action creation body (actor excluded; validated by the caller). A missing or
+    unsupported `domain` is the neutral 422 (pre-flight 10); every other failure carries that domain's literal."""
+    spec = spec_of(body.get("domain")) if isinstance(body, dict) else None
+    if spec is None:
+        raise neutral(NEUTRAL_DOMAIN_INVALID)
+    return _as(spec.refuse("DOMAIN_INTENT_INVALID"), _action_body, body, spec)
+
+
+def _action_body(body: Any, spec: DomainSpec) -> dict[str, Any]:
     b = closed(body, ("domain", "origin_finding_id", "origin_finding_revision_id", "title", "owner_label", "due_at",
                       "raised_at", "actor", "idempotency_key"))
-    if b["domain"] != DOMAIN:
-        raise invalid()
     raised = instant(b["raised_at"])
     due = None if b["due_at"] is None else instant(b["due_at"])
     if due is not None and not raised <= due <= raised + DUE_LIMIT:
-        raise invalid()
-    return {"domain": DOMAIN, "origin_finding_id": uuid_text(b["origin_finding_id"]),
+        raise _Malformed()
+    return {"domain": spec.domain, "origin_finding_id": uuid_text(b["origin_finding_id"]),
             "origin_finding_revision_id": uuid_text(b["origin_finding_revision_id"]),
             "title": bounded_text(b["title"]),
             "owner_label": None if b["owner_label"] is None else bounded_text(b["owner_label"]),
             "due_at": due, "raised_at": raised, "idempotency_key": key(b["idempotency_key"])}
 
 
-def criteria(value: Any) -> list[dict[str, str]]:
-    """Exactly the four fixed criteria, in order, each a closed `{key,label,required_evidence}`."""
-    if not isinstance(value, list) or len(value) != len(CRITERIA):
-        raise invalid()
+_CRITERION = ("key", "label", "required_evidence")
+#: The basis keys every closed domain shares, and every key some closed domain allows (readiness 28).
+_COMMON_BASIS = tuple(k for k in _BASIS if all(k in spec.basis_keys for spec in DOMAINS.values()))
+_ANY_BASIS = tuple(dict.fromkeys(k for spec in DOMAINS.values() for k in spec.basis_keys))
+
+
+def _criteria_shape(value: Any) -> list[dict[str, str]]:
+    """Domain-independent: a list of closed `{key,label,required_evidence}` text objects (count, order and triples
+    are the resolved domain's)."""
+    if not isinstance(value, list):
+        raise _Malformed()
     out = []
-    for given, (k, label, required) in zip(value, CRITERIA):
-        row = closed(given, ("key", "label", "required_evidence"))
-        if (row["key"], row["label"], row["required_evidence"]) != (k, label, required):
-            raise invalid()
-        out.append({"key": k, "label": label, "required_evidence": required})
+    for given in value:
+        row = closed(given, _CRITERION)
+        if not all(isinstance(row[k], str) for k in _CRITERION):
+            raise _Malformed()
+        out.append({k: row[k] for k in _CRITERION})
     return out
 
 
-def basis(value: Any) -> dict[str, Any]:
-    b = closed(value, ("finding_revision_id", "work_case_id", "work_record_id", "accepted_evidence_ids"))
-    out = {"finding_revision_id": uuid_text(b["finding_revision_id"]), "work_case_id": optional_uuid(b["work_case_id"]),
-           "work_record_id": optional_uuid(b["work_record_id"]),
-           "accepted_evidence_ids": evidence_ids(b["accepted_evidence_ids"])}
+def _basis_shape(value: Any) -> dict[str, Any]:
+    """Domain-independent: an object holding every shared key and only keys some closed domain allows; the shared
+    values are parsed (domain-specific keys such as EV `session_ids` stay raw until the Action is resolved)."""
+    if not isinstance(value, dict) or not set(_COMMON_BASIS) <= set(value) <= set(_ANY_BASIS):
+        raise _Malformed()
+    out = {"finding_revision_id": uuid_text(value["finding_revision_id"]),
+           "work_case_id": optional_uuid(value["work_case_id"]),
+           "work_record_id": optional_uuid(value["work_record_id"]),
+           "accepted_evidence_ids": evidence_ids(value["accepted_evidence_ids"])}
     if out["work_record_id"] is not None and out["work_case_id"] is None:
-        raise invalid()  # a performed record is cited only through its explicitly linked request
+        raise _Malformed()  # a performed record is cited only through its explicitly linked request
+    return {**out, **{k: value[k] for k in value if k not in _COMMON_BASIS}}
+
+
+def criteria(value: Any, spec: DomainSpec | None = None) -> list[dict[str, str]]:
+    """Exactly the resolved domain's fixed criteria (cold by default), in order, each a closed
+    `{key,label,required_evidence}`."""
+    spec = DOMAINS[DOMAIN] if spec is None else spec
+    rows = _criteria_shape(value)
+    if len(rows) != len(spec.criteria):
+        raise _Malformed()
+    for row, triple in zip(rows, spec.criteria):
+        if (row["key"], row["label"], row["required_evidence"]) != triple:
+            raise _Malformed()
+    return [{"key": k, "label": label, "required_evidence": required} for k, label, required in spec.criteria]
+
+
+def session_ids(value: Any) -> list[str]:
+    """EV `basis.session_ids`: nonempty distinct public `ev_session.id` UUIDs, canonically sorted (readiness 9)."""
+    ids = evidence_ids(value)
+    if not ids:
+        raise _Malformed()
+    return ids
+
+
+def basis(value: Any, spec: DomainSpec | None = None) -> dict[str, Any]:
+    """The resolved domain's exact basis keys (cold by default) with every value parsed."""
+    spec = DOMAINS[DOMAIN] if spec is None else spec
+    b = _basis_shape(value)
+    if sorted(b) != sorted(spec.basis_keys):
+        raise _Malformed()
+    out = {k: b[k] for k in _COMMON_BASIS}
+    if "session_ids" in spec.basis_keys:
+        out["session_ids"] = session_ids(b["session_ids"])
     return out
 
 
-def intent_body(body: Any) -> dict[str, Any]:
+def _intent_shape(body: Any) -> dict[str, Any]:
     b = closed(body, ("supersedes_id", "declared_at", "criteria", "basis", "actor", "idempotency_key"))
     return {"supersedes_id": optional_uuid(b["supersedes_id"]), "declared_at": instant(b["declared_at"]),
-            "criteria": criteria(b["criteria"]), "basis": basis(b["basis"]),
+            "criteria": _criteria_shape(b["criteria"]), "basis": _basis_shape(b["basis"]),
             "idempotency_key": key(b["idempotency_key"])}
 
 
-def case_link_body(body: Any) -> dict[str, Any]:
+def intent_shape(body: Any) -> dict[str, Any]:
+    """Readiness 28, before the Action is resolved: the closed top-level shape, static bounds and the
+    domain-independent criteria/basis shape; any failure is the neutral intent 422."""
+    return _as(neutral(NEUTRAL_INTENT_INVALID), _intent_shape, body)
+
+
+def intent_for(spec: DomainSpec, shape: Mapping[str, Any]) -> dict[str, Any]:
+    """Readiness 28, after the Action is resolved: the stored domain's exact criteria and basis keys, with that
+    domain's 422 literal. The normalized result is what is hashed and stored (cold output unchanged)."""
+    def parse() -> dict[str, Any]:
+        return {"supersedes_id": shape["supersedes_id"], "declared_at": shape["declared_at"],
+                "criteria": criteria(shape["criteria"], spec), "basis": basis(shape["basis"], spec),
+                "idempotency_key": shape["idempotency_key"]}
+    return _as(spec.refuse("DOMAIN_INTENT_INVALID"), parse)
+
+
+def intent_body(body: Any, domain: str = DOMAIN) -> dict[str, Any]:
+    """The shared shape, then the resolved `domain`'s exact contract (cold by default)."""
+    return intent_for(DOMAINS[domain], intent_shape(body))
+
+
+def _case_link_body(body: Any) -> dict[str, Any]:
     b = closed(body, ("case_id", "case_revision_id", "case_event_id", "actor", "idempotency_key"))
     return {"case_id": uuid_text(b["case_id"]), "case_revision_id": uuid_text(b["case_revision_id"]),
             "case_event_id": uuid_text(b["case_event_id"]), "idempotency_key": key(b["idempotency_key"])}
+
+
+def case_link_body(body: Any) -> dict[str, Any]:
+    """Domain-independent (readiness 28): any failure is the neutral case-link 422."""
+    return _as(neutral(NEUTRAL_CASE_LINK_INVALID), _case_link_body, body)
 
 
 def path_action_id(value: str) -> str | None:

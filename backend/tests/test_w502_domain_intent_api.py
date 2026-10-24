@@ -110,10 +110,12 @@ def test_gate_order_before_shape() -> None:
         api.close()
     api = Api(t, s)
     try:
-        for suffix in ROUTES:  # then the closed shape: 422 with the exact cold literal, nothing read
-            refused(api.post(suffix, None), 422, "DOMAIN_INTENT_INVALID", d.MESSAGES["DOMAIN_INTENT_INVALID"])
-            refused(api.post(suffix, {"actor": dict(ACTOR)}), 422, "DOMAIN_INTENT_INVALID",
-                    d.MESSAGES["DOMAIN_INTENT_INVALID"])
+        # Then the closed shape, while the domain is unknown: 422 with the neutral literal of each route (W5-04
+        # readiness 28; never the cold literal), nothing read.
+        neutral = (d.NEUTRAL_DOMAIN_INVALID, d.NEUTRAL_INTENT_INVALID, d.NEUTRAL_CASE_LINK_INVALID)
+        for suffix, message in zip(ROUTES, neutral):
+            refused(api.post(suffix, None), 422, "DOMAIN_INTENT_INVALID", message)
+            refused(api.post(suffix, {"actor": dict(ACTOR)}), 422, "DOMAIN_INTENT_INVALID", message)
     finally:
         api.close()
 
@@ -147,6 +149,14 @@ def test_wire_201_200_and_refusals(cold) -> None:
         aid = created["id"]
         refused(api.post(f"/{uuid4()}/intents", intent_body(cold)), 404, "ACTION_NOT_FOUND",
                 d.MESSAGES["ACTION_NOT_FOUND"])
+        # W5-04 readiness 28: a resolved cold Action refuses a three-criterion body with the cold literal; the same
+        # body against an unknown Action is 404; a shared-shape failure is neutral before the lookup.
+        three = {**intent_body(cold, "w502-api-intent-3c"), "criteria": intent_body(cold)["criteria"][:3]}
+        refused(api.post(f"/{aid}/intents", three), 422, "DOMAIN_INTENT_INVALID", d.MESSAGES["DOMAIN_INTENT_INVALID"])
+        refused(api.post(f"/{uuid4()}/intents", three), 404, "ACTION_NOT_FOUND", d.MESSAGES["ACTION_NOT_FOUND"])
+        refused(api.post(f"/{aid}/intents", {**three, "declared_at": "soon"}), 422, "DOMAIN_INTENT_INVALID",
+                d.NEUTRAL_INTENT_INVALID)
+        assert counts(cold.engine) == [1, 0, 0]
         wr = w4_request(cold, "w502-api-request-01")
         lb = link_body(wr["id"], wr["revision"]["id"], head_event(cold, wr["id"]))
         r = api.post(f"/{aid}/case-links", lb)
