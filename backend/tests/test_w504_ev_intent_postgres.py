@@ -532,3 +532,90 @@ def test_ev_detail_without_intent_and_unselected_finding_is_unknown(ev) -> None:
         blind._reads.dispose()
     assert (detail["intent"], detail["results"], detail["status"]) == (None, None, "UNKNOWN")
     assert detail["links"]["finding"]["href"] is None and detail["source_provenance"]["state"] == "UNKNOWN"
+
+
+def test_rejected_disposition_advances_the_shared_cutoff_without_accepted_evidence(ev) -> None:
+    """Readiness 32: the shared cutoff is max(ingestion_disposition.decided_at) with no `decision = 'ACCEPTED'`
+    predicate. A REJECTED disposition decided after the replay's accepted ones advances it; the accepted set, the
+    selected basis and a stored EV intent basis never gain the rejection's ID, an intent declaring it is refused with
+    no write, and the EV pin, the EV snapshot and the W4 linked selection all read the same advanced cutoff."""
+    own, valid = members(ev)
+    x = valid[0]
+    k0_now = _now(ev)
+    with ev.engine.connect() as c:
+        pin0 = selected_finding_pin(ev.ports)(c, ev.t, ev.s, ev.code, ev.revision, k0_now)
+        assert pin0 is not None
+        k0 = c.execute(text("SELECT max(decided_at) FROM ingestion_disposition WHERE site_id = :s"),
+                       {"s": ev.s}).scalar_one()
+        assert c.execute(text("SELECT count(*) FROM ingestion_disposition WHERE site_id = :s AND decision = 'ACCEPTED'"),
+                         {"s": ev.s}).scalar_one() > 0
+    assert pin0["evidence_cutoff"] == k0
+    basis0 = selected_now(ev)
+    assert basis0["accepted_evidence_ids"] and basis0["selected_evidence_ids"]
+
+    rejection = str(uuid4())
+    with ev.engine.begin() as c:
+        batch = c.execute(text("SELECT batch_id FROM ingestion_disposition WHERE site_id = :s "
+                               "ORDER BY decided_at DESC, ordinal DESC LIMIT 1"), {"s": ev.s}).scalar_one()
+        ordinal = c.execute(text("SELECT max(ordinal) + 1 FROM ingestion_disposition WHERE batch_id = :b"),
+                            {"b": batch}).scalar_one()
+        message = f"w504-rejected-{rejection}"
+        c.execute(text(
+            "INSERT INTO evidence_rejection (id, tenant_id, site_id, batch_id, ordinal, message_id, kind, field, "
+            "detail, envelope_sha256, conflicts_with_evidence_id, received_at) VALUES (:id, :t, :s, :b, :o, :m, "
+            "'SCHEMA_INVALID', 'value', 'w504 readiness 32 rejected envelope', :sha, NULL, clock_timestamp())"),
+            {"id": rejection, "t": ev.t, "s": ev.s, "b": batch, "o": ordinal, "m": message, "sha": "a" * 64})
+        c.execute(text(
+            "INSERT INTO ingestion_disposition (batch_id, ordinal, tenant_id, site_id, message_id, decision, "
+            "accepted_evidence_id, rejection_id, decided_at) VALUES (:b, :o, :t, :s, :m, 'REJECTED', NULL, :id, "
+            "clock_timestamp())"),
+            {"id": rejection, "t": ev.t, "s": ev.s, "b": batch, "o": ordinal, "m": message})
+    with ev.engine.connect() as c:
+        k1 = c.execute(text("SELECT max(decided_at) FROM ingestion_disposition WHERE site_id = :s"),
+                       {"s": ev.s}).scalar_one()
+        assert c.execute(text("SELECT decision FROM ingestion_disposition WHERE decided_at = :k AND site_id = :s"),
+                         {"k": k1, "s": ev.s}).scalars().all() == ["REJECTED"]
+    assert k1 > k0, "the rejected disposition advances the shared watermark"
+
+    now = _now(ev)
+    with ev.engine.connect() as c:
+        pin1 = selected_finding_pin(ev.ports)(c, ev.t, ev.s, ev.code, ev.revision, now)
+        assert pin1 is not None and pin1["evidence_cutoff"] == k1, "the EV pin reads the advanced cutoff"
+        assert {k: v for k, v in pin1.items() if k != "evidence_cutoff"} == {
+            k: v for k, v in pin0.items() if k != "evidence_cutoff"}, "the same exact window and selection"
+        snap = ev.ports.ev_snapshot(c, ev.t, ev.s, ev.code, pin1["window_start"], pin1["window_end"],
+                                    pin1["evidence_cutoff"], selection_cutoff=now,
+                                    selection_seqs=dict(pin1["selection_seqs"]))
+        assert snap["known"] == snap["watermark"] == k1, "the EV snapshot reads the same cutoff"
+        basis1 = selected_ev_basis(ev.ports)(c, ev.t, ev.s, ev.code, pin1, now, ev.revision["id"])
+    assert basis1["accepted_evidence_ids"] == basis0["accepted_evidence_ids"]
+    assert basis1["selected_evidence_ids"] == basis0["selected_evidence_ids"]
+    assert basis1["finding"] == basis0["finding"] and basis1["sessions"] == basis0["sessions"]
+    assert all(rejection not in ids for ids in (basis1["accepted_evidence_ids"], basis1["selected_evidence_ids"],
+                                                 basis1["finding"]["evidence_ids"]))
+
+    svc = ev_service(ev)
+    try:
+        aid = svc.create_action(ev.t, ev.s, ev.code, ev_action(ev), PRINCIPAL)[1]["id"]
+        refused_as(422, "DOMAIN_INTENT_LINK_INVALID", EV_LINK, svc.post_intent, ev.t, ev.s, ev.code, aid,
+                   ev_intent(ev, [own], [x, rejection]), PRINCIPAL)
+        assert counts(ev.engine) == [1, 0, 0], "the refused rejected-ID declaration writes nothing"
+        status, declared = svc.post_intent(ev.t, ev.s, ev.code, aid, ev_intent(ev, [own], valid), PRINCIPAL)
+        assert status == 201, declared
+    finally:
+        svc._store.dispose()
+    with ev.engine.connect() as c:
+        stored = c.execute(text("SELECT CAST(basis AS text) FROM domain_action_intent WHERE action_id = :a"),
+                           {"a": aid}).scalar_one()
+    assert x in stored.lower() and rejection not in stored.lower(), "the stored EV basis never cites the rejection"
+
+    case_id, revision_id, event_id = _case(ev, "w504-rejected-cutoff-01")
+    with ev.engine.begin() as c:
+        c.execute(text(LINK_INSERT), {"t": ev.t, "s": ev.s, "a": aid, "id": str(uuid4()), "c": case_id,
+                                      "r": revision_id, "e": event_id, "key": "w504-rejected-link-01", "sha": SHA})
+    now = _now(ev)
+    with ev.engine.connect() as c:
+        rx = wr._ReadTx(c, ev.t, ev.s, ev.code, now, None, ev.ports)
+        selections = [s for s in rx.link_selections(revision_id, None, None, now) if s["id"] == aid]
+    assert len(selections) == 1 and selections[0]["pin"] is not None
+    assert selections[0]["pin"]["evidence_cutoff"] == k1, "the W4 linked selection reads the same cutoff"
