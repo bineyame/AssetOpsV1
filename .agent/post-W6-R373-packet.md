@@ -133,3 +133,34 @@ tests would exercise main's code. The full-suite run must do the same.
   `MESSAGES["WORK_STORE_UNAVAILABLE"]`, the same literal the detail used before. `test_w601c` refusal-order tests pass.
 - Estate roots and other Site reads remain on `development_access` (R374).
 - User review: not required for this backend/security slice. The copy change is one sentence.
+
+## Fix round and merge proof (post-review)
+
+Code revision for all proof below: `7b1e3a82` (fix round on top of review commit `55519d1a`). Later commits touch
+only this packet and the recapture folder. Packet commit is the branch head.
+
+- **M1 (mini-test time bomb) fixed.** `test_r373_request_access.py`: `vertical_proof` takes an optional
+  `other_window`; the mini test checks the linked request in the fixed fixture-clock window and the KOBO-002
+  request in a one-day window derived from that request's own recorded `created_at` (read from the granted global
+  detail). No wall-clock read remains in the mini test, so no window can grow past 31 days.
+  - **Pin proof** (a pytest plugin patches the test module's `datetime.now` to 2026-12-01T09:00Z):
+    new version `-k mini` **1 passed**; the old version (`git show HEAD:` copy) under the same pin **failed with
+    `KeyError: 'rows'`** (422 `INVALID_WINDOW`), the review's scenario. Unpinned, the whole file: 10 passed.
+- **L2 fixed:** `tools/w502_cold_work_walkthrough.py` module docstring and the w504 `SERVE_ENTRY` docstring now say
+  the global Work router sits ahead of the product routes behind the grant. L1 is already in R374; nothing done.
+- **Focused set** (the 9 files above, real Postgres `assetops_test`, PYTHONPATH on this worktree, at `7b1e3a82`):
+  **95 passed, 0 skipped**; JUnit tests=95 failures=0 errors=0 skipped=0; wall 1000 s.
+- **Full suite:** ran at `ba9610dd` (before the test-only fix): 4051 passed plus 2 known schedule-timing tests that
+  fail identically on main. Not re-run; this round changes one test file and two docstrings.
+- **Current-SHA B19 recaptures (ruling Q8)**, capture-only (`.agent/post-W6-audit/batch-19/tools/capture-b19.mjs`),
+  revision `7b1e3a82`, `.agent/post-W6-R373-recapture/` (`part-<vertical>-<200|403>/`, `SUMMARY.txt`, `tools/`, `logs/`).
+  - Mini KOBO-001 (`w601_seed detail-linked`, WR-000005, linked): 200 on production `main:app` (18901); 403 on
+    `tools/deny_app.py` = `create_app(site_read_access=deny)` (18902).
+  - Cold COLD-LAB-001 WR-000002 (linked): 200 on the walkthrough `positive` process (8971, hard-coded), 403 on its
+    `forbidden` process (8976).
+  - EV EV-LAB-001 WR-000002 (linked via `attest`): 200 on `positive` (18904), 403 on `forbidden` (18909).
+    `W504_API_PORT_BASE=18903` puts the `unavailable` process at 18910, one past the block (stopped by `attest`).
+  - Each phase, overview, record and history at 1440 and 390: **6 pairs, 36/36 claims passed**, 0 horizontal
+    overflow. 200 renders the request (title, WR code, tabs); 403 renders the "Work request / Request details could
+    not be shown" state on all three tabs, identical for all three Sites. `ASSETOPS_WORK_CURSOR_KEY_HEX` was set.
+  - Cleanup: processes stopped by PID, work folders removed, `*_r373rc_test` DBs dropped (none left).
