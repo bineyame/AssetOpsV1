@@ -5410,8 +5410,13 @@ input.v69-chip-control[type="datetime-local"] {
   z-index: 1;
   background: var(--surface-raised);
 }
+/* W5-03b ruling 25: the whole sticky table header is the mock grey (`index.html:3` global `th`), first cell included. */
+.data-table__scroll--sticky .data-table thead th {
+  background: #f8fafd;
+}
 .data-table__scroll--sticky .data-table thead th:first-child {
   z-index: 2;
+  background: #f8fafd;
 }
 
 /* W5-03a E2: EV Availability connector-state bars (v6.9 `availability` `bar-row`/`track`, ordered div spans). */

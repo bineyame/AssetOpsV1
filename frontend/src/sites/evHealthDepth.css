@@ -1,0 +1,48 @@
+/*
+ * W5-03b E4: EV Health `Condition and evidence` source references (ruling 8: 36-character IDs and the full
+ * `Session {uuid}` reference stay inside their cell at 390px). Each exact ID is its own small monospace line that
+ * breaks at character boundaries; nothing is ellipsized or clipped.
+ */
+.ev-health-ref {
+  display: block;
+  margin-top: 2px;
+  font-family: Consolas, monospace;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+/* Ruling 24: at phone width all three columns fit the panel, as in the mock; IDs break within their cells. */
+@media (max-width: 640px) {
+  .ev-health-condition .data-table {
+    width: 100%;
+    table-layout: fixed;
+    min-width: 0;
+  }
+  .ev-health-condition .data-table tr > :first-child {
+    width: 27%;
+    min-width: 0;
+  }
+  .ev-health-condition .data-table tr > :nth-child(2),
+  .ev-health-condition .data-table tr > :nth-child(3) {
+    width: 36.5%;
+    min-width: 0;
+  }
+  .ev-health-condition .data-table th,
+  .ev-health-condition .data-table td {
+    padding: 7px 5px;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+  .ev-health-condition .data-table thead th {
+    white-space: normal;
+    font-size: 9px;
+  }
+}
+
+/* Ruling 27: an Unknown connector card keeps the mock's grey top border but its value is the mock ink colour. */
+.v69-metric--assessment.v69-metric--muted[data-ev-health-card]:not([data-ev-health-card="battery"]) .v69-metric__value {
+  color: #17243b;
+}

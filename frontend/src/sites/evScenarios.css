@@ -1,0 +1,17 @@
+/*
+ * W5-03b E6: at phone width the authored-basis expansion row spans the whole (horizontally scrolled) table, so its
+ * disclosure would start wider than the visible table viewport and cut long exact IDs at the right edge. Pin the
+ * disclosure to the viewport's left edge and width so every ID breaks inside the visible 360px-capped scroller.
+ */
+@media (max-width: 640px) {
+  .ev-scenarios-basis {
+    position: sticky;
+    left: 0;
+    max-width: calc(100vw - 108px);
+    max-height: 360px; /* ruling 28: overrides the inherited cold 220px rule (evScenarios.css loads after it) */
+  }
+}
+
+/* Ruling 29 (E6-H1): the mock `.notice` composition, icon left of the paragraph. */
+.v69-notice[data-ev-scenarios-closing-notice] { display: flex; gap: 10px; align-items: flex-start; }
+.v69-notice[data-ev-scenarios-closing-notice] p { margin: 0; }

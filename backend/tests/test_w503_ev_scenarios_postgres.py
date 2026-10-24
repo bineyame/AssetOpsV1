@@ -409,7 +409,6 @@ def selected(built, known_at=None) -> dict:
             return {"snap": snap, "body": body, "complete": complete, "meters": meters,
                     "foundation": reads.foundation_revision_on(c, snap),
                     "accepted": {str(r["evidence_id"]).lower() for r in reads.accepted_on(c, snap)},
-                    "accepted": {str(r["evidence_id"]).lower() for r in reads.accepted_on(c, snap)},
                     "provenance": reads.selected_provenance_on(c, snap, meters)}
         return reads.within(work)
     finally:
@@ -445,10 +444,6 @@ def test_complete_session_baseline(chain) -> None:  # noqa: F811
         "source_provenance": want["provenance"]}
     assert basis["cutoff"] == WATERMARK  # the returned watermark, not a literal: the fixture's 09:00
     assert set(want["meters"]) <= set(sel["evidence_ids"]) and want["provenance"]["evidence_ids"] == want["meters"]
-    # Ruling A6: every stored meter ID is in the window's accepted set, the head's cited set and the provenance.
-    assert basis["accepted_evidence_ids"] == want["meters"] and set(want["meters"]) <= want["accepted"]
-    assert set(want["meters"]) <= {str(x).lower() for x in sel["evidence_ids"]}
-    assert set(want["meters"]) <= set(basis["source_provenance"]["evidence_ids"])
     # Ruling A6: every stored meter ID is in the window's accepted set, the head's cited set and the provenance.
     assert basis["accepted_evidence_ids"] == want["meters"] and set(want["meters"]) <= want["accepted"]
     assert set(want["meters"]) <= {str(x).lower() for x in sel["evidence_ids"]}
@@ -580,16 +575,6 @@ def test_command_refusals_and_replay(chain) -> None:  # noqa: F811
     response = c.post(f"{ROUTE}/{uuid4()}/revisions?{QUERY}", json=correction_body("corr-key-0010", str(uuid4())))
     assert response.status_code == 404 and response.json() == {
         "error": {"code": "DECISION_NOT_FOUND", "message": "No decision with this ID at this Site."}}
-    for body, code, message in (
-            (correction_body("corr-key-0008", str(uuid4())), "DECISION_LINK_SCOPE_INVALID",
-             "A cited or linked ID is outside this Site or basis."),
-            (correction_body("corr-key-0009", "not-a-uuid"), "EV_SCENARIO_INVALID",
-             "The EV scenario request or selected basis is invalid.")):  # ruling A3
-        response = c.post(f"{ROUTE}{path}?{QUERY}", json=body)
-        assert response.status_code == 422 and response.json() == {"error": {"code": code, "message": message}}
-    response = c.post(f"{ROUTE}/{uuid4()}/revisions?{QUERY}", json=correction_body("corr-key-0010", str(uuid4())))
-    assert response.status_code == 404 and response.json() == {
-        "error": {"code": "DECISION_NOT_FOUND", "message": "No decision with this ID at this Site."}}
     refused_post(c, correction_body("corr-key-0005", second["revision_id"]), 404, "DECISION_NOT_FOUND",
                  path=f"/{uuid4()}/revisions")
     refused_post(c, correction_body("corr-key-0006", second["revision_id"]), 404, "DECISION_NOT_FOUND",
@@ -642,8 +627,6 @@ def test_pending_historical_list_and_cursor(chain) -> None:  # noqa: F811
     for bad in ("0", "101", "x", "²"):
         refused_get(c, f"{QUERY}&limit={bad}", 422, "EV_LIMIT_INVALID")
     assert len(listed(c, f"{QUERY}&limit=100")["items"]) == 3
-    assert c.get(f"{ROUTE}?{QUERY}&limit=0").json() == {  # ruling A2
-        "error": {"code": "EV_LIMIT_INVALID", "message": "'limit' must be 1 to 100."}}
     assert c.get(f"{ROUTE}?{QUERY}&limit=0").json() == {  # ruling A2
         "error": {"code": "EV_LIMIT_INVALID", "message": "'limit' must be 1 to 100."}}
     empty = listed(c, EMPTY_W)
@@ -752,6 +735,18 @@ def _patched_snapshot(monkeypatch, change) -> None:
     monkeypatch.setattr(EvReadService, "_snapshot", wrapped)
 
 
+def _spied_foundation(monkeypatch) -> list:
+    """Record every `foundation_revision_on` result, so a fallback case proves a Foundation was found."""
+    original, seen = EvReadService.foundation_revision_on, []
+
+    def spy(self, c, snap):
+        found = original(self, c, snap)
+        seen.append(found)
+        return found
+    monkeypatch.setattr(EvReadService, "foundation_revision_on", spy)
+    return seen
+
+
 @needs_db
 def test_baseline_foundation_and_foreign_meter_refusals(chain, monkeypatch) -> None:  # noqa: F811
     """M1 and ruling A6: an absent, foreign or uncited Foundation, an accepted meter ID omitted from the selected
@@ -776,10 +771,15 @@ def test_baseline_foundation_and_foreign_meter_refusals(chain, monkeypatch) -> N
         refuse("found-key-0002")
     with monkeypatch.context() as m:  # (c) multi-ID head: the fallback Foundation is outside the cited IDs
         _patched_snapshot(m, lambda head: {**head, "foundation_ids": [stranger, other]})
+        found = _spied_foundation(m)
         refuse("found-key-0003")
+        # The fallback did resolve a real Foundation; the refusal is its absence from the cited IDs.
+        assert found and all(f is not None and f["id"] not in (stranger, other) for f in found)
     with monkeypatch.context() as m:  # (d) a head citing no Foundation cannot validate one by fallback
         _patched_snapshot(m, lambda head: {**head, "foundation_ids": []})
+        found = _spied_foundation(m)
         refuse("found-key-0004")
+        assert found and all(f is not None and f["id"] == want["foundation"]["id"] for f in found)
     with monkeypatch.context() as m:  # (e) an accepted meter ID omitted from the selected head's evidence
         drop = set(want["meters"][:1])
         _patched_snapshot(m, lambda head: {**head, "evidence_ids": [
@@ -818,7 +818,9 @@ def test_currency_must_match_priced_tariff(chain) -> None:  # noqa: F811
     assert "currency" not in basis  # compared on the write connection, never persisted
     response = c.post(f"{ROUTE}/{made['id']}/revisions?{QUERY}", json=correction_body(
         "cur-key-0003", made["revision_id"], assumptions=usd))
-    assert response.status_code == 422 and response.json()["error"]["code"] == "EV_SCENARIO_INVALID"
+    assert response.status_code == 422 and response.json() == {"error": {
+        "code": "EV_SCENARIO_INVALID",
+        "message": "The authored currency must match the selected priced tariff currency."}}
     assert counts(built) == [1, 1]
     built.close()
 

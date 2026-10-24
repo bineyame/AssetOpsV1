@@ -251,6 +251,8 @@ export const SITE_EV_EVIDENCE_ROUTE_PATH = `${SITE_EV_ROUTE_PATH}/evidence`;
 export const SITE_EV_ANALYSIS_ROUTE_PATH = `${SITE_EV_ROUTE_PATH}/evidence/analysis`;
 export const SITE_EV_FINANCIALS_ROUTE_PATH = `${SITE_EV_ROUTE_PATH}/financials`;
 export const SITE_EV_ASSUMPTIONS_ROUTE_PATH = `${SITE_EV_ROUTE_PATH}/financial-assumptions`;
+/** W5-03b E6: the authored EV scenarios (Financials > Scenarios), read with `?from=&to=&known_at=&scenario_at=`. */
+export const SITE_EV_SCENARIOS_ROUTE_PATH = `${SITE_EV_ROUTE_PATH}/financials/scenarios`;
 
 const SITE_EV_SUFFIX = {
   overview: "",
@@ -258,6 +260,7 @@ const SITE_EV_SUFFIX = {
   analysis: "/evidence/analysis",
   financials: "/financials",
   assumptions: "/financial-assumptions",
+  scenarios: "/financials/scenarios",
 };
 
 export function siteEvHref(siteId: string, view: keyof typeof SITE_EV_SUFFIX = "overview"): string {

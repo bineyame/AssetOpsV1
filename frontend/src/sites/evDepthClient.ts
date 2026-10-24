@@ -320,6 +320,18 @@ export function isEvEnergyRead(value: unknown): value is EvEnergyRead {
   return isHead(value, "energy") && isEvEnergy(value.energy);
 }
 
+/**
+ * W5-03b E4: the only `(kind, condition_state, observation, limitation, next_evidence)` tuples the E1b Health
+ * builder emits (`analytics/ev_depth.py` CONNECTOR_FAULT, CONNECTOR_UNKNOWN, SITE_METER, METER_UNKNOWN). Any other
+ * tuple is a malformed 200 and renders the unavailable state.
+ */
+export const EV_HEALTH_TUPLES: readonly (readonly [EvHealthKind, EvHealthRow["condition_state"], string, string | null, string])[] = [
+  ["CONNECTOR", "NEEDS_INVESTIGATION", "Session interruption observed", "Fault-stopped session observed; cause not diagnosed", "Retrieve diagnostic log and witness a complete session"],
+  ["CONNECTOR", "UNKNOWN", "Condition unknown", "No charger condition assessment", "Record diagnostic and covered operation"],
+  ["SITE_METER", "UNKNOWN", "Sampled import only", null, "Record continuous import and request/limit evidence"],
+  ["UNKNOWN", "UNKNOWN", "Meter role not established", "No selected Site-import binding for this meter", "Confirm meter topology and source binding"],
+];
+
 function isHealthRow(value: unknown): boolean {
   return (
     keysExactly(value, HEALTH_ROW_KEYS) &&
@@ -332,7 +344,15 @@ function isHealthRow(value: unknown): boolean {
     isNullableString(value.limitation) &&
     isString(value.next_evidence) &&
     isNullableString(value.session_id) &&
-    isStringArray(value.evidence_ids)
+    isStringArray(value.evidence_ids) &&
+    EV_HEALTH_TUPLES.some(
+      ([kind, state, observation, limitation, next]) =>
+        value.kind === kind &&
+        value.condition_state === state &&
+        value.observation === observation &&
+        value.limitation === limitation &&
+        value.next_evidence === next,
+    )
   );
 }
 

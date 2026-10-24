@@ -760,8 +760,7 @@ function Get-InPageUnavailableEntryFailures {
     # dry-read") removes Work > Incidents and Maintenance: both subtabs are live
     # routes now. The rail's unavailable Incidents and Maintenance roots stay (W6).
     # W4-03 unit 6a (closure 4 S13): the Financials subrow is split by Site type; mini
-    # Scenarios is a live route, so the one remaining Scenarios entry is cold's (EV has
-    # no Scenarios slot).
+    # Scenarios is a live route; the remaining non-EV Scenarios entry is the shared SiteAnalyticsFrames fallback.
     # W4-03 unit 6b (closure 4 B4, closure 5, u5 6b, u6 ruling 4): canonical mini Alternatives is a live route, so
     # Alternatives has zero unavailable occurrences; the mini Finding row's Analysis slot is the one new entry.
     # W5-01a C2: cold Performance > Cooling is a live route (`/sites/{site_code}/performance/cooling`), so its
@@ -775,9 +774,10 @@ function Get-InPageUnavailableEntryFailures {
     # its one unavailable occurrence is gone; the live subtab and page branch are held below.
     # W5-03a E3: EV Performance > Energy / site power is live (`/sites/{site_code}/performance/energy`), so its
     # one unavailable occurrence is gone too; its live subtab and page branch are held below.
-    $expectedTabs = @("Scenarios", "Scenarios", "Recommendation", "Recommendation",
+    # W5-03b E6: EV Financials > Scenarios is live (`/sites/{site_code}/ev/financials/scenarios`), so the W2-F M12
+    # EV Scenarios slot in EvSiteViews.tsx is gone; its live subtab and page branch are held below.
+    $expectedTabs = @("Scenarios", "Recommendation", "Recommendation",
         "Analysis", "Verification")
-    # W2-F unit 4b (M12): EV Financials/Assumptions carry the mock's Scenarios slot as one literal in EvSiteViews.tsx.
     $expectedChips = @("Cost", "Risks", "Opportunities")
 
     if ($null -eq $Modules) {
@@ -879,6 +879,14 @@ function Get-InPageUnavailableEntryFailures {
     if (-not ($evFrameText.Contains('data-performance-subtab="energy"') -and $evPageText.Contains('<EvEnergy'))) {
         $failures.Add(("The live EV Energy / site power subtab or page branch is missing: ${evFramePath} must carry " +
             "data-performance-subtab=""energy"" and ${evPagePath} must render <EvEnergy (W5-03a E3).")) | Out-Null
+    }
+    # W5-03b E6: the live EV Financials Scenarios subtab and its page branch stay in the EV Site frame.
+    $evSitePath = "frontend/src/sites/EvSiteViews.tsx"
+    $evSite = @($Modules | Where-Object { $_.Path -eq $evSitePath })
+    $evSiteText = if ($evSite.Count -eq 0) { "" } else { $evSite[0].Lines -join "`n" }
+    if (-not ($evSiteText.Contains('data-ev-subtab="scenarios"') -and $evSiteText.Contains('<EvScenarios'))) {
+        $failures.Add(("The live EV Scenarios subtab or page branch is missing: ${evSitePath} must carry " +
+            "data-ev-subtab=""scenarios"" and render <EvScenarios (W5-03b E6).")) | Out-Null
     }
 
     # W5-01b C5 (P-C5-9..16): the cold Financials Scenarios tab is live for COLDCHAIN only. The Scenarios view

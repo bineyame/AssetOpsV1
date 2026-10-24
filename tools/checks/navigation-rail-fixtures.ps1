@@ -222,9 +222,14 @@ function Invoke-NavigationRailFixturesCheck {
                Modules = (Set-ModuleLines $modules $frames '<EvEnergy ' '<Missing ') },
             @{ Name = "the EV Energy / site power entry comes back unavailable"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Recommendation" />' '<UnavailableTab label="Recommendation" /><UnavailableTab label="Energy / site power" />') },
-            # W2-F M12: the EV Financials Scenarios slot is part of the closed multiset.
-            @{ Name = "the EV Financials Scenarios entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
-               Modules = (Set-ModuleLines $modules $evSite '<UnavailableTab label="Scenarios" />' 'null') },
+            # W5-03b E6: EV Financials > Scenarios is live; dropping its subtab tuple or page branch fails, and an
+            # unavailable EV Scenarios entry coming back breaks the closed multiset.
+            @{ Name = "the live EV Scenarios subtab is dropped"; Expect = "The live EV Scenarios subtab or page branch is missing";
+               Modules = (Set-ModuleLines $modules $evSite 'data-ev-subtab="scenarios"' '') },
+            @{ Name = "the live EV Scenarios page branch is dropped"; Expect = "The live EV Scenarios subtab or page branch is missing";
+               Modules = (Set-ModuleLines $modules $evSite '<EvScenarios ' '<Missing ') },
+            @{ Name = "the EV Scenarios entry comes back unavailable"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $evSite '^(\s*)\{financial \? \($' '$1<UnavailableTab label="Scenarios" />{financial ? (') },
             @{ Name = "an EV entry is duplicated"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Recommendation" />' '<UnavailableTab label="Recommendation" /><UnavailableTab label="Recommendation" />') },
             @{ Name = "an arbitrary new EV tab is appended"; Expect = "the W1-plus-W2 inventory is exactly";
