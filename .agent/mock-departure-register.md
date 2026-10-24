@@ -175,4 +175,4 @@ Mock selectors are `SITE_WORK.ev`, `WORK_COLS`, `WORK_EMPTY`, `siteWorkScreen('e
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| R103 | W5-03b E4 | `ev-health` | Subtitle `2 × 60 kW connectors · 80 kW site limit · no stationary battery` | `Health · site-level asset-condition summary` | D4 | The mock equipment values describe its illustrative Site and the E4 Health DTO does not supply ratings or battery absence for every selected Foundation. | E4; inform owner | ruled build-time; review pending |
+| R103 | W5-03b E4 | `ev-health` | Subtitle `2 × 60 kW connectors · 80 kW site limit · no stationary battery` | `Health · site-level asset-condition summary` | D4 | The mock equipment values describe its illustrative Site and the E4 Health DTO does not supply ratings or battery absence for every selected Foundation. | E4; inform owner | built: W5-03b E4 fix round (label in `EvHealthDepth.tsx`), review pending |
