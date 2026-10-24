@@ -339,7 +339,7 @@ const dayBefore = (iso) => new Date(Date.parse(iso) - 86400000).toISOString().re
 // keeps its titled case panel, so it is measured against the populated case-panel cap (the W5-02 K3b cold precedent).
 // Every row is a walkthrough row (pre-flight 23): `positive` after `attest` (the submitted INC/WR + record + explicit
 // domain Action case links), `zero`, `worstcase` (five long INC and five long WR from the walkthrough) and `forbidden`.
-const CASE_CAPS = { main: [1600, 2000], strip: [100, 150], panel: [650, 650], panelOneOpen: [650, 680], emptyPanel: [460, 560], notice: [110, 160] };
+const CASE_CAPS = { main: [1600, 2000], strip: [100, 150], panel: [650, 650], panelOneOpen: [650, 680], emptyPanel: [460, 560], refusedPanel: [360, 590], notice: [110, 160] }; // refusedPanel: readiness ruling 70
 // Every cases-mode state renders the case panel (no Site-level refusal is captured here), so only a settled case panel counts.
 const CASE_READY = `document.querySelector('.work-cases [data-work-loaded], .work-cases [data-work-empty], .work-cases [data-work-refused]')`;
 const caseMeasure = (kind) => `(() => {
@@ -475,7 +475,11 @@ function caseRowClaims(W, label, m, expectRows) {
   const summaries = m.rows.flatMap((r) => r.summaryLines);
   if (summaries.length > 0) claim(`${W} ${label}: every disclosure summary is on one line`, summaries.every((n) => n === 1), summaries);
   claim(`${W} ${label}: no clipped state/outcome badge, each on one line`, m.badgeCount > 0 && m.badgesClipped === 0 && m.badgeLines.every((n) => n === 1), { badges: m.badgeCount, clipped: m.badgesClipped, lines: m.badgeLines });
-  claim(`${W} ${label}: no /actions/ href on the page (R113: the EV domain Action link is plain)`, m.actionHrefs.length === 0, m.actionHrefs);
+  // W5-04 V4a (ruling 71, R113 closed): every Action link on a case page is a live EV detail address carrying exactly the
+  // page's selected from, to and explicit known_at (never the cursor).
+  const want = (() => { const u = new URLSearchParams((m.href ?? "").split("?")[1] ?? ""); const o = new URLSearchParams({ from: u.get("from") ?? "", to: u.get("to") ?? "" }); if (u.get("known_at")) o.set("known_at", u.get("known_at")); return o.toString(); })();
+  claim(`${W} ${label}: every /actions/ href is the live EV detail with the page's from,to,known_at (R113 closed; ruling 71)`,
+    m.actionHrefs.every((h) => new RegExp(`^/sites/${SITE}/actions/[0-9a-f-]{36}/verification\?`).test(h) && h.split("?")[1] === want), { hrefs: m.actionHrefs, want });
   if (W === "narrow") {
     claim(`${W} ${label}: first column is position:sticky`, m.stickyFirstColumn === true, m.stickyFirstColumn);
     claim(`${W} ${label}: table scrolls inside its panel`, m.scrollerScrollWidth > m.scrollerClientWidth, { scrollWidth: m.scrollerScrollWidth, clientWidth: m.scrollerClientWidth });
@@ -556,7 +560,7 @@ async function mainCases() {
         await js(openAll(".work-cases [data-work-row] details"));
         await sleep(400);
       });
-      claim(`${W} ${kind} submitted-ids-open: the explicit EV domain Action case link is plain text (R113)`, m.actionPlain >= 1 && m.actionHrefs.length === 0, { plain: m.actionPlain, hrefs: m.actionHrefs });
+      claim(`${W} ${kind} submitted-ids-open: the explicit EV domain Action case link is live with the page's from,to (R113 closed; ruling 71)`, m.actionPlain === 0 && m.actionHrefs.length >= 1 && m.actionHrefs.every((h) => h.endsWith(`/verification?${q({ from: SW.from, to: SW.to })}`)), { plain: m.actionPlain, hrefs: m.actionHrefs });
       caseCaps(W, `${kind} submitted-ids-open`, m, wi, { heights: false });
       caseRowClaims(W, `${kind} submitted-ids-open`, m, 1);
 
@@ -571,7 +575,7 @@ async function mainCases() {
 
       m = await caseRecord(W, wi, kind, "forbidden-403", `${base("forbidden")}${path}?${q({ from: SW.from, to: SW.to })}`);
       claim(`${W} ${kind} forbidden-403: Site read healthy, W4 refusal in the case panel; no zero, no Retry`, m.siteRefusal === null && m.refused === "forbidden" && /No access/.test(m.refusedText ?? "") && !/Retry|EV work unavailable/.test(m.refusedText ?? "") && !/· 0 /.test(m.scope ?? "") && m.empty === null, { refused: m.refused, text: m.refusedText, scope: m.scope });
-      caseCaps(W, `${kind} forbidden-403`, m, wi);
+      caseCaps(W, `${kind} forbidden-403`, m, wi, { panelCap: CASE_CAPS.refusedPanel }); // ruling 70
 
       const worstPath = `${base("worstcase")}${path}?${q({ from: WW.from, to: WW.to })}`;
       const worstIds = ((kind === "incidents" ? WCC?.incidents : WCC?.requests) ?? []).map((r) => r.case_id);
