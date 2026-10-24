@@ -191,21 +191,27 @@ function PlanDetailsNotAvailable() {
   );
 }
 
-type PlanFigures = { target: string; guardrails: string } | null;
+/** Each figure is null on its own when the exact plan read carries no usable value for it (a D1 gap). */
+type PlanFigures = { target: string | null; guardrails: string | null } | null;
 
 /**
- * The stored target and guardrail count of the frozen plan, or null when the exact plan read carries no usable
- * value (a D1 gap; never inferred from the Action or the mock). `ratio` [num, den] means later × den ≤ earlier × num.
+ * The stored target and guardrail count of the frozen plan, each computed independently, or null when the read has
+ * no plan (a D1 gap; never inferred from the Action or the mock). `ratio` [num, den] means later × den ≤ earlier × num.
+ * The percentage is floored so it never overstates the required reduction.
  */
 export function planFigures(body: PlanBody | null | undefined): PlanFigures {
   const plan = body?.plan ?? null;
   if (plan === null) return null;
   const ratio = plan.target?.ratio;
-  const guardrails = plan.guardrails ? Object.keys(plan.guardrails).length : 0;
-  if (!Array.isArray(ratio) || ratio.length !== 2) return null;
-  const [num, den] = ratio;
-  if (!(den > 0) || !(num >= 0) || num >= den || guardrails === 0) return null;
-  return { target: `≥${Math.round((1 - num / den) * 100)}% lower`, guardrails: `${guardrails} required` };
+  let target: string | null = null;
+  if (Array.isArray(ratio) && ratio.length === 2) {
+    const [num, den] = ratio;
+    if (den > 0 && num >= 0 && num < den) target = `≥${Math.floor((1 - num / den) * 100)}% lower`;
+    else if (den > 0 && num === den) target = "No increase";
+  }
+  const count = plan.guardrails ? Object.keys(plan.guardrails).length : 0;
+  const guardrails = count > 0 ? `${count} required` : null;
+  return target === null && guardrails === null ? null : { target, guardrails };
 }
 
 export function SiteFoundationChange({
@@ -339,17 +345,17 @@ export function SiteFoundationChange({
             guardrails shows the same not-available line instead of the mock's values. */}
         <MetricCard
           label="Target"
-          value={planId ? (figures ? figures.target : "Set in the plan") : "Not recorded yet"}
-          note={planId ? (figures ? "Frozen before the later window is judged" : <PlanDetailsNotAvailable />) : "No verification plan is frozen yet"}
-          word={!(planId && figures)}
+          value={planId ? (figures?.target ?? "Set in the plan") : "Not recorded yet"}
+          note={planId ? (figures?.target ? "Frozen before the later window is judged" : <PlanDetailsNotAvailable />) : "No verification plan is frozen yet"}
+          word={!(planId && figures?.target)}
           tone={planId ? undefined : "muted"}
           data={{ "data-change-metric": "target", "data-change-plan-read": planState }}
         />
         <MetricCard
           label="Guardrails"
-          value={planId ? (figures ? figures.guardrails : "Set in the plan") : "Not recorded yet"}
-          note={planId ? (figures ? "Service, reserve and stored-energy limits" : <PlanDetailsNotAvailable />) : "Limits are set when the plan is frozen"}
-          word={!(planId && figures)}
+          value={planId ? (figures?.guardrails ?? "Set in the plan") : "Not recorded yet"}
+          note={planId ? (figures?.guardrails ? "Service, reserve and stored-energy limits" : <PlanDetailsNotAvailable />) : "Limits are set when the plan is frozen"}
+          word={!(planId && figures?.guardrails)}
           tone={planId ? undefined : "muted"}
           data={{ "data-change-metric": "guardrails", "data-change-plan-read": planState }}
         />
@@ -657,7 +663,6 @@ function DecisionPath({
   );
 }
 
-/** Application attempts of the Action, read from its events; FAILED attempts changed nothing. */
 /** post-W6 shell R151 (Q15): plain words for a failed application attempt's stored code. */
 export const FAILURE_WORDS: Record<string, string> = {
   ACTION_FOUNDATION_STALE: "The site configuration changed before this was applied",
@@ -670,6 +675,7 @@ export function failureWords(code: string | null | undefined): string {
   return (code ? FAILURE_WORDS[code] : undefined) ?? FAILURE_WORDS_UNKNOWN;
 }
 
+/** Application attempts of the Action, read from its events; FAILED attempts changed nothing. */
 function Attempts({
   attempts,
   change,

@@ -9,6 +9,12 @@ describe("evidence measured time", () => {
     expect(zoneAbbreviation("UTC")).toBe("UTC");
   });
 
+  it("names a DST zone for the instant shown, not for 1 January 1970 (review L5)", () => {
+    expect(zoneAbbreviation("Europe/London", "2026-07-15T12:00:00Z")).toMatch(/^(BST|GMT\+1)$/);
+    expect(zoneAbbreviation("Europe/London", "2026-01-15T12:00:00Z")).toBe("GMT");
+    expect(zoneAbbreviation("Africa/Addis_Ababa", "2026-07-15T12:00:00Z")).toBe("EAT");
+  });
+
   it("falls back to UTC when the timezone is missing or unknown", () => {
     for (const zone of [null, undefined, "", "Not/AZone"]) {
       expect(usableZone(zone)).toBeNull();

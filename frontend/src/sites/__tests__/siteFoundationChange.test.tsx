@@ -17,7 +17,7 @@ import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } f
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { foundationViewFor } from "../FoundationSubtabs";
-import { failureWords } from "../SiteFoundationChange";
+import { failureWords, planFigures } from "../SiteFoundationChange";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
@@ -332,6 +332,35 @@ describe("post-W6 shell: change page plan figures, failure words, crumb and clos
     guardrails: { a: { rule: "r", unit: "s" }, b: { rule: "r", unit: "s" }, c: { rule: "r", unit: "%" } },
   };
   const metric = (name: string) => q(`[data-change-metric='${name}']`) as HTMLElement;
+
+  it("R141 (review L4): computes target and guardrails independently and never overstates the target", () => {
+    const body = (plan: unknown) => planBody(plan) as Parameters<typeof planFigures>[0];
+    expect(planFigures(body(storedPlan))).toEqual({ target: "≥25% lower", guardrails: "3 required" });
+    expect(planFigures(body({ ...storedPlan, guardrails: {} }))).toEqual({ target: "≥25% lower", guardrails: null });
+    expect(planFigures(body({ ...storedPlan, target: { ...storedPlan.target, ratio: null } }))).toEqual({
+      target: null,
+      guardrails: "3 required",
+    });
+    // [1, 3] requires a 66.7% reduction: floored to 66, never rounded up to 67.
+    expect(planFigures(body({ ...storedPlan, target: { ...storedPlan.target, ratio: [1, 3] } }))?.target).toBe("≥66% lower");
+    expect(planFigures(body({ ...storedPlan, target: { ...storedPlan.target, ratio: [1, 1] } }))?.target).toBe("No increase");
+    expect(planFigures(body({ ...storedPlan, target: { ...storedPlan.target, ratio: [1, 1] }, guardrails: {} }))).toEqual({
+      target: "No increase",
+      guardrails: null,
+    });
+    expect(planFigures(body({ ...storedPlan, target: { ...storedPlan.target, ratio: [5, 4] }, guardrails: {} }))).toBeNull();
+    expect(planFigures(body(null))).toBeNull();
+  });
+
+  it("R141 (review L4): a stored target still shows when the plan has no guardrails", async () => {
+    serve({ ...withPlan(), [PLAN_PATH]: { status: 200, body: planBody({ ...storedPlan, guardrails: {} }) } });
+    mount(CHANGE_URL);
+    await settledScreen();
+    await screen.findByText("≥25% lower");
+    expect(metric("guardrails").textContent).toContain("Set in the plan");
+    expect(metric("guardrails").textContent).toContain("Plan details are not available yet.");
+    expect(metric("target").textContent).not.toContain("Plan details are not available yet.");
+  });
 
   it("R141: shows the frozen plan's stored target and guardrail count", async () => {
     serve({ ...withPlan(), [PLAN_PATH]: { status: 200, body: planBody(storedPlan) } });

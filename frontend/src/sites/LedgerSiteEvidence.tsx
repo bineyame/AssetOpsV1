@@ -111,13 +111,19 @@ export function usableZone(timezone: string | null | undefined): string | null {
   }
 }
 
-export function zoneAbbreviation(timezone: string | null | undefined): string {
+/**
+ * The short zone name at `at` (the selected window's start), so a DST zone is named for the period shown rather
+ * than for 1 January 1970. Without an instant it uses the current time.
+ */
+export function zoneAbbreviation(timezone: string | null | undefined, at?: string | Date | null): string {
   const zone = usableZone(timezone);
   if (zone === null) return "UTC";
   const known = ZONE_ABBREVIATIONS[zone];
   if (known) return known;
+  const instant = at instanceof Date ? at : at ? new Date(at) : new Date();
+  const when = Number.isNaN(instant.getTime()) ? new Date() : instant;
   const name = new Intl.DateTimeFormat("en-GB", { timeZone: zone, timeZoneName: "short" })
-    .formatToParts(new Date(0))
+    .formatToParts(when)
     .find((part) => part.type === "timeZoneName")?.value;
   return name ?? zone;
 }
@@ -1360,7 +1366,7 @@ function Inspector({
   timezone: string | null;
   children?: ReactNode;
 }) {
-  const measuredZone = zoneAbbreviation(timezone);
+  const measuredZone = zoneAbbreviation(timezone, evidence.window.start);
   const selectedDay = selectedLocalDay(evidence.window.start, timezone);
   const [params, setParams] = useSearchParams();
   const signal = params.get("signal");

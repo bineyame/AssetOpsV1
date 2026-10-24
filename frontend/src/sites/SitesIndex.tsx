@@ -554,6 +554,7 @@ export function SiteRow({ site, siteHref, lineage }: SiteRowProps) {
       </td>
       <td>{view.siteType}</td>
       <td>
+        {/* MOCK DEVIATION D4 (R376): the chip says the truthful "Demonstration data", not the mock's "Simulated". */}
         <Badge tone="provenance">{view.sourceMode}</Badge>
       </td>
       <td data-operating-view="not-available">
