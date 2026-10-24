@@ -73,6 +73,10 @@ const SCREEN_LEADING: Record<string, string> = {
   // W5-04 V2a (readiness ruling 17, MOCK DEVIATION (D2) R80): the EV Actions selected-state notice, between strip and
   // first panel.
   "ev-work": "[data-domain-work-currentness]",
+  // W5-04 V3a (readiness ruling 17, MOCK DEVIATION (D2) R80): the EV case-tab selected-state notice, between strip and
+  // first panel.
+  "ev-work-incidents": "[data-domain-work-currentness]",
+  "ev-work-maintenance": "[data-domain-work-currentness]",
   // W5-04 V4a (readiness rulings 17, 66; MOCK DEVIATION (D2) R80): the EV Action selected-state notice, between strip
   // and the Declared verification plan.
   "ev-action": "[data-domain-action-currentness]",

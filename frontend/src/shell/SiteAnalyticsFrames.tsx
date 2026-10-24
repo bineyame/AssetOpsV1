@@ -2157,12 +2157,13 @@ export function SiteWorkCasesFrame({
             workClient={workClient}
             domainActions={domainActions}
           />
-          {site.site_type === "COLDCHAIN" ? (
-            // K2 ruling 1: MOCK DEVIATION (D1) R88, the same page-local Window control on cold Incidents and
-            // Maintenance; Apply keeps an explicit known_at, drops the cursor and the earlier pages, reads page one.
+          {domainWorkPresentation(site.site_type) !== null ? (
+            // K2 ruling 1: MOCK DEVIATION (D1) R88 (cold) / R112 (EV, readiness rulings 14 and 57), the same page-local
+            // Window control on Incidents and Maintenance; Apply keeps an explicit known_at, drops the cursor and the
+            // earlier pages, reads page one.
             <DomainWorkWindow
               scope={{ from: scope.from, to: scope.to, knownAt: scope.knownAt ?? null }}
-              legacyCold
+              legacyCold={site.site_type === "COLDCHAIN"}
               onApply={(next) =>
                 navigate(hrefFor(site.site_id, domainWorkQuery({ ...next, cursor: null })), { state: { workTrail: [] } })
               }
@@ -2175,9 +2176,11 @@ export function SiteWorkCasesFrame({
             trail={trail}
             links={{ finding: (findingId, revisionId) => siteFindingHref(site.site_id, findingId, revisionId) }}
             decisions={site.site_type === "MINIGRID" ? miniDecisions : undefined}
-            // K2 ruling 23: a cold Site shows only the page-local Window control above; MINIGRID keeps the W4 form.
-            windowForm={site.site_type !== "COLDCHAIN"}
-            // W5-02 K3a (P-K3a-2): the Site type, stored IANA timezone and stored code for the cold case presentation.
+            // K2 ruling 23 / W5-04 ruling 57: a cold or EV Site shows only the page-local Window control above (one
+            // date form); MINIGRID keeps the W4 form.
+            windowForm={domainWorkPresentation(site.site_type) === null}
+            // W5-02 K3a (P-K3a-2) / W5-04 V3a: the Site type, stored IANA timezone and stored code for the domain case
+            // presentation.
             site={{ siteType: site.site_type, timezone: site.timezone, code: site.site_id }}
             onScope={(next, nextTrail) =>
               navigate(hrefFor(site.site_id, workPageQuery(next)), { state: { workTrail: nextTrail } })

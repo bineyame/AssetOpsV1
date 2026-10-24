@@ -45,7 +45,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -80,7 +80,11 @@ DB_MODES = FIXTURE_MODES + ("worstcase", "unknown")
 #: Not produced by an unmodified registered replay (build spec "EV producer, UI and registry"): pure vectors.
 UNPRODUCED = {"pending": "a late accepted event before W5-03 reassessment needs a modified replay",
               "stale": "a superseded source binding before reselection needs a modified replay"}
-PORTS = {"positive": 8981, "zero": 8982, "worstcase": 8983, "unknown": 8985, "forbidden": 8986, "unavailable": 8987}
+# W5-04 V3b: `W504_API_PORT_BASE` (default 8980) lets a parallel builder serve on its own port block; the capture tools
+# derive each Vite port as API port - 3500.
+_PORT_BASE = int(os.environ.get("W504_API_PORT_BASE", "8980"))
+PORTS = {"positive": _PORT_BASE + 1, "zero": _PORT_BASE + 2, "worstcase": _PORT_BASE + 3, "unknown": _PORT_BASE + 5,
+         "forbidden": _PORT_BASE + 6, "unavailable": _PORT_BASE + 7}
 PRINCIPAL = "service:w401-fixture"
 BLOCKED = 3
 DB_NAME = re.compile(r"w504a_[a-z]+_[a-z0-9]+_test")
@@ -287,6 +291,58 @@ def _worstcase(url: str, tag: str, built: dict) -> dict:
     return {"actions": rows, "index_total_count": index["total_count"], "index_known_at": index.get("known_at")}
 
 
+def _long(stem: str, fill: str) -> str:
+    text = (stem + " " + fill * 160)[:160]
+    if len(text) != 160:
+        raise P.ProducerRefused("a worst-case case value is not 160 code points")
+    return text
+
+
+def _worstcase_cases(url: str, tag: str, built: dict) -> dict:
+    """W5-04 V3b (build spec caps "five populated case rows", lesson 15; the W5-02 cold `worstcase` precedent): five
+    SERVICE-attested EV Incidents and five work requests, each request with its performed record, at current DB time
+    on the returned EV connector asset, with 160-code-point title, narrative, activity and outcome note, through the
+    same W4 case commands as `attest`. The requests stay OPEN (cold precedent). The Work window W must then list all
+    five of each kind on one five-row page; every ID and code is returned for the capture manifest."""
+    _, cases = _clients(url)
+    code = P.SITE_CODE
+    asset = built["selection"]["connector_asset_id"]
+    if not asset:
+        raise P.ProducerRefused("worstcase cases: the selected session returned no EV connector asset ID")
+    route = f"/api/sites/{code}/work/cases"
+    incidents, requests = [], []
+    for n in range(1, 6):
+        now = _db_now(url)
+        inc_body = {**P.incident_body(asset, now - timedelta(minutes=12 - n), f"w504b-worst-inc-{n}-{tag}"),
+                    "title": _long(f"Charging session fault {n} — long case title proof", "x"),
+                    "narrative": _long(f"Connector fault {n} ended a charging session — long narrative proof", "n")}
+        inc = _ok(cases.post(route, json=inc_body), 201)
+        incidents.append({"n": n, "case_id": inc["id"], "code": inc.get("code"), "title_code_points": 160,
+                          "narrative_code_points": 160})
+        wr_body = {**P.request_body(asset, now - timedelta(minutes=6 - n), f"w504b-worst-wr-{n}-{tag}"),
+                   "title": _long(f"Connector diagnostic inspection {n} — long request title proof", "w"),
+                   "narrative": _long(f"Inspect connector {n} — long request narrative proof", "r")}
+        wr = _ok(cases.post(route, json=wr_body), 201)
+        rec_body = {**P.record_body(_db_now(url) - timedelta(seconds=30), f"w504b-worst-rec-{n}-{tag}"),
+                    "activity": _long(f"Inspect connector {n} and witness a charging session — long activity proof", "a"),
+                    "outcome_note": _long(f"Inspection {n} recorded; recurrence and availability remain unverified — long "
+                                          "outcome proof", "o")}
+        rec = _ok(cases.post(f"{route}/{wr['id']}/records", json=rec_body), 201)
+        requests.append({"n": n, "case_id": wr["id"], "code": wr.get("code"), "record_id": rec.get("id"),
+                         "title_code_points": 160, "activity_code_points": 160, "outcome_code_points": 160})
+    app, _ = _clients(url)
+    lo, hi = P.instant(built["work_window_W"]["from"]), P.instant(built["work_window_W"]["to"])
+    lists = {kind: _ok(app.get(f"/api/sites/{code}/work/{kind}", params=_bounds(lo, hi, limit=5)), 200)
+             for kind in ("incidents", "maintenance")}
+    for kind, rows in (("incidents", incidents), ("maintenance", requests)):
+        listed = P.listed_ids(lists[kind], "case_id")
+        if lists[kind].get("total_count") != 5 or not {r["case_id"].lower() for r in rows} <= listed:
+            raise P.ProducerRefused(f"worstcase: W does not list the five {kind} (total {lists[kind].get('total_count')})")
+    return {"incidents": incidents, "requests": requests,
+            "list_total_count": {k: v["total_count"] for k, v in lists.items()},
+            "list_known_at": {k: v.get("known_at") for k, v in lists.items()}}
+
+
 def _work_urls(code: str, action_id: str, lo: datetime, hi: datetime) -> dict:
     query = urllib.parse.urlencode(_bounds(lo, hi))
     return {"actions": f"/sites/{code}/work?{query}", "incidents": f"/sites/{code}/work/incidents?{query}",
@@ -406,6 +462,7 @@ def child(op: str, mode: str, work: Path, tag: str) -> int:
             doc = _unknown(url, tag, replayed) if mode == "unknown" else _declare(url, mode, tag, replayed)
             if mode == "worstcase":
                 doc["worstcase"] = _worstcase(url, tag, doc)
+                doc["worstcase_cases"] = _worstcase_cases(url, tag, doc)  # W5-04 V3b
         else:
             doc = json.loads(out.read_text(encoding="utf-8"))
             doc["submitted"] = _attest(url, tag, doc)

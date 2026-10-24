@@ -13,6 +13,7 @@
  */
 import type { DomainIndexBody, DomainIndexRow } from "../domainActionClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
+import type { WorkIndexBody, WorkRow } from "../workClient";
 
 export const EV_SITE_CODE = "EV-LAB-001";
 /** A stored display name for the pure fixture (R111: the native Site name, never the mock's illustrative name). */
@@ -131,4 +132,104 @@ export function evRows(n: number): DomainIndexRow[] {
 export function evPinUnavailableRow(): DomainIndexRow {
   const row = evRow();
   return { ...row, origin: { ...row.origin, href: null } } as DomainIndexRow;
+}
+
+// ---- W5-04 V3a: EV Incidents / Maintenance (W4 `site-work-index-1`) -------------------------------------------------
+// Shaped from the merged W4 wire and the V1b producer's submitted-case payloads (build spec "EV producer, UI and
+// registry"): SERVICE-attested INC and WR, the returned EV connector asset and an explicit EV domain Action case link.
+
+/** The returned EV connector asset (a test literal standing in for the Foundation connector ID). */
+export const EV_ASSET_ID = "a55e7c0d-1111-4222-8333-444455556666";
+const EV_CASE_PROVENANCE = {
+  classification: "UNKNOWN",
+  state: "UNKNOWN",
+  source_ids: [],
+  evidence_ids: [],
+  basis_sha256: null,
+  reasons: [{ code: "EMPTY_CITATION_SET", accepted_evidence_ids: [] }],
+};
+
+/** The explicit EV domain Action case link as W4 returns it (`site_index._action_link`, exact lineage). */
+export function evDomainActionLink(href: string | null = `/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`) {
+  return {
+    kind: "DOMAIN_ACTION" as const,
+    action_id: EV_ACTION_ID,
+    action_event_id: null,
+    finding_revision_id: EV_FINDING_REV,
+    label: `Action ${EV_ACTION_ID.slice(0, 8)}`,
+    href,
+  };
+}
+
+/** A submitted EV Incident (`Charging session fault`) with its selected Finding link and EV domain Action link. */
+export function evIncident(n = 1, over: Partial<WorkRow> = {}): WorkRow {
+  const id = `e1000000-0000-4000-8000-${String(100 + n).padStart(12, "0")}`;
+  return {
+    case_id: id,
+    revision_id: id.replace("e1000000", "e2000000"),
+    code: `INC-${String(n).padStart(6, "0")}`,
+    title: "Charging session fault",
+    narrative: "Connector fault ended a charging session; outcome remains unverified",
+    occurred_at: "2026-10-06T16:11:00.000000Z",
+    recorded_at: "2026-10-06T16:12:00.000000Z",
+    state: "OPEN",
+    asset_id: EV_ASSET_ID,
+    asset_label: null,
+    finding_links: [
+      {
+        finding_id: EV_FINDING,
+        finding_revision_id: EV_FINDING_REV,
+        label: "Finding",
+        href: `/sites/${EV_SITE_CODE}/findings/${EV_FINDING}?revision_id=${EV_FINDING_REV}`,
+      },
+    ],
+    action_links: [evDomainActionLink()],
+    url: null,
+    source_provenance: EV_CASE_PROVENANCE,
+    ...over,
+  };
+}
+
+/** A submitted EV work request (`Connector diagnostic inspection`) with its attested performed record. */
+export function evRequest(n = 1, over: Partial<WorkRow> = {}): WorkRow {
+  return {
+    ...evIncident(n),
+    case_id: `e3000000-0000-4000-8000-${String(100 + n).padStart(12, "0")}`,
+    revision_id: `e4000000-0000-4000-8000-${String(100 + n).padStart(12, "0")}`,
+    code: `WR-${String(n).padStart(6, "0")}`,
+    title: "Connector diagnostic inspection",
+    narrative: "Inspect connector and witness a charging session",
+    occurred_at: "2026-10-06T16:20:00.000000Z",
+    finding_links: [],
+    asset_label: "connector-2 · CONNECTOR",
+    request_state: "COMPLETED",
+    state: "COMPLETED",
+    incident_id: null,
+    record_id: "e5000000-0000-4000-8000-000000000301",
+    activity: "Inspect connector and witness a charging session",
+    outcome_note: "Inspection recorded; recurrence and availability remain unverified",
+    outcome_state: "UNVERIFIED",
+    next_evidence: null,
+    next_evidence_copy: "No next evidence recorded",
+    ...over,
+  };
+}
+
+/** The W4 `site-work-index-1` envelope for the EV Site. */
+export function evCaseBody(rows: WorkRow[], over: Partial<WorkIndexBody> = {}): WorkIndexBody {
+  return {
+    schema_version: "site-work-index-1",
+    site_code: EV_SITE_CODE,
+    site_name: EV_SITE_NAME,
+    window: { from: EV_FROM, to: EV_TO, bounds: "[from, to)" },
+    known_at: EV_KNOWN,
+    status: "CURRENT",
+    coverage: { state: "COMPLETE", reason: null },
+    source_provenance: EV_CASE_PROVENANCE,
+    total_count: rows.length,
+    rows,
+    next_cursor: null,
+    selection_token: `sha256:${"e".repeat(64)}`,
+    ...over,
+  } as WorkIndexBody;
 }

@@ -1,0 +1,486 @@
+chrome pid 28704
+PASS  manifest: positive attested with the submitted INC, WR, record and two explicit case links (V3b; build spec EV producer)  {"incident":"fea061c4-7654-4ea7-bce3-56bf5373e5d4","request":"d3d6ec6b-fe1a-43eb-a16e-b931bb9ce5bc","links":["incident","request"]}
+PASS  manifest: zero ready (complete zero, no INC or WR posted)  "ready"
+PASS  manifest: walkthrough worstcase has five 160-code-point INC and five WR with records, listed under W (pre-flight 23)  {"status":"ready","totals":{"incidents":5,"maintenance":5}}
+PASS  manifest: forbidden served  8996
+INFO  manifest pending: case browser capture unavailable (ruling 54; pure component vector in evWorkCases.test.tsx)  {"status":"unavailable","reason":"a late accepted event before W5-03 reassessment needs a modified replay; use the pure adapter/component vector"}
+INFO  manifest stale: case browser capture unavailable (ruling 54; pure component vector in evWorkCases.test.tsx)  {"status":"unavailable","reason":"a superseded source binding before reselection needs a modified replay; use the pure adapter/component vector"}
+INFO  manifest unknown: case browser capture unavailable (ruling 54; pure component vector in evWorkCases.test.tsx)  {"status":"unavailable","reason":"the replay selected 0 SUPPORTED EV Findings, so no Action detail state"}
+INFO  in-panel W4 case 503 with a healthy Site read: unavailable (the walkthrough stops the whole API; pure vector in evWorkCases.test.tsx)  {"stopped_pid":20656,"port":8997,"http_after_stop":0,"expected":"connection refused; the browser proxy reports 503"}
+PASS  desktop incidents submitted: settled  1
+PASS  desktop incidents submitted: stored Site name, R78 subtitle, mock strip and Manage link to the mounted W6 root  {"h1":"EV charging lab","scope":"Scoped to EV · 1 incidents","strip":"Same records and states as the global Incidents list","manage":{"text":"Manage in Incidents →","href":"/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A50%3A57.142270Z"}}
+PASS  desktop incidents submitted: mock columns and panel-head subtitle  {"headings":["Case","Window","What happened","Linked findings","State"],"subtitle":"A case links chronology, findings and work without copying them"}
+PASS  desktop incidents submitted: CURRENT, no notice; R105 basis and R106 pages  {"currentness":null,"showing":"Showing 1–1 of 1"}
+PASS  desktop incidents submitted: R03 notice first sentence only  "Opening a record moves you to its own area; the breadcrumb keeps this site."
+PASS  desktop incidents submitted: the row is the walkthrough's attested case  {"row":"fea061c4-7654-4ea7-bce3-56bf5373e5d4","want":"fea061c4-7654-4ea7-bce3-56bf5373e5d4"}
+PASS  desktop incidents submitted: plain INC code and title (R85), Site-zone Window, red Open  {"title":"INC-000001 · Charging session fault","href":null,"window":"24 Oct · from 08:19","state":"Open"}
+PASS  desktop incidents submitted: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents submitted: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop incidents submitted: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop incidents submitted: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  desktop incidents submitted: page main <= 1600  {"main":595,"docHeight":1000}
+PASS  desktop incidents submitted: strip <= 100  39
+PASS  desktop incidents submitted: case panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop incidents submitted: context notice <= 110  42
+PASS  desktop incidents submitted: 1 row(s) measured  1
+PASS  desktop incidents submitted: every row cell contains its content  []
+PASS  desktop incidents submitted: every disclosure summary is on one line  [1]
+PASS  desktop incidents submitted: no clipped state/outcome badge, each on one line  {"badges":1,"clipped":0,"lines":[1]}
+PASS  desktop incidents submitted: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  desktop incidents submitted-ids-open: settled  1
+PASS  desktop incidents submitted-ids-open: the explicit EV domain Action case link is plain text (R113)  {"plain":1,"hrefs":[]}
+PASS  desktop incidents submitted-ids-open: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents submitted-ids-open: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop incidents submitted-ids-open: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop incidents submitted-ids-open: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+INFO  desktop incidents submitted-ids-open: expanded heights (ruling 26 exempt)  {"main":893,"strip":39,"panel":510,"docHeight":1000}
+PASS  desktop incidents submitted-ids-open: 1 row(s) measured  1
+PASS  desktop incidents submitted-ids-open: every row cell contains its content  []
+PASS  desktop incidents submitted-ids-open: every opened disclosure body stays inside its cell  []
+PASS  desktop incidents submitted-ids-open: every opened UUID is one line in its own contained scroller  []
+PASS  desktop incidents submitted-ids-open: every disclosure summary is on one line  [1]
+PASS  desktop incidents submitted-ids-open: no clipped state/outcome badge, each on one line  {"badges":1,"clipped":0,"lines":[1]}
+PASS  desktop incidents submitted-ids-open: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  desktop incidents historical: settled  1
+PASS  desktop incidents historical: the returned HISTORICAL state's notice (R80, R104 blue) with the row  {"status":"HISTORICAL","text":"Read as of 2026-10-24 08:22 UTC. Later work may differ.","known_at":"2026-10-24T08:22:07.033276Z"}
+PASS  desktop incidents historical: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents historical: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop incidents historical: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop incidents historical: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  desktop incidents historical: currentness notice between the strip and the panel (R80)  true
+PASS  desktop incidents historical: page main <= 1600  {"main":656,"docHeight":1000}
+PASS  desktop incidents historical: strip <= 100  39
+PASS  desktop incidents historical: case panel <= 650  {"panel":212,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop incidents historical: context notice <= 110  42
+PASS  desktop incidents historical: currentness notice <= 110  42
+PASS  desktop incidents zero: settled  0
+PASS  desktop incidents zero: exact mock empty card, '0 incidents', closed basis, no pages, no notice  {"empty":"No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.","scope":"Scoped to EV · 0 incidents"}
+PASS  desktop incidents zero: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents zero: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop incidents zero: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop incidents zero: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  desktop incidents zero: page main <= 1600  {"main":721,"docHeight":1000}
+PASS  desktop incidents zero: strip <= 100  39
+PASS  desktop incidents zero: case panel <= 460  {"panel":337,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop incidents zero: context notice <= 110  42
+PASS  desktop incidents forbidden-403: settled  "forbidden"
+PASS  desktop incidents forbidden-403: Site read healthy, W4 refusal in the case panel; no zero, no Retry  {"refused":"forbidden","text":"No access You do not have access to this site's work. Incidents at this site · As of: time not recorded","scope":"Count unknown · work source unavailable"}
+PASS  desktop incidents forbidden-403: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents forbidden-403: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop incidents forbidden-403: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop incidents forbidden-403: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  desktop incidents forbidden-403: page main <= 1600  {"main":529,"docHeight":1000}
+PASS  desktop incidents forbidden-403: strip <= 100  39
+PASS  desktop incidents forbidden-403: case panel <= 650  {"panel":145,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop incidents forbidden-403: context notice <= 110  42
+PASS  desktop incidents worst: settled  5
+PASS  desktop incidents worst: five walkthrough rows with 36-character IDs, '5 incidents'  {"rows":["ca097ffb-edf9-4c78-b9ae-5e1fc98eebe0","732eb03f-db3b-41c8-9738-2e973259083c","baa10ebd-b284-461e-adf4-fab40dbbca0e","e08ffdac-e2c7-4db6-8f7d-7cfa97720cfd","c51f52c7-1a34-4521-b6cd-3dd7a83f53b9"],"scope":"Scoped to EV · 5 incidents"}
+PASS  desktop incidents worst: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop incidents worst: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop incidents worst: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop incidents worst: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  desktop incidents worst: page main <= 1600  {"main":886,"docHeight":1000}
+PASS  desktop incidents worst: strip <= 100  39
+PASS  desktop incidents worst: case panel <= 650  {"panel":502,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop incidents worst: context notice <= 110  42
+PASS  desktop incidents worst: 5 row(s) measured  5
+PASS  desktop incidents worst: every row cell contains its content  []
+PASS  desktop incidents worst: every long-text preview is at most two lines (R107)  [2,2,2,2,2,2,2,2,2,2]
+PASS  desktop incidents worst: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  desktop incidents worst: no clipped state/outcome badge, each on one line  {"badges":5,"clipped":0,"lines":[1,1,1,1,1]}
+PASS  desktop incidents worst: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  desktop incidents worst-one-open: settled  5
+PASS  desktop incidents worst-one-open: one Read full text open  1
+PASS  desktop incidents worst-one-open: no document horizontal overflow  {"scrollWidth":1425,"clientWidth":1425}
+PASS  desktop incidents worst-one-open: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop incidents worst-one-open: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop incidents worst-one-open: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  desktop incidents worst-one-open: page main <= 1600  {"main":939,"docHeight":1013}
+PASS  desktop incidents worst-one-open: strip <= 100  39
+PASS  desktop incidents worst-one-open: case panel <= 650  {"panel":556,"tableScrollWidth":1105,"tableClientWidth":1105}
+PASS  desktop incidents worst-one-open: context notice <= 110  42
+PASS  desktop incidents worst-one-open: 5 row(s) measured  5
+PASS  desktop incidents worst-one-open: every row cell contains its content  []
+PASS  desktop incidents worst-one-open: every long-text preview is at most two lines (R107)  [2,2,2,2,2,2,2,2,2]
+PASS  desktop incidents worst-one-open: every opened disclosure body stays inside its cell  []
+PASS  desktop incidents worst-one-open: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  desktop incidents worst-one-open: no clipped state/outcome badge, each on one line  {"badges":5,"clipped":0,"lines":[1,1,1,1,1]}
+PASS  desktop incidents worst-one-open: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  desktop incidents worst-all-open: settled  5
+PASS  desktop incidents worst-all-open: every Read full text open, full 160-code-point values  {"readFull":10,"open":10,"full":[173,160,173,160,173,160,173,160,173,160]}
+PASS  desktop incidents worst-all-open: no document horizontal overflow  {"scrollWidth":1425,"clientWidth":1425}
+PASS  desktop incidents worst-all-open: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop incidents worst-all-open: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop incidents worst-all-open: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+INFO  desktop incidents worst-all-open: expanded heights (ruling 26 exempt)  {"main":2073,"strip":39,"panel":1690,"docHeight":2147}
+PASS  desktop incidents worst-all-open: 5 row(s) measured  5
+PASS  desktop incidents worst-all-open: every row cell contains its content  []
+PASS  desktop incidents worst-all-open: every opened disclosure body stays inside its cell  []
+PASS  desktop incidents worst-all-open: every opened UUID is one line in its own contained scroller  []
+PASS  desktop incidents worst-all-open: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  desktop incidents worst-all-open: no clipped state/outcome badge, each on one line  {"badges":5,"clipped":0,"lines":[1,1,1,1,1]}
+PASS  desktop incidents worst-all-open: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  desktop maintenance submitted: settled  1
+PASS  desktop maintenance submitted: stored Site name, R78 subtitle, mock strip and Manage link to the mounted W6 root  {"h1":"EV charging lab","scope":"Scoped to EV · 1 maintenance","strip":"Same records and states as the global Maintenance list","manage":{"text":"Manage in Maintenance →","href":"/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A51%3A30.053660Z"}}
+PASS  desktop maintenance submitted: mock columns and panel-head subtitle  {"headings":["Work request","Asset","Activity","Outcome","Next evidence"],"subtitle":"Completed work is activity; the outcome is verified separately"}
+PASS  desktop maintenance submitted: CURRENT, no notice; R105 basis and R106 pages  {"currentness":null,"showing":"Showing 1–1 of 1"}
+PASS  desktop maintenance submitted: R03 notice first sentence only  "Opening a record moves you to its own area; the breadcrumb keeps this site."
+PASS  desktop maintenance submitted: the row is the walkthrough's attested case  {"row":"d3d6ec6b-fe1a-43eb-a16e-b931bb9ce5bc","want":"d3d6ec6b-fe1a-43eb-a16e-b931bb9ce5bc"}
+PASS  desktop maintenance submitted: WR opens the mounted W6 Overview with the Site ID (R83)  {"title":"WR-000002 · Connector diagnostic inspection","href":"/maintenance/requests/d3d6ec6b-fe1a-43eb-a16e-b931bb9ce5bc?site_id=EV-LAB-001","want":"/maintenance/requests/d3d6ec6b-fe1a-43eb-a16e-b931bb9ce5bc?site_id=EV-LAB-001"}
+PASS  desktop maintenance submitted: asset label as selected or 'No asset linked' (ruling 13), Unverified, next-evidence copy (R82, R84)  {"asset":"c1 · EV_CONNECTOR","gap":false,"outcome":"Unverified","next":"No next evidence recorded","state":"Open"}
+PASS  desktop maintenance submitted: Activity recorded and Outcome note disclosures (R81, R82)  [[],["UTC and IDs"],["Activity recorded"],["Outcome note"],[]]
+PASS  desktop maintenance submitted: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance submitted: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop maintenance submitted: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop maintenance submitted: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  desktop maintenance submitted: page main <= 1600  {"main":579,"docHeight":1000}
+PASS  desktop maintenance submitted: strip <= 100  39
+PASS  desktop maintenance submitted: case panel <= 650  {"panel":195,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop maintenance submitted: context notice <= 110  42
+PASS  desktop maintenance submitted: 1 row(s) measured  1
+PASS  desktop maintenance submitted: every row cell contains its content  []
+PASS  desktop maintenance submitted: every disclosure summary is on one line  [1,1,1]
+PASS  desktop maintenance submitted: no clipped state/outcome badge, each on one line  {"badges":2,"clipped":0,"lines":[1,1]}
+PASS  desktop maintenance submitted: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  desktop maintenance submitted-ids-open: settled  1
+PASS  desktop maintenance submitted-ids-open: the explicit EV domain Action case link is plain text (R113)  {"plain":1,"hrefs":[]}
+PASS  desktop maintenance submitted-ids-open: no document horizontal overflow  {"scrollWidth":1425,"clientWidth":1425}
+PASS  desktop maintenance submitted-ids-open: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop maintenance submitted-ids-open: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop maintenance submitted-ids-open: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+INFO  desktop maintenance submitted-ids-open: expanded heights (ruling 26 exempt)  {"main":937,"strip":39,"panel":553,"docHeight":1011}
+PASS  desktop maintenance submitted-ids-open: 1 row(s) measured  1
+PASS  desktop maintenance submitted-ids-open: every row cell contains its content  []
+PASS  desktop maintenance submitted-ids-open: every opened disclosure body stays inside its cell  []
+PASS  desktop maintenance submitted-ids-open: every opened UUID is one line in its own contained scroller  []
+PASS  desktop maintenance submitted-ids-open: every disclosure summary is on one line  [1,1,1]
+PASS  desktop maintenance submitted-ids-open: no clipped state/outcome badge, each on one line  {"badges":2,"clipped":0,"lines":[1,1]}
+PASS  desktop maintenance submitted-ids-open: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  desktop maintenance historical: settled  1
+PASS  desktop maintenance historical: the returned HISTORICAL state's notice (R80, R104 blue) with the row  {"status":"HISTORICAL","text":"Read as of 2026-10-24 08:22 UTC. Later work may differ.","known_at":"2026-10-24T08:22:07.150051Z"}
+PASS  desktop maintenance historical: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance historical: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop maintenance historical: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop maintenance historical: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  desktop maintenance historical: currentness notice between the strip and the panel (R80)  true
+PASS  desktop maintenance historical: page main <= 1600  {"main":639,"docHeight":1000}
+PASS  desktop maintenance historical: strip <= 100  39
+PASS  desktop maintenance historical: case panel <= 650  {"panel":195,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop maintenance historical: context notice <= 110  42
+PASS  desktop maintenance historical: currentness notice <= 110  42
+PASS  desktop maintenance zero: settled  0
+PASS  desktop maintenance zero: exact mock empty card, '0 maintenance', closed basis, no pages, no notice  {"empty":"No maintenance work at this site No inspection or repair has been raised here in the selected period.","scope":"Scoped to EV · 0 maintenance"}
+PASS  desktop maintenance zero: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance zero: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop maintenance zero: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop maintenance zero: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  desktop maintenance zero: page main <= 1600  {"main":701,"docHeight":1000}
+PASS  desktop maintenance zero: strip <= 100  39
+PASS  desktop maintenance zero: case panel <= 460  {"panel":317,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop maintenance zero: context notice <= 110  42
+PASS  desktop maintenance forbidden-403: settled  "forbidden"
+PASS  desktop maintenance forbidden-403: Site read healthy, W4 refusal in the case panel; no zero, no Retry  {"refused":"forbidden","text":"No access You do not have access to this site's work. Maintenance at this site · As of: time not recorded","scope":"Count unknown · work source unavailable"}
+PASS  desktop maintenance forbidden-403: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance forbidden-403: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop maintenance forbidden-403: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop maintenance forbidden-403: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  desktop maintenance forbidden-403: page main <= 1600  {"main":529,"docHeight":1000}
+PASS  desktop maintenance forbidden-403: strip <= 100  39
+PASS  desktop maintenance forbidden-403: case panel <= 650  {"panel":145,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop maintenance forbidden-403: context notice <= 110  42
+PASS  desktop maintenance worst: settled  5
+PASS  desktop maintenance worst: five walkthrough rows with 36-character IDs, '5 maintenance'  {"rows":["a52cc254-9832-44b3-a01c-e3286bea3692","0cf6f7c2-db9a-4254-be19-18dec608fe23","27b0b4bc-4df9-493c-b4a8-a0d3e4dea3a3","1828643c-1245-436b-a26d-14e923a901cc","f2dcb749-e4a1-4347-bd71-5ccc78fbe1a9"],"scope":"Scoped to EV · 5 maintenance"}
+PASS  desktop maintenance worst: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop maintenance worst: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop maintenance worst: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop maintenance worst: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  desktop maintenance worst: page main <= 1600  {"main":886,"docHeight":1000}
+PASS  desktop maintenance worst: strip <= 100  39
+PASS  desktop maintenance worst: case panel <= 650  {"panel":502,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop maintenance worst: context notice <= 110  42
+PASS  desktop maintenance worst: 5 row(s) measured  5
+PASS  desktop maintenance worst: every row cell contains its content  []
+PASS  desktop maintenance worst: every long-text preview is at most two lines (R107)  [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+PASS  desktop maintenance worst: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  desktop maintenance worst: no clipped state/outcome badge, each on one line  {"badges":10,"clipped":0,"lines":[1,1,1,1,1,1,1,1,1,1]}
+PASS  desktop maintenance worst: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  desktop maintenance worst-one-open: settled  5
+PASS  desktop maintenance worst-one-open: one Read full text open  1
+PASS  desktop maintenance worst-one-open: no document horizontal overflow  {"scrollWidth":1425,"clientWidth":1425}
+PASS  desktop maintenance worst-one-open: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop maintenance worst-one-open: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop maintenance worst-one-open: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  desktop maintenance worst-one-open: page main <= 1600  {"main":956,"docHeight":1030}
+PASS  desktop maintenance worst-one-open: strip <= 100  39
+PASS  desktop maintenance worst-one-open: case panel <= 650  {"panel":572,"tableScrollWidth":1105,"tableClientWidth":1105}
+PASS  desktop maintenance worst-one-open: context notice <= 110  42
+PASS  desktop maintenance worst-one-open: 5 row(s) measured  5
+PASS  desktop maintenance worst-one-open: every row cell contains its content  []
+PASS  desktop maintenance worst-one-open: every long-text preview is at most two lines (R107)  [2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+PASS  desktop maintenance worst-one-open: every opened disclosure body stays inside its cell  []
+PASS  desktop maintenance worst-one-open: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  desktop maintenance worst-one-open: no clipped state/outcome badge, each on one line  {"badges":10,"clipped":0,"lines":[1,1,1,1,1,1,1,1,1,1]}
+PASS  desktop maintenance worst-one-open: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  desktop maintenance worst-all-open: settled  5
+PASS  desktop maintenance worst-all-open: every Read full text open, full 160-code-point values  {"readFull":15,"open":15,"full":[172,160,160,172,160,160,172,160,160,172,160,160,172,160,160]}
+PASS  desktop maintenance worst-all-open: no document horizontal overflow  {"scrollWidth":1425,"clientWidth":1425}
+PASS  desktop maintenance worst-all-open: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop maintenance worst-all-open: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  desktop maintenance worst-all-open: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+INFO  desktop maintenance worst-all-open: expanded heights (ruling 26 exempt)  {"main":2291,"strip":39,"panel":1907,"docHeight":2365}
+PASS  desktop maintenance worst-all-open: 5 row(s) measured  5
+PASS  desktop maintenance worst-all-open: every row cell contains its content  []
+PASS  desktop maintenance worst-all-open: every opened disclosure body stays inside its cell  []
+PASS  desktop maintenance worst-all-open: every opened UUID is one line in its own contained scroller  []
+PASS  desktop maintenance worst-all-open: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  desktop maintenance worst-all-open: no clipped state/outcome badge, each on one line  {"badges":10,"clipped":0,"lines":[1,1,1,1,1,1,1,1,1,1]}
+PASS  desktop maintenance worst-all-open: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  narrow incidents submitted: settled  1
+PASS  narrow incidents submitted: stored Site name, R78 subtitle, mock strip and Manage link to the mounted W6 root  {"h1":"EV charging lab","scope":"Scoped to EV · 1 incidents","strip":"Same records and states as the global Incidents list","manage":{"text":"Manage in Incidents →","href":"/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A52%3A00.097852Z"}}
+PASS  narrow incidents submitted: mock columns and panel-head subtitle  {"headings":["Case","Window","What happened","Linked findings","State"],"subtitle":"A case links chronology, findings and work without copying them"}
+PASS  narrow incidents submitted: CURRENT, no notice; R105 basis and R106 pages  {"currentness":null,"showing":"Showing 1–1 of 1"}
+PASS  narrow incidents submitted: R03 notice first sentence only  "Opening a record moves you to its own area; the breadcrumb keeps this site."
+PASS  narrow incidents submitted: the row is the walkthrough's attested case  {"row":"fea061c4-7654-4ea7-bce3-56bf5373e5d4","want":"fea061c4-7654-4ea7-bce3-56bf5373e5d4"}
+PASS  narrow incidents submitted: plain INC code and title (R85), Site-zone Window, red Open  {"title":"INC-000001 · Charging session fault","href":null,"window":"24 Oct · from 08:19","state":"Open"}
+PASS  narrow incidents submitted: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents submitted: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow incidents submitted: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow incidents submitted: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  narrow incidents submitted: page main <= 2000  {"main":746,"docHeight":900}
+PASS  narrow incidents submitted: strip <= 150  84
+PASS  narrow incidents submitted: case panel <= 650  {"panel":201,"tableScrollWidth":720,"tableClientWidth":324}
+PASS  narrow incidents submitted: context notice <= 160  60
+PASS  narrow incidents submitted: 1 row(s) measured  1
+PASS  narrow incidents submitted: every row cell contains its content  []
+PASS  narrow incidents submitted: every disclosure summary is on one line  [1]
+PASS  narrow incidents submitted: no clipped state/outcome badge, each on one line  {"badges":1,"clipped":0,"lines":[1]}
+PASS  narrow incidents submitted: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  narrow incidents submitted: first column is position:sticky  true
+PASS  narrow incidents submitted: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents submitted-ids-open: settled  1
+PASS  narrow incidents submitted-ids-open: the explicit EV domain Action case link is plain text (R113)  {"plain":1,"hrefs":[]}
+PASS  narrow incidents submitted-ids-open: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents submitted-ids-open: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow incidents submitted-ids-open: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow incidents submitted-ids-open: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+INFO  narrow incidents submitted-ids-open: expanded heights (ruling 26 exempt)  {"main":1049,"strip":84,"panel":503,"docHeight":1198}
+PASS  narrow incidents submitted-ids-open: 1 row(s) measured  1
+PASS  narrow incidents submitted-ids-open: every row cell contains its content  []
+PASS  narrow incidents submitted-ids-open: every opened disclosure body stays inside its cell  []
+PASS  narrow incidents submitted-ids-open: every opened UUID is one line in its own contained scroller  []
+PASS  narrow incidents submitted-ids-open: every disclosure summary is on one line  [1]
+PASS  narrow incidents submitted-ids-open: no clipped state/outcome badge, each on one line  {"badges":1,"clipped":0,"lines":[1]}
+PASS  narrow incidents submitted-ids-open: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  narrow incidents submitted-ids-open: first column is position:sticky  true
+PASS  narrow incidents submitted-ids-open: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents historical: settled  1
+PASS  narrow incidents historical: the returned HISTORICAL state's notice (R80, R104 blue) with the row  {"status":"HISTORICAL","text":"Read as of 2026-10-24 08:22 UTC. Later work may differ.","known_at":"2026-10-24T08:22:07.033276Z"}
+PASS  narrow incidents historical: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents historical: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow incidents historical: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow incidents historical: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  narrow incidents historical: currentness notice between the strip and the panel (R80)  true
+PASS  narrow incidents historical: page main <= 2000  {"main":806,"docHeight":956}
+PASS  narrow incidents historical: strip <= 150  84
+PASS  narrow incidents historical: case panel <= 650  {"panel":201,"tableScrollWidth":720,"tableClientWidth":324}
+PASS  narrow incidents historical: context notice <= 160  60
+PASS  narrow incidents historical: currentness notice <= 160  42
+PASS  narrow incidents zero: settled  0
+PASS  narrow incidents zero: exact mock empty card, '0 incidents', closed basis, no pages, no notice  {"empty":"No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.","scope":"Scoped to EV · 0 incidents"}
+PASS  narrow incidents zero: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents zero: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow incidents zero: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow incidents zero: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  narrow incidents zero: page main <= 2000  {"main":889,"docHeight":1039}
+PASS  narrow incidents zero: strip <= 150  84
+PASS  narrow incidents zero: case panel <= 560  {"panel":344,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow incidents zero: context notice <= 160  60
+PASS  narrow incidents forbidden-403: settled  "forbidden"
+PASS  narrow incidents forbidden-403: Site read healthy, W4 refusal in the case panel; no zero, no Retry  {"refused":"forbidden","text":"No access You do not have access to this site's work. Incidents at this site · As of: time not recorded","scope":"Count unknown · work source unavailable"}
+PASS  narrow incidents forbidden-403: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents forbidden-403: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow incidents forbidden-403: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow incidents forbidden-403: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  narrow incidents forbidden-403: page main <= 2000  {"main":698,"docHeight":900}
+PASS  narrow incidents forbidden-403: strip <= 150  84
+PASS  narrow incidents forbidden-403: case panel <= 650  {"panel":153,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow incidents forbidden-403: context notice <= 160  60
+PASS  narrow incidents worst: settled  5
+PASS  narrow incidents worst: five walkthrough rows with 36-character IDs, '5 incidents'  {"rows":["ca097ffb-edf9-4c78-b9ae-5e1fc98eebe0","732eb03f-db3b-41c8-9738-2e973259083c","baa10ebd-b284-461e-adf4-fab40dbbca0e","e08ffdac-e2c7-4db6-8f7d-7cfa97720cfd","c51f52c7-1a34-4521-b6cd-3dd7a83f53b9"],"scope":"Scoped to EV · 5 incidents"}
+PASS  narrow incidents worst: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents worst: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow incidents worst: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow incidents worst: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  narrow incidents worst: page main <= 2000  {"main":990,"docHeight":1140}
+PASS  narrow incidents worst: strip <= 150  84
+PASS  narrow incidents worst: case panel <= 650  {"panel":445,"tableScrollWidth":720,"tableClientWidth":324}
+PASS  narrow incidents worst: context notice <= 160  60
+PASS  narrow incidents worst: 5 row(s) measured  5
+PASS  narrow incidents worst: every row cell contains its content  []
+PASS  narrow incidents worst: every long-text preview is at most two lines (R107)  [2,2,2,2,2,2,2,2,2,2]
+PASS  narrow incidents worst: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  narrow incidents worst: no clipped state/outcome badge, each on one line  {"badges":5,"clipped":0,"lines":[1,1,1,1,1]}
+PASS  narrow incidents worst: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  narrow incidents worst: first column is position:sticky  true
+PASS  narrow incidents worst: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents worst-one-open: settled  5
+PASS  narrow incidents worst-one-open: one Read full text open  1
+PASS  narrow incidents worst-one-open: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents worst-one-open: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow incidents worst-one-open: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow incidents worst-one-open: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  narrow incidents worst-one-open: page main <= 2000  {"main":1071,"docHeight":1221}
+PASS  narrow incidents worst-one-open: strip <= 150  84
+PASS  narrow incidents worst-one-open: case panel <= 680  {"panel":526,"tableScrollWidth":720,"tableClientWidth":324}
+PASS  narrow incidents worst-one-open: context notice <= 160  60
+PASS  narrow incidents worst-one-open: 5 row(s) measured  5
+PASS  narrow incidents worst-one-open: every row cell contains its content  []
+PASS  narrow incidents worst-one-open: every long-text preview is at most two lines (R107)  [2,2,2,2,2,2,2,2,2]
+PASS  narrow incidents worst-one-open: every opened disclosure body stays inside its cell  []
+PASS  narrow incidents worst-one-open: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  narrow incidents worst-one-open: no clipped state/outcome badge, each on one line  {"badges":5,"clipped":0,"lines":[1,1,1,1,1]}
+PASS  narrow incidents worst-one-open: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  narrow incidents worst-one-open: first column is position:sticky  true
+PASS  narrow incidents worst-one-open: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow incidents worst-all-open: settled  5
+PASS  narrow incidents worst-all-open: every Read full text open, full 160-code-point values  {"readFull":10,"open":10,"full":[173,160,173,160,173,160,173,160,173,160]}
+PASS  narrow incidents worst-all-open: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow incidents worst-all-open: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow incidents worst-all-open: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow incidents worst-all-open: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+INFO  narrow incidents worst-all-open: expanded heights (ruling 26 exempt)  {"main":2218,"strip":84,"panel":1672,"docHeight":2367}
+PASS  narrow incidents worst-all-open: 5 row(s) measured  5
+PASS  narrow incidents worst-all-open: every row cell contains its content  []
+PASS  narrow incidents worst-all-open: every opened disclosure body stays inside its cell  []
+PASS  narrow incidents worst-all-open: every opened UUID is one line in its own contained scroller  []
+PASS  narrow incidents worst-all-open: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  narrow incidents worst-all-open: no clipped state/outcome badge, each on one line  {"badges":5,"clipped":0,"lines":[1,1,1,1,1]}
+PASS  narrow incidents worst-all-open: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  narrow incidents worst-all-open: first column is position:sticky  true
+PASS  narrow incidents worst-all-open: table scrolls inside its panel  {"scrollWidth":720,"clientWidth":324}
+PASS  narrow maintenance submitted: settled  1
+PASS  narrow maintenance submitted: stored Site name, R78 subtitle, mock strip and Manage link to the mounted W6 root  {"h1":"EV charging lab","scope":"Scoped to EV · 1 maintenance","strip":"Same records and states as the global Maintenance list","manage":{"text":"Manage in Maintenance →","href":"/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T08%3A52%3A27.757153Z"}}
+PASS  narrow maintenance submitted: mock columns and panel-head subtitle  {"headings":["Work request","Asset","Activity","Outcome","Next evidence"],"subtitle":"Completed work is activity; the outcome is verified separately"}
+PASS  narrow maintenance submitted: CURRENT, no notice; R105 basis and R106 pages  {"currentness":null,"showing":"Showing 1–1 of 1"}
+PASS  narrow maintenance submitted: R03 notice first sentence only  "Opening a record moves you to its own area; the breadcrumb keeps this site."
+PASS  narrow maintenance submitted: the row is the walkthrough's attested case  {"row":"d3d6ec6b-fe1a-43eb-a16e-b931bb9ce5bc","want":"d3d6ec6b-fe1a-43eb-a16e-b931bb9ce5bc"}
+PASS  narrow maintenance submitted: WR opens the mounted W6 Overview with the Site ID (R83)  {"title":"WR-000002 · Connector diagnostic inspection","href":"/maintenance/requests/d3d6ec6b-fe1a-43eb-a16e-b931bb9ce5bc?site_id=EV-LAB-001","want":"/maintenance/requests/d3d6ec6b-fe1a-43eb-a16e-b931bb9ce5bc?site_id=EV-LAB-001"}
+PASS  narrow maintenance submitted: asset label as selected or 'No asset linked' (ruling 13), Unverified, next-evidence copy (R82, R84)  {"asset":"c1 · EV_CONNECTOR","gap":false,"outcome":"Unverified","next":"No next evidence recorded","state":"Open"}
+PASS  narrow maintenance submitted: Activity recorded and Outcome note disclosures (R81, R82)  [[],["UTC and IDs"],["Activity recorded"],["Outcome note"],[]]
+PASS  narrow maintenance submitted: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance submitted: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow maintenance submitted: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow maintenance submitted: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  narrow maintenance submitted: page main <= 2000  {"main":762,"docHeight":911}
+PASS  narrow maintenance submitted: strip <= 150  84
+PASS  narrow maintenance submitted: case panel <= 650  {"panel":216,"tableScrollWidth":760,"tableClientWidth":324}
+PASS  narrow maintenance submitted: context notice <= 160  60
+PASS  narrow maintenance submitted: 1 row(s) measured  1
+PASS  narrow maintenance submitted: every row cell contains its content  []
+PASS  narrow maintenance submitted: every disclosure summary is on one line  [1,1,1]
+PASS  narrow maintenance submitted: no clipped state/outcome badge, each on one line  {"badges":2,"clipped":0,"lines":[1,1]}
+PASS  narrow maintenance submitted: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  narrow maintenance submitted: first column is position:sticky  true
+PASS  narrow maintenance submitted: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance submitted-ids-open: settled  1
+PASS  narrow maintenance submitted-ids-open: the explicit EV domain Action case link is plain text (R113)  {"plain":1,"hrefs":[]}
+PASS  narrow maintenance submitted-ids-open: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance submitted-ids-open: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow maintenance submitted-ids-open: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow maintenance submitted-ids-open: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+INFO  narrow maintenance submitted-ids-open: expanded heights (ruling 26 exempt)  {"main":1076,"strip":84,"panel":530,"docHeight":1225}
+PASS  narrow maintenance submitted-ids-open: 1 row(s) measured  1
+PASS  narrow maintenance submitted-ids-open: every row cell contains its content  []
+PASS  narrow maintenance submitted-ids-open: every opened disclosure body stays inside its cell  []
+PASS  narrow maintenance submitted-ids-open: every opened UUID is one line in its own contained scroller  []
+PASS  narrow maintenance submitted-ids-open: every disclosure summary is on one line  [1,1,1]
+PASS  narrow maintenance submitted-ids-open: no clipped state/outcome badge, each on one line  {"badges":2,"clipped":0,"lines":[1,1]}
+PASS  narrow maintenance submitted-ids-open: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  narrow maintenance submitted-ids-open: first column is position:sticky  true
+PASS  narrow maintenance submitted-ids-open: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance historical: settled  1
+PASS  narrow maintenance historical: the returned HISTORICAL state's notice (R80, R104 blue) with the row  {"status":"HISTORICAL","text":"Read as of 2026-10-24 08:22 UTC. Later work may differ.","known_at":"2026-10-24T08:22:07.150051Z"}
+PASS  narrow maintenance historical: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance historical: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow maintenance historical: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow maintenance historical: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  narrow maintenance historical: currentness notice between the strip and the panel (R80)  true
+PASS  narrow maintenance historical: page main <= 2000  {"main":822,"docHeight":971}
+PASS  narrow maintenance historical: strip <= 150  84
+PASS  narrow maintenance historical: case panel <= 650  {"panel":216,"tableScrollWidth":760,"tableClientWidth":324}
+PASS  narrow maintenance historical: context notice <= 160  60
+PASS  narrow maintenance historical: currentness notice <= 160  42
+PASS  narrow maintenance zero: settled  0
+PASS  narrow maintenance zero: exact mock empty card, '0 maintenance', closed basis, no pages, no notice  {"empty":"No maintenance work at this site No inspection or repair has been raised here in the selected period.","scope":"Scoped to EV · 0 maintenance"}
+PASS  narrow maintenance zero: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance zero: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow maintenance zero: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow maintenance zero: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  narrow maintenance zero: page main <= 2000  {"main":869,"docHeight":1019}
+PASS  narrow maintenance zero: strip <= 150  84
+PASS  narrow maintenance zero: case panel <= 560  {"panel":324,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow maintenance zero: context notice <= 160  60
+PASS  narrow maintenance forbidden-403: settled  "forbidden"
+PASS  narrow maintenance forbidden-403: Site read healthy, W4 refusal in the case panel; no zero, no Retry  {"refused":"forbidden","text":"No access You do not have access to this site's work. Maintenance at this site · As of: time not recorded","scope":"Count unknown · work source unavailable"}
+PASS  narrow maintenance forbidden-403: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance forbidden-403: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow maintenance forbidden-403: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow maintenance forbidden-403: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  narrow maintenance forbidden-403: page main <= 2000  {"main":698,"docHeight":900}
+PASS  narrow maintenance forbidden-403: strip <= 150  84
+PASS  narrow maintenance forbidden-403: case panel <= 650  {"panel":153,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow maintenance forbidden-403: context notice <= 160  60
+PASS  narrow maintenance worst: settled  5
+PASS  narrow maintenance worst: five walkthrough rows with 36-character IDs, '5 maintenance'  {"rows":["a52cc254-9832-44b3-a01c-e3286bea3692","0cf6f7c2-db9a-4254-be19-18dec608fe23","27b0b4bc-4df9-493c-b4a8-a0d3e4dea3a3","1828643c-1245-436b-a26d-14e923a901cc","f2dcb749-e4a1-4347-bd71-5ccc78fbe1a9"],"scope":"Scoped to EV · 5 maintenance"}
+PASS  narrow maintenance worst: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance worst: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow maintenance worst: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow maintenance worst: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  narrow maintenance worst: page main <= 2000  {"main":990,"docHeight":1140}
+PASS  narrow maintenance worst: strip <= 150  84
+PASS  narrow maintenance worst: case panel <= 650  {"panel":445,"tableScrollWidth":760,"tableClientWidth":324}
+PASS  narrow maintenance worst: context notice <= 160  60
+PASS  narrow maintenance worst: 5 row(s) measured  5
+PASS  narrow maintenance worst: every row cell contains its content  []
+PASS  narrow maintenance worst: every long-text preview is at most two lines (R107)  [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+PASS  narrow maintenance worst: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  narrow maintenance worst: no clipped state/outcome badge, each on one line  {"badges":10,"clipped":0,"lines":[1,1,1,1,1,1,1,1,1,1]}
+PASS  narrow maintenance worst: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  narrow maintenance worst: first column is position:sticky  true
+PASS  narrow maintenance worst: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance worst-one-open: settled  5
+PASS  narrow maintenance worst-one-open: one Read full text open  1
+PASS  narrow maintenance worst-one-open: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance worst-one-open: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow maintenance worst-one-open: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow maintenance worst-one-open: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+PASS  narrow maintenance worst-one-open: page main <= 2000  {"main":1102,"docHeight":1252}
+PASS  narrow maintenance worst-one-open: strip <= 150  84
+PASS  narrow maintenance worst-one-open: case panel <= 680  {"panel":557,"tableScrollWidth":760,"tableClientWidth":324}
+PASS  narrow maintenance worst-one-open: context notice <= 160  60
+PASS  narrow maintenance worst-one-open: 5 row(s) measured  5
+PASS  narrow maintenance worst-one-open: every row cell contains its content  []
+PASS  narrow maintenance worst-one-open: every long-text preview is at most two lines (R107)  [2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+PASS  narrow maintenance worst-one-open: every opened disclosure body stays inside its cell  []
+PASS  narrow maintenance worst-one-open: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  narrow maintenance worst-one-open: no clipped state/outcome badge, each on one line  {"badges":10,"clipped":0,"lines":[1,1,1,1,1,1,1,1,1,1]}
+PASS  narrow maintenance worst-one-open: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  narrow maintenance worst-one-open: first column is position:sticky  true
+PASS  narrow maintenance worst-one-open: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+PASS  narrow maintenance worst-all-open: settled  5
+PASS  narrow maintenance worst-all-open: every Read full text open, full 160-code-point values  {"readFull":15,"open":15,"full":[172,160,160,172,160,160,172,160,160,172,160,160,172,160,160]}
+PASS  narrow maintenance worst-all-open: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow maintenance worst-all-open: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow maintenance worst-all-open: data-domain-cases="EV_CHARGING", exactly one form (the page-local Window; ruling 57)  {"domainCases":"EV_CHARGING","forms":1,"w4Form":0}
+PASS  narrow maintenance worst-all-open: Window after the subtabs and before the strip, UTC labels (R112, R77)  {"afterSubtabs":true,"beforeStrip":true,"labels":"Window From (UTC) To (UTC, exclusive) Apply"}
+INFO  narrow maintenance worst-all-open: expanded heights (ruling 26 exempt)  {"main":2354,"strip":84,"panel":1808,"docHeight":2503}
+PASS  narrow maintenance worst-all-open: 5 row(s) measured  5
+PASS  narrow maintenance worst-all-open: every row cell contains its content  []
+PASS  narrow maintenance worst-all-open: every opened disclosure body stays inside its cell  []
+PASS  narrow maintenance worst-all-open: every opened UUID is one line in its own contained scroller  []
+PASS  narrow maintenance worst-all-open: every disclosure summary is on one line  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+PASS  narrow maintenance worst-all-open: no clipped state/outcome badge, each on one line  {"badges":10,"clipped":0,"lines":[1,1,1,1,1,1,1,1,1,1]}
+PASS  narrow maintenance worst-all-open: no /actions/ href on the page (R113: the EV domain Action link is plain)  []
+PASS  narrow maintenance worst-all-open: first column is position:sticky  true
+PASS  narrow maintenance worst-all-open: table scrolls inside its panel  {"scrollWidth":760,"clientWidth":324}
+472 PASS, 0 FAIL, 12 INFO

@@ -504,9 +504,9 @@ describe("EV Work case tabs: subtitle and subrow (ruling 45, R78)", () => {
     const href = main.querySelector(".site-subtabs a")?.getAttribute("href") ?? "";
     expect(new URL(href, "http://x").searchParams.get("known_at")).toBe(EV_KNOWN);
     expect(coldNames(main)).toEqual([]);
-    // Ruling 57 interim: subrow only in V2a; the EV case tab keeps its single W4 window form and has no page-local
-    // Window until V3a mounts it together with `windowForm=false`.
-    expect(main.querySelector("[data-domain-work-window]")).toBeNull();
+    // Ruling 57: V3a mounted the page-local Window together with `windowForm=false`, so the one form is that Window
+    // (the exactly-one-form case-tab assertion itself lives in evWorkCases.test.tsx).
+    expect(main.querySelector("form[data-domain-work-window]")).not.toBeNull();
     expect(main.querySelectorAll("form").length).toBe(1);
   });
 });
