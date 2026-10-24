@@ -1,0 +1,120 @@
+=== ev-work-incidents store-unavailable-503 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Site unavailable' 103/- w=1160/None rows=0/None cols=[] | None
+     chips [] links=0/None details=0/None h3=[]
+  MISSING vs mock: ['Incidents at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)*', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  links []
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  cardLinks []
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+  TEXT: Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.
+  MTEXT: Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Sites › Depot Charging Hub › Work Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (0) Maintenance (0) Scoped to Depot · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes
+=== ev-work-incidents store-unavailable-503 390x900 pageH app/mock 900/1215 ovX 0 hdr 58 mainTop 397/158 cerr []
+  P 'Site unavailable' 126/- w=358/None rows=0/None cols=[] | None
+     chips [] links=0/None details=0/None h3=[]
+  MISSING vs mock: ['Incidents at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)*', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 381}]
+  links []
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  cardLinks []
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+  TEXT: Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.
+  MTEXT: Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Depot Charging Hub › Work Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (0) Maintenance (0) Scoped to Depot · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes
+=== ev-work-maintenance store-unavailable-503 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Site unavailable' 103/- w=1160/None rows=0/None cols=[] | None
+     chips [] links=0/None details=0/None h3=[]
+  MISSING vs mock: ['Maintenance at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)', 'Maintenance (0)*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  links []
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  cardLinks []
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+  TEXT: Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.
+  MTEXT: Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Sites › Depot Charging Hub › Work Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (0) Maintenance (0) Scoped to Depot · 0 maintenance Same records and states as the global Maintenance list Manage in Maintenance → Maintenance at this site Completed work is activity; the outcome is verified separately No maintenance work at this site No inspection or repair has been raised here in the selected period. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes
+=== ev-work-maintenance store-unavailable-503 390x900 pageH app/mock 900/1195 ovX 0 hdr 58 mainTop 397/158 cerr []
+  P 'Site unavailable' 126/- w=358/None rows=0/None cols=[] | None
+     chips [] links=0/None details=0/None h3=[]
+  MISSING vs mock: ['Maintenance at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)', 'Maintenance (0)*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 381}]
+  links []
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  cardLinks []
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+  TEXT: Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.
+  MTEXT: Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Depot Charging Hub › Work Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (0) Maintenance (0) Scoped to Depot · 0 maintenance Same records and states as the global Maintenance list Manage in Maintenance → Maintenance at this site Completed work is activity; the outcome is verified separately No maintenance work at this site No inspection or repair has been raised here in the selected period. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes
+=== ev-action store-unavailable-503 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Site unavailable' 103/- w=1160/None rows=0/None cols=[] | None
+     chips [] links=0/None details=0/None h3=[]
+  MISSING vs mock: ['Declared verification plan']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  links []
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  cardLinks []
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+  TEXT: Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured.
+  MTEXT: Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Actions › ACT-061 › Verification · site: Depot Charging Hub ACT-061 · Investigate connector 2 What would establish successful service restoration? Open site Verification Open Charging operations · Depot Charging Hub Declared verification plan CRITERION REQUIRED EVIDENCE CURRENT RESULT Complete a witnessed charging session Session start, end, outcome and meter delta Pending No fault recurrence during observation Connector diagnostic events with full coverage Pending No reduction in service availability Comparable status coverage / operational window Pending A completed investigation or diagnostic reset would not establish a verified outcome. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes
+=== ev-action store-unavailable-503 390x900 pageH app/mock 900/1123 ovX 0 hdr 58 mainTop 397/158 cerr []
+  P 'Site unavailable' 126/- w=358/None rows=0/None cols=[] | None
+     chips [] links=0/None details=0/None h3=[]
+  MISSING vs mock: ['Declared verification plan']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 381}]
+  links []
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  cardLinks []
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+  TEXT: Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured.
+  MTEXT: Bineyame Operations / Demo estate Window: Event window ▾ BY Actions › ACT-061 › Verification · site: Depot Charging Hub ACT-061 · Investigate connector 2 What would establish successful service restoration? Open site Verification Open Charging operations · Depot Charging Hub Declared verification plan CRITERION REQUIRED EVIDENCE CURRENT RESULT Complete a witnessed charging session Session start, end, outcome and meter delta Pending No fault recurrence during observation Connector diagnostic events with full coverage Pending No reduction in service availability Comparable status coverage / operational window Pending A completed investigation or diagnostic reset would not establish a verified outcome. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes

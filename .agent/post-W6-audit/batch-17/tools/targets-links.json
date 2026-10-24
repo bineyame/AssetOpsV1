@@ -1,0 +1,62 @@
+[
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-bare",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-verification",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-overview",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/overview?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-execution",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/execution?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-history",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/history?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-plan",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/plan?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-evidence",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/evidence?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-work-actions-tab",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "mock": "ev-work"
+ },
+ {
+  "id": "link-check",
+  "case": "global-incidents",
+  "url": "http://127.0.0.1:5187/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "mock": "ev-work-incidents"
+ },
+ {
+  "id": "link-check",
+  "case": "global-maintenance",
+  "url": "http://127.0.0.1:5187/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "mock": "ev-work-maintenance"
+ }
+]

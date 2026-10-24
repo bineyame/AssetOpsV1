@@ -1,0 +1,268 @@
+=== link-check ev-action-tab-bare 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Declared verification plan' 248/243 (1.02) w=1160/1161 rows=3/3 cols=['Criterion', 'Required evidence', 'Current result'] | ['Criterion', 'Required evidence', 'Current result']
+  strip: OpenCharging operations · EV charging lab
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['A completed investigation or diagnostic reset would not establish a verified outcome.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsACT-000001Verification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-action-tab-bare 390x900 pageH app/mock 925/1123 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Declared verification plan' 406/401 (1.01) w=358/360 rows=3/3 cols=['Criterion', 'Required evidence', 'Current result'] | ['Criterion', 'Required evidence', 'Current result']
+  strip: OpenCharging operations · EV charging lab
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['A completed investigation or diagnostic reset would not establish a verified outcome.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsACT-000001Verification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-action-tab-verification 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Declared verification plan' 248/243 (1.02) w=1160/1161 rows=3/3 cols=['Criterion', 'Required evidence', 'Current result'] | ['Criterion', 'Required evidence', 'Current result']
+  strip: OpenCharging operations · EV charging lab
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['A completed investigation or diagnostic reset would not establish a verified outcome.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsACT-000001Verification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-action-tab-verification 390x900 pageH app/mock 925/1123 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Declared verification plan' 406/401 (1.01) w=358/360 rows=3/3 cols=['Criterion', 'Required evidence', 'Current result'] | ['Criterion', 'Required evidence', 'Current result']
+  strip: OpenCharging operations · EV charging lab
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['A completed investigation or diagnostic reset would not establish a verified outcome.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsACT-000001Verification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-action-tab-overview 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'No such Action section' 103/- w=1160/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Declared verification plan']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'14px': 1} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: SitesEV charging labFindingsAction | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-action-tab-overview 390x900 pageH app/mock 900/1123 ovX 0 hdr 58 mainTop 341/158 cerr []
+  P 'No such Action section' 126/- w=358/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Declared verification plan']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'14px': 1} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 325}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: SitesEV charging labFindingsAction | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-action-tab-execution 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Declared verification plan' 248/243 (1.02) w=1160/1161 rows=3/3 cols=['Criterion', 'Required evidence', 'Current result'] | ['Criterion', 'Required evidence', 'Current result']
+  strip: OpenCharging operations · EV charging lab
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['A completed investigation or diagnostic reset would not establish a verified outcome.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsACT-000001Verification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-action-tab-execution 390x900 pageH app/mock 925/1123 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Declared verification plan' 406/401 (1.01) w=358/360 rows=3/3 cols=['Criterion', 'Required evidence', 'Current result'] | ['Criterion', 'Required evidence', 'Current result']
+  strip: OpenCharging operations · EV charging lab
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['A completed investigation or diagnostic reset would not establish a verified outcome.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsACT-000001Verification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-action-tab-history 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Declared verification plan' 248/243 (1.02) w=1160/1161 rows=3/3 cols=['Criterion', 'Required evidence', 'Current result'] | ['Criterion', 'Required evidence', 'Current result']
+  strip: OpenCharging operations · EV charging lab
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['A completed investigation or diagnostic reset would not establish a verified outcome.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsACT-000001Verification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-action-tab-history 390x900 pageH app/mock 925/1123 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Declared verification plan' 406/401 (1.01) w=358/360 rows=3/3 cols=['Criterion', 'Required evidence', 'Current result'] | ['Criterion', 'Required evidence', 'Current result']
+  strip: OpenCharging operations · EV charging lab
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['A completed investigation or diagnostic reset would not establish a verified outcome.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsACT-000001Verification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-action-tab-plan 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Declared verification plan' 248/243 (1.02) w=1160/1161 rows=3/3 cols=['Criterion', 'Required evidence', 'Current result'] | ['Criterion', 'Required evidence', 'Current result']
+  strip: OpenCharging operations · EV charging lab
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['A completed investigation or diagnostic reset would not establish a verified outcome.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsACT-000001Verification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-action-tab-plan 390x900 pageH app/mock 925/1123 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Declared verification plan' 406/401 (1.01) w=358/360 rows=3/3 cols=['Criterion', 'Required evidence', 'Current result'] | ['Criterion', 'Required evidence', 'Current result']
+  strip: OpenCharging operations · EV charging lab
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['A completed investigation or diagnostic reset would not establish a verified outcome.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsACT-000001Verification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-action-tab-evidence 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Declared verification plan' 248/243 (1.02) w=1160/1161 rows=3/3 cols=['Criterion', 'Required evidence', 'Current result'] | ['Criterion', 'Required evidence', 'Current result']
+  strip: OpenCharging operations · EV charging lab
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['A completed investigation or diagnostic reset would not establish a verified outcome.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsACT-000001Verification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-action-tab-evidence 390x900 pageH app/mock 925/1123 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Declared verification plan' 406/401 (1.01) w=358/360 rows=3/3 cols=['Criterion', 'Required evidence', 'Current result'] | ['Criterion', 'Required evidence', 'Current result']
+  strip: OpenCharging operations · EV charging lab
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['A completed investigation or diagnostic reset would not establish a verified outcome.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsACT-000001Verification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== link-check ev-work-actions-tab 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Actions at this site' 184/183 (1.01) w=1160/1161 rows=1/1 cols=['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion'] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 1 actionEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 1
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 248, 'w': 1160, 'h': 33, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: SitesEV charging labWork | sub:  | M crumb:  | M sub: 
+  buttons: ['Apply'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+=== link-check ev-work-actions-tab 390x900 pageH app/mock 900/1108 ovX 0 hdr 58 mainTop 122/158 cerr []
+  P 'Actions at this site' 199/230 (0.87) w=358/360 rows=1/1 cols=['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion'] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+  strip: Scoped to EV · 1 actionEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 1
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (0)', 'Maintenance (0)']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 817, 'cw': 318, 'panel': 'Actions at this site'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 106}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 16, 'w': 358, 'h': 136, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: SitesEV charging labWork | sub:  | M crumb:  | M sub: 
+  buttons: ['Apply'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+=== link-check global-incidents 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Incident cases' 103/- w=1160/None rows=0/None cols=[] | None
+  P 'Case boundaries' 103/- w=1160/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Incidents at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[WORK_STORE_UNAVAILABLE]: Work records could not be read. Reload.  notice: ['Work records could not be read. Reload.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '14px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)*', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: ['Show records', 'Reload'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+=== link-check global-incidents 390x900 pageH app/mock 900/1215 ovX 0 hdr 58 mainTop 190/158 cerr []
+  P 'Incident cases' 121/- w=358/None rows=0/None cols=[] | None
+  P 'Case boundaries' 126/- w=358/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Incidents at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[WORK_STORE_UNAVAILABLE]: Work records could not be read. Reload.  notice: ['Work records could not be read. Reload.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '14px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)*', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 174}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: ['Show records', 'Reload'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+=== link-check global-maintenance 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Corrective work requests' 103/- w=1160/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Maintenance at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[WORK_STORE_UNAVAILABLE]: Work records could not be read. Reload.  notice: ['Work records could not be read. Reload.', 'A completed request records activity; an equipment outcome remains unverified.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs global-work-tabs', 'items': ['Corrective*(off)', 'Preventive · scheduled']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)', 'Maintenance (0)*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: Maintenance | sub:  | M crumb:  | M sub: 
+  buttons: ['Show records', 'Reload'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+=== link-check global-maintenance 390x900 pageH app/mock 900/1195 ovX 0 hdr 58 mainTop 180/158 cerr []
+  P 'Corrective work requests' 121/- w=358/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Maintenance at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[WORK_STORE_UNAVAILABLE]: Work records could not be read. Reload.  notice: ['Work records could not be read. Reload.', 'A completed request records activity; an equipment outcome remains unverified.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs global-work-tabs', 'items': ['Corrective*(off)', 'Preventive · scheduled']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)', 'Maintenance (0)*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 164}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: Maintenance | sub:  | M crumb:  | M sub: 
+  buttons: ['Show records', 'Reload'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']

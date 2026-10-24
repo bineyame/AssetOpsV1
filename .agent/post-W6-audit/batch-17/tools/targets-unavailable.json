@@ -1,0 +1,17 @@
+[
+ {
+  "id": "ev-work-incidents",
+  "case": "store-unavailable-503",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "store-unavailable-503",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "store-unavailable-503",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+ }
+]

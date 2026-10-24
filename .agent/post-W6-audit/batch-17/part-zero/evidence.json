@@ -1,0 +1,3571 @@
+{
+  "revision": "19609909",
+  "captured_at": "2026-10-24T18:21:50.914Z",
+  "pairs": [
+    {
+      "screen": "ev-work-incidents",
+      "case": "zero",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-incidents",
+      "app_image": "ev-work-incidents-zero-1440-app.png",
+      "mock_image": "ev-work-incidents-zero-1440-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 248,
+            "y": 348,
+            "w": 1160,
+            "h": 337,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.What this list is based onWindow2026-10-24 00:00 UTC to 2026-10-25 00:00 UTC [from, to)Read as of2026-10-24 18:22 UTCLinked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:1b0e2c9592d4f29b82870df07e9e9b106c145ca5dc9b8ad11dcd2f24a72df9dfEach record behind this result is checked against the source registration made before the record was ac",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Scoped to EV · 0 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 33,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (1) -> /sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Incidents (0) -> /sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Maintenance (0) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A22%3A05.640684Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Site \nEV charging lab\nWork\nEV charging lab\nDemon tration data · EV-LAB-001\n\nEV charging operation  at thi   ite.\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (1)\nIncident  (0)\nMaintenance (0)\nWindow\nFrom (UTC)\nTo (UTC, exclu ive)\nApply\nScoped to EV · 0 incident \nSame record  and  tate  a  the global Incident  li t\nManage in Incident  →\nIncident  at thi   ite\n\nA ca e link  chronology, finding  and work without copying them\n\nNo incident  at thi   ite\n\nNo operational ca e wa  opened in the  elected period. A ca e come  from a linked chain of event , not from a  ingle data gap.\n\nWhat thi  li t i  ba ed on\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite.",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operation  / Demo e tate\nFind a  creen\nSite\nKobo Mini-grid · Mini-grid\nGreenHarve t Cold Room · Cold-chain\nDepot Charging Hub · EV charging\nWindow: Event window\n6 Oct 2026 · 08:00–16:00 EAT\n▾\nBY\nSite \n›\nDepot Charging Hub\n›\nWork\nDepot Charging Hub\nSimulated  ite · EV-DEMO-01\n\n2 × 60 kW connector  · 80 kW  ite limit · no  tationary battery\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (1)\nIncident  (0)\nMaintenance (0)\nScoped to Depot\n· 0 incident \nSame record  and  tate  a  the global Incident  li t\nManage in Incident  →\nIncident  at thi   ite\n\nA ca e link  chronology, finding  and work without copying them\n\nNo incident  at thi   ite\n\nNo operational ca e wa  opened in the  elected period. A ca e come  from a linked chain of event , not from a  ingle data gap.\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite. New work  tart  from the global create flow with thi   ite filled in.\n\nIllu trative mockup data · propo al for implementation · not connected to  ite telemetry\nCanonical ba i  & implementation note ",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "ev-work-incidents",
+      "case": "zero",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-incidents",
+      "app_image": "ev-work-incidents-zero-390-app.png",
+      "mock_image": "ev-work-incidents-zero-390-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 16,
+            "y": 575,
+            "w": 358,
+            "h": 344,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.What this list is based onWindow2026-10-24 00:00 UTC to 2026-10-25 00:00 UTC [from, to)Read as of2026-10-24 18:22 UTCLinked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:c63ec56cea6d5dac2a8c6cd9e4ba2d90d81fa226ab899ab1db1afaef683e51bdEach record behind this result is checked against the source registration made before the record was ac",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1039,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Scoped to EV · 0 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 136,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (1) -> /sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Incidents (0) -> /sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Maintenance (0) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A22%3A11.266945Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Site \nEV charging lab\nWork\nEV charging lab\nDemon tration data · EV-LAB-001\n\nEV charging operation  at thi   ite.\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (1)\nIncident  (0)\nMaintenance (0)\nWindow\nFrom (UTC)\nTo (UTC, exclu ive)\nApply\nScoped to EV · 0 incident \nSame record  and  tate  a  the global Incident  li t\nManage in Incident  →\nIncident  at thi   ite\n\nA ca e link  chronology, finding  and work without copying them\n\nNo incident  at thi   ite\n\nNo operational ca e wa  opened in the  elected period. A ca e come  from a linked chain of event , not from a  ingle data gap.\n\nWhat thi  li t i  ba ed on\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite.",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 15,
+            "y": 689,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1215,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operation  / Demo e tate\nSite\nKobo Mini-grid · Mini-grid\nGreenHarve t Cold Room · Cold-chain\nDepot Charging Hub · EV charging\nWindow: Event window\n▾\nBY\nSite \n›\nDepot Charging Hub\n›\nWork\nDepot Charging Hub\nSimulated  ite · EV-DEMO-01\n\n2 × 60 kW connector  · 80 kW  ite limit · no  tationary battery\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (1)\nIncident  (0)\nMaintenance (0)\nScoped to Depot\n· 0 incident \nSame record  and  tate  a  the global Incident  li t\nManage in Incident  →\nIncident  at thi   ite\n\nA ca e link  chronology, finding  and work without copying them\n\nNo incident  at thi   ite\n\nNo operational ca e wa  opened in the  elected period. A ca e come  from a linked chain of event , not from a  ingle data gap.\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite. New work  tart  from the global create flow with thi   ite filled in.\n\nIllu trative mockup data · propo al for implementation · not connected to  ite telemetry\nCanonical ba i  & implementation note ",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "ev-work-incidents",
+      "case": "zero-prior-day",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-incidents",
+      "app_image": "ev-work-incidents-zero-prior-day-1440-app.png",
+      "mock_image": "ev-work-incidents-zero-prior-day-1440-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 248,
+            "y": 348,
+            "w": 1160,
+            "h": 337,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.What this list is based onWindow2026-10-23 00:00 UTC to 2026-10-24 00:00 UTC [from, to)Read as of2026-10-24 18:22 UTCLinked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:9c865722ebdba1b9fc7075139d697517b031392d30922aff32e2d9ab04974a62Each record behind this result is checked against the source registration made before the record was ac",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Scoped to EV · 0 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 33,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (0) -> /sites/EV-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Incidents (0) -> /sites/EV-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Maintenance (0) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z&known_at=2026-10-24T18%3A22%3A16.296532Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Site \nEV charging lab\nWork\nEV charging lab\nDemon tration data · EV-LAB-001\n\nEV charging operation  at thi   ite.\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (0)\nIncident  (0)\nMaintenance (0)\nWindow\nFrom (UTC)\nTo (UTC, exclu ive)\nApply\nScoped to EV · 0 incident \nSame record  and  tate  a  the global Incident  li t\nManage in Incident  →\nIncident  at thi   ite\n\nA ca e link  chronology, finding  and work without copying them\n\nNo incident  at thi   ite\n\nNo operational ca e wa  opened in the  elected period. A ca e come  from a linked chain of event , not from a  ingle data gap.\n\nWhat thi  li t i  ba ed on\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite.",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (0)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operation  / Demo e tate\nFind a  creen\nSite\nKobo Mini-grid · Mini-grid\nGreenHarve t Cold Room · Cold-chain\nDepot Charging Hub · EV charging\nWindow: Event window\n6 Oct 2026 · 08:00–16:00 EAT\n▾\nBY\nSite \n›\nDepot Charging Hub\n›\nWork\nDepot Charging Hub\nSimulated  ite · EV-DEMO-01\n\n2 × 60 kW connector  · 80 kW  ite limit · no  tationary battery\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (1)\nIncident  (0)\nMaintenance (0)\nScoped to Depot\n· 0 incident \nSame record  and  tate  a  the global Incident  li t\nManage in Incident  →\nIncident  at thi   ite\n\nA ca e link  chronology, finding  and work without copying them\n\nNo incident  at thi   ite\n\nNo operational ca e wa  opened in the  elected period. A ca e come  from a linked chain of event , not from a  ingle data gap.\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite. New work  tart  from the global create flow with thi   ite filled in.\n\nIllu trative mockup data · propo al for implementation · not connected to  ite telemetry\nCanonical ba i  & implementation note ",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "ev-work-incidents",
+      "case": "zero-prior-day",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-incidents",
+      "app_image": "ev-work-incidents-zero-prior-day-390-app.png",
+      "mock_image": "ev-work-incidents-zero-prior-day-390-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 16,
+            "y": 575,
+            "w": 358,
+            "h": 344,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.What this list is based onWindow2026-10-23 00:00 UTC to 2026-10-24 00:00 UTC [from, to)Read as of2026-10-24 18:22 UTCLinked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:91d848b0a5d4cf89d127f994111979c1b13ae413e5f90b1a0d9cfca11556c728Each record behind this result is checked against the source registration made before the record was ac",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1039,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Scoped to EV · 0 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 136,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (0) -> /sites/EV-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Incidents (0) -> /sites/EV-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Maintenance (0) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z&known_at=2026-10-24T18%3A22%3A21.667063Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Site \nEV charging lab\nWork\nEV charging lab\nDemon tration data · EV-LAB-001\n\nEV charging operation  at thi   ite.\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (0)\nIncident  (0)\nMaintenance (0)\nWindow\nFrom (UTC)\nTo (UTC, exclu ive)\nApply\nScoped to EV · 0 incident \nSame record  and  tate  a  the global Incident  li t\nManage in Incident  →\nIncident  at thi   ite\n\nA ca e link  chronology, finding  and work without copying them\n\nNo incident  at thi   ite\n\nNo operational ca e wa  opened in the  elected period. A ca e come  from a linked chain of event , not from a  ingle data gap.\n\nWhat thi  li t i  ba ed on\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite.",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (0)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 15,
+            "y": 689,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1215,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operation  / Demo e tate\nSite\nKobo Mini-grid · Mini-grid\nGreenHarve t Cold Room · Cold-chain\nDepot Charging Hub · EV charging\nWindow: Event window\n▾\nBY\nSite \n›\nDepot Charging Hub\n›\nWork\nDepot Charging Hub\nSimulated  ite · EV-DEMO-01\n\n2 × 60 kW connector  · 80 kW  ite limit · no  tationary battery\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (1)\nIncident  (0)\nMaintenance (0)\nScoped to Depot\n· 0 incident \nSame record  and  tate  a  the global Incident  li t\nManage in Incident  →\nIncident  at thi   ite\n\nA ca e link  chronology, finding  and work without copying them\n\nNo incident  at thi   ite\n\nNo operational ca e wa  opened in the  elected period. A ca e come  from a linked chain of event , not from a  ingle data gap.\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite. New work  tart  from the global create flow with thi   ite filled in.\n\nIllu trative mockup data · propo al for implementation · not connected to  ite telemetry\nCanonical ba i  & implementation note ",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "ev-work-maintenance",
+      "case": "zero",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-maintenance",
+      "app_image": "ev-work-maintenance-zero-1440-app.png",
+      "mock_image": "ev-work-maintenance-zero-1440-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 248,
+            "y": 348,
+            "w": 1160,
+            "h": 317,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.What this list is based onWindow2026-10-24 00:00 UTC to 2026-10-25 00:00 UTC [from, to)Read as of2026-10-24 18:22 UTCLinked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:948176ae8d061e769b53873cef442c228e045fc4d595047748c2419927bcd925Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or genera",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Scoped to EV · 0 maintenanceSame records and states as the global Maintenance listManage in Maintenance →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 33,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (1) -> /sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Incidents (0) -> /sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Maintenance (0) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Manage in Maintenance → -> /maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A22%3A27.686538Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Site \nEV charging lab\nWork\nEV charging lab\nDemon tration data · EV-LAB-001\n\nEV charging operation  at thi   ite.\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (1)\nIncident  (0)\nMaintenance (0)\nWindow\nFrom (UTC)\nTo (UTC, exclu ive)\nApply\nScoped to EV · 0 maintenance\nSame record  and  tate  a  the global Maintenance li t\nManage in Maintenance →\nMaintenance at thi   ite\n\nCompleted work i  activity; the outcome i  verified  eparately\n\nNo maintenance work at thi   ite\n\nNo in pection or repair ha  been rai ed here in the  elected period.\n\nWhat thi  li t i  ba ed on\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite.",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 296,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Maintenance → -> #/maintenance"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operation  / Demo e tate\nFind a  creen\nSite\nKobo Mini-grid · Mini-grid\nGreenHarve t Cold Room · Cold-chain\nDepot Charging Hub · EV charging\nWindow: Event window\n6 Oct 2026 · 08:00–16:00 EAT\n▾\nBY\nSite \n›\nDepot Charging Hub\n›\nWork\nDepot Charging Hub\nSimulated  ite · EV-DEMO-01\n\n2 × 60 kW connector  · 80 kW  ite limit · no  tationary battery\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (1)\nIncident  (0)\nMaintenance (0)\nScoped to Depot\n· 0 maintenance\nSame record  and  tate  a  the global Maintenance li t\nManage in Maintenance →\nMaintenance at thi   ite\n\nCompleted work i  activity; the outcome i  verified  eparately\n\nNo maintenance work at thi   ite\n\nNo in pection or repair ha  been rai ed here in the  elected period.\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite. New work  tart  from the global create flow with thi   ite filled in.\n\nIllu trative mockup data · propo al for implementation · not connected to  ite telemetry\nCanonical ba i  & implementation note ",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "ev-work-maintenance",
+      "case": "zero",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-maintenance",
+      "app_image": "ev-work-maintenance-zero-390-app.png",
+      "mock_image": "ev-work-maintenance-zero-390-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 16,
+            "y": 575,
+            "w": 358,
+            "h": 324,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.What this list is based onWindow2026-10-24 00:00 UTC to 2026-10-25 00:00 UTC [from, to)Read as of2026-10-24 18:22 UTCLinked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:ebba275360ed1bc8daf1e21234bd6123e844fdd18d9064b0f0082677f44f457dEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or genera",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1019,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Scoped to EV · 0 maintenanceSame records and states as the global Maintenance listManage in Maintenance →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 136,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (1) -> /sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Incidents (0) -> /sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Maintenance (0) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Manage in Maintenance → -> /maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A22%3A32.962993Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Site \nEV charging lab\nWork\nEV charging lab\nDemon tration data · EV-LAB-001\n\nEV charging operation  at thi   ite.\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (1)\nIncident  (0)\nMaintenance (0)\nWindow\nFrom (UTC)\nTo (UTC, exclu ive)\nApply\nScoped to EV · 0 maintenance\nSame record  and  tate  a  the global Maintenance li t\nManage in Maintenance →\nMaintenance at thi   ite\n\nCompleted work i  activity; the outcome i  verified  eparately\n\nNo maintenance work at thi   ite\n\nNo in pection or repair ha  been rai ed here in the  elected period.\n\nWhat thi  li t i  ba ed on\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite.",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 15,
+            "y": 689,
+            "w": 360,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1195,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Maintenance → -> #/maintenance"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operation  / Demo e tate\nSite\nKobo Mini-grid · Mini-grid\nGreenHarve t Cold Room · Cold-chain\nDepot Charging Hub · EV charging\nWindow: Event window\n▾\nBY\nSite \n›\nDepot Charging Hub\n›\nWork\nDepot Charging Hub\nSimulated  ite · EV-DEMO-01\n\n2 × 60 kW connector  · 80 kW  ite limit · no  tationary battery\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (1)\nIncident  (0)\nMaintenance (0)\nScoped to Depot\n· 0 maintenance\nSame record  and  tate  a  the global Maintenance li t\nManage in Maintenance →\nMaintenance at thi   ite\n\nCompleted work i  activity; the outcome i  verified  eparately\n\nNo maintenance work at thi   ite\n\nNo in pection or repair ha  been rai ed here in the  elected period.\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite. New work  tart  from the global create flow with thi   ite filled in.\n\nIllu trative mockup data · propo al for implementation · not connected to  ite telemetry\nCanonical ba i  & implementation note ",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "ev-work-maintenance",
+      "case": "zero-prior-day",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-maintenance",
+      "app_image": "ev-work-maintenance-zero-prior-day-1440-app.png",
+      "mock_image": "ev-work-maintenance-zero-prior-day-1440-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 248,
+            "y": 348,
+            "w": 1160,
+            "h": 317,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.What this list is based onWindow2026-10-23 00:00 UTC to 2026-10-24 00:00 UTC [from, to)Read as of2026-10-24 18:22 UTCLinked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:470c07705dd85f166b5e76aaf16b80343cf740ba0522f06638824202149c9b06Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or genera",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Scoped to EV · 0 maintenanceSame records and states as the global Maintenance listManage in Maintenance →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 33,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (0) -> /sites/EV-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Incidents (0) -> /sites/EV-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Maintenance (0) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Manage in Maintenance → -> /maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z&known_at=2026-10-24T18%3A22%3A38.002755Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Site \nEV charging lab\nWork\nEV charging lab\nDemon tration data · EV-LAB-001\n\nEV charging operation  at thi   ite.\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (0)\nIncident  (0)\nMaintenance (0)\nWindow\nFrom (UTC)\nTo (UTC, exclu ive)\nApply\nScoped to EV · 0 maintenance\nSame record  and  tate  a  the global Maintenance li t\nManage in Maintenance →\nMaintenance at thi   ite\n\nCompleted work i  activity; the outcome i  verified  eparately\n\nNo maintenance work at thi   ite\n\nNo in pection or repair ha  been rai ed here in the  elected period.\n\nWhat thi  li t i  ba ed on\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite.",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (0)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 296,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Maintenance → -> #/maintenance"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operation  / Demo e tate\nFind a  creen\nSite\nKobo Mini-grid · Mini-grid\nGreenHarve t Cold Room · Cold-chain\nDepot Charging Hub · EV charging\nWindow: Event window\n6 Oct 2026 · 08:00–16:00 EAT\n▾\nBY\nSite \n›\nDepot Charging Hub\n›\nWork\nDepot Charging Hub\nSimulated  ite · EV-DEMO-01\n\n2 × 60 kW connector  · 80 kW  ite limit · no  tationary battery\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (1)\nIncident  (0)\nMaintenance (0)\nScoped to Depot\n· 0 maintenance\nSame record  and  tate  a  the global Maintenance li t\nManage in Maintenance →\nMaintenance at thi   ite\n\nCompleted work i  activity; the outcome i  verified  eparately\n\nNo maintenance work at thi   ite\n\nNo in pection or repair ha  been rai ed here in the  elected period.\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite. New work  tart  from the global create flow with thi   ite filled in.\n\nIllu trative mockup data · propo al for implementation · not connected to  ite telemetry\nCanonical ba i  & implementation note ",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "ev-work-maintenance",
+      "case": "zero-prior-day",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-maintenance",
+      "app_image": "ev-work-maintenance-zero-prior-day-390-app.png",
+      "mock_image": "ev-work-maintenance-zero-prior-day-390-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 16,
+            "y": 575,
+            "w": 358,
+            "h": 324,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.What this list is based onWindow2026-10-23 00:00 UTC to 2026-10-24 00:00 UTC [from, to)Read as of2026-10-24 18:22 UTCLinked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:79957462d32ec57d6de6cf9582eba748d5960f5d012f2369a2b0606698a6e7dcEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or genera",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1019,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Scoped to EV · 0 maintenanceSame records and states as the global Maintenance listManage in Maintenance →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 136,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (0) -> /sites/EV-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Incidents (0) -> /sites/EV-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Maintenance (0) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+          "Manage in Maintenance → -> /maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z&known_at=2026-10-24T18%3A22%3A43.228405Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Site \nEV charging lab\nWork\nEV charging lab\nDemon tration data · EV-LAB-001\n\nEV charging operation  at thi   ite.\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (0)\nIncident  (0)\nMaintenance (0)\nWindow\nFrom (UTC)\nTo (UTC, exclu ive)\nApply\nScoped to EV · 0 maintenance\nSame record  and  tate  a  the global Maintenance li t\nManage in Maintenance →\nMaintenance at thi   ite\n\nCompleted work i  activity; the outcome i  verified  eparately\n\nNo maintenance work at thi   ite\n\nNo in pection or repair ha  been rai ed here in the  elected period.\n\nWhat thi  li t i  ba ed on\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite.",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (0)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 15,
+            "y": 689,
+            "w": 360,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1195,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Maintenance → -> #/maintenance"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operation  / Demo e tate\nSite\nKobo Mini-grid · Mini-grid\nGreenHarve t Cold Room · Cold-chain\nDepot Charging Hub · EV charging\nWindow: Event window\n▾\nBY\nSite \n›\nDepot Charging Hub\n›\nWork\nDepot Charging Hub\nSimulated  ite · EV-DEMO-01\n\n2 × 60 kW connector  · 80 kW  ite limit · no  tationary battery\n\nOverview\nFoundation\nHealth\nPerformance\nFinding \nWork\nFinancial \nEvidence\nAction  (1)\nIncident  (0)\nMaintenance (0)\nScoped to Depot\n· 0 maintenance\nSame record  and  tate  a  the global Maintenance li t\nManage in Maintenance →\nMaintenance at thi   ite\n\nCompleted work i  activity; the outcome i  verified  eparately\n\nNo maintenance work at thi   ite\n\nNo in pection or repair ha  been rai ed here in the  elected period.\n\nOpening a record move  you to it  own area; the breadcrumb keep  thi   ite. New work  tart  from the global create flow with thi   ite filled in.\n\nIllu trative mockup data · propo al for implementation · not connected to  ite telemetry\nCanonical ba i  & implementation note ",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "ev-action",
+      "case": "zero-mode-current",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/2dfc4a00-eef7-45a8-ac00-36c9b6f9dd8d/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/ev-action",
+      "app_image": "ev-action-zero-mode-current-1440-app.png",
+      "mock_image": "ev-action-zero-mode-current-1440-mock.png",
+      "app": {
+        "titles": [
+          "Declared verification plan"
+        ],
+        "panels": [
+          {
+            "title": "Declared verification plan",
+            "x": 248,
+            "y": 241,
+            "w": 1160,
+            "h": 248,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Complete a witnessed charging session",
+                "Session start, end, outcome and meter delta",
+                "Pending"
+              ],
+              [
+                "No fault recurrence during observation",
+                "Connector diagnostic events with full coverage",
+                "Pending"
+              ],
+              [
+                "No reduction in service availability",
+                "Comparable status coverage / operational window",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared verification planCriterionRequired evidenceCurrent resultComplete a witnessed charging sessionSession start, end, outcome and meter deltaPendingNo fault recurrence during observationConnector diagnostic events with full coveragePendingNo reduction in service availabilityComparable status coverage / operational windowPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Investigate connector 2",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "OpenCharging operations · EV charging lab",
+          "cards": [],
+          "notice": [
+            "A completed investigation or diagnostic reset would not establish a verified outcome."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> /actions",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Verification -> /sites/EV-LAB-001/actions/2dfc4a00-eef7-45a8-ac00-36c9b6f9dd8d/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "ActionsACT-000001Verification· site: EV charging lab",
+          "mainText": "Action ACT-000001Verification·  ite: EV charging lab\nACT-000001 · Inve tigate connector 2\n\nWhat would e tabli h  ucce ful  ervice re toration?\n\nOpen  ite\nVerification\nOpen\nCharging operation  · EV charging lab\nDeclared verification plan\nCRITERION\tREQUIRED EVIDENCE\tCURRENT RESULT\nComplete a witne ed charging  e ion\tSe ion  tart, end, outcome and meter delta\tPending\nNo fault recurrence during ob ervation\tConnector diagno tic event  with full coverage\tPending\nNo reduction in  ervice availability\tComparable  tatu  coverage / operational window\tPending\n\nA completed inve tigation or diagno tic re et would not e tabli h a verified outcome.",
+          "buttons": [
+            "Open site"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared verification plan"
+        ],
+        "panels": [
+          {
+            "title": "Declared verification plan",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Complete a witnessed charging session",
+                "Session start, end, outcome and meter delta",
+                "Pending"
+              ],
+              [
+                "No fault recurrence during observation",
+                "Connector diagnostic events with full coverage",
+                "Pending"
+              ],
+              [
+                "No reduction in service availability",
+                "Comparable status coverage / operational window",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared verification planCriterionRequired evidenceCurrent resultComplete a witnessed charging sessionSession start, end, outcome and meter deltaPendingNo fault recurrence during observationConnector diagnostic events with full coveragePendingNo reduction in service availabilityComparable status coverage / operational windowPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-061 · Investigate connector 2",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "Depot Charging Hub -> #/ev",
+          "Open site -> #/ev",
+          "Verification -> #/ev-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operation  / Demo e tate\nFind a  creen\nWindow: Event window\n6 Oct 2026 · 08:00–16:00 EAT\n▾\nBY\nAction \n›\nACT-061\n›\nVerification\n·  ite: Depot Charging Hub\nACT-061 · Inve tigate connector 2\n\nWhat would e tabli h  ucce ful  ervice re toration?\n\nOpen  ite\nVerification\nOpen\nCharging operation  · Depot Charging Hub\nDeclared verification plan\nCRITERION\tREQUIRED EVIDENCE\tCURRENT RESULT\nComplete a witne ed charging  e ion\tSe ion  tart, end, outcome and meter delta\tPending\nNo fault recurrence during ob ervation\tConnector diagno tic event  with full coverage\tPending\nNo reduction in  ervice availability\tComparable  tatu  coverage / operational window\tPending\n\nA completed inve tigation or diagno tic re et would not e tabli h a verified outcome.\n\nIllu trative mockup data · propo al for implementation · not connected to  ite telemetry\nCanonical ba i  & implementation note ",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "ev-action",
+      "case": "zero-mode-current",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/2dfc4a00-eef7-45a8-ac00-36c9b6f9dd8d/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/ev-action",
+      "app_image": "ev-action-zero-mode-current-390-app.png",
+      "mock_image": "ev-action-zero-mode-current-390-mock.png",
+      "app": {
+        "titles": [
+          "Declared verification plan"
+        ],
+        "panels": [
+          {
+            "title": "Declared verification plan",
+            "x": 16,
+            "y": 399,
+            "w": 358,
+            "h": 406,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Complete a witnessed charging session",
+                "Session start, end, outcome and meter delta",
+                "Pending"
+              ],
+              [
+                "No fault recurrence during observation",
+                "Connector diagnostic events with full coverage",
+                "Pending"
+              ],
+              [
+                "No reduction in service availability",
+                "Comparable status coverage / operational window",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared verification planCriterionRequired evidenceCurrent resultComplete a witnessed charging sessionSession start, end, outcome and meter deltaPendingNo fault recurrence during observationConnector diagnostic events with full coveragePendingNo reduction in service availabilityComparable status coverage / operational windowPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 925,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Investigate connector 2",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "OpenCharging operations · EV charging lab",
+          "cards": [],
+          "notice": [
+            "A completed investigation or diagnostic reset would not establish a verified outcome."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> /actions",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Open site -> /sites/EV-LAB-001",
+          "Verification -> /sites/EV-LAB-001/actions/2dfc4a00-eef7-45a8-ac00-36c9b6f9dd8d/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "ActionsACT-000001Verification· site: EV charging lab",
+          "mainText": "Action ACT-000001Verification·  ite: EV charging lab\nACT-000001 · Inve tigate connector 2\n\nWhat would e tabli h  ucce ful  ervice re toration?\n\nOpen  ite\nVerification\nOpen\nCharging operation  · EV charging lab\nDeclared verification plan\nCRITERION\tREQUIRED EVIDENCE\tCURRENT RESULT\nComplete a witne ed charging  e ion\tSe ion  tart, end, outcome and meter delta\tPending\nNo fault recurrence during ob ervation\tConnector diagno tic event  with full coverage\tPending\nNo reduction in  ervice availability\tComparable  tatu  coverage / operational window\tPending\n\nA completed inve tigation or diagno tic re et would not e tabli h a verified outcome.",
+          "buttons": [
+            "Open site"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared verification plan"
+        ],
+        "panels": [
+          {
+            "title": "Declared verification plan",
+            "x": 15,
+            "y": 550,
+            "w": 360,
+            "h": 401,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Complete a witnessed charging session",
+                "Session start, end, outcome and meter delta",
+                "Pending"
+              ],
+              [
+                "No fault recurrence during observation",
+                "Connector diagnostic events with full coverage",
+                "Pending"
+              ],
+              [
+                "No reduction in service availability",
+                "Comparable status coverage / operational window",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared verification planCriterionRequired evidenceCurrent resultComplete a witnessed charging sessionSession start, end, outcome and meter deltaPendingNo fault recurrence during observationConnector diagnostic events with full coveragePendingNo reduction in service availabilityComparable status coverage / operational windowPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1123,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-061 · Investigate connector 2",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "Depot Charging Hub -> #/ev",
+          "Open site -> #/ev",
+          "Verification -> #/ev-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operation  / Demo e tate\nWindow: Event window\n▾\nBY\nAction \n›\nACT-061\n›\nVerification\n·  ite: Depot Charging Hub\nACT-061 · Inve tigate connector 2\n\nWhat would e tabli h  ucce ful  ervice re toration?\n\nOpen  ite\nVerification\nOpen\nCharging operation  · Depot Charging Hub\nDeclared verification plan\nCRITERION\tREQUIRED EVIDENCE\tCURRENT RESULT\nComplete a witne ed charging  e ion\tSe ion  tart, end, outcome and meter delta\tPending\nNo fault recurrence during ob ervation\tConnector diagno tic event  with full coverage\tPending\nNo reduction in  ervice availability\tComparable  tatu  coverage / operational window\tPending\n\nA completed inve tigation or diagno tic re et would not e tabli h a verified outcome.\n\nIllu trative mockup data · propo al for implementation · not connected to  ite telemetry\nCanonical ba i  & implementation note ",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

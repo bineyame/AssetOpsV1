@@ -1,0 +1,5 @@
+positive: pid 4564 port 18701 healthy=True
+zero: pid 2312 port 18702 healthy=True
+worstcase: pid 3448 port 18703 healthy=True
+forbidden: pid 11396 port 18706 healthy=True
+unavailable: pid 29196 port 18707 healthy=True
