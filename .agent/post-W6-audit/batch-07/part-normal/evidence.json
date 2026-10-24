@@ -1,0 +1,3916 @@
+{
+  "revision": "b0387120 (product = fddf5cad)",
+  "captured_at": "2026-10-24T16:18:04.275Z",
+  "pairs": [
+    {
+      "screen": "cold-findings",
+      "case": "normal",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5187/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-findings",
+      "app_image": "cold-findings-normal-1440-app.png",
+      "mock_image": "cold-findings-normal-1440-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 248,
+            "y": 273,
+            "w": 1160,
+            "h": 217,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "AllCost Not available yetRisks Not available yetOpportunities Not available yet",
+              "From (UTC day)To (UTC day, included)Show Findings"
+            ],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 234,
+            "y": 406,
+            "w": 1161,
+            "h": 234,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Finding",
+              "Domain",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "High",
+              "High",
+              "Open",
+              "Medium",
+              "High",
+              "Open"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-findings",
+      "case": "normal",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5187/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-findings",
+      "app_image": "cold-findings-normal-390-app.png",
+      "mock_image": "cold-findings-normal-390-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 16,
+            "y": 439,
+            "w": 358,
+            "h": 430,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "AllCost Not available yetRisks Not available yetOpportunities Not available yet",
+              "From (UTC day)To (UTC day, included)Show Findings"
+            ],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 912,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 15,
+            "y": 720,
+            "w": 360,
+            "h": 327,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Finding",
+              "Domain",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "High",
+              "High",
+              "Open",
+              "Medium",
+              "High",
+              "Open"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1238,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 560,
+            "cw": 320,
+            "panel": "Findings at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "cold",
+      "case": "normal",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5187/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold",
+      "app_image": "cold-normal-1440-app.png",
+      "mock_image": "cold-normal-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 248,
+            "y": 473,
+            "w": 1145,
+            "h": 222,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 248,
+            "y": 713,
+            "w": 725,
+            "h": 386,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 713,
+            "w": 403,
+            "h": 386,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1117,
+            "w": 725,
+            "h": 131,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1117,
+            "w": 403,
+            "h": 131,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1299,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "10px": 12,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1299
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 234,
+            "y": 579,
+            "w": 1161,
+            "h": 274,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 234,
+            "y": 872,
+            "w": 735,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 872,
+            "w": 408,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "ACT-051 · Witness an automatic-start test",
+              "WR-019 · Inspection done, outcome unverified",
+              "F-118 · Keep the finding open"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1263,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1263,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Witness an automatic-start test"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1522,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1478
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold",
+      "case": "normal",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5187/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold",
+      "app_image": "cold-normal-390-app.png",
+      "mock_image": "cold-normal-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 16,
+            "y": 965,
+            "w": 358,
+            "h": 527,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 16,
+            "y": 1510,
+            "w": 358,
+            "h": 277,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 1803,
+            "w": 358,
+            "h": 96,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 1915,
+            "w": 358,
+            "h": 131,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2062,
+            "w": 358,
+            "h": 96,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2198,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "10px": 12,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 15,
+            "y": 1237,
+            "w": 360,
+            "h": 660,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 15,
+            "y": 1915,
+            "w": 360,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2220,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "ACT-051 · Witness an automatic-start test",
+              "WR-019 · Inspection done, outcome unverified",
+              "F-118 · Keep the finding open"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2574,
+            "w": 360,
+            "h": 190,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2782,
+            "w": 360,
+            "h": 215,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Witness an automatic-start test"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3091,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "cold-evidence",
+      "case": "normal",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-evidence",
+      "app_image": "cold-evidence-normal-1440-app.png",
+      "mock_image": "cold-evidence-normal-1440-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 248,
+            "y": 339,
+            "w": 1145,
+            "h": 386,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Capability",
+              "Evidence",
+              "What we can say",
+              "What is missing",
+              "Next step"
+            ],
+            "chips": [
+              "Full",
+              "Full",
+              "Limited",
+              "None"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 743,
+            "w": 725,
+            "h": 534,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Source",
+              "Contact at window end",
+              "Accepted quality",
+              "What it provides",
+              "Affects"
+            ],
+            "chips": [
+              "Unknown",
+              "Good",
+              "Not declared",
+              "No fact",
+              "Unknown",
+              "Good",
+              "Unknown",
+              "Good",
+              "Unknown",
+              "Good",
+              "Unknown",
+              "No fact"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 991,
+            "y": 743,
+            "w": 403,
+            "h": 534,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1387,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Analysis"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1387
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 336,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Capability",
+              "Evidence",
+              "What we can say",
+              "What is missing",
+              "Next step"
+            ],
+            "chips": [
+              "Limited",
+              "Limited",
+              "Limited",
+              "None"
+            ],
+            "links": 3,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 770,
+            "w": 735,
+            "h": 438,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Source",
+              "Status at window end",
+              "Quality",
+              "What it provides",
+              "Affects"
+            ],
+            "chips": [
+              "Good",
+              "Good",
+              "Good",
+              "Good",
+              "None",
+              "None"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 987,
+            "y": 770,
+            "w": 408,
+            "h": 438,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Witness an automatic-start test",
+              "Connect the loading and door log",
+              "Record stock in the chamber"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1334,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview*",
+              "Analysis"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1290
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-evidence",
+      "case": "normal",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-evidence",
+      "app_image": "cold-evidence-normal-390-app.png",
+      "mock_image": "cold-evidence-normal-390-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 16,
+            "y": 480,
+            "w": 358,
+            "h": 615,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Capability",
+              "Evidence",
+              "What we can say",
+              "What is missing",
+              "Next step"
+            ],
+            "chips": [
+              "Full",
+              "Full",
+              "Limited",
+              "None"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 1113,
+            "w": 358,
+            "h": 560,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Source",
+              "Contact at window end",
+              "Accepted quality",
+              "What it provides",
+              "Affects"
+            ],
+            "chips": [
+              "Unknown",
+              "Good",
+              "Not declared",
+              "No fact",
+              "Unknown",
+              "Good",
+              "Unknown",
+              "Good",
+              "Unknown",
+              "Good",
+              "Unknown",
+              "No fact"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 16,
+            "y": 1689,
+            "w": 358,
+            "h": 96,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1904,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Analysis"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 820,
+            "cw": 318,
+            "panel": "What we can conclude now"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 825,
+            "cw": 318,
+            "panel": "Data sources · data quality, not equipment condition"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 15,
+            "y": 715,
+            "w": 360,
+            "h": 451,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Capability",
+              "Evidence",
+              "What we can say",
+              "What is missing",
+              "Next step"
+            ],
+            "chips": [
+              "Limited",
+              "Limited",
+              "Limited",
+              "None"
+            ],
+            "links": 3,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1185,
+            "w": 360,
+            "h": 560,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Source",
+              "Status at window end",
+              "Quality",
+              "What it provides",
+              "Affects"
+            ],
+            "chips": [
+              "Good",
+              "Good",
+              "Good",
+              "Good",
+              "None",
+              "None"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 15,
+            "y": 1763,
+            "w": 360,
+            "h": 319,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Witness an automatic-start test",
+              "Connect the loading and door log",
+              "Record stock in the chamber"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2254,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview*",
+              "Analysis"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 452,
+            "cw": 320,
+            "panel": "What we can conclude now"
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 489,
+            "cw": 320,
+            "panel": "Data sources · data quality, not equipment condition"
+          }
+        ],
+        "pSizes": {
+          "11px": 5
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "cold-evidence-analysis",
+      "case": "normal",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-evidence-analysis",
+      "app_image": "cold-evidence-analysis-normal-1440-app.png",
+      "mock_image": "cold-evidence-analysis-normal-1440-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 248,
+            "y": 339,
+            "w": 1160,
+            "h": 391,
+            "tables": 1,
+            "rows": 50,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent (UTC)",
+              "Received (UTC)",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 248,
+            "y": 748,
+            "w": 1160,
+            "h": 191,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "13.75px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "11.25px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 266,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 234,
+            "y": 699,
+            "w": 1161,
+            "h": 148,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-evidence-analysis",
+      "case": "normal",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-evidence-analysis",
+      "app_image": "cold-evidence-analysis-normal-390-app.png",
+      "mock_image": "cold-evidence-analysis-normal-390-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 16,
+            "y": 464,
+            "w": 358,
+            "h": 485,
+            "tables": 1,
+            "rows": 50,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent (UTC)",
+              "Received (UTC)",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 16,
+            "y": 966,
+            "w": 358,
+            "h": 262,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1270,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 970,
+            "cw": 318,
+            "panel": "Accepted records behind the conclusions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "14px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 15,
+            "y": 688,
+            "w": 360,
+            "h": 371,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 15,
+            "y": 1078,
+            "w": 360,
+            "h": 228,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1399,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 465,
+            "cw": 320,
+            "panel": "Accepted records behind the conclusions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "cold-financials",
+      "case": "normal",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-financials",
+      "app_image": "cold-financials-normal-1440-app.png",
+      "mock_image": "cold-financials-normal-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 465,
+            "w": 1160,
+            "h": 167,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "What happened",
+              "How it becomes money",
+              "Consequence",
+              "Basis",
+              "Confidence",
+              "Source"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 651,
+            "w": 734,
+            "h": 254,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Not included",
+            "x": 1000,
+            "y": 651,
+            "w": 408,
+            "h": 254,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Assumptions",
+              "Scenarios"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 2,
+          "11px": 3,
+          "14px": 5
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 547,
+            "w": 1161,
+            "h": 234,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "What happened",
+              "How it becomes money",
+              "Consequence",
+              "Basis",
+              "Confidence",
+              "Source"
+            ],
+            "chips": [
+              "Unpriced",
+              "Unknown"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 799,
+            "w": 735,
+            "h": 234,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Not included",
+            "x": 987,
+            "y": 799,
+            "w": 408,
+            "h": 234,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1099,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview*",
+              "Assumptions",
+              "Scenarios"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 4,
+          "14px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1055
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-financials",
+      "case": "normal",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-financials",
+      "app_image": "cold-financials-normal-390-app.png",
+      "mock_image": "cold-financials-normal-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 727,
+            "w": 358,
+            "h": 167,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "What happened",
+              "How it becomes money",
+              "Consequence",
+              "Basis",
+              "Confidence",
+              "Source"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 912,
+            "w": 358,
+            "h": 270,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Not included",
+            "x": 16,
+            "y": 1198,
+            "w": 358,
+            "h": 266,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1504,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Assumptions",
+              "Scenarios"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 544,
+            "cw": 318,
+            "panel": "What happened → what it means in money"
+          }
+        ],
+        "pSizes": {
+          "10px": 2,
+          "11px": 3,
+          "14px": 5
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1013,
+            "w": 360,
+            "h": 292,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "What happened",
+              "How it becomes money",
+              "Consequence",
+              "Basis",
+              "Confidence",
+              "Source"
+            ],
+            "chips": [
+              "Unpriced",
+              "Unknown"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1322,
+            "w": 360,
+            "h": 234,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Not included",
+            "x": 15,
+            "y": 1574,
+            "w": 360,
+            "h": 142,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1810,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview*",
+              "Assumptions",
+              "Scenarios"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 573,
+            "cw": 320,
+            "panel": "What happened → what it means in money"
+          }
+        ],
+        "pSizes": {
+          "11px": 4,
+          "14px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "cold-assumptions",
+      "case": "normal",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-assumptions",
+      "app_image": "cold-assumptions-normal-1440-app.png",
+      "mock_image": "cold-assumptions-normal-1440-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 248,
+            "y": 278,
+            "w": 1160,
+            "h": 315,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Assumption",
+              "Value",
+              "Used for"
+            ],
+            "chips": [
+              "Not declared",
+              "Not declared",
+              "Not declared"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Assumptions*",
+              "Scenarios"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 234,
+            "y": 354,
+            "w": 1161,
+            "h": 279,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Assumption",
+              "Value",
+              "Used for"
+            ],
+            "chips": [
+              "Not declared",
+              "Not declared"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Assumptions*",
+              "Scenarios"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-assumptions",
+      "case": "normal",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-assumptions",
+      "app_image": "cold-assumptions-normal-390-app.png",
+      "mock_image": "cold-assumptions-normal-390-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 16,
+            "y": 380,
+            "w": 358,
+            "h": 373,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Assumption",
+              "Value",
+              "Used for"
+            ],
+            "chips": [
+              "Not declared",
+              "Not declared",
+              "Not declared"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 912,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Assumptions*",
+              "Scenarios"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 520,
+            "cw": 318,
+            "panel": "Financial assumptions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 15,
+            "y": 599,
+            "w": 360,
+            "h": 319,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Assumption",
+              "Value",
+              "Used for"
+            ],
+            "chips": [
+              "Not declared",
+              "Not declared"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1108,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Assumptions*",
+              "Scenarios"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}
