@@ -2437,3 +2437,8 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 ## W5-04a Lows
 - Per-mode walkthrough DB URLs are built by string concatenation; a harness URL with a query string (?sslmode=) would break them.
 - Two Vite dev servers died during V2b captures (suspected shared Vite cache across several dev servers); restarted and recaptured green. Investigate before the structural audit capture runs.
+
+## W5-04b Lows
+- Handoff should name the uncaptured states: Incident Finding version disclosure with R75 (producer posts finding_links: []), the No asset linked fallback, and the late state; all are covered by component tests.
+- Maintenance asset capture claim (w504-ev-work-evidence.mjs:537) passes for any value; compare against the manifest asset label.
+- UI pass: strip grammar "1 incidents"/"1 maintenance" and raw asset label "c1 · EV_CONNECTOR".
