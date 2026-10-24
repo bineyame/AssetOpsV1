@@ -107,3 +107,26 @@ There are no backend, App route or registry changes.
   and the evidence tool.
 - V3a: EV case cells, `data-domain-cases`, the EV Window plus `windowForm=false`.
 - V4a: the EV detail route and live `links.action` href (closing R113), plus the shell generalisation.
+
+## Fix round (review ACCEPT with Lows; rulings 53–66), commit `35b01c25`
+
+Branch head before the fix round was `de65b15e`, which merged main with rulings 53–66. Only frontend code and tests
+changed. Every test was run with `--minWorkers=1 --maxWorkers=2`.
+
+### Fixes
+
+| Item | Change and proof |
+| --- | --- |
+| **Low-1** | `workAttrs` with no value now renders the cold `data-cold-work-*` attributes as `="true"`, byte-for-byte as in K2, while the domain name renders `""`. The notice keeps K2's explicit `""`. Every base attribute form was checked against the new calls. The new assertions are in `coldWorkActions`. Non-vacuous: reverting the default fails 1 test. |
+| **Low-2** | `EV_WORK_PRESENTATION.domainActionLink = EV_ACTION_LINK_LIVE`, so one switch now controls R113. Non-vacuous: flipping it fails 2 tests in `evWorkActions`. |
+| **Low-3** | Three new EV tests: Next pins the response `known_at` and First drops the cursor; a 409 `WORK_BASIS_CHANGED` restarts page one keeping `known_at`; the ruling 57 interim case tab has no `data-domain-work-window` and exactly one form, the W4 form. Per the fix list, `siteDetailRoute` stays a regression run with no EV vector. |
+| **Low-4 / Q1–Q6** | Rulings 57–66 confirm all six calls. R75 and R77 were already amended on main (ruling 65), so there were no register edits. |
+| **Ruling 53** | The row shape is unchanged. The fixtures doc records the intent-pin semantics and adds `evPinUnavailableRow()` (`origin.href: null`). A test shows the Source exactly as supplied, pinned (CURRENT) or unavailable (UNKNOWN), with no list/detail disagreement copy. |
+
+### Checks
+
+- `tsc --noEmit`: clean.
+- Targeted vitest: 10 files, 247/247. The files are `evWorkActions`, `coldWorkActions`, `coldWorkCases`,
+  `siteWorkActions`, `w1f4ChangesWorkStructure`, `operatorSiteTabs`, `operatorRouteFrames`, `siteDetailRoute`,
+  `domainActionVerification` and `DataTable`.
+- `check-all`: **All 11 guards passed** (on `35b01c25`).
