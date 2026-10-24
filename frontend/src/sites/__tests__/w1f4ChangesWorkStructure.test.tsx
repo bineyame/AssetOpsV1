@@ -281,7 +281,7 @@ describe("W5-04 V2a: ev-work keeps the v69 panel structure", () => {
     ["positive", evIndexBody([evRow()])],
     ["complete zero", evIndexBody([])],
   ] as const) {
-    it(`${name}: one Actions at this site panel; a planted panel is rejected; the EV code is plain text`, async () => {
+    it(`${name}: one Actions at this site panel; a planted panel is rejected; the EV code links only to its detail (V4a, R113)`, async () => {
       vi.stubGlobal("fetch", evFetch(200, body));
       mountEv(`/sites/${EV_SITE_CODE}/work`);
       await settledScreen();
@@ -289,7 +289,10 @@ describe("W5-04 V2a: ev-work keeps the v69 panel structure", () => {
       expectPlantedPanelRejected("ev-work");
       expect(panelTitled("Actions at this site").querySelector("form")).toBeNull();
       expect(q("[data-cold-work]")).toBeNull();
-      expect(q("main a[href*='/verification']")).toBeNull();
+      // W5-04 V4a closes R113: the one live EV detail link is the selected row's own `/verification` href.
+      expect(Array.from(document.querySelectorAll("main a[href*='/verification']")).map((a) => a.getAttribute("href"))).toEqual(
+        body.rows.length === 0 ? [] : [`/sites/${EV_SITE_CODE}/actions/${body.rows[0].action_id}/verification`],
+      );
     });
   }
 

@@ -359,7 +359,7 @@ describe("cold Site Work and domain Action route frames", () => {
   });
 
   // W5-04 V2a (ruling 18): an EV_CHARGING Site's Work tab dispatches to the union index, never the W1 index.
-  it("renders the EV Actions tab at /sites/{site}/work from the union index, with a plain EV code", async () => {
+  it("renders the EV Actions tab at /sites/{site}/work from the union index, with the live EV code (V4a, R113)", async () => {
     const urls: string[] = [];
     vi.stubGlobal("fetch", async (url: string) => {
       urls.push(url);
@@ -381,9 +381,109 @@ describe("cold Site Work and domain Action route frames", () => {
     const main = document.querySelector("main") as HTMLElement;
     expect(main.querySelector("[data-domain-work-strip]")).not.toBeNull();
     expect(main.querySelector("[data-cold-work-strip]")).toBeNull();
-    expect(main.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"] td a`)).toBeNull();
+    expect(main.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"] td a`)?.getAttribute("href")).toBe(
+      `/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`,
+    );
     expect(urls.some((u) => u.startsWith(`/api/sites/${EV_SITE_CODE}/domain-work/action-index?`))).toBe(true);
     expect(urls.some((u) => u.startsWith(`/api/sites/${EV_SITE_CODE}/action-index?`))).toBe(false);
+  });
+
+  /** W5-04 V4a: the EV detail read body (`domain-action-intent-read-1`) with the three EV criteria, all `PENDING`. */
+  const EV_CRITERIA = [
+    { key: "WITNESSED_SESSION", label: "Complete a witnessed charging session", required_evidence: "Session start, end, outcome and meter delta" },
+    { key: "NO_FAULT_RECURRENCE", label: "No fault recurrence during observation", required_evidence: "Connector diagnostic events with full coverage" },
+    { key: "NO_SERVICE_REDUCTION", label: "No reduction in service availability", required_evidence: "Comparable status coverage / operational window" },
+  ];
+  const evDetail = {
+    schema_version: "domain-action-intent-read-1",
+    site_code: EV_SITE_CODE,
+    action: {
+      id: EV_ACTION_ID,
+      action_code: "ACT-000061",
+      domain: "EV_CHARGING",
+      title: "Investigate connector 2",
+      owner_label: "Charging operations",
+      due_at: null,
+      raised_at: "2026-10-06T09:10:00Z",
+      recorded_at: "2026-10-06T09:10:01Z",
+      state: "OPEN",
+    },
+    known_at: "2026-10-06T12:00:00Z",
+    status: "CURRENT",
+    intent: { id: "bbbb0000-0000-4000-8000-000000000001", recorded_at: "2026-10-06T09:11:00Z", criteria: EV_CRITERIA, basis: { finding_revision_id: "5a5a5a5a-6b6b-4c7c-8d8d-9e9e9e9e9e9e" } },
+    results: EV_CRITERIA.map((c) => ({ key: c.key, result: "PENDING", evidence_ids: [] })),
+    links: {
+      finding: { label: "Finding c0ffee12", href: null },
+      work: { case_id: null, case_code: null, case_title: null, request_state: null, record_id: null, label: null, href: null },
+    },
+    source_provenance: null,
+    selection_token: "sha256:ev",
+  };
+  const evDetailPath = `/api/sites/${EV_SITE_CODE}/domain-work/actions/${EV_ACTION_ID}`;
+  const renderEv = (path: string) =>
+    render(
+      <MemoryRouter initialEntries={[path]}>
+        <App
+          flags={simulatorLabDisabled}
+          siteDirectory={{ listSites: () => Promise.resolve({ status: "loaded", sites: [EV_SITE] }) }}
+          siteDetail={{ getSite: () => Promise.resolve({ status: "loaded", site: EV_SITE }) }}
+          siteAnalytics={EMPTY_ANALYTICS_CLIENT}
+        />
+      </MemoryRouter>,
+    );
+
+  // W5-04 V4a (rulings 43, 46; R113 closed): the EV Work code opens the EV domain detail; no W1 battery read.
+  it("opens the EV Action from the EV Work row and renders the EV domain detail with the Actions rail root selected", async () => {
+    const urls: string[] = [];
+    vi.stubGlobal("fetch", async (url: string) => {
+      urls.push(url);
+      const path = url.split("?")[0];
+      if (path === `/api/sites/${EV_SITE_CODE}/domain-work/action-index`) return new Response(JSON.stringify(evIndexBody([evRow()])), { status: 200 });
+      if (path === evDetailPath) return new Response(JSON.stringify(evDetail), { status: 200 });
+      return new Response(JSON.stringify({ detail: { code: "WORK_STORE_UNAVAILABLE", message: "Unavailable in this test." } }), { status: 503 });
+    });
+    renderEv(`/sites/${EV_SITE_CODE}/work`);
+    await settledScreen();
+    fireEvent.click(document.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"] td a`) as HTMLElement);
+    await settledScreen();
+    const main = document.querySelector("main") as HTMLElement;
+    expect(main.getAttribute("data-domain-action-shell")).toBe("loaded");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("ACT-000061 · Investigate connector 2");
+    expect(Array.from(main.querySelectorAll("section.panel h2")).map((h) => h.textContent)).toEqual(["Declared verification plan"]);
+    expect(screen.queryByRole("heading", { level: 2, name: "Related activity" })).toBeNull();
+    expect(urls.some((u) => u.split("?")[0] === evDetailPath)).toBe(true);
+    expect(urls.every((u) => !u.includes(`/api/sites/${EV_SITE_CODE}/actions/`))).toBe(true);
+    const rail = screen.getByRole("navigation", { name: "Operator routes" });
+    expect(within(rail).getByRole("link", { name: /^Actions/ }).getAttribute("aria-current")).toBe("page");
+    expect(rail.querySelectorAll('[aria-current="page"]')).toHaveLength(1);
+  });
+
+  // W5-04 V4a (rulings 16, 40, 42; R110): a 409 basis change is the one untitled EV refusal panel; Retry re-reads.
+  it("shows a 409 EV detail read as `EV work unavailable` with the server message and a Retry that re-reads", async () => {
+    let reads = 0;
+    vi.stubGlobal("fetch", async (url: string) => {
+      if (url.split("?")[0] === evDetailPath) {
+        reads += 1;
+        return new Response(
+          JSON.stringify({ detail: { code: "DOMAIN_INTENT_BASIS_CHANGED", message: "The selected EV work basis changed; reload the Action.", intent: null, results: null } }),
+          { status: 409 },
+        );
+      }
+      return new Response(JSON.stringify({ detail: { code: "WORK_STORE_UNAVAILABLE", message: "Unavailable in this test." } }), { status: 503 });
+    });
+    renderEv(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`);
+    await settledScreen();
+    const main = document.querySelector("main") as HTMLElement;
+    const panel = main.querySelector("[data-domain-action-panel='refused']") as HTMLElement;
+    expect(panel.getAttribute("data-domain-action-refusal")).toBe("DOMAIN_INTENT_BASIS_CHANGED");
+    expect(panel.textContent).toContain("EV work unavailable");
+    expect(panel.querySelector("[data-domain-action-refusal-message]")?.textContent).toBe("The selected EV work basis changed; reload the Action.");
+    expect(main.querySelectorAll("section.panel h2")).toHaveLength(0);
+    expect(main.textContent).not.toContain("Pending");
+    expect(reads).toBe(1);
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    await settledScreen();
+    expect(reads).toBe(2);
   });
 
   it("renders the domain Action at /verification with the Actions rail root selected (K4a ruling 1, R69 resolved)", async () => {

@@ -101,7 +101,8 @@ export interface DomainActionDetail {
   action: {
     id: string;
     action_code: string;
-    domain: "COLDCHAIN";
+    /** W5-04 V4a: the stored domain literal; the shell selects its presentation from it. */
+    domain: DomainActionDomain;
     title: string;
     owner_label: string | null;
     due_at: string | null;
@@ -143,7 +144,8 @@ export type DomainDetailResult =
 export interface DomainActionClient {
   /** `siteType` selects only the fixed network/shape sentences (ruling 44); omitted, the cold sentences apply. */
   getIndex(siteCode: string, scope: DomainIndexScope, siteType?: string): Promise<DomainIndexResult>;
-  getDetail(siteCode: string, actionId: string, knownAt: string | null): Promise<DomainDetailResult>;
+  /** W5-04 V4a (ruling 64): `siteType` selects only the fixed network/shape sentences; omitted, the cold ones apply. */
+  getDetail(siteCode: string, actionId: string, knownAt: string | null, siteType?: string): Promise<DomainDetailResult>;
 }
 
 const isString = (value: unknown): value is string => typeof value === "string";
@@ -265,12 +267,11 @@ function isIndexBody(value: unknown, siteCode: string): value is DomainIndexBody
 
 /** The stored initial result values the cold contract emits (`domain_action_index.py` INITIAL_RESULTS). */
 export const DOMAIN_RESULTS = ["NOT_TESTED", "NOT_ESTABLISHED", "PENDING"] as const;
+/** W5-04 V4a: the EV contract's only stored initial result (`work/domain_action.py` EV `initial_results`). */
+export const EV_DOMAIN_RESULTS = ["PENDING"] as const;
 
-function resultsAligned(criteria: { key: string }[], results: { key: string; result: string }[]): boolean {
-  return (
-    criteria.length === results.length &&
-    criteria.every((c, i) => results[i].key === c.key && (DOMAIN_RESULTS as readonly string[]).includes(results[i].result))
-  );
+function resultsAligned(criteria: { key: string }[], results: { key: string; result: string }[], known: readonly string[]): boolean {
+  return criteria.length === results.length && criteria.every((c, i) => results[i].key === c.key && known.includes(results[i].result));
 }
 
 function isDetail(value: unknown, siteCode: string, actionId: string): value is DomainActionDetail {
@@ -287,8 +288,9 @@ function isDetail(value: unknown, siteCode: string, actionId: string): value is 
     isString(action.id) &&
     action.id.toLowerCase() === actionId.toLowerCase() &&
     isString(action.action_code) &&
-    // P-K2a-48: the domain is read from `action.domain`, never inferred from the Site type.
-    action.domain === COLD_DOMAIN &&
+    // P-K2a-48: the domain is read from `action.domain`, never inferred from the Site type. W5-04 V4a (ruling 43)
+    // widens the parsed domains to COLDCHAIN and EV_CHARGING.
+    (action.domain === COLD_DOMAIN || action.domain === EV_DOMAIN) &&
     isString(action.title) &&
     isNullableString(action.owner_label) &&
     isNullableString(action.due_at) &&
@@ -310,7 +312,12 @@ function isDetail(value: unknown, siteCode: string, actionId: string): value is 
     // An intent and its results arrive together; a missing declaration has neither.
     (intent === null) === (results === null) &&
     // W5-02c K4a: one stored result per declared criterion, in criterion order, each a known initial result label.
-    (intent === null || resultsAligned(intent.criteria as { key: string }[], results as { key: string; result: string }[])) &&
+    (intent === null ||
+      resultsAligned(
+        intent.criteria as { key: string }[],
+        results as { key: string; result: string }[],
+        action.domain === EV_DOMAIN ? EV_DOMAIN_RESULTS : DOMAIN_RESULTS,
+      )) &&
     isObject(links) &&
     isObject(links.finding) &&
     isString(links.finding.label) &&
@@ -415,14 +422,15 @@ export async function readDomainIndex(path: string, siteCode: string, siteType?:
   return { status: "refused", http: read.http, code: refusal.code, message: refusal.message };
 }
 
-export async function readDomainDetail(path: string, siteCode: string, actionId: string): Promise<DomainDetailResult> {
+/** W5-04 V4a (rulings 44, 64): `siteType` selects only the EV network/shape sentences; omitted, the cold ones apply. */
+export async function readDomainDetail(path: string, siteCode: string, actionId: string, siteType?: string): Promise<DomainDetailResult> {
   const read = await readJson(path);
-  if (read === null) return unreachable();
+  if (read === null) return unreachable(siteType);
   if (read.http === 200) {
-    return isDetail(read.body, siteCode, actionId) ? { status: "loaded", value: read.body } : unexpected(200);
+    return isDetail(read.body, siteCode, actionId) ? { status: "loaded", value: read.body } : unexpected(200, siteType);
   }
   const refusal = refusalOf(read.http, read.body);
-  if (refusal === null) return unexpected(read.http);
+  if (refusal === null) return unexpected(read.http, siteType);
   if (read.http === 404 && refusal.code === "ACTION_NOT_FOUND") {
     return { status: "not_found", http: 404, code: refusal.code, message: refusal.message };
   }
@@ -436,9 +444,9 @@ export function createDomainActionClient(basePath: string = SITES_API_PATH): Dom
       if (invalid !== null) return Promise.resolve(invalid);
       return readDomainIndex(domainIndexPath(basePath, siteCode, scope), siteCode, siteType);
     },
-    getDetail(siteCode, actionId, knownAt) {
+    getDetail(siteCode, actionId, knownAt, siteType) {
       if (knownAt !== null && !isUtcInstant(knownAt)) return Promise.resolve(invalidKnownAt());
-      return readDomainDetail(domainDetailPath(basePath, siteCode, actionId, knownAt), siteCode, actionId);
+      return readDomainDetail(domainDetailPath(basePath, siteCode, actionId, knownAt), siteCode, actionId, siteType);
     },
   };
 }

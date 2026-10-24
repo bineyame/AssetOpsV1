@@ -3,6 +3,8 @@
  * readiness rulings 14, 19, 20, 44-46): the EV charging Site Work words. No fetches; `domainActionClient.ts` owns the
  * reads. Cold literals stay in `coldWorkPresentation.ts` (ruling 47 moves shared literals only in V4a).
  */
+import { coldCurrentnessNotice, coldCurrentnessTone } from "./coldWorkPresentation";
+import type { DomainActionPresentation } from "./DomainActionVerification";
 
 /** The v69 `ev-work` panel title (`index.html:340-343`, `siteWorkScreen`). */
 export const EV_WORK_PANEL_TITLE = "Actions at this site";
@@ -36,10 +38,11 @@ export const EV_STATE_OPEN = "Open";
 export const EV_WORK_SUBTITLE_FALLBACK = "EV charging operations at this site.";
 
 /**
- * Ruling 46 / R113: the EV Action detail route is not mounted until V4a, so the EV Action code is plain text. MOCK
- * DEVIATION (D1) R113 (temporary; V4a closes it with the selected `links.action` href).
+ * Ruling 46 / R113: the one switch for the EV Action code. V2a/V3a kept it plain text while the EV detail route was
+ * unmounted; W5-04 V4a mounts that route and turns the selected `links.action` href live, closing MOCK DEVIATION (D1)
+ * R113.
  */
-export const EV_ACTION_LINK_LIVE = false;
+export const EV_ACTION_LINK_LIVE = true;
 
 /**
  * Pre-flight 24 / R75: the selected Finding revision cannot be opened at its exact revision (the EV Finding frame
@@ -56,3 +59,48 @@ export function evActionCount(count: number): string {
 export function evShowAll(rows: number): string {
   return `Show all ${rows} Actions`;
 }
+
+/** W5-04 V4a: the v69 `ev-action` page words (`frontend/mockups/v69/index.html:710-713`; build spec ledger `ev-action`). */
+export const EV_ACTION_SUBTITLE = "What would establish successful service restoration?";
+/** Readiness ruling 16: the untitled state panel's loading and 404 sentences. */
+export const EV_ACTION_LOADING = "Loading the EV Action declaration.";
+export const EV_ACTION_NOT_FOUND = "Action was not found at this site.";
+export const EV_ACTION_NOTICE = "A completed investigation or diagnostic reset would not establish a verified outcome.";
+/** Readiness ruling 15: the sole loaded mock panel and its columns. */
+export const EV_PLAN_TITLE = "Declared verification plan";
+export const EV_PLAN_COLUMNS = ["Criterion", "Required evidence", "Current result"] as const;
+/** Build spec "EV closure contract": the plan panel keeps its heading and omits its table for a missing intent. */
+export const EV_INTENT_MISSING = "No verification criteria have been declared for this Action.";
+/** Pre-flight 45: the three EV result cells are plain `Pending` text (`work/domain_action.py` EV initial results). */
+export const EV_RESULT_LABELS: Record<string, string> = { PENDING: "Pending" };
+
+/**
+ * W5-04 V4a (readiness rulings 15, 16, 40, 41; pre-flight 44-46): the EV domain Action detail presentation. The status
+ * is `{owner ?? 'Not assigned'} · {full selected Site display_name}` with no Finding version disclosure; the sole
+ * `Declared verification plan` panel has no Related activity panel or control; the detail's own links keep the
+ * selected `from,to,known_at` (ruling 14) and there is no Window control. MOCK DEVIATION (D2) R80/R104 reuse the cold
+ * currentness notice and tone; (D2) R109 wraps the full title/owner; (D2) R110 is the untitled non-loaded panel;
+ * (D4) R111 is the stored Site name.
+ */
+export const EV_ACTION_PRESENTATION: DomainActionPresentation = {
+  subtitle: EV_ACTION_SUBTITLE,
+  stateOpen: EV_STATE_OPEN,
+  ownerMissing: EV_OWNER_MISSING,
+  statusTail: ({ siteName }) => siteName,
+  revisionDisclosure: false,
+  notice: coldCurrentnessNotice,
+  tone: coldCurrentnessTone,
+  loading: EV_ACTION_LOADING,
+  notFound: EV_ACTION_NOT_FOUND,
+  unavailable: EV_WORK_UNAVAILABLE,
+  retry: EV_WORK_RETRY,
+  closingNotice: EV_ACTION_NOTICE,
+  windowQuery: true,
+  panel: {
+    criteriaTitle: EV_PLAN_TITLE,
+    columns: EV_PLAN_COLUMNS,
+    intentMissing: EV_INTENT_MISSING,
+    resultLabels: EV_RESULT_LABELS,
+    related: false,
+  },
+};

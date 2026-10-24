@@ -25,20 +25,10 @@ import {
   type DomainDetailResult,
   type DomainIndexScope,
 } from "../sites/domainActionClient";
-import {
-  COLD_ACTION_LOADING,
-  COLD_ACTION_NOTICE,
-  COLD_ACTION_NOT_FOUND,
-  COLD_ACTION_SUBTITLE,
-  COLD_OWNER_MISSING,
-  COLD_STATE_OPEN,
-  COLD_WORK_RETRY,
-  COLD_WORK_UNAVAILABLE,
-  coldCurrentnessNotice,
-  coldCurrentnessTone,
-} from "../sites/coldWorkPresentation";
+import { COLD_ACTION_PRESENTATION } from "../sites/coldWorkPresentation";
+import { EV_ACTION_PRESENTATION } from "../sites/evWorkPresentation";
 import { shortName } from "../sites/siteWorkCases";
-import { DomainActionVerification } from "../sites/DomainActionVerification";
+import { DomainActionVerification, type DomainActionPresentation } from "../sites/DomainActionVerification";
 import { SiteWorkIncidents } from "../sites/SiteWorkIncidents";
 import { SiteWorkMaintenance } from "../sites/SiteWorkMaintenance";
 import type { WorkTrail } from "../sites/siteWorkCases";
@@ -1362,6 +1352,32 @@ const W1_ONLY_SECTIONS: readonly string[] = ["plan", "execution", "evidence", "h
 
 type DomainShellState = DomainDetailResult | { status: "loading" };
 
+/** W5-04 V4a (ruling 43): the Site types whose Action address reads the domain Action first. */
+const DOMAIN_ACTION_SITE_TYPES: readonly string[] = ["COLDCHAIN", "EV_CHARGING"];
+
+/** W5-04 V4a (ruling 41): the presentation for a stored Action domain or, before a loaded read, the Site type. */
+function domainActionPresentation(domainOrSiteType: string): DomainActionPresentation {
+  return domainOrSiteType === "EV_CHARGING" ? EV_ACTION_PRESENTATION : COLD_ACTION_PRESENTATION;
+}
+
+/** The selected `from,to` an EV Action detail keeps in its own links (ruling 14); null for cold. */
+type DomainActionWindow = { from: string | null; to: string | null } | null;
+
+/**
+ * W5-04 V4a (ruling 14): the Verification address. Cold keeps K4's `known_at`-only address; EV keeps the selected
+ * `from,to,known_at`, in that order, with no Window control on the detail.
+ */
+function domainVerificationHref(siteId: string, actionId: string, knownAt: string | null, window: DomainActionWindow): string {
+  const href = siteActionHref(siteId, actionId, "verification", { knownAt });
+  if (window === null || (!window.from && !window.to)) return href;
+  const [path] = href.split("?");
+  const query = new URLSearchParams();
+  if (window.from) query.set("from", window.from);
+  if (window.to) query.set("to", window.to);
+  if (knownAt) query.set("known_at", knownAt);
+  return `${path}?${query.toString()}`;
+}
+
 /**
  * W5-02 K2a (U1, U2, P-K2a-34/45-47): the COLDCHAIN domain Action page shell (v69 `cold-action`): the global-root
  * breadcrumb `Actions › {code} › Verification · site: {site}`, the `{code} · {title}` heading with the mock subtitle and
@@ -1372,25 +1388,35 @@ type DomainShellState = DomainDetailResult | { status: "loading" };
  *
  * MOCK DEVIATION (D2) R99: the full stored title and owner wrap (`overflow-wrap:anywhere` on the heading and the
  * owner span); the Finding version UUID stays one line inside its contained disclosure body (ruling 6).
+ *
+ * W5-04 V4a (readiness rulings 15, 16, 40, 41): one shell for both domains through an explicit presentation. The
+ * EV_CHARGING Action (v69 `ev-action`, `index.html:710-713`) has the mock question subtitle, `Open` amber badge,
+ * `{owner ?? 'Not assigned'} · {full Site display_name}` status with no Finding version disclosure, the sole
+ * `Declared verification plan` panel and its blue closing notice. MOCK DEVIATION (D2) R109: the full title and owner
+ * wrap (cold R99); (D2) R110: one untitled state panel for loading, 404, 409 and other refusals (cold R101); (D2)
+ * R80/R104: the selected-state notice placement and tone; (D4) R111: the stored Site display name.
  */
-function ColdDomainActionShell({
+function DomainActionShell({
   site,
   actionId,
   knownAt,
+  window,
   state,
   onRetry,
 }: {
   site: LoadedSite;
   actionId: string;
   knownAt: string | null;
+  window: DomainActionWindow;
   state: DomainShellState;
   onRetry: () => void;
 }) {
   const loaded = state.status === "loaded" ? state.value : null;
-  const self = siteActionHref(site.site_id, actionId, "verification", { knownAt });
-  const notice = loaded === null ? null : coldCurrentnessNotice(loaded.status, loaded.known_at);
+  const p = domainActionPresentation(loaded === null ? site.site_type : loaded.action.domain);
+  const self = domainVerificationHref(site.site_id, actionId, knownAt, window);
+  const notice = loaded === null ? null : p.notice(loaded.status, loaded.known_at);
   const revision =
-    loaded !== null && loaded.intent !== null && typeof loaded.intent.basis.finding_revision_id === "string"
+    p.revisionDisclosure && loaded !== null && loaded.intent !== null && typeof loaded.intent.basis.finding_revision_id === "string"
       ? loaded.intent.basis.finding_revision_id
       : null;
   return (
@@ -1420,7 +1446,7 @@ function ColdDomainActionShell({
       <PageHeader
         title={loaded === null ? "Action" : `${loaded.action.action_code} · ${loaded.action.title}`}
         headingId={SITE_ACTION_HEADING_ID}
-        subtitle={COLD_ACTION_SUBTITLE}
+        subtitle={p.subtitle}
         actions={
           <Link className="button" to={siteDetailHref(site.site_id)} data-domain-action-open-site>
             Open site
@@ -1439,15 +1465,16 @@ function ColdDomainActionShell({
       {loaded === null ? null : (
         <div className="status-strip status-strip--line" aria-label="Action status" data-domain-action-strip>
           <span className="w1f4-action-badge w1f4-action-badge--amber" data-domain-action-state={loaded.action.state}>
-            {COLD_STATE_OPEN}
+            {p.stateOpen}
           </span>
           <span className="muted status-strip__item" data-domain-action-status-line>
             {/* MOCK DEVIATION (D1) R65/R66: `Finding {id8}` as plain text in the mock's F-118 slot, never an anchor.
-                Ruling 9: the derived short Site name, with the full stored display name when the derivation is empty. */}
+                Ruling 9: the derived short Site name, with the full stored display name when the derivation is empty.
+                W5-04 V4a ruling 41: EV shows the full selected Site display name and no Finding. */}
             <span className="domain-action-owner" data-domain-action-owner>
-              {loaded.action.owner_label ?? COLD_OWNER_MISSING}
+              {loaded.action.owner_label ?? p.ownerMissing}
             </span>
-            {` · ${shortName(site.display_name) || site.display_name} · ${loaded.links.finding.label}`}
+            {` · ${p.statusTail({ siteName: site.display_name, siteShort: shortName(site.display_name), finding: loaded.links.finding.label })}`}
           </span>
           {revision === null ? null : (
             <span className="status-strip__item">
@@ -1461,28 +1488,28 @@ function ColdDomainActionShell({
         </div>
       )}
       {loaded !== null && notice !== null ? (
-        <Notice tone={coldCurrentnessTone(loaded.status)} data={{ "data-domain-action-currentness": loaded.status }}>
+        <Notice tone={p.tone(loaded.status)} data={{ "data-domain-action-currentness": loaded.status }}>
           <RailIcon name="info" />
           <p>{notice}</p>
         </Notice>
       ) : null}
       {state.status === "loaded" ? (
-        <DomainActionVerification detail={state.value} siteCode={site.site_id} knownAt={knownAt} />
+        <DomainActionVerification detail={state.value} siteCode={site.site_id} knownAt={knownAt} presentation={p.panel} />
       ) : (
       <Panel>
         {state.status === "loading" ? (
-          <p data-domain-action-panel="loading">{COLD_ACTION_LOADING}</p>
+          <p data-domain-action-panel="loading">{p.loading}</p>
         ) : state.status === "not_found" ? (
-          <p data-domain-action-panel="not-found">{COLD_ACTION_NOT_FOUND}</p>
+          <p data-domain-action-panel="not-found">{p.notFound}</p>
         ) : (
           <div className="work-cases-state" data-domain-action-panel="refused" data-domain-action-refusal={state.code ?? (state.http === null ? "UNREACHABLE" : "UNEXPECTED")}>
             <p>
-              <strong>{COLD_WORK_UNAVAILABLE}</strong>
+              <strong>{p.unavailable}</strong>
             </p>
             <p data-domain-action-refusal-message>{state.message}</p>
             <p>
               <button type="button" className="button" onClick={onRetry} data-domain-action-retry>
-                {COLD_WORK_RETRY}
+                {p.retry}
               </button>
             </p>
           </div>
@@ -1492,7 +1519,7 @@ function ColdDomainActionShell({
       {loaded === null ? null : (
         <Notice tone="blue" data={{ "data-domain-action-notice": "" }}>
           <RailIcon name="info" />
-          <p>{COLD_ACTION_NOTICE}</p>
+          <p>{p.closingNotice}</p>
         </Notice>
       )}
     </main>
@@ -1501,16 +1528,19 @@ function ColdDomainActionShell({
 
 /**
  * W5-02 K2a (U1, P-K2a-34): on a COLDCHAIN Site the route form plus the validated domain read choose the presenter.
+ * W5-04 V4a (ruling 43): the same dispatch serves an EV_CHARGING Site, with the EV refusal copy (ruling 44) and the
+ * selected `from,to,known_at` kept by the redirect (ruling 14); the W1 fallback stays for W1 IDs at either Site type.
  * `/verification` reads the domain Action: a 200 renders the domain shell, a 404 says the Action was not found and never
  * falls back to W1, any other refusal is `Cold work unavailable`. A bare or legacy W1 section address reads the same
  * domain Action first: a validated domain Action redirects to `/verification` with the selected `known_at`; anything
  * else keeps the W1 battery presenter, unchanged.
  */
-function ColdActionRoute({
+function DomainActionRoute({
   site,
   actionId,
   verification,
   knownAt,
+  window,
   client,
   w1,
 }: {
@@ -1518,6 +1548,7 @@ function ColdActionRoute({
   actionId: string;
   verification: boolean;
   knownAt: string | null;
+  window: DomainActionWindow;
   client: DomainActionClient;
   w1: () => ReactNode;
 }) {
@@ -1526,33 +1557,39 @@ function ColdActionRoute({
   const key = `${site.site_id}|${actionId}|${knownAt ?? ""}|${attempt}`;
   useEffect(() => {
     let active = true;
-    void client.getDetail(site.site_id, actionId, knownAt).then((result) => {
+    // Ruling 64: an EV Site passes its Site type for the EV fallback sentences; cold keeps its three-argument read.
+    const read =
+      site.site_type === "EV_CHARGING"
+        ? client.getDetail(site.site_id, actionId, knownAt, site.site_type)
+        : client.getDetail(site.site_id, actionId, knownAt);
+    void read.then((result) => {
       if (active) setRead({ key, result });
     });
     return () => {
       active = false;
     };
-  }, [client, site.site_id, actionId, knownAt, key]);
+  }, [client, site.site_id, site.site_type, actionId, knownAt, key]);
   const result = read !== null && read.key === key ? read.result : null;
   if (!verification) {
     if (result === null) {
       return (
         <main aria-labelledby={SITE_ACTION_HEADING_ID} data-domain-action-probe>
           <PageHeader title="Action" headingId={SITE_ACTION_HEADING_ID} />
-          <p>{COLD_ACTION_LOADING}</p>
+          <p>{domainActionPresentation(site.site_type).loading}</p>
         </main>
       );
     }
     if (result.status === "loaded") {
-      return <Navigate replace to={siteActionHref(site.site_id, actionId, "verification", { knownAt })} />;
+      return <Navigate replace to={domainVerificationHref(site.site_id, actionId, knownAt, window)} />;
     }
     return <>{w1()}</>;
   }
   return (
-    <ColdDomainActionShell
+    <DomainActionShell
       site={site}
       actionId={actionId}
       knownAt={knownAt}
+      window={window}
       state={result ?? { status: "loading" }}
       onRetry={() => setAttempt((n) => n + 1)}
     />
@@ -1568,7 +1605,7 @@ export function SiteActionFrame({
   detail: SiteDetailClient;
   sitesPath: string;
   actions?: ActionClient;
-  /** W5-02 K2a: the domain Action read, used only on a COLDCHAIN Site. */
+  /** W5-02 K2a / W5-04 V4a: the domain Action read, used only on a COLDCHAIN or EV_CHARGING Site. */
   domainActions?: DomainActionClient;
 }) {
   const { siteId, actionId, actionView } = useParams<{ siteId: string; actionId: string; actionView?: string }>();
@@ -1590,18 +1627,20 @@ export function SiteActionFrame({
       {(site) => {
         const id = actionId ?? "";
         const w1 = () => renderW1(site, id);
-        // W5-02 K2a: COLDCHAIN only (P-G-6). An unknown section name keeps the W1 "No such Action section" state.
+        // W5-02 K2a: COLDCHAIN (P-G-6); W5-04 V4a ruling 43 adds EV_CHARGING. An unknown section name keeps the W1
+        // "No such Action section" state.
         if (
-          site.site_type === "COLDCHAIN" &&
+          DOMAIN_ACTION_SITE_TYPES.includes(site.site_type) &&
           (actionView === undefined || actionView === "verification" || W1_ONLY_SECTIONS.includes(actionView))
         ) {
           return (
-            <ColdActionRoute
+            <DomainActionRoute
               key={`${site.site_id}|${id}|${actionView ?? ""}`}
               site={site}
               actionId={id}
               verification={actionView === "verification"}
               knownAt={params.get("known_at")}
+              window={site.site_type === "EV_CHARGING" ? { from: params.get("from"), to: params.get("to") } : null}
               client={domainActions}
               w1={w1}
             />

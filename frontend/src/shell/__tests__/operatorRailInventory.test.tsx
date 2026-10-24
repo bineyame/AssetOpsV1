@@ -207,6 +207,8 @@ describe("Site Action detail rail selection (W5-02c K4a)", () => {
 
   it.each([
     ["a cold domain Action Verification", "/sites/CR-TEST-01/actions/6f1c2a7e-0d4b-4c3e-9a51-1b2c3d4e5f60/verification"],
+    // W5-04 V4a (R-3): the EV domain Action reuses K4a's pathname-scoped override unchanged.
+    ["an EV domain Action Verification", "/sites/EV-LAB-001/actions/3e0a9b1c-7d2f-4e6a-8b5c-0f1e2d3c4b5a/verification?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z"],
     ["a W1 mini-grid Action detail", "/sites/KOBO-001/actions/0b5d7f1e-2c3a-4b6d-8e9f-a1b2c3d4e5f6"],
     ["a W1 mini-grid Action section", "/sites/KOBO-001/actions/0b5d7f1e-2c3a-4b6d-8e9f-a1b2c3d4e5f6/plan"],
   ])("selects Actions alone on %s", async (_name, path) => {

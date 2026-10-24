@@ -186,7 +186,7 @@ describe("domainActionClient EV index (rulings 44, 46)", () => {
 /* ---------- Site > Work > Actions on an EV_CHARGING Site ---------- */
 
 describe("EV Site Actions tab (v69 ev-work)", () => {
-  it("renders the mock strip, six columns and the positive EV row with a plain Action code (R113)", async () => {
+  it("renders the mock strip, six columns and the positive EV row with its live selected Action link (R113 closed in V4a)", async () => {
     const { client, calls } = domainClient(() => loaded(evIndexBody([evRow()])));
     const { main } = await mountWork(workPath(), client);
     expectV69Panels("ev-work");
@@ -207,14 +207,17 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     const row = main.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"]`) as HTMLElement;
     expect(row.getAttribute("data-domain-work-domain")).toBe("EV_CHARGING");
     const cells = Array.from(row.querySelectorAll("td"));
-    // Ruling 46: plain text until V4a mounts the EV detail route; never a transient dead href.
-    expect(cells[0].querySelector("a")).toBeNull();
-    expect(text(cells[0].querySelector("[data-domain-work-action-plain]"))).toBe("ACT-000061 · Investigate connector 2");
+    // Ruling 46 / R113: V4a mounts the EV detail route and EV_ACTION_LINK_LIVE turns the selected `links.action` live.
+    const link = cells[0].querySelector("a");
+    expect(link?.getAttribute("href")).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`);
+    expect(link?.getAttribute("data-domain-work-action-link")).toBe("domain");
+    expect(text(link)).toBe("ACT-000061 · Investigate connector 2");
+    expect(cells[0].querySelector("[data-domain-work-action-plain]")).toBeNull();
     expect(text(cells[2])).toBe("Charging operations");
     expect(text(cells[3])).toBe("Not set");
     expect(cells[4].querySelector(".w1f4-action-badge--amber")?.textContent).toBe("Open");
     expect(text(cells[5])).toBe(EV_SUMMARY);
-    expect(Array.from(main.querySelectorAll("a")).some((a) => (a.getAttribute("href") ?? "").includes(`/actions/${EV_ACTION_ID}`))).toBe(false);
+    expect(Array.from(main.querySelectorAll("a")).filter((a) => (a.getAttribute("href") ?? "").includes(`/actions/${EV_ACTION_ID}`))).toHaveLength(1);
 
     const notice = main.querySelector("[data-domain-work-notice]");
     expect(notice?.textContent).toBe(WORK_CONTEXT_NOTICE_DOMAIN);
@@ -289,7 +292,7 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     expect(text(cells[5])).toBe("No success criterion declared");
   });
 
-  it("keeps a W1 row's own title, state and W1 link beside the plain EV row (pre-flight 28)", async () => {
+  it("keeps a W1 row's own title, state and W1 link beside the linked EV row (pre-flight 28)", async () => {
     const { client } = domainClient(() => loaded(evIndexBody([evRow(), evW1Row()])));
     const { main } = await mountWork(workPath(), client);
     const w1 = main.querySelector(`[data-domain-work-row="${EV_W1_ID}"]`) as HTMLElement;
@@ -299,7 +302,9 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     expect(text(cells[4])).toBe("Accepted · not applied");
     expect(text(cells[5])).toBe("No success criterion declared");
     expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to EV · 2 actions");
-    expect(main.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"] td a`)).toBeNull();
+    expect(main.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"] td a`)?.getAttribute("href")).toBe(
+      `/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`,
+    );
   });
 
   it("places the selected-state notice between strip and panel with the R104 tones; none on CURRENT (R80)", async () => {

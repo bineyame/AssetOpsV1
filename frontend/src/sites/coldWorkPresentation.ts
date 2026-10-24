@@ -2,6 +2,7 @@
  * W5-02 K2a ("Shared Site UI and mock slots", "Mock element and literal ledger", U2, U3, P-K2a-41/43): the cold-chain
  * Work and domain Action words. No fetches; `domainActionClient.ts` owns the reads. A mini-grid Site never reads these.
  */
+import type { DomainActionPresentation } from "./DomainActionVerification";
 import type { DomainStatus } from "./domainActionClient";
 
 /** The v69 `cold-work` panel title. */
@@ -40,6 +41,19 @@ export const COLD_WORK_SUBTITLE_FALLBACK = "Cold-room operations at this site.";
 export const COLD_ACTION_SUBTITLE = "Has backup service been restored after the inspection?";
 export const COLD_ACTION_NOT_FOUND = "Action was not found at this site.";
 export const COLD_ACTION_NOTICE = "Completed inspection does not establish successful service restoration.";
+
+/** W5-02c K4a ruling 4 (moved here by W5-04 V4a, ruling 47): the v69 `cold-action` criteria panel words. */
+export const COLD_CRITERIA_TITLE = "Declared outcome criteria";
+export const COLD_CRITERIA_COLUMNS = ["Criterion", "Required evidence", "Current result"] as const;
+/** Build spec "Empty intent": the criteria panel keeps its heading and omits its table. */
+export const COLD_INTENT_MISSING = "No outcome criteria have been declared for this Action.";
+
+/** Build spec "Shared Site UI": the three stored initial result labels. */
+export const COLD_RESULT_LABELS: Record<string, string> = {
+  NOT_TESTED: "Not tested",
+  NOT_ESTABLISHED: "Not established",
+  PENDING: "Pending",
+};
 
 /** U4: text longer than this previews at two lines with the full text in a "Read full text" disclosure. */
 export const LONG_TEXT_THRESHOLD = 80;
@@ -96,3 +110,32 @@ export function coldCurrentnessTone(status: DomainStatus): "blue" | "amber" {
 export function isLongText(text: string): boolean {
   return Array.from(text).length > LONG_TEXT_THRESHOLD;
 }
+
+/**
+ * W5-04 V4a (readiness rulings 15, 41, 47): the cold domain Action detail presentation (v69 `cold-action`,
+ * `frontend/mockups/v69/index.html:742-746`), with the K4 literals unchanged so the cold output stays byte-identical:
+ * `{owner} · {shortName} · {Finding label}` status (ruling 9), the `Finding version` disclosure, the Related activity
+ * panel and only the selected `known_at` carried by the detail's own links.
+ */
+export const COLD_ACTION_PRESENTATION: DomainActionPresentation = {
+  subtitle: COLD_ACTION_SUBTITLE,
+  stateOpen: COLD_STATE_OPEN,
+  ownerMissing: COLD_OWNER_MISSING,
+  statusTail: ({ siteName, siteShort, finding }) => `${siteShort || siteName} · ${finding}`,
+  revisionDisclosure: true,
+  notice: coldCurrentnessNotice,
+  tone: coldCurrentnessTone,
+  loading: COLD_ACTION_LOADING,
+  notFound: COLD_ACTION_NOT_FOUND,
+  unavailable: COLD_WORK_UNAVAILABLE,
+  retry: COLD_WORK_RETRY,
+  closingNotice: COLD_ACTION_NOTICE,
+  windowQuery: false,
+  panel: {
+    criteriaTitle: COLD_CRITERIA_TITLE,
+    columns: COLD_CRITERIA_COLUMNS,
+    intentMissing: COLD_INTENT_MISSING,
+    resultLabels: COLD_RESULT_LABELS,
+    related: true,
+  },
+};
