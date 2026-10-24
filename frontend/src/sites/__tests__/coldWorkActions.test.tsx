@@ -357,6 +357,24 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to GreenHarvest · 1 actions");
   });
 
+  it("W5-04 V2a ruling 45: cold keeps every K2 data-cold-work name and also carries data-domain-work; its read keeps two arguments", async () => {
+    const { client } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow(), w1Row()], { status: "HISTORICAL" }) }));
+    const { main } = await mountWork(workPath(), client);
+    for (const name of ["strip", "global-gap", "currentness", "notice", "row", "domain", "action-link", "source", "revision", "owner", "due", "state", "criterion", "window"]) {
+      expect(main.querySelector(`[data-cold-work-${name}]`), name).not.toBeNull();
+      expect(main.querySelector(`[data-domain-work-${name}]`), name).not.toBeNull();
+    }
+    expect(main.getAttribute("data-cold-work-page")).toBe("actions");
+    expect(main.getAttribute("data-domain-work-page")).toBe("actions");
+    expect(main.querySelector(".cold-work-actions.domain-work-actions")).not.toBeNull();
+    expect(main.querySelector('details[data-disclosure^="cold-work-source-"]')).not.toBeNull();
+    expect(main.querySelector('details[data-disclosure^="domain-work-"]')).toBeNull();
+    // The cold row keeps its K2 live `/verification` link and no EV unavailable note.
+    expect(main.querySelector(`[data-cold-work-row="${DOMAIN_ID}"] td a`)?.getAttribute("href")).toBe(`/sites/${SITE}/actions/${DOMAIN_ID}/verification`);
+    expect(main.querySelector("[data-domain-work-source-unavailable]")).toBeNull();
+    for (const call of vi.mocked(client.getIndex).mock.calls) expect(call).toHaveLength(2);
+  });
+
   it("shows the Source as plain `Finding {id8}` with the selected revision in a disclosure, never an anchor (R65/R66)", async () => {
     const { client } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow(), w1Row()]) }));
     const { main } = await mountWork(workPath(), client);

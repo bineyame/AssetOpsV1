@@ -13,6 +13,7 @@ import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
 import type { SiteDetailClient } from "../../sites/siteDirectoryClient";
 import { COLD_SITE, DOMAIN_ID, SITE as COLD_CODE, coldFetch } from "../../sites/__tests__/coldWorkFixtures";
+import { EV_ACTION_ID, EV_SITE, EV_SITE_CODE, evIndexBody, evRow } from "../../sites/__tests__/evWorkFixtures";
 
 /**
  * The operator route frames that name no site.
@@ -355,6 +356,34 @@ describe("cold Site Work and domain Action route frames", () => {
     expect(main.querySelector(`[data-cold-work-row="${DOMAIN_ID}"]`)).not.toBeNull();
     expect(urls.some((u) => u.startsWith(`/api/sites/${COLD_CODE}/domain-work/action-index?`))).toBe(true);
     expect(urls.some((u) => u.startsWith(`/api/sites/${COLD_CODE}/action-index?`))).toBe(false);
+  });
+
+  // W5-04 V2a (ruling 18): an EV_CHARGING Site's Work tab dispatches to the union index, never the W1 index.
+  it("renders the EV Actions tab at /sites/{site}/work from the union index, with a plain EV code", async () => {
+    const urls: string[] = [];
+    vi.stubGlobal("fetch", async (url: string) => {
+      urls.push(url);
+      return url.split("?")[0] === `/api/sites/${EV_SITE_CODE}/domain-work/action-index`
+        ? new Response(JSON.stringify(evIndexBody([evRow()])), { status: 200 })
+        : new Response(JSON.stringify({ detail: { code: "WORK_STORE_UNAVAILABLE", message: "Unavailable in this test." } }), { status: 503 });
+    });
+    render(
+      <MemoryRouter initialEntries={[`/sites/${EV_SITE_CODE}/work`]}>
+        <App
+          flags={simulatorLabDisabled}
+          siteDirectory={{ listSites: () => Promise.resolve({ status: "loaded", sites: [EV_SITE] }) }}
+          siteDetail={{ getSite: () => Promise.resolve({ status: "loaded", site: EV_SITE }) }}
+          siteAnalytics={EMPTY_ANALYTICS_CLIENT}
+        />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    const main = document.querySelector("main") as HTMLElement;
+    expect(main.querySelector("[data-domain-work-strip]")).not.toBeNull();
+    expect(main.querySelector("[data-cold-work-strip]")).toBeNull();
+    expect(main.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"] td a`)).toBeNull();
+    expect(urls.some((u) => u.startsWith(`/api/sites/${EV_SITE_CODE}/domain-work/action-index?`))).toBe(true);
+    expect(urls.some((u) => u.startsWith(`/api/sites/${EV_SITE_CODE}/action-index?`))).toBe(false);
   });
 
   it("renders the domain Action at /verification with the Actions rail root selected (K4a ruling 1, R69 resolved)", async () => {
