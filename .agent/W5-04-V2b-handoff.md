@@ -9,7 +9,7 @@ rulings 39 and 53–66. Evidence is in `.agent/W5-04-V2b-evidence/`.
 | Commit | Content |
 | --- | --- |
 | `9bab4bfe` | New `tools/w504-ev-work-evidence.mjs`: EV Actions captures and claims over the V1b walkthrough manifest. |
-| (this) | `.agent/W5-04-V2b-evidence/`: 16 PNGs, `w504b-measurements.json`, the run log and the walkthrough manifest. `cold-k2-recapture/` holds the cold Actions PNGs plus the Actions and cases measurements and logs. This handoff. |
+| `baae7c9f` | `.agent/W5-04-V2b-evidence/`: 16 PNGs, `w504b-measurements.json`, the run log and the walkthrough manifest. `cold-k2-recapture/` holds the cold Actions PNGs plus the Actions and cases measurements and logs. This handoff. |
 
 ## Producer and process (recorded, cleaned)
 
@@ -116,7 +116,10 @@ These match the K2b/K3b totals. The cold layout is unchanged by the `domain-work
     `test_w502_domain_work_links_postgres.py`.
   - Result: **88 passed**, 12m21s, JUnit tests=88, skipped=0, failures=0, errors=0.
   - The first attempt without `PYTHONPATH` failed at collection: it imported the main checkout's backend.
-- tsc, full vitest, vite build and check-all: VERIFY_RESULTS.
+- `tsc --noEmit`: clean.
+- Full vitest (`--minWorkers=1 --maxWorkers=2`): **125 files, 2907 tests passed**, 4m22s.
+- `vite build`: built in 6.4s.
+- `tools/check-all.ps1` on `baae7c9f`: **All 11 guards passed**.
 
 ## Shared plumbing
 
