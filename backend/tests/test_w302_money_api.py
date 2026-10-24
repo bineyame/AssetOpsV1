@@ -171,6 +171,7 @@ def test_w302_money_exact_selected_heads_and_unpriced_cold() -> None:
     assert ev["finding_id"] is None and ev["amount"] == {"low": "8.33250000", "high": "8.33250000", "currency": "KES"}
     assert ev["limit"] == "Gross scenario only; not cash collected."
     assert ev["links"]["bridge"].startswith("/sites/EV-1/ev/financials?from=")
+    assert ev["links"]["site"] == "/sites/EV-1/ev"  # post-W6 W3-estate Q2/Q9: the EV Site home
     states = {g["category"]: g["state"] for g in body["groups"]}
     assert states == {"CANDIDATE_OPERATING_COST_EXPOSURE": "SINGLE_LINE", "POTENTIAL_PRODUCT_EXPOSURE": "INELIGIBLE",
                       "RECORDED_REPAIR": "INELIGIBLE", "GROSS_TARIFF_SCENARIO": "SINGLE_LINE"}
@@ -358,8 +359,9 @@ def test_w302_money_decide_order() -> None:
 
 def test_w302_money_w1_price_unit_limit_and_citation_union() -> None:
     """c3-q2(5): the W1 fingerprint uses the selected `price.state` and `price.value` with the economic unit
-    `currency/L` (not the quantity unit `L`); the selected head's limitations join with `; `; citations are the
-    selected Finding citations plus `cited.power_evidence_ids`, which are also the technical IDs."""
+    `currency/L` (not the quantity unit `L`); the selected head's limitations join with one space (post-W6
+    W3-estate Q12, no `.;`); citations are the selected Finding citations plus `cited.power_evidence_ids`, which
+    are also the technical IDs."""
     head = {**w1_head(A[21], A[31], power=(A[45], A[46])), "limitations": ["First stored limit.", "Second one."]}
     body = body_of(MoneySnapshot(w1={A[21]: head}))
     w1 = next(r for r in body["rows"] if r["domain"] == "mini_grid")
@@ -367,7 +369,7 @@ def test_w302_money_w1_price_unit_limit_and_citation_union() -> None:
     assert w1["assumption_fingerprint"] == fp("CANDIDATE_OPERATING_COST_EXPOSURE", "USD", "currency/L", "0.97",
                                               "PUBLISHED")
     assert w1["assumption_fingerprint"] != fp("CANDIDATE_OPERATING_COST_EXPOSURE", "USD", "L", "0.97", "PUBLISHED")
-    assert w1["limit"] == "First stored limit.; Second one."
+    assert w1["limit"] == "First stored limit. Second one." and ".;" not in w1["limit"]
     assert w1["basis_evidence_ids"] == sorted([A[20], A[45], A[46]])
     assert w1["technical_interval_ids"] == sorted([A[45], A[46]])
     bare = next(r for r in body_of(MoneySnapshot())["rows"] if r["domain"] == "mini_grid")

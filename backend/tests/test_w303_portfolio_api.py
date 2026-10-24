@@ -17,6 +17,8 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from assetops_backend.estate import portfolio
+from assetops_backend.estate.coverage import DOMAIN_OF_SITE_TYPE
+from assetops_backend.estate.index import _finding_links
 from assetops_backend.estate.portfolio import EstatePortfolioService
 from assetops_backend.estate.scope import (
     MESSAGES, PORTFOLIO_CURSOR_KEY_ENV, EstateSelectionInconsistent, EstateStoreUnavailable, encode_cursor,
@@ -68,6 +70,9 @@ def finding(site, n, at, lifecycle="SUPPORTED", flags=()):
             "lifecycle": lifecycle, "lens_flags": list(flags),
             "consequence": {"state": "UNPRICED", "amount": None, "amount_low": None, "amount_high": None},
             "source_provenance": {"classification": "UNKNOWN"}, "episode_start": None if at is None else at.isoformat(),
+            # Post-W6 W3-estate: the real `select_finding_scope` link shape (no recorded window: cold/EV null).
+            "links": _finding_links(site["site_code"], DOMAIN_OF_SITE_TYPE[site["site_type"]], FINDING[n],
+                                    FINDING[n + 20], None, READ_AT),
             "_at": at, "_site": site, "_domain": site["site_type"], "_episode_end": None, "_mechanism": None}
 
 
@@ -120,7 +125,10 @@ class World:
 
     def select_evidence_scope(self, snap, t, req, scope):
         row = {"raw_state": "FULL", "readiness": "FULL", "selected_revision_ids": [FINDING[31]],
-               "_assessments": [FINDING[31]], "_cited": [FINDING[32]], "_token_cited": []}
+               "_assessments": [FINDING[31]], "_cited": [FINDING[32]], "_token_cited": [],
+               "window_start": None, "window_end": None,
+               "links": {"site": "/sites/X", "site_readiness": "/sites/X",
+                         "site_readiness_label": "Opens current Site view"}}
         return [(s, "mini_grid" if s["site_type"] == "MINIGRID" else "cold_chain", cov(), [dict(row)])
                 for s in scope["sites"]], []
 
