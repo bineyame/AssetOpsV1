@@ -1,0 +1,7 @@
+opportunity-supported-current 1440: status 1160x43 | cards 1160x95 | Bounded opportunity 1160x216 | Next decision 734x267 | Consequence basis 408x267 | doc 1440/1440
+opportunity-supported-current 390: status 343x66 | cards 343x227 | Bounded opportunity 343x325 | Next decision 343x199 | Consequence basis 343x267 | doc 375/375
+opportunity-supported-historical 1440: status 1160x43 | cards 1160x95 | Bounded opportunity 1160x216 | Next decision 734x267 | Consequence basis 408x267 | doc 1440/1440
+opportunity-supported-historical 390: status 343x66 | cards 343x227 | Bounded opportunity 343x325 | Next decision 343x199 | Consequence basis 343x267 | doc 375/375
+mock opportunity-finding-1440: status 1161x45 | cards 1161x113 | Bounded opportunity 1161x208 | Next decision 735x268 | Consequence basis 408x268 | order ["Bounded opportunity","Next decision","Consequence basis"]
+mock opportunity-finding-390: status 345x72 | cards 345x264 | Bounded opportunity 345x308 | Next decision 345x193 | Consequence basis 345x268 | order ["Bounded opportunity","Next decision","Consequence basis"]
+w403 capture checks passed (98)

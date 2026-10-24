@@ -1,0 +1,241 @@
+[
+ {
+  "id": "B13-X1",
+  "screens": [
+   "sitework-incidents",
+   "sitework-maintenance",
+   "scenarios",
+   "alternatives",
+   "opportunity-finding"
+  ],
+  "what": "Cross-cutting citations. B1-01 (no topbar) all 54 pairs. B1-04/B2-36 (rail 'Not available yet') all pairs. B2-02 (page-local window): Site Work puts 'Occurred/Raised from - to (included)' date inputs inside the panel head; Scenarios has no window control at all (B13-07). B2-21/B3-04 (UTC): Work Window column (B13-02), Scenarios 'created through ... UTC'. B1-53: raw server text and an 'UTC and IDs' disclosure (B13-04, B13-05). B1-07 (.prose 14 px vs 12 px) recurs on every non-refused opportunity-finding pair; Work/Scenarios/Alternatives prose is 12 px (equal to mock). B1-02 (tall dark header at 390) recurs at 295 px on opportunity refused-bad-known-at 390; other 390 refusals reach 146-214 px (mock 131). B3-01 does not recur.",
+  "disp": "cite existing IDs"
+ },
+ {
+  "id": "B13-01",
+  "severity": "Medium",
+  "screens": [
+   "sitework-incidents",
+   "sitework-maintenance"
+  ],
+  "what": "'1 incidents' plural (mandatory check): the scope strip reads 'Scoped to Mini-grid · 1 incidents' with one incident, and '1 maintenance'/'3 maintenance' on Maintenance. Source siteWorkCases.tsx:373 `{loaded.total_count} {copy.noun}` with a fixed plural noun. The same component renders cold-work-incidents/maintenance and ev-work-incidents/maintenance (batches 15/17), so the defect is shared.",
+  "disp": "(c) D3, shared copy fix owner (UI-pass item); cold/EV analogues inherit",
+  "cases": [
+   "one-incident",
+   "one-request",
+   "stocked",
+   "late-stocked"
+  ]
+ },
+ {
+  "id": "B13-02",
+  "severity": "Medium",
+  "screens": [
+   "sitework-incidents"
+  ],
+  "what": "Mini Site Work Window column shows UTC ('24 Oct · from 19:21 UTC') although MG-W402-001 stores timezone Africa/Nairobi (local 22:21). Cold/EV rows use siteWindowText (siteWorkCases.tsx:775; R23/R24 resolved); the mini/legacy branch does not. Mini analogue of R23/R24.",
+  "disp": "(c) D3 (R23/R24 reasoning: stored Site timezone exists); W4 mini fix slice",
+  "cases": [
+   "one-incident",
+   "stocked",
+   "late-stocked"
+  ]
+ },
+ {
+  "id": "B13-03",
+  "severity": "Medium",
+  "screens": [
+   "opportunity-finding"
+  ],
+  "what": "Malformed known_at returns 422 INVALID_KNOWN_AT 'Select a time no later than now.', but the page shows 'Decisions are unavailable right now. Try again.' (miniDecisionsClient.ts:175 decisionRefusalCopy maps every refusal other than 401/403/404/409, including 422, to the transient-outage sentence). W4-03 closure 4 reading 3 requires the server's exact refusal to appear. The same mapping drives Alternatives refusals. Domain analogue of the domainActionClient generic window error (mandatory check).",
+  "disp": "(c) D3; W4 mini fix slice (show the 422 server message)",
+  "cases": [
+   "refused-bad-known-at"
+  ]
+ },
+ {
+  "id": "B13-04",
+  "severity": "Low",
+  "screens": [
+   "sitework-incidents",
+   "sitework-maintenance"
+  ],
+  "what": "Invalid window refusals (reversed, over 31 days): the panel prints the raw server message with markdown backticks ('`from` must be before `to`.') beside a 'This list cannot be shown' badge and 'As of: time not recorded'; the scope strip says 'Count unknown · work source unavailable' and the subtabs read 'Actions (—) Incidents (—) Maintenance (—)', blaming the source for an input error. Distinct inputs do get distinct sentences, so the generic-window-error item does not recur here. siteWorkCases.tsx:378/426 are shared with cold/EV Work.",
+  "disp": "(c) D3 Low (B1-53 family raw text; strip wording); shared with cold/EV Work",
+  "cases": [
+   "refused-reversed",
+   "refused-long"
+  ]
+ },
+ {
+  "id": "B13-05",
+  "severity": "Low",
+  "screens": [
+   "sitework-incidents",
+   "sitework-maintenance"
+  ],
+  "what": "Every row carries a 'UTC and IDs' disclosure link. On Maintenance (no Window column) it sits in the Asset column after 'No asset linked'. Mock rows have no such link.",
+  "disp": "D2 row (provenance disclosure) or (c) D3 Low for the Maintenance placement",
+  "cases": []
+ },
+ {
+  "id": "B13-06",
+  "severity": "Low",
+  "screens": [
+   "sitework-incidents"
+  ],
+  "what": "The W4-03 'Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected narrative) (Scenario detail unavailable)' line in Linked findings is clamped with an ellipsis at both widths (scrollHeight 72-101 vs 34-36 px), cutting the scenario name and the unavailable label. The narrative is also clamped at 390 (46/31 px).",
+  "disp": "(c) D3 Low (clipped material text) or a D2 row for the clamp",
+  "cases": [
+   "one-incident",
+   "stocked",
+   "late-stocked"
+  ]
+ },
+ {
+  "id": "B13-07",
+  "severity": "Medium",
+  "screens": [
+   "scenarios"
+  ],
+  "what": "Scenarios: the two-row authored table sits in an inner both-axis scroll box under the producer's 348/391 px panel cap, so row 2 is cut mid-row at 1440 and 390 with only two rows. The cap derives from the mock's placeholder empty block (lesson 15: a short mock row cannot set a production cap). There is also no window control: empty and refused windows are reachable only by URL (R88's own reason: 'URL-only selection is unusable').",
+  "disp": "(c) D3 for the hidden row (re-rule the cap from a worst-case fixture); extend R88/R112 or add a D1 row for the window control",
+  "cases": [
+   "positive-default",
+   "populated"
+  ]
+ },
+ {
+  "id": "B13-08",
+  "screens": [
+   "scenarios"
+  ],
+  "what": "Populated authored rows (Scenario / Declared change / Physical basis / Illustrative result / State, 'Scenario detail unavailable', 'Inspect pinned revisions') and 'Scenario creation unavailable' replace the mock placeholder ('Placeholder · to be designed with the owner', 'No scenario defined yet'). The empty state keeps the mock title and sentence minus the example clause. Mini analogue of R25/R27/R98, which cover cold/EV only.",
+  "disp": "new D4/D2 row for the mini screen (R25/R27 pattern); D1 for creation",
+  "cases": []
+ },
+ {
+  "id": "B13-09",
+  "screens": [
+   "scenarios"
+  ],
+  "what": "A reversed window shows only 'Select a valid Site-local window.' (server message; the 'created through' line disappears). Only the reversed input was producer-offered, so whether distinct inputs collapse is unverified.",
+  "disp": "cite B7-11 (unverified for other inputs)",
+  "cases": [
+   "refused-reversed"
+  ]
+ },
+ {
+  "id": "B13-10",
+  "screens": [
+   "alternatives"
+  ],
+  "what": "Alternatives: only the DB-time 409 state is reachable (F02 basis dated 2026-10-29; the producer itself lists alternatives-stocked and alternatives-empty-current as unproved). The panel shows 'The evidence changed. Reload this page.' (0.41x of the mock's 3-row table at 1440, 0.30x at 390). Reloading cannot succeed until DB time passes the basis. The populated table geometry is unaudited.",
+  "disp": "informational (spec-ruled uF 1 copy); populated-state audit blocked until a current basis exists",
+  "cases": []
+ },
+ {
+  "id": "B13-11",
+  "screens": [
+   "alternatives"
+  ],
+  "what": "Alternatives header: breadcrumb 'Findings / Finding code unavailable / Alternatives · site: Kobo mini-grid' (mock 'Findings › F-104 › Alternatives · site'); a 7th 'What this finding means in money' tab (B3-02); an 'Analysis · Not available yet' slot plus a gap sentence above the panel (spec-ruled); subtitle 'Kobo mini-grid · generator support finding' vs the mock question (B4-06 analogue); 'Open site' is a text link, not the mock button. There is no Site tab row (W4-03 M6), so B4-04 does not recur here, and B4-05 is resolved by the present 'Open site'.",
+  "disp": "cite B3-02, B4-06; D1 row for the missing Finding code; D3 Low for Open site styling",
+  "cases": []
+ },
+ {
+  "id": "B13-12",
+  "severity": "Low",
+  "screens": [
+   "alternatives",
+   "opportunity-finding"
+  ],
+  "what": "The rail selects 'Sites' on Alternatives and Opportunity; the mock selects 'Findings' on both (Findings surfaces). Analogue of R69 for Actions.",
+  "disp": "(c) D3 Low or extend R69",
+  "cases": []
+ },
+ {
+  "id": "B13-13",
+  "screens": [
+   "opportunity-finding"
+  ],
+  "what": "The Opportunity breadcrumb root is the disabled sentence 'Global Findings unavailable; this opportunity is reached from Renewable evaluation.' in the 'Findings' slot (spec PR-9 / closure 3, no register row). It wraps to two lines at 390.",
+  "disp": "D1 row (spec-ruled, needs a register ID)",
+  "cases": []
+ },
+ {
+  "id": "B13-14",
+  "screens": [
+   "opportunity-finding"
+  ],
+  "what": "Opportunity cards/basis: 'Linked scenario (name unavailable)', 'Scenario energy: Unavailable in this read' and 'Tariff: Unavailable in this read', while Gross sales shows '$2.50 · scenario' and the Scenarios page lists SCN-000002 with 'Tariff 0.25 USD/kWh'. Spec item 7 rules the copy; the mock shows '10 kW × 1 h', 'Grain-mill scenario', '10 kWh' and '$0.25/kWh'. Confidence 'Not assessed' (mock Medium) and Eligible days 4/5 (mock 3/5) are selected-record values.",
+  "disp": "D1 row (typed energy/tariff absent from the opportunity read)",
+  "cases": []
+ },
+ {
+  "id": "B13-15",
+  "severity": "Low",
+  "screens": [
+   "opportunity-finding"
+  ],
+  "what": "The subtitle is fixed: 'Five-day renewable headroom and an explicitly authored scenario, with evidence and demand limits.', even when the read says 'No scenario linked' (late-settled, missing-day-limited).",
+  "disp": "(c) D3 Low (copy contradicts the selected record)",
+  "cases": [
+   "late-settled-current",
+   "missing-day-limited"
+  ]
+ },
+ {
+  "id": "B13-16",
+  "screens": [
+   "sitework-incidents",
+   "sitework-maintenance"
+  ],
+  "what": "Site Work copy: the scope-strip detail reads 'These are work records at this site' vs mock 'Same records and states as the global Incidents list'; the footer reads 'Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet.' vs mock 'Opening a record moves you to its own area...'. Mini analogue of R35, which covers cold-work/ev-work only.",
+  "disp": "extend R35 (D1) to sitework-incidents/maintenance",
+  "cases": []
+ },
+ {
+  "id": "B13-17",
+  "screens": [
+   "sitework-incidents"
+  ],
+  "what": "The stocked five-row Incidents panel is 443/316 = 1.40x at 1440 (1.23x at 390). Measured reason: five 1-2 line rows plus paging vs the mock's empty state; within the reviewed W4-01/W4-03 u9 cap (460 px). No 160-character worst-case rows were producer-offered.",
+  "disp": "Architect cap ruling/register row (W4 u9 cap 460) from a worst-case fixture",
+  "cases": [
+   "stocked",
+   "late-stocked"
+  ]
+ },
+ {
+  "id": "B13-18",
+  "screens": [
+   "sitework-incidents",
+   "sitework-maintenance",
+   "scenarios"
+  ],
+  "what": "At 390 the shared Site tab row (521 px in 358 px) auto-scrolls to the selected tab, hiding 'Overview' ('w'/'ion' visible) behind a grey scroll bar; the mock row starts at Overview and cuts the end. Same shared row as B4-04's 390 overflow.",
+  "disp": "cite B4-04 (390 overflow aspect)",
+  "cases": []
+ },
+ {
+  "id": "B13-19",
+  "screens": [
+   "sitework-incidents",
+   "sitework-maintenance",
+   "scenarios",
+   "alternatives",
+   "opportunity-finding"
+  ],
+  "what": "States behave as specified: empty (KOBO-001 and a past MG window), no-window default, refused windows, one-incident, stocked, current/historical/stale/limited opportunity, scenario empty/refused, 409 Alternatives. 0 page overflow, 0 console errors, no crashes on 54 pairs. Panel titles and order equal the mock on every non-refusal pair; opportunity refused-bad-known-at has no panels (B13-03).",
+  "disp": "informational",
+  "cases": []
+ },
+ {
+  "id": "B13-20",
+  "screens": [],
+  "what": "Cold/EV Work analogues (for batches 15/17): B13-01 plural, B13-04 refusal strip/raw text and B13-05 disclosure come from the shared SiteWorkCases component, so expect them on cold-work-* and ev-work-*. B13-02 does NOT carry: cold/EV use siteWindowText. B4-19 (raw event-code fall-through) does not recur: Work states render 'Open'/'Unverified' chips and no event-history view is on these screens. B5-01/B4-03 (Finding-rooted Action breadcrumb) do not apply: there are no Action pages here.",
+  "disp": "informational hand-off",
+  "cases": []
+ }
+]

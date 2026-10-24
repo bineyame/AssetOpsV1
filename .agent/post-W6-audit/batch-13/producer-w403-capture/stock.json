@@ -1,0 +1,26 @@
+{
+  "site_code": "MG-W402-001",
+  "principal": "service:w401-fixture",
+  "incidents": {
+    "w403-capture-incidents-1": "dd26074f-fa95-455b-8039-2b25c8487d10",
+    "w403-capture-incidents-2": "ee6f5b4f-bf6a-4145-b016-576b9da805a6",
+    "w403-capture-incidents-3": "b412695c-c860-4fcf-9d92-d06d7b2bcb4c",
+    "w403-capture-incidents-4": "030f2b82-4479-4dff-9e71-e1c816cefbc2"
+  },
+  "requests": {
+    "w403-capture-requests-1": "0ecd304b-8303-4408-9496-090c993fac74",
+    "w403-capture-requests-2": "fb76b271-d735-49ac-b8bf-0ec5d50102f5"
+  },
+  "occurred_at": {
+    "w403-capture-incidents-1": "2026-10-24T16:34:55.540098Z",
+    "w403-capture-incidents-2": "2026-10-24T16:34:56.656622Z",
+    "w403-capture-incidents-3": "2026-10-24T16:34:56.751200Z",
+    "w403-capture-incidents-4": "2026-10-24T16:34:56.860080Z",
+    "w403-capture-requests-1": "2026-10-24T16:34:56.976173Z",
+    "w403-capture-requests-2": "2026-10-24T16:34:57.105780Z"
+  },
+  "counts": {
+    "incidents_added": 4,
+    "requests_added": 2
+  }
+}

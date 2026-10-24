@@ -1,0 +1,57 @@
+[
+ {
+  "id": "scenarios",
+  "case": "populated",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/financials/scenarios"
+ },
+ {
+  "id": "scenarios",
+  "case": "empty-window",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z"
+ },
+ {
+  "id": "scenarios",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z"
+ },
+ {
+  "id": "scenarios",
+  "case": "kobo-no-scenarios",
+  "url": "http://127.0.0.1:5183/sites/KOBO-001/financials/scenarios"
+ },
+ {
+  "id": "alternatives",
+  "case": "db-time-409-late",
+  "url": "http://127.0.0.1:5183/sites/KOBO-001/findings/b62e0ef8-8530-4963-8443-eb5941c56f30/alternatives?revision_id=d4df8338-62ac-4c97-8b5d-08650246816c"
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "late-settled-current",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e"
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "stale-k-before-late",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A36%3A32.443102Z"
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "refused-bad-known-at",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=not-a-time"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "late-stocked",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "late-stocked",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "missing-day-limited",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/opportunities/7bb15b94-d924-4ff2-b1b7-d36df3fd1a81"
+ }
+]
