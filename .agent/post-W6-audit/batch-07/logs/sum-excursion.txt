@@ -1,0 +1,432 @@
+
+## cold-findings stocked 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 2} {'11px': 1}
+  [0] 'Findings at this site' 217 | 'Findings at this site' 234 r=0.93 rows 0/2 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'High', 'Open', 'Medium', 'High', 'Open'] links 0/4 det 0 xy 248,273 w1160|234,406 w1161
+
+## cold-findings stocked 390  pageH 912/1238 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 2} {'11px': 1}
+  [0] 'Findings at this site' 430 | 'Findings at this site' 327 r=1.31 rows 0/2 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'High', 'Open', 'Medium', 'High', 'Open'] links 0/4 det 0 xy 16,439 w358|15,720 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## cold-findings no-selection 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 2} {'11px': 1}
+  [0] 'Findings at this site' 217 | 'Findings at this site' 234 r=0.93 rows 0/2 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'High', 'Open', 'Medium', 'High', 'Open'] links 0/4 det 0 xy 248,273 w1160|234,406 w1161
+
+## cold-findings no-selection 390  pageH 912/1238 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 2} {'11px': 1}
+  [0] 'Findings at this site' 430 | 'Findings at this site' 327 r=1.31 rows 0/2 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'High', 'Open', 'Medium', 'High', 'Open'] links 0/4 det 0 xy 16,439 w358|15,720 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## cold-findings refused 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 3} {'11px': 1}
+  [0] 'Findings at this site' 267 | 'Findings at this site' 234 r=1.14 rows 0/2 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'High', 'Open', 'Medium', 'High', 'Open'] links 0/4 det 1 xy 248,291 w1160|234,406 w1161
+
+## cold-findings refused 390  pageH 940/1238 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 3} {'11px': 1}
+  [0] 'Findings at this site' 441 | 'Findings at this site' 327 r=1.35 rows 0/2 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'High', 'Open', 'Medium', 'High', 'Open'] links 0/4 det 1 xy 16,458 w358|15,720 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## cold-findings no-window 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 2} {'11px': 1}
+  [0] 'Findings at this site' 217 | 'Findings at this site' 234 r=0.93 rows 0/2 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'High', 'Open', 'Medium', 'High', 'Open'] links 0/4 det 0 xy 248,273 w1160|234,406 w1161
+
+## cold-findings no-window 390  pageH 912/1238 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 2} {'11px': 1}
+  [0] 'Findings at this site' 430 | 'Findings at this site' 327 r=1.31 rows 0/2 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['High', 'High', 'Open', 'Medium', 'High', 'Open'] links 0/4 det 0 xy 16,439 w358|15,720 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## cold stocked 1440  pageH 1419/1522 ovX 0 hdr 59/65 dark 1419 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 6, '10px': 9, '14px': 7} {'11px': 5, '12px': 3, '10px': 1, '14px': 2}
+  [0] 'What happened · power → cooling → product conditions' 252 | 'What happened · power → cooling → product conditions' 274 r=0.92 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 248,473 w1145|234,579 w1161
+  [1] 'Chamber temperature' 386 | 'Chamber temperature' 373 r=1.03 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 248,743 w725|234,872 w735
+  [2] 'Needs attention' 386 | 'Needs attention' 373 r=1.03 rows 0/0 cols []/[] chips []/[] links 2/3 det 0 xy 991,743 w403|987,872 w408
+  [3] 'Bounded money consequence' 222 | 'Bounded money consequence' 193 r=1.15 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 248,1147 w725|234,1263 w735
+  [4] 'Next step' 222 | 'Next step' 193 r=1.15 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 991,1147 w403|987,1263 w408
+
+## cold stocked 390  pageH 2604/3091 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 6, '10px': 9, '14px': 7} {'11px': 5, '12px': 3, '10px': 1, '14px': 2}
+  [0] 'What happened · power → cooling → product conditions' 557 | 'What happened · power → cooling → product conditions' 660 r=0.84 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 16,945 w358|15,1237 w360
+  [1] 'Chamber temperature' 277 | 'Chamber temperature' 286 r=0.97 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 16,1521 w358|15,1915 w360
+  [2] 'Needs attention' 249 | 'Needs attention' 336 r=0.74 rows 0/0 cols []/[] chips []/[] links 2/3 det 0 xy 16,1814 w358|15,2220 w360
+  [3] 'Bounded money consequence' 288 | 'Bounded money consequence' 190 r=1.52 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 16,2078 w358|15,2574 w360
+  [4] 'Next step' 182 | 'Next step' 215 r=0.85 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 16,2382 w358|15,2782 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## cold no-selection 1440  pageH 1000/1522 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 2, '10px': 5, '14px': 1} {'11px': 5, '12px': 3, '10px': 1, '14px': 2}
+  [0] 'What happened · power → cooling → product conditions' 119 | 'What happened · power → cooling → product conditions' 274 r=0.43 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 248,473 w1160|234,579 w1161
+  [1] 'Chamber temperature' 119 | 'Chamber temperature' 373 r=0.32 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 248,610 w734|234,872 w735
+  [2] 'Needs attention' 119 | 'Needs attention' 373 r=0.32 rows 0/0 cols []/[] chips []/[] links 0/3 det 0 xy 1000,610 w408|987,872 w408
+  [3] 'Bounded money consequence' 131 | 'Bounded money consequence' 193 r=0.68 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 248,748 w734|234,1263 w735
+  [4] 'Next step' 131 | 'Next step' 193 r=0.68 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 1000,748 w408|987,1263 w408
+
+## cold no-selection 390  pageH 1587/3091 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 2, '10px': 5, '14px': 1} {'11px': 5, '12px': 3, '10px': 1, '14px': 2}
+  [0] 'What happened · power → cooling → product conditions' 142 | 'What happened · power → cooling → product conditions' 660 r=0.22 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 16,897 w358|15,1237 w360
+  [1] 'Chamber temperature' 119 | 'Chamber temperature' 286 r=0.42 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 16,1057 w358|15,1915 w360
+  [2] 'Needs attention' 96 | 'Needs attention' 336 r=0.29 rows 0/0 cols []/[] chips []/[] links 0/3 det 0 xy 16,1192 w358|15,2220 w360
+  [3] 'Bounded money consequence' 131 | 'Bounded money consequence' 190 r=0.69 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 16,1304 w358|15,2574 w360
+  [4] 'Next step' 96 | 'Next step' 215 r=0.45 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 16,1451 w358|15,2782 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## cold refused 1440  pageH 1000/1522 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  pSizes {'10px': 5, '11px': 1} {'11px': 5, '12px': 3, '10px': 1, '14px': 2}
+  [0] 'What happened · power → cooling → product conditions' 96 | 'What happened · power → cooling → product conditions' 274 r=0.35 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 248,358 w1160|234,579 w1161
+  [1] 'Chamber temperature' 119 | 'Chamber temperature' 373 r=0.32 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 248,472 w734|234,872 w735
+  [2] 'Needs attention' 119 | 'Needs attention' 373 r=0.32 rows 0/0 cols []/[] chips []/[] links 0/3 det 0 xy 1000,472 w408|987,872 w408
+  [3] 'Bounded money consequence' 96 | 'Bounded money consequence' 193 r=0.5 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 248,609 w734|234,1263 w735
+  [4] 'Next step' 96 | 'Next step' 193 r=0.5 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 1000,609 w408|987,1263 w408
+
+## cold refused 390  pageH 1279/3091 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  pSizes {'10px': 5, '11px': 1} {'11px': 5, '12px': 3, '10px': 1, '14px': 2}
+  [0] 'What happened · power → cooling → product conditions' 119 | 'What happened · power → cooling → product conditions' 660 r=0.18 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 16,647 w358|15,1237 w360
+  [1] 'Chamber temperature' 119 | 'Chamber temperature' 286 r=0.42 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 16,783 w358|15,1915 w360
+  [2] 'Needs attention' 96 | 'Needs attention' 336 r=0.29 rows 0/0 cols []/[] chips []/[] links 0/3 det 0 xy 16,919 w358|15,2220 w360
+  [3] 'Bounded money consequence' 96 | 'Bounded money consequence' 190 r=0.51 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 16,1031 w358|15,2574 w360
+  [4] 'Next step' 96 | 'Next step' 215 r=0.45 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 16,1143 w358|15,2782 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## cold no-window 1440  pageH 1419/1522 ovX 0 hdr 59/65 dark 1419 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 6, '10px': 9, '14px': 7} {'11px': 5, '12px': 3, '10px': 1, '14px': 2}
+  [0] 'What happened · power → cooling → product conditions' 252 | 'What happened · power → cooling → product conditions' 274 r=0.92 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 248,473 w1145|234,579 w1161
+  [1] 'Chamber temperature' 386 | 'Chamber temperature' 373 r=1.03 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 248,743 w725|234,872 w735
+  [2] 'Needs attention' 386 | 'Needs attention' 373 r=1.03 rows 0/0 cols []/[] chips []/[] links 2/3 det 0 xy 991,743 w403|987,872 w408
+  [3] 'Bounded money consequence' 222 | 'Bounded money consequence' 193 r=1.15 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 248,1147 w725|234,1263 w735
+  [4] 'Next step' 222 | 'Next step' 193 r=1.15 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 991,1147 w403|987,1263 w408
+
+## cold no-window 390  pageH 2604/3091 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 6, '10px': 9, '14px': 7} {'11px': 5, '12px': 3, '10px': 1, '14px': 2}
+  [0] 'What happened · power → cooling → product conditions' 557 | 'What happened · power → cooling → product conditions' 660 r=0.84 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 16,945 w358|15,1237 w360
+  [1] 'Chamber temperature' 277 | 'Chamber temperature' 286 r=0.97 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 16,1521 w358|15,1915 w360
+  [2] 'Needs attention' 249 | 'Needs attention' 336 r=0.74 rows 0/0 cols []/[] chips []/[] links 2/3 det 0 xy 16,1814 w358|15,2220 w360
+  [3] 'Bounded money consequence' 288 | 'Bounded money consequence' 190 r=1.52 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 16,2078 w358|15,2574 w360
+  [4] 'Next step' 182 | 'Next step' 215 r=0.85 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 16,2382 w358|15,2782 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## cold-evidence stocked 1440  pageH 1399/1334 ovX 0 hdr 59/65 dark 1399 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  pSizes {'11px': 6, '10px': 1, '14px': 2} {'11px': 5}
+  [0] 'What we can conclude now' 386 | 'What we can conclude now' 336 r=1.15 rows 4/4 cols ['Capability', 'Evidence', 'What we can say', 'What is missing', 'Next step']/['Capability', 'Evidence', 'What we can say', 'What is missing', 'Next step'] chips ['Full', 'Limited', 'Limited', 'None']/['Limited', 'Limited', 'Limited', 'None'] links 4/3 det 0 xy 248,339 w1145|234,416 w1161
+  [1] 'Data sources · data quality, not equipment condition' 545 | 'Data sources · data quality, not equipment condition' 438 r=1.24 rows 6/6 cols ['Source', 'Contact at window end', 'Accepted quality', 'What it provides', 'Affects']/['Source', 'Status at window end', 'Quality', 'What it provides', 'Affects'] chips ['Unknown', 'Good', 'Not declared', 'No fact', 'Unknown', 'Good', 'Unknown', 'Good', 'Unknown', 'No fact', 'Unknown', 'No fact']/['Good', 'Good', 'Good', 'Good', 'None', 'None'] links 0/0 det 1 xy 248,743 w725|234,770 w735
+  [2] 'Most useful next evidence' 545 | 'Most useful next evidence' 438 r=1.24 rows 0/0 cols []/[] chips []/[] links 2/3 det 0 xy 991,743 w403|987,770 w408
+
+## cold-evidence stocked 390  pageH 2033/2254 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  pSizes {'11px': 6, '10px': 1, '14px': 2} {'11px': 5}
+  [0] 'What we can conclude now' 597 | 'What we can conclude now' 451 r=1.32 rows 4/4 cols ['Capability', 'Evidence', 'What we can say', 'What is missing', 'Next step']/['Capability', 'Evidence', 'What we can say', 'What is missing', 'Next step'] chips ['Full', 'Limited', 'Limited', 'None']/['Limited', 'Limited', 'Limited', 'None'] links 4/3 det 0 xy 16,480 w358|15,715 w360
+  [1] 'Data sources · data quality, not equipment condition' 572 | 'Data sources · data quality, not equipment condition' 560 r=1.02 rows 6/6 cols ['Source', 'Contact at window end', 'Accepted quality', 'What it provides', 'Affects']/['Source', 'Status at window end', 'Quality', 'What it provides', 'Affects'] chips ['Unknown', 'Good', 'Not declared', 'No fact', 'Unknown', 'Good', 'Unknown', 'Good', 'Unknown', 'No fact', 'Unknown', 'No fact']/['Good', 'Good', 'Good', 'Good', 'None', 'None'] links 0/0 det 1 xy 16,1095 w358|15,1185 w360
+  [2] 'Most useful next evidence' 231 | 'Most useful next evidence' 319 r=0.72 rows 0/0 cols []/[] chips []/[] links 2/3 det 0 xy 16,1683 w358|15,1763 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 820, 'cw': 318, 'panel': 'What we can conclude now'}, {'cls': 'data-table__scroll', 'sw': 825, 'cw': 318, 'panel': 'Data sources · data quality, not equipment condition'}]
+
+## cold-evidence no-selection 1440  pageH 1000/1334 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  pSizes {'11px': 2, '10px': 3} {'11px': 5}
+  [0] 'What we can conclude now' 119 | 'What we can conclude now' 336 r=0.35 rows 0/4 cols []/['Capability', 'Evidence', 'What we can say', 'What is missing', 'Next step'] chips []/['Limited', 'Limited', 'Limited', 'None'] links 0/3 det 0 xy 248,339 w1160|234,416 w1161
+  [1] 'Data sources · data quality, not equipment condition' 119 | 'Data sources · data quality, not equipment condition' 438 r=0.27 rows 0/6 cols []/['Source', 'Status at window end', 'Quality', 'What it provides', 'Affects'] chips []/['Good', 'Good', 'Good', 'Good', 'None', 'None'] links 0/0 det 0 xy 248,476 w734|234,770 w735
+  [2] 'Most useful next evidence' 119 | 'Most useful next evidence' 438 r=0.27 rows 0/0 cols []/[] chips []/[] links 0/3 det 0 xy 1000,476 w408|987,770 w408
+
+## cold-evidence no-selection 390  pageH 1009/2254 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  pSizes {'11px': 2, '10px': 3} {'11px': 5}
+  [0] 'What we can conclude now' 119 | 'What we can conclude now' 451 r=0.26 rows 0/4 cols []/['Capability', 'Evidence', 'What we can say', 'What is missing', 'Next step'] chips []/['Limited', 'Limited', 'Limited', 'None'] links 0/3 det 0 xy 16,480 w358|15,715 w360
+  [1] 'Data sources · data quality, not equipment condition' 160 | 'Data sources · data quality, not equipment condition' 560 r=0.29 rows 0/6 cols []/['Source', 'Status at window end', 'Quality', 'What it provides', 'Affects'] chips []/['Good', 'Good', 'Good', 'Good', 'None', 'None'] links 0/0 det 0 xy 16,617 w358|15,1185 w360
+  [2] 'Most useful next evidence' 96 | 'Most useful next evidence' 319 r=0.3 rows 0/0 cols []/[] chips []/[] links 0/3 det 0 xy 16,793 w358|15,1763 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## cold-evidence refused 1440  pageH 1000/1334 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  pSizes {'11px': 2, '10px': 3} {'11px': 5}
+  [0] 'What we can conclude now' 119 | 'What we can conclude now' 336 r=0.35 rows 0/4 cols []/['Capability', 'Evidence', 'What we can say', 'What is missing', 'Next step'] chips []/['Limited', 'Limited', 'Limited', 'None'] links 0/3 det 0 xy 248,308 w1160|234,416 w1161
+  [1] 'Data sources · data quality, not equipment condition' 119 | 'Data sources · data quality, not equipment condition' 438 r=0.27 rows 0/6 cols []/['Source', 'Status at window end', 'Quality', 'What it provides', 'Affects'] chips []/['Good', 'Good', 'Good', 'Good', 'None', 'None'] links 0/0 det 0 xy 248,445 w734|234,770 w735
+  [2] 'Most useful next evidence' 119 | 'Most useful next evidence' 438 r=0.27 rows 0/0 cols []/[] chips []/[] links 0/3 det 0 xy 1000,445 w408|987,770 w408
+
+## cold-evidence refused 390  pageH 915/2254 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  pSizes {'11px': 2, '10px': 3} {'11px': 5}
+  [0] 'What we can conclude now' 119 | 'What we can conclude now' 451 r=0.26 rows 0/4 cols []/['Capability', 'Evidence', 'What we can say', 'What is missing', 'Next step'] chips []/['Limited', 'Limited', 'Limited', 'None'] links 0/3 det 0 xy 16,386 w358|15,715 w360
+  [1] 'Data sources · data quality, not equipment condition' 160 | 'Data sources · data quality, not equipment condition' 560 r=0.29 rows 0/6 cols []/['Source', 'Status at window end', 'Quality', 'What it provides', 'Affects'] chips []/['Good', 'Good', 'Good', 'Good', 'None', 'None'] links 0/0 det 0 xy 16,523 w358|15,1185 w360
+  [2] 'Most useful next evidence' 96 | 'Most useful next evidence' 319 r=0.3 rows 0/0 cols []/[] chips []/[] links 0/3 det 0 xy 16,699 w358|15,1763 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## cold-evidence no-window 1440  pageH 1399/1334 ovX 0 hdr 59/65 dark 1399 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  pSizes {'11px': 6, '10px': 1, '14px': 2} {'11px': 5}
+  [0] 'What we can conclude now' 386 | 'What we can conclude now' 336 r=1.15 rows 4/4 cols ['Capability', 'Evidence', 'What we can say', 'What is missing', 'Next step']/['Capability', 'Evidence', 'What we can say', 'What is missing', 'Next step'] chips ['Full', 'Limited', 'Limited', 'None']/['Limited', 'Limited', 'Limited', 'None'] links 4/3 det 0 xy 248,339 w1145|234,416 w1161
+  [1] 'Data sources · data quality, not equipment condition' 545 | 'Data sources · data quality, not equipment condition' 438 r=1.24 rows 6/6 cols ['Source', 'Contact at window end', 'Accepted quality', 'What it provides', 'Affects']/['Source', 'Status at window end', 'Quality', 'What it provides', 'Affects'] chips ['Unknown', 'Good', 'Not declared', 'No fact', 'Unknown', 'Good', 'Unknown', 'Good', 'Unknown', 'No fact', 'Unknown', 'No fact']/['Good', 'Good', 'Good', 'Good', 'None', 'None'] links 0/0 det 1 xy 248,743 w725|234,770 w735
+  [2] 'Most useful next evidence' 545 | 'Most useful next evidence' 438 r=1.24 rows 0/0 cols []/[] chips []/[] links 2/3 det 0 xy 991,743 w403|987,770 w408
+
+## cold-evidence no-window 390  pageH 2033/2254 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview*', 'Analysis']]
+  pSizes {'11px': 6, '10px': 1, '14px': 2} {'11px': 5}
+  [0] 'What we can conclude now' 597 | 'What we can conclude now' 451 r=1.32 rows 4/4 cols ['Capability', 'Evidence', 'What we can say', 'What is missing', 'Next step']/['Capability', 'Evidence', 'What we can say', 'What is missing', 'Next step'] chips ['Full', 'Limited', 'Limited', 'None']/['Limited', 'Limited', 'Limited', 'None'] links 4/3 det 0 xy 16,480 w358|15,715 w360
+  [1] 'Data sources · data quality, not equipment condition' 572 | 'Data sources · data quality, not equipment condition' 560 r=1.02 rows 6/6 cols ['Source', 'Contact at window end', 'Accepted quality', 'What it provides', 'Affects']/['Source', 'Status at window end', 'Quality', 'What it provides', 'Affects'] chips ['Unknown', 'Good', 'Not declared', 'No fact', 'Unknown', 'Good', 'Unknown', 'Good', 'Unknown', 'No fact', 'Unknown', 'No fact']/['Good', 'Good', 'Good', 'Good', 'None', 'None'] links 0/0 det 1 xy 16,1095 w358|15,1185 w360
+  [2] 'Most useful next evidence' 231 | 'Most useful next evidence' 319 r=0.72 rows 0/0 cols []/[] chips []/[] links 2/3 det 0 xy 16,1683 w358|15,1763 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 820, 'cw': 318, 'panel': 'What we can conclude now'}, {'cls': 'data-table__scroll', 'sw': 825, 'cw': 318, 'panel': 'Data sources · data quality, not equipment condition'}]
+
+## cold-evidence-analysis stocked 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  pSizes {'11px': 1, '14px': 3} {'11px': 1, '12px': 2}
+  [0] 'Accepted records behind the conclusions' 391 | 'Accepted records behind the conclusions' 266 r=1.47 rows 50/3 cols ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']/['Source · reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record'] chips []/[] links 0/0 det 1 xy 248,339 w1160|234,416 w1161
+  [1] 'How a claim limit is set' 191 | 'How a claim limit is set' 148 r=1.29 rows 0/0 cols []/[] chips []/[] links 0/0 det 1 xy 248,748 w1160|234,699 w1161
+
+## cold-evidence-analysis stocked 390  pageH 1270/1399 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  pSizes {'11px': 1, '14px': 3} {'11px': 1, '12px': 2}
+  [0] 'Accepted records behind the conclusions' 485 | 'Accepted records behind the conclusions' 371 r=1.31 rows 50/3 cols ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']/['Source · reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record'] chips []/[] links 0/0 det 1 xy 16,464 w358|15,688 w360
+  [1] 'How a claim limit is set' 262 | 'How a claim limit is set' 228 r=1.15 rows 0/0 cols []/[] chips []/[] links 0/0 det 1 xy 16,966 w358|15,1078 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 970, 'cw': 318, 'panel': 'Accepted records behind the conclusions'}]
+
+## cold-evidence-analysis no-selection 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  pSizes {'11px': 1, '10px': 2} {'11px': 1, '12px': 2}
+  [0] 'Accepted records behind the conclusions' 165 | 'Accepted records behind the conclusions' 266 r=0.62 rows 1/3 cols ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']/['Source · reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record'] chips []/[] links 0/0 det 0 xy 248,339 w1160|234,416 w1161
+  [1] 'How a claim limit is set' 96 | 'How a claim limit is set' 148 r=0.65 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 248,523 w1160|234,699 w1161
+
+## cold-evidence-analysis no-selection 390  pageH 900/1399 ovX 0 hdr 58/131 dark 136 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  pSizes {'11px': 1, '10px': 2} {'11px': 1, '12px': 2}
+  [0] 'Accepted records behind the conclusions' 191 | 'Accepted records behind the conclusions' 371 r=0.51 rows 1/3 cols ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']/['Source · reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record'] chips []/[] links 0/0 det 0 xy 16,509 w358|15,688 w360
+  [1] 'How a claim limit is set' 96 | 'How a claim limit is set' 228 r=0.42 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 16,717 w358|15,1078 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 509, 'cw': 318, 'panel': 'Accepted records behind the conclusions'}]
+
+## cold-evidence-analysis refused 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  pSizes {'11px': 1, '10px': 2} {'11px': 1, '12px': 2}
+  [0] 'Accepted records behind the conclusions' 119 | 'Accepted records behind the conclusions' 266 r=0.45 rows 0/3 cols []/['Source · reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record'] chips []/[] links 0/0 det 0 xy 248,247 w1160|234,416 w1161
+  [1] 'How a claim limit is set' 96 | 'How a claim limit is set' 148 r=0.65 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 248,384 w1160|234,699 w1161
+
+## cold-evidence-analysis refused 390  pageH 900/1399 ovX 0 hdr 58/131 dark 241 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  pSizes {'11px': 1, '10px': 2} {'11px': 1, '12px': 2}
+  [0] 'Accepted records behind the conclusions' 119 | 'Accepted records behind the conclusions' 371 r=0.32 rows 0/3 cols []/['Source · reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record'] chips []/[] links 0/0 det 0 xy 16,475 w358|15,688 w360
+  [1] 'How a claim limit is set' 96 | 'How a claim limit is set' 228 r=0.42 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 16,612 w358|15,1078 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## cold-evidence-analysis no-window 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  pSizes {'11px': 1, '14px': 3} {'11px': 1, '12px': 2}
+  [0] 'Accepted records behind the conclusions' 391 | 'Accepted records behind the conclusions' 266 r=1.47 rows 50/3 cols ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']/['Source · reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record'] chips []/[] links 0/0 det 1 xy 248,339 w1160|234,416 w1161
+  [1] 'How a claim limit is set' 191 | 'How a claim limit is set' 148 r=1.29 rows 0/0 cols []/[] chips []/[] links 0/0 det 1 xy 248,748 w1160|234,699 w1161
+
+## cold-evidence-analysis no-window 390  pageH 1270/1399 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence*'], ['Overview', 'Analysis*']]
+  pSizes {'11px': 1, '14px': 3} {'11px': 1, '12px': 2}
+  [0] 'Accepted records behind the conclusions' 485 | 'Accepted records behind the conclusions' 371 r=1.31 rows 50/3 cols ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']/['Source · reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record'] chips []/[] links 0/0 det 1 xy 16,464 w358|15,688 w360
+  [1] 'How a claim limit is set' 262 | 'How a claim limit is set' 228 r=1.15 rows 0/0 cols []/[] chips []/[] links 0/0 det 1 xy 16,966 w358|15,1078 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 970, 'cw': 318, 'panel': 'Accepted records behind the conclusions'}]
+
+## cold-financials stocked 1440  pageH 1103/1099 ovX 0 hdr 59/65 dark 1103 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  pSizes {'11px': 4, '10px': 1, '14px': 5} {'11px': 4, '14px': 1, '12px': 1}
+  [0] 'What happened → what it means in money' 300 | 'What happened → what it means in money' 234 r=1.28 rows 2/2 cols ['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source']/['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source'] chips ['Unpriced']/['Unpriced', 'Unknown'] links 2/2 det 1 xy 248,481 w1145|234,547 w1161
+  [1] 'Assumptions in use' 254 | 'Assumptions in use' 234 r=1.09 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 248,800 w725|234,799 w735
+  [2] 'Not included' 254 | 'Not included' 234 r=1.09 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 991,800 w403|987,799 w408
+
+## cold-financials stocked 390  pageH 1670/1810 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  pSizes {'11px': 4, '10px': 1, '14px': 5} {'11px': 4, '14px': 1, '12px': 1}
+  [0] 'What happened → what it means in money' 318 | 'What happened → what it means in money' 292 r=1.09 rows 2/2 cols ['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source']/['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source'] chips ['Unpriced']/['Unpriced', 'Unknown'] links 2/2 det 1 xy 16,743 w358|15,1013 w360
+  [1] 'Assumptions in use' 270 | 'Assumptions in use' 234 r=1.15 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 16,1079 w358|15,1322 w360
+  [2] 'Not included' 266 | 'Not included' 142 r=1.87 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 16,1365 w358|15,1574 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 970, 'cw': 318, 'panel': 'What happened → what it means in money'}]
+
+## cold-financials no-selection 1440  pageH 1000/1099 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  pSizes {'10px': 3, '11px': 3, '14px': 1} {'11px': 4, '14px': 1, '12px': 1}
+  [0] 'What happened → what it means in money' 167 | 'What happened → what it means in money' 234 r=0.71 rows 1/2 cols ['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source']/['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source'] chips []/['Unpriced', 'Unknown'] links 0/2 det 0 xy 248,465 w1160|234,547 w1161
+  [1] 'Assumptions in use' 254 | 'Assumptions in use' 234 r=1.09 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 248,651 w734|234,799 w735
+  [2] 'Not included' 254 | 'Not included' 234 r=1.09 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 1000,651 w408|987,799 w408
+
+## cold-financials no-selection 390  pageH 1334/1810 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  pSizes {'10px': 3, '11px': 3, '14px': 1} {'11px': 4, '14px': 1, '12px': 1}
+  [0] 'What happened → what it means in money' 167 | 'What happened → what it means in money' 292 r=0.57 rows 1/2 cols ['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source']/['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source'] chips []/['Unpriced', 'Unknown'] links 0/2 det 0 xy 16,727 w358|15,1013 w360
+  [1] 'Assumptions in use' 270 | 'Assumptions in use' 234 r=1.15 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 16,912 w358|15,1322 w360
+  [2] 'Not included' 96 | 'Not included' 142 r=0.68 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 16,1198 w358|15,1574 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 544, 'cw': 318, 'panel': 'What happened → what it means in money'}]
+
+## cold-financials refused 1440  pageH 1000/1099 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  pSizes {'10px': 3} {'11px': 4, '14px': 1, '12px': 1}
+  [0] 'What happened → what it means in money' 96 | 'What happened → what it means in money' 234 r=0.41 rows 0/2 cols []/['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source'] chips []/['Unpriced', 'Unknown'] links 0/2 det 0 xy 248,418 w1160|234,547 w1161
+  [1] 'Assumptions in use' 96 | 'Assumptions in use' 234 r=0.41 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 248,532 w734|234,799 w735
+  [2] 'Not included' 96 | 'Not included' 234 r=0.41 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 1000,532 w408|987,799 w408
+
+## cold-financials refused 390  pageH 963/1810 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  pSizes {'10px': 3} {'11px': 4, '14px': 1, '12px': 1}
+  [0] 'What happened → what it means in money' 96 | 'What happened → what it means in money' 292 r=0.33 rows 0/2 cols []/['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source'] chips []/['Unpriced', 'Unknown'] links 0/2 det 0 xy 16,601 w358|15,1013 w360
+  [1] 'Assumptions in use' 96 | 'Assumptions in use' 234 r=0.41 rows 0/0 cols []/[] chips []/[] links 0/1 det 0 xy 16,715 w358|15,1322 w360
+  [2] 'Not included' 96 | 'Not included' 142 r=0.68 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 16,827 w358|15,1574 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## cold-financials no-window 1440  pageH 1103/1099 ovX 0 hdr 59/65 dark 1103 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  pSizes {'11px': 4, '10px': 1, '14px': 5} {'11px': 4, '14px': 1, '12px': 1}
+  [0] 'What happened → what it means in money' 300 | 'What happened → what it means in money' 234 r=1.28 rows 2/2 cols ['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source']/['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source'] chips ['Unpriced']/['Unpriced', 'Unknown'] links 2/2 det 1 xy 248,481 w1145|234,547 w1161
+  [1] 'Assumptions in use' 254 | 'Assumptions in use' 234 r=1.09 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 248,800 w725|234,799 w735
+  [2] 'Not included' 254 | 'Not included' 234 r=1.09 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 991,800 w403|987,799 w408
+
+## cold-financials no-window 390  pageH 1670/1810 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview*', 'Assumptions', 'Scenarios']]
+  pSizes {'11px': 4, '10px': 1, '14px': 5} {'11px': 4, '14px': 1, '12px': 1}
+  [0] 'What happened → what it means in money' 318 | 'What happened → what it means in money' 292 r=1.09 rows 2/2 cols ['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source']/['What happened', 'How it becomes money', 'Consequence', 'Basis', 'Confidence', 'Source'] chips ['Unpriced']/['Unpriced', 'Unknown'] links 2/2 det 1 xy 16,743 w358|15,1013 w360
+  [1] 'Assumptions in use' 270 | 'Assumptions in use' 234 r=1.15 rows 0/0 cols []/[] chips []/[] links 1/1 det 0 xy 16,1079 w358|15,1322 w360
+  [2] 'Not included' 266 | 'Not included' 142 r=1.87 rows 0/0 cols []/[] chips []/[] links 0/0 det 0 xy 16,1365 w358|15,1574 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 970, 'cw': 318, 'panel': 'What happened → what it means in money'}]
+
+## cold-assumptions stocked 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  pSizes {'11px': 1, '10px': 1} {'11px': 1}
+  [0] 'Financial assumptions' 315 | 'Financial assumptions' 279 r=1.13 rows 3/3 cols ['Assumption', 'Value', 'Used for']/['Assumption', 'Value', 'Used for'] chips ['Not declared', 'Not declared', 'Not declared']/['Not declared', 'Not declared'] links 0/0 det 0 xy 248,278 w1160|234,354 w1161
+
+## cold-assumptions stocked 390  pageH 912/1108 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  pSizes {'11px': 1, '10px': 1} {'11px': 1}
+  [0] 'Financial assumptions' 373 | 'Financial assumptions' 319 r=1.17 rows 3/3 cols ['Assumption', 'Value', 'Used for']/['Assumption', 'Value', 'Used for'] chips ['Not declared', 'Not declared', 'Not declared']/['Not declared', 'Not declared'] links 0/0 det 0 xy 16,380 w358|15,599 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 520, 'cw': 318, 'panel': 'Financial assumptions'}]
+
+## cold-assumptions no-selection 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  pSizes {'11px': 1, '10px': 1} {'11px': 1}
+  [0] 'Financial assumptions' 315 | 'Financial assumptions' 279 r=1.13 rows 3/3 cols ['Assumption', 'Value', 'Used for']/['Assumption', 'Value', 'Used for'] chips ['Not declared', 'Not declared', 'Not declared']/['Not declared', 'Not declared'] links 0/0 det 0 xy 248,278 w1160|234,354 w1161
+
+## cold-assumptions no-selection 390  pageH 912/1108 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  pSizes {'11px': 1, '10px': 1} {'11px': 1}
+  [0] 'Financial assumptions' 373 | 'Financial assumptions' 319 r=1.17 rows 3/3 cols ['Assumption', 'Value', 'Used for']/['Assumption', 'Value', 'Used for'] chips ['Not declared', 'Not declared', 'Not declared']/['Not declared', 'Not declared'] links 0/0 det 0 xy 16,380 w358|15,599 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 520, 'cw': 318, 'panel': 'Financial assumptions'}]
+
+## cold-assumptions refused 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  pSizes {'11px': 1, '10px': 1} {'11px': 1}
+  [0] 'Financial assumptions' 119 | 'Financial assumptions' 279 r=0.43 rows 0/3 cols []/['Assumption', 'Value', 'Used for'] chips []/['Not declared', 'Not declared'] links 0/0 det 0 xy 248,247 w1160|234,354 w1161
+
+## cold-assumptions refused 390  pageH 900/1108 ovX 0 hdr 58/131 dark 231 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  pSizes {'11px': 1, '10px': 1} {'11px': 1}
+  [0] 'Financial assumptions' 137 | 'Financial assumptions' 319 r=0.43 rows 0/3 cols []/['Assumption', 'Value', 'Used for'] chips []/['Not declared', 'Not declared'] links 0/0 det 0 xy 16,465 w358|15,599 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## cold-assumptions no-window 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  pSizes {'11px': 1, '10px': 1} {'11px': 1}
+  [0] 'Financial assumptions' 315 | 'Financial assumptions' 279 r=1.13 rows 3/3 cols ['Assumption', 'Value', 'Used for']/['Assumption', 'Value', 'Used for'] chips ['Not declared', 'Not declared', 'Not declared']/['Not declared', 'Not declared'] links 0/0 det 0 xy 248,278 w1160|234,354 w1161
+
+## cold-assumptions no-window 390  pageH 912/1108 ovX 0 hdr 58/131 dark 92 err []
+  h1: Cold replay lab | GreenHarvest Cold Room
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence'], ['Overview', 'Assumptions*', 'Scenarios']]
+  pSizes {'11px': 1, '10px': 1} {'11px': 1}
+  [0] 'Financial assumptions' 373 | 'Financial assumptions' 319 r=1.17 rows 3/3 cols ['Assumption', 'Value', 'Used for']/['Assumption', 'Value', 'Used for'] chips ['Not declared', 'Not declared', 'Not declared']/['Not declared', 'Not declared'] links 0/0 det 0 xy 16,380 w358|15,599 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 520, 'cw': 318, 'panel': 'Financial assumptions'}]
