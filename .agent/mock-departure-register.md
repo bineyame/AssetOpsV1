@@ -130,7 +130,7 @@ Mock selectors are `SITE_WORK.ev`, `WORK_COLS`, `WORK_EMPTY`, `siteWorkScreen('e
 | R75 | W5-04 V2a/V3a | `ev-work`, `ev-work-incidents` | Finding link opens selected source | Plain revision label, disclosure and unavailable exact-revision control | D1 | EV Finding frame ignores `revision_id`; a window-only link can show another revision. | V2a/V3a; future exact-revision Finding frame | planned |
 | R76 | W5-04 V2a | `ev-work` | `Due dates are not yet set in this example` | `Due dates are not yet set` only for all-null selected due dates | D4 | Example qualifier cannot describe arbitrary persisted rows. | V2a | planned |
 | R77 | W5-04 V2a/V4a | `ev-work`, `ev-action` | Fixed EAT in topbar example window | Stored Site-zone abbreviation, UTC for private fixture | D4 | Fixture timezone is Etc/UTC, and user Sites vary. | V2a/V4a | planned |
-| R78 | W5-04 V2a | `ev-work` | Example connector/power subtitle | `EV charging operations at this site.` when stored subtitle is null | D4 | No selected Foundation fact supports copied example configuration. | V2a | planned |
+| R78 | W5-04 V2a | `ev-work` | Example connector/power subtitle | Always `EV charging operations at this site.` | D4 | Site read has no subtitle field; no selected Foundation fact supports copied example configuration. | V2a | planned |
 | R79 | W5-04 V2a | `ev-work` | `1 actions` in scope strip | `1 action` | D2 | Correct singular grammar improves clarity. | V2a; owner walkthrough | planned |
 | R80 | W5-04 V2a/V3a/V4a | `ev-work`, `ev-work-incidents`, `ev-work-maintenance`, `ev-action` | No currentness notice in example | Selected historical/pending/stale/unknown notice below strip | D2 | The cutoff/source state must remain visible in live reads. | V2a/V3a/V4a; owner walkthrough | planned |
 | R81 | W5-04 V3a | `ev-work-maintenance` | Activity Completed chip only | Completed chip plus stored activity disclosure | D2 | Exposes attested text in the existing cell. | V3a; owner walkthrough | planned |
@@ -190,3 +190,9 @@ R104–R110 carry the named cold departures to EV without changing the cold rows
 | R108 | W5-04 V2a/V2b | `ev-work` | One Action example row | First four visible Action rows with `Show all {n} Actions` for remaining selected page rows | D2 | A five-row selected page needs a readable fold without losing rows. | V2a/V2b; owner walkthrough | planned |
 | R109 | W5-04 V4a/V4b | `ev-action` | Short one-line title/owner | Full selected 160-character title/owner wrap (cold R99) | D2 | Stored text can exceed the illustrative example. | V4a/V4b; owner walkthrough | planned |
 | R110 | W5-04 V4a | `ev-action` | Loaded headed panel | One untitled state panel for loading, 404 and refused reads (cold R101) | D2 | No criteria can be shown before a valid detail read. | V4a; owner walkthrough | planned |
+
+## W5-04a Q6-Q12 producer correction (2026-10-24)
+
+| ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R111 | W5-04 V2a/V3a/V4a | `ev-work`, `ev-work-incidents`, `ev-work-maintenance`, `ev-action` | Illustrative Depot Charging Hub Site name | Stored EV-LAB-001 display name; `Depot` remains a private manifest label | D4 | The registered unshifted EV replay is bound to EV-LAB-001, and the Site read has no short-name field. | V1b producer, V2a/V3a/V4a presentation | planned; owner walkthrough |

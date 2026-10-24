@@ -56,3 +56,61 @@ citations). Which is "the selected accepted set" - (b), with (a) not required, o
 V1b's card includes `tools/w504_ev_work_cases.py` (non-test, W2 manifests and ingestion APIs) and
 `tools/w504_ev_work_walkthrough.py` (`prepare|serve|attest|drop`). The cold equivalents are 272 + 895 lines. They
 depend on Q3. Confirm they stay in V1b rather than a separate unit.
+
+## Round 2 (V1a service / V1b read build, 2026-10-24) - recorded, not decided
+
+### Q6 - Ruling 27 "greatest accepted disposition" vs the merged pin's evidence cutoff
+Ruling 27 computes the evidence cutoff as the greatest **accepted** `ingestion_disposition.decided_at <= command_now`
+and says this "follows W5-02 cold `_ReadTx._pin`". Merged `_ReadTx._cold_ev`
+(`backend/assetops_backend/work/adapters/postgres_work_read.py:281-283`) uses
+`SELECT max(decided_at) FROM ingestion_disposition WHERE tenant_id=:t AND site_id=:s AND decided_at <= :k` -
+no `decision = 'ACCEPTED'` filter, so a later REJECTED disposition moves the cutoff. `EvReadService._snapshot`
+(`postgres_assessment_store.py:2681`) uses the same unfiltered `max(decided_at)` as its watermark. Not decided: the
+V1 build uses the existing `selected_finding_pin` (unfiltered, shared with cold and W4 links) unchanged. Adding the
+filter would change cold/W4 link pins too. Which is binding - the merged unfiltered cutoff (amend ruling 27's word
+"accepted"), or an EV-only accepted-filtered cutoff (a second pin implementation)?
+
+### Q7 - EV detail without an intent when the Finding is no longer selected at `known_at`
+Ruling 27 pins the historical selection at the intent's `recorded_at`; with no intent there is no immutable cutoff,
+so the pin is taken at the read `known_at` (coordinator brief). After any later EV recompute the Action's Finding
+revision is no longer the selected head at `known_at`. Built: no intent -> 200 with `status` UNKNOWN, null Finding
+href and `missing_lineage` provenance (the cold behaviour); with an intent any missing/mismatched recheck -> 409
+`DOMAIN_INTENT_BASIS_CHANGED` (EV message). Confirm, or should the no-intent case pin at the Action's `recorded_at`
+or refuse 409?
+
+## Round 3 (V1b producer/walkthrough, 2026-10-24) - recorded, not decided
+
+### Q8 - `ev-fault` has no fault-ended session or EV Finding (pre-flight 20, readiness 31, spec "V1 selection")
+`config/scenarios/ev-fault.yaml` is "Fault before charging": FAULT 08:00, CLEAR 08:05, session 08:11-08:21
+COMPLETED (`contract-fixtures/w2/ev/fault.json` assertions `outcome: COMPLETED`, `abort_at: null`). EV Findings are
+written only for `qualified_fault_abort` sessions (`OBSERVED_ABORT` with a FAULT at the abort,
+`analytics/ev.py:616-630`, `analytics/adapters/postgres_finding_store.py:728`). The fault-ended session with a
+SUPPORTED Finding is `ev-interrupted` (OBSERVED_ABORT, fault 08:16). The producer keeps `POSITIVE_SCENARIO =
+"ev-fault"` as ruled; `select_positive` would refuse it ("expected one SUPPORTED EV Finding on a fault-ended
+selected session"). Which scenario is the positive replay?
+
+### Q9 - The registered EV path cannot produce Site `EV-W504-DEPOT-{suffix}` or a shifted window
+`scenarios/ev_parsing.py:179-189` pins `site_code` to `EV-LAB-001` (or `EV-LAB-002` for `ev-complete-lab-002`) and
+the window to exactly `2026-10-06T08:00Z-09:00Z`; `sites/ev_lab.install_ev_lab` imports the fixed EV-LAB-001
+fixture. The run setup, host publication and gateway admission all go through that parser. So the ruled shifted
+`[D+08:00,D+09:00)` replay at the generated Site code is refused on merged code (proved DB-free:
+`test_replay_is_blocked_on_merged_parser`), and ruling 31 authorizes no product change. Options: (a) a product
+change admitting a producer-generated EV Site/window; (b) the producer bypasses the registered run/host/gateway path
+and posts shifted envelopes straight to batch ingestion (a design decision, untested, needs gateway credentials and
+v4 envelopes); (c) keep EV-LAB-001 at 2026-10-06 (18 days before today, inside W4's 30-day limit, but no longer than
+~24 days from now) and drop the generated code/shift.
+
+### Q10 - The registered EV publication runner exists only in test modules
+`Chain._gateway` uses `gateway_process.GatewayProcess`, `fake_central.FakeCentral` (gateway/tests), `run_fixtures.
+FakeScenarios/FakeSites`, `scenario_cache`, `test_s1_bindings_postgres.Clock`, `pg_harness`, and the ledger's
+`test_decision_clock_override`. W5-02's cold walkthrough imported `backend/tests` in its child process; ruling 29
+and the brief forbid that here. Even after Q9, a non-test producer needs its own gateway/central harness. Is a
+tool-local copy authorized, or may the walkthrough child import those test helpers as the cold precedent did?
+
+### Q11 - WR narrative
+W4 requires a case `narrative` (1..4000, `work/service.py:175`); the spec gives the WR only title/activity/
+outcome_note. Provisional: `WR_NARRATIVE_PENDING_RULING` = the activity literal, flagged in the manifest.
+
+### Q12 - Short name `Depot`
+The Site document and Site read have no short-name field (no `short_name` anywhere in `assetops_backend`). The
+producer records `Depot` in the manifest only.
