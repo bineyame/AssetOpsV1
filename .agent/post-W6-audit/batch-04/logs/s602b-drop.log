@@ -1,0 +1,6 @@
+dropped database assetops_s602b_audit
+dropped database assetops_s602b_audit_target_miss
+dropped database assetops_s602b_audit_guardrail
+dropped database assetops_s602b_audit_inconclusive
+dropped database assetops_s602b_audit_withdrawn
+removed C:\Users\assef\Bineyame\AssetOpsV1-review5\var\s602b_audit_b4
