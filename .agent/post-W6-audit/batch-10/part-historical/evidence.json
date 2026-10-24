@@ -1,0 +1,3755 @@
+{
+  "revision": null,
+  "captured_at": "2026-10-24T16:45:51.747Z",
+  "pairs": [
+    {
+      "screen": "findings",
+      "case": "historical",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+      "mock_hash": "#/findings",
+      "app_image": "findings-historical-1440-app.png",
+      "mock_image": "findings-historical-1440-mock.png",
+      "app": {
+        "titles": [
+          "Findings across the estate"
+        ],
+        "panels": [
+          {
+            "title": "Findings across the estate",
+            "x": 248,
+            "y": 457,
+            "w": 1145,
+            "h": 454,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "Supported",
+              "Earlier evidence cutoff",
+              "Supported",
+              "Earlier evidence cutoff",
+              "Supported",
+              "Earlier evidence cutoff",
+              "Supported",
+              "Earlier evidence cutoff"
+            ],
+            "links": 5,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "Cold room temperature outside its policy bandFinding 00000005Finding 00000005-0000-4000-8000-00000000016d · revision 00000005-0000-4000-8000-00000000016e · Generated test data",
+                "COLD-LAB-001Cold replay lab",
+                "Not assessed",
+                "Not assessed",
+                "SupportedEarlier evidence cutoff",
+                "No consequence recorded",
+                "No supported lens"
+              ],
+              [
+                "Backup generator did not start when the grid failedFinding 00000005Finding 00000005-0000-4000-8000-000000000173 · revision 00000005-0000-4000-8000-000000000174 · Generated test data",
+                "COLD-LAB-001Cold replay lab",
+                "Not assessed",
+                "Not assessed",
+                "SupportedEarlier evidence cutoff",
+                "No consequence recorded",
+                "No supported lens"
+              ],
+              [
+                "Observed EV charging interruptionFinding 00000005Finding 00000005-0000-4000-8000-0000000003ce · revision 00000005-0000-4000-8000-0000000003cf · Generated test data",
+                "EV-LAB-001EV charging lab",
+                "Not assessed",
+                "Not assessed",
+                "SupportedEarlier evidence cutoff",
+                "No consequence recorded",
+                "No supported lens"
+              ],
+              [
+                "Generator support merits review: bounded candidate avoidable runningFinding 00000005Finding 00000005-0000-4000-8000-0000000004bd · revision 00000005-0000-4000-8000-00000000058c · Source unverified",
+                "KOBO-001Kobo mini-grid",
+                "Not assessed",
+                "Not assessed",
+                "SupportedEarlier evidence cutoff",
+                "No consequence recorded",
+                "No supported lens"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "COLD-LAB-001 -> /sites/COLD-LAB-001"
+              ],
+              [
+                "COLD-LAB-001 -> /sites/COLD-LAB-001"
+              ],
+              [
+                "EV-LAB-001 -> /sites/EV-LAB-001"
+              ],
+              [
+                "Generator support merits review: bounded candidate avoidable running -> /sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-00000000058c",
+                "KOBO-001 -> /sites/KOBO-001"
+              ]
+            ],
+            "panelText": "Findings across the estateLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensCold room temperature outside its policy bandFinding 00000005Finding 00000005-0000-4000-8000-00000000016d · revision 00000005-0000-4000-8000-00000000016e · Generated test dataCOLD-LAB-001Cold replay labNot assessedNot assessedSupportedEarlier evidence cutoffNo consequence recordedNo supported lensBackup generator did not start when the grid failedFinding 00000005Finding 00000005-0000-4000-8000-000000000173 · revision 00000005-0000-4000-8000-00000",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1083,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "estate": {
+          "cards": [
+            "Supported findings4Across 3 sites",
+            "High priorityNot assessed",
+            "Low confidenceNot assessed",
+            "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+          ],
+          "chips": "All statesSupportedUnconfirmedNo longer supportedMerged",
+          "lenses": "All findingsCostRisksOpportunities",
+          "cutoff": "Evidence cutoff 2026-11-02 11:08:27 UTC",
+          "historical": "This is an earlier evidence cutoff.",
+          "notice": "Priority, confidence and workflow state stay separate. A finding title that is a link opens that finding with its site in the breadcrumb; other titles are shown without a link.",
+          "limitation": "This is an earlier evidence cutoff.",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "All findings -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Cost -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Risks -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Opportunities -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "All states -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Supported -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=supported",
+          "Unconfirmed -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=unconfirmed",
+          "No longer supported -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=no_longer_supported",
+          "Merged -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=merged",
+          "COLD-LAB-001 -> /sites/COLD-LAB-001",
+          "COLD-LAB-001 -> /sites/COLD-LAB-001",
+          "EV-LAB-001 -> /sites/EV-LAB-001",
+          "Generator support merits review: bounded candidate avoidable -> /sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-00000000058c",
+          "KOBO-001 -> /sites/KOBO-001"
+        ],
+        "cardsDom": [
+          {
+            "t": "Supported findings4Across 3 sites",
+            "h": 150
+          },
+          {
+            "t": "High priorityNot assessed",
+            "h": 150
+          },
+          {
+            "t": "Low confidenceNot assessed",
+            "h": 150
+          },
+          {
+            "t": "Awaiting verification0No Actions from selected Finding revisions are awaiting ve",
+            "h": 150
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings*",
+              "Cost",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1083
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Findings across the estate"
+        ],
+        "panels": [
+          {
+            "title": "Findings across the estate",
+            "x": 234,
+            "y": 482,
+            "w": 1161,
+            "h": 443,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "High",
+              "Lowⓘ",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Recommendation",
+              "High",
+              "High",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Open"
+            ],
+            "links": 12,
+            "buttons": 3,
+            "details": 0,
+            "rowText": [
+              [
+                "F-104 · Generator support review",
+                "Kobo Mini-grid",
+                "High",
+                "Lowⓘ",
+                "Open",
+                "$3.31–3.97 cost exposure · selected hour",
+                "Cost"
+              ],
+              [
+                "F-108 · Battery output-limit report missing",
+                "Kobo Mini-grid",
+                "Medium",
+                "High",
+                "Open",
+                "30 min cannot be classified",
+                "Risks"
+              ],
+              [
+                "F-109 · Productive-use headroom",
+                "Kobo Mini-grid",
+                "Medium",
+                "Mediumⓘ",
+                "Recommendation",
+                "18–20 kW usable · separate 5-day study",
+                "Opportunities"
+              ],
+              [
+                "F-118 · Backup response failed",
+                "GreenHarvest Cold Room",
+                "High",
+                "High",
+                "Open",
+                "Product conditions exposed · not priced",
+                "Risks"
+              ],
+              [
+                "F-119 · Temperature excursion",
+                "GreenHarvest Cold Room",
+                "Medium",
+                "High",
+                "Open",
+                "25–35 min above 4°C · peak 8.2°C",
+                "Risks"
+              ],
+              [
+                "F-130 · Charging session interrupted",
+                "Depot Charging Hub",
+                "Medium",
+                "Mediumⓘ",
+                "Open",
+                "1 interrupted session · lost revenue unknown",
+                "Risks"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "F-104 · Generator support review -> #/finding",
+                "Kobo Mini-grid -> #/mini"
+              ],
+              [
+                "F-108 · Battery output-limit report missing -> #/evidence",
+                "Kobo Mini-grid -> #/mini"
+              ],
+              [
+                "F-109 · Productive-use headroom -> #/opportunity-finding",
+                "Kobo Mini-grid -> #/mini"
+              ],
+              [
+                "F-118 · Backup response failed -> #/cold-finding",
+                "GreenHarvest Cold Room -> #/cold"
+              ],
+              [
+                "F-119 · Temperature excursion -> #/cold-finding-excursion",
+                "GreenHarvest Cold Room -> #/cold"
+              ],
+              [
+                "F-130 · Charging session interrupted -> #/ev-finding",
+                "Depot Charging Hub -> #/ev"
+              ]
+            ],
+            "panelText": "Findings across the estateLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensF-104 · Generator support reviewKobo Mini-gridHighLowⓘOpen$3.31–3.97 cost exposure · selected hourCostF-108 · Battery output-limit report missingKobo Mini-gridMediumHighOpen30 min cannot be classifiedRisksF-109 · Productive-use headroomKobo Mini-gridMediumMediumⓘRecommendation18–20 kW usable · separate 5-day studyOpportunitiesF-118 · Backup response failedGreenHarvest Cold RoomHighHighOpenProduct conditions exposed · not pricedRisksF-119 · Temper",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1051,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "estate": {
+          "cards": [],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "",
+          "historical": "",
+          "notice": "",
+          "limitation": "",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Findings -> #/findings",
+          "All findings -> #/findings",
+          "Cost -> #/findings-cost",
+          "Risks -> #/findings-risks",
+          "Opportunities -> #/findings-opportunities",
+          "F-104 · Generator support review -> #/finding",
+          "Kobo Mini-grid -> #/mini",
+          "F-108 · Battery output-limit report missing -> #/evidence",
+          "Kobo Mini-grid -> #/mini",
+          "F-109 · Productive-use headroom -> #/opportunity-finding",
+          "Kobo Mini-grid -> #/mini",
+          "F-118 · Backup response failed -> #/cold-finding",
+          "GreenHarvest Cold Room -> #/cold",
+          "F-119 · Temperature excursion -> #/cold-finding-excursion",
+          "GreenHarvest Cold Room -> #/cold",
+          "F-130 · Charging session interrupted -> #/ev-finding",
+          "Depot Charging Hub -> #/ev"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings*",
+              "Cost",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1007
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "findings",
+      "case": "historical",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+      "mock_hash": "#/findings",
+      "app_image": "findings-historical-390-app.png",
+      "mock_image": "findings-historical-390-mock.png",
+      "app": {
+        "titles": [
+          "Findings across the estate"
+        ],
+        "panels": [
+          {
+            "title": "Findings across the estate",
+            "x": 16,
+            "y": 800,
+            "w": 358,
+            "h": 456,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "Supported",
+              "Earlier evidence cutoff",
+              "Supported",
+              "Earlier evidence cutoff",
+              "Supported",
+              "Earlier evidence cutoff",
+              "Supported",
+              "Earlier evidence cutoff"
+            ],
+            "links": 5,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "Cold room temperature outside its policy bandFinding 00000005Finding 00000005-0000-4000-8000-00000000016d · revision 00000005-0000-4000-8000-00000000016e · Generated test data",
+                "COLD-LAB-001Cold replay lab",
+                "Not assessed",
+                "Not assessed",
+                "SupportedEarlier evidence cutoff",
+                "No consequence recorded",
+                "No supported lens"
+              ],
+              [
+                "Backup generator did not start when the grid failedFinding 00000005Finding 00000005-0000-4000-8000-000000000173 · revision 00000005-0000-4000-8000-000000000174 · Generated test data",
+                "COLD-LAB-001Cold replay lab",
+                "Not assessed",
+                "Not assessed",
+                "SupportedEarlier evidence cutoff",
+                "No consequence recorded",
+                "No supported lens"
+              ],
+              [
+                "Observed EV charging interruptionFinding 00000005Finding 00000005-0000-4000-8000-0000000003ce · revision 00000005-0000-4000-8000-0000000003cf · Generated test data",
+                "EV-LAB-001EV charging lab",
+                "Not assessed",
+                "Not assessed",
+                "SupportedEarlier evidence cutoff",
+                "No consequence recorded",
+                "No supported lens"
+              ],
+              [
+                "Generator support merits review: bounded candidate avoidable runningFinding 00000005Finding 00000005-0000-4000-8000-0000000004bd · revision 00000005-0000-4000-8000-00000000058c · Source unverified",
+                "KOBO-001Kobo mini-grid",
+                "Not assessed",
+                "Not assessed",
+                "SupportedEarlier evidence cutoff",
+                "No consequence recorded",
+                "No supported lens"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "COLD-LAB-001 -> /sites/COLD-LAB-001"
+              ],
+              [
+                "COLD-LAB-001 -> /sites/COLD-LAB-001"
+              ],
+              [
+                "EV-LAB-001 -> /sites/EV-LAB-001"
+              ],
+              [
+                "Generator support merits review: bounded candidate avoidable running -> /sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-00000000058c",
+                "KOBO-001 -> /sites/KOBO-001"
+              ]
+            ],
+            "panelText": "Findings across the estateLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensCold room temperature outside its policy bandFinding 00000005Finding 00000005-0000-4000-8000-00000000016d · revision 00000005-0000-4000-8000-00000000016e · Generated test dataCOLD-LAB-001Cold replay labNot assessedNot assessedSupportedEarlier evidence cutoffNo consequence recordedNo supported lensBackup generator did not start when the grid failedFinding 00000005Finding 00000005-0000-4000-8000-000000000173 · revision 00000005-0000-4000-8000-00000",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1457,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "estate": {
+          "cards": [
+            "Supported findings4Across 3 sites",
+            "High priorityNot assessed",
+            "Low confidenceNot assessed",
+            "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+          ],
+          "chips": "All statesSupportedUnconfirmedNo longer supportedMerged",
+          "lenses": "All findingsCostRisksOpportunities",
+          "cutoff": "Evidence cutoff 2026-11-02 11:08:27 UTC",
+          "historical": "This is an earlier evidence cutoff.",
+          "notice": "Priority, confidence and workflow state stay separate. A finding title that is a link opens that finding with its site in the breadcrumb; other titles are shown without a link.",
+          "limitation": "This is an earlier evidence cutoff.",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "All findings -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Cost -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Risks -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Opportunities -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "All states -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Supported -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=supported",
+          "Unconfirmed -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=unconfirmed",
+          "No longer supported -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=no_longer_supported",
+          "Merged -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=merged",
+          "COLD-LAB-001 -> /sites/COLD-LAB-001",
+          "COLD-LAB-001 -> /sites/COLD-LAB-001",
+          "EV-LAB-001 -> /sites/EV-LAB-001",
+          "Generator support merits review: bounded candidate avoidable -> /sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-00000000058c",
+          "KOBO-001 -> /sites/KOBO-001"
+        ],
+        "cardsDom": [
+          {
+            "t": "Supported findings4Across 3 sites",
+            "h": 111
+          },
+          {
+            "t": "High priorityNot assessed",
+            "h": 111
+          },
+          {
+            "t": "Low confidenceNot assessed",
+            "h": 161
+          },
+          {
+            "t": "Awaiting verification0No Actions from selected Finding revisions are awaiting ve",
+            "h": 161
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings*",
+              "Cost",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "A",
+            "cls": "estate-cell__primary",
+            "text": "Generator support merits review: bounded candidate avoidable running",
+            "sw": 160,
+            "cw": 160,
+            "sh": 53,
+            "ch": 35
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "v69-chips estate-state-chips",
+            "sw": 460,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 900,
+            "cw": 318,
+            "panel": "Findings across the estate"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Findings across the estate"
+        ],
+        "panels": [
+          {
+            "title": "Findings across the estate",
+            "x": 15,
+            "y": 768,
+            "w": 360,
+            "h": 716,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "High",
+              "Lowⓘ",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Recommendation",
+              "High",
+              "High",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Open"
+            ],
+            "links": 12,
+            "buttons": 3,
+            "details": 0,
+            "rowText": [
+              [
+                "F-104 · Generator support review",
+                "Kobo Mini-grid",
+                "High",
+                "Lowⓘ",
+                "Open",
+                "$3.31–3.97 cost exposure · selected hour",
+                "Cost"
+              ],
+              [
+                "F-108 · Battery output-limit report missing",
+                "Kobo Mini-grid",
+                "Medium",
+                "High",
+                "Open",
+                "30 min cannot be classified",
+                "Risks"
+              ],
+              [
+                "F-109 · Productive-use headroom",
+                "Kobo Mini-grid",
+                "Medium",
+                "Mediumⓘ",
+                "Recommendation",
+                "18–20 kW usable · separate 5-day study",
+                "Opportunities"
+              ],
+              [
+                "F-118 · Backup response failed",
+                "GreenHarvest Cold Room",
+                "High",
+                "High",
+                "Open",
+                "Product conditions exposed · not priced",
+                "Risks"
+              ],
+              [
+                "F-119 · Temperature excursion",
+                "GreenHarvest Cold Room",
+                "Medium",
+                "High",
+                "Open",
+                "25–35 min above 4°C · peak 8.2°C",
+                "Risks"
+              ],
+              [
+                "F-130 · Charging session interrupted",
+                "Depot Charging Hub",
+                "Medium",
+                "Mediumⓘ",
+                "Open",
+                "1 interrupted session · lost revenue unknown",
+                "Risks"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "F-104 · Generator support review -> #/finding",
+                "Kobo Mini-grid -> #/mini"
+              ],
+              [
+                "F-108 · Battery output-limit report missing -> #/evidence",
+                "Kobo Mini-grid -> #/mini"
+              ],
+              [
+                "F-109 · Productive-use headroom -> #/opportunity-finding",
+                "Kobo Mini-grid -> #/mini"
+              ],
+              [
+                "F-118 · Backup response failed -> #/cold-finding",
+                "GreenHarvest Cold Room -> #/cold"
+              ],
+              [
+                "F-119 · Temperature excursion -> #/cold-finding-excursion",
+                "GreenHarvest Cold Room -> #/cold"
+              ],
+              [
+                "F-130 · Charging session interrupted -> #/ev-finding",
+                "Depot Charging Hub -> #/ev"
+              ]
+            ],
+            "panelText": "Findings across the estateLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensF-104 · Generator support reviewKobo Mini-gridHighLowⓘOpen$3.31–3.97 cost exposure · selected hourCostF-108 · Battery output-limit report missingKobo Mini-gridMediumHighOpen30 min cannot be classifiedRisksF-109 · Productive-use headroomKobo Mini-gridMediumMediumⓘRecommendation18–20 kW usable · separate 5-day studyOpportunitiesF-118 · Backup response failedGreenHarvest Cold RoomHighHighOpenProduct conditions exposed · not pricedRisksF-119 · Temper",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1675,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "estate": {
+          "cards": [],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "",
+          "historical": "",
+          "notice": "",
+          "limitation": "",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Findings -> #/findings",
+          "All findings -> #/findings",
+          "Cost -> #/findings-cost",
+          "Risks -> #/findings-risks",
+          "Opportunities -> #/findings-opportunities",
+          "F-104 · Generator support review -> #/finding",
+          "Kobo Mini-grid -> #/mini",
+          "F-108 · Battery output-limit report missing -> #/evidence",
+          "Kobo Mini-grid -> #/mini",
+          "F-109 · Productive-use headroom -> #/opportunity-finding",
+          "Kobo Mini-grid -> #/mini",
+          "F-118 · Backup response failed -> #/cold-finding",
+          "GreenHarvest Cold Room -> #/cold",
+          "F-119 · Temperature excursion -> #/cold-finding-excursion",
+          "GreenHarvest Cold Room -> #/cold",
+          "F-130 · Charging session interrupted -> #/ev-finding",
+          "Depot Charging Hub -> #/ev"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings*",
+              "Cost",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 672,
+            "cw": 320,
+            "panel": "Findings across the estate"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "findings-cost",
+      "case": "historical",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+      "mock_hash": "#/findings-cost",
+      "app_image": "findings-cost-historical-1440-app.png",
+      "mock_image": "findings-cost-historical-1440-mock.png",
+      "app": {
+        "titles": [
+          "Cost lens"
+        ],
+        "panels": [
+          {
+            "title": "Cost lens",
+            "x": 248,
+            "y": 457,
+            "w": 1160,
+            "h": 165,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Cost lensLens is how a finding is read, not a second object · state is a filterNo findings match.No supported priced consequence in this selection.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "estate": {
+          "cards": [
+            "Supported findings0Across 3 sites",
+            "High priorityNot assessed",
+            "Low confidenceNot assessed",
+            "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+          ],
+          "chips": "All statesSupportedUnconfirmedNo longer supportedMerged",
+          "lenses": "All findingsCostRisksOpportunities",
+          "cutoff": "Evidence cutoff 2026-11-02 11:08:27 UTC",
+          "historical": "This is an earlier evidence cutoff.",
+          "notice": "Priority, confidence and workflow state stay separate.",
+          "limitation": "This is an earlier evidence cutoff.",
+          "empty": "No findings match.No supported priced consequence in this selection.",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "All findings -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Cost -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Risks -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Opportunities -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "All states -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Supported -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=supported",
+          "Unconfirmed -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=unconfirmed",
+          "No longer supported -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=no_longer_supported",
+          "Merged -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=merged"
+        ],
+        "cardsDom": [
+          {
+            "t": "Supported findings0Across 3 sites",
+            "h": 150
+          },
+          {
+            "t": "High priorityNot assessed",
+            "h": 150
+          },
+          {
+            "t": "Low confidenceNot assessed",
+            "h": 150
+          },
+          {
+            "t": "Awaiting verification0No Actions from selected Finding revisions are awaiting ve",
+            "h": 150
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings",
+              "Cost*",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Cost lens"
+        ],
+        "panels": [
+          {
+            "title": "Cost lens",
+            "x": 234,
+            "y": 482,
+            "w": 1161,
+            "h": 185,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "High",
+              "Lowⓘ",
+              "Open"
+            ],
+            "links": 2,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [
+              [
+                "F-104 · Generator support review",
+                "Kobo Mini-grid",
+                "High",
+                "Lowⓘ",
+                "Open",
+                "$3.31–3.97 cost exposure · selected hour",
+                "Cost"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "F-104 · Generator support review -> #/finding",
+                "Kobo Mini-grid -> #/mini"
+              ]
+            ],
+            "panelText": "Cost lensLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensF-104 · Generator support reviewKobo Mini-gridHighLowⓘOpen$3.31–3.97 cost exposure · selected hourCost",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "estate": {
+          "cards": [],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "",
+          "historical": "",
+          "notice": "",
+          "limitation": "",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Findings -> #/findings",
+          "All findings -> #/findings",
+          "Cost -> #/findings-cost",
+          "Risks -> #/findings-risks",
+          "Opportunities -> #/findings-opportunities",
+          "F-104 · Generator support review -> #/finding",
+          "Kobo Mini-grid -> #/mini"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings",
+              "Cost*",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "findings-cost",
+      "case": "historical",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+      "mock_hash": "#/findings-cost",
+      "app_image": "findings-cost-historical-390-app.png",
+      "mock_image": "findings-cost-historical-390-mock.png",
+      "app": {
+        "titles": [
+          "Cost lens"
+        ],
+        "panels": [
+          {
+            "title": "Cost lens",
+            "x": 16,
+            "y": 800,
+            "w": 358,
+            "h": 165,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Cost lensLens is how a finding is read, not a second object · state is a filterNo findings match.No supported priced consequence in this selection.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1128,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "estate": {
+          "cards": [
+            "Supported findings0Across 3 sites",
+            "High priorityNot assessed",
+            "Low confidenceNot assessed",
+            "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+          ],
+          "chips": "All statesSupportedUnconfirmedNo longer supportedMerged",
+          "lenses": "All findingsCostRisksOpportunities",
+          "cutoff": "Evidence cutoff 2026-11-02 11:08:27 UTC",
+          "historical": "This is an earlier evidence cutoff.",
+          "notice": "Priority, confidence and workflow state stay separate.",
+          "limitation": "This is an earlier evidence cutoff.",
+          "empty": "No findings match.No supported priced consequence in this selection.",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "All findings -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Cost -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Risks -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Opportunities -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "All states -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Supported -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=supported",
+          "Unconfirmed -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=unconfirmed",
+          "No longer supported -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=no_longer_supported",
+          "Merged -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=merged"
+        ],
+        "cardsDom": [
+          {
+            "t": "Supported findings0Across 3 sites",
+            "h": 111
+          },
+          {
+            "t": "High priorityNot assessed",
+            "h": 111
+          },
+          {
+            "t": "Low confidenceNot assessed",
+            "h": 161
+          },
+          {
+            "t": "Awaiting verification0No Actions from selected Finding revisions are awaiting ve",
+            "h": 161
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings",
+              "Cost*",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "v69-chips estate-state-chips",
+            "sw": 460,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Cost lens"
+        ],
+        "panels": [
+          {
+            "title": "Cost lens",
+            "x": 15,
+            "y": 745,
+            "w": 360,
+            "h": 230,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "High",
+              "Lowⓘ",
+              "Open"
+            ],
+            "links": 2,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [
+              [
+                "F-104 · Generator support review",
+                "Kobo Mini-grid",
+                "High",
+                "Lowⓘ",
+                "Open",
+                "$3.31–3.97 cost exposure · selected hour",
+                "Cost"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "F-104 · Generator support review -> #/finding",
+                "Kobo Mini-grid -> #/mini"
+              ]
+            ],
+            "panelText": "Cost lensLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensF-104 · Generator support reviewKobo Mini-gridHighLowⓘOpen$3.31–3.97 cost exposure · selected hourCost",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1165,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "estate": {
+          "cards": [],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "",
+          "historical": "",
+          "notice": "",
+          "limitation": "",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Findings -> #/findings",
+          "All findings -> #/findings",
+          "Cost -> #/findings-cost",
+          "Risks -> #/findings-risks",
+          "Opportunities -> #/findings-opportunities",
+          "F-104 · Generator support review -> #/finding",
+          "Kobo Mini-grid -> #/mini"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings",
+              "Cost*",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 505,
+            "cw": 320,
+            "panel": "Cost lens"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "findings-risks",
+      "case": "historical",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+      "mock_hash": "#/findings-risks",
+      "app_image": "findings-risks-historical-1440-app.png",
+      "mock_image": "findings-risks-historical-1440-mock.png",
+      "app": {
+        "titles": [
+          "Risks lens"
+        ],
+        "panels": [
+          {
+            "title": "Risks lens",
+            "x": 248,
+            "y": 457,
+            "w": 1160,
+            "h": 165,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Risks lensLens is how a finding is read, not a second object · state is a filterNo findings match.No supported risk classification in this selection.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "estate": {
+          "cards": [
+            "Supported findings0Across 3 sites",
+            "High priorityNot assessed",
+            "Low confidenceNot assessed",
+            "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+          ],
+          "chips": "All statesSupportedUnconfirmedNo longer supportedMerged",
+          "lenses": "All findingsCostRisksOpportunities",
+          "cutoff": "Evidence cutoff 2026-11-02 11:08:27 UTC",
+          "historical": "This is an earlier evidence cutoff.",
+          "notice": "Priority, confidence and workflow state stay separate.",
+          "limitation": "This is an earlier evidence cutoff.",
+          "empty": "No findings match.No supported risk classification in this selection.",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "All findings -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Cost -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Risks -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Opportunities -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "All states -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Supported -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=supported",
+          "Unconfirmed -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=unconfirmed",
+          "No longer supported -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=no_longer_supported",
+          "Merged -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=merged"
+        ],
+        "cardsDom": [
+          {
+            "t": "Supported findings0Across 3 sites",
+            "h": 150
+          },
+          {
+            "t": "High priorityNot assessed",
+            "h": 150
+          },
+          {
+            "t": "Low confidenceNot assessed",
+            "h": 150
+          },
+          {
+            "t": "Awaiting verification0No Actions from selected Finding revisions are awaiting ve",
+            "h": 150
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks*",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Risks lens"
+        ],
+        "panels": [
+          {
+            "title": "Risks lens",
+            "x": 234,
+            "y": 482,
+            "w": 1161,
+            "h": 338,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "Medium",
+              "High",
+              "Open",
+              "High",
+              "High",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Open"
+            ],
+            "links": 8,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [
+              [
+                "F-108 · Battery output-limit report missing",
+                "Kobo Mini-grid",
+                "Medium",
+                "High",
+                "Open",
+                "30 min cannot be classified",
+                "Risks"
+              ],
+              [
+                "F-118 · Backup response failed",
+                "GreenHarvest Cold Room",
+                "High",
+                "High",
+                "Open",
+                "Product conditions exposed · not priced",
+                "Risks"
+              ],
+              [
+                "F-119 · Temperature excursion",
+                "GreenHarvest Cold Room",
+                "Medium",
+                "High",
+                "Open",
+                "25–35 min above 4°C · peak 8.2°C",
+                "Risks"
+              ],
+              [
+                "F-130 · Charging session interrupted",
+                "Depot Charging Hub",
+                "Medium",
+                "Mediumⓘ",
+                "Open",
+                "1 interrupted session · lost revenue unknown",
+                "Risks"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "F-108 · Battery output-limit report missing -> #/evidence",
+                "Kobo Mini-grid -> #/mini"
+              ],
+              [
+                "F-118 · Backup response failed -> #/cold-finding",
+                "GreenHarvest Cold Room -> #/cold"
+              ],
+              [
+                "F-119 · Temperature excursion -> #/cold-finding-excursion",
+                "GreenHarvest Cold Room -> #/cold"
+              ],
+              [
+                "F-130 · Charging session interrupted -> #/ev-finding",
+                "Depot Charging Hub -> #/ev"
+              ]
+            ],
+            "panelText": "Risks lensLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensF-108 · Battery output-limit report missingKobo Mini-gridMediumHighOpen30 min cannot be classifiedRisksF-118 · Backup response failedGreenHarvest Cold RoomHighHighOpenProduct conditions exposed · not pricedRisksF-119 · Temperature excursionGreenHarvest Cold RoomMediumHighOpen25–35 min above 4°C · peak 8.2°CRisksF-130 · Charging session interruptedDepot Charging HubMediumMediumⓘOpen1 interrupted session · lost revenue unknownRisks",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "estate": {
+          "cards": [],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "",
+          "historical": "",
+          "notice": "",
+          "limitation": "",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Findings -> #/findings",
+          "All findings -> #/findings",
+          "Cost -> #/findings-cost",
+          "Risks -> #/findings-risks",
+          "Opportunities -> #/findings-opportunities",
+          "F-108 · Battery output-limit report missing -> #/evidence",
+          "Kobo Mini-grid -> #/mini",
+          "F-118 · Backup response failed -> #/cold-finding",
+          "GreenHarvest Cold Room -> #/cold",
+          "F-119 · Temperature excursion -> #/cold-finding-excursion",
+          "GreenHarvest Cold Room -> #/cold",
+          "F-130 · Charging session interrupted -> #/ev-finding",
+          "Depot Charging Hub -> #/ev"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks*",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "findings-risks",
+      "case": "historical",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+      "mock_hash": "#/findings-risks",
+      "app_image": "findings-risks-historical-390-app.png",
+      "mock_image": "findings-risks-historical-390-mock.png",
+      "app": {
+        "titles": [
+          "Risks lens"
+        ],
+        "panels": [
+          {
+            "title": "Risks lens",
+            "x": 16,
+            "y": 800,
+            "w": 358,
+            "h": 165,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Risks lensLens is how a finding is read, not a second object · state is a filterNo findings match.No supported risk classification in this selection.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1128,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "estate": {
+          "cards": [
+            "Supported findings0Across 3 sites",
+            "High priorityNot assessed",
+            "Low confidenceNot assessed",
+            "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+          ],
+          "chips": "All statesSupportedUnconfirmedNo longer supportedMerged",
+          "lenses": "All findingsCostRisksOpportunities",
+          "cutoff": "Evidence cutoff 2026-11-02 11:08:27 UTC",
+          "historical": "This is an earlier evidence cutoff.",
+          "notice": "Priority, confidence and workflow state stay separate.",
+          "limitation": "This is an earlier evidence cutoff.",
+          "empty": "No findings match.No supported risk classification in this selection.",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "All findings -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Cost -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Risks -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Opportunities -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "All states -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Supported -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=supported",
+          "Unconfirmed -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=unconfirmed",
+          "No longer supported -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=no_longer_supported",
+          "Merged -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=merged"
+        ],
+        "cardsDom": [
+          {
+            "t": "Supported findings0Across 3 sites",
+            "h": 111
+          },
+          {
+            "t": "High priorityNot assessed",
+            "h": 111
+          },
+          {
+            "t": "Low confidenceNot assessed",
+            "h": 161
+          },
+          {
+            "t": "Awaiting verification0No Actions from selected Finding revisions are awaiting ve",
+            "h": 161
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks*",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "v69-chips estate-state-chips",
+            "sw": 460,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Risks lens"
+        ],
+        "panels": [
+          {
+            "title": "Risks lens",
+            "x": 15,
+            "y": 745,
+            "w": 360,
+            "h": 522,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "Medium",
+              "High",
+              "Open",
+              "High",
+              "High",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Open"
+            ],
+            "links": 8,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [
+              [
+                "F-108 · Battery output-limit report missing",
+                "Kobo Mini-grid",
+                "Medium",
+                "High",
+                "Open",
+                "30 min cannot be classified",
+                "Risks"
+              ],
+              [
+                "F-118 · Backup response failed",
+                "GreenHarvest Cold Room",
+                "High",
+                "High",
+                "Open",
+                "Product conditions exposed · not priced",
+                "Risks"
+              ],
+              [
+                "F-119 · Temperature excursion",
+                "GreenHarvest Cold Room",
+                "Medium",
+                "High",
+                "Open",
+                "25–35 min above 4°C · peak 8.2°C",
+                "Risks"
+              ],
+              [
+                "F-130 · Charging session interrupted",
+                "Depot Charging Hub",
+                "Medium",
+                "Mediumⓘ",
+                "Open",
+                "1 interrupted session · lost revenue unknown",
+                "Risks"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "F-108 · Battery output-limit report missing -> #/evidence",
+                "Kobo Mini-grid -> #/mini"
+              ],
+              [
+                "F-118 · Backup response failed -> #/cold-finding",
+                "GreenHarvest Cold Room -> #/cold"
+              ],
+              [
+                "F-119 · Temperature excursion -> #/cold-finding-excursion",
+                "GreenHarvest Cold Room -> #/cold"
+              ],
+              [
+                "F-130 · Charging session interrupted -> #/ev-finding",
+                "Depot Charging Hub -> #/ev"
+              ]
+            ],
+            "panelText": "Risks lensLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensF-108 · Battery output-limit report missingKobo Mini-gridMediumHighOpen30 min cannot be classifiedRisksF-118 · Backup response failedGreenHarvest Cold RoomHighHighOpenProduct conditions exposed · not pricedRisksF-119 · Temperature excursionGreenHarvest Cold RoomMediumHighOpen25–35 min above 4°C · peak 8.2°CRisksF-130 · Charging session interruptedDepot Charging HubMediumMediumⓘOpen1 interrupted session · lost revenue unknownRisks",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1457,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "estate": {
+          "cards": [],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "",
+          "historical": "",
+          "notice": "",
+          "limitation": "",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Findings -> #/findings",
+          "All findings -> #/findings",
+          "Cost -> #/findings-cost",
+          "Risks -> #/findings-risks",
+          "Opportunities -> #/findings-opportunities",
+          "F-108 · Battery output-limit report missing -> #/evidence",
+          "Kobo Mini-grid -> #/mini",
+          "F-118 · Backup response failed -> #/cold-finding",
+          "GreenHarvest Cold Room -> #/cold",
+          "F-119 · Temperature excursion -> #/cold-finding-excursion",
+          "GreenHarvest Cold Room -> #/cold",
+          "F-130 · Charging session interrupted -> #/ev-finding",
+          "Depot Charging Hub -> #/ev"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks*",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 574,
+            "cw": 320,
+            "panel": "Risks lens"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "findings-opportunities",
+      "case": "historical",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+      "mock_hash": "#/findings-opportunities",
+      "app_image": "findings-opportunities-historical-1440-app.png",
+      "mock_image": "findings-opportunities-historical-1440-mock.png",
+      "app": {
+        "titles": [
+          "Opportunities lens"
+        ],
+        "panels": [
+          {
+            "title": "Opportunities lens",
+            "x": 248,
+            "y": 457,
+            "w": 1160,
+            "h": 165,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Opportunities lensLens is how a finding is read, not a second object · state is a filterNo findings match.No supported opportunity Finding in this selection.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "estate": {
+          "cards": [
+            "Supported findings0Across 3 sites",
+            "High priorityNot assessed",
+            "Low confidenceNot assessed",
+            "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+          ],
+          "chips": "All statesSupportedUnconfirmedNo longer supportedMerged",
+          "lenses": "All findingsCostRisksOpportunities",
+          "cutoff": "Evidence cutoff 2026-11-02 11:08:27 UTC",
+          "historical": "This is an earlier evidence cutoff.",
+          "notice": "Priority, confidence and workflow state stay separate.",
+          "limitation": "This is an earlier evidence cutoff.",
+          "empty": "No findings match.No supported opportunity Finding in this selection.",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "All findings -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Cost -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Risks -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Opportunities -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "All states -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Supported -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=supported",
+          "Unconfirmed -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=unconfirmed",
+          "No longer supported -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=no_longer_supported",
+          "Merged -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=merged"
+        ],
+        "cardsDom": [
+          {
+            "t": "Supported findings0Across 3 sites",
+            "h": 150
+          },
+          {
+            "t": "High priorityNot assessed",
+            "h": 150
+          },
+          {
+            "t": "Low confidenceNot assessed",
+            "h": 150
+          },
+          {
+            "t": "Awaiting verification0No Actions from selected Finding revisions are awaiting ve",
+            "h": 150
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks",
+              "Opportunities*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Opportunities lens"
+        ],
+        "panels": [
+          {
+            "title": "Opportunities lens",
+            "x": 234,
+            "y": 482,
+            "w": 1161,
+            "h": 185,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "Medium",
+              "Mediumⓘ",
+              "Recommendation"
+            ],
+            "links": 2,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [
+              [
+                "F-109 · Productive-use headroom",
+                "Kobo Mini-grid",
+                "Medium",
+                "Mediumⓘ",
+                "Recommendation",
+                "18–20 kW usable · separate 5-day study",
+                "Opportunities"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "F-109 · Productive-use headroom -> #/opportunity-finding",
+                "Kobo Mini-grid -> #/mini"
+              ]
+            ],
+            "panelText": "Opportunities lensLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensF-109 · Productive-use headroomKobo Mini-gridMediumMediumⓘRecommendation18–20 kW usable · separate 5-day studyOpportunities",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "estate": {
+          "cards": [],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "",
+          "historical": "",
+          "notice": "",
+          "limitation": "",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Findings -> #/findings",
+          "All findings -> #/findings",
+          "Cost -> #/findings-cost",
+          "Risks -> #/findings-risks",
+          "Opportunities -> #/findings-opportunities",
+          "F-109 · Productive-use headroom -> #/opportunity-finding",
+          "Kobo Mini-grid -> #/mini"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks",
+              "Opportunities*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "findings-opportunities",
+      "case": "historical",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+      "mock_hash": "#/findings-opportunities",
+      "app_image": "findings-opportunities-historical-390-app.png",
+      "mock_image": "findings-opportunities-historical-390-mock.png",
+      "app": {
+        "titles": [
+          "Opportunities lens"
+        ],
+        "panels": [
+          {
+            "title": "Opportunities lens",
+            "x": 16,
+            "y": 800,
+            "w": 358,
+            "h": 165,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Opportunities lensLens is how a finding is read, not a second object · state is a filterNo findings match.No supported opportunity Finding in this selection.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1128,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "estate": {
+          "cards": [
+            "Supported findings0Across 3 sites",
+            "High priorityNot assessed",
+            "Low confidenceNot assessed",
+            "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+          ],
+          "chips": "All statesSupportedUnconfirmedNo longer supportedMerged",
+          "lenses": "All findingsCostRisksOpportunities",
+          "cutoff": "Evidence cutoff 2026-11-02 11:08:27 UTC",
+          "historical": "This is an earlier evidence cutoff.",
+          "notice": "Priority, confidence and workflow state stay separate.",
+          "limitation": "This is an earlier evidence cutoff.",
+          "empty": "No findings match.No supported opportunity Finding in this selection.",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "All findings -> /findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Cost -> /findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Risks -> /findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Opportunities -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "All states -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z",
+          "Supported -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=supported",
+          "Unconfirmed -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=unconfirmed",
+          "No longer supported -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=no_longer_supported",
+          "Merged -> /findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-11-02T11%3A08%3A27Z&state=merged"
+        ],
+        "cardsDom": [
+          {
+            "t": "Supported findings0Across 3 sites",
+            "h": 111
+          },
+          {
+            "t": "High priorityNot assessed",
+            "h": 111
+          },
+          {
+            "t": "Low confidenceNot assessed",
+            "h": 161
+          },
+          {
+            "t": "Awaiting verification0No Actions from selected Finding revisions are awaiting ve",
+            "h": 161
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks",
+              "Opportunities*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "v69-chips estate-state-chips",
+            "sw": 460,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Opportunities lens"
+        ],
+        "panels": [
+          {
+            "title": "Opportunities lens",
+            "x": 15,
+            "y": 745,
+            "w": 360,
+            "h": 230,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "Medium",
+              "Mediumⓘ",
+              "Recommendation"
+            ],
+            "links": 2,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [
+              [
+                "F-109 · Productive-use headroom",
+                "Kobo Mini-grid",
+                "Medium",
+                "Mediumⓘ",
+                "Recommendation",
+                "18–20 kW usable · separate 5-day study",
+                "Opportunities"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "F-109 · Productive-use headroom -> #/opportunity-finding",
+                "Kobo Mini-grid -> #/mini"
+              ]
+            ],
+            "panelText": "Opportunities lensLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensF-109 · Productive-use headroomKobo Mini-gridMediumMediumⓘRecommendation18–20 kW usable · separate 5-day studyOpportunities",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1165,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "estate": {
+          "cards": [],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "",
+          "historical": "",
+          "notice": "",
+          "limitation": "",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Findings -> #/findings",
+          "All findings -> #/findings",
+          "Cost -> #/findings-cost",
+          "Risks -> #/findings-risks",
+          "Opportunities -> #/findings-opportunities",
+          "F-109 · Productive-use headroom -> #/opportunity-finding",
+          "Kobo Mini-grid -> #/mini"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks",
+              "Opportunities*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 626,
+            "cw": 320,
+            "panel": "Opportunities lens"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "actions",
+      "case": "historical",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+      "mock_hash": "#/actions",
+      "app_image": "actions-historical-1440-app.png",
+      "mock_image": "actions-historical-1440-mock.png",
+      "app": {
+        "titles": [
+          "Managed actions"
+        ],
+        "panels": [
+          {
+            "title": "Managed actions",
+            "x": 248,
+            "y": 314,
+            "w": 1160,
+            "h": 201,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Applied"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Action ACT-000001",
+                "Kobo mini-gridKOBO-001",
+                "Finding 00000005",
+                "Not set",
+                "Applied",
+                "No success criterion recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Action ACT-000001 -> /sites/KOBO-001/actions/00000005-0000-4000-8000-000000000561?event_id=00000005-0000-4000-8000-00000000057f",
+                "Kobo mini-grid -> /sites/KOBO-001",
+                "Finding 00000005 -> /sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-0000000004be"
+              ]
+            ],
+            "panelText": "Managed actionsPending → Applied → Verification window → Verified or withdrawnActionSiteSourceOwnerStateSuccess criterionAction ACT-000001Kobo mini-gridKOBO-001Finding 00000005Not setAppliedNo success criterion recorded",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Actions",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "estate": {
+          "cards": [
+            "Open actions1Accepted work",
+            "Due / overdueNot setNo due dates recorded",
+            "Verification window0",
+            "Verified in 30 days0No verified outcome in the last 30 days"
+          ],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "Evidence cutoff 2026-11-02 11:08:27 UTC",
+          "historical": "This is an earlier evidence cutoff.",
+          "notice": "Verification needs a frozen plan and later accepted evidence. An Action event alone does not prove an outcome.",
+          "limitation": "This is an earlier evidence cutoff.",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Action ACT-000001 -> /sites/KOBO-001/actions/00000005-0000-4000-8000-000000000561?event_id=00000005-0000-4000-8000-00000000057f",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "Finding 00000005 -> /sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-0000000004be"
+        ],
+        "cardsDom": [
+          {
+            "t": "Open actions1Accepted work",
+            "h": 115
+          },
+          {
+            "t": "Due / overdueNot setNo due dates recorded",
+            "h": 115
+          },
+          {
+            "t": "Verification window0",
+            "h": 115
+          },
+          {
+            "t": "Verified in 30 days0No verified outcome in the last 30 days",
+            "h": 115
+          }
+        ],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Managed actions"
+        ],
+        "panels": [
+          {
+            "title": "Managed actions",
+            "x": 234,
+            "y": 375,
+            "w": 1161,
+            "h": 336,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Verification window",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 13,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "ACT-048 · Review generator stop setting",
+                "Kobo",
+                "F-104",
+                "Site controls lead",
+                "Verification window",
+                "≥25% less avoidable generator time; no reserve or service trade-off"
+              ],
+              [
+                "ACT-049 · Restore battery-limit reporting",
+                "Kobo",
+                "F-108",
+                "Instrumentation lead",
+                "Open",
+                "Output limit reported every 15 minutes"
+              ],
+              [
+                "ACT-051 · Witness automatic-start test",
+                "GreenHarvest",
+                "F-118 · INC-203",
+                "Maintenance lead",
+                "Open",
+                "Start requested → generator runs → power → cooling"
+              ],
+              [
+                "ACT-061 · Investigate connector 2",
+                "Depot",
+                "F-130",
+                "Charging operations lead",
+                "Open",
+                "Complete witnessed session; no repeat fault"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-048 · Review generator stop setting -> #/verification",
+                "Kobo -> #/mini",
+                "F-104 -> #/finding"
+              ],
+              [
+                "ACT-049 · Restore battery-limit reporting -> #/sitework",
+                "Kobo -> #/mini",
+                "F-108 -> #/evidence"
+              ],
+              [
+                "ACT-051 · Witness automatic-start test -> #/cold-action",
+                "GreenHarvest -> #/cold",
+                "F-118 -> #/cold-finding",
+                "INC-203 -> #/incident"
+              ],
+              [
+                "ACT-061 · Investigate connector 2 -> #/ev-action",
+                "Depot -> #/ev",
+                "F-130 -> #/ev-finding"
+              ]
+            ],
+            "panelText": "Managed actionsLifecycle: Open → In progress → Completed → Verification window → Verified, Ineffective or InconclusiveActionSiteSourceOwnerStateSuccess criterionACT-048 · Review generator stop settingKoboF-104Site controls leadVerification window≥25% less avoidable generator time; no reserve or service trade-offACT-049 · Restore battery-limit reportingKoboF-108Instrumentation leadOpenOutput limit reported every 15 minutesACT-051 · Witness automatic-start testGreenHarvestF-118 · INC-203Maintenance leadOpenStart requested → generator runs → power → coolingACT-061 · Investigate connector 2DepotF-",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Actions",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "estate": {
+          "cards": [],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "",
+          "historical": "",
+          "notice": "",
+          "limitation": "",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "ACT-048 · Review generator stop setting -> #/verification",
+          "Kobo -> #/mini",
+          "F-104 -> #/finding",
+          "ACT-049 · Restore battery-limit reporting -> #/sitework",
+          "Kobo -> #/mini",
+          "F-108 -> #/evidence",
+          "ACT-051 · Witness automatic-start test -> #/cold-action",
+          "GreenHarvest -> #/cold",
+          "F-118 -> #/cold-finding",
+          "INC-203 -> #/incident",
+          "ACT-061 · Investigate connector 2 -> #/ev-action",
+          "Depot -> #/ev",
+          "F-130 -> #/ev-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "actions",
+      "case": "historical",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+      "mock_hash": "#/actions",
+      "app_image": "actions-historical-390-app.png",
+      "mock_image": "actions-historical-390-mock.png",
+      "app": {
+        "titles": [
+          "Managed actions"
+        ],
+        "panels": [
+          {
+            "title": "Managed actions",
+            "x": 16,
+            "y": 658,
+            "w": 358,
+            "h": 219,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Applied"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Action ACT-000001",
+                "Kobo mini-gridKOBO-001",
+                "Finding 00000005",
+                "Not set",
+                "Applied",
+                "No success criterion recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Action ACT-000001 -> /sites/KOBO-001/actions/00000005-0000-4000-8000-000000000561?event_id=00000005-0000-4000-8000-00000000057f",
+                "Kobo mini-grid -> /sites/KOBO-001",
+                "Finding 00000005 -> /sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-0000000004be"
+              ]
+            ],
+            "panelText": "Managed actionsPending → Applied → Verification window → Verified or withdrawnActionSiteSourceOwnerStateSuccess criterionAction ACT-000001Kobo mini-gridKOBO-001Finding 00000005Not setAppliedNo success criterion recorded",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1059,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Actions",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "estate": {
+          "cards": [
+            "Open actions1Accepted work",
+            "Due / overdueNot setNo due dates recorded",
+            "Verification window0",
+            "Verified in 30 days0No verified outcome in the last 30 days"
+          ],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "Evidence cutoff 2026-11-02 11:08:27 UTC",
+          "historical": "This is an earlier evidence cutoff.",
+          "notice": "Verification needs a frozen plan and later accepted evidence. An Action event alone does not prove an outcome.",
+          "limitation": "This is an earlier evidence cutoff.",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Action ACT-000001 -> /sites/KOBO-001/actions/00000005-0000-4000-8000-000000000561?event_id=00000005-0000-4000-8000-00000000057f",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "Finding 00000005 -> /sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-0000000004be"
+        ],
+        "cardsDom": [
+          {
+            "t": "Open actions1Accepted work",
+            "h": 111
+          },
+          {
+            "t": "Due / overdueNot setNo due dates recorded",
+            "h": 111
+          },
+          {
+            "t": "Verification window0",
+            "h": 127
+          },
+          {
+            "t": "Verified in 30 days0No verified outcome in the last 30 days",
+            "h": 127
+          }
+        ],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 820,
+            "cw": 318,
+            "panel": "Managed actions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Managed actions"
+        ],
+        "panels": [
+          {
+            "title": "Managed actions",
+            "x": 15,
+            "y": 638,
+            "w": 360,
+            "h": 575,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Verification window",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 13,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "ACT-048 · Review generator stop setting",
+                "Kobo",
+                "F-104",
+                "Site controls lead",
+                "Verification window",
+                "≥25% less avoidable generator time; no reserve or service trade-off"
+              ],
+              [
+                "ACT-049 · Restore battery-limit reporting",
+                "Kobo",
+                "F-108",
+                "Instrumentation lead",
+                "Open",
+                "Output limit reported every 15 minutes"
+              ],
+              [
+                "ACT-051 · Witness automatic-start test",
+                "GreenHarvest",
+                "F-118 · INC-203",
+                "Maintenance lead",
+                "Open",
+                "Start requested → generator runs → power → cooling"
+              ],
+              [
+                "ACT-061 · Investigate connector 2",
+                "Depot",
+                "F-130",
+                "Charging operations lead",
+                "Open",
+                "Complete witnessed session; no repeat fault"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-048 · Review generator stop setting -> #/verification",
+                "Kobo -> #/mini",
+                "F-104 -> #/finding"
+              ],
+              [
+                "ACT-049 · Restore battery-limit reporting -> #/sitework",
+                "Kobo -> #/mini",
+                "F-108 -> #/evidence"
+              ],
+              [
+                "ACT-051 · Witness automatic-start test -> #/cold-action",
+                "GreenHarvest -> #/cold",
+                "F-118 -> #/cold-finding",
+                "INC-203 -> #/incident"
+              ],
+              [
+                "ACT-061 · Investigate connector 2 -> #/ev-action",
+                "Depot -> #/ev",
+                "F-130 -> #/ev-finding"
+              ]
+            ],
+            "panelText": "Managed actionsLifecycle: Open → In progress → Completed → Verification window → Verified, Ineffective or InconclusiveActionSiteSourceOwnerStateSuccess criterionACT-048 · Review generator stop settingKoboF-104Site controls leadVerification window≥25% less avoidable generator time; no reserve or service trade-offACT-049 · Restore battery-limit reportingKoboF-108Instrumentation leadOpenOutput limit reported every 15 minutesACT-051 · Witness automatic-start testGreenHarvestF-118 · INC-203Maintenance leadOpenStart requested → generator runs → power → coolingACT-061 · Investigate connector 2DepotF-",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1385,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Actions",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "estate": {
+          "cards": [],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "",
+          "historical": "",
+          "notice": "",
+          "limitation": "",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "ACT-048 · Review generator stop setting -> #/verification",
+          "Kobo -> #/mini",
+          "F-104 -> #/finding",
+          "ACT-049 · Restore battery-limit reporting -> #/sitework",
+          "Kobo -> #/mini",
+          "F-108 -> #/evidence",
+          "ACT-051 · Witness automatic-start test -> #/cold-action",
+          "GreenHarvest -> #/cold",
+          "F-118 -> #/cold-finding",
+          "INC-203 -> #/incident",
+          "ACT-061 · Investigate connector 2 -> #/ev-action",
+          "Depot -> #/ev",
+          "F-130 -> #/ev-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 573,
+            "cw": 320,
+            "panel": "Managed actions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}
