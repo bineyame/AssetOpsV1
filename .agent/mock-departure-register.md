@@ -472,3 +472,4 @@ Each open D1/D2/D4/D5/D6 row must show `MOCK DEVIATION Dn` beside the affected e
 | R371 | B19-12 | link-check | D3 | Fix in W6-global-Work | open |
 | R372 | B19-13 | wr-overview, wr-record, wr-history | D3 | Fix in W6-global-Work | open |
 | R373 | B19-15 | wr-overview, wr-record, wr-history | D3 | Fix in W6-global-Work | open |
+| R374 | R373 rulings Q4 | estate roots (`/api/estate/*`) and other Site reads composed with `development_access` | D3 | Separate security audit and slice before real principal rollout: inventory every affected `create_app` route, one principal policy, prove denied reads and lists | open |
