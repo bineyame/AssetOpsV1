@@ -79,3 +79,48 @@ Cleanup: capture DB dropped. My API was stopped by recorded PID; Vite by its lis
 ## Next
 
 Independent E4 review, then E6 review (ruled order). User review: W5 UI follows the walkthrough-after-W6 rule; merge on review ACCEPT unless the Architect rules otherwise on the questions file.
+
+## Fix round (E4 REVISE, E6 REVISE; rulings 17-29)
+
+Branch `task/W5-03b-ui-fix`. Code commits: `8c204e27` (product, tests, registry), `4f661415` + `776140b0` (capture tool). Status: code done; DB, full-suite, build and capture batch pending the owner signal (see "Batch" below once filled).
+
+| Finding / ruling | Where | Commit |
+| --- | --- | --- |
+| R17 `interrupted` fixture + non-vacuous E1b assertion | `backend/tests/test_w503_ev_depth_postgres.py`: `test_energy_health_selected_snapshot` keeps `fault` as its honest all-UNKNOWN vector (explicit UNKNOWN, no evidence); new `test_health_interrupted_selected_fault` asserts exactly one `NEEDS_INVESTIGATION` connector (c1) with one fault evidence ID equal to c1's session fault, and c2 `UNKNOWN`. Postgres run pending. Capture producer for the three-row state is `settled(chain,"interrupted")` (recapture pending). | 8c204e27 |
+| R18 `evScenarioList` prop | Confirmed, no change | n/a |
+| R19 `View detail →` | `EvHealthDepth.tsx`; `evHealthDepth.test.tsx` asserts label and destination | 8c204e27 |
+| R20 singular literals | `faultNote(1)`, `1 record` in `EvScenarios.tsx`; tests for 0/1/2 and a one-record disclosure | 8c204e27 |
+| R21 session placement | Confirmed; test asserts the session reference and `Open Sessions →` are in the second cell, not the first | 8c204e27 |
+| R22/R103 subtitle label | MOCK DEVIATION (D4) R103 comment in `EvHealthDepth.tsx`; `siteHealthBoundary.test.tsx` asserts the literal and absence of the mock line; register row R103 status | 8c204e27 + register |
+| R23 Foundation source link | Confirmed, no change | n/a |
+| R24 / E4-M1 phone table | `evHealthDepth.css` per ruling (min-widths removed, fixed layout 27/36.5/36.5, padding, 9px header); capture records `tableScrolls` and `hidden_columns` | 8c204e27 |
+| R25 / E4-M2 sticky header | `primitives.css` header grey `#f8fafd` incl. first cell; new `ui/__tests__/DataTable.test.tsx` (jsdom cascade over the real CSS; sticky 1440/390 and non-sticky). Mutation proof: removing the rule failed both sticky tests. Browser-computed values come from the capture (`headerBackgrounds`, `header_grey`). | 8c204e27 |
+| R26 / E4-L1 registry | Pilot registry JSON: `I-W5-ev-health-ui.requires`, `(ev-health,1).reason`, "preserved gateway panel" removed from the E4 and E6 UI nodes. Spec E4/E6 nodes already carried the corrected text. | 8c204e27 |
+| R27 / E4-L2 Unknown tone | `evHealthDepth.css` scoped selector | 8c204e27 |
+| R28 / E6-L1 basis scroller | `evScenarios.css` `max-height: 360px` at <=640px | 8c204e27 |
+| R29 / E6-H1 closing notice | `evScenarios.css` flex rule and `p` margin | 8c204e27 |
+| E4-L3 tuple parity | `evHealthDepth.test.tsx`: independent literals checked against `ev_depth.py` source text and `EV_HEALTH_TUPLES`. Mutation proof: altering a backend literal failed it. | 8c204e27 |
+| E6-L2 | `evScenarios.test.tsx`: previous sibling matches `.data-table__scroll` and holds `table.data-table`, no fallback | 8c204e27 |
+| S-L1 | `capture.mjs`: `.data-table__scroll` metric with real widths, `table_scrolls_nonempty`, header backgrounds, basis max-height, per-pair revision, a non-SHA revision is refused | 4f661415, 776140b0 |
+| S-L2 | `test_w503_ev_scenarios_postgres.py`: one duplicate `limit=0` assertion deleted | 8c204e27 |
+
+Verified so far (DB-free): `tsc --noEmit` clean; focused vitest `DataTable`, `evHealthDepth`, `evScenarios`, `siteHealthBoundary` passing; registry JSON parses.
+
+### Fix-round batch (run after the owner's signal; code revision `99ca5caf`, no product code changed afterwards)
+
+- Focused Postgres, `-n 4`, private `assetops_w503bfix_test` (dropped): `test_w503_ev_scenarios_postgres`, `test_w503_ev_depth_postgres`, `test_w503_ev_availability_postgres`, `test_w207_ev_site_reads_postgres`, `test_w207_ev_money_postgres`. **78 passed** (77 + the new `test_health_interrupted_selected_fault`), 702 s. JUnit (`junit-focused-postgres.xml`): tests 78, failures 0, errors 0, skipped 0. The first launch failed at collection because the venv's editable installs point at the main checkout; the run used PYTHONPATH set to this worktree's backend, contracts, gateway, host and simulator.
+- Full vitest `--minWorkers=1 --maxWorkers=2`: **123 files, 2849 passed**. `vite build` ok. `tsc --noEmit` clean. `check-all.ps1`: 11/11 guards (run at the code revision before the evidence commits). Note: this worktree's `frontend/node_modules` is a junction to review5's install (the suite passed with it).
+- E4/E6 recapture, 22 pairs at 1440 and 390, `evidence.json` revision `99ca5caf`, every pair stamped. Producers: `interrupted` for `ev-health-fault` (three rows: c1 Needs attention, Site import meter, c2), `complete` without a selection for `ev-health-unknown`, `pending()` for `-pending` and `-historical` (known_at 09:00), authored/corrected/late-import vectors for Scenarios (throwaway seed test, deleted). Every pair: read_ok, no document overflow, panel titles equal to the mock, 0 ellipsized, 0 overflowing cells, no cap exceeded, all measured `.data-table__scroll` sets non-empty where a table exists, sticky header cells `rgb(248, 250, 253)` in the browser.
+- Health at 390: all three columns visible, `hidden_columns` 0 (table scrollWidth 303 = clientWidth 303). Panel 490 (cap 540, three rows with 36-character IDs, full session reference), cards 307, page 1231 (1256/1275 with R15). 1440: panel 324 (cap 410), cards 135.
+- Scenarios: closing notice 42/78 px, equal to the mock (was 66/102); icon inline. Expanded basis scroller `max-height: 360px` computed, measured 360. Empty 305/345, authored 217/214.
+- W5-03a recheck (`w503a-recheck/`, a copy of its tool plus a `headerBackgrounds` metric): 9 states x 2 viewports recaptured (availability observed/pending/historical/refused, energy complete/missing-meter/pending/historical/refused). Energy's sticky tables show `rgb(248, 250, 253)` for the first two header cells in all four non-refused states. Block heights, panel titles and ellipsis counts are identical to `W5-03a-evidence/evidence.json` for all 18 pairs; Availability renders no sticky table so it is unaffected. Not recaptured: `availability-status-gap` and `-declared-empty-schedule` (bespoke seeds with no committed producer; Availability has no sticky table).
+- Cleanup: API (PID 22616), Vite (31312) and keep-awake (26836) stopped by PID; both private DBs dropped; throwaway seed test deleted.
+
+## Re-review fix (RR-M1, RR-L1; E4 REVISE)
+
+Commits on `task/W5-03b-ui-fix`: `55e9991e` (CSS and tests), then `d7397e36` (evidence tool records `headerBackgrounds`), then the evidence commit.
+
+- **RR-M1:** deleted `.w1f4-changes-work.cold-work-actions .data-table thead th:first-child { background: var(--surface-sunken) }` and its comment from `w1f4-changes-work.css` (within ruling 25, as the coordinator allowed). `DataTable.test.tsx` gains a cold-wrapper case: with the real `primitives.css` and `w1f4-changes-work.css`, the sticky header row is `[#f8fafd, #f8fafd]`, and the cold CSS must not set a `thead th:first-child` background. Mutation proof: restoring the old rule fails that test.
+- **RR-L1:** the tests inject `tokens.css` values in place of `var()`, so the body first cell asserts `rgb(255, 255, 255)` and the non-sticky header `rgb(241, 244, 249)`. The duplicated 1440/390 jsdom loop is gone (one sticky case; widths come from the browser capture).
+- **Browser proof (cold Actions):** `w502_cold_work_walkthrough.py prepare/serve/attest` (ATTEST OK) at `d7397e36`, seven APIs with a Vite per API, then the K2 `w502-cold-work-evidence.mjs` actions capture into `.agent/W5-03b-ui-evidence/cold-actions-recheck/` (`w502b-measurements.json`, PNGs). **461 PASS, 0 FAIL** (K2's own run had 463 claims, 2 FAIL). The tool now records `headerBackgrounds`: every cold Actions header row is `rgb(248, 250, 253)` in all six cells at 1440 and 390. Control: the same capture with the old rule restored (`control-with-old-rule-measurements.json`) reproduces RR-M1 (first cell `rgb(241, 244, 249)`), and the fixed run has **0** layout differences from it across 3820 numeric/boolean measurement leaves. Against the old K2 evidence the 29 differing leaves (worst-case disclosure row heights, cold Incidents/Maintenance tabs, 2-8 px scroller widths) are identical in the old-rule control, so they come from later main merges and fresh data, not from this change. A first run lost its positive-mode Vite process; the clean rerun is the one recorded.
+- **Cleanup:** `drop` stopped the recorded API PIDs and dropped its five DBs and work folder; the seven Vite servers were stopped by their listener PIDs; no w502b or assetops_w503 database remains. The control run changed `w1f4-changes-work.css` temporarily and it was restored with `git checkout` (clean tree).

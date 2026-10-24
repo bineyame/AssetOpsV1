@@ -16,6 +16,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import contract from "../../../../backend/tests/fixtures/s7_health_api_contract.json";
 import { SiteAssetFrame, SiteAssetsFrame, SiteHealthFrame } from "../../shell/SiteHealthFrames";
+import { evSourcesHref } from "../EvFoundationViews";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { expectStateLineVisible } from "../../test/productPresentation";
@@ -385,6 +386,47 @@ describe("W5-01a C3: the cold Health composition stays off non-cold Sites", () =
     expect(q("#site-health-sources-heading")).toBeNull();
     expect(q("[data-health-site]")).toBeNull();
     expect(q(".v69-notice--blue")).toBeNull();
+  });
+
+  it("W5-03b E4 (R60 withdrawn): an EV Site reads /ev/health, makes no S7 request and mounts no Data sources panel", async () => {
+    const requests = serve(recorded());
+    const evDetail = {
+      getSite: async (siteId: string) => ({ status: "loaded", site: { ...HYBRID_MINI_GRID_SITE, site_id: siteId, site_type: "EV_CHARGING" } }),
+    } as SiteDetailClient;
+    const getHealth = vi.fn(async () => ({ status: "unavailable" as const, message: null }));
+    render(
+      <MemoryRouter initialEntries={["/sites/EV-LAB-001/health?gateway=GW-EV-01"]}>
+        <Routes>
+          <Route
+            path="/sites/:siteId/health"
+            element={<SiteHealthFrame detail={evDetail} sitesPath="/sites" evDepth={{ getAvailability: vi.fn(), getEnergy: vi.fn(), getHealth }} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(getHealth).toHaveBeenCalledWith("EV-LAB-001", { from: null, to: null, known_at: null });
+    expect(q("[data-ev-depth-error]")).not.toBeNull();
+    // R103 (ruling 22): the neutral subtitle sits under the selected Site name; the mock's illustrative equipment line does not.
+    expect(document.body.textContent).toContain("Health · site-level asset-condition summary");
+    expect(document.body.textContent).not.toContain("2 × 60 kW connectors");
+    expect(requests.some((url) => url.endsWith("/source-health") || url.endsWith("/battery"))).toBe(false);
+    expect(q("#site-health-sources-heading")).toBeNull();
+    expect(q("[data-health-site]")).toBeNull();
+    expect(q("[data-cold-depth-error]")).toBeNull();
+  });
+
+  it("W5-03b E4 (ruling 3): the Foundation source destination is EV Evidence > Data sources, never Health", () => {
+    const FROM = "2026-10-06T08:00:00.000000Z";
+    const TO = "2026-10-06T09:00:00.000000Z";
+    const url = new URL(
+      evSourcesHref("/sites/EV-LAB-001/ev/evidence", new URLSearchParams({ from: FROM, to: TO, known_at: TO, gateway: "GW-EV-01" })),
+      "http://x",
+    );
+    expect(url.pathname).toBe("/sites/EV-LAB-001/ev/evidence");
+    expect(url.search).toBe(`?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(TO)}`);
+    expect(url.hash).toBe("#ev-site-sources-heading");
+    expect(evSourcesHref("/sites/EV-LAB-001/ev/evidence", new URLSearchParams({ to: TO, gateway: "GW-EV-01" }))).toBe("/sites/EV-LAB-001/ev/evidence#ev-site-sources-heading");
   });
 });
 

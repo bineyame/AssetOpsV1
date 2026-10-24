@@ -4,6 +4,7 @@ import { Panel } from "../ui";
 import { coldWindowFromParams } from "../sites/coldAssessmentClient";
 import { EV_SITE_HEADING_ID, EvSiteFrame, type EvSiteRoutes, type EvSiteView } from "../sites/EvSiteViews";
 import type { EvSiteClient } from "../sites/evSiteClient";
+import type { EvScenariosClient } from "../sites/evScenariosClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { deriveSiteView } from "../sites/siteViewModel";
 import { siteDetailHref, siteEvHref, siteFindingHref, siteFoundationViewHref, sitePerformanceHref } from "./operatorSiteRoutes";
@@ -18,6 +19,7 @@ export function evSiteRoutes(siteId: string): EvSiteRoutes {
     analysis: siteEvHref(siteId, "analysis"),
     financials: siteEvHref(siteId, "financials"),
     assumptions: siteEvHref(siteId, "assumptions"),
+    scenarios: siteEvHref(siteId, "scenarios"),
     sessions: sitePerformanceHref(siteId, "sessions"),
     availability: sitePerformanceHref(siteId, "availability"),
     energy: sitePerformanceHref(siteId, "energy"),
@@ -33,10 +35,24 @@ const CURRENT_TAB: Record<EvSiteView, string> = {
   analysis: "Evidence",
   financials: "Financials",
   assumptions: "Financials",
+  scenarios: "Financials",
 };
 
 /** W2-07: an EV_CHARGING Site's `ev`, `ev-evidence`, `ev-evidence-analysis`, `ev-financials` or `ev-assumptions` screen. */
-export function SiteEvFrame({ detail, sitesPath, view, evSite }: { detail: SiteDetailClient; sitesPath: string; view: EvSiteView; evSite: EvSiteClient }) {
+export function SiteEvFrame({
+  detail,
+  sitesPath,
+  view,
+  evSite,
+  evScenarios,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  view: EvSiteView;
+  evSite: EvSiteClient;
+  /** W5-03b E6: the authored EV scenario list client for the Scenarios view. */
+  evScenarios?: EvScenariosClient;
+}) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
   return (
@@ -56,6 +72,8 @@ export function SiteEvFrame({ detail, sitesPath, view, evSite }: { detail: SiteD
             siteName={site.display_name}
             mode={deriveSiteView(site).sourceMode}
             window={coldWindowFromParams(params)}
+            scenarioAt={params.get("scenario_at")}
+            scenarios={evScenarios}
             client={evSite}
             routes={evSiteRoutes(site.site_id)}
             tabs={<OperatorSiteTabs siteId={site.site_id} current={CURRENT_TAB[view]} />}

@@ -1860,6 +1860,14 @@
     },
     {
       "id": "ev-health",
+      "registry_dependencies": {
+        "product_node_id": "P-ev-area",
+        "node_ids": [
+          "D-ev-domain",
+          "I-W5-ev-depth-read",
+          "I-W5-ev-health-ui"
+        ]
+      },
       "mock_route": "#/ev-health",
       "product_destination": "Sites > Health",
       "coverage": "deferred",
@@ -2706,6 +2714,14 @@
     },
     {
       "id": "ev-scenarios",
+      "registry_dependencies": {
+        "product_node_id": "P-ev-area",
+        "node_ids": [
+          "D-ev-domain",
+          "I-W5-ev-scenario-read",
+          "I-W5-ev-scenario-ui"
+        ]
+      },
       "mock_route": "#/ev-scenarios",
       "product_destination": "Sites > Financials",
       "coverage": "deferred",

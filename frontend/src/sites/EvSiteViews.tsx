@@ -38,7 +38,8 @@ import type {
   EvSiteClient,
   EvSource,
 } from "./evSiteClient";
-import { UnavailableTab } from "../ui/UnavailableEntry";
+import { EvScenarios } from "./EvScenarios";
+import { createEvScenariosClient, type EvScenariosClient } from "./evScenariosClient";
 import { EvPowerChart } from "./assessmentGraphics";
 import "./w2-ev-site.css";
 
@@ -58,7 +59,7 @@ import "./w2-ev-site.css";
  * every panel and states the typed refusal inside it; no mock value is a fallback, and a null amount is never zero.
  */
 
-export type EvSiteView = "overview" | "evidence" | "analysis" | "financials" | "assumptions";
+export type EvSiteView = "overview" | "evidence" | "analysis" | "financials" | "assumptions" | "scenarios";
 
 export const EV_SITE_HEADING_ID = "ev-site-heading";
 export const EV_SITE_LOADING = "Loading the site's evidence.";
@@ -71,6 +72,8 @@ export interface EvSiteRoutes {
   analysis: string;
   financials: string;
   assumptions: string;
+  /** W5-03b E6: the authored EV scenarios (Financials subtab). */
+  scenarios: string;
   sessions: string;
   /** W5-03a E2: the selected EV Availability depth page (Performance subtab). */
   availability: string;
@@ -333,7 +336,13 @@ export interface EvSiteFrameProps {
   routes: EvSiteRoutes;
   tabs: ReactNode;
   parentTrail: Crumb[];
+  /** W5-03b E6: the authored clock from the address, carried only by the Scenarios entry. */
+  scenarioAt?: string | null;
+  /** W5-03b E6: the authored scenario list client (the Scenarios view reads only this). */
+  scenarios?: EvScenariosClient;
 }
+
+const DEFAULT_SCENARIOS = createEvScenariosClient();
 
 const SCREEN: Record<EvSiteView, string> = {
   overview: "ev",
@@ -341,6 +350,7 @@ const SCREEN: Record<EvSiteView, string> = {
   analysis: "ev-evidence-analysis",
   financials: "ev-financials",
   assumptions: "ev-assumptions",
+  scenarios: "ev-scenarios",
 };
 const DESCRIPTION: Record<EvSiteView, string> = {
   overview: SITE_SCREEN_DESCRIPTIONS.mini,
@@ -348,6 +358,8 @@ const DESCRIPTION: Record<EvSiteView, string> = {
   analysis: SITE_SCREEN_DESCRIPTIONS["evidence-analysis"],
   financials: SITE_SCREEN_DESCRIPTIONS.financials,
   assumptions: SITE_SCREEN_DESCRIPTIONS.assumptions,
+  // W5-03b E6 (ruling 15): the mock `ev-scenarios` subtitle, scoped to this EV screen.
+  scenarios: "Financials · scenarios (placeholder)",
 };
 const CRUMB: Record<EvSiteView, Crumb[]> = {
   overview: [],
@@ -355,12 +367,21 @@ const CRUMB: Record<EvSiteView, Crumb[]> = {
   analysis: [{ label: "Evidence" }, { label: "Analysis" }],
   financials: [{ label: "Financials" }],
   assumptions: [{ label: "Financials" }, { label: "Assumptions" }],
+  scenarios: [{ label: "Financials" }, { label: "Scenarios" }],
 };
 
-/** Route-local tabs, all live: Evidence `Overview | Analysis`, Financials `Overview | Assumptions` live plus the mock's unavailable `Scenarios` slot (W2-F M12). */
-function Subtabs({ view, routes, window }: { view: EvSiteView; routes: EvSiteRoutes; window: EvWindowQuery }) {
+/**
+ * Route-local tabs, all live: Evidence `Overview | Analysis`, Financials `Overview | Assumptions | Scenarios`.
+ * W5-03b E6: only the Scenarios entry carries `scenario_at`; Overview and Assumptions keep `from,to,known_at` only.
+ */
+function Subtabs({ view, routes, window, scenarioAt }: { view: EvSiteView; routes: EvSiteRoutes; window: EvWindowQuery; scenarioAt: string | null }) {
   const evidence = view === "evidence" || view === "analysis";
-  const financial = view === "financials" || view === "assumptions";
+  const financial = view === "financials" || view === "assumptions" || view === "scenarios";
+  const scenariosHref = (() => {
+    const base = sel(routes.scenarios, window);
+    if (scenarioAt === null) return base;
+    return `${base}${base.includes("?") ? "&" : "?"}${new URLSearchParams({ scenario_at: scenarioAt }).toString()}`;
+  })();
   if (!evidence && !financial) return null;
   const items: [EvSiteView, string, string][] = evidence
     ? [
@@ -381,7 +402,13 @@ function Subtabs({ view, routes, window }: { view: EvSiteView; routes: EvSiteRou
             </Link>
           </li>
         ))}
-        {financial ? <UnavailableTab label="Scenarios" /> : null}
+        {financial ? (
+          <li className="site-tabs__item">
+            <Link className="site-tabs__link" to={scenariosHref} data-ev-subtab="scenarios" aria-current={view === "scenarios" ? "page" : undefined}>
+              Scenarios
+            </Link>
+          </li>
+        ) : null}
       </ol>
     </nav>
   );
@@ -394,7 +421,7 @@ export function EvSiteFrame(props: EvSiteFrameProps) {
       <Breadcrumbs trail={[...props.parentTrail, ...CRUMB[view]]} />
       <SitePageHeader siteName={props.siteName} siteId={props.siteId} mode={props.mode} description={DESCRIPTION[view]} headingId={EV_SITE_HEADING_ID} />
       {props.tabs}
-      <Subtabs view={view} routes={props.routes} window={props.window} />
+      <Subtabs view={view} routes={props.routes} window={props.window} scenarioAt={props.scenarioAt ?? null} />
       {view === "overview" ? (
         <OverviewScreen {...props} />
       ) : view === "evidence" ? (
@@ -403,6 +430,8 @@ export function EvSiteFrame(props: EvSiteFrameProps) {
         <AnalysisScreen {...props} />
       ) : view === "financials" ? (
         <FinancialsScreen {...props} />
+      ) : view === "scenarios" ? (
+        <EvScenarios siteCode={props.siteId} window={props.window} scenarioAt={props.scenarioAt ?? null} client={props.scenarios ?? DEFAULT_SCENARIOS} />
       ) : (
         <AssumptionsScreen {...props} />
       )}
