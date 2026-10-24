@@ -706,7 +706,7 @@ def test_ev_conflict_paths_are_409_with_the_ev_literal_and_write_nothing(ev) -> 
         status, first = post(svc.post_intent, aid, body)
         assert status == 201
         refused_as(409, "DOMAIN_INTENT_CONFLICT", conflict, post, svc.post_intent, aid,
-                   {**body, "criteria": list(reversed(body["criteria"]))})
+                   {**body, "declared_at": iso(_now(ev) - timedelta(minutes=2))})
         refused_as(409, "DOMAIN_INTENT_CONFLICT", conflict, post, svc.post_intent, aid,
                    ev_intent(ev, [own], valid, key="w504-intent-second-root"))
         stale = {**ev_intent(ev, [own], valid, key="w504-intent-stale"), "supersedes_id": str(uuid4())}
@@ -756,7 +756,11 @@ def test_ev_db_time_disposition_after_the_intent_leaves_the_pin_fixed(ev) -> Non
                                 {"s": ev.s}).scalar_one()
         assert decided > recorded, "the inserted disposition is decided after the intent (DB time)"
         pin1, detail1 = pin_at(recorded), reads.detail(ev.t, ev.s, ev.code, aid, [])
-        assert pin1 == pin0 and pin0["evidence_cutoff"] <= recorded
+        keep = lambda pin: {k: v for k, v in pin.items() if k != "state"}  # noqa: E731 - see the state note below
+        assert keep(pin1) == keep(pin0) and pin0["evidence_cutoff"] <= recorded
+        # The read at `recorded` is now historical against the advanced watermark: only the pin's own `state` word
+        # moves (CURRENT -> HISTORICAL); revision, window, seqs and evidence cutoff are fixed.
+        assert (pin0["state"], pin1["state"]) == ("CURRENT", "HISTORICAL")
         assert pin_at(_now(ev))["evidence_cutoff"] == decided > pin0["evidence_cutoff"], "the shared cutoff did advance"
         for key in ("status", "selection_token", "intent", "results", "source_provenance", "links"):
             assert detail1[key] == detail0[key], key

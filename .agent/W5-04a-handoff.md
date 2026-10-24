@@ -287,6 +287,22 @@ this as is.
 | Ruling 54 | none | pending/stale stay pure vectors; V2b packet names them (no code) |
 | Ruling 56 (unused port) | none | `ev_selected_provenance` left bound and unused as an optional V5 seam; no cleanup |
 
-Runs: code-only. DB-free `test_w504_ev_work_cases.py`, `test_w504_ev_intent_model.py`, `test_w502_domain_intent_model.py`
-35 passed; non-vacuity: old `_select` fails the model test, old `zero_reads_complete` fails its test. check-all: see
-below. Postgres/API batch: pending coordinator signal.
+Second pass (coordinator: suite failures in the Linux container):
+- Producer test `test_native_replay_and_k0_refusals` used `tasklist`; `test_drop_stops_only_recorded_pids...` used the
+  hard-coded `127.0.0.1:55432`. Fixed without skipping or weakening: `tools/w504_ev_work_walkthrough.py` now has
+  `pid_alive`, `_command_line`, `_kill_tree` branching on `os.name` (Windows: `tasklist`, CIM command line,
+  `taskkill /T`; POSIX: `kill 0` + zombie check, `/proc/<pid>/cmdline`, `/proc` descendant scan with SIGKILL, no
+  `pkill`, since the slim image lacks it). `PG_ADMIN` and the per-mode DB URLs derive from
+  `ASSETOPS_TEST_DATABASE_URL` (harness server/port/credentials, admin database `postgres`) when set, else the local
+  defaults. L6's `_stop_owned` uses the same portable helpers. The drop test now records an "ours" PID (command line
+  `... uvicorn serve_entry:app --port 55999`, killed) and an unrelated reused PID (must survive); stronger than before.
+  psutil is not a dependency, so `os.name` branching.
+- Runs (private base `assetops_w504f_test`, dropped afterwards; no leftover `%w504%` DB): w504 Postgres/API/producer/
+  model/cases + cold w502 domain intent/index/links/producer files, `-n 4`, Windows: 86 passed, 2 failed in 331 s; both
+  failures were my new tests (reversed criteria is a 422 shape error, so the L1 "other body" now changes `declared_at`;
+  the L2 pin's own `state` word legitimately moves CURRENT -> HISTORICAL at the advanced watermark, so it is excluded and
+  asserted separately, while revision, window, seqs, evidence cutoff, detail status, token, intent and provenance stay
+  fixed). Both re-run: 2 passed. Producer + cases files re-run on Windows: 21 passed. Same two producer files in the
+  Linux container (python:3.12.7-slim-bookworm, shared venv volume, network `assetopsv1_default`): 21 passed (the first
+  container run caught the missing `pkill`, fixed). check-all earlier: 11 guards passed (before this pass; only tools/
+  and tests changed since).

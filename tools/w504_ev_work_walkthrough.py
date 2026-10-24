@@ -630,11 +630,23 @@ def _kill_tree(pid: int) -> None:
         return
     import signal
 
-    subprocess.run(["pkill", "-KILL", "-P", str(pid)], capture_output=True)  # direct children, then the PID itself
-    try:
-        os.kill(pid, signal.SIGKILL)
-    except ProcessLookupError:
-        pass
+    # No external tool (a slim container has no `pkill`): descendants from /proc parent links, then the PID itself.
+    parents: dict[int, int] = {}
+    for entry in Path("/proc").iterdir():
+        if entry.name.isdigit():
+            try:
+                parents[int(entry.name)] = int((entry / "stat").read_text().rsplit(")", 1)[1].split()[1])
+            except (OSError, IndexError, ValueError):
+                continue
+    doomed, frontier = [pid], [pid]
+    while frontier:
+        frontier = [child for child, parent in parents.items() if parent in frontier and child not in doomed]
+        doomed += frontier
+    for victim in reversed(doomed):
+        try:
+            os.kill(victim, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
 
 
 def _stop_owned(info: dict) -> bool:
