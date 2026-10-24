@@ -1,0 +1,9 @@
+stopped positive pid 4564
+stopped zero pid 2312
+stopped worstcase pid 3448
+stopped forbidden pid 11396
+dropped database w504a_positive_b17_test
+dropped database w504a_zero_b17_test
+dropped database w504a_worstcase_b17_test
+dropped database w504a_unknown_b17_test
+removed C:\Users\assef\Bineyame\AssetOpsV1-review5\var\w504a_b17

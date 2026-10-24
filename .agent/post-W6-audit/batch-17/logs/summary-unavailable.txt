@@ -1,0 +1,84 @@
+=== ev-work-incidents store-unavailable-503 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Site unavailable' 103/- w=1160/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Incidents at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)*', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+=== ev-work-incidents store-unavailable-503 390x900 pageH app/mock 900/1215 ovX 0 hdr 58 mainTop 397/158 cerr []
+  P 'Site unavailable' 126/- w=358/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Incidents at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)*', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 381}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+=== ev-work-maintenance store-unavailable-503 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Site unavailable' 103/- w=1160/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Maintenance at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)', 'Maintenance (0)*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+=== ev-work-maintenance store-unavailable-503 390x900 pageH app/mock 900/1195 ovX 0 hdr 58 mainTop 397/158 cerr []
+  P 'Site unavailable' 126/- w=358/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Maintenance at this site']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)', 'Maintenance (0)*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 381}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+=== ev-action store-unavailable-503 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Site unavailable' 103/- w=1160/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Declared verification plan']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== ev-action store-unavailable-503 390x900 pageH app/mock 900/1123 ovX 0 hdr 58 mainTop 397/158 cerr []
+  P 'Site unavailable' 126/- w=358/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Declared verification plan']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 14px [] pSizes {'14px': 1} | M 12px {}
+  tabs [] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 381}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb:  | sub:  | M crumb:  | M sub: 
+  buttons: [] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']

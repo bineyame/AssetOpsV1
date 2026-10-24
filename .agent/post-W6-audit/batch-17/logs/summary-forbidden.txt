@@ -1,0 +1,80 @@
+=== ev-work-incidents forbidden-403 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Incidents at this site' 145/316 (0.46) w=1160/1161 rows=0/0 cols=[] | []
+  strip: Count unknown · work source unavailableSame records and states as the global Incidents listManage in Incidents →
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (—)', 'Incidents (—)*', 'Maintenance (—)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)*', 'Maintenance (0)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 248, 'w': 1160, 'h': 33, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: SitesEV charging labWork | sub:  | M crumb:  | M sub: 
+  buttons: ['Apply'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+=== ev-work-incidents forbidden-403 390x900 pageH app/mock 900/1215 ovX 0 hdr 58 mainTop 134/158 cerr []
+  P 'Incidents at this site' 153/336 (0.46) w=358/360 rows=0/0 cols=[] | []
+  strip: Count unknown · work source unavailableSame records and states as the global Incidents listManage in Incidents →
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (—)', 'Incidents (—)*', 'Maintenance (—)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)*', 'Maintenance (0)']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 118}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 16, 'w': 358, 'h': 136, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: SitesEV charging labWork | sub:  | M crumb:  | M sub: 
+  buttons: ['Apply'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+=== ev-work-maintenance forbidden-403 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Maintenance at this site' 145/296 (0.49) w=1160/1161 rows=0/0 cols=[] | []
+  strip: Count unknown · work source unavailableSame records and states as the global Maintenance listManage in Maintenance →
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (—)', 'Incidents (—)', 'Maintenance (—)*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)', 'Maintenance (0)*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 248, 'w': 1160, 'h': 33, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: SitesEV charging labWork | sub:  | M crumb:  | M sub: 
+  buttons: ['Apply'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+=== ev-work-maintenance forbidden-403 390x900 pageH app/mock 900/1195 ovX 0 hdr 58 mainTop 134/158 cerr []
+  P 'Maintenance at this site' 153/316 (0.48) w=358/360 rows=0/0 cols=[] | []
+  strip: Count unknown · work source unavailableSame records and states as the global Maintenance listManage in Maintenance →
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (—)', 'Incidents (—)', 'Maintenance (—)*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)', 'Incidents (0)', 'Maintenance (0)*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 118}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': {'x': 16, 'w': 358, 'h': 136, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: SitesEV charging labWork | sub:  | M crumb:  | M sub: 
+  buttons: ['Apply'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Canonical basis & implementation notes']
+=== ev-action forbidden-403 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P '' 158/- w=1160/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Declared verification plan']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'14px': 3} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsVerification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site', 'Retry'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']
+=== ev-action forbidden-403 390x900 pageH app/mock 900/1123 ovX 0 hdr 58 mainTop 302/158 cerr []
+  P '' 158/- w=358/None rows=0/None cols=[] | None
+  MISSING vs mock: ['Declared verification plan']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 0 details 0
+  fonts prose 12px [] pSizes {'14px': 3} | M 12px {}
+  tabs [{'cls': 'site-tabs site-subtabs', 'items': ['Verification*']}] | M [{'cls': 'tabs ', 'items': ['Verification*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 286}]
+  cold: {'plural1': [], 'evConnector': 0, 'rawConnector': [], 'backticks': [], 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0, 'vscroll': []}
+  crumb: ActionsVerification· site: EV charging lab | sub:  | M crumb:  | M sub: 
+  buttons: ['Open site', 'Retry'] | M: ['Find a screen', 'Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾', 'Open site', 'Canonical basis & implementation notes']

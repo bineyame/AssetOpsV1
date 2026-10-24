@@ -1,0 +1,123 @@
+﻿chrome pid 25936
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-ev-action-tab-bare 1440: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-ev-action-tab-bare 1440: mock rendered
+PASS  link-check-ev-action-tab-bare 1440: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-bare 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-bare 390: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-bare 390: mock rendered
+PASS  link-check-ev-action-tab-bare 390: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-bare 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-ev-action-tab-verification 1440: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-ev-action-tab-verification 1440: mock rendered
+PASS  link-check-ev-action-tab-verification 1440: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-verification 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-verification 390: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-verification 390: mock rendered
+PASS  link-check-ev-action-tab-verification 390: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-verification 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/overview?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-ev-action-tab-overview 1440: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-ev-action-tab-overview 1440: mock rendered
+PASS  link-check-ev-action-tab-overview 1440: same panel count  {"app":["No such Action section"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-overview 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/overview?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-overview 390: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-overview 390: mock rendered
+PASS  link-check-ev-action-tab-overview 390: same panel count  {"app":["No such Action section"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-overview 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/execution?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-ev-action-tab-execution 1440: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-ev-action-tab-execution 1440: mock rendered
+PASS  link-check-ev-action-tab-execution 1440: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-execution 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/execution?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-execution 390: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-execution 390: mock rendered
+PASS  link-check-ev-action-tab-execution 390: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-execution 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/history?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-ev-action-tab-history 1440: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-ev-action-tab-history 1440: mock rendered
+PASS  link-check-ev-action-tab-history 1440: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-history 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/history?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-history 390: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-history 390: mock rendered
+PASS  link-check-ev-action-tab-history 390: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-history 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/plan?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-ev-action-tab-plan 1440: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-ev-action-tab-plan 1440: mock rendered
+PASS  link-check-ev-action-tab-plan 1440: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-plan 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/plan?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-plan 390: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-plan 390: mock rendered
+PASS  link-check-ev-action-tab-plan 390: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-plan 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/evidence?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-ev-action-tab-evidence 1440: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-ev-action-tab-evidence 1440: mock rendered
+PASS  link-check-ev-action-tab-evidence 1440: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-evidence 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/evidence?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-evidence 390: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-action-tab-evidence 390: mock rendered
+PASS  link-check-ev-action-tab-evidence 390: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-check-ev-action-tab-evidence 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-ev-work-actions-tab 1440: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-work: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-ev-work-actions-tab 1440: mock rendered
+PASS  link-check-ev-work-actions-tab 1440: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  link-check-ev-work-actions-tab 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-work-actions-tab 390: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-work: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-ev-work-actions-tab 390: mock rendered
+PASS  link-check-ev-work-actions-tab 390: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  link-check-ev-work-actions-tab 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-global-incidents 1440: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-work-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-global-incidents 1440: mock rendered
+FAIL  link-check-global-incidents 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incidents at this site"]}
+PASS  link-check-global-incidents 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-global-incidents 390: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-work-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-global-incidents 390: mock rendered
+FAIL  link-check-global-incidents 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incidents at this site"]}
+PASS  link-check-global-incidents 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-global-maintenance 1440: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-work-maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-global-maintenance 1440: mock rendered
+PASS  link-check-global-maintenance 1440: same panel count  {"app":["Corrective work requests"],"mock":["Maintenance at this site"]}
+PASS  link-check-global-maintenance 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5187/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-global-maintenance 390: app rendered
+PASS  loaded http://127.0.0.1:5187/mockups/v69/index.html#/ev-work-maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-global-maintenance 390: mock rendered
+PASS  link-check-global-maintenance 390: same panel count  {"app":["Corrective work requests"],"mock":["Maintenance at this site"]}
+PASS  link-check-global-maintenance 390: no app page overflow  {"overflowX":0}
+
+118/120 claims passed; evidence in part-links
