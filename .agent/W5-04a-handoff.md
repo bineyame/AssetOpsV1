@@ -266,3 +266,27 @@ Today `prepare` creates the five DBs, writes `blocked` modes and exits 3; run `d
    the case command response carries no `created_at`.
 4. Work URLs in the manifest carry W as `from`/`to` (the detail API itself takes only `known_at`).
 5. No questions raised; nothing contradicted the merged code.
+
+## Fix round (branch `task/W5-04a-fix`, from V1 head 71e5cdc9 + main 50d515bd; rulings 53-66)
+
+Index wire change (ruling 53), exact: `work/domain_action_index.py::_select` now reads intents first and resolves each
+EV row that has a selected intent through a per-cutoff `_Lineage` at `min(intent.recorded_at, known_at)`; every other
+row (no intent, cold) keeps `known_at`. Source href, source state and the fence entry (`frev if selected`) come from
+that pin. Envelope `known_at`, historical flag, membership, cursor and fence shape are unchanged. A V2 builder merges
+this as is.
+
+| Item | Commit | What |
+|---|---|---|
+| V1 item 1 / ruling 53 | 5739ad6d (code + DB-free), 7f8ca89c (Postgres/API) | `_select` reorder; `test_w504_ev_intent_model.py::test_index_ev_intent_row_resolves_at_the_intent_pin_not_the_read_known_at` (fake rx: href, status, recorded cutoffs, exact fence token; mutation to old order fails it); `test_w504_ev_intent_postgres.py::test_ev_index_row_uses_the_intent_pin_and_no_intent_row_reads_known_at` (later head, no-intent displaced row null/UNKNOWN, historical before/at/after intent, cursor pages); `test_w504_ev_intent_api.py::test_ev_index_wire_after_a_later_head_and_conflict_409s` |
+| L1 | 7f8ca89c | `test_ev_conflict_paths_are_409_with_the_ev_literal_and_write_nothing` (Action key/body, intent key/body, second root, stale supersedes, repeated exact case link, reused link key) + HTTP 409 wire in the API test; table counts asserted after each |
+| L2 / ruling 55 | 7f8ca89c | Existing vector relabelled BACKDATED; new `test_ev_db_time_disposition_after_the_intent_leaves_the_pin_fixed` uses `add_import(..., db_time=True)` (new optional kw in `ev_depth_cases.py`, `decided_at = clock_timestamp()`), asserts `decided > intent.recorded_at`, pin, evidence cutoff at intent, status, token, intent, provenance fixed, shared cutoff advanced |
+| L3 | 5739ad6d | `test_w502_domain_intent_postgres.py` and `test_w502_domain_intent_api.py`: `EV_CHARGING` body (EV link literal) and `MINIGRID` body (neutral literal) on the **cold** Site, zero writes |
+| L4 | 7f8ca89c | `zero_reads_complete` requires `total_count == 0` (int, not bool, present) and `next_cursor is None`; unit test (fails on old code) |
+| L5 | this note | Not extended. Disclosed limit: ruling-32 cutoff test proves the shared advanced cutoff on the EV pin, EV snapshot and the W4 linked selection of an EV Action only; no cold pin/link and no `link_coverage` read. Cold and EV share `_ReadTx._cold_ev`; builder's `decision='ACCEPTED'` mutation failed the test |
+| L6 | 7f8ca89c | walkthrough `drop` and the `unavailable` stop kill a recorded PID only if its command line is still `uvicorn serve_entry:app --port <recorded>` (`is_recorded_server`, `_stop_owned`); otherwise skipped and logged; unit test |
+| Ruling 54 | none | pending/stale stay pure vectors; V2b packet names them (no code) |
+| Ruling 56 (unused port) | none | `ev_selected_provenance` left bound and unused as an optional V5 seam; no cleanup |
+
+Runs: code-only. DB-free `test_w504_ev_work_cases.py`, `test_w504_ev_intent_model.py`, `test_w502_domain_intent_model.py`
+35 passed; non-vacuity: old `_select` fails the model test, old `zero_reads_complete` fails its test. check-all: see
+below. Postgres/API batch: pending coordinator signal.
