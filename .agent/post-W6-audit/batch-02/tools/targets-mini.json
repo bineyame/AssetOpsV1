@@ -1,0 +1,8 @@
+[
+ {"id":"mini","case":"priced","url":"http://localhost:5182/sites/KOBO-001?date=2026-10-23"},
+ {"id":"mini","case":"held","url":"http://localhost:5182/sites/KOBO-001?date=2026-10-24"},
+ {"id":"mini","case":"ordinary-no-amount","url":"http://localhost:5182/sites/KOBO-001?date=2026-10-02"},
+ {"id":"mini","case":"failed","url":"http://localhost:5182/sites/KOBO-001?date=2026-10-07"},
+ {"id":"mini","case":"unassessed","url":"http://localhost:5182/sites/KOBO-001?date=2026-11-10"},
+ {"id":"mini","case":"default-no-date","url":"http://localhost:5182/sites/KOBO-001"}
+]
