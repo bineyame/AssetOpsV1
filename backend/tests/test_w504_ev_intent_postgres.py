@@ -370,9 +370,10 @@ def test_ev_action_and_intent_round_trip_with_detail(ev) -> None:
     own, valid = members(ev)
     svc, reads = ev_service(ev), ev_reads(ev)
     try:
-        status, created = svc.create_action(ev.t, ev.s, ev.code, ev_action(ev), PRINCIPAL)
+        root = ev_action(ev)  # one body: `raised_at` is part of the canonical command hash
+        status, created = svc.create_action(ev.t, ev.s, ev.code, root, PRINCIPAL)
         assert status == 201, created
-        assert svc.create_action(ev.t, ev.s, ev.code, ev_action(ev), PRINCIPAL) == (200, created)
+        assert svc.create_action(ev.t, ev.s, ev.code, dict(root), PRINCIPAL) == (200, created)
         aid = created["id"]
         body = ev_intent(ev, [own], valid[:1])
         status, declared = svc.post_intent(ev.t, ev.s, ev.code, aid, body, PRINCIPAL)
