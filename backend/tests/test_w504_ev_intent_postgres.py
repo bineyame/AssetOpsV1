@@ -1,4 +1,5 @@
-"""W5-04a V1a: migration `0035_w5_ev_work`, the EV domain contract, the selected EV basis port and EV case links.
+"""W5-04a V1a/V1b: migration `0035_w5_ev_work`, the EV domain contract, the selected EV basis port, EV case links,
+and the EV commands and detail over the real selection (readiness 27, 28, 30, 7).
 
 `.agent/W5-04-build-spec.md` "V1 migration", "V1 selection, clock and schema" and readiness rulings 2-5, 9, 12.
 The EV Finding comes from W2-05b's registered `interrupted` replay through the W2-06 worker (`ev_depth_cases.
@@ -10,7 +11,7 @@ Requires ASSETOPS_TEST_DATABASE_URL naming a `*_test` database.
 from __future__ import annotations
 
 import json
-from datetime import timezone
+from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 from uuid import uuid4
 
@@ -24,15 +25,22 @@ if URL:
     from sqlalchemy import text
     from sqlalchemy.exc import DBAPIError
 
-    from ev_depth_cases import chain, settled  # noqa: F401 - the W2-05b registered replay fixture
+    from ev_depth_cases import HI, LO, add_import, chain, settled  # noqa: F401 - the W2-05b registered replay fixture
     from test_s1_bindings_postgres import _alembic
     from test_w203_cold_migration_postgres import _replica, head
-    from test_w401_work_service_postgres import PRINCIPAL, request
+    from test_w206_ev_store_postgres import run_worker, select_exact
+    from test_w401_work_service_postgres import ACTOR, PRINCIPAL, request
 
+    from assetops_backend.evidence.composition import build_link_rows_reader
+    from assetops_backend.evidence.public_provenance import basis_sha256
     from assetops_backend.work import domain_action as d
     from assetops_backend.work.adapters import postgres_work_read as wr
-    from assetops_backend.work.composition import (_link_read_ports, build_work_service, selected_ev_basis,
-                                                   selected_finding_pin)
+    from assetops_backend.work.adapters.postgres_domain_action_index import PostgresDomainActionRead
+    from assetops_backend.work.adapters.postgres_domain_intent import PostgresDomainIntentStore
+    from assetops_backend.work.composition import (_link_read_ports, build_work_service, selected_cold_envelope,
+                                                   selected_ev_basis, selected_finding_pin)
+    from assetops_backend.work.domain_action_index import DomainActionReadService, parse_index_request
+    from assetops_backend.work.domain_intent import DomainIntentService
 
 HEAD = "0035_w5_ev_work"
 PARENT = "0034_w5_ev_scenarios"
@@ -278,3 +286,248 @@ def test_ev_case_link_is_visible_in_w4_selection(ev) -> None:
     assert len(selections) == 1 and selections[0]["domain"] == "ev_charging" and selections[0]["lineage"]
     assert selections[0]["pin"] is not None and selections[0]["pin"]["analytic_id"] in ev.ports.ev_analytics
     _replica(ev.engine, "DELETE FROM domain_action_case_link", "DELETE FROM domain_action")
+
+
+# ---- V1a service / V1b read: EV commands and detail over the real selection (readiness 27, 28, 30, 7) -------------
+
+EV_INVALID = "The EV Action declaration is incomplete or invalid."
+EV_LINK = "The declared Finding or session is not selected at this site and cutoff."
+EV_CHANGED = "The selected EV work basis changed; reload the Action."
+
+
+def iso(value) -> str:
+    return value.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+
+def ev_service(ev, ev_basis_of=None) -> "DomainIntentService":
+    """The composed command path (`build_domain_intent_store`), optionally with a perturbed EV basis reader."""
+    return DomainIntentService(PostgresDomainIntentStore(
+        URL, pin_of=selected_finding_pin(ev.ports), ev_basis_of=ev_basis_of or selected_ev_basis(ev.ports)))
+
+
+def ev_reads(ev, ev_basis_of=None) -> "DomainActionReadService":
+    ports = ev.ports
+    return DomainActionReadService(PostgresDomainActionRead(
+        URL, link_rows=build_link_rows_reader(), pin_of=selected_finding_pin(ports),
+        envelope_of=selected_cold_envelope(ports), ev_basis_of=ev_basis_of or selected_ev_basis(ports),
+        action_window=ports.action_window))
+
+
+def perturbed(ev, change):
+    """The real selected EV basis with one set changed - the deterministic way to make each readiness-30 set differ."""
+    real = selected_ev_basis(ev.ports)
+
+    def basis_of(c, t, s, code, pin, known_at, revision_id):
+        out = real(c, t, s, code, pin, known_at, revision_id)
+        return None if out is None else change(out)
+
+    return basis_of
+
+
+def selected_now(ev) -> dict:
+    known_at = _now(ev)
+    with ev.engine.connect() as c:
+        pin = selected_finding_pin(ev.ports)(c, ev.t, ev.s, ev.code, ev.revision, known_at)
+        assert pin is not None, "the EV Finding revision is not selected now"
+        return selected_ev_basis(ev.ports)(c, ev.t, ev.s, ev.code, pin, known_at, ev.revision["id"])
+
+
+def members(ev) -> tuple[str, list[str]]:
+    """The Finding's own session and the evidence IDs valid in all three readiness-30 sets (measured non-empty)."""
+    basis = selected_now(ev)
+    finding = basis["finding"]
+    valid = sorted(set(finding["evidence_ids"]) & set(basis["accepted_evidence_ids"])
+                   & set(basis["selected_evidence_ids"]))
+    assert finding["session_id"] and valid, "the fixture has no Finding session or no evidence valid in A, B and C"
+    return finding["session_id"], valid
+
+
+def ev_action(ev, key="w504-action-0001", **over) -> dict:
+    return {"domain": "EV_CHARGING", "origin_finding_id": ev.revision["finding_id"],
+            "origin_finding_revision_id": ev.revision["id"], "title": "Inspect connector c1", "owner_label": None,
+            "due_at": None, "raised_at": iso(_now(ev) - timedelta(minutes=10)), "actor": dict(ACTOR),
+            "idempotency_key": key, **over}
+
+
+def ev_intent(ev, sessions, evidence, key="w504-intent-0001", criteria=None, **basis) -> dict:
+    rows = [{"key": k, "label": label, "required_evidence": req} for k, label, req in d.EV_CRITERIA]
+    return {"supersedes_id": None, "declared_at": iso(_now(ev) - timedelta(minutes=1)),
+            "criteria": rows if criteria is None else criteria,
+            "basis": {"finding_revision_id": ev.revision["id"], "work_case_id": None, "work_record_id": None,
+                      "accepted_evidence_ids": list(evidence), "session_ids": list(sessions), **basis},
+            "actor": dict(ACTOR), "idempotency_key": key}
+
+
+def refused_as(status: int, code: str, message: str, call, *args) -> None:
+    with pytest.raises(d.DomainIntentRefused) as caught:
+        call(*args)
+    assert (caught.value.status, caught.value.code, caught.value.message) == (status, code, message)
+
+
+def test_ev_action_and_intent_round_trip_with_detail(ev) -> None:
+    """Readiness 27/30, build spec "EV closure contract": EV root and intent through the sole writer, exact 200 retries,
+    the stored closed basis, and the EV detail (three PENDING results, session revision IDs in provenance)."""
+    own, valid = members(ev)
+    svc, reads = ev_service(ev), ev_reads(ev)
+    try:
+        status, created = svc.create_action(ev.t, ev.s, ev.code, ev_action(ev), PRINCIPAL)
+        assert status == 201, created
+        assert svc.create_action(ev.t, ev.s, ev.code, ev_action(ev), PRINCIPAL) == (200, created)
+        aid = created["id"]
+        body = ev_intent(ev, [own], valid[:1])
+        status, declared = svc.post_intent(ev.t, ev.s, ev.code, aid, body, PRINCIPAL)
+        assert status == 201, declared
+        assert svc.post_intent(ev.t, ev.s, ev.code, aid, body, PRINCIPAL) == (200, declared)
+        assert counts(ev.engine) == [1, 1, 0]
+        with ev.engine.connect() as c:
+            row = c.execute(text("SELECT a.domain, i.basis, i.criteria FROM domain_action a JOIN domain_action_intent i "
+                                 "ON i.action_id = a.id WHERE a.id = :a"), {"a": aid}).one()
+        assert row[0] == "EV_CHARGING" and [x["key"] for x in row[2]] == [k for k, _, _ in d.EV_CRITERIA]
+        assert row[1] == {"finding_revision_id": ev.revision["id"], "work_case_id": None, "work_record_id": None,
+                          "accepted_evidence_ids": valid[:1], "session_ids": [own]}  # no pin key (ruling 27)
+        detail = reads.detail(ev.t, ev.s, ev.code, aid, [])
+        assert detail["action"]["domain"] == "EV_CHARGING" and detail["action"]["state"] == "OPEN"
+        assert detail["intent"]["basis"] == row[1] and detail["intent"]["id"] == declared["intent_id"]
+        assert detail["results"] == [{"key": k, "result": "PENDING", "evidence_ids": []} for k, _, _ in d.EV_CRITERIA]
+        assert detail["links"]["finding"]["href"] is not None
+        assert detail["selection_token"] == declared["selection_token"]
+        session_revision = selected_now(ev)["sessions"][own]
+        provenance = detail["source_provenance"]
+        selected_ids = [aid, ev.revision["id"], declared["intent_id"], session_revision]
+        assert provenance["basis_sha256"] == basis_sha256(ev.t, ev.s, selected_ids, provenance["evidence_ids"])
+        assert provenance["basis_sha256"] != basis_sha256(ev.t, ev.s, selected_ids + [own], provenance["evidence_ids"])
+    finally:
+        svc._store.dispose()
+        reads._reads.dispose()
+
+
+def test_ev_create_refusals_write_nothing(ev) -> None:
+    """Pre-flight 10/11, readiness 11: neutral unknown domain, a cold body on the EV Site (Site-type mismatch, cold
+    literal), a foreign Finding revision (EV literal); no root is written."""
+    svc = ev_service(ev)
+    try:
+        refused_as(422, "DOMAIN_INTENT_INVALID", d.NEUTRAL_DOMAIN_INVALID, svc.create_action, ev.t, ev.s, ev.code,
+                   ev_action(ev, domain="MINIGRID"), PRINCIPAL)
+        refused_as(422, "DOMAIN_INTENT_LINK_INVALID", d.MESSAGES["DOMAIN_INTENT_LINK_INVALID"], svc.create_action,
+                   ev.t, ev.s, ev.code, ev_action(ev, "w504-action-0002", domain="COLDCHAIN"), PRINCIPAL)
+        refused_as(422, "DOMAIN_INTENT_LINK_INVALID", EV_LINK, svc.create_action, ev.t, ev.s, ev.code,
+                   ev_action(ev, "w504-action-0003", origin_finding_revision_id=str(uuid4())), PRINCIPAL)
+        assert counts(ev.engine) == [0, 0, 0]
+    finally:
+        svc._store.dispose()
+
+
+def test_ev_intent_refusal_order_and_membership(ev) -> None:
+    """Readiness 28 order (neutral shape, 404, EV shape, EV link) and readiness 7/30 membership with no silent
+    intersection: each refusal leaves only the Action root."""
+    own, valid = members(ev)
+    x = valid[0]
+    svc = ev_service(ev)
+    try:
+        aid = svc.create_action(ev.t, ev.s, ev.code, ev_action(ev), PRINCIPAL)[1]["id"]
+        unknown = str(uuid4())
+        rows = [{"key": k, "label": label, "required_evidence": req} for k, label, req in d.EV_CRITERIA]
+        two = ev_intent(ev, [own], [x], criteria=rows[:2])
+        no_sessions = ev_intent(ev, [own], [x])
+        del no_sessions["basis"]["session_ids"]
+
+        def post(service, action_id, body):
+            return service.post_intent(ev.t, ev.s, ev.code, action_id, body, PRINCIPAL)
+
+        refused_as(422, "DOMAIN_INTENT_INVALID", d.NEUTRAL_INTENT_INVALID, post, svc, unknown,
+                   {**two, "declared_at": "not-an-instant"})
+        for body in (two, no_sessions):
+            refused_as(404, "ACTION_NOT_FOUND", d.MESSAGES["ACTION_NOT_FOUND"], post, svc, unknown, body)
+            refused_as(422, "DOMAIN_INTENT_INVALID", EV_INVALID, post, svc, aid, body)
+        cold_rows = [{"key": k, "label": label, "required_evidence": req} for k, label, req in d.CRITERIA]
+        refused_as(422, "DOMAIN_INTENT_INVALID", EV_INVALID, post, svc, aid, ev_intent(ev, [own], [x], criteria=cold_rows))
+        refused_as(422, "DOMAIN_INTENT_INVALID", EV_INVALID, post, svc, aid, ev_intent(ev, [], [x]))
+        foreign = str(uuid4())
+        for body in (ev_intent(ev, [own], [x], finding_revision_id=str(uuid4())),
+                     ev_intent(ev, [own, foreign], [x]), ev_intent(ev, [foreign], [x]),
+                     ev_intent(ev, [own], [x, foreign])):
+            refused_as(422, "DOMAIN_INTENT_LINK_INVALID", EV_LINK, post, svc, aid, body)
+        # Readiness 30: a valid ID made absent from exactly one set - A (accepted, not head-cited ... and the
+        # converse), B, the exact Finding's citations - and the Finding's own session missing from the declaration.
+        drops = (lambda b: {**b, "accepted_evidence_ids": [e for e in b["accepted_evidence_ids"] if e != x]},
+                 lambda b: {**b, "selected_evidence_ids": [e for e in b["selected_evidence_ids"] if e != x]},
+                 lambda b: {**b, "finding": {**b["finding"],
+                                             "evidence_ids": [e for e in b["finding"]["evidence_ids"] if e != x]}},
+                 lambda b: {**b, "sessions": {**b["sessions"], foreign: str(uuid4())}})
+        for change, sessions in zip(drops, ([own], [own], [own], [foreign])):
+            other = ev_service(ev, perturbed(ev, change))
+            try:
+                refused_as(422, "DOMAIN_INTENT_LINK_INVALID", EV_LINK, post, other, aid, ev_intent(ev, sessions, [x]))
+            finally:
+                other._store.dispose()
+        assert counts(ev.engine) == [1, 0, 0]
+        assert post(svc, aid, ev_intent(ev, [own.upper()], [x.upper()]))[0] == 201  # case-normalized membership
+    finally:
+        svc._store.dispose()
+
+
+def test_ev_pin_is_immutable_across_later_evidence_and_heads(ev) -> None:
+    """Readiness 27: historical reads before/after the intent, an accepted disposition added after it, a later
+    selected head and a foreign requested index window never move the intent's revision, window or basis; an exact
+    retry stays 200; a missing or changed exact selection is 409 with the EV message."""
+    own, valid = members(ev)
+    svc, reads = ev_service(ev), ev_reads(ev)
+    try:
+        aid = svc.create_action(ev.t, ev.s, ev.code, ev_action(ev), PRINCIPAL)[1]["id"]
+        body = ev_intent(ev, [own], valid)
+        status, declared = svc.post_intent(ev.t, ev.s, ev.code, aid, body, PRINCIPAL)
+        assert status == 201, declared
+        recorded = datetime.fromisoformat(declared["recorded_at"].replace("Z", "+00:00"))
+        before = reads.detail(ev.t, ev.s, ev.code, aid, [iso(recorded - timedelta(microseconds=1))])
+        at = reads.detail(ev.t, ev.s, ev.code, aid, [iso(recorded)])
+        assert before["intent"] is None and before["results"] is None and before["status"] == "HISTORICAL"
+        assert at["intent"]["id"] == declared["intent_id"] and at["status"] == "HISTORICAL"
+        add_import(ev.built, "41.5")  # an accepted disposition recorded after the intent
+        assert svc.post_intent(ev.t, ev.s, ev.code, aid, body, PRINCIPAL) == (200, declared)
+        late = reads.detail(ev.t, ev.s, ev.code, aid, [])
+        assert late["intent"]["basis"] == at["intent"]["basis"] and late["selection_token"] == declared["selection_token"]
+        run_worker(ev.built)
+        select_exact(ev.built, LO, HI)  # a later selected head of the same window
+        later = reads.detail(ev.t, ev.s, ev.code, aid, [])
+        assert later["intent"]["basis"] == at["intent"]["basis"]
+        assert later["links"]["finding"]["href"] == at["links"]["finding"]["href"]
+        assert reads.detail(ev.t, ev.s, ev.code, aid, [iso(recorded)])["selection_token"] == at["selection_token"]
+        now = _now(ev)
+        index = reads.index(ev.t, ev.s, ev.code, parse_index_request(
+            iso(now - timedelta(days=1)), iso(now + timedelta(hours=1)), None, [], None))
+        row = next(r for r in index["rows"] if r["action_id"] == aid)
+        assert (row["domain"], row["state"], row["criterion_summary"]) == (
+            "EV_CHARGING", "OPEN", "A complete witnessed session and no repeat fault")
+        foreign = reads.index(ev.t, ev.s, ev.code, parse_index_request(iso(LO), iso(HI), None, [], None))
+        assert all(r["action_id"] != aid for r in foreign["rows"])
+        assert reads.detail(ev.t, ev.s, ev.code, aid, [])["intent"]["basis"] == at["intent"]["basis"]
+    finally:
+        svc._store.dispose()
+        reads._reads.dispose()
+    for change in (lambda b: {**b, "sessions": {}}, lambda b: {**b, "finding": None},
+                   lambda b: {**b, "selected_evidence_ids": []}):
+        broken = ev_reads(ev, perturbed(ev, change))
+        try:
+            with pytest.raises(d.DomainIntentRefused) as caught:
+                broken.detail(ev.t, ev.s, ev.code, aid, [])
+            assert (caught.value.status, caught.value.code, caught.value.message) == (
+                409, "DOMAIN_INTENT_BASIS_CHANGED", EV_CHANGED)
+        finally:
+            broken._reads.dispose()
+
+
+def test_ev_detail_without_intent_and_unselected_finding_is_unknown(ev) -> None:
+    """Q7 (recorded): with no intent a missing selection is not a refusal - status UNKNOWN, no Finding href,
+    missing lineage; never a substituted head."""
+    svc = ev_service(ev)
+    try:
+        aid = svc.create_action(ev.t, ev.s, ev.code, ev_action(ev), PRINCIPAL)[1]["id"]
+    finally:
+        svc._store.dispose()
+    blind = ev_reads(ev, perturbed(ev, lambda b: {**b, "finding": None}))
+    try:
+        detail = blind.detail(ev.t, ev.s, ev.code, aid, [])
+    finally:
+        blind._reads.dispose()
+    assert (detail["intent"], detail["results"], detail["status"]) == (None, None, "UNKNOWN")
+    assert detail["links"]["finding"]["href"] is None and detail["source_provenance"]["state"] == "UNKNOWN"
