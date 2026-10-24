@@ -1,0 +1,6 @@
+[
+ {"id":"sessions","case":"complete","url":"http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z"},
+ {"id":"sessions","case":"complete-default-window","url":"http://localhost:5188/sites/EV-LAB-001/performance/sessions"},
+ {"id":"ev-foundation","case":"complete-replay","url":"http://localhost:5188/sites/EV-LAB-001/foundation"},
+ {"id":"ev-readiness","case":"complete-replay","url":"http://localhost:5188/sites/EV-LAB-001/foundation/readiness"}
+]
