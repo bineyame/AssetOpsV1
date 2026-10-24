@@ -8,7 +8,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { SiteWorkCasesFrame, SiteWorkFrame } from "../../shell/SiteAnalyticsFrames";
+import { SiteActionFrame, SiteWorkCasesFrame, SiteWorkFrame } from "../../shell/SiteAnalyticsFrames";
 import { expectV69Panels } from "../../test/panelStructure";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
@@ -19,10 +19,12 @@ import {
   EV_WORK_UNREACHABLE,
   createDomainActionClient,
   type DomainActionClient,
+  type DomainActionDetail,
   type DomainIndexResult,
   type DomainIndexScope,
 } from "../domainActionClient";
 import { evActionCount } from "../evWorkPresentation";
+import { COLD_WORK_PRESENTATION, EV_WORK_PRESENTATION, evActionHref } from "../SiteWorkActions";
 import { WORK_CONTEXT_NOTICE, WORK_CONTEXT_NOTICE_DOMAIN } from "../siteWorkCases";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import type { WorkClient, WorkScope } from "../workClient";
@@ -209,7 +211,8 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     const cells = Array.from(row.querySelectorAll("td"));
     // Ruling 46 / R113: V4a mounts the EV detail route and EV_ACTION_LINK_LIVE turns the selected `links.action` live.
     const link = cells[0].querySelector("a");
-    expect(link?.getAttribute("href")).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`);
+    // Ruling 67: the selected Work window and explicit cutoff ride on the detail address.
+    expect(link?.getAttribute("href")).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification?${new URLSearchParams({ from: EV_FROM, to: EV_TO, known_at: EV_KNOWN }).toString()}`);
     expect(link?.getAttribute("data-domain-work-action-link")).toBe("domain");
     expect(text(link)).toBe("ACT-000061 · Investigate connector 2");
     expect(cells[0].querySelector("[data-domain-work-action-plain]")).toBeNull();
@@ -303,7 +306,7 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     expect(text(cells[5])).toBe("No success criterion declared");
     expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to EV · 2 actions");
     expect(main.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"] td a`)?.getAttribute("href")).toBe(
-      `/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`,
+      `/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification?${new URLSearchParams({ from: EV_FROM, to: EV_TO, known_at: EV_KNOWN }).toString()}`,
     );
   });
 
@@ -505,5 +508,102 @@ describe("EV Work case tabs: subtitle and subrow (ruling 45, R78)", () => {
     // Window until V3a mounts it together with `windowForm=false`.
     expect(main.querySelector("[data-domain-work-window]")).toBeNull();
     expect(main.querySelectorAll("form").length).toBe(1);
+  });
+});
+
+/* ---------- W5-04 V4a readiness ruling 67: the EV Action link carries the selected Work scope ---------- */
+
+describe("EV Work Action link carries the selected from,to,known_at (ruling 67)", () => {
+  const evDetailBody = () => {
+    const criteria = [
+      { key: "WITNESSED_SESSION", label: "Complete a witnessed charging session", required_evidence: "Session start, end, outcome and meter delta" },
+      { key: "NO_FAULT_RECURRENCE", label: "No fault recurrence during observation", required_evidence: "Connector diagnostic events with full coverage" },
+      { key: "NO_SERVICE_REDUCTION", label: "No reduction in service availability", required_evidence: "Comparable status coverage / operational window" },
+    ];
+    return {
+      schema_version: "domain-action-intent-read-1" as const,
+      site_code: EV_SITE_CODE,
+      action: {
+        id: EV_ACTION_ID, action_code: "ACT-000061", domain: "EV_CHARGING" as const, title: "Investigate connector 2", owner_label: "Charging operations",
+        due_at: null, raised_at: "2026-10-06T09:10:00Z", recorded_at: "2026-10-06T09:10:01Z", state: "OPEN" as const,
+      },
+      known_at: EV_KNOWN,
+      status: "HISTORICAL" as const,
+      intent: { id: "bbbb0000-0000-4000-8000-000000000001", recorded_at: "2026-10-06T09:11:00Z", criteria, basis: {} },
+      results: criteria.map((c) => ({ key: c.key, result: "PENDING", evidence_ids: [] })),
+      links: { finding: { label: "Finding c0ffee12", href: null }, work: { case_id: null, case_code: null, case_title: null, request_state: null, record_id: null, label: null, href: null } },
+      source_provenance: null,
+      selection_token: "sha256:ev",
+    };
+  };
+
+  function mountWorkAndDetail(path: string, client: DomainActionClient) {
+    const work = workClient();
+    render(
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route
+            path="/sites/:siteId/work"
+            element={<SiteWorkFrame detail={detail} sitesPath="/sites" actionIndex={neverActionIndex} workClient={work.client} domainActions={client} />}
+          />
+          <Route path="/sites/:siteId/actions/:actionId/:actionView" element={<SiteActionFrame detail={detail} sitesPath="/sites" domainActions={client} />} />
+        </Routes>
+        <Where />
+      </MemoryRouter>,
+    );
+  }
+
+  function both() {
+    const detailCalls: (string | null)[] = [];
+    const client: DomainActionClient = {
+      getIndex: vi.fn(async () => loaded(evIndexBody([evRow()]))),
+      getDetail: vi.fn(async (_s: string, _id: string, knownAt: string | null) => {
+        detailCalls.push(knownAt);
+        return { status: "loaded" as const, value: evDetailBody() as unknown as DomainActionDetail };
+      }),
+    };
+    return { client, detailCalls };
+  }
+
+  const selected = `?${new URLSearchParams({ from: EV_FROM, to: EV_TO, known_at: EV_KNOWN }).toString()}`;
+  const detailPath = `/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`;
+
+  it("a historical window/cutoff click opens the detail at that scope, reads at known_at, and its Verification link keeps it", async () => {
+    const { client, detailCalls } = both();
+    mountWorkAndDetail(workPath(), client);
+    await settledScreen();
+    const link = document.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"] td a`) as HTMLElement;
+    expect(link.getAttribute("href")).toBe(`${detailPath}${selected}`);
+    expect(link.getAttribute("href")).not.toContain("cursor");
+    fireEvent.click(link);
+    await settledScreen();
+    await waitFor(() => expect(document.querySelector("main")?.getAttribute("data-domain-action-shell")).toBe("loaded"));
+    expect(where()).toBe(`${detailPath}${selected}`);
+    expect(detailCalls).toEqual([EV_KNOWN]);
+    expect(document.querySelector('[data-action-section="verification"]')?.getAttribute("href")).toBe(`${detailPath}${selected}`);
+  });
+
+  it("a reload of the selected detail address reads the same cutoff and keeps the same scope", async () => {
+    const { client, detailCalls } = both();
+    mountWorkAndDetail(`${detailPath}${selected}`, client);
+    await settledScreen();
+    expect(document.querySelector("main")?.getAttribute("data-domain-action-shell")).toBe("loaded");
+    expect(detailCalls).toEqual([EV_KNOWN]);
+    expect(document.querySelector('[data-action-section="verification"]')?.getAttribute("href")).toBe(`${detailPath}${selected}`);
+  });
+
+  it("without an explicit cutoff the link carries from,to only; a paged list never carries its cursor", async () => {
+    const { client } = both();
+    mountWorkAndDetail(workPath(`from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}&cursor=abc`), client);
+    await settledScreen();
+    const href = document.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"] td a`)?.getAttribute("href");
+    expect(href).toBe(`${detailPath}?${new URLSearchParams({ from: EV_FROM, to: EV_TO }).toString()}`);
+  });
+
+  it("evActionHref drops any server query and the cursor; the cold presentation keeps the server href byte-identical", () => {
+    const scope = { from: EV_FROM, to: EV_TO, knownAt: null, cursor: "abc" };
+    expect(evActionHref(`${detailPath}?x=1`, scope)).toBe(`${detailPath}?${new URLSearchParams({ from: EV_FROM, to: EV_TO }).toString()}`);
+    expect(EV_WORK_PRESENTATION.actionHref(detailPath, { ...scope, knownAt: EV_KNOWN })).toBe(`${detailPath}${selected}`);
+    expect(COLD_WORK_PRESENTATION.actionHref("/sites/CR/actions/x/verification", { ...scope, knownAt: EV_KNOWN })).toBe("/sites/CR/actions/x/verification");
   });
 });

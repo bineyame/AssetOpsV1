@@ -290,7 +290,8 @@ describe("W5-04 V2a: ev-work keeps the v69 panel structure", () => {
       expect(panelTitled("Actions at this site").querySelector("form")).toBeNull();
       expect(q("[data-cold-work]")).toBeNull();
       // W5-04 V4a closes R113: the one live EV detail link is the selected row's own `/verification` href.
-      expect(Array.from(document.querySelectorAll("main a[href*='/verification']")).map((a) => a.getAttribute("href"))).toEqual(
+      // Ruling 67: the href also carries the selected window (`from,to`), never a cursor.
+      expect(Array.from(document.querySelectorAll("main a[href*='/verification']")).map((a) => (a.getAttribute("href") ?? "").split("?")[0])).toEqual(
         body.rows.length === 0 ? [] : [`/sites/${EV_SITE_CODE}/actions/${body.rows[0].action_id}/verification`],
       );
     });

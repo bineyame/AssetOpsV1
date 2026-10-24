@@ -381,9 +381,11 @@ describe("cold Site Work and domain Action route frames", () => {
     const main = document.querySelector("main") as HTMLElement;
     expect(main.querySelector("[data-domain-work-strip]")).not.toBeNull();
     expect(main.querySelector("[data-cold-work-strip]")).toBeNull();
-    expect(main.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"] td a`)?.getAttribute("href")).toBe(
-      `/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`,
-    );
+    // Ruling 67: with no explicit cutoff the link carries the selected default window only.
+    const href = main.querySelector(`[data-domain-work-row="${EV_ACTION_ID}"] td a`)?.getAttribute("href") ?? "";
+    const url = new URL(href, "http://x");
+    expect(url.pathname).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`);
+    expect(Array.from(url.searchParams.keys())).toEqual(["from", "to"]);
     expect(urls.some((u) => u.startsWith(`/api/sites/${EV_SITE_CODE}/domain-work/action-index?`))).toBe(true);
     expect(urls.some((u) => u.startsWith(`/api/sites/${EV_SITE_CODE}/action-index?`))).toBe(false);
   });

@@ -635,6 +635,11 @@ export interface DomainWorkPresentation {
   showAll: (n: number) => string;
   /** R113 (ruling 46): whether a domain row's Action code is a live link to its detail route. */
   domainActionLink: boolean;
+  /**
+   * W5-04 V4a (readiness ruling 67): the domain row's detail address from the server `links.action` and the selected
+   * Work scope. Cold keeps the server href unchanged; EV appends `from,to` and an explicit `known_at`, never the cursor.
+   */
+  actionHref: (serverHref: string, scope: DomainIndexScope) => string;
   /** R75: the note inside the `Finding version` disclosure, or none (cold keeps its K2 cell unchanged). */
   sourceUnavailable: string | null;
   notice: (status: DomainStatus, knownAt: string) => string | null;
@@ -663,6 +668,7 @@ export const COLD_WORK_PRESENTATION: DomainWorkPresentation = {
   count: coldActionCount,
   showAll: coldShowAll,
   domainActionLink: true,
+  actionHref: (serverHref) => serverHref,
   sourceUnavailable: null,
   notice: coldCurrentnessNotice,
   tone: coldCurrentnessTone,
@@ -691,6 +697,7 @@ export const EV_WORK_PRESENTATION: DomainWorkPresentation = {
   count: evActionCount,
   showAll: evShowAll,
   domainActionLink: EV_ACTION_LINK_LIVE,
+  actionHref: evActionHref,
   sourceUnavailable: EV_SOURCE_FINDING_UNAVAILABLE,
   notice: coldCurrentnessNotice,
   tone: coldCurrentnessTone,
@@ -869,7 +876,18 @@ function dueText(p: DomainWorkPresentation, due: string | null): string {
   return due === null ? p.dueMissing : coldDueText(due);
 }
 
-function DomainRows({ body, all, p }: { body: DomainIndexBody; all: boolean; p: DomainWorkPresentation }) {
+/**
+ * Readiness ruling 67: the EV Action detail address keeps the selected Work window and explicit cutoff (the detail
+ * then keeps them on its own links, ruling 14). The server pathname is used as given; the list cursor is dropped.
+ */
+export function evActionHref(serverHref: string, scope: DomainIndexScope): string {
+  const [path] = serverHref.split("?");
+  const query = new URLSearchParams({ from: scope.from, to: scope.to });
+  if (scope.knownAt) query.set("known_at", scope.knownAt);
+  return `${path}?${query.toString()}`;
+}
+
+function DomainRows({ body, all, p, scope }: { body: DomainIndexBody; all: boolean; p: DomainWorkPresentation; scope: DomainIndexScope }) {
   const lc = p.legacyCold;
   const prefix = namePrefix(lc);
   return (
@@ -910,7 +928,7 @@ function DomainRows({ body, all, p }: { body: DomainIndexBody; all: boolean; p: 
                 {/* The server's own Action href: `/verification` for a domain row, the bare W1 address for a W1 row. */}
                 <LongText text={label} name={`${prefix}-title-${row.action_id}`} legacyCold={lc}>
                   {linked ? (
-                    <Link to={row.links.action} {...workAttrs(lc, "action-link", domain ? "domain" : "w1")}>
+                    <Link to={domain ? p.actionHref(row.links.action, scope) : row.links.action} {...workAttrs(lc, "action-link", domain ? "domain" : "w1")}>
                       {content}
                     </Link>
                   ) : (
@@ -975,7 +993,7 @@ function DomainLoadedRows({
   const pager = (folded && !all) || scope.cursor !== null || body.next_cursor !== null;
   return (
     <div data-site-work-state="current-rows" {...workAttrs(lc, "state-panel", "rows")}>
-      <DomainRows body={body} all={all} p={p} />
+      <DomainRows body={body} all={all} p={p} scope={scope} />
       {pager ? (
         <div className="w1f4-work-foot">
           <nav aria-label="Actions pages" {...workAttrs(lc, "pages")} className="w1f4-work-pages">

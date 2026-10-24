@@ -276,8 +276,8 @@ function rowClaims(W, label, m, expectRows) {
   claim(`${W} ${label}: every row's code is on one line`, m.rows.length > 0 && m.rows.every((r) => r.codeOneLine), m.rows.map((r) => r.codes.map((c) => c.lines)));
   // W5-04 V4a closes R113: each visible EV row's code is one live link to its own `/verification` detail, and no other
   // `/actions/` href appears on the page.
-  claim(`${W} ${label}: each EV Action code links only to its own /verification detail (R113 closed in V4a)`,
-    m.evRowLinks.length > 0 && m.evRowLinks.every((r) => r.hrefs.length === 1 && r.hrefs[0] === `/sites/${SITE}/actions/${r.id}/verification`) && m.actionHrefs.length === m.evRowLinks.length,
+  claim(`${W} ${label}: each EV Action code links only to its own /verification detail with the selected window, no cursor (R113 closed in V4a; ruling 67)`,
+    m.evRowLinks.length > 0 && m.evRowLinks.every((r) => r.hrefs.length === 1 && r.hrefs[0].split("?")[0] === `/sites/${SITE}/actions/${r.id}/verification` && new URLSearchParams(r.hrefs[0].split("?")[1] ?? "").has("from") && !r.hrefs[0].includes("cursor")) && m.actionHrefs.length === m.evRowLinks.length,
     { rows: m.evRowLinks, hrefs: m.actionHrefs });
   const summaries = m.rows.flatMap((r) => r.summaryLines);
   if (summaries.length > 0) claim(`${W} ${label}: every disclosure summary is on one line`, summaries.every((n) => n === 1), summaries);
@@ -616,13 +616,13 @@ async function actionMain() {
     // R113 closed: the EV Work code is the live selected link and opens this detail.
     await goTo(workUrl, `document.querySelector('[data-domain-work-row="${P.action.id}"] td a')`);
     const link = await js(`(() => { const a = document.querySelector('[data-domain-work-row="${P.action.id}"] td a'); return a ? a.getAttribute('href') : null; })()`);
-    claim(`${W} work-link: the EV Work code links to its /verification detail (R113 closed)`, link === `/sites/${SITE}/actions/${P.action.id}/verification`, link);
+    claim(`${W} work-link: the EV Work code links to its /verification detail with the selected from,to (R113 closed; ruling 67)`, link === `/sites/${SITE}/actions/${P.action.id}/verification?${q({ from: W_.from, to: W_.to })}`, link);
     m = await actionRecord(W, wi, "positive-from-work", null, async () => {
       await js(`document.querySelector('[data-domain-work-row="${P.action.id}"] td a')?.click()`);
       await waitFor(ACTION_READY);
       await sleep(500);
     });
-    claim(`${W} positive-from-work: the click opens the loaded EV detail at its /verification address`, m.shell === "loaded" && m.href.startsWith(`/sites/${SITE}/actions/${P.action.id}/verification`), m.href);
+    claim(`${W} positive-from-work: the click opens the loaded EV detail at its /verification address with the selected window (ruling 67)`, m.shell === "loaded" && m.href === `/sites/${SITE}/actions/${P.action.id}/verification?${q({ from: W_.from, to: W_.to })}`, m.href);
 
     m = await actionRecord(W, wi, "positive", detail("positive", P.action.id));
     claim(`${W} positive: loaded, CURRENT (no currentness notice), selected query kept on the Verification tab (ruling 14)`,
