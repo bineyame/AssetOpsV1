@@ -1,0 +1,333 @@
+INFO:     Started server process [19348]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:18801 (Press CTRL+C to quit)
+INFO:     127.0.0.1:54873 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54876 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57760 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57759 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53406 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53407 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57761 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53044 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53560 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53559 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51466 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54452 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51429 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51428 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51431 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51432 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51430 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59913 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59912 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57370 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51434 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49672 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51973 - "GET /api/sites/EV-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51974 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51976 - "GET /api/sites/EV-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51977 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51975 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51979 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56262 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58667 - "GET /api/sites/EV-LAB-001/ev/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55600 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55601 - "GET /api/sites/EV-LAB-001/ev/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62533 - "GET /api/sites/EV-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62534 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62537 - "GET /api/sites/EV-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60924 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62535 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60925 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54482 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54481 - "GET /api/sites/EV-LAB-001/ev/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49672 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49221 - "GET /api/sites/EV-LAB-001/ev/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53980 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53979 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53982 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53981 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53984 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50063 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53985 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53258 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50062 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56361 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54491 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54490 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54493 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54492 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54495 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64448 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54497 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51749 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64447 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49289 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62006 - "GET /api/sites/EV-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62007 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62009 - "GET /api/sites/EV-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62010 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62008 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62013 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54709 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54708 - "GET /api/sites/EV-LAB-001/ev/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:57455 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61658 - "GET /api/sites/EV-LAB-001/ev/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58571 - "GET /api/sites/EV-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58572 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58574 - "GET /api/sites/EV-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58573 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58575 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58576 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55900 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55899 - "GET /api/sites/EV-LAB-001/ev/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53645 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53646 - "GET /api/sites/EV-LAB-001/ev/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59816 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59815 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59817 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59818 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59819 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56583 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59820 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54095 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56582 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59111 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57376 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57375 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57378 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57377 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57380 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55057 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57381 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59726 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55056 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60483 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50942 - "GET /api/sites/EV-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50943 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50945 - "GET /api/sites/EV-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50944 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62247 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62248 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59401 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59400 - "GET /api/sites/EV-LAB-001/ev/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50883 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50981 - "GET /api/sites/EV-LAB-001/ev/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64163 - "GET /api/sites/EV-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64164 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64166 - "GET /api/sites/EV-LAB-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64165 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64167 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64168 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65382 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65381 - "GET /api/sites/EV-LAB-001/ev/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59898 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52539 - "GET /api/sites/EV-LAB-001/ev/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62277 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62278 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62279 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62281 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57197 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57198 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57199 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57200 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51379 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51380 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51381 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51382 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56820 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56821 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56822 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56823 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59976 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59978 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59979 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-05T08%3A00%3A00Z&to=2026-10-05T09%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59980 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-05T08%3A00%3A00Z&to=2026-10-05T09%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50721 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50723 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50724 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-05T08%3A00%3A00Z&to=2026-10-05T09%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50725 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-05T08%3A00%3A00Z&to=2026-10-05T09%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64089 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64090 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64091 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T09%3A05%3A00Z&to=2026-10-06T08%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64092 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T09%3A05%3A00Z&to=2026-10-06T08%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:53899 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53900 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53901 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T09%3A05%3A00Z&to=2026-10-06T08%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:53902 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T09%3A05%3A00Z&to=2026-10-06T08%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:61582 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61583 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61584 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61585 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61586 - "GET /api/sites/EV-LAB-001/ev/sessions/00000502-0000-4000-8000-000000000255?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55304 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55305 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55308 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55309 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55310 - "GET /api/sites/EV-LAB-001/ev/sessions/00000502-0000-4000-8000-000000000255?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61557 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61558 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55136 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51963 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51964 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51678 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61043 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64951 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54316 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54317 - "GET /api/sites/EV-LAB-001/ev/sessions/00000502-0000-4000-8000-000000000255?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63060 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63061 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63062 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63063 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58179 - "GET /api/sites/EV-LAB-001/ev/sessions/00000502-0000-4000-8000-000000000255?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57154 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57155 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57156 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T09%3A05%3A00Z&to=2026-10-06T08%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:57157 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T09%3A05%3A00Z&to=2026-10-06T08%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64172 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64173 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64174 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T09%3A05%3A00Z&to=2026-10-06T08%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64175 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T09%3A05%3A00Z&to=2026-10-06T08%3A00%3A00Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:51528 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51530 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51534 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-000000000fff?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51535 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-000000000fff?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62139 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62141 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62142 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-000000000fff?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62143 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-000000000fff?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49779 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49795 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49808 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49812 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49816 - "GET /api/sites/EV-LAB-001/ev/sessions/00000502-0000-4000-8000-000000000255?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56264 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56280 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56293 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56297 - "GET /api/sites/EV-LAB-001/ev/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56301 - "GET /api/sites/EV-LAB-001/ev/sessions/00000502-0000-4000-8000-000000000255?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54329 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54345 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52358 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52385 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54207 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61521 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58083 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58085 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52627 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52629 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53425 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57569 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63195 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63198 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63201 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63209 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49674 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59689 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59691 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59692 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61601 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61600 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61603 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61602 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61604 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61606 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55959 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56246 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61882 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61194 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61785 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61784 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61787 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61786 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61789 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60065 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61790 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61972 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60063 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62519 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58270 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58269 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58271 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58272 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58274 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64157 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58275 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63304 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64156 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51525 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57929 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57928 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57932 - "GET /api/sites/EV-LAB-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57930 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58033 - "GET /api/sites/EV-LAB-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49673 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58034 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51883 - "GET /api/sites/EV-LAB-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49672 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53184 - "GET /api/sites/EV-LAB-001/ev/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63309 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60883 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53052 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53053 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54112 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54113 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54114 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54115 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65507 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64925 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64926 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64927 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56628 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56629 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56630 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56631 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52273 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57306 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57307 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57308 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55577 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55578 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55580 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55581 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51288 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51289 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51290 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51291 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55016 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55017 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55018 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55019 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62830 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62754 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63787 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58842 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50180 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50181 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50182 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50183 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59461 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59463 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59464 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59466 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61174 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61175 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61176 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61177 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62610 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54218 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59775 - "GET /api/sites/EV-LAB-001/finding-index?domain=mini-grid-dispatch&from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:59777 - "GET /api/sites/EV-LAB-001/finding-index?domain=mini-grid-dispatch&from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:59732 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59733 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59734 - "GET /api/sites/EV-LAB-001/finding-index?domain=mini-grid-dispatch&from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:59735 - "GET /api/sites/EV-LAB-001/finding-index?domain=mini-grid-dispatch&from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:53991 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53992 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53993 - "GET /api/sites/EV-LAB-001/finding-index?domain=mini-grid-dispatch&from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:53994 - "GET /api/sites/EV-LAB-001/finding-index?domain=mini-grid-dispatch&from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:51975 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51976 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51977 - "GET /api/sites/EV-LAB-001/finding-index?domain=mini-grid-dispatch&from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:51978 - "GET /api/sites/EV-LAB-001/finding-index?domain=mini-grid-dispatch&from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z HTTP/1.1" 409 Conflict
