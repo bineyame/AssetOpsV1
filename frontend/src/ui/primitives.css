@@ -743,6 +743,11 @@ button:focus-visible {
 
 .sld {
   display: block;
+  /* post-W6 shell R140 (Q13): scale the drawing to its column through the viewBox, like the mock `.sld`
+     (width:100%;height:auto). The region keeps its declared inline overflow; max-width is the drawing's own
+     width, set inline from the lattice, so it never upscales past 1:1. */
+  width: 100%;
+  height: auto;
 }
 
 /*
@@ -2704,6 +2709,11 @@ input:focus-visible,
   min-width: 0;
 }
 
+/* post-W6 shell R130: Foundation's Topology panel keeps its own height instead of stretching to Identity's. */
+.panel-pair--top {
+  align-items: start;
+}
+
 /* v69 `.two-col`: 1.8fr / minmax(270px, 1fr) above 1100px, 1.4fr / 1fr down to 760px. */
 @media (min-width: 761px) {
   .panel-pair {
@@ -2763,7 +2773,11 @@ input:focus-visible,
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+  align-self: center;
   gap: var(--space-1);
+  /* post-W6 shell R129: centred like the mock `.plant-node .icon` (margin:0 auto). */
+  margin: 0 auto;
 }
 
 .plant-card small {
@@ -2773,7 +2787,8 @@ input:focus-visible,
 .plant-bus {
   margin: 0;
   padding-top: var(--space-2);
-  border-top: 3px solid var(--accent);
+  /* post-W6 shell R129: the mock `.plant-bus` rule colour, not the link accent. */
+  border-top: 3px solid var(--plant-bus);
   color: var(--text-secondary);
   font-size: var(--text-sm);
   text-align: center;
@@ -2912,6 +2927,9 @@ input:focus-visible,
   .app-frame--operator,
   .app-frame--lab {
     grid-template-columns: minmax(0, 1fr);
+    /* post-W6 shell R115: name both rows so a short page cannot stretch the dark brand band;
+       the body row takes the leftover viewport height instead. */
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .app-frame--lab .app-frame__side {
@@ -4481,6 +4499,16 @@ ul.evidence-notes li { font-size: inherit; }
 
 .v69-key-values dt {
   color: var(--text-secondary);
+}
+
+/* post-W6 shell R130: an exact code token (e.g. KOBO-001) never breaks mid-token; the value may wrap between tokens.
+   A token wider than its column scrolls inside itself rather than pushing the panel sideways. */
+.v69-key-values dd code {
+  display: inline-block;
+  max-width: 100%;
+  overflow-x: auto;
+  vertical-align: bottom;
+  white-space: nowrap;
 }
 
 .v69-key-values dd {

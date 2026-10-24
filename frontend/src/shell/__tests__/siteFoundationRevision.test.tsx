@@ -2316,3 +2316,40 @@ describe("W1-F1: Foundation, Readiness and SLD keep the v69 panel structure in e
     expectV69Panels("readiness", { gateway: "No gateway selected" });
   });
 });
+
+describe("post-W6 shell: Foundation identity layout and the no-version heading", () => {
+  it("R130: all ten stored Identity rows render as right-aligned key-values with the exact site code unbroken", async () => {
+    renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    const identity = regionNamed("Identity and operating obligations");
+    const list = identity.querySelector("dl.v69-key-values") as HTMLElement;
+    expect(list).not.toBeNull();
+    expect(identity.querySelector(".fact-list")).toBeNull();
+    expect(Array.from(list.querySelectorAll("dt")).map((term) => term.textContent)).toEqual([
+      "Site identity",
+      "Archetype",
+      "Location",
+      "Timezone",
+      "Critical service order",
+      "Configured supplied users",
+      "Productive-use designation",
+      "Evidence mode",
+      "Lifecycle status",
+      "Configuration origin",
+    ]);
+    expect(list.querySelector('[data-key-value="site-identity"] dd code')?.textContent).toBe(ID);
+    // The Topology panel sits in the start-aligned pair, so it is not stretched to the Identity height.
+    expect(identity.closest(".panel-pair")?.className).toContain("panel-pair--top");
+  });
+
+  it("R133: the no-version Foundation and Readiness headings name the stored Site, not its code", async () => {
+    for (const path of [`/sites/${ID}/foundation?at=2020-01-01T00:00:00Z`, `/sites/${ID}/foundation/readiness?at=2020-01-01T00:00:00Z`]) {
+      renderAt(path, fakeFoundation(byAt));
+      await settledScreen();
+      expect(document.querySelector('[data-page-refusal="no-version"]')).not.toBeNull();
+      expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(SITE.display_name);
+      expect(screen.getByRole("heading", { level: 1 }).textContent).not.toBe(ID);
+      cleanup();
+    }
+  });
+});

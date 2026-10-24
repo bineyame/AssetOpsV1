@@ -19,7 +19,7 @@
 import { Fragment, useMemo, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, Breadcrumbs, DataTable, Disclosure, Fact, FactList, MissingClaim, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader, type Crumb } from "../ui";
+import { Badge, Breadcrumbs, DataTable, Disclosure, Fact, FactList, KeyValues, MissingClaim, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader, type Crumb } from "../ui";
 import {
   AcquisitionDetailsPanel,
   knownReadiness,
@@ -268,7 +268,7 @@ function SiteModelView(props: ViewProps) {
   return (
     <>
       {strip(props, <Link to={viewHref("readiness")}>Review configuration readiness →</Link>)}
-      <div className="panel-pair">
+      <div className="panel-pair panel-pair--top">
         <ConfiguredTopologyPanel
           site={props.site}
           sldHref={viewHref("sld")}
@@ -525,53 +525,66 @@ function IdentityPanel({
   const facts = loadFacts(foundation, site);
   return (
     <Panel heading="Identity and operating obligations" headingId="foundation-identity-heading">
-      <FactList>
-        <Fact term="Site identity">
-          <UserName>{configuration.displayName}</UserName> · <ExactRef>{foundation.site.site_code}</ExactRef>
-        </Fact>
-        <Fact term="Archetype">{configuration.siteType}</Fact>
-        <Fact term="Location">{configuration.location}</Fact>
-        <Fact term="Timezone">{configuration.timezone}</Fact>
-        <Fact term="Critical service order">
-          {facts.firstCritical === null ? (
-            <span data-critical-load="not-configured">{CRITICAL_LOAD_NOT_CONFIGURED}</span>
-          ) : (
-            <span data-critical-load="configured">
-              First in critical service order:{" "}
-              <strong>
-                <UserName>{facts.firstCritical}</UserName>
-              </strong>
-              {facts.criticalOrder.length > 1 ? (
-                <small className="muted">
-                  {" "}
-                  Order: {joined(facts.criticalOrder, " → ")}. An order, not a service designation.
-                </small>
-              ) : null}
-            </span>
-          )}
-        </Fact>
-        <Fact term="Configured supplied users">
-          <span data-configured-loads="">
-            {facts.loads.length === 0 ? "No supplied users declared" : joined(facts.loads, ", ")}
-          </span>
-        </Fact>
-        <Fact term="Productive-use designation">
-          <span className="not-available-yet" data-productive-use="not-declared">
-            <MissingClaim gapId="G-foundation-productive-use" placement="foundation.identity.productive-use">
-              {PRODUCTIVE_USE_NOT_DECLARED}
-            </MissingClaim>
-          </span>
-        </Fact>
-        <Fact term="Evidence mode">
-          <Badge tone="provenance">{configuration.sourceMode}</Badge>
-        </Fact>
-        <Fact term="Lifecycle status">
-          <Badge tone="lifecycle">{configuration.lifecycleStatus}</Badge>
-        </Fact>
-        <Fact term="Configuration origin">
-          <Badge tone="origin">{configuration.configurationOrigin}</Badge>
-        </Fact>
-      </FactList>
+      {/* post-W6 shell R130 (Q11): the mock `.key-values` (right-aligned values, row rules). All ten stored rows stay;
+          the mock's six-row panel is illustrative, and a code token never breaks mid-token. */}
+      <KeyValues
+        label="Identity and operating obligations"
+        rows={[
+          [
+            "Site identity",
+            <>
+              <UserName>{configuration.displayName}</UserName> · <ExactRef>{foundation.site.site_code}</ExactRef>
+            </>,
+            "site-identity",
+          ],
+          ["Archetype", configuration.siteType, "archetype"],
+          ["Location", configuration.location, "location"],
+          ["Timezone", configuration.timezone, "timezone"],
+          [
+            "Critical service order",
+            facts.firstCritical === null ? (
+              <span data-critical-load="not-configured">{CRITICAL_LOAD_NOT_CONFIGURED}</span>
+            ) : (
+              <span data-critical-load="configured">
+                First in critical service order:{" "}
+                <strong>
+                  <UserName>{facts.firstCritical}</UserName>
+                </strong>
+                {facts.criticalOrder.length > 1 ? (
+                  <small className="muted">
+                    {" "}
+                    Order: {joined(facts.criticalOrder, " → ")}. An order, not a service designation.
+                  </small>
+                ) : null}
+              </span>
+            ),
+            "critical-service-order",
+          ],
+          [
+            "Configured supplied users",
+            <span data-configured-loads="">
+              {facts.loads.length === 0 ? "No supplied users declared" : joined(facts.loads, ", ")}
+            </span>,
+            "configured-supplied-users",
+          ],
+          [
+            "Productive-use designation",
+            <span className="not-available-yet" data-productive-use="not-declared">
+              <MissingClaim gapId="G-foundation-productive-use" placement="foundation.identity.productive-use">
+                {PRODUCTIVE_USE_NOT_DECLARED}
+              </MissingClaim>
+            </span>,
+            "productive-use",
+          ],
+          ["Evidence mode", <Badge tone="provenance">{configuration.sourceMode}</Badge>, "evidence-mode"],
+          ["Lifecycle status", <Badge tone="lifecycle">{configuration.lifecycleStatus}</Badge>, "lifecycle-status"],
+          [
+            "Configuration origin",
+            <Badge tone="origin">{configuration.configurationOrigin}</Badge>,
+            "configuration-origin",
+          ],
+        ]}
+      />
       <p className="not-available-yet" data-financial-assumptions="not-available">
         <MissingClaim gapId="G-foundation-financial-assumptions" placement="foundation.identity.financial-assumptions">
           {FINANCIAL_ASSUMPTIONS_NOT_AVAILABLE}. Physical ratings here are not financial assumptions.

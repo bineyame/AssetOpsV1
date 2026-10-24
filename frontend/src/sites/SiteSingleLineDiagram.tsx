@@ -687,8 +687,7 @@ function SldDrawing({
           aria-labelledby={`${titleId} ${descriptionId}`}
           data-sld-archetype={diagram.archetype}
           data-sld-layout="bus-bar"
-          width={lattice.width}
-          height={lattice.height}
+          style={{ maxWidth: lattice.width }}
           viewBox={`0 0 ${lattice.width} ${lattice.height}`}
         >
           <title id={titleId}>
