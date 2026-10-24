@@ -87,7 +87,12 @@ export function evRefusalText(read: Exclude<EvRead<unknown>, { status: "loaded" 
       case 404:
         return "This EV Site or record was not found.";
       case 422:
-        return "Choose a valid UTC start and end, up to 31 days.";
+        // post-W6 W2-EV R284 (cross-card ruling 5): the one refusal set shared with cold and estate.
+        return read.code === "EV_WINDOW_INVALID"
+          ? "The selected window needs both a start and an end, with the start before the end."
+          : read.code === "EV_WINDOW_TOO_LONG"
+            ? "The selected window is longer than 31 days."
+            : "The selected window is invalid.";
       case 409:
         return "Selection changed. Reload this view.";
       default:
@@ -96,6 +101,10 @@ export function evRefusalText(read: Exclude<EvRead<unknown>, { status: "loaded" 
   }
   return "EV evidence is temporarily unavailable. Retry.";
 }
+
+/** post-W6 W2-EV R284 (ruling 5): the refused-window title; every other refusal keeps its own wording. */
+export const EV_WINDOW_CANNOT_BE_READ = "Window cannot be read";
+export const isEvWindowRefusal = (read: EvRead<unknown> | null): boolean => read !== null && read.status === "refused" && read.httpStatus === 422;
 
 /* ---------- reads ---------- */
 

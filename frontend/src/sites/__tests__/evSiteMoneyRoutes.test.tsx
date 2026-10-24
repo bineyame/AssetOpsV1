@@ -304,11 +304,12 @@ describe("W2-07 EV Site routes", () => {
     const conclude = panelTitled("What we can conclude now");
     const rows = Array.from(conclude.querySelectorAll("tbody tr"));
     expect(rows.map((r) => r.querySelector("th")?.textContent)).toEqual(["Session outcomes", "Connector availability", "Delivered energy", "Cause of interruption"]);
-    expect(rows.map((r) => r.querySelectorAll("td")[0].textContent)).toEqual(["Full", "None", "Full", "None"]);
+    expect(rows.map((r) => r.querySelectorAll("td")[0].textContent)).toEqual(["Full", "None", "Full", "No interruption"]);
     expect(rows[0].textContent).toContain("1 completed · 0 observed aborts · 1 incomplete");
     expect(rows[1].textContent).toContain("Not assessed");
     expect(rows[2].textContent).toContain("30.000 kWh with complete meter coverage");
-    expect(rows[3].textContent).toContain("Cause not established");
+    // post-W6 W2-EV R258: with nothing interrupted the Cause row is not a limited claim.
+    expect(rows[3].textContent).toContain("No interruption observed in this window");
     expect(rows[1].textContent).toContain("Connector status reports");
     // q6 R3: null coverage shows the exact limitation, and both units keep their own words.
     const capDetails = conclude.querySelector('[data-disclosure="ev-site-capability-details"]') as HTMLElement;
@@ -331,10 +332,10 @@ describe("W2-07 EV Site routes", () => {
     expect(c1.querySelectorAll("[data-source-contact]")).toHaveLength(3);
     expect((sources.querySelector('[data-source-detail="SITE_METER"]') as HTMLElement).textContent).toContain("No source-specific record");
     expect(sources.textContent).not.toMatch(/healthy|faulty/i);
-    // Panel 3 keeps three rows; an unfilled row is a named gap.
+    // post-W6 W2-EV R258: panel 3 lists only recorded requests, never a padded gap row.
     const next = panelTitled("Most useful next evidence");
     expect(next.textContent).toContain("Recover the missing session end report");
-    expect(next.textContent).toContain("No further evidence request recorded");
+    expect(next.textContent).not.toContain("No further evidence request recorded");
     expect(main().querySelector('[data-ev-notice="analysis"] a')?.getAttribute("href")).toBe(`${PATHS["ev-evidence-analysis"]}${RAW_Q}`);
     // Analysis tab: real accepted rows only, closed to three; the claim limit has its two exact blocks.
     cleanup();
@@ -342,9 +343,9 @@ describe("W2-07 EV Site routes", () => {
     expect(subtabs("Evidence sections").map((t) => [t.text, t.current])).toEqual([["Overview", null], ["Analysis", "page"]]);
     expect(strip()).toContain("6 accepted records");
     const headers = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("thead th")).map((th) => th.textContent);
-    expect(headers).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (UTC)", "Received (UTC)", "Record"]);
+    expect(headers).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (EAT)", "Received (EAT)", "Record"]);
     const first = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("tbody tr")[0].children).map((c) => c.textContent);
-    expect(first).toEqual(["Connector c1 · session", "Session started", "11:41:00", "Not recorded", "08:59:01", `REC ${id(101)} · No analysis link`]);
+    expect(first).toEqual(["Connector c1 · session", "Session started", "11:41:00", "Not recorded", "11:59:01", `REC ${id(101)} · No analysis link`]);
     // Review r1 M3: plain first-cell and value words, never a role code or enum in a visible cell.
     const recordsPanel = panelTitled("Accepted records behind the conclusions");
     const closed = Array.from(recordsPanel.querySelectorAll("tbody tr"));
@@ -428,12 +429,14 @@ describe("W2-07 EV Site routes", () => {
     expectV69Panels("ev");
     expect(strip()).toContain("Evidence unknown");
     const values = Array.from(document.querySelectorAll("[data-ev-card] .v69-metric__value")).map((x) => x.textContent);
-    expect(values).toEqual(["Unknown", "Not assessed", "Unknown", "Not assessed", "Unknown"]);
+    expect(values).toEqual(["Unknown", "Not summarised here", "Unknown", "Not summarised here", "Unknown"]);
     expect(main().querySelector('[data-ev-card="sessions"]')?.textContent).toContain("Session outcomes not assessed");
     expect(panelTitled("Bounded money consequence").textContent).toContain("No gross tariff scenario assessed");
     expect(panelTitled("Needs attention").textContent).toContain("No recorded attention item for this window");
     expect(panelTitled("Next step").textContent).toContain("No recorded next step");
-    expect(panelTitled("What happened on the service day").querySelectorAll(".v69-timeline > li")).toHaveLength(7);
+    // post-W6 W2-EV R283: no padding slots; no accepted event says so once.
+    expect(panelTitled("What happened on the service day").querySelectorAll(".v69-timeline > li")).toHaveLength(0);
+    expect(panelTitled("What happened on the service day").querySelector("[data-ev-day-empty]")).not.toBeNull();
     expect(main().textContent).not.toMatch(/\b0 completed|KES 0|\$0|0\.00/);
 
     cleanup();
@@ -472,7 +475,7 @@ describe("W2-07 EV Site routes", () => {
     expect(cards).toEqual(["30.000 kWh", "KES 8.33", "Unknown", "Not recorded"]);
     const bridge = panelTitled("What happened → what it means in money");
     const row = Array.from(bridge.querySelectorAll('[data-bridge-row="scenario"] > *')).map((c) => c.textContent);
-    expect(row).toEqual(["30.000 kWh delivered with complete coverage", "30.000 kWh × 0.2777 KES/kWh", "KES 8.33 gross estimate", "Scenario", "Metered with complete coverage", "Sessions ↗"]);
+    expect(row).toEqual(["30.000 kWh delivered with complete coverage", "30.000 kWh × 0.2777 KES/kWh", "KES 8.33 gross estimate", "Scenario", "Metered with complete coverage", "Energy ↗"]);
     expect(bridge.querySelector('[data-disclosure="ev-site-basis-details"]')?.textContent).toContain("KES 8.331000");
     const assumptionsPanel = panelTitled("Assumptions in use");
     expect(assumptionsPanel.textContent).toContain("0.2777 KES/kWh · Authored estimate");
@@ -572,7 +575,9 @@ describe("W2-07 EV Site routes", () => {
       [403, "SITE_SCOPE_FORBIDDEN", "You do not have access to this EV evidence."],
       [404, "SITE_NOT_FOUND", "This EV Site or record was not found."],
       [409, "EV_CURSOR_BASIS_CHANGED", "Selection changed. Reload this view."],
-      [422, "EV_WINDOW_INVALID", "Choose a valid UTC start and end, up to 31 days."],
+      [422, "EV_WINDOW_INVALID", "The selected window needs both a start and an end, with the start before the end."],
+      [422, "EV_WINDOW_TOO_LONG", "The selected window is longer than 31 days."],
+      [422, "EV_SOMETHING_ELSE", "The selected window is invalid."],
       [503, "EV_READ_UNAVAILABLE", "EV evidence is temporarily unavailable. Retry."],
     ] as const) {
       await renderAt(PATHS["ev-evidence"], client({}, refused(status, code)));
@@ -595,10 +600,10 @@ describe("W2-07 EV Site routes", () => {
     await renderAt(PATHS.ev, client());
     expectPlantedPanelRejected("ev");
     const day = panelTitled("What happened on the service day");
-    expect(day.querySelectorAll(".v69-timeline > li")).toHaveLength(7);
+    expect(day.querySelectorAll(".v69-timeline > li")).toHaveLength(3);
     expect(day.textContent).toContain(`Session started · REC ${id(101)}`);
     expect(day.textContent).toContain("End record missing");
-    expect(day.textContent).toContain("No accepted event");
+    expect(day.textContent).not.toContain("No accepted event");
     expect(day.textContent).not.toContain(id(450).slice(0, 8));
     expect(within(day).getByRole("link", { name: "Review sessions →" }).getAttribute("href")).toBe(`/sites/${CODE}/performance/sessions${Q}`);
     const power = panelTitled("Charging activity and site power");
@@ -903,5 +908,141 @@ describe("post-W6 W2-EV (Q14/Q23): EV Site main tabs and the bare Site home", ()
     expect(main().getAttribute("data-ev-site-view")).toBeNull();
     expect(evSite.getOverview).not.toHaveBeenCalled();
     expect(tabHrefs().Overview).toBe("/sites/MINI-001");
+  });
+});
+
+describe("post-W6 W2-EV U3: EV Site refusals, chronology, money links, cards, evidence and timezone", () => {
+  const WINDOW_INVALID = "The selected window needs both a start and an end, with the start before the end.";
+  const TOO_LONG = "The selected window is longer than 31 days.";
+  const gaps = () => Array.from(main().querySelectorAll("[data-panel-gap]")).map((g) => g.textContent ?? "");
+  const withAnalysis = (items: EvAnalysisItem[]): EvSiteClient => {
+    const c = client();
+    c.getAnalysis = vi.fn(() => Promise.resolve(ok({ ...analysis(), items, total_count: items.length, next_cursor: null })));
+    return c;
+  };
+
+  it("R284: a window refusal keeps the strip and tile labels, one in-panel sentence and a technical disclosure", async () => {
+    for (const [code, copy] of [["EV_WINDOW_INVALID", WINDOW_INVALID], ["EV_WINDOW_TOO_LONG", TOO_LONG]] as const) {
+      await renderAt(PATHS.ev, client({}, refused(422, code)));
+      expectV69Panels("ev");
+      expect(strip()).toContain("Window cannot be read");
+      expect(Array.from(main().querySelectorAll("[data-ev-refused-card]")).map((c) => c.getAttribute("data-ev-refused-card"))).toEqual([
+        "Session service", "Availability", "Site power", "Charger condition", "Evidence",
+      ]);
+      expect(Array.from(main().querySelectorAll("[data-ev-refused-card] .v69-metric__value")).every((v) => v.textContent === "Not assessed")).toBe(true);
+      expect(gaps().filter((g) => g === copy)).toHaveLength(1);
+      expect(main().querySelector('[data-disclosure="ev-refusal-detail"]')?.textContent).toContain(code);
+      expect(main().querySelector("[data-ev-window-requested]")).toBeNull();
+      expect(main().querySelector("[data-page-refusal]")).toBeNull();
+      cleanup();
+    }
+    for (const path of [PATHS["ev-evidence"], PATHS["ev-evidence-analysis"], PATHS["ev-financials"], PATHS["ev-assumptions"]]) {
+      await renderAt(path, client({}, refused(422, "EV_WINDOW_TOO_LONG")));
+      expect(strip(), path).toContain("Window cannot be read");
+      expect(gaps().filter((g) => g === TOO_LONG), path).toHaveLength(1);
+      cleanup();
+    }
+    await renderAt(PATHS["ev-financials"], client({}, refused(422, "EV_WINDOW_INVALID")));
+    expect(main().querySelectorAll("[data-ev-refused-card]")).toHaveLength(4);
+  });
+
+  it("R284: a non-window refusal keeps its own wording and the requested-window line, never a window title", async () => {
+    await renderAt(PATHS.ev, client({}, refused(403, "SITE_SCOPE_FORBIDDEN")));
+    expect(strip()).not.toContain("Window cannot be read");
+    expect(main().querySelector("[data-ev-window-requested]")?.textContent).toContain("6 Oct 08:00");
+    expect(gaps().filter((g) => g === "You do not have access to this EV evidence.")).toHaveLength(1);
+    expect(main().querySelectorAll("[data-ev-refused-card]")).toHaveLength(5);
+  });
+
+  it("R283 (Q10): the chronology shows only accepted events: none, one and eight", async () => {
+    await renderAt(PATHS.ev, withAnalysis([]));
+    let day = panelTitled("What happened on the service day");
+    // The stocked overview has an incomplete session, so its end gap is the only entry; no padding slot.
+    expect(Array.from(day.querySelectorAll(".v69-timeline > li")).map((li) => li.textContent ?? "").filter((t) => !t.includes("End record missing"))).toEqual([]);
+    expect(day.textContent).not.toContain("No accepted event ·");
+    cleanup();
+    await renderAt(PATHS.ev, withAnalysis([item(101)]));
+    day = panelTitled("What happened on the service day");
+    expect(day.querySelectorAll(".v69-timeline > li").length).toBeLessThanOrEqual(2);
+    expect(day.textContent).not.toContain("No accepted event");
+    cleanup();
+    await renderAt(PATHS.ev, withAnalysis(Array.from({ length: 8 }, (_, k) => item(110 + k))));
+    day = panelTitled("What happened on the service day");
+    expect(Array.from(day.querySelectorAll(".v69-timeline > li")).filter((li) => (li.textContent ?? "").includes("REC "))).toHaveLength(8);
+  });
+
+  it("R285 (Q12) and R286 (Q13): Energy source link only when estimated; billing chips follow the wire", async () => {
+    await renderAt(PATHS["ev-financials"], client());
+    const source = main().querySelector('[data-ev-bridge-source="scenario"]') as HTMLElement;
+    expect(source.textContent).toBe("Energy ↗");
+    expect(source.getAttribute("href")).toBe(`/sites/${CODE}/performance/energy${Q}`);
+    expect(panelTitled("Assumptions in use").querySelector(".ev-site-chip")).not.toBeNull();
+    cleanup();
+    await renderAt(PATHS["ev-financials"], client({ consequence: { ...GUARD("TARIFF_MISSING", "No published EV tariff covers the eligible delivery."), state: "UNPRICED" } }));
+    expect(main().querySelector('a[data-ev-bridge-source="scenario"]')).toBeNull();
+    cleanup();
+    for (const [state, word] of [["NO_RECORD", "No record"], ["NOT_CONNECTED", "Not connected"]] as const) {
+      const c = client();
+      c.getAssumptions = vi.fn(() => Promise.resolve(ok({ ...assumptions(), billing_state: state })));
+      await renderAt(PATHS["ev-assumptions"], c);
+      const cell = main().querySelector('[data-assumption-row="billing"] td') as HTMLElement;
+      expect(cell.querySelector(".ev-site-chip")?.textContent).toBe(word);
+      cleanup();
+    }
+  });
+
+  it("R254 (Q15): every Overview card has a plain label and View detail at the window", async () => {
+    await renderAt(PATHS.ev, client());
+    const card = (k: string) => main().querySelector(`[data-ev-card="${k}"]`) as HTMLElement;
+    const expected: [string, string, string][] = [
+      ["sessions", "Session service", `/sites/${CODE}/performance/sessions${Q}`],
+      ["availability", "Availability", `/sites/${CODE}/performance/availability${Q}`],
+      ["power", "Site power", `/sites/${CODE}/performance/energy${Q}`],
+      ["charger", "Charger condition", `/sites/${CODE}/health${Q}`],
+      ["evidence", "Evidence", `/sites/${CODE}/ev/evidence${Q}`],
+    ];
+    for (const [k, label, href] of expected) {
+      expect(card(k).querySelector(".v69-metric__label")?.textContent, k).toBe(label);
+      expect(card(k).querySelector(".v69-metric__label a"), k).toBeNull();
+      expect(within(card(k)).getByRole("link", { name: "View detail →" }).getAttribute("href"), k).toBe(href);
+    }
+    expect(card("availability").textContent).toContain("Not summarised here");
+    expect(card("charger").textContent).toContain("Charger condition is listed under Health");
+  });
+
+  it("R258 (Q15): Portfolio evidence, Review energy, Review work and only recorded next-evidence rows", async () => {
+    await renderAt(PATHS["ev-evidence"], client());
+    expect(within(document.querySelector(".status-strip") as HTMLElement).getByRole("link", { name: "Portfolio evidence" }).getAttribute("href")).toBe("/evidence");
+    const conclude = panelTitled("What we can conclude now");
+    expect(within(conclude).getByRole("link", { name: "Review energy →" }).getAttribute("href")).toBe(`/sites/${CODE}/performance/energy${Q}`);
+    expect(within(conclude).getByRole("link", { name: "Review work →" }).getAttribute("href")).toBe(`/sites/${CODE}/work${Q}`);
+    expect(conclude.querySelector('[data-link-unavailable="Work"]')).toBeNull();
+    expect(panelTitled("Most useful next evidence").textContent).not.toContain("No further evidence request recorded");
+    cleanup();
+    await renderAt(PATHS["ev-evidence"], client({ empty: true, state: "UNKNOWN", consequence: null }));
+    expect(panelTitled("Most useful next evidence").textContent?.match(/No further evidence request recorded/g) ?? []).toHaveLength(1);
+  });
+
+  it("R259 (Q15): Analysis times use the Site timezone with exact UTC in title; midnight crossing and UTC fallback", async () => {
+    const recordsPanel = () => panelTitled("Accepted records behind the conclusions");
+    const rows = (): string[][] => Array.from(recordsPanel().querySelectorAll("tbody tr")).map((r) => Array.from(r.querySelectorAll("td")).map((td) => td.textContent ?? ""));
+    const heads = () => Array.from(recordsPanel().querySelectorAll("thead th")).map((h) => h.textContent);
+    const late = item(120, { source_time: "2026-10-06T20:30:00.000000Z", sent_at: "2026-10-06T20:30:05.000000Z", received_at: "2026-10-06T21:15:00.000000Z" });
+    await renderAt(PATHS["ev-evidence-analysis"], withAnalysis([late]));
+    expect(heads()).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (EAT)", "Received (EAT)", "Record"]);
+    // 20:30 UTC is 23:30 EAT; 21:15 UTC is 00:15 on the next local day, so it carries its date.
+    expect(rows()[0].slice(1, 4)).toEqual(["23:30:00", "23:30:05", "7 Oct 00:15:00"]);
+    expect((recordsPanel().querySelectorAll("tbody tr td")[3] as HTMLElement).getAttribute("title")).toBe("2026-10-06T21:15:00.000Z UTC");
+    cleanup();
+    const utcSite = { ...SITE, timezone: null } as unknown as SiteDetailReadModel;
+    const utcDetail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: utcSite }) };
+    render(
+      <MemoryRouter initialEntries={[`${PATHS["ev-evidence-analysis"]}${Q}`]}>
+        <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={utcDetail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} evSite={withAnalysis([late])} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(heads()[2]).toBe("Measured (UTC)");
+    expect(rows()[0].slice(1, 4)).toEqual(["20:30:00", "20:30:05", "21:15:00"]);
   });
 });

@@ -574,9 +574,11 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     [403, "SITE_SCOPE_FORBIDDEN", "You do not have access to this EV evidence."],
     [404, "SITE_NOT_FOUND", "This EV Site or record was not found."],
     [409, "EV_CURSOR_BASIS_CHANGED", "Selection changed. Reload this view."],
-    [422, "EV_PARAMETER_UNKNOWN", "Choose a valid UTC start and end, up to 31 days."],
+    [422, "EV_PARAMETER_UNKNOWN", "The selected window is invalid."],
+    [422, "EV_WINDOW_INVALID", "The selected window needs both a start and an end, with the start before the end."],
+    [422, "EV_WINDOW_TOO_LONG", "The selected window is longer than 31 days."],
     [503, "EV_READ_UNAVAILABLE", "EV evidence is temporarily unavailable. Retry."],
-  ] as const)("refused %s keeps every panel shell", async (status, code, copy) => {
+  ] as const)("refused %s %s keeps every panel shell", async (status, code, copy) => {
     renderEv(SESSIONS, refused(status, code));
     await settledScreen();
     expectV69Panels("sessions");
@@ -970,5 +972,17 @@ describe("post-W6 W2-EV U2: Sessions and Finding links, denominator, plurals and
     await settledScreen();
     expect(document.querySelector("[data-ev-claim-evidence]")).toBeNull();
     expect(main().textContent).not.toContain("Inspect claim evidence");
+  });
+});
+
+describe("post-W6 W2-EV R284: the Finding inherits the common window refusal copy", () => {
+  it.each([
+    ["EV_WINDOW_INVALID", "The selected window needs both a start and an end, with the start before the end."],
+    ["EV_WINDOW_TOO_LONG", "The selected window is longer than 31 days."],
+    ["EV_OTHER", "The selected window is invalid."],
+  ] as const)("finding refused 422 %s", async (code, copy) => {
+    renderEv(FINDING_PATH, ok(STATES.complete), refused(422, code));
+    await settledScreen();
+    expect((document.querySelector('[data-ev-strip="refused"]') as HTMLElement).textContent).toContain(copy);
   });
 });

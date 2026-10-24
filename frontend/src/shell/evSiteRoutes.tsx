@@ -7,7 +7,7 @@ import type { EvSiteClient } from "../sites/evSiteClient";
 import type { EvScenariosClient } from "../sites/evScenariosClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { deriveSiteView } from "../sites/siteViewModel";
-import { siteDetailHref, siteEvHref, siteFindingHref, siteFoundationViewHref, sitePerformanceHref } from "./operatorSiteRoutes";
+import { EVIDENCE_PATH, siteDetailHref, siteEvHref, siteHealthHref, siteWorkHref, siteFindingHref, siteFoundationViewHref, sitePerformanceHref } from "./operatorSiteRoutes";
 import { OperatorSiteTabs, type OperatorSiteTabHrefs } from "./operatorSiteTabs";
 import { SiteScoped } from "./SiteAnalyticsFrames";
 
@@ -23,6 +23,9 @@ export function evSiteRoutes(siteId: string): EvSiteRoutes {
     sessions: sitePerformanceHref(siteId, "sessions"),
     availability: sitePerformanceHref(siteId, "availability"),
     energy: sitePerformanceHref(siteId, "energy"),
+    health: siteHealthHref(siteId),
+    work: siteWorkHref(siteId),
+    portfolioEvidence: EVIDENCE_PATH,
     finding: (findingId) => siteFindingHref(siteId, findingId),
     // W2-F B2/M8: the Foundation SLD takes only `at`; the Overview passes the window end (cutoff is not carried).
     sld: (at) => siteFoundationViewHref(siteId, "sld", at),
@@ -83,6 +86,7 @@ export function SiteEvFrame({
             mode={deriveSiteView(site).sourceMode}
             window={coldWindowFromParams(params)}
             scenarioAt={params.get("scenario_at")}
+            timeZone={site.timezone}
             scenarios={evScenarios}
             client={evSite}
             routes={evSiteRoutes(site.site_id)}
