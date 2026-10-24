@@ -64,6 +64,12 @@ import type {
   PerformanceDispatchClient,
   RevisionDetail,
 } from "./performanceDispatchClient";
+import { isIntervalRevision } from "./performanceDispatchClient";
+
+/** post-W6 W1-a Q6 / R178: the refusal for a whole-window assessment named as the selected revision. */
+export const DISPATCH_NOT_INTERVAL_TITLE = "This assessment cannot be shown as 15-minute blocks";
+export const DISPATCH_NOT_INTERVAL_BODY =
+  "The address names a whole-window assessment, not a 15-minute interval result for this day. Open the day without a selected revision.";
 
 export const DURABLE_DISPATCH_VIEWS_LABEL = "Dispatch views";
 
@@ -396,6 +402,29 @@ function WindowView({
 
   const inWindow = read.intervals.find((item) => item.id === revisionId) ?? null;
   const loaded = detail?.status === "loaded" ? detail.value : null;
+  // post-W6 W1-a Q6 / R178: a loaded revision that is not one 15-minute interval result (a whole-window
+  // assessment named in the address) is refused before anything indexes its segments.
+  if (inWindow === null && loaded !== null && !isIntervalRevision(loaded)) {
+    const day = new URLSearchParams(params);
+    day.delete("revision");
+    day.delete("block");
+    const search = day.toString();
+    return (
+      <DispatchRefused
+        view={view}
+        name="not-interval"
+        title={DISPATCH_NOT_INTERVAL_TITLE}
+        reason={
+          <>
+            {DISPATCH_NOT_INTERVAL_BODY}{" "}
+            <Link to={{ search: search === "" ? "" : `?${search}` }} data-dispatch-open-day>
+              Open this day
+            </Link>
+          </>
+        }
+      />
+    );
+  }
   const selected: AssessmentRevision | null = inWindow ?? loaded;
   const blockIndex = block === null ? null : Number(block);
   const segment =
