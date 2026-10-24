@@ -534,9 +534,9 @@ class Walk:
             vectors["forbidden"] = {"http": status, "code": (body.get("detail") or {}).get("code")}
         if "unavailable" in pids:
             info = pids["unavailable"]
-            subprocess.run(["taskkill", "/PID", str(info["pid"]), "/T", "/F"], capture_output=True)
+            stopped = _stop_owned(info)
             status, _ = _get_path(info["port"], f"/api/sites/{site}/domain-work/action-index")
-            vectors["unavailable"] = {"stopped_pid": info["pid"], "port": info["port"], "http_after_stop": status,
+            vectors["unavailable"] = {"stopped_pid": info["pid"] if stopped else None, "port": info["port"], "http_after_stop": status,
                                       "expected": "connection refused; the browser proxy reports 503"}
         self.write_manifest(manifest["modes"], vectors=vectors)
         say(json.dumps(vectors))
@@ -549,8 +549,8 @@ class Walk:
             pids = json.loads(self.pids_file().read_text(encoding="utf-8"))
             for name, info in list(pids.items()):
                 if _alive(info["pid"]):
-                    subprocess.run(["taskkill", "/PID", str(info["pid"]), "/T", "/F"], capture_output=True)
-                    say(f"stopped {name} pid {info['pid']}")
+                    say(f"stopped {name} pid {info['pid']}" if _stop_owned(info)
+                        else f"not stopping {name} pid {info['pid']}: it is not our recorded uvicorn (PID reuse)")
                 pids.pop(name)
             self.pids_file().write_text(json.dumps(pids), encoding="utf-8")
         with psycopg.connect(PG_ADMIN, autocommit=True) as c:
@@ -569,6 +569,29 @@ class Walk:
 def _alive(pid: int) -> bool:
     done = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/NH"], capture_output=True, text=True)
     return str(pid) in done.stdout
+
+
+def is_recorded_server(command_line: str | None, port: int) -> bool:
+    """Review L6: a recorded PID is only ours while its command line is still the uvicorn `serve_entry:app` this tool
+    started on the recorded port; a reused PID of any other process never matches."""
+    text = command_line or ""
+    return "uvicorn" in text and "serve_entry:app" in text and re.search(rf"--port\s+{int(port)}(\s|$)", text) is not None
+
+
+def _command_line(pid: int) -> str | None:
+    done = subprocess.run(
+        ["powershell", "-NoProfile", "-NonInteractive", "-Command",
+         f"(Get-CimInstance Win32_Process -Filter 'ProcessId={int(pid)}').CommandLine"],
+        capture_output=True, text=True)
+    return done.stdout.strip() or None
+
+
+def _stop_owned(info: dict) -> bool:
+    """Kill the recorded server tree only when the live PID still carries our command line; True when stopped."""
+    if not is_recorded_server(_command_line(info["pid"]), info["port"]):
+        return False
+    subprocess.run(["taskkill", "/PID", str(info["pid"]), "/T", "/F"], capture_output=True)
+    return True
 
 
 def _get_path(port: int, path: str) -> tuple[int, dict]:

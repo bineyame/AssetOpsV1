@@ -346,6 +346,12 @@ def listed_ids(body: Mapping[str, Any], key: str) -> set[str]:
 
 
 def zero_reads_complete(incidents: Mapping[str, Any], maintenance: Mapping[str, Any]) -> bool:
-    """Mock-zero: both W4 Site case reads return no rows (the complete-zero check the caller asserts)."""
-    return not (incidents.get("items") or incidents.get("rows")) and not (
-        maintenance.get("items") or maintenance.get("rows"))
+    """Mock-zero (review L4): each W4 Site case read has no rows AND states the zero itself - `total_count` is exactly
+    0 (the count the UI renders as `Incidents (0)` / `Maintenance (0)`; absent is not zero) and `next_cursor` is
+    null."""
+    def zero(body: Mapping[str, Any]) -> bool:
+        count = body.get("total_count")
+        return (not (body.get("items") or body.get("rows")) and isinstance(count, int)
+                and not isinstance(count, bool) and count == 0 and body.get("next_cursor") is None)
+
+    return zero(incidents) and zero(maintenance)

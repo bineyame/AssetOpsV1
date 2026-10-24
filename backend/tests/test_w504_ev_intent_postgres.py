@@ -468,7 +468,8 @@ def test_ev_intent_refusal_order_and_membership(ev) -> None:
 
 
 def test_ev_pin_is_immutable_across_later_evidence_and_heads(ev) -> None:
-    """Readiness 27: historical reads before/after the intent, an accepted disposition added after it, a later
+    """Readiness 27: historical reads before/after the intent, a BACKDATED accepted disposition (readiness 55: decided
+    on the replay's virtual clock, earlier than the intent's `recorded_at`), a later
     selected head and a foreign requested index window never move the intent's revision, window or basis; an exact
     retry stays 200; a missing or changed exact selection is 409 with the EV message."""
     own, valid = members(ev)
@@ -483,7 +484,10 @@ def test_ev_pin_is_immutable_across_later_evidence_and_heads(ev) -> None:
         at = reads.detail(ev.t, ev.s, ev.code, aid, [iso(recorded)])
         assert before["intent"] is None and before["results"] is None and before["status"] == "HISTORICAL"
         assert at["intent"]["id"] == declared["intent_id"] and at["status"] == "HISTORICAL"
-        add_import(ev.built, "41.5")  # an accepted disposition recorded after the intent
+        # BACKDATED fixture (readiness 55): the replay's virtual 2026-10-06 decision clock makes this inserted
+        # ACCEPTED disposition `decided_at < intent.recorded_at`; it is not a production late decision (see
+        # `test_ev_db_time_disposition_after_the_intent_leaves_the_pin_fixed` for the genuine one).
+        add_import(ev.built, "41.5")
         assert svc.post_intent(ev.t, ev.s, ev.code, aid, body, PRINCIPAL) == (200, declared)
         late = reads.detail(ev.t, ev.s, ev.code, aid, [])
         assert late["intent"]["basis"] == at["intent"]["basis"] and late["selection_token"] == declared["selection_token"]
@@ -619,3 +623,147 @@ def test_rejected_disposition_advances_the_shared_cutoff_without_accepted_eviden
         selections = [s for s in rx.link_selections(revision_id, None, None, now) if s["id"] == aid]
     assert len(selections) == 1 and selections[0]["pin"] is not None
     assert selections[0]["pin"]["evidence_cutoff"] == k1, "the W4 linked selection reads the same cutoff"
+
+
+def _later_head(ev) -> None:
+    """A later selected head of the E window (as the existing immutability vector): import, worker, exact selection."""
+    add_import(ev.built, "41.5")
+    run_worker(ev.built)
+    select_exact(ev.built, LO, HI)
+
+
+def _index(reads, ev, known_at=None, limit=None, cursor=None) -> dict:
+    if not hasattr(ev, "window"):  # one fixed window so a cursor stays valid across pages
+        now = _now(ev)
+        ev.window = (iso(now - timedelta(days=1)), iso(now + timedelta(hours=1)))
+    return reads.index(ev.t, ev.s, ev.code, parse_index_request(
+        ev.window[0], ev.window[1], None if limit is None else str(limit),
+        [] if known_at is None else [iso(known_at)], cursor))
+
+
+
+
+def test_ev_index_row_uses_the_intent_pin_and_no_intent_row_reads_known_at(ev) -> None:
+    """Readiness 53: after a later selected head, an intent-bearing EV index row keeps its exact Finding href and
+    contributes CURRENT (as its detail does); the no-intent EV row's href is null and the envelope UNKNOWN; historical
+    reads before/after the intent keep the live pin; the cursor fence of the displaced snapshot still pages."""
+    own, valid = members(ev)
+    svc, reads = ev_service(ev), ev_reads(ev)
+    try:
+        with_intent = svc.create_action(ev.t, ev.s, ev.code, ev_action(ev, "w504-idx-a"), PRINCIPAL)[1]["id"]
+        no_intent = svc.create_action(ev.t, ev.s, ev.code, ev_action(ev, "w504-idx-b"), PRINCIPAL)[1]["id"]
+        _, declared = svc.post_intent(ev.t, ev.s, ev.code, with_intent, ev_intent(ev, [own], valid), PRINCIPAL)
+        recorded = datetime.fromisoformat(declared["recorded_at"].replace("Z", "+00:00"))
+        live = f"/sites/{ev.code}/findings/{ev.revision['finding_id']}?revision_id={ev.revision['id']}"
+        before = _index(reads, ev)
+        assert [r["origin"]["href"] for r in before["rows"]] == [live, live] and before["status"] == "CURRENT"
+        mid = _now(ev)  # after the intent, before the later head
+        _later_head(ev)
+        after = _index(reads, ev)
+        rows = {r["action_id"]: r for r in after["rows"]}
+        assert rows[with_intent]["origin"]["href"] == live, "resolved at the intent's pin, not the read known_at"
+        assert rows[no_intent]["origin"]["href"] is None and rows[no_intent]["criterion_summary"] is None
+        assert rows[with_intent]["criterion_summary"] == "A complete witnessed session and no repeat fault"
+        assert after["status"] == "UNKNOWN", "only the no-intent row's unavailable source contributes UNKNOWN"
+        assert reads.detail(ev.t, ev.s, ev.code, with_intent, [])["links"]["finding"]["href"] == live
+        assert reads.detail(ev.t, ev.s, ev.code, no_intent, [])["links"]["finding"]["href"] is None
+        # Historical reads: before the intent (no intent yet: read known_at), at it, and between intent and head.
+        for known, expect_intent in ((recorded - timedelta(microseconds=1), False), (recorded, True), (mid, True)):
+            hist = _index(reads, ev, known)
+            by_id = {r["action_id"]: r for r in hist["rows"]}
+            assert {r["origin"]["href"] for r in by_id.values()} == {live} and hist["status"] == "HISTORICAL", known
+            assert (by_id[with_intent]["criterion_summary"] is not None) is expect_intent
+        # The full-set fence is consistent over the displaced snapshot: both pages succeed and cover both rows.
+        first = _index(reads, ev, limit=1)
+        assert first["next_cursor"] is not None
+        second = _index(reads, ev, limit=1, cursor=first["next_cursor"])
+        assert {r["action_id"] for r in first["rows"] + second["rows"]} == {with_intent, no_intent}
+        assert first["selection_token"] == second["selection_token"]
+    finally:
+        svc._store.dispose()
+        reads._reads.dispose()
+
+
+def test_ev_conflict_paths_are_409_with_the_ev_literal_and_write_nothing(ev) -> None:
+    """Review L1: every `DOMAIN_INTENT_CONFLICT`/`BASIS_CHANGED` path of the sole writer on an EV Site - same Action key
+    with another body, same intent key with another body, a second root intent, a stale `supersedes_id`, a repeated
+    exact case link under another key, and a reused link key with another body - is 409 with the EV literal."""
+    own, valid = members(ev)
+    conflict = "This Action declaration has a newer version; reload it."
+    svc = ev_service(ev)
+
+    def post(call, *args):
+        return call(ev.t, ev.s, ev.code, *args, PRINCIPAL)
+
+    try:
+        root = ev_action(ev)
+        status, created = post(svc.create_action, root)
+        assert status == 201
+        aid = created["id"]
+        refused_as(409, "DOMAIN_INTENT_CONFLICT", conflict, post, svc.create_action, {**root, "title": "Other title"})
+        assert counts(ev.engine) == [1, 0, 0]
+        body = ev_intent(ev, [own], valid)
+        status, first = post(svc.post_intent, aid, body)
+        assert status == 201
+        refused_as(409, "DOMAIN_INTENT_CONFLICT", conflict, post, svc.post_intent, aid,
+                   {**body, "criteria": list(reversed(body["criteria"]))})
+        refused_as(409, "DOMAIN_INTENT_CONFLICT", conflict, post, svc.post_intent, aid,
+                   ev_intent(ev, [own], valid, key="w504-intent-second-root"))
+        stale = {**ev_intent(ev, [own], valid, key="w504-intent-stale"), "supersedes_id": str(uuid4())}
+        refused_as(409, "DOMAIN_INTENT_CONFLICT", conflict, post, svc.post_intent, aid, stale)
+        assert counts(ev.engine) == [1, 1, 0]
+        status, second = post(svc.post_intent, aid, {**ev_intent(ev, [own], valid, key="w504-intent-v2"),
+                                                     "supersedes_id": first["intent_id"]})
+        assert status == 201
+        refused_as(409, "DOMAIN_INTENT_CONFLICT", conflict, post, svc.post_intent, aid,
+                   {**ev_intent(ev, [own], valid, key="w504-intent-v3"), "supersedes_id": first["intent_id"]})
+        assert counts(ev.engine) == [1, 2, 0]
+        case_id, revision_id, event_id = _case(ev, "w504-conflict-case-01")
+        link = {"case_id": case_id, "case_revision_id": revision_id, "case_event_id": event_id,
+                "actor": dict(ACTOR), "idempotency_key": "w504-link-01"}
+        assert post(svc.post_case_link, aid, link)[0] == 201
+        refused_as(409, "DOMAIN_INTENT_CONFLICT", conflict, post, svc.post_case_link, aid,
+                   {**link, "idempotency_key": "w504-link-02"})
+        other, other_revision, other_event = _case(ev, "w504-conflict-case-02")
+        refused_as(409, "DOMAIN_INTENT_BASIS_CHANGED", EV_CHANGED, post, svc.post_case_link, aid,
+                   {**link, "case_id": other, "case_revision_id": other_revision, "case_event_id": other_event})
+        assert counts(ev.engine) == [1, 2, 1]
+        assert second["intent_id"] != first["intent_id"]
+    finally:
+        svc._store.dispose()
+
+
+def test_ev_db_time_disposition_after_the_intent_leaves_the_pin_fixed(ev) -> None:
+    """Readiness 55: a genuinely late decision (`decided_at` = DB time, after `intent.recorded_at`) never changes the
+    intent's exact revision, window, basis, status, token or evidence cutoff. Contrast: the replay-clock vector
+    in `test_ev_pin_is_immutable_across_later_evidence_and_heads` is backdated, so its PENDING state is not proof."""
+    own, valid = members(ev)
+    svc, reads = ev_service(ev), ev_reads(ev)
+    try:
+        aid = svc.create_action(ev.t, ev.s, ev.code, ev_action(ev), PRINCIPAL)[1]["id"]
+        status, declared = svc.post_intent(ev.t, ev.s, ev.code, aid, ev_intent(ev, [own], valid), PRINCIPAL)
+        assert status == 201
+        recorded = datetime.fromisoformat(declared["recorded_at"].replace("Z", "+00:00"))
+
+        def pin_at(known_at):
+            with ev.engine.connect() as c:
+                return selected_finding_pin(ev.ports)(c, ev.t, ev.s, ev.code, ev.revision, known_at)
+
+        pin0, detail0 = pin_at(recorded), reads.detail(ev.t, ev.s, ev.code, aid, [])
+        add_import(ev.built, "41.5", db_time=True)
+        with ev.engine.connect() as c:
+            decided = c.execute(text("SELECT max(decided_at) FROM ingestion_disposition WHERE site_id = :s"),
+                                {"s": ev.s}).scalar_one()
+        assert decided > recorded, "the inserted disposition is decided after the intent (DB time)"
+        pin1, detail1 = pin_at(recorded), reads.detail(ev.t, ev.s, ev.code, aid, [])
+        assert pin1 == pin0 and pin0["evidence_cutoff"] <= recorded
+        assert pin_at(_now(ev))["evidence_cutoff"] == decided > pin0["evidence_cutoff"], "the shared cutoff did advance"
+        for key in ("status", "selection_token", "intent", "results", "source_provenance", "links"):
+            assert detail1[key] == detail0[key], key
+        run_worker(ev.built)
+        select_exact(ev.built, LO, HI)
+        detail2 = reads.detail(ev.t, ev.s, ev.code, aid, [])
+        assert detail2["intent"] == detail0["intent"] and detail2["selection_token"] == detail0["selection_token"]
+    finally:
+        svc._store.dispose()
+        reads._reads.dispose()

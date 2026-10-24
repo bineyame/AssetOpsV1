@@ -220,3 +220,34 @@ def test_walkthrough_test_imports_are_only_the_native_replay_child() -> None:
     names = {n.attr for n in ast.walk(tree) if isinstance(n, ast.Attribute)} | {
         n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
     assert "decision_clock" not in names and "FIRST_DECISION" not in names
+
+
+def test_zero_reads_state_the_zero_itself() -> None:
+    """Review L4: complete zero needs empty rows AND `total_count == 0` and a null cursor on both W4 reads."""
+    zero = {"rows": [], "total_count": 0, "next_cursor": None}
+    assert P.zero_reads_complete(zero, dict(zero))
+    for bad in ({**zero, "total_count": 1}, {**zero, "next_cursor": "c"}, {"rows": []},
+                {**zero, "total_count": False}, {**zero, "rows": [{"id": "x"}]}):
+        assert not P.zero_reads_complete(bad, dict(zero)) and not P.zero_reads_complete(dict(zero), bad), bad
+
+
+def test_walkthrough_kills_only_its_own_recorded_server() -> None:
+    """Review L6: a recorded PID is killed only while its command line is still our `uvicorn serve_entry:app` on the
+    recorded port; a reused PID (any other process or port) never matches."""
+    import w504_ev_work_walkthrough as W
+
+    ours = "python.exe -m uvicorn serve_entry:app --host 127.0.0.1 --port 8123"
+    assert W.is_recorded_server(ours, 8123) and W.is_recorded_server(ours + " --log-level info", 8123)
+    for other in (None, "", "notepad.exe", "python.exe -m uvicorn other:app --port 8123",
+                  ours.replace("8123", "81234"), ours.replace("8123", "8124")):
+        assert not W.is_recorded_server(other, 8123), other
+    calls = []
+    real_cmd, real_run = W._command_line, W.subprocess.run
+    W._command_line = lambda pid: "notepad.exe"
+    W.subprocess.run = lambda *a, **k: calls.append(a)
+    try:
+        assert W._stop_owned({"pid": 4242, "port": 8123}) is False and calls == []
+        W._command_line = lambda pid: ours
+        assert W._stop_owned({"pid": 4242, "port": 8123}) is True and calls[0][0][:3] == ["taskkill", "/PID", "4242"]
+    finally:
+        W._command_line, W.subprocess.run = real_cmd, real_run

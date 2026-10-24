@@ -122,6 +122,36 @@ def test_ev_detail_and_index_wire(ev) -> None:
         api.close()
 
 
+def test_ev_index_wire_after_a_later_head_and_conflict_409s(ev) -> None:
+    """Readiness 53 and review L1 over HTTP: after a later selected head the intent-bearing row keeps its live Finding
+    href and the detail reads the same href; the EV 409 conflict literal is the wire body, with zero writes."""
+    from test_w504_ev_intent_postgres import _later_head
+
+    own, valid = members(ev)
+    api = Api(ev)
+    try:
+        body = ev_action(ev)
+        created = api.post("", body).json()
+        aid = created["id"]
+        refused(api.post("", {**body, "title": "Other title"}), 409, "DOMAIN_INTENT_CONFLICT",
+                "This Action declaration has a newer version; reload it.")
+        intent = ev_intent(ev, [own], valid)
+        assert api.post(f"/{aid}/intents", intent).status_code == 201
+        refused(api.post(f"/{aid}/intents", ev_intent(ev, [own], valid, key="w504-api-second-root")), 409,
+                "DOMAIN_INTENT_CONFLICT", "This Action declaration has a newer version; reload it.")
+        assert counts(ev.engine) == [1, 1, 0]
+        _later_head(ev)
+        raised = api.get(f"/actions/{aid}").json()["action"]["raised_at"]
+        index = api.get("/action-index", **{"from": raised[:10] + "T00:00:00Z", "to": raised[:10] + "T23:59:59Z"})
+        assert index.status_code == 200, index.text
+        row = next(r for r in index.json()["rows"] if r["action_id"] == aid)
+        detail = api.get(f"/actions/{aid}").json()
+        assert row["origin"]["href"] == detail["links"]["finding"]["href"] is not None
+        assert index.json()["status"] == "CURRENT" and detail["status"] == "CURRENT"
+    finally:
+        api.close()
+
+
 # ==== W5-04a V1b producer (round 3): K0 route/shape and clock refusal (readiness 29) ==============================
 # Separate from the two tests above. Drives the non-test producer library `tools/w504_ev_work_cases.py` against the
 # real EV routes over W2-05b's `interrupted` replay (the merged registered path; the shifted EV-W504-DEPOT replay is
