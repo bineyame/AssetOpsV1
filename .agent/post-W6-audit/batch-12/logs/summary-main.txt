@@ -1,0 +1,480 @@
+=== renewable positive 1440x1000 pageH app/mock 1281/1300 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'From physical headroom to an opportunity' 263/244 (1.08) w=725/735 rows=0/0 cols=[] | []
+  P 'Productive-use evaluation' 263/244 (1.08) w=403/408 rows=0/0 cols=[] | []
+  P 'Eligible and excluded windows' 383/364 (1.05) w=1145/1161 rows=5/5 cols=['Day / period', 'Opportunity', 'Constraint check', 'Decision'] | ['Day / period', 'Opportunity', 'Constraint check', 'Decision']
+  strip: WatchLens: OpportunitySelected sources: Prepared example data, not field readingsCurrent selectionLimited by 1 conditionCritical service has an unresolved deficitSolar headroom on 4 of 5 assessed daysCompare with Dispatch evidence · Not available yet
+  cards A: ['PV capability41–43 kWReported PV capability and selected uncertainty', 'PV used20 kWAccepted power over 300/300 min', 'Usable headroom18–20 kWAfter retained margin and service checks', 'Recurring opportunity4 / 5 daysEligible complete days / assessed compl'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: ['Opportunity is an evidence-backed capacity estimate. A paired load-addition comparison and local demand validation are r']
+  NotRecorded 0 NAY 1 prepared True enums [] uuids 0 Zcount 3 details 2
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '13px': 4, '14px': 4, '10px': 1} | M 12px {'11px': 2, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1281}]
+=== renewable positive 390x900 pageH app/mock 2082/2114 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'From physical headroom to an opportunity' 281/272 (1.03) w=358/360 rows=0/0 cols=[] | []
+  P 'Productive-use evaluation' 257/241 (1.07) w=358/360 rows=0/0 cols=[] | []
+  P 'Eligible and excluded windows' 482/438 (1.10) w=358/360 rows=5/5 cols=['Day / period', 'Opportunity', 'Constraint check', 'Decision'] | ['Day / period', 'Opportunity', 'Constraint check', 'Decision']
+  strip: WatchLens: OpportunitySelected sources: Prepared example data, not field readingsCurrent selectionLimited by 1 conditionCritical service has an unresolved deficitSolar headroom on 4 of 5 assessed daysCompare with Dispatch evidence · Not available yet
+  cards A: ['PV capability41–43 kWReported PV capability and selected uncertainty', 'PV used20 kWAccepted power over 300/300 min', 'Usable headroom18–20 kWAfter retained margin and service checks', 'Recurring opportunity4 / 5 daysEligible complete days / assessed compl'] | M: []
+  cardsH A/M: [127, 127, 127, 127] []
+  refusal[None]:   notice: ['Opportunity is an evidence-backed capacity estimate. A paired load-addition comparison and local demand validation are r']
+  NotRecorded 0 NAY 1 prepared True enums [] uuids 0 Zcount 3 details 2
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '13px': 4, '14px': 4, '10px': 1} | M 12px {'11px': 2, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 388, 'cw': 318, 'panel': 'Eligible and excluded windows'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== service positive 1440x1000 pageH app/mock 1250/1328 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Where the power went' 263/240 (1.10) w=1145/1161 rows=0/0 cols=[] | []
+  P 'Delivered power by addressed load' 266/262 (1.02) w=1145/1161 rows=3/3 cols=['Load', 'Role', 'Observed power', 'Required-service evidence', 'Assessment'] | ['Load', 'Role', 'Observed power', 'Required-service evidence', 'Assessment']
+  P 'What is supported' 133/177 (0.75) w=725/735 rows=0/0 cols=[] | []
+  P 'What unlocks a service conclusion' 133/177 (0.75) w=403/408 rows=0/0 cols=[] | []
+  strip: Service assessment: SupportedCurrent selectionSelected sources: Prepared example data, not field readings
+  cards A: ['Delivered load20 kWMeasured 60 of 60 minutes', 'Interruptions seenNone seen in measured intervalsMeasured 60 of 60 min', 'Health clinic (critical)3.87 kWCritical-service delivered power record', 'Unserved energy0 kWhMeasured 60 of 60 minutes'] | M: []
+  cardsH A/M: [134, 134, 134, 134] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 1 prepared True enums [] uuids 0 Zcount 3 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '13px': 4, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1250}]
+=== service positive 390x900 pageH app/mock 1826/1939 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Where the power went' 263/256 (1.03) w=358/360 rows=0/0 cols=[] | []
+  P 'Delivered power by addressed load' 326/296 (1.10) w=358/360 rows=3/3 cols=['Load', 'Role', 'Observed power', 'Required-service evidence', 'Assessment'] | ['Load', 'Role', 'Observed power', 'Required-service evidence', 'Assessment']
+  P 'What is supported' 149/142 (1.05) w=358/360 rows=0/0 cols=[] | []
+  P 'What unlocks a service conclusion' 133/177 (0.75) w=358/360 rows=0/0 cols=[] | []
+  strip: Service assessment: SupportedCurrent selectionSelected sources: Prepared example data, not field readings
+  cards A: ['Delivered load20 kWMeasured 60 of 60 minutes', 'Interruptions seenNone seen in measured intervalsMeasured 60 of 60 min', 'Health clinic (critical)3.87 kWCritical-service delivered power record', 'Unserved energy0 kWhMeasured 60 of 60 minutes'] | M: []
+  cardsH A/M: [154, 154, 131, 131] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 1 prepared True enums [] uuids 0 Zcount 3 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '13px': 4, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 526, 'cw': 318, 'panel': 'Delivered power by addressed load'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== fuel positive 1440x1000 pageH app/mock 1409/1477 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Fuel balance at a glance' 294/271 (1.08) w=1145/1161 rows=0/0 cols=[] | []
+  P 'Balance bridge' 353/332 (1.06) w=1145/1161 rows=5/5 cols=['Term', 'Evidence basis', 'Treatment'] | ['Term', 'Evidence basis', 'Treatment']
+  P 'Inspect existing generator fuel interpretation' 134/149 (0.90) w=1145/1161 rows=0/0 cols=[] | []
+  strip: Fuel balance: UnknownSelected sources: Prepared example data, not field readingsCurrent selectionLimited by 3 conditionsA complete inventory balance needs deliveries and closing evidence.Delivery completeness unconfirmedNo bounded closing tank reading
+  cards A: ['Opening evidenceUnknownAccepted tank opening or Unknown', 'Recorded deliveriesDelivery completeness unconfirmedComplete delivery ', 'Modelled expected use0–2.39 LModelled from generator outputModelled: g', 'ResidualCannot computeCannot compute without complete deliveries'] | M: []
+  cardsH A/M: [114, 114, 114, 114] []
+  refusal[None]:   notice: ['A fuel residual is unexplained inventory movement with uncertainty. It cannot establish theft or be added to dispatch fu']
+  NotRecorded 0 NAY 0 prepared True enums [] uuids 0 Zcount 3 details 2
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '13px': 5, '10px': 1, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1409}]
+=== fuel positive 390x900 pageH app/mock 2115/2125 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Fuel balance at a glance' 310/287 (1.08) w=358/360 rows=0/0 cols=[] | []
+  P 'Balance bridge' 579/526 (1.10) w=358/360 rows=5/5 cols=['Term', 'Evidence basis', 'Treatment'] | ['Term', 'Evidence basis', 'Treatment']
+  P 'Inspect existing generator fuel interpretation' 193/192 (1.01) w=358/360 rows=0/0 cols=[] | []
+  strip: Fuel balance: UnknownSelected sources: Prepared example data, not field readingsCurrent selectionLimited by 3 conditionsA complete inventory balance needs deliveries and closing evidence.Delivery completeness unconfirmedNo bounded closing tank reading
+  cards A: ['Opening evidenceUnknownAccepted tank opening or Unknown', 'Recorded deliveriesDelivery completeness unconfirmedComplete delivery ', 'Modelled expected use0–2.39 LModelled from generator outputModelled: g', 'ResidualCannot computeCannot compute without complete deliveries'] | M: []
+  cardsH A/M: [149, 149, 115, 115] []
+  refusal[None]:   notice: ['A fuel residual is unexplained inventory movement with uncertainty. It cannot establish theft or be added to dispatch fu']
+  NotRecorded 0 NAY 0 prepared True enums [] uuids 0 Zcount 3 details 2
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '13px': 5, '10px': 1, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== backup positive 1440x1000 pageH app/mock 1210/1274 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Backup event chains' 188/183 (1.03) w=1145/1161 rows=1/1 cols=['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result'] | ['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result']
+  P 'Backup readiness evidence' 302/287 (1.05) w=1145/1161 rows=4/4 cols=['Required step', 'Available evidence', 'Current claim (latest observed outage chain)'] | ['Required step', 'Available evidence', 'Current claim']
+  P 'Operating evidence' 163/155 (1.05) w=725/735 rows=0/0 cols=[] | []
+  P 'Next evidence' 163/155 (1.05) w=403/408 rows=0/0 cols=[] | []
+  strip: Backup readiness: UnknownSelected sources: Prepared example data, not field readingsCurrent selectionLimited by 1 conditionGenerator operation alone is not a witnessed start-and-recovery test
+  cards A: ['Outages in windowUnknownSupply reports do not cover the whole hour', 'Start success1 witnessed successOf 1 witnessed request/result pair in ', 'Last witnessed testNo recordNo accepted witnessed test record', 'Critical service recovery3 minTarget 5 min · latest valid chain'] | M: []
+  cardsH A/M: [103, 103, 103, 103] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared True enums [] uuids 0 Zcount 4 details 4
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '14px': 4} | M 12px {'11px': 1, '12px': 2, '14px': 2}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1210}]
+=== backup positive 390x900 pageH app/mock 1873/2084 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Backup event chains' 217/265 (0.82) w=358/360 rows=1/1 cols=['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result'] | ['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result']
+  P 'Backup readiness evidence' 380/428 (0.89) w=358/360 rows=4/4 cols=['Required step', 'Available evidence', 'Current claim (latest observed outage chain)'] | ['Required step', 'Available evidence', 'Current claim']
+  P 'Operating evidence' 186/177 (1.05) w=358/360 rows=0/0 cols=[] | []
+  P 'Next evidence' 186/177 (1.05) w=358/360 rows=0/0 cols=[] | []
+  strip: Backup readiness: UnknownSelected sources: Prepared example data, not field readingsCurrent selectionLimited by 1 conditionGenerator operation alone is not a witnessed start-and-recovery test
+  cards A: ['Outages in windowUnknownSupply reports do not cover the whole hour', 'Start success1 witnessed successOf 1 witnessed request/result pair in ', 'Last witnessed testNo recordNo accepted witnessed test record', 'Critical service recovery3 minTarget 5 min · latest valid chain'] | M: []
+  cardsH A/M: [110, 110, 110, 110] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared True enums [] uuids 0 Zcount 4 details 4
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '14px': 4} | M 12px {'11px': 1, '12px': 2, '14px': 2}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 719, 'cw': 318, 'panel': 'Backup event chains'}, {'cls': 'data-table__scroll', 'sw': 548, 'cw': 318, 'panel': 'Backup readiness evidence'}, {'cls': 'mini-more__list mini-ids', 'sw': 257, 'cw': 149, 'panel': 'Backup readiness evidence'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== renewable gap-limited 1440x1000 pageH app/mock 1281/1300 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'From physical headroom to an opportunity' 263/244 (1.08) w=725/735 rows=0/0 cols=[] | []
+  P 'Productive-use evaluation' 263/244 (1.08) w=403/408 rows=0/0 cols=[] | []
+  P 'Eligible and excluded windows' 383/364 (1.05) w=1145/1161 rows=5/5 cols=['Day / period', 'Opportunity', 'Constraint check', 'Decision'] | ['Day / period', 'Opportunity', 'Constraint check', 'Decision']
+  strip: Not assessedLens: OpportunitySelected sources: Prepared example data, not field readingsNo selected assessmentLimited by 3 conditionsStorage obligation unknownCritical service not establishedConflicting evidenceSolar headroom on 3 of 3 assessed daysCompare wit
+  cards A: ['PV capability41–43 kWReported PV capability and selected uncertainty', 'PV used20 kWAccepted power over 180/300 min', 'Usable headroom18–20 kWAfter retained margin and service checks', 'Recurring opportunity3 / 3 daysEligible complete days / assessed compl'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: ['Opportunity is an evidence-backed capacity estimate. A paired load-addition comparison and local demand validation are r']
+  NotRecorded 0 NAY 1 prepared True enums [] uuids 0 Zcount 3 details 2
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '13px': 4, '14px': 4, '10px': 1} | M 12px {'11px': 2, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1281}]
+=== renewable gap-limited 390x900 pageH app/mock 2063/2114 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'From physical headroom to an opportunity' 263/272 (0.97) w=358/360 rows=0/0 cols=[] | []
+  P 'Productive-use evaluation' 257/241 (1.07) w=358/360 rows=0/0 cols=[] | []
+  P 'Eligible and excluded windows' 482/438 (1.10) w=358/360 rows=5/5 cols=['Day / period', 'Opportunity', 'Constraint check', 'Decision'] | ['Day / period', 'Opportunity', 'Constraint check', 'Decision']
+  strip: Not assessedLens: OpportunitySelected sources: Prepared example data, not field readingsNo selected assessmentLimited by 3 conditionsStorage obligation unknownCritical service not establishedConflicting evidenceSolar headroom on 3 of 3 assessed daysCompare wit
+  cards A: ['PV capability41–43 kWReported PV capability and selected uncertainty', 'PV used20 kWAccepted power over 180/300 min', 'Usable headroom18–20 kWAfter retained margin and service checks', 'Recurring opportunity3 / 3 daysEligible complete days / assessed compl'] | M: []
+  cardsH A/M: [127, 127, 127, 127] []
+  refusal[None]:   notice: ['Opportunity is an evidence-backed capacity estimate. A paired load-addition comparison and local demand validation are r']
+  NotRecorded 0 NAY 1 prepared True enums [] uuids 0 Zcount 3 details 2
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '13px': 4, '14px': 4, '10px': 1} | M 12px {'11px': 2, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 410, 'cw': 318, 'panel': 'Eligible and excluded windows'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== service gap-limited 1440x1000 pageH app/mock 1303/1328 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Where the power went' 263/240 (1.10) w=1145/1161 rows=0/0 cols=[] | []
+  P 'Delivered power by addressed load' 266/262 (1.02) w=1145/1161 rows=3/3 cols=['Load', 'Role', 'Observed power', 'Required-service evidence', 'Assessment'] | ['Load', 'Role', 'Observed power', 'Required-service evidence', 'Assessment']
+  P 'What is supported' 201/177 (1.14) w=725/735 rows=0/0 cols=[] | []
+  P 'What unlocks a service conclusion' 201/177 (1.14) w=403/408 rows=0/0 cols=[] | []
+  strip: Service assessment: UnknownCurrent selectionSelected sources: Prepared example data, not field readingsLimited by 2 conditionsDelivered power is observed; requested-service baseline is incompleteRequested-service baseline missing
+  cards A: ['Delivered load20 kWMeasured 60 of 60 minutes', 'Interruptions seenUnknownNeeds delivered and requested power for every', 'Health clinic (critical)UnknownCritical-service delivered power record', 'Unserved energyUnknownNeeds demand or request evidence'] | M: []
+  cardsH A/M: [119, 119, 119, 119] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 1 prepared True enums [] uuids 0 Zcount 3 details 2
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '13px': 4, '14px': 5} | M 12px {'11px': 1, '10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1303}]
+=== service gap-limited 390x900 pageH app/mock 1886/1939 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Where the power went' 263/256 (1.03) w=358/360 rows=0/0 cols=[] | []
+  P 'Delivered power by addressed load' 326/296 (1.10) w=358/360 rows=3/3 cols=['Load', 'Role', 'Observed power', 'Required-service evidence', 'Assessment'] | ['Load', 'Role', 'Observed power', 'Required-service evidence', 'Assessment']
+  P 'What is supported' 149/142 (1.05) w=358/360 rows=0/0 cols=[] | []
+  P 'What unlocks a service conclusion' 201/177 (1.14) w=358/360 rows=0/0 cols=[] | []
+  strip: Service assessment: UnknownCurrent selectionSelected sources: Prepared example data, not field readingsLimited by 2 conditionsDelivered power is observed; requested-service baseline is incompleteRequested-service baseline missing
+  cards A: ['Delivered load20 kWMeasured 60 of 60 minutes', 'Interruptions seenUnknownNeeds delivered and requested power for every', 'Health clinic (critical)UnknownCritical-service delivered power record', 'Unserved energyUnknownNeeds demand or request evidence'] | M: []
+  cardsH A/M: [115, 115, 131, 131] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 1 prepared True enums [] uuids 0 Zcount 3 details 2
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '13px': 4, '14px': 5} | M 12px {'11px': 1, '10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 521, 'cw': 318, 'panel': 'Delivered power by addressed load'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== fuel gap-limited 1440x1000 pageH app/mock 1409/1477 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Fuel balance at a glance' 294/271 (1.08) w=1145/1161 rows=0/0 cols=[] | []
+  P 'Balance bridge' 353/332 (1.06) w=1145/1161 rows=5/5 cols=['Term', 'Evidence basis', 'Treatment'] | ['Term', 'Evidence basis', 'Treatment']
+  P 'Inspect existing generator fuel interpretation' 134/149 (0.90) w=1145/1161 rows=0/0 cols=[] | []
+  strip: Fuel balance: evidence limitedSelected sources: Prepared example data, not field readingsCurrent selectionLimited by 4 conditionsA complete inventory balance needs deliveries and closing evidence.Incomplete hourDelivery completeness unconfirmedNo accepted clos
+  cards A: ['Opening evidenceUnknownAccepted tank opening or Unknown', 'Recorded deliveriesDelivery completeness unconfirmedComplete delivery ', 'Modelled expected useUnknownModelled quantity unavailable', 'ResidualCannot computeCannot compute without complete deliveries'] | M: []
+  cardsH A/M: [114, 114, 114, 114] []
+  refusal[None]:   notice: ['A fuel residual is unexplained inventory movement with uncertainty. It cannot establish theft or be added to dispatch fu']
+  NotRecorded 0 NAY 0 prepared True enums [] uuids 0 Zcount 3 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '13px': 5, '10px': 1, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1409}]
+=== fuel gap-limited 390x900 pageH app/mock 2110/2125 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Fuel balance at a glance' 310/287 (1.08) w=358/360 rows=0/0 cols=[] | []
+  P 'Balance bridge' 579/526 (1.10) w=358/360 rows=5/5 cols=['Term', 'Evidence basis', 'Treatment'] | ['Term', 'Evidence basis', 'Treatment']
+  P 'Inspect existing generator fuel interpretation' 193/192 (1.01) w=358/360 rows=0/0 cols=[] | []
+  strip: Fuel balance: evidence limitedSelected sources: Prepared example data, not field readingsCurrent selectionLimited by 4 conditionsA complete inventory balance needs deliveries and closing evidence.Incomplete hourDelivery completeness unconfirmedNo accepted clos
+  cards A: ['Opening evidenceUnknownAccepted tank opening or Unknown', 'Recorded deliveriesDelivery completeness unconfirmedComplete delivery ', 'Modelled expected useUnknownModelled quantity unavailable', 'ResidualCannot computeCannot compute without complete deliveries'] | M: []
+  cardsH A/M: [149, 149, 110, 110] []
+  refusal[None]:   notice: ['A fuel residual is unexplained inventory movement with uncertainty. It cannot establish theft or be added to dispatch fu']
+  NotRecorded 0 NAY 0 prepared True enums [] uuids 0 Zcount 3 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '13px': 5, '10px': 1, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== backup gap-limited 1440x1000 pageH app/mock 1199/1274 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Backup event chains' 188/183 (1.03) w=1145/1161 rows=1/1 cols=['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result'] | ['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result']
+  P 'Backup readiness evidence' 299/287 (1.04) w=1145/1161 rows=4/4 cols=['Required step', 'Available evidence', 'Current claim (latest observed outage chain)'] | ['Required step', 'Available evidence', 'Current claim']
+  P 'Operating evidence' 163/155 (1.05) w=725/735 rows=0/0 cols=[] | []
+  P 'Next evidence' 163/155 (1.05) w=403/408 rows=0/0 cols=[] | []
+  strip: Backup readiness: UnknownSelected sources: Prepared example data, not field readingsCurrent selectionOutage-chain assessment: evidence limitedGenerator operation alone is not a witnessed start-and-recovery testConflicting evidenceNo complete outage chain
+  cards A: ['Outages in windowUnknownSupply reports do not cover the whole hour', 'Start successUnknownNo witnessed start request and result', 'Last witnessed testNo recordNo accepted witnessed test record', 'Critical service recoveryUnknownNeeds requested and delivered critical'] | M: []
+  cardsH A/M: [94, 94, 94, 94] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared True enums [] uuids 0 Zcount 4 details 3
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '14px': 4} | M 12px {'11px': 1, '12px': 2, '14px': 2}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}]
+  clip [] hscroll [{'cls': 'mini-more__list mini-ids', 'sw': 257, 'cw': 251, 'panel': 'Backup readiness evidence'}, {'cls': 'mini-more__list mini-ids', 'sw': 257, 'cw': 251, 'panel': 'Backup readiness evidence'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1199}]
+=== backup gap-limited 390x900 pageH app/mock 1899/2084 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Backup event chains' 217/265 (0.82) w=358/360 rows=1/1 cols=['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result'] | ['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result']
+  P 'Backup readiness evidence' 380/428 (0.89) w=358/360 rows=4/4 cols=['Required step', 'Available evidence', 'Current claim (latest observed outage chain)'] | ['Required step', 'Available evidence', 'Current claim']
+  P 'Operating evidence' 186/177 (1.05) w=358/360 rows=0/0 cols=[] | []
+  P 'Next evidence' 186/177 (1.05) w=358/360 rows=0/0 cols=[] | []
+  strip: Backup readiness: UnknownSelected sources: Prepared example data, not field readingsCurrent selectionOutage-chain assessment: evidence limitedGenerator operation alone is not a witnessed start-and-recovery testConflicting evidenceNo complete outage chain
+  cards A: ['Outages in windowUnknownSupply reports do not cover the whole hour', 'Start successUnknownNo witnessed start request and result', 'Last witnessed testNo recordNo accepted witnessed test record', 'Critical service recoveryUnknownNeeds requested and delivered critical'] | M: []
+  cardsH A/M: [110, 110, 110, 110] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared True enums [] uuids 0 Zcount 4 details 3
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '14px': 4} | M 12px {'11px': 1, '12px': 2, '14px': 2}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 752, 'cw': 318, 'panel': 'Backup event chains'}, {'cls': 'data-table__scroll', 'sw': 542, 'cw': 318, 'panel': 'Backup readiness evidence'}, {'cls': 'mini-more__list mini-ids', 'sw': 257, 'cw': 143, 'panel': 'Backup readiness evidence'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== renewable no-window 1440x1000 pageH app/mock 1056/1300 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'From physical headroom to an opportunity' 263/244 (1.08) w=725/735 rows=0/0 cols=[] | []
+  P 'Productive-use evaluation' 263/244 (1.08) w=403/408 rows=0/0 cols=[] | []
+  P 'Eligible and excluded windows' 181/364 (0.50) w=1145/1161 rows=1/5 cols=['Day / period', 'Opportunity', 'Constraint check', 'Decision'] | ['Day / period', 'Opportunity', 'Constraint check', 'Decision']
+  strip: Not assessedLens: OpportunityNo selected assessmentDays with usable solar headroom: UnknownCompare with Dispatch evidence →
+  cards A: ['PV capabilityUnknownReported PV capability and selected uncertainty', 'PV usedUnknownAccepted power over 0/60 min', 'Usable headroomUnknownAfter retained margin and service checks', 'Recurring opportunityUnknownEligible complete days / assessed complete'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: ['Opportunity is an evidence-backed capacity estimate. A paired load-addition comparison and local demand validation are r']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '13px': 4, '14px': 4, '10px': 1} | M 12px {'11px': 2, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1056}]
+=== renewable no-window 390x900 pageH app/mock 1776/2114 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'From physical headroom to an opportunity' 263/272 (0.97) w=358/360 rows=0/0 cols=[] | []
+  P 'Productive-use evaluation' 266/241 (1.10) w=358/360 rows=0/0 cols=[] | []
+  P 'Eligible and excluded windows' 210/438 (0.48) w=358/360 rows=1/5 cols=['Day / period', 'Opportunity', 'Constraint check', 'Decision'] | ['Day / period', 'Opportunity', 'Constraint check', 'Decision']
+  strip: Not assessedLens: OpportunityNo selected assessmentDays with usable solar headroom: UnknownCompare with Dispatch evidence →
+  cards A: ['PV capabilityUnknownReported PV capability and selected uncertainty', 'PV usedUnknownAccepted power over 0/60 min', 'Usable headroomUnknownAfter retained margin and service checks', 'Recurring opportunityUnknownEligible complete days / assessed complete'] | M: []
+  cardsH A/M: [127, 127, 127, 127] []
+  refusal[None]:   notice: ['Opportunity is an evidence-backed capacity estimate. A paired load-addition comparison and local demand validation are r']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '13px': 4, '14px': 4, '10px': 1} | M 12px {'11px': 2, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 410, 'cw': 318, 'panel': 'Eligible and excluded windows'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== service no-window 1440x1000 pageH app/mock 1000/1328 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Where the power went' 139/240 (0.58) w=1160/1161 rows=0/0 cols=[] | []
+  P 'Delivered power by addressed load' 96/262 (0.37) w=1160/1161 rows=0/3 cols=[] | ['Load', 'Role', 'Observed power', 'Required-service evidence', 'Assessment']
+  P 'What is supported' 133/177 (0.75) w=734/735 rows=0/0 cols=[] | []
+  P 'What unlocks a service conclusion' 133/177 (0.75) w=408/408 rows=0/0 cols=[] | []
+  strip: Service assessment: UnknownNo selected assessment
+  cards A: ['Delivered loadUnknownDelivered power is not measured for the whole hou', 'Interruptions seenUnknownNeeds delivered and requested power for every', 'Critical loadUnknownCritical-service delivered power record · Coverage', 'Unserved energyUnknownNeeds demand or request evidence'] | M: []
+  cardsH A/M: [119, 119, 119, 119] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 1 prepared False enums [] uuids 0 Zcount 3 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '10px': 2, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+=== service no-window 390x900 pageH app/mock 1399/1939 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Where the power went' 139/256 (0.54) w=358/360 rows=0/0 cols=[] | []
+  P 'Delivered power by addressed load' 96/296 (0.32) w=358/360 rows=0/3 cols=[] | ['Load', 'Role', 'Observed power', 'Required-service evidence', 'Assessment']
+  P 'What is supported' 149/142 (1.05) w=358/360 rows=0/0 cols=[] | []
+  P 'What unlocks a service conclusion' 133/177 (0.75) w=358/360 rows=0/0 cols=[] | []
+  strip: Service assessment: UnknownNo selected assessment
+  cards A: ['Delivered loadUnknownDelivered power is not measured for the whole hou', 'Interruptions seenUnknownNeeds delivered and requested power for every', 'Critical loadUnknownCritical-service delivered power record · Coverage', 'Unserved energyUnknownNeeds demand or request evidence'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 1 prepared False enums [] uuids 0 Zcount 3 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '10px': 2, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== fuel no-window 1440x1000 pageH app/mock 1152/1477 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Fuel balance at a glance' 294/271 (1.08) w=1145/1161 rows=0/0 cols=[] | []
+  P 'Balance bridge' 96/332 (0.29) w=1145/1161 rows=0/5 cols=[] | ['Term', 'Evidence basis', 'Treatment']
+  P 'Inspect existing generator fuel interpretation' 134/149 (0.90) w=1145/1161 rows=0/0 cols=[] | []
+  strip: Fuel balance: UnknownNo selected assessmentLimited by 1 conditionA complete inventory balance needs deliveries and closing evidence.
+  cards A: ['Opening evidenceUnknownAccepted tank opening or Unknown', 'Recorded deliveriesDelivery completeness unconfirmedComplete delivery ', 'Modelled expected useUnknownModelled quantity unavailable', 'ResidualCannot computeCannot compute without complete deliveries'] | M: []
+  cardsH A/M: [114, 114, 114, 114] []
+  refusal[None]:   notice: ['A fuel residual is unexplained inventory movement with uncertainty. It cannot establish theft or be added to dispatch fu']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '13px': 5, '10px': 2, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1152}]
+=== fuel no-window 390x900 pageH app/mock 1601/2125 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Fuel balance at a glance' 310/287 (1.08) w=358/360 rows=0/0 cols=[] | []
+  P 'Balance bridge' 96/526 (0.18) w=358/360 rows=0/5 cols=[] | ['Term', 'Evidence basis', 'Treatment']
+  P 'Inspect existing generator fuel interpretation' 193/192 (1.01) w=358/360 rows=0/0 cols=[] | []
+  strip: Fuel balance: UnknownNo selected assessmentLimited by 1 conditionA complete inventory balance needs deliveries and closing evidence.
+  cards A: ['Opening evidenceUnknownAccepted tank opening or Unknown', 'Recorded deliveriesDelivery completeness unconfirmedComplete delivery ', 'Modelled expected useUnknownModelled quantity unavailable', 'ResidualCannot computeCannot compute without complete deliveries'] | M: []
+  cardsH A/M: [149, 149, 110, 110] []
+  refusal[None]:   notice: ['A fuel residual is unexplained inventory movement with uncertainty. It cannot establish theft or be added to dispatch fu']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '13px': 5, '10px': 2, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== backup no-window 1440x1000 pageH app/mock 1191/1274 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Backup event chains' 188/183 (1.03) w=1145/1161 rows=1/1 cols=['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result'] | ['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result']
+  P 'Backup readiness evidence' 292/287 (1.02) w=1145/1161 rows=4/4 cols=['Required step', 'Available evidence', 'Current claim (latest observed outage chain)'] | ['Required step', 'Available evidence', 'Current claim']
+  P 'Operating evidence' 163/155 (1.05) w=725/735 rows=0/0 cols=[] | []
+  P 'Next evidence' 163/155 (1.05) w=403/408 rows=0/0 cols=[] | []
+  strip: Backup readiness: UnknownNo selected assessmentLimited by 1 conditionGenerator operation alone is not a witnessed start-and-recovery test
+  cards A: ['Outages in windowUnknownSupply reports do not cover the whole hour', 'Start successUnknownNo witnessed start request and result', 'Last witnessed testNo recordNo accepted witnessed test record', 'Critical service recoveryUnknownNeeds requested and delivered critical'] | M: []
+  cardsH A/M: [94, 94, 94, 94] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 4 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '14px': 4} | M 12px {'11px': 1, '12px': 2, '14px': 2}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1191}]
+=== backup no-window 390x900 pageH app/mock 1919/2084 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Backup event chains' 289/265 (1.09) w=358/360 rows=1/1 cols=['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result'] | ['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result']
+  P 'Backup readiness evidence' 380/428 (0.89) w=358/360 rows=4/4 cols=['Required step', 'Available evidence', 'Current claim (latest observed outage chain)'] | ['Required step', 'Available evidence', 'Current claim']
+  P 'Operating evidence' 186/177 (1.05) w=358/360 rows=0/0 cols=[] | []
+  P 'Next evidence' 186/177 (1.05) w=358/360 rows=0/0 cols=[] | []
+  strip: Backup readiness: UnknownNo selected assessmentLimited by 1 conditionGenerator operation alone is not a witnessed start-and-recovery test
+  cards A: ['Outages in windowUnknownSupply reports do not cover the whole hour', 'Start successUnknownNo witnessed start request and result', 'Last witnessed testNo recordNo accepted witnessed test record', 'Critical service recoveryUnknownNeeds requested and delivered critical'] | M: []
+  cardsH A/M: [110, 110, 110, 110] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 4 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '14px': 4} | M 12px {'11px': 1, '12px': 2, '14px': 2}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 740, 'cw': 318, 'panel': 'Backup event chains'}, {'cls': 'data-table__scroll', 'sw': 503, 'cw': 318, 'panel': 'Backup readiness evidence'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== renewable refused-invalid 1440x1000 pageH app/mock 1000/1300 ovX 0 hdr 59 mainTop 24/44 cerr []
+  MISSING vs mock: ['From physical headroom to an opportunity', 'Productive-use evaluation', 'Eligible and excluded windows']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[invalid-window]: Period cannot be readSelect a valid complete site-local hour or one to five site-local days.  notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'11px': 2, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+=== renewable refused-invalid 390x900 pageH app/mock 900/2114 ovX 0 hdr 58 mainTop 253/158 cerr []
+  MISSING vs mock: ['From physical headroom to an opportunity', 'Productive-use evaluation', 'Eligible and excluded windows']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[invalid-window]: Period cannot be readSelect a valid complete site-local hour or one to five site-local days.  notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'11px': 2, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 237}]
+=== service refused-invalid 1440x1000 pageH app/mock 1000/1328 ovX 0 hdr 59 mainTop 24/44 cerr []
+  MISSING vs mock: ['Where the power went', 'Delivered power by addressed load', 'What is supported', 'What unlocks a service conclusion']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[invalid-window]: Period cannot be readSelect a valid complete site-local hour or one to five site-local days.  notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'11px': 1, '10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+=== service refused-invalid 390x900 pageH app/mock 900/1939 ovX 0 hdr 58 mainTop 245/158 cerr []
+  MISSING vs mock: ['Where the power went', 'Delivered power by addressed load', 'What is supported', 'What unlocks a service conclusion']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[invalid-window]: Period cannot be readSelect a valid complete site-local hour or one to five site-local days.  notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'11px': 1, '10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 229}]
+=== fuel refused-invalid 1440x1000 pageH app/mock 1000/1477 ovX 0 hdr 59 mainTop 24/44 cerr []
+  MISSING vs mock: ['Fuel balance at a glance', 'Balance bridge', 'Inspect existing generator fuel interpretation']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[invalid-window]: Period cannot be readSelect a valid complete site-local hour or one to five site-local days.  notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'11px': 1, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+=== fuel refused-invalid 390x900 pageH app/mock 900/2125 ovX 0 hdr 58 mainTop 254/158 cerr []
+  MISSING vs mock: ['Fuel balance at a glance', 'Balance bridge', 'Inspect existing generator fuel interpretation']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[invalid-window]: Period cannot be readSelect a valid complete site-local hour or one to five site-local days.  notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'11px': 1, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 238}]
+=== backup refused-invalid 1440x1000 pageH app/mock 1000/1274 ovX 0 hdr 59 mainTop 24/44 cerr []
+  MISSING vs mock: ['Backup event chains', 'Backup readiness evidence', 'Operating evidence', 'Next evidence']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[invalid-window]: Period cannot be readSelect a valid complete site-local hour or one to five site-local days.  notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'11px': 1, '12px': 2, '14px': 2}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+=== backup refused-invalid 390x900 pageH app/mock 900/2084 ovX 0 hdr 58 mainTop 254/158 cerr []
+  MISSING vs mock: ['Backup event chains', 'Backup readiness evidence', 'Operating evidence', 'Next evidence']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[invalid-window]: Period cannot be readSelect a valid complete site-local hour or one to five site-local days.  notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 3 details 0
+  fonts prose 12px [] pSizes {} | M 12px {'11px': 1, '12px': 2, '14px': 2}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 238}]
+=== renewable known-before-evidence 1440x1000 pageH app/mock 1293/1300 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'From physical headroom to an opportunity' 263/244 (1.08) w=725/735 rows=0/0 cols=[] | []
+  P 'Productive-use evaluation' 263/244 (1.08) w=403/408 rows=0/0 cols=[] | []
+  P 'Eligible and excluded windows' 383/364 (1.05) w=1145/1161 rows=5/5 cols=['Day / period', 'Opportunity', 'Constraint check', 'Decision'] | ['Day / period', 'Opportunity', 'Constraint check', 'Decision']
+  strip: Not assessedLens: OpportunityNo selected assessmentDays with usable solar headroom: UnknownCompare with Dispatch evidence · Not available yet
+  cards A: ['PV capabilityUnknownReported PV capability and selected uncertainty', 'PV usedUnknownAccepted power over 0/300 min', 'Usable headroomUnknownAfter retained margin and service checks', 'Recurring opportunityUnknownEligible complete days / assessed complete'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: ['Opportunity is an evidence-backed capacity estimate. A paired load-addition comparison and local demand validation are r']
+  NotRecorded 0 NAY 1 prepared False enums [] uuids 0 Zcount 4 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '13px': 4, '14px': 4, '10px': 1} | M 12px {'11px': 2, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1293}]
+=== renewable known-before-evidence 390x900 pageH app/mock 2058/2114 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'From physical headroom to an opportunity' 263/272 (0.97) w=358/360 rows=0/0 cols=[] | []
+  P 'Productive-use evaluation' 257/241 (1.07) w=358/360 rows=0/0 cols=[] | []
+  P 'Eligible and excluded windows' 482/438 (1.10) w=358/360 rows=5/5 cols=['Day / period', 'Opportunity', 'Constraint check', 'Decision'] | ['Day / period', 'Opportunity', 'Constraint check', 'Decision']
+  strip: Not assessedLens: OpportunityNo selected assessmentDays with usable solar headroom: UnknownCompare with Dispatch evidence · Not available yet
+  cards A: ['PV capabilityUnknownReported PV capability and selected uncertainty', 'PV usedUnknownAccepted power over 0/300 min', 'Usable headroomUnknownAfter retained margin and service checks', 'Recurring opportunityUnknownEligible complete days / assessed complete'] | M: []
+  cardsH A/M: [127, 127, 127, 127] []
+  refusal[None]:   notice: ['Opportunity is an evidence-backed capacity estimate. A paired load-addition comparison and local demand validation are r']
+  NotRecorded 0 NAY 1 prepared False enums [] uuids 0 Zcount 4 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '13px': 4, '14px': 4, '10px': 1} | M 12px {'11px': 2, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable*', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 410, 'cw': 318, 'panel': 'Eligible and excluded windows'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== service known-before-evidence 1440x1000 pageH app/mock 1000/1328 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Where the power went' 139/240 (0.58) w=1160/1161 rows=0/0 cols=[] | []
+  P 'Delivered power by addressed load' 96/262 (0.37) w=1160/1161 rows=0/3 cols=[] | ['Load', 'Role', 'Observed power', 'Required-service evidence', 'Assessment']
+  P 'What is supported' 133/177 (0.75) w=734/735 rows=0/0 cols=[] | []
+  P 'What unlocks a service conclusion' 133/177 (0.75) w=408/408 rows=0/0 cols=[] | []
+  strip: Service assessment: UnknownNo selected assessment
+  cards A: ['Delivered loadUnknownDelivered power is not measured for the whole hou', 'Interruptions seenUnknownNeeds delivered and requested power for every', 'Critical loadUnknownCritical-service delivered power record · Coverage', 'Unserved energyUnknownNeeds demand or request evidence'] | M: []
+  cardsH A/M: [119, 119, 119, 119] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 1 prepared False enums [] uuids 0 Zcount 4 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '10px': 2, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+=== service known-before-evidence 390x900 pageH app/mock 1418/1939 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Where the power went' 139/256 (0.54) w=358/360 rows=0/0 cols=[] | []
+  P 'Delivered power by addressed load' 96/296 (0.32) w=358/360 rows=0/3 cols=[] | ['Load', 'Role', 'Observed power', 'Required-service evidence', 'Assessment']
+  P 'What is supported' 149/142 (1.05) w=358/360 rows=0/0 cols=[] | []
+  P 'What unlocks a service conclusion' 133/177 (0.75) w=358/360 rows=0/0 cols=[] | []
+  strip: Service assessment: UnknownNo selected assessment
+  cards A: ['Delivered loadUnknownDelivered power is not measured for the whole hou', 'Interruptions seenUnknownNeeds delivered and requested power for every', 'Critical loadUnknownCritical-service delivered power record · Coverage', 'Unserved energyUnknownNeeds demand or request evidence'] | M: []
+  cardsH A/M: [115, 115, 115, 115] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 1 prepared False enums [] uuids 0 Zcount 4 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 2, '10px': 2, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 2, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service*', 'Dispatch', 'Fuel', 'Renewable', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== fuel known-before-evidence 1440x1000 pageH app/mock 1187/1477 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Fuel balance at a glance' 294/271 (1.08) w=1145/1161 rows=0/0 cols=[] | []
+  P 'Balance bridge' 96/332 (0.29) w=1145/1161 rows=0/5 cols=[] | ['Term', 'Evidence basis', 'Treatment']
+  P 'Inspect existing generator fuel interpretation' 134/149 (0.90) w=1145/1161 rows=0/0 cols=[] | []
+  strip: Fuel balance: UnknownNo selected assessmentLimited by 1 conditionA complete inventory balance needs deliveries and closing evidence.
+  cards A: ['Opening evidenceUnknownAccepted tank opening or Unknown', 'Recorded deliveriesDelivery completeness unconfirmedComplete delivery ', 'Modelled expected useUnknownModelled quantity unavailable', 'ResidualCannot computeCannot compute without complete deliveries'] | M: []
+  cardsH A/M: [114, 114, 114, 114] []
+  refusal[None]:   notice: ['A fuel residual is unexplained inventory movement with uncertainty. It cannot establish theft or be added to dispatch fu']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 4 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '13px': 5, '10px': 2, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1187}]
+=== fuel known-before-evidence 390x900 pageH app/mock 1620/2125 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Fuel balance at a glance' 310/287 (1.08) w=358/360 rows=0/0 cols=[] | []
+  P 'Balance bridge' 96/526 (0.18) w=358/360 rows=0/5 cols=[] | ['Term', 'Evidence basis', 'Treatment']
+  P 'Inspect existing generator fuel interpretation' 193/192 (1.01) w=358/360 rows=0/0 cols=[] | []
+  strip: Fuel balance: UnknownNo selected assessmentLimited by 1 conditionA complete inventory balance needs deliveries and closing evidence.
+  cards A: ['Opening evidenceUnknownAccepted tank opening or Unknown', 'Recorded deliveriesDelivery completeness unconfirmedComplete delivery ', 'Modelled expected useUnknownModelled quantity unavailable', 'ResidualCannot computeCannot compute without complete deliveries'] | M: []
+  cardsH A/M: [149, 149, 110, 110] []
+  refusal[None]:   notice: ['A fuel residual is unexplained inventory movement with uncertainty. It cannot establish theft or be added to dispatch fu']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 4 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '13px': 5, '10px': 2, '14px': 2} | M 12px {'11px': 1, '10px': 1, '12px': 1, '14px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel*', 'Renewable', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+=== backup known-before-evidence 1440x1000 pageH app/mock 1226/1274 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Backup event chains' 188/183 (1.03) w=1145/1161 rows=1/1 cols=['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result'] | ['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result']
+  P 'Backup readiness evidence' 292/287 (1.02) w=1145/1161 rows=4/4 cols=['Required step', 'Available evidence', 'Current claim (latest observed outage chain)'] | ['Required step', 'Available evidence', 'Current claim']
+  P 'Operating evidence' 163/155 (1.05) w=725/735 rows=0/0 cols=[] | []
+  P 'Next evidence' 163/155 (1.05) w=403/408 rows=0/0 cols=[] | []
+  strip: Backup readiness: UnknownNo selected assessmentLimited by 1 conditionGenerator operation alone is not a witnessed start-and-recovery test
+  cards A: ['Outages in windowUnknownSupply reports do not cover the whole hour', 'Start successUnknownNo witnessed start request and result', 'Last witnessed testNo recordNo accepted witnessed test record', 'Critical service recoveryUnknownNeeds requested and delivered critical'] | M: []
+  cardsH A/M: [94, 94, 94, 94] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 5 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '14px': 4} | M 12px {'11px': 1, '12px': 2, '14px': 2}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1226}]
+=== backup known-before-evidence 390x900 pageH app/mock 1938/2084 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Backup event chains' 289/265 (1.09) w=358/360 rows=1/1 cols=['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result'] | ['When', 'Grid', 'Start requested', 'Generator', 'Power to load', 'Load response', 'Outcome for service', 'Result']
+  P 'Backup readiness evidence' 380/428 (0.89) w=358/360 rows=4/4 cols=['Required step', 'Available evidence', 'Current claim (latest observed outage chain)'] | ['Required step', 'Available evidence', 'Current claim']
+  P 'Operating evidence' 186/177 (1.05) w=358/360 rows=0/0 cols=[] | []
+  P 'Next evidence' 186/177 (1.05) w=358/360 rows=0/0 cols=[] | []
+  strip: Backup readiness: UnknownNo selected assessmentLimited by 1 conditionGenerator operation alone is not a witnessed start-and-recovery test
+  cards A: ['Outages in windowUnknownSupply reports do not cover the whole hour', 'Start successUnknownNo witnessed start request and result', 'Last witnessed testNo recordNo accepted witnessed test record', 'Critical service recoveryUnknownNeeds requested and delivered critical'] | M: []
+  cardsH A/M: [110, 110, 110, 110] []
+  refusal[None]:   notice: []
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 5 details 1
+  fonts prose 12px ['14px'] pSizes {'11px': 1, '14px': 4} | M 12px {'11px': 1, '12px': 2, '14px': 2}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Service', 'Dispatch', 'Fuel', 'Renewable', 'Backup*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 740, 'cw': 318, 'panel': 'Backup event chains'}, {'cls': 'data-table__scroll', 'sw': 503, 'cw': 318, 'panel': 'Backup readiness evidence'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]

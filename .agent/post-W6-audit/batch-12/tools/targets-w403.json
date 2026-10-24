@@ -1,0 +1,4 @@
+[
+ {"id": "renewable", "case": "w403-decision-positive", "url": "http://127.0.0.1:5182/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z"},
+ {"id": "link-check", "case": "w403-mini-08", "url": "http://127.0.0.1:5182/sites/MG-W402-001?date=2026-10-08", "mock": "mini"}
+]
