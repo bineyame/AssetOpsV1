@@ -1,0 +1,2 @@
+[["DB_PREFIX = \"assetops_s501_owner\"", "DB_PREFIX = \"assetops_audit_b2_s501\""],
+ ["and not args.db.endswith(\"_test\")", "and args.db.endswith(\"_test\")"]]

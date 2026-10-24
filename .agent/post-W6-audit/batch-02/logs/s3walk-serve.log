@@ -1,0 +1,6 @@
+[rename] 'SOURCE_DB, DB = "assetops_s3cases", "assetops_s3walk"' -> 'SOURCE_DB, DB = "assetops_s3cases", "assetops_audit_b2_s3walk_test"'
+[rename] 'WORK = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AssetOps" / "s3-dispatch-walkthrough"' -> 'WORK = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AssetOps" / "audit-b2-s3walk"\nPRODUCER_WORK_PARENT = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AssetOps"'
+[rename] 'PRODUCER_MANIFEST = WORK.parent / "s3-dispatch-cases"' -> 'PRODUCER_MANIFEST = PRODUCER_WORK_PARENT / "s3-dispatch-cases"'
+API on http://127.0.0.1:18201 (log C:\Users\assef\AppData\Local\AssetOps\audit-b2-s3walk\logs\api.log), pid 32672
+Frontend, from frontend/:  $env:ASSETOPS_API_PORT="18201"; npm.cmd run dev -- --port 5320 --strictPort
+Then open http://localhost:5320/sites/KOBO-001/performance/dispatch?day=2026-10-09 . Ctrl+C stops the API.

@@ -1,0 +1,98 @@
+[rename] 'DB_PREFIX = "assetops_s501_owner"' -> 'DB_PREFIX = "assetops_audit_b2_s501"'
+[rename] 'and not args.db.endswith("_test")' -> 'and args.db.endswith("_test")'
+
+=== 1. Isolated work directory, database and TLS material ===
+Work directory: C:\Users\assef\Bineyame\AssetOpsV1-review6\var\s501_owner_audit_b2 (code from git HEAD fddf5cad; own var/)
+Database: assetops_audit_b2_s501_test (dropped and recreated; the developer database is not touched)
+Imported KOBO-001: Imported KOBO-001 site=a85835ea-4d24-4f48-8e62-9811fd87f0cb revision=9a3fc455-f58b-4943-b82d-b5222affaa8e v1 assets=10 sources=8 sha256=459e0b70a0ba461a59d80525
+Published bindings: Foundation revisions inserted: v2; superseded: 1.
+New TLS certificate C:\Users\assef\Bineyame\AssetOpsV1-review6\var\s501_owner_audit_b2\tls\server.crt (sha256 Fingerprint=71:0E:C3:2E:DC:F5:71:1E:2A:82:3C:AB:37:67:E0:9E:AC:95:07:B5:31:C0:E0:6C:A0:67:55:64:C1:AC:AF:92); key restricted to the current user
+
+=== 2. TLS product server, registered gateway credential, demo configuration (roles-2) ===
+  Issued aog1.ba1d52457c22354395c415d05195989c.<redacted> for gateway 'edge-kobo-001'; revoked 0 earlier credential(s); enabled the gateway and 8 named source(s). The secret was written only to C:\Users
+  Credential file: upload.credential.ba1d52457c22354395c415d05195989c (in C:\Users\assef\Bineyame\AssetOpsV1-review6\var\s501_owner_audit_b2\credentials)
+  SIMULATED DEMO CONFIGURATION s3-dispatch-demo-config-v1 from `backend/conversions/kobo-001-s3-dispatch-demo-config.json` (sha256 0cc67a9e60909d5a0536cf4dfd3023d575978f7eb138158e892b58350f0400f6).
+  sealing basis: binding set v5 (64988ec4-1a18-4d8a-a280-101c47dfe55c), Foundation v6, snapshot 07a7a22cc0083c42..
+
+=== 3. Setup controls (labelled fixture controls) ===
+  setup: reserve = 20 from 2026-10-03T00:00:00Z (Foundation revision e3c52074-355f-4121-ad3a-5f4b5bbf3050)
+  setup: runtime = 0 from 2026-10-03T00:00:00Z (Foundation revision 8b3e922f-065b-4168-a0d5-931d6b54e524)
+
+=== S2 Evidence comparison for KOBO-001 (opens the imported Overview) ===
+  Report: C:\Users\assef\Bineyame\AssetOpsV1-review6\var\s501_owner_audit_b2\tree\var\evidence\migration\kobo-001\20261024T125006819679Z-9bc0bff8-14d4-41f3-9fe4-e9c1cce95a81.json | Store root: sha256:21b865e986270dde669affde1619036d2bae6a26dae119d66d852a5dc32fed0c (this workspace's evidence and commit stores; a moved or copied store needs its own comparison) | Evidence cutover: permitted
+
+=== SYSTEM diesel price v1 (before P01, so P01 can be priced) ===
+
+=== P01. P01-power (2026-10-23, s4-power-demo-cases-v1) ===
+  P01-power deliver_power (s4-fixture-power-epoch-1): 25 power means, 150 context readings
+  P01-power assess: 1 job(s), 1 run(s)
+  P01-power match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  runner (P01 consequence), exit 0: {"claimed": true, "selected": 2, "appended": 1, "replayed": 1, "no_op": 0, "failed": 0, "deferred": 0, "backlog": 0}
+    work 78fbdffc-895e-4757-82e8-0b7facdd156d ASSUMPTION_PUBLISHED attempt 1 succeeded=True appended=['8febddfa-0d26-41e4-bb19-945176e6f887'] replayed=[] no_op=None error=None
+    work e3edff7b-32f9-495e-a275-908713adced3 FINDING_REVISION_APPENDED attempt 1 succeeded=True appended=[] replayed=['8febddfa-0d26-41e4-bb19-945176e6f887'] no_op=None error=None
+
+=== F01-gateway: ordinary registered gateway day (Lab run, durable gateway, TLS) ===
+  pass  1: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 25, READY 173
+  pass  2: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 50, READY 148
+  pass  3: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 75, READY 123
+  pass  4: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 100, READY 98
+  pass  5: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 125, READY 73
+  pass  6: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 150, READY 48
+  pass  7: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 175, READY 23
+  pass  8: attempted 23 acked 23 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 198
+  pass  9: attempted  0 acked  0 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 198
+  F01-gateway: kobo-mini-grid-prolonged v2 2026-10-02T03:00:00Z..2026-10-02T11:00:00Z on Foundation v7; 198 sealed batches delivered; accepted (epoch, gateway, readings) [('s4-gateway-epoch-1', '531c682d-a1c1-41d0-89ff-292978a5d378', 329)]
+  F01-gateway match: planned 1, new Findings 1, Findings anchored 2026-10-02: [('2026-10-02 05:15:00+00:00', None)] OK
+  F01-gateway cited evidence: 102 IDs, 0 outside the gateway-sealed batches OK
+
+=== P02 through the LR-01 walk (admission numbering), stopped at WITHHELD_GENERATOR_SERIES ===
+
+=== 0. SYSTEM diesel price v1 ===
+
+=== 1. P02-power-late (admission-sequenced): first delivery without [07:00, 07:05) ===
+  P02-power-late deliver_power (s4-fixture-late-power-epoch-1): 24 power means, 150 context readings
+  P02-power-late assess: 1 job(s), 2 run(s)
+  P02-power-late match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  runner (bootstrap: r1), exit 0: {"claimed": true, "selected": 2, "appended": 2, "replayed": 0, "no_op": 0, "failed": 0, "deferred": 0, "backlog": 0}
+    work 25d58fe1-7208-4347-b011-a4298c782fc7 FINDING_REVISION_APPENDED attempt 1 succeeded=True appended=['49e1747c-246d-443e-880b-0330da6f8c7d'] replayed=[] no_op=None error=None
+    work 79f722c5-577f-4539-941d-110fc1068a35 FINDING_REVISION_APPENDED attempt 1 succeeded=True appended=['a8cfb19f-ae49-4a19-b764-5f6d8bf9a9f5'] replayed=[] no_op=None error=None
+  Performance comparison (source gate): exit 0 -> gate OPEN
+
+=== 2. The withheld 20 kW mean [07:00, 07:05) is accepted late ===
+  read late accepted, before the tick: STALE ['TECHNICAL_INPUT_CHANGED'] head=a8cfb19f-ae49-4a19-b764-5f6d8bf9a9f5 cons#1 QUANTITY_UNAVAILABLE POWER_COVERAGE_GAP bridge=STALE_QUEUED queued=True pending=['a3a862b6-8d5f-416d-a7ee-878161f90c01'] s5=False
+    money gate PENDING_REASSESSMENT amount_shown=False cons=a8cfb19f-ae49-4a19-b764-5f6d8bf9a9f5 QUANTITY_UNAVAILABLE None bridge=STALE
+  [ok] late acceptance: PENDING_REASSESSMENT and no current amount
+
+=== 3. Explicit schedule tick: S3, S4 and the consequence drain ===
+  explicit schedule tick: exit 0 COMPLETED
+  Performance comparison (source gate): exit 0 -> gate OPEN
+  read after the late tick: CURRENT [] head=098f3c87-1a93-456f-abe4-de452c2b98f3 cons#1 PRICED None bridge=WITHHELD_GENERATOR_SERIES queued=False pending=[] s5=False
+    money gate WITHHELD_GENERATOR_SERIES amount_shown=False cons=098f3c87-1a93-456f-abe4-de452c2b98f3 PRICED 7.5625 bridge=WITHHELD_GENERATOR_SERIES
+  [ok] row 1: S3 window INDETERMINATE
+  [ok] row 1: SEQUENCE_ORDER_INVERTED (no attestation) citing the late ID
+  [ok] row 1: new SUPPORTED revision ending 07:00 with SERIES_LIMIT
+  [ok] row 1: recorded 7.5625 USD (CURRENT PRICED basis) withheld, no current amount
+
+=== FAILED day 2026-10-07: a scoped failing assessment (walkthrough-only model) ===
+  staged: FAILED 2026-10-07
+
+=== Schedule pass in the served environment, then the Performance comparison (source gate) ===
+  schedule pass (default): exit 0 COMPLETED
+  schedule pass (default): exit 0 COMPLETED
+  Performance comparison (source gate): exit 0 -> gate OPEN
+
+=== Verify every day through the served Overview (API 18204) ===
+  ordinary   {"day": "2026-10-02", "http": 200, "freshness": "CURRENT", "reasons": [], "source_open": true, "assessment": "CURRENT", "money": "QUANTITY_UNAVAILABLE", "gate": "ELIGIBLE", "amount": [null, null, null], "source": "REGISTERED_SIMULATION", "finding_id": "c05a9004-5e02-4fee-bf3f-ff8f0fd035eb", "finding_revision_id": "67ec853e-8768-48a1-8edc-96c9be1543ec", "consequence_revision_id": "49e1747c-246d-443
+  failed     {"day": "2026-10-07", "http": 200, "freshness": "FAILED", "reasons": ["S3_FAILED", "LIVE_JOB"], "source_open": true, "assessment": "FAILED", "money": "UPSTREAM_FAILED", "gate": null, "amount": [null, null, null], "source": null, "finding_id": null, "finding_revision_id": null, "consequence_revision_id": null, "accepted_source": {"count": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b93
+  p01        {"day": "2026-10-23", "http": 200, "freshness": "CURRENT", "reasons": [], "source_open": true, "assessment": "CURRENT", "money": "PRICED", "gate": "ELIGIBLE", "amount": ["0.00", "15.82", "USD"], "source": "AUTHORED_DEMONSTRATION", "finding_id": "9e4db8be-f103-47b4-b993-8c0e57511497", "finding_revision_id": "8472c513-f25d-495f-a007-408fe7d8b5ad", "consequence_revision_id": "8febddfa-0d26-41e4-bb19-
+  p02        {"day": "2026-10-24", "http": 200, "freshness": "CURRENT", "reasons": [], "source_open": true, "assessment": "CURRENT", "money": "WITHHELD_GENERATOR_SERIES", "gate": "WITHHELD_GENERATOR_SERIES", "amount": [null, null, null], "source": "AUTHORED_DEMONSTRATION", "finding_id": "2157b239-ad4e-44d7-afb5-8ccc4e30ed8c", "finding_revision_id": "2b9d57ef-97d7-47a6-84ab-0d9c81b0e238", "consequence_revision_
+  unassessed {"day": "2026-11-10", "http": 200, "freshness": "UNASSESSED", "reasons": ["S3_UNASSESSED"], "source_open": true, "assessment": "UNKNOWN", "money": "UPSTREAM_UNASSESSED", "gate": null, "amount": [null, null, null], "source": null, "finding_id": null, "finding_revision_id": null, "consequence_revision_id": null, "accepted_source": {"count": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b9
+  [ok] P01 2026-10-23: PRICED, stored source Prepared example data, settled neighbourhood (CURRENT)
+  [ok] P02 2026-10-24: WITHHELD_GENERATOR_SERIES, no amount
+  [ok] ordinary 2026-10-02: no current amount
+  [ok] 2026-11-10: Unknown (UNASSESSED), no amount
+  [ok] 2026-10-07: FAILED, no amount
+
+=== Stopping every process this script started ===
+Evidence: C:\Users\assef\Bineyame\AssetOpsV1-review6\var\s501_owner_audit_b2\s501-walkthrough.json (0 failed checks)
+prepare finished in 303 s with 0 failed checks.

@@ -1,0 +1,5 @@
+[
+ {"id":"health","case":"kobo001-gateways","url":"http://localhost:5182/sites/KOBO-001/health"},
+ {"id":"health","case":"kobo002-nogateway","url":"http://localhost:5182/sites/KOBO-002/health"},
+ {"id":"health","case":"unknown-site-refused","url":"http://localhost:5182/sites/NO-SUCH-SITE/health"}
+]
