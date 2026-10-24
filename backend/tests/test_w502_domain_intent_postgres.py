@@ -504,3 +504,88 @@ def test_cross_domain_code_collisions(cold) -> None:
         assert not thread.is_alive() and len(errors) == 1
         assert (errors[0].sqlstate, errors[0].diag.constraint_name) == ("23505", CROSS)
         assert _held(engine, f"ACT-{no:06d}") == expected
+
+
+# ---- W5-02c K5: end-to-end lineage through the product GET (P-K5-1, ruling 5) -------------------------------------
+
+def test_k5_cold_action_lineage_through_product_get(cold, monkeypatch) -> None:
+    """Accepted envelope IDs -> selected cold Finding revision -> domain Action -> selected completed WR revision and
+    performed record -> intent basis, then the same chain read through `GET /api/sites/{site}/domain-work/actions/{id}`
+    at the captured cutoffs. The initial results stay `NOT_TESTED, NOT_TESTED, NOT_ESTABLISHED, PENDING` with no
+    evidence; no restoration or verification is inferred (`.agent/W5-02c-K4-preflight-rulings.md` ruling 5)."""
+    from fastapi.testclient import TestClient
+    from test_w401_work_service_postgres import at as w4_at
+
+    from assetops_backend.config import load_feature_flags
+    from assetops_backend.main import create_app
+
+    # 1. The selected Finding revision cites only ACCEPTED ingested evidence.
+    with cold.engine.connect() as c:
+        accepted = sorted(str(v) for v in c.execute(text(
+            "SELECT accepted_evidence_id FROM ingestion_disposition WHERE site_id = :s AND decision = 'ACCEPTED' "
+            "AND accepted_evidence_id = ANY(CAST(:e AS uuid[]))"), {"s": cold.s, "e": cold.cited}).scalars())
+    assert accepted == cold.cited
+    # 2. The WR, its performed record and its completion, all before the Action root (as the producer orders them).
+    wr = w4_request(cold, "w502c-k5-request")
+    case_id, rev_id = wr["id"], wr["revision"]["id"]
+    s, rec = cold.work.post_record(cold.t, cold.s, case_id, record("w502c-k5-record", occurred_at=w4_at(minutes=20)),
+                                   PRINCIPAL)
+    assert s == 201, rec
+    s, got = cold.work.post_event(cold.t, cold.s, case_id, event("ASSIGN", {"assignee": "Maintenance lead"},
+                                                                 "w502c-k5-assign", occurred_at=w4_at(minutes=15)),
+                                  PRINCIPAL)
+    assert s == 201 and got["state"] == "IN_PROGRESS", got
+    s, got = cold.work.post_event(cold.t, cold.s, case_id, event("COMPLETE", {"maintenance_record_id": rec["id"]},
+                                                                 "w502c-k5-complete", occurred_at=w4_at(minutes=10)),
+                                  PRINCIPAL)
+    assert s == 201 and got["state"] == "COMPLETED", got
+    before_action = now_utc(cold.engine)
+    # 3. Action root (K1), case link (K2), intent (K3), each pinned to the selected IDs.
+    _, action = create(cold, action_body(cold, "w502c-k5-action"))
+    aid = action["id"]
+    k1 = datetime.fromisoformat(action["recorded_at"].replace("Z", "+00:00"))
+    s, linked = link(cold, aid, link_body(case_id, rev_id, head_event(cold, case_id), key="w502c-k5-link"))
+    assert s == 201, linked
+    refused("DOMAIN_INTENT_LINK_INVALID", intent, cold, aid,
+            intent_body(cold, "w502c-k5-altered", finding_revision_id=str(uuid4()), work_case_id=case_id,
+                        work_record_id=rec["id"]))  # an altered Finding pin is refused, nothing written
+    s, root = intent(cold, aid, intent_body(cold, "w502c-k5-intent", work_case_id=case_id, work_record_id=rec["id"]))
+    assert s == 201, root
+    with cold.engine.connect() as c:
+        stored = c.execute(text(
+            "SELECT a.origin_finding_revision_id, l.case_id, l.case_revision_id, i.basis FROM domain_action a "
+            "JOIN domain_action_case_link l ON l.action_id = a.id JOIN domain_action_intent i ON i.action_id = a.id "
+            "WHERE a.id = :a"), {"a": aid}).one()
+    assert (str(stored[0]), str(stored[1]), str(stored[2])) == (cold.revision_id, case_id, rev_id)
+    assert stored[3]["finding_revision_id"] == cold.revision_id and stored[3]["work_record_id"] == rec["id"]
+    assert sorted(stored[3]["accepted_evidence_ids"]) == accepted
+
+    # 4. The product GET at the captured cutoffs.
+    monkeypatch.setenv("DATABASE_URL", URL)
+    api = TestClient(create_app(load_feature_flags()))
+    path = f"/api/sites/{cold.code}/domain-work/actions/{aid}"
+    current = api.get(path)
+    assert current.status_code == 200, current.text
+    body = current.json()
+    assert body["intent"]["id"] == root["intent_id"]
+    assert [r["result"] for r in body["results"]] == ["NOT_TESTED", "NOT_TESTED", "NOT_ESTABLISHED", "PENDING"]
+    assert all(r["evidence_ids"] == [] for r in body["results"]) and "VERIFIED" not in current.text
+    assert sorted(body["intent"]["basis"]["accepted_evidence_ids"]) == accepted
+    with cold.engine.connect() as c:
+        code = c.execute(text("SELECT public_code FROM work_case WHERE id = :c"), {"c": case_id}).scalar_one()
+        title = c.execute(text("SELECT title FROM work_case_revision WHERE id = :r"), {"r": rev_id}).scalar_one()
+    assert body["links"]["work"] == {"case_id": case_id, "case_code": code, "case_title": title,
+                                     "request_state": "COMPLETED", "record_id": rec["id"],
+                                     "label": f"Maintenance request {code}", "href": None}
+    # K1 <= cutoff < K2: the Action exists, no case link yet; links.work all null and no declaration yet.
+    not_linked = api.get(path, params={"known_at": iso(k1)})
+    assert not_linked.status_code == 200, not_linked.text
+    nl = not_linked.json()
+    assert nl["links"]["work"] == dict.fromkeys(("case_id", "case_code", "case_title", "request_state", "record_id",
+                                                 "label", "href"))
+    assert (nl["intent"], nl["results"]) == (None, None)
+    # A cutoff before the WR completed predates the Action root: ACTION_NOT_FOUND, and an absent Action likewise.
+    for missing in (api.get(path, params={"known_at": iso(before_action)}),
+                    api.get(f"/api/sites/{cold.code}/domain-work/actions/{uuid4()}")):
+        assert missing.status_code == 404, missing.text
+        assert missing.json()["detail"]["code"] == "ACTION_NOT_FOUND"

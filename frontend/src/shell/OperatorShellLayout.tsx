@@ -62,6 +62,14 @@ const operatorRailItems: NavRailItem[] = [
 ];
 
 /**
+ * W5-02c K4a (`.agent/W5-02c-K4-preflight-rulings.md` rulings 1-2; register R69 resolved): every Site Action detail
+ * path, for any Site type (W1 mini-grid, cold and EV), selects the `Actions` root as the v69 rail does for
+ * `cold-action` and `action-*` (`index.html:729,742,1114`); every other path keeps `NavLink` matching. The guard in
+ * `tools/checks/navigation-truthfulness.ps1` pins this exact source line and its call form.
+ */
+const railActiveLabel = (pathname: string): "Actions" | null => (/^\/sites\/[^/]+\/actions\/[^/]+(?:\/.*)?$/.test(pathname) ? "Actions" : null);
+
+/**
  * The rail is a real component now, but it owns no items: this list is still
  * declared here and passed in. `NavRail` renders what a shell gives it and has
  * no default, so the operator rail and the Lab rail cannot converge through
@@ -109,7 +117,7 @@ export function OperatorShellLayout() {
           ) : null}
         </div>
         <div className="app-frame__rail-body" id="operator-rail-body">
-          <NavRail label="Operator routes" items={operatorRailItems} />
+          <NavRail label="Operator routes" items={operatorRailItems} activeLabel={railActiveLabel(pathname)} />
           {chrome?.footer ?? null}
         </div>
       </div>

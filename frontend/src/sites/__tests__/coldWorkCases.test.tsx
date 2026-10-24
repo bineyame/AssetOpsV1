@@ -457,5 +457,15 @@ describe("W5-02 K3a: mini-grid isolation", () => {
     expect(main.querySelector("form[data-work-window]")).not.toBeNull();
     expect(main.querySelector("a[data-work-finding-link]")).not.toBeNull();
     expect(main.querySelector("[data-work-finding-revision]")).toBeNull();
+    // W5-02c K5 (ruling 12): the cold case-cell CSS scope never applies to a mini-grid Site.
+    expect(main.querySelector("[data-cold-cases]")).toBeNull();
+  });
+
+  it("scopes the cold case-cell CSS to COLDCHAIN with [data-cold-cases] on both case tabs (W5-02c K5, ruling 12)", async () => {
+    for (const kind of ["incidents", "maintenance"] as const) {
+      const { main } = await mountCases(kind, loaded(body([incident(1)])));
+      expect(main.querySelectorAll(".work-cases[data-cold-cases]")).toHaveLength(1);
+      cleanup();
+    }
   });
 });
