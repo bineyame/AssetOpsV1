@@ -78,3 +78,124 @@ merge, rebase shared tests, rerun).
   `ev_basis_of`; `build_domain_intent_store` passes `selected_ev_basis(ports)`), `domain_action_index.py` detail/
   `_Lineage` by domain (EV: no cold envelope; PENDING results; session revision IDs into provenance; 409 basis
   changed on recheck), EV model/API tests, cold neutral-refusal tests, then producer/walkthrough (Q3, Q5).
+
+---
+
+# Round 2 - V1a service + V1b read landed (producer/walkthrough NOT built)
+
+Builder brief: service and read code only, per readiness 27/28/30 (+5-7, 9-12, 16, 18). Producer, walkthrough and K0
+(rulings 29/31) remain open for the next V1b step.
+
+## Commits
+- `bd791c44` questions Q6-Q7 appended to `.agent/W5-04a-questions.md`.
+- `638d6677` service/read code + DB-free EV model tests + cold model/API literal updates.
+- `eb73236b` EV Postgres + API tests (held, not run).
+
+## Landed
+- `work/domain_action.py`: `NEUTRAL_LINK_INVALID` removed; `NEUTRAL_INTENT_INVALID` / `NEUTRAL_CASE_LINK_INVALID`
+  added. Parsers raise `_Malformed` (a cold-literal `DomainIntentRefused` subclass) re-typed per stage via `_as`.
+  `action_body`: missing/unknown domain -> neutral domain literal, else that domain's literal. `intent_shape` (shared
+  pre-resolution: closed top level, instants, key, criteria = list of closed text triples, basis = all shared keys,
+  only keys some domain allows) -> neutral; `intent_for(spec, shape)` -> exact criteria/basis keys, EV `session_ids`
+  nonempty distinct sorted UUIDs, domain literal. `intent_body(body, domain=COLD)` kept for callers. `case_link_body`
+  -> neutral case-link literal. Pure `ev_selects_finding` / `ev_members_selected` (sets A, B, Finding citations,
+  own session, case-normalized, no intersection). Cold normalized output (and so cold hashes) unchanged.
+- `work/domain_intent.py`: dispatch by declared (create) / stored (intent, link) domain; stored unknown -> 503.
+  Create in tx: idempotency, window, `tx.site_type() == domain`, Finding revision domain, pin at `command_now`, EV
+  SUPPORTED exact Finding via `tx.selected_ev_basis`. Intent: 404 then `intent_for` then hash/idempotency, window,
+  basis (EV: pin, exact selected Finding, case/record checks, `ev_members_selected`; cold unchanged). Case link: 404
+  then domain literals. Actor shape failure uses the stage literal.
+- `adapters/postgres_domain_intent.py`: `site_type()`, `selected_ev_basis(pin, revision_id)`, optional
+  `ev_basis_of` ctor arg. Still the sole writer; no rule-8 change.
+- `adapters/postgres_work_read.py`: `LinkReadPorts.ev_accepted`; `composition.py` binds `ev_read.accepted_on`,
+  `selected_ev_basis` returns `accepted_evidence_ids` (set A, lowercased), both builders inject `selected_ev_basis`.
+- `domain_action_index.py` / `adapters/postgres_domain_action_index.py`: `_Lineage`, `_summary`, `_source_state`
+  by row domain (cold byte-identical); EV detail `_ev_detail`: cutoff = intent `recorded_at` (bounded by `known_at`)
+  or `known_at`; recheck via `_ev_selection` + `ev_members_selected`; with intent any miss -> 409 EV basis-changed;
+  status = `link_state` of the selected EV state, HISTORICAL rule as cold; three PENDING results; selected
+  `ev_session_revision` IDs of declared sessions in provenance selected IDs. `_IndexTx.ev_basis`, reader `ev_basis_of`.
+
+## DB-free / guards (at `eb73236b`)
+- `pytest tests/test_w504_ev_intent_model.py tests/test_w502_domain_intent_model.py tests/test_w504_ev_intent_api.py
+  tests/test_w504_ev_intent_postgres.py`: **16 passed, 13 skipped** (skips = no DB URL).
+- Non-vacuous: removing the set-B check failed 2 EV model tests; removing the Site-type check failed 1; both reverted
+  with `git checkout`, tree clean.
+- `tools/check-all.ps1`: **All 11 guards passed**. `ruff --select F,E9` clean on all touched files.
+- Pre-existing (base `31b65d2b` too): `test_w502_domain_intent_api.py` fails collection without a DB URL
+  (`NameError: COLD`); unaffected when the URL is set.
+
+## Held Postgres batch (run together, one private `*_test` base)
+1. `backend/tests/test_w504_ev_intent_postgres.py` (all 11; 5 new: round trip/detail, create refusals,
+   refusal order + membership, immutable pin, no-intent UNKNOWN).
+2. `backend/tests/test_w504_ev_intent_api.py` (2).
+3. Cold regression: `test_w502_domain_intent_postgres.py`, `test_w502_domain_intent_api.py`,
+   `test_w502_domain_action_index_postgres.py`, `test_w502_domain_action_index_api.py`,
+   `test_w502_domain_work_links_postgres.py`, `test_w502_cold_scenario_producer.py`.
+4. Still pending from round 1: updated head-assertion files, `test_w503_*`, `test_w206_ev_reads*`.
+Most likely to need adjustment (written blind against replay behaviour): `test_ev_pin_is_immutable_across_later_
+evidence_and_heads` (`add_import` + `run_worker` + `select_exact` after the intent; asserts ruled 200/unchanged basis)
+and the HISTORICAL status assertions in it. A failure there is either a test fixture issue or a real ruling-27 gap.
+
+## Judgment calls
+1. Q6 (not decided): the pin keeps the merged unfiltered `max(decided_at)` evidence cutoff via `selected_finding_pin`.
+2. Q7 (recorded): EV detail with no intent and an unselected Finding -> 200 UNKNOWN / null href / missing lineage.
+3. Shared pre-resolution criteria shape = list of closed string triples (any length); count is domain-specific.
+   EV `session_ids` value is parsed only after resolution (raw before), so a malformed value on an unknown Action is
+   404.
+4. EV selection token uses the unchanged `selection_token` (no session IDs in it): K1 wire unchanged.
+5. Intent write requires the exact Finding revision SUPPORTED at `command_now` (same helper as create); EV write
+   uses the Finding citation set, not `tx.cited_evidence`.
+6. Membership sets made non-empty in Postgres by perturbing one set of the real basis (`perturbed`), plus foreign
+   uuid4 IDs; the real valid set is asserted non-empty.
+
+---
+
+# Round 3 (producer) - library, CLI and K0 tests landed; the shifted replay is BLOCKED (Q8-Q10)
+
+## Commits
+- `8ec98969` `tools/w504_ev_work_cases.py`, `tools/w504_ev_work_walkthrough.py`, DB-free `backend/tests/test_w504_ev_work_cases.py`.
+- `f553118d` appended section in `backend/tests/test_w504_ev_intent_api.py` (2 Postgres tests; the two earlier tests untouched).
+- `77c82369` questions Q8-Q12 in `.agent/W5-04a-questions.md`.
+
+## Landed
+- Library (no `backend/tests` import; AST-guarded by a test): R/D/delta and `[D+08:00,D+09:00)`; shifted scenario
+  document (window, `forcing[].time`, `observations[].time/release_at`) and Site document (code
+  `EV-W504-DEPOT-{suffix}`, `Depot Charging Hub`, `Etc/UTC`, Foundation `valid_from/valid_to` shifted, components
+  unchanged, no subtitle; short name manifest-only, Q12); `cross_check_k0` / `select_positive` / `read_k0` (ruling 29:
+  scenarios + sessions without `known_at`, findings at the returned K0, refusal on null K0, unequal bounds or clocks,
+  or a Finding/session not in that window); exact Action/intent/INC/WR/record/case-link bodies; `evidence_clock_for`
+  (ruling 21). `replay_shifted` raises `ProducerBlocked` (Q9 parser pin, then Q10 test-only runner).
+- CLI `prepare|serve|attest|drop`: private `w504a_<mode>_<tag>_test` DBs (`positive`, `zero`, `pending`, `stale`,
+  `unknown`), product Alembic upgrade, per-mode child (`DATABASE_URL`) that runs replay -> K0 -> Action/intent via
+  the public domain-work routes (zero mode asserts complete-zero W4 reads); `attest` posts INC/WR/record via a W4
+  router with the SERVICE principal, then explicit case links, K3 (case `event.recorded_at`, record `recorded_at`),
+  K4 (link `recorded_at`); 403 via a `forbidden` process granted no Site; 503 by `taskkill /PID` of only the recorded
+  `unavailable` PID; `drop` kills recorded PIDs only and drops only marker-listed `w504a_*_test` DBs. On merged code
+  `prepare` records `blocked`/`unavailable` with the reason and exits 3.
+
+## DB-free / guards (at `77c82369`)
+- `test_w504_ev_work_cases.py` 16 passed; with `test_w504_ev_intent_api.py`, `test_w504_ev_intent_model.py`,
+  `test_w502_domain_intent_model.py`: **32 passed, 4 skipped** (skips = no DB URL).
+- Non-vacuous: removing the `known_at == K0` check failed 3 tests; adding a `test_w205b` import to the library failed
+  the import guard; both reverted with `git checkout`, tree clean.
+- `tools/check-all.ps1`: **All 11 guards passed** (rc 0). `ruff --select F,E9` clean on the new/changed files.
+
+## Held Postgres batch (add to round 2's list)
+5. `backend/tests/test_w504_ev_intent_api.py::test_producer_k0_route_shape_and_positive_payloads` and
+   `::test_producer_refuses_mismatched_window_or_clock` (over the `interrupted` replay). Most likely to need
+   adjustment: `accepted_evidence_ids <= valid` (assumes the sessions `selected_source_provenance.evidence_ids` is
+   within A and B) and the earlier-`known_at` sessions read status set.
+
+## Manual walkthrough (later, idle machine; only after Q8-Q10 are answered)
+    .venv\Scripts\python.exe tools\w504_ev_work_walkthrough.py --work var/w504a_ev_work --tag k1 prepare
+    .venv\Scripts\python.exe tools\w504_ev_work_walkthrough.py --work var/w504a_ev_work --tag k1 serve
+    .venv\Scripts\python.exe tools\w504_ev_work_walkthrough.py --work var/w504a_ev_work --tag k1 attest
+    .venv\Scripts\python.exe tools\w504_ev_work_walkthrough.py --work var/w504a_ev_work --tag k1 drop
+Today `prepare` creates the five DBs, writes `blocked` modes and exits 3; run `drop` afterwards. Never run.
+
+## Judgment calls
+1. Not decided: positive scenario (Q8), the replay path (Q9/Q10). `replay_shifted` is the single seam to replace.
+2. Declared evidence = Finding citations ∩ sessions `selected_source_provenance.evidence_ids`; the server re-checks A.
+3. INC/WR asset = selected session `connector_asset_id` (returned); `finding_links: []` on both (spec silent).
+4. WR narrative provisional (Q11). Separate `positive` and `zero` DBs so mock-zero stays zero after `attest`.
+5. The walkthrough runs from the repo tree (records `git rev-parse HEAD` and dirty flag), not a `git archive` copy.
