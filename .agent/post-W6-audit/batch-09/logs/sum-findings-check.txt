@@ -1,0 +1,30 @@
+
+## ev-findings check-interrupted 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: EV charging lab | Depot Charging Hub
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 2} {'11px': 1}
+  [0] 'Findings at this site' 217 | 'Findings at this site' 185 r=1.17 rows 0/1 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['Medium', 'Mediumⓘ', 'Open'] links 0/2 det 0 xy 248,273 w1160|234,406 w1161
+
+## ev-findings check-interrupted 390  pageH 912/1139 ovX 0 hdr 58/131 dark 92 err []
+  h1: EV charging lab | Depot Charging Hub
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 2} {'11px': 1}
+  [0] 'Findings at this site' 430 | 'Findings at this site' 248 r=1.73 rows 0/1 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['Medium', 'Mediumⓘ', 'Open'] links 0/2 det 0 xy 16,439 w358|15,701 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]
+
+## ev-findings check-no-window 1440  pageH 1000/1001 ovX 0 hdr 59/65 dark 1000 err []
+  h1: EV charging lab | Depot Charging Hub
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 2} {'11px': 1}
+  [0] 'Findings at this site' 217 | 'Findings at this site' 185 r=1.17 rows 0/1 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['Medium', 'Mediumⓘ', 'Open'] links 0/2 det 0 xy 248,273 w1160|234,406 w1161
+
+## ev-findings check-no-window 390  pageH 912/1139 ovX 0 hdr 58/131 dark 92 err []
+  h1: EV charging lab | Depot Charging Hub
+  tabs app: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  tabs mock: [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]
+  pSizes {'11px': 5, '12px': 2} {'11px': 1}
+  [0] 'Findings at this site' 430 | 'Findings at this site' 248 r=1.73 rows 0/1 cols []/['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens'] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']/['Medium', 'Mediumⓘ', 'Open'] links 0/2 det 0 xy 16,439 w358|15,701 w360
+  hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]

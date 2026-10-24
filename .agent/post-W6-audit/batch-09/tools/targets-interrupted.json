@@ -1,0 +1,102 @@
+[
+ {
+  "id": "ev",
+  "case": "interrupted",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+ },
+ {
+  "id": "ev",
+  "case": "no-selection",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z"
+ },
+ {
+  "id": "ev",
+  "case": "refused",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z"
+ },
+ {
+  "id": "ev",
+  "case": "no-window",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev"
+ },
+ {
+  "id": "ev-evidence",
+  "case": "interrupted",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+ },
+ {
+  "id": "ev-evidence",
+  "case": "no-selection",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z"
+ },
+ {
+  "id": "ev-evidence",
+  "case": "refused",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z"
+ },
+ {
+  "id": "ev-evidence",
+  "case": "no-window",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence"
+ },
+ {
+  "id": "ev-evidence-analysis",
+  "case": "interrupted",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+ },
+ {
+  "id": "ev-evidence-analysis",
+  "case": "no-selection",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z"
+ },
+ {
+  "id": "ev-evidence-analysis",
+  "case": "refused",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z"
+ },
+ {
+  "id": "ev-evidence-analysis",
+  "case": "no-window",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence/analysis"
+ },
+ {
+  "id": "ev-financials",
+  "case": "interrupted",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+ },
+ {
+  "id": "ev-financials",
+  "case": "no-selection",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/financials?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z"
+ },
+ {
+  "id": "ev-financials",
+  "case": "refused",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/financials?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z"
+ },
+ {
+  "id": "ev-financials",
+  "case": "no-window",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/financials"
+ },
+ {
+  "id": "ev-assumptions",
+  "case": "interrupted",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+ },
+ {
+  "id": "ev-assumptions",
+  "case": "no-selection",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z"
+ },
+ {
+  "id": "ev-assumptions",
+  "case": "refused",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z"
+ },
+ {
+  "id": "ev-assumptions",
+  "case": "no-window",
+  "url": "http://localhost:5189/sites/EV-LAB-001/ev/financial-assumptions"
+ }
+]
