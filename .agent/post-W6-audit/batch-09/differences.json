@@ -1,0 +1,115 @@
+[
+ {
+  "id": "B9-X1",
+  "screens": [
+   "ev",
+   "ev-evidence",
+   "ev-evidence-analysis",
+   "ev-financials",
+   "ev-assumptions"
+  ],
+  "what": "Cross-cutting, cited not re-described. B1-01/B2-01 (no white topbar) and B1-04/B2-36 (rail Assets/Settings 'Not available yet'): every pair. B1-07/B2-03 (14 px panel sentences vs mock 12 px): ev Overview timeline sentence, money sentence, Next step and SLD note; ev-evidence-analysis 'How a claim limit is set'; ev-financials 'Not included'. B1-02/B2-04 (tall dark 390 header on short pages): ev-evidence refused (175 px), ev-evidence-analysis no-selection (184) and refused (241), ev-financials refused (198), ev-assumptions interrupted/no-window/complete (126), no-selection (153), refused (259); every other 390 pair 92 px. B2-21/B3-04 (UTC not site-local): every Selected-window line, timeline times, chart axis, 'Contact checked at ... UTC', Analysis Sent/Received (UTC). Wrinkle: this EV Site's stored timezone is Etc/UTC, yet the Analysis 'Measured (EAT)' column converts with a fixed UTC+3 (EvSiteViews.tsx:1092/1104 eatTime), so Measured 11:00 sits beside Sent 08:00:03 for one record; the R24 ruling (reuse siteWindowText with the stored zone) is not applied here. B1-53 (system vocabulary/IDs): timeline and Analysis 'REC 00000502-0000-4000-8000-0000000000d7' full UUIDs in monospace wrapping to 3 lines; Data sources sub-label 'Connector c1'; 'No analysis link'. B3-15 analogue on ev-financials ('Portfolio roll-up · Not available yet'). B3-01, B4-03/B4-04/B5-01, B4-19 do not recur (only the mock's Site row and the Evidence/Financials subtab rows; no console errors on any pair). Carried checks: '1 incidents' plural not applicable; raw 'c1 · EV_CONNECTOR' does NOT recur (Analysis reads 'Connector c1 · connector status'; only the bare 'c1' code remains, B1-53).",
+  "disp": "Cite existing batch IDs; shared fix owner is the shell/typography seam. The fixed-EAT Measured column: (c) D3 Low under B2-21/B3-04 with the R24 precedent (also present on cold, coldSiteViews.tsx:1116)."
+ },
+ {
+  "id": "B9-01",
+  "screens": [
+   "ev",
+   "ev-evidence",
+   "ev-evidence-analysis",
+   "ev-financials",
+   "ev-assumptions"
+  ],
+  "what": "B7-02 recurs: no window control on any W2 EV Site screen; the window is URL-only (from/to/known_at query), the bare route defaults to the latest window, and refused states ('Choose a valid UTC start and end, up to 31 days.') tell the user to choose a window with no control to do it. Mock: topbar 'Window: Event window 6 Oct 2026 · 08:00-16:00 EAT'. R112 rules a page-local Window control for ev-work only.",
+  "disp": "Cite B7-02; (a)/(b) extend R112/R88 (D1 page-local Window control) to these five screens, or fold into the shared topbar fix behind B1-01."
+ },
+ {
+  "id": "B9-02",
+  "screens": [
+   "ev"
+  ],
+  "what": "B7-03 recurs on the EV Overview cards: no 'View detail' links; the card label is the link (EvSiteViews.tsx:483-488). Availability is hard-coded 'Not assessed / Connector availability is not assessed' (line 484) although its label links to the built Performance > Availability page (W5-03a): the card links to a page whose figure it denies. Charger condition is hard-coded 'Not assessed', unlinked (line 486), although EV Health is built (W5-03b, ev-health). Same on the no-selection and complete cases.",
+  "disp": "Cite B7-03. (c) D3: the R40 D5 expiry (Availability/Energy destinations built) was not applied to the EV Overview cards; read the selected availability/health or say why none. Label-as-link vs 'View detail': (c) D3 Low."
+ },
+ {
+  "id": "B9-03",
+  "screens": [
+   "ev"
+  ],
+  "what": "B7-04 only partly recurs: EV timeline labels state the event ('Session started', 'Connector fault', 'Session aborted') with red tone for the fault, so the cold 'role · Observed' defect does not recur. New: the timeline is padded to a fixed 7 slots (CHRONOLOGY_SLOTS = 7, EvSiteViews.tsx:499/525), so the interrupted case shows 3 events plus 4 'No accepted event' placeholders with dash times, and no-selection shows 7 placeholders; they read as 4 (or 7) missing events rather than one empty state. Each event line carries 'REC {full UUID}' (B1-53).",
+  "disp": "Event wording: B7-04 does not recur (informational). Placeholder slots: (c) D3 Low (render accepted events only, one gap line when none). UUIDs: B1-53."
+ },
+ {
+  "id": "B9-04",
+  "screens": [
+   "ev"
+  ],
+  "what": "Overview residue against the mock: Next step has 'Review recommendation · Not available yet' text where the mock has the 'Review recommendation' button (ev-recommendation is outside W1-W6, so the entry is honest); Needs attention has 1 item, no F-code ('Open Finding' vs 'Findings › F-130'), producer state; the Single line diagram link sits under the chart with a 14 px note instead of top-right of the panel header (M8 itself closed); chart is connector-energy bars + site-import line vs the mock single line chart. Strip narrative is 'Registered test reports; not physical charger observations.' vs the mock's assessment summary. No-selection money panel repeats 'No gross tariff scenario assessed' as headline and sentence.",
+  "disp": "Recommendation: honest unavailable entry, no action. F-code: (a) extend R65 (D1) to EV. SLD placement and money repetition: (c) D3 Low. Chart form / strip narrative: (b) D1/D2 for the Architect."
+ },
+ {
+  "id": "B9-05",
+  "screens": [
+   "ev",
+   "ev-evidence",
+   "ev-evidence-analysis",
+   "ev-financials",
+   "ev-assumptions"
+  ],
+  "cases": [
+   "refused"
+  ],
+  "what": "Refused (from > to) EV states drop the page furniture that the cold M3 fix restored: Overview keeps a bare 'Unknown · Confidence: Unknown' strip but drops the window line, objective line and all 5 tiles; Evidence drops the window line and strip; Analysis drops the window line and strip; Financials drops the window line, strip and all 4 tiles. No refusal banner says why; every panel shows the same italic 'Choose a valid UTC start and end, up to 31 days.' (B7-11 one-generic-error pattern; the sentence differs from cold's). Assumptions (a site-scoped read) refuses its only panel the same way (B7-10). W2-F M3 was scoped to the W2-04 cold screens, so this is a parity gap, not a reopen.",
+  "disp": "(c) D3 (Medium): apply the cold M3 treatment (keep strip + tiles with gap values and a refusal line) to the EV Site screens. Copy: cite B7-11 (carried domainActionClient item). Assumptions refusal: cite B7-10 (D2/D3 Low, Architect)."
+ },
+ {
+  "id": "B9-06",
+  "screens": [
+   "ev-evidence"
+  ],
+  "what": "B7-07 recurs: strip right entry 'Portfolio evidence · Not available yet' although /evidence is built (W3-02); Next step 'Review financials' for Delivered energy where the mock has 'Review energy' (Energy page built, R40); Cause of interruption next step 'Work · Not available yet' although EV Work is built (W5-04a); Contact 'Unknown' on every source and titles 'Contact at window end'/'Accepted quality' vs 'Status at window end'/'Quality'; adds 'Source details' and 'Capability details' disclosures (Data sources 1.25x at 1440). New: 'Most useful next evidence' is padded to 3 with two 'No further evidence request recorded' rows (EvSiteViews.tsx:975). Complete case: 'Cause of interruption: Limited · Cause not established' although that window has 0 aborts and nothing was interrupted.",
+  "disp": "Cite B7-07. Portfolio link, Review energy, Work: (c) D3 (destinations built; R40 expiry not applied). Contact Unknown / titles: (b) D1 + D2. Padding rows: (c) D3 Low. Complete-case Cause row: (c) D3 Low consistency, or D1 if the wire rates it so (Architect)."
+ },
+ {
+  "id": "B9-07",
+  "screens": [
+   "ev-evidence-analysis"
+  ],
+  "what": "B7-08 recurs: Record cell 'REC {full UUID} · No analysis link' wraps to 3 lines; sample rows are window-start rows (connector status Authorizing/Unplugged, session started) rather than claim-relevant records; adds 'Record details' and 'Claim details' disclosures; panel 1.50x at 1440 (399 vs 266 px; interrupted, no-window, complete), 0.96x at 390. Received/Sent are time-only but share the date here, so the late-arrival comparison stays readable (the B7-08 date defect is latent). Measured column fixed EAT on a UTC Site (B9-X1). M10 closed. No-selection: both panels collapse to one gap line each (honest).",
+  "disp": "Cite B7-08. Height 1.50x: measured reason = 3-line record cells + disclosures; needs a reviewed ruling. Record cell: R38 precedent + B1-53."
+ },
+ {
+  "id": "B9-08",
+  "screens": [
+   "ev-financials"
+  ],
+  "what": "Close match: same 3 panels, strip, 4 tiles, 3 rows and 6 columns. Source cells 'Sessions' / 'Finding' vs mock 'Energy' / 'F-130' (Energy page built); third row 'No linked page for this item' vs 'Warranty' (warranty is outside W1-W6); Basis chip grey vs purple; adds 'Basis details'/'Assumption details' disclosures; Collections 'Not recorded' vs 'Unknown'. M5 closed (3 lines/3 rows interrupted; 1 line/1 row complete). M12 closed. Portfolio roll-up: B3-15.",
+  "disp": "F-code: (a) extend R65 (D1). Energy source link: (c) D3 Low (destination built). Warranty: honest gap, no action. Chip colour/wording: (b) D2 low (Architect)."
+ },
+ {
+  "id": "B9-09",
+  "screens": [
+   "ev-assumptions"
+  ],
+  "what": "Close match (3 rows, same columns, same footnote). Adds a Selected-window line plus 'Generated test data' and a 'Tariff published ... applied as a scenario ...' line (mock none); Billing/collections 'No record' plain text where the mock has a 'Not connected' chip; a refused window refuses the whole site-scoped panel (B7-10).",
+  "disp": "Cite B7-10. Window line / refusal: (b) D2 low or (c) D3 Low (Architect). Missing chip: (c) D3 Low."
+ },
+ {
+  "id": "B9-10",
+  "screens": [],
+  "what": "Cross-check outside the batch IDs: the EV Site Findings list (route /sites/EV-LAB-001/findings, mock id ev-findings, NOT a batch-09 ID; captured in part-findings-check/ and not counted as pairs) has the same defect as B7-01. It renders the mini-grid dispatch index ('Findings list closed for this Site / Not released for this Site / This Site's assessments are not released, so no Findings list can be shown. It is not empty. / Mini-grid dispatch Findings at this site'; body 'No Performance comparison report exists for this Site; the file-backed comparison must run'; 0 rows) while GET /api/sites/EV-LAB-001/ev/findings for the interrupted window returns CURRENT with 1 item ('Observed EV charging interruption', revision ...025c), which the EV Overview links via 'Open Finding'.",
+  "disp": "Cite B7-01 (High, D3): same false reason on the EV Site; route to the same W2 fix slice. ev-findings is listed outside W1-W6 in the spec, so the Architect should decide what the mounted route shows for an EV Site."
+ },
+ {
+  "id": "B9-11",
+  "screens": [
+   "ev",
+   "ev-evidence",
+   "ev-evidence-analysis",
+   "ev-financials",
+   "ev-assumptions"
+  ],
+  "what": "W2-F re-check at this SHA (interrupted case, same windows as W2-F capture.mjs): M5 closed (chip count = rows), M8 closed (live 'Single line diagram' link to /foundation/sld), M9 closed ('Needs attention' + 'Confidence: Bounded' chips), M10 closed (full distinct UUIDs on timeline and Analysis; readability in B9-07), M11 closed (Limited rows name what is missing: 'Connector status coverage not assessed', 'Charger diagnostics and vehicle request not recorded'), M12 closed (Scenarios subtab live on Financials and Assumptions). Panel set and order equal the mock on every pair, including refused and no-selection states (gap copy inside each panel).",
+  "disp": "Informational: no reopened W2-F finding."
+ }
+]
