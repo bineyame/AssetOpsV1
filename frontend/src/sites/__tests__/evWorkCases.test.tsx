@@ -285,6 +285,11 @@ describe("W5-04 V3a: EV Site > Work > Maintenance (v69 ev-work-maintenance)", ()
     );
   });
 
+  it("never applies the cold GENERATOR label mapping: the W4 asset label is shown exactly as selected (ruling 13)", async () => {
+    const { main } = await mountCases("maintenance", loaded(evCaseBody([evRequest(1, { asset_label: "unit-1 · GENERATOR" })])));
+    expect(text(main.querySelector("[data-work-asset]"))).toBe("unit-1 · GENERATOR");
+  });
+
   it("links a domain Action whose W4 href is null as the same plain label (no lineage)", async () => {
     const { main } = await mountCases("maintenance", loaded(evCaseBody([evRequest(1, { action_links: [evDomainActionLink(null)] })])));
     const link = main.querySelector(`[data-work-action-link="${EV_ACTION_ID}"]`) as HTMLElement;
