@@ -21,6 +21,7 @@ FROZEN = {
     "launcher": ".agent/post-W6-audit/batch-01/serve-one.py (starts ONE API of v01a serve mode with the tool's own env/tree; no writes)",
 }
 PRODUCER = {
+    "s602b": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare; serve --port 18101 --web-port 5181 (case API on 18102, authorised) (unmodified; owner authorization 2026-10-24); dropped by its drop mode with its 4 case DBs",
     "s601b": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit prepare; serve --port 18101 --web-port 5181 (unmodified; owner authorization 2026-10-24); dropped by its drop mode",
     "s701": "tools/s701_health_walkthrough.py --db assetops_s701_owner_audit --work var/s701_owner_audit prepare; serve --port 18101 --web-port 5181; deliver (unmodified; owner authorization 2026-10-24); dropped by its drop mode",
     "populated": "tools/v01a_foundation_walkthrough.py --db assetops_audit_b1_walk_test --empty-db assetops_audit_b1_empty_test "
@@ -28,6 +29,7 @@ PRODUCER = {
     "empty": "same prepare; serve-one.py --which empty --port 18101 (migrated DB, no Site)",
 }
 SELECTED = {
+    "s602b": "KOBO-001; replayed VERIFIED Action (manifest d-verification-window-v2); later-effect change e8873a43-cca3-41d5-b5ec-b96a9738ceb5",
     "s601b": "KOBO-001; Action d23ec457-3aa6-4a7e-8dca-7f8f76393c81; applied change f272ee05-9239-4a66-b63f-d2108e9d6ca4 (D-action-records builder, fixture clock 2026-10-29..11-01)",
     "s701": "KOBO-001 battery asset 2661fe42-55be-4ad4-bb96-9e653d18231a (condition Unknown); KOBO-002 (no battery) refusal with asset 00000000-0000-4000-8000-000000000000",
     "populated": "Site KOBO-001 (site_uuid 194c2aeb-9b2a-415e-9cd8-6df7292356eb), Foundation v13 rev ecd48de2-e29e-4251-9089-fe117ba36210, "
@@ -100,8 +102,10 @@ D = [
     ("B1-43", "sld", "Diagram panel is 1.63x/1.84x at 1440 and 3.84x/4.51x at 390. At 390 the app keeps the drawing full size in an inner horizontal scroller (952 px in 316 px), while the mock scales the diagram down to 318 px tall.",
      "Needs a reviewed ruling: candidate D2 (readability) or, if scale-to-fit is the faithful alternative, (c) D3. Measured reason: 9 parts in 4 rows plus a selected-part box and notes."),
     # changes
-    ("B1-50", "changes", "RESOLVED by the owner's producer scratch-DB authorization (2026-10-24, main 1db7360c): the unmodified s601b producer (assetops_s601b_audit) gave the applied change, captured as changes:applied at 1440/390. The s602b 'later effect' state is still not captured: s602b `serve`/`capture` always start a second, TEST-SCOPED API on --port+1 (18102), outside this batch's port allocation (18101/5181).",
-     "Resolved for applied. Effect state: needs a second API port (or a coordinator ruling), then rerun s602b unmodified."),
+    ("B1-50", "changes", "RESOLVED (fully) under the owner's producer scratch-DB authorization (2026-10-24): the unmodified s601b producer (assetops_s601b_audit) gave changes:applied, and the unmodified s602b producer (assetops_s602b_audit; replay API on 18101, its TEST-SCOPED API on the authorised 18102) gave changes:effect, each at 1440 and 390.",
+     "Resolved; no blocker remains."),
+    ("B1-55", "changes", "Effect state: the Target and Guardrails cards read 'Set in the plan' (with 'Frozen before the later window is judged' / 'Service, reserve and stored-energy limits') where the mock shows the values ('>=25% lower', '3 required'), although a frozen plan exists (step 1 links 'Inspect plan'). The 'Battery <uuid>' raw ID (B1-53) also appears here; there are no failed-attempt codes. Panel 1.20x/1.22x.",
+     "(c) D3 candidate if the change read carries the frozen plan target/guardrail count; otherwise candidate D1 (plan values are not on the change DTO). Architect to check the DTO."),
     ("B1-51", "changes", "No-selection and unknown-ID states: an amber notice 'No change selected... no list of Foundation changes yet' and two panels with one-line gap statements; the mock has a strip, 4 KPI cards, a before/proposed table, decision steps and a callout. Panel titles and order match (2/2).",
      "(b) candidate D1 (no Foundation change list); honest missing state."),
     # asset
@@ -138,7 +142,7 @@ def load(folder):
 
 
 pairs = []
-for folder, ev in (load("populated"), load("empty"), load("s601b"), load("s701")):
+for folder, ev in (load("populated"), load("empty"), load("s601b"), load("s701"), load("s602b")):
     for p in ev["pairs"]:
         a, m = p["app"], p["mock"]
         width = p["viewport"].split("x")[0]
@@ -182,7 +186,7 @@ for folder, ev in (load("populated"), load("empty"), load("s601b"), load("s701")
             "app_image": f"{folder}/{p['app_image']}", "mock_image": f"{folder}/{p['mock_image']}",
             "findings": diffs, "structure_note": verdict_note,
             "reviewer_verdict": "PROPOSED: needs Architect classification. "
-                                + ("Structural D3 candidate present. " if any(x in diffs for x in ("B1-02", "B1-06", "B1-07", "B1-14", "B1-21", "B1-22", "B1-25", "B1-53", "B1-54")) else "")
+                                + ("Structural D3 candidate present. " if any(x in diffs for x in ("B1-02", "B1-06", "B1-07", "B1-14", "B1-21", "B1-22", "B1-25", "B1-53", "B1-54", "B1-55")) else "")
                                 + (f"Panels >1.3x without a register ruling: {over}." if over else "No panel >1.3x."),
         })
 
@@ -206,7 +210,7 @@ out = {"batch": "01", "name": "W1 shell/Foundation", "ids": ["sites", "foundatio
            "domainActionClient_generic_window_error": "Not applicable: no domain-action window inputs on these screens; the Foundation reserve form was not submitted (capture-only).",
            "R88_R112_window_control": "Not applicable: no Window control on these screens.",
        },
-       "blockers": ["B1-50 resolved for the applied state (owner scratch-DB authorization). Remaining gap: the s602b 'later effect' change state needs a second API port (s602b serve/capture bind --port+1); not captured."],
+       "blockers": ["None. B1-50 fully resolved (s601b applied, s602b effect captured)."],
        "differences": [{"id": d[0], "screens": d[1], "observed": d[2], "proposed_disposition": d[3]} for d in D],
        "pairs": pairs}
 (HERE / "batch-01.json").write_text(json.dumps(out, indent=1, ensure_ascii=False), encoding="utf-8")

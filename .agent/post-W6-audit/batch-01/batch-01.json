@@ -34,7 +34,7 @@
   "asset": "/sites/:siteId/assets/:assetId mounted",
   "note": "/sites/:siteId/assets (SiteAssetsFrame, the 'Battery' list) is also mounted; it is the intermediate breadcrumb of `asset`, not the manifest `assets` register. Architect to confirm it stays out of the denominator."
  },
- "pair_count": 38,
+ "pair_count": 40,
  "representative_pairs": 12,
  "register_d3_closure": {
   "R22": "cold-health; not on batch-01 screens",
@@ -53,7 +53,7 @@
   "R88_R112_window_control": "Not applicable: no Window control on these screens."
  },
  "blockers": [
-  "B1-50 resolved for the applied state (owner scratch-DB authorization). Remaining gap: the s602b 'later effect' change state needs a second API port (s602b serve/capture bind --port+1); not captured."
+  "None. B1-50 fully resolved (s601b applied, s602b effect captured)."
  ],
  "differences": [
   {
@@ -221,8 +221,14 @@
   {
    "id": "B1-50",
    "screens": "changes",
-   "observed": "RESOLVED by the owner's producer scratch-DB authorization (2026-10-24, main 1db7360c): the unmodified s601b producer (assetops_s601b_audit) gave the applied change, captured as changes:applied at 1440/390. The s602b 'later effect' state is still not captured: s602b `serve`/`capture` always start a second, TEST-SCOPED API on --port+1 (18102), outside this batch's port allocation (18101/5181).",
-   "proposed_disposition": "Resolved for applied. Effect state: needs a second API port (or a coordinator ruling), then rerun s602b unmodified."
+   "observed": "RESOLVED (fully) under the owner's producer scratch-DB authorization (2026-10-24): the unmodified s601b producer (assetops_s601b_audit) gave changes:applied, and the unmodified s602b producer (assetops_s602b_audit; replay API on 18101, its TEST-SCOPED API on the authorised 18102) gave changes:effect, each at 1440 and 390.",
+   "proposed_disposition": "Resolved; no blocker remains."
+  },
+  {
+   "id": "B1-55",
+   "screens": "changes",
+   "observed": "Effect state: the Target and Guardrails cards read 'Set in the plan' (with 'Frozen before the later window is judged' / 'Service, reserve and stored-energy limits') where the mock shows the values ('>=25% lower', '3 required'), although a frozen plan exists (step 1 links 'Inspect plan'). The 'Battery <uuid>' raw ID (B1-53) also appears here; there are no failed-attempt codes. Panel 1.20x/1.22x.",
+   "proposed_disposition": "(c) D3 candidate if the change read carries the frozen plan target/guardrail count; otherwise candidate D1 (plan values are not on the change DTO). Architect to check the DTO."
   },
   {
    "id": "B1-51",
@@ -6920,6 +6926,7 @@
     "B1-05",
     "B1-06",
     "B1-50",
+    "B1-55",
     "B1-51",
     "B1-52",
     "B1-53",
@@ -7232,6 +7239,7 @@
     "B1-05",
     "B1-06",
     "B1-50",
+    "B1-55",
     "B1-51",
     "B1-52",
     "B1-53",
@@ -7537,6 +7545,7 @@
     "B1-05",
     "B1-06",
     "B1-50",
+    "B1-55",
     "B1-51",
     "B1-52",
     "B1-53",
@@ -7849,6 +7858,7 @@
     "B1-05",
     "B1-06",
     "B1-50",
+    "B1-55",
     "B1-51",
     "B1-52",
     "B1-53",
@@ -10575,6 +10585,7 @@
     "B1-05",
     "B1-06",
     "B1-50",
+    "B1-55",
     "B1-51",
     "B1-52",
     "B1-53",
@@ -10924,6 +10935,7 @@
     "B1-05",
     "B1-06",
     "B1-50",
+    "B1-55",
     "B1-51",
     "B1-52",
     "B1-53",
@@ -11229,6 +11241,7 @@
     "B1-05",
     "B1-06",
     "B1-50",
+    "B1-55",
     "B1-51",
     "B1-52",
     "B1-53",
@@ -11541,6 +11554,7 @@
     "B1-05",
     "B1-06",
     "B1-50",
+    "B1-55",
     "B1-51",
     "B1-52",
     "B1-53",
@@ -12869,6 +12883,693 @@
     "B1-66"
    ],
    "structure_note": "titles differ in text only (see differences)",
+   "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
+  },
+  {
+   "screen": "changes",
+   "case": "effect",
+   "width": "1440",
+   "representative": false,
+   "route": "/sites/KOBO-001/foundation/changes/e8873a43-cca3-41d5-b5ec-b96a9738ceb5",
+   "app_url": "http://localhost:5181/sites/KOBO-001/foundation/changes/e8873a43-cca3-41d5-b5ec-b96a9738ceb5",
+   "mock_hash": "#/changes",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare; serve --port 18101 --web-port 5181 (case API on 18102, authorised) (unmodified; owner authorization 2026-10-24); dropped by its drop mode with its 4 case DBs",
+   "selected": "KOBO-001; replayed VERIFIED Action (manifest d-verification-window-v2); later-effect change e8873a43-cca3-41d5-b5ec-b96a9738ceb5",
+   "window": "none (Foundation views use ?at= or now)",
+   "app_titles": [
+    "Change and effect",
+    "Decision path"
+   ],
+   "mock_titles": [
+    "Change and effect",
+    "Decision path"
+   ],
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Change and effect",
+     "app_h": 383,
+     "mock_title": "Change and effect",
+     "mock_h": 319,
+     "ratio": 1.2,
+     "over_limit": false,
+     "app_rows": 2,
+     "mock_rows": 4,
+     "app_columns": [
+      "Field",
+      "Before",
+      "After",
+      "Purpose"
+     ],
+     "mock_columns": [
+      "Field",
+      "Before",
+      "Proposed",
+      "Purpose"
+     ],
+     "app_links": [
+      "The Action (SYSTEM demonstration) →"
+     ],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": [
+      "Versions and records this change names"
+     ]
+    },
+    {
+     "title": "Decision path",
+     "app_h": 383,
+     "mock_title": "Decision path",
+     "mock_h": 319,
+     "ratio": 1.2,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [
+      "Inspect plan →",
+      "Application record →",
+      "Inspect accepted evidence →",
+      "View verification →",
+      "The outcome behind this state (opens as Historical) →"
+     ],
+     "mock_links": [
+      "Inspect plan →",
+      "Inspect accepted evidence →",
+      "View verification →"
+     ],
+     "app_chips": [
+      "Target met within every limit"
+     ],
+     "mock_chips": [],
+     "app_disclosures": []
+    }
+   ],
+   "max_ratio": 1.2,
+   "over_limit_panels": [],
+   "typography": {
+    "h1": {
+     "app": {
+      "text": "Kobo mini-grid",
+      "family": "system-ui",
+      "size": "27px",
+      "weight": "650",
+      "lineHeight": "33.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 44
+     },
+     "mock": {
+      "text": "Kobo Mini-grid",
+      "family": "system-ui",
+      "size": "27px",
+      "weight": "650",
+      "lineHeight": "33.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 165
+     }
+    },
+    "h2": {
+     "app": {
+      "text": "Change and effect",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Change and effect",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "prose": {
+     "app": null,
+     "mock": null
+    },
+    "td": {
+     "app": {
+      "text": "Battery reserve",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Stop threshold",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "th": {
+     "app": {
+      "text": "Field",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "14.4px",
+      "color": "rgb(107, 118, 144)"
+     },
+     "mock": {
+      "text": "Field",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "body": {
+     "app": {
+      "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "panel_paragraph_sizes": {
+     "app": {
+      "10px": 1,
+      "11px": 3
+     },
+     "mock": {
+      "11px": 3
+     }
+    },
+    "page_end_note": {
+     "app": {
+      "text": "There is no list of Site changes yet; a change is reached fr",
+      "family": "system-ui",
+      "size": "13px",
+      "weight": "400",
+      "lineHeight": "19.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Illustrative proposal. No real controller command is sent by",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "18.15px",
+      "color": "rgb(69, 96, 128)"
+     }
+    },
+    "prose_class_count": {
+     "app": 0,
+     "mock": 0
+    }
+   },
+   "colours": {
+    "body_bg": {
+     "app": "rgb(245, 247, 251)",
+     "mock": "rgb(245, 247, 251)"
+    },
+    "panel": {
+     "app": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     "mock": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    },
+    "rail": {
+     "app": {
+      "y": 0,
+      "w": 216,
+      "h": 1000,
+      "bg": "rgb(22, 35, 63)"
+     },
+     "mock": {
+      "y": 44,
+      "w": 204,
+      "h": 957,
+      "bg": "rgb(22, 35, 63)"
+     }
+    }
+   },
+   "shell": {
+    "first_panel_y": {
+     "app": 471,
+     "mock": 547
+    },
+    "dark_band_390_px": null,
+    "page_height": {
+     "app": 1000,
+     "mock": 1001
+    }
+   },
+   "tabs": {
+    "app": [
+     {
+      "label": "Breadcrumb",
+      "items": [
+       "Sites",
+       "Kobo mini-grid",
+       "Foundation",
+       "Change [current] [disabled]"
+      ]
+     },
+     {
+      "label": "Site sections",
+      "items": [
+       "Overview",
+       "Foundation [current]",
+       "Health",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "label": "Foundation views",
+      "items": [
+       "Site model",
+       "Single line diagram",
+       "Readiness",
+       "Change & effect [current]"
+      ]
+     }
+    ],
+    "mock": [
+     {
+      "label": "Context tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "label": "Section views",
+      "items": [
+       "Site model",
+       "Single line diagram",
+       "Readiness",
+       "Change & effect"
+      ]
+     }
+    ]
+   },
+   "overflow_x": 0,
+   "clipped_text_candidates": [
+    "Changed value"
+   ],
+   "clipped_note": "the listed leaves are visually-hidden labels/select text (sr-only clip), not clipped material text",
+   "inner_scrollers": [],
+   "app_image": "s602b/changes-effect-1440-app.png",
+   "mock_image": "s602b/changes-effect-1440-mock.png",
+   "findings": [
+    "B1-01",
+    "B1-02",
+    "B1-03",
+    "B1-04",
+    "B1-05",
+    "B1-06",
+    "B1-50",
+    "B1-55",
+    "B1-51",
+    "B1-52",
+    "B1-53",
+    "B1-54"
+   ],
+   "structure_note": "panel count and order match",
+   "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
+  },
+  {
+   "screen": "changes",
+   "case": "effect",
+   "width": "390",
+   "representative": false,
+   "route": "/sites/KOBO-001/foundation/changes/e8873a43-cca3-41d5-b5ec-b96a9738ceb5",
+   "app_url": "http://localhost:5181/sites/KOBO-001/foundation/changes/e8873a43-cca3-41d5-b5ec-b96a9738ceb5",
+   "mock_hash": "#/changes",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare; serve --port 18101 --web-port 5181 (case API on 18102, authorised) (unmodified; owner authorization 2026-10-24); dropped by its drop mode with its 4 case DBs",
+   "selected": "KOBO-001; replayed VERIFIED Action (manifest d-verification-window-v2); later-effect change e8873a43-cca3-41d5-b5ec-b96a9738ceb5",
+   "window": "none (Foundation views use ?at= or now)",
+   "app_titles": [
+    "Change and effect",
+    "Decision path"
+   ],
+   "mock_titles": [
+    "Change and effect",
+    "Decision path"
+   ],
+   "panel_count_match": true,
+   "panels": [
+    {
+     "title": "Change and effect",
+     "app_h": 501,
+     "mock_title": "Change and effect",
+     "mock_h": 411,
+     "ratio": 1.22,
+     "over_limit": false,
+     "app_rows": 2,
+     "mock_rows": 4,
+     "app_columns": [
+      "Field",
+      "Before",
+      "After",
+      "Purpose"
+     ],
+     "mock_columns": [
+      "Field",
+      "Before",
+      "Proposed",
+      "Purpose"
+     ],
+     "app_links": [
+      "The Action (SYSTEM demonstration) →"
+     ],
+     "mock_links": [],
+     "app_chips": [],
+     "mock_chips": [],
+     "app_disclosures": [
+      "Versions and records this change names"
+     ]
+    },
+    {
+     "title": "Decision path",
+     "app_h": 376,
+     "mock_title": "Decision path",
+     "mock_h": 353,
+     "ratio": 1.07,
+     "over_limit": false,
+     "app_rows": 0,
+     "mock_rows": 0,
+     "app_columns": [],
+     "mock_columns": [],
+     "app_links": [
+      "Inspect plan →",
+      "Application record →",
+      "Inspect accepted evidence →",
+      "View verification →",
+      "The outcome behind this state (opens as Historical) →"
+     ],
+     "mock_links": [
+      "Inspect plan →",
+      "Inspect accepted evidence →",
+      "View verification →"
+     ],
+     "app_chips": [
+      "Target met within every limit"
+     ],
+     "mock_chips": [],
+     "app_disclosures": []
+    }
+   ],
+   "max_ratio": 1.22,
+   "over_limit_panels": [],
+   "typography": {
+    "h1": {
+     "app": {
+      "text": "Kobo mini-grid",
+      "family": "system-ui",
+      "size": "23px",
+      "weight": "650",
+      "lineHeight": "28.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 127
+     },
+     "mock": {
+      "text": "Kobo Mini-grid",
+      "family": "system-ui",
+      "size": "23px",
+      "weight": "650",
+      "lineHeight": "28.75px",
+      "color": "rgb(23, 36, 59)",
+      "y": 339
+     }
+    },
+    "h2": {
+     "app": {
+      "text": "Change and effect",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "22.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Change and effect",
+      "family": "system-ui",
+      "size": "15px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "prose": {
+     "app": null,
+     "mock": null
+    },
+    "td": {
+     "app": {
+      "text": "Battery reserve",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Stop threshold",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "17.6px",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "th": {
+     "app": {
+      "text": "Field",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "14.4px",
+      "color": "rgb(107, 118, 144)"
+     },
+     "mock": {
+      "text": "Field",
+      "family": "system-ui",
+      "size": "9px",
+      "weight": "650",
+      "lineHeight": "normal",
+      "color": "rgb(117, 129, 152)"
+     }
+    },
+    "body": {
+     "app": {
+      "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "21px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+      "family": "system-ui",
+      "size": "14px",
+      "weight": "400",
+      "lineHeight": "normal",
+      "color": "rgb(23, 36, 59)"
+     }
+    },
+    "panel_paragraph_sizes": {
+     "app": {
+      "10px": 1,
+      "11px": 3
+     },
+     "mock": {
+      "11px": 3
+     }
+    },
+    "page_end_note": {
+     "app": {
+      "text": "There is no list of Site changes yet; a change is reached fr",
+      "family": "system-ui",
+      "size": "13px",
+      "weight": "400",
+      "lineHeight": "19.5px",
+      "color": "rgb(23, 36, 59)"
+     },
+     "mock": {
+      "text": "Illustrative proposal. No real controller command is sent by",
+      "family": "system-ui",
+      "size": "11px",
+      "weight": "400",
+      "lineHeight": "18.15px",
+      "color": "rgb(69, 96, 128)"
+     }
+    },
+    "prose_class_count": {
+     "app": 0,
+     "mock": 0
+    }
+   },
+   "colours": {
+    "body_bg": {
+     "app": "rgb(245, 247, 251)",
+     "mock": "rgb(245, 247, 251)"
+    },
+    "panel": {
+     "app": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     },
+     "mock": {
+      "bg": "rgb(255, 255, 255)",
+      "border": "rgb(224, 230, 239) 1px",
+      "radius": "7px"
+     }
+    },
+    "rail": {
+     "app": {
+      "y": 0,
+      "w": 390,
+      "h": 92,
+      "bg": "rgb(22, 35, 63)"
+     },
+     "mock": {
+      "y": 0,
+      "w": 0,
+      "h": 0,
+      "bg": "rgb(22, 35, 63)"
+     }
+    }
+   },
+   "shell": {
+    "first_panel_y": {
+     "app": 813,
+     "mock": 932
+    },
+    "dark_band_390_px": 92,
+    "page_height": {
+     "app": 1826,
+     "mock": 1905
+    }
+   },
+   "tabs": {
+    "app": [
+     {
+      "label": "Breadcrumb",
+      "items": [
+       "Sites",
+       "Kobo mini-grid",
+       "Foundation",
+       "Change [current] [disabled]"
+      ]
+     },
+     {
+      "label": "Site sections",
+      "items": [
+       "Overview",
+       "Foundation [current]",
+       "Health",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "label": "Foundation views",
+      "items": [
+       "Site model",
+       "Single line diagram",
+       "Readiness",
+       "Change & effect [current]"
+      ]
+     }
+    ],
+    "mock": [
+     {
+      "label": "Context tabs",
+      "items": [
+       "Overview",
+       "Foundation",
+       "Health",
+       "Performance",
+       "Findings",
+       "Work",
+       "Financials",
+       "Evidence"
+      ]
+     },
+     {
+      "label": "Section views",
+      "items": [
+       "Site model",
+       "Single line diagram",
+       "Readiness",
+       "Change & effect"
+      ]
+     }
+    ]
+   },
+   "overflow_x": 0,
+   "clipped_text_candidates": [
+    "Changed value"
+   ],
+   "clipped_note": "the listed leaves are visually-hidden labels/select text (sr-only clip), not clipped material text",
+   "inner_scrollers": [
+    {
+     "tag": "ol",
+     "cls": "site-tabs__list",
+     "client": 358,
+     "scroll": 521
+    }
+   ],
+   "app_image": "s602b/changes-effect-390-app.png",
+   "mock_image": "s602b/changes-effect-390-mock.png",
+   "findings": [
+    "B1-01",
+    "B1-02",
+    "B1-03",
+    "B1-04",
+    "B1-05",
+    "B1-06",
+    "B1-50",
+    "B1-55",
+    "B1-51",
+    "B1-52",
+    "B1-53",
+    "B1-54"
+   ],
+   "structure_note": "panel count and order match",
    "reviewer_verdict": "PROPOSED: needs Architect classification. Structural D3 candidate present. No panel >1.3x."
   }
  ]

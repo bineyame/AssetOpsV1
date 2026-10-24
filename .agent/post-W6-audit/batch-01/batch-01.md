@@ -19,9 +19,10 @@ Every disposition below is a **PROPOSAL**. The Architect classifies each one and
 Producers, all reviewed and run unmodified:
 - `v01a_foundation_walkthrough.py` prepare (a copy of `assetops_s4cases`, DBs `assetops_audit_b1_*_test`). Its APIs were started one at a time by `serve-one.py` with the tool's own env, because v01a's serve always starts two APIs.
 - `s601b_action_walkthrough.py` (`assetops_s601b_audit`), serve on 18101.
+- `s602b_verification_walkthrough.py` (`assetops_s602b_audit` plus its four case DBs), serve on 18101, with its TEST-SCOPED case API on the authorised 18102.
 - `s701_health_walkthrough.py` (`assetops_s701_owner_audit`), serve on 18101 plus deliver.
 
-The s601b and s701 DB names follow the owner's producer scratch-DB authorization (2026-10-24). Each DB was dropped by its producer's drop mode. There was no seeding, no API fabrication and no product edit; every spawned PID was stopped by PID.
+The `_audit` DB names follow the owner's producer scratch-DB authorization (2026-10-24). Each DB was dropped by its producer's drop mode. There was no seeding, no API fabrication and no product edit; every spawned PID was stopped by PID.
 
 ## Route reconciliation
 
@@ -35,9 +36,9 @@ The s601b and s701 DB names follow the owner's producer scratch-DB authorization
 
 ## Blockers / gaps
 
-- B1-50 resolved for the applied state (owner scratch-DB authorization). Remaining gap: the s602b 'later effect' change state needs a second API port (s602b serve/capture bind --port+1); not captured.
+- None. B1-50 fully resolved (s601b applied, s602b effect captured).
 
-## Pairs (38, 12 representative)
+## Pairs (40, 12 representative)
 
 | Screen | Case | Width | Rep | Count match | Max ratio | >1.3 panels | Dark band 390 | Differences | App | Mock |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -59,10 +60,10 @@ The s601b and s701 DB names follow the owner's producer scratch-DB authorization
 | sld | battery | 390 |  | True | 4.51 | Kobo mini-grid, What each part does | 92 | B1-01, B1-03, B1-04, B1-05, B1-06, B1-07, B1-40, B1-41, B1-42, B1-43 | [app](populated/sld-battery-390-app.png) | [mock](populated/sld-battery-390-mock.png) |
 | sld | unknown-part | 1440 |  | True | 2.23 | Kobo mini-grid, What each part does |  | B1-01, B1-03, B1-04, B1-05, B1-06, B1-07, B1-40, B1-41, B1-42, B1-43 | [app](populated/sld-unknown-part-1440-app.png) | [mock](populated/sld-unknown-part-1440-mock.png) |
 | sld | unknown-part | 390 |  | True | 3.84 | Kobo mini-grid, What each part does | 92 | B1-01, B1-03, B1-04, B1-05, B1-06, B1-07, B1-40, B1-41, B1-42, B1-43 | [app](populated/sld-unknown-part-390-app.png) | [mock](populated/sld-unknown-part-390-mock.png) |
-| changes | no-selection | 1440 |  | True | 0.3 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](populated/changes-no-selection-1440-app.png) | [mock](populated/changes-no-selection-1440-mock.png) |
-| changes | no-selection | 390 |  | True | 0.27 |  | 165 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](populated/changes-no-selection-390-app.png) | [mock](populated/changes-no-selection-390-mock.png) |
-| changes | unknown-id | 1440 |  | True | 0.3 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](populated/changes-unknown-id-1440-app.png) | [mock](populated/changes-unknown-id-1440-mock.png) |
-| changes | unknown-id | 390 |  | True | 0.27 |  | 157 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](populated/changes-unknown-id-390-app.png) | [mock](populated/changes-unknown-id-390-mock.png) |
+| changes | no-selection | 1440 |  | True | 0.3 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-55, B1-51, B1-52, B1-53, B1-54 | [app](populated/changes-no-selection-1440-app.png) | [mock](populated/changes-no-selection-1440-mock.png) |
+| changes | no-selection | 390 |  | True | 0.27 |  | 165 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-55, B1-51, B1-52, B1-53, B1-54 | [app](populated/changes-no-selection-390-app.png) | [mock](populated/changes-no-selection-390-mock.png) |
+| changes | unknown-id | 1440 |  | True | 0.3 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-55, B1-51, B1-52, B1-53, B1-54 | [app](populated/changes-unknown-id-1440-app.png) | [mock](populated/changes-unknown-id-1440-mock.png) |
+| changes | unknown-id | 390 |  | True | 0.27 |  | 157 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-55, B1-51, B1-52, B1-53, B1-54 | [app](populated/changes-unknown-id-390-app.png) | [mock](populated/changes-unknown-id-390-mock.png) |
 | asset | kobo001-battery | 1440 | yes | True | 1.25 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](populated/asset-kobo001-battery-1440-app.png) | [mock](populated/asset-kobo001-battery-1440-mock.png) |
 | asset | kobo001-battery | 390 | yes | True | 1.31 | Interpretation and next evidence | 92 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](populated/asset-kobo001-battery-390-app.png) | [mock](populated/asset-kobo001-battery-390-mock.png) |
 | asset | unknown-asset | 1440 |  | True | 0.4 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](populated/asset-unknown-asset-1440-app.png) | [mock](populated/asset-unknown-asset-1440-mock.png) |
@@ -71,14 +72,16 @@ The s601b and s701 DB names follow the owner's producer scratch-DB authorization
 | asset | unknown-site | 390 |  | False | 0.54 |  | 369 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](populated/asset-unknown-site-390-app.png) | [mock](populated/asset-unknown-site-390-mock.png) |
 | sites | empty | 1440 |  | True | 0.9 |  |  | B1-01, B1-03, B1-04, B1-05, B1-06, B1-07, B1-10, B1-11, B1-12, B1-13, B1-14, B1-15, B1-16 | [app](empty/sites-empty-1440-app.png) | [mock](empty/sites-empty-1440-mock.png) |
 | sites | empty | 390 |  | True | 1.02 |  | 92 | B1-01, B1-03, B1-04, B1-05, B1-06, B1-07, B1-10, B1-11, B1-12, B1-13, B1-14, B1-15, B1-16 | [app](empty/sites-empty-390-app.png) | [mock](empty/sites-empty-390-mock.png) |
-| changes | applied | 1440 | yes | True | 1.26 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](s601b/changes-applied-1440-app.png) | [mock](s601b/changes-applied-1440-mock.png) |
-| changes | applied | 390 | yes | True | 1.34 | Change and effect | 92 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](s601b/changes-applied-390-app.png) | [mock](s601b/changes-applied-390-mock.png) |
-| changes | no-selection-s601b | 1440 |  | True | 0.3 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](s601b/changes-no-selection-s601b-1440-app.png) | [mock](s601b/changes-no-selection-s601b-1440-mock.png) |
-| changes | no-selection-s601b | 390 |  | True | 0.27 |  | 165 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-51, B1-52, B1-53, B1-54 | [app](s601b/changes-no-selection-s601b-390-app.png) | [mock](s601b/changes-no-selection-s601b-390-mock.png) |
+| changes | applied | 1440 | yes | True | 1.26 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-55, B1-51, B1-52, B1-53, B1-54 | [app](s601b/changes-applied-1440-app.png) | [mock](s601b/changes-applied-1440-mock.png) |
+| changes | applied | 390 | yes | True | 1.34 | Change and effect | 92 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-55, B1-51, B1-52, B1-53, B1-54 | [app](s601b/changes-applied-390-app.png) | [mock](s601b/changes-applied-390-mock.png) |
+| changes | no-selection-s601b | 1440 |  | True | 0.3 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-55, B1-51, B1-52, B1-53, B1-54 | [app](s601b/changes-no-selection-s601b-1440-app.png) | [mock](s601b/changes-no-selection-s601b-1440-mock.png) |
+| changes | no-selection-s601b | 390 |  | True | 0.27 |  | 165 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-55, B1-51, B1-52, B1-53, B1-54 | [app](s601b/changes-no-selection-s601b-390-app.png) | [mock](s601b/changes-no-selection-s601b-390-mock.png) |
 | asset | kobo001-s701 | 1440 |  | True | 1.25 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](s701/asset-kobo001-s701-1440-app.png) | [mock](s701/asset-kobo001-s701-1440-mock.png) |
 | asset | kobo001-s701 | 390 |  | True | 1.31 | Interpretation and next evidence | 92 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](s701/asset-kobo001-s701-390-app.png) | [mock](s701/asset-kobo001-s701-390-mock.png) |
 | asset | refusal-kobo002 | 1440 |  | True | 0.4 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](s701/asset-refusal-kobo002-1440-app.png) | [mock](s701/asset-refusal-kobo002-1440-mock.png) |
 | asset | refusal-kobo002 | 390 |  | True | 0.46 |  | 92 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-07, B1-60, B1-61, B1-62, B1-63, B1-64, B1-65, B1-66 | [app](s701/asset-refusal-kobo002-390-app.png) | [mock](s701/asset-refusal-kobo002-390-mock.png) |
+| changes | effect | 1440 |  | True | 1.2 |  |  | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-55, B1-51, B1-52, B1-53, B1-54 | [app](s602b/changes-effect-1440-app.png) | [mock](s602b/changes-effect-1440-mock.png) |
+| changes | effect | 390 |  | True | 1.22 |  | 92 | B1-01, B1-02, B1-03, B1-04, B1-05, B1-06, B1-50, B1-55, B1-51, B1-52, B1-53, B1-54 | [app](s602b/changes-effect-390-app.png) | [mock](s602b/changes-effect-390-mock.png) |
 
 ## Differences and proposed dispositions
 
@@ -136,8 +139,10 @@ The s601b and s701 DB names follow the owner's producer scratch-DB authorization
   - PROPOSED: (b) candidate D1 (no role/reporting description stored) plus candidate D2 (per-part rows). Panel 2.23x at 1440, 1.95x at 390: measured reason is the 10 rows plus the intro and disclosure; needs a ruling.
 - **B1-43** (sld): Diagram panel is 1.63x/1.84x at 1440 and 3.84x/4.51x at 390. At 390 the app keeps the drawing full size in an inner horizontal scroller (952 px in 316 px), while the mock scales the diagram down to 318 px tall.
   - PROPOSED: Needs a reviewed ruling: candidate D2 (readability) or, if scale-to-fit is the faithful alternative, (c) D3. Measured reason: 9 parts in 4 rows plus a selected-part box and notes.
-- **B1-50** (changes): RESOLVED by the owner's producer scratch-DB authorization (2026-10-24, main 1db7360c): the unmodified s601b producer (assetops_s601b_audit) gave the applied change, captured as changes:applied at 1440/390. The s602b 'later effect' state is still not captured: s602b `serve`/`capture` always start a second, TEST-SCOPED API on --port+1 (18102), outside this batch's port allocation (18101/5181).
-  - PROPOSED: Resolved for applied. Effect state: needs a second API port (or a coordinator ruling), then rerun s602b unmodified.
+- **B1-50** (changes): RESOLVED (fully) under the owner's producer scratch-DB authorization (2026-10-24): the unmodified s601b producer (assetops_s601b_audit) gave changes:applied, and the unmodified s602b producer (assetops_s602b_audit; replay API on 18101, its TEST-SCOPED API on the authorised 18102) gave changes:effect, each at 1440 and 390.
+  - PROPOSED: Resolved; no blocker remains.
+- **B1-55** (changes): Effect state: the Target and Guardrails cards read 'Set in the plan' (with 'Frozen before the later window is judged' / 'Service, reserve and stored-energy limits') where the mock shows the values ('>=25% lower', '3 required'), although a frozen plan exists (step 1 links 'Inspect plan'). The 'Battery <uuid>' raw ID (B1-53) also appears here; there are no failed-attempt codes. Panel 1.20x/1.22x.
+  - PROPOSED: (c) D3 candidate if the change read carries the frozen plan target/guardrail count; otherwise candidate D1 (plan values are not on the change DTO). Architect to check the DTO.
 - **B1-51** (changes): No-selection and unknown-ID states: an amber notice 'No change selected... no list of Foundation changes yet' and two panels with one-line gap statements; the mock has a strip, 4 KPI cards, a before/proposed table, decision steps and a callout. Panel titles and order match (2/2).
   - PROPOSED: (b) candidate D1 (no Foundation change list); honest missing state.
 - **B1-60** (asset): Asset-rooted chrome absent: the mock has the Assets rail entry active, breadcrumb Assets > BAT-001 > Health, asset tabs (Overview, Health, Performance, Configuration, Work, Evidence, Warranty) and an 'Open site' button. The app is Site-rooted (Sites active, Site tabs, breadcrumb Sites / Kobo mini-grid / Health / Battery).
