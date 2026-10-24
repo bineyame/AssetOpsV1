@@ -88,6 +88,17 @@ def test_declare_and_attest_use_current_work_window(replayed, tmp_path) -> None:
         assert P.instant(sw["from"]) <= P.instant(at) < P.instant(sw["to"]), name
 
 
+def test_worstcase_adds_four_long_actions_through_the_public_routes(replayed) -> None:
+    """W5-04 V2b (re-review M1): the walkthrough `worstcase` mode posts ACT-000002..5 with 160-code-point title and
+    owner and their intents after the declared Action, and the Work window W lists all five."""
+    built = walk._declare(URL, "worstcase", "fx", replayed)
+    worst = walk._worstcase(URL, "fx", built)
+    assert [r["action_code"] for r in worst["actions"]] == ["ACT-000002", "ACT-000003", "ACT-000004", "ACT-000005"]
+    assert all(r["title_code_points"] == r["owner_code_points"] == 160 and r["intent_id"] for r in worst["actions"])
+    assert worst["index_total_count"] == 5
+    assert walk.DB_MODES == ("positive", "zero", "worstcase", "unknown") and walk.PORTS["worstcase"] == 8983
+
+
 def test_drop_stops_only_recorded_pids_and_drops_only_marker_dbs() -> None:
     """Cleanup of owned processes/DB: a recorded child PID is stopped and a marker-listed `w504a_*_test` DB dropped;
     a marker entry that is not a `w504a_*_test` name is never dropped."""

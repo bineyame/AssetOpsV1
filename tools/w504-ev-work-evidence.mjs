@@ -15,12 +15,8 @@
  *   Actions panel with a healthy Site read), unavailable-503 (the walkthrough's stopped API: the browser proxy fails
  *   every read, so this is a Site-level refusal, recorded as such) and window-error (a user-opened invalid Window,
  *   ruling 51: measured and reported, exempt from height caps).
- * Seed (between the phases, once): four further EV Actions in the positive DB through the public domain-work routes,
- *   posted in-process by a child with the walkthrough's SERVICE principal (the served API refuses HTTP writes), with
- *   the same selected Finding revision and intent basis the walkthrough posted, 160-code-point title and owner, raised
- *   now; the positive Work window then holds a five-row page (lesson 15 worst case). Each POST status and ID is written
- *   to the measurements file. It never touches the zero DB.
- * Phase B, per width: worst-folded (closed: four visible rows, `Show all 5 Actions`, every cap) and worst-expanded
+ * Phase B, per width, on the walkthrough's own `worstcase` mode (pre-flight 23: V1b's walkthrough produces every
+ *   fixture and this `.mjs` only captures; re-review M1): worst-folded (closed: four visible rows, `Show all 5 Actions`, every cap) and worst-expanded
  *   (Show all plus every `Read full text` open: ruling 26 exempts page/panel/strip heights; full text, containment,
  *   one-line codes and zero document overflow stay gated).
  *
@@ -48,7 +44,8 @@ const WIDTHS = [
   ["narrow", 390, 900],
 ];
 // Build spec "Measurements" caps [1440, 390]; ruling 50 adds the successful-zero Actions panel cap.
-const CAPS = { main: [1600, 2000], strip: [100, 150], panel: [650, 850], zeroPanel: [460, 560], notice: [110, 160] };
+// Ruling 50 also caps the closed non-loaded (refused) state panel at 360/590 (re-review Low-1).
+const CAPS = { main: [1600, 2000], strip: [100, 150], panel: [650, 850], zeroPanel: [460, 560], statePanel: [360, 590], notice: [110, 160] };
 mkdirSync(OUT, { recursive: true });
 
 const profile = mkdtempSync(join(tmpdir(), "assetops-w504b-cdp-"));
@@ -61,7 +58,6 @@ console.log(`chrome pid ${chrome.pid}`);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const results = [];
 const captures = [];
-const seeded = [];
 function claim(name, ok, detail) {
   results.push({ name, ok, detail });
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}${detail === undefined ? "" : `  ${JSON.stringify(detail)}`}`);
@@ -302,63 +298,12 @@ async function record(W, wi, state, url, afterLoad) {
 
 const P = manifest.modes.positive;
 const Z = manifest.modes.zero;
+const WC = manifest.modes.worstcase;
 const proc = manifest.processes ?? {};
 const base = (name) => `${HOST}:${proc[name].port - 3500}`;
 const q = (params) => new URLSearchParams(params).toString();
 const W_ = P.work_window_W;
 const dayBefore = (iso) => new Date(Date.parse(iso) - 86400000).toISOString().replace(".000Z", "Z");
-
-/**
- * Lesson 15 worst case: four more EV Actions with 160-code-point title/owner in the positive DB. The served API refuses
- * HTTP writes (`WORK_WRITE_FORBIDDEN`: its operator grant is read-only for commands), so, exactly as the V1b
- * walkthrough's own `prepare`/`attest` children do, a child process posts through the public domain-work routes
- * in-process with the walkthrough's SERVICE principal (`w504_ev_work_walkthrough._clients`), reusing the walkthrough's
- * posted Finding revision and intent basis. No SQL, no fixture constant; every status and ID lands in the output.
- */
-const SEED = String.raw`
-import json, sys
-from datetime import datetime, timezone
-sys.path.insert(0, sys.argv[1])
-import w504_ev_work_walkthrough as Wk
-db, site, key, action_posted, intent_posted = sys.argv[2], sys.argv[3], sys.argv[4], json.loads(sys.argv[5]), json.loads(sys.argv[6])
-import os
-os.environ["DATABASE_URL"] = Wk._PG_URL_PREFIX + db  # the product app reads it, as the walkthrough child sets it
-client, _ = Wk._clients(Wk._PG_URL_PREFIX + db)
-now = lambda: datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-out = []
-for n in range(2, 6):
-    title = ("Investigate connector %d — long title proof " % n + "x" * 160)[:160]
-    owner = ("Charging operations %d — long owner proof " % n + "y" * 160)[:160]
-    a = client.post("/api/sites/%s/domain-work/actions" % site, json={**action_posted, "title": title, "owner_label": owner, "raised_at": now(), "idempotency_key": "w504b-worst-action-%d-%s" % (n, key)})
-    body = a.json()
-    row = {"n": n, "action_status": a.status_code, "action_id": body.get("id"), "action_code": body.get("action_code"), "title_code_points": len(title), "owner_code_points": len(owner)}
-    if a.status_code in (200, 201):
-        i = client.post("/api/sites/%s/domain-work/actions/%s/intents" % (site, body["id"]), json={**intent_posted, "declared_at": now(), "idempotency_key": "w504b-worst-intent-%d-%s" % (n, key)})
-        row.update({"intent_status": i.status_code, "intent_id": i.json().get("intent_id"), "refusal": None if i.status_code in (200, 201) else i.json()})
-    else:
-        row.update({"intent_status": None, "intent_id": None, "refusal": body})
-    out.append(row)
-print("SEED " + json.dumps(out))
-`;
-async function seedWorstCase() {
-  const repo = join(import.meta.dirname, "..");
-  const py = join(repo, ".venv", "Scripts", "python.exe");
-  const env = { ...process.env, PYTHONPATH: ["backend", "gateway", "simulator", "contracts", "host", "tools"].map((d) => join(repo, d)).join(";") };
-  for (const k of Object.keys(env)) if (k.startsWith("ASSETOPS_TEST_")) delete env[k];
-  const args = ["-c", SEED, join(repo, "tools"), proc.positive.db, SITE, manifest.revision.slice(0, 8), JSON.stringify(P.action_posted), JSON.stringify(P.intent_posted)];
-  const child = spawn(py, args, { cwd: join(repo, "backend"), env, stdio: ["ignore", "pipe", "pipe"] });
-  let stdout = "";
-  let stderr = "";
-  child.stdout.on("data", (d) => (stdout += d));
-  child.stderr.on("data", (d) => (stderr += d));
-  const exit = await new Promise((res) => child.on("close", res));
-  const line = stdout.split(String.fromCharCode(10)).map((l) => l.trim()).find((l) => l.startsWith("SEED "));
-  claim("seed: child exited 0 and reported its POSTs", exit === 0 && Boolean(line), { exit, stderr: stderr.slice(-600) });
-  for (const row of line ? JSON.parse(line.slice(5)) : []) {
-    seeded.push(row);
-    claim(`seed ${row.n}: Action ${row.action_status} and intent ${row.intent_status} through the public domain-work routes (SERVICE principal, in-process)`, [200, 201].includes(row.action_status) && [200, 201].includes(row.intent_status), row);
-  }
-}
 
 async function main() {
   ws = await connect();
@@ -373,6 +318,11 @@ async function main() {
   await send("Runtime.enable");
 
   claim("manifest: positive and zero ready (ruling 39)", P?.status === "ready" && Z?.status === "ready", { positive: P?.status, zero: Z?.status });
+  const worstIds = [WC?.action?.id, ...(WC?.worstcase?.actions ?? []).map((a) => a.action_id)];
+  claim("manifest: walkthrough worstcase ready with ACT-000001..5, four 160-code-point additions and intents, served (re-review M1)",
+    WC?.status === "ready" && WC.worstcase?.index_total_count === 5 && JSON.stringify((WC.worstcase?.actions ?? []).map((a) => a.action_code)) === JSON.stringify(["ACT-000002", "ACT-000003", "ACT-000004", "ACT-000005"])
+      && (WC.worstcase?.actions ?? []).every((a) => a.title_code_points === 160 && a.owner_code_points === 160 && a.intent_id) && Boolean(proc.worstcase),
+    { status: WC?.status, total: WC?.worstcase?.index_total_count, actions: WC?.worstcase?.actions ?? null, port: proc.worstcase?.port ?? null });
   for (const k of ["pending", "stale", "unknown"]) {
     const mode = manifest.modes[k] ?? {};
     info(`manifest ${k}: browser capture ${mode.status === "ready" ? "available" : "unavailable"} (ruling 54; pure component vector)`, { status: mode.status ?? null, reason: mode.reason ?? null });
@@ -411,7 +361,7 @@ async function main() {
     m = await record(W, wi, "forbidden-403", forbiddenUrl);
     claim(`${W} forbidden-403: Site read healthy, refusal inside the Actions panel`, m.siteRefusal === null && m.panelState === "refused" && Boolean(m.refusal), { siteRefusal: m.siteRefusal, panel: m.panelState, refusal: m.refusal });
     claim(`${W} forbidden-403: 'EV work unavailable', server message, Retry visible; no row, no zero`, /EV work unavailable/.test(m.refusalText ?? "") && Boolean(m.refusalMessage) && !/unexpected shape|could not be reached/.test(m.refusalMessage ?? "") && m.retryVisible === true && m.rowCount === 0 && /— actions$/.test(m.scope ?? ""), { text: m.refusalText, scope: m.scope });
-    caps(W, "forbidden-403", m, wi);
+    caps(W, "forbidden-403", m, wi, { panelCap: CAPS.statePanel });
 
     m = await record(W, wi, "unavailable-503", unavailableUrl);
     info(`${W} unavailable-503: the walkthrough stops this API, so every read fails at the proxy (Site-level refusal, not an in-panel EV 503)`, { siteRefusal: m.siteRefusal, panel: m.panelState });
@@ -430,18 +380,19 @@ async function main() {
     info(`${W} window-error: Window height`, m.window?.height ?? null);
   }
 
-  await seedWorstCase();
+  const WW = WC.work_window_W;
+  const worstUrl = `${base("worstcase")}/sites/${SITE}/work?${q({ from: WW.from, to: WW.to })}`;
 
   for (const [wi, [W, width, height]] of WIDTHS.entries()) {
     await size(width, height);
     let m;
-    m = await record(W, wi, "worst-folded", positiveUrl);
+    m = await record(W, wi, "worst-folded", worstUrl);
     claim(`${W} worst-folded: 5 rows on the page, 4 visible, 'Show all 5 Actions' (R108)`, m.rowsTotal === 5 && m.showAll === "Show all 5 Actions", { total: m.rowsTotal, visible: m.rowCount, showAll: m.showAll });
-    claim(`${W} worst-folded: '5 actions' count and 36-character Action IDs`, /· 5 actions$/.test(m.scope ?? "") && m.rows.every((r) => (r.id ?? "").length === 36), { scope: m.scope });
+    claim(`${W} worst-folded: '5 actions' count and 36-character Action IDs from the manifest`, /· 5 actions$/.test(m.scope ?? "") && m.rows.every((r) => (r.id ?? "").length === 36 && worstIds.includes(r.id)), { scope: m.scope });
     caps(W, "worst-folded", m, wi);
     rowClaims(W, "worst-folded", m, 4);
 
-    m = await record(W, wi, "worst-expanded", positiveUrl, async () => {
+    m = await record(W, wi, "worst-expanded", worstUrl, async () => {
       await js(`document.querySelector('[data-domain-work-show-all]').click()`);
       await waitFor(`!document.querySelector('[data-domain-work-show-all]')`);
       await js(`[...document.querySelectorAll('[data-domain-work-row] details[data-disclosure^="domain-work-title-"], [data-domain-work-row] details[data-disclosure^="domain-work-owner-"]')].forEach((d) => { d.open = true; d.dispatchEvent(new Event('toggle')); })`);
@@ -455,7 +406,7 @@ async function main() {
   }
 
   const failed = results.filter((r) => !r.ok).length;
-  writeFileSync(join(OUT, "w504b-measurements.json"), JSON.stringify({ manifest_revision: manifest.revision, caps: CAPS, seeded, captures, claims: results, failed }, null, 2));
+  writeFileSync(join(OUT, "w504b-measurements.json"), JSON.stringify({ manifest_revision: manifest.revision, caps: CAPS, worstcase: WC?.worstcase ?? null, captures, claims: results, failed }, null, 2));
   console.log(`${results.filter((r) => r.ok && !r.info).length} PASS, ${failed} FAIL, ${results.filter((r) => r.info).length} INFO`);
   return failed;
 }

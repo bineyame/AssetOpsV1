@@ -13,6 +13,10 @@
   then reads K0 over the evidence window E through the public EV routes (readiness 29) and posts the positive Action
   ('Investigate connector 2' / 'Charging operations' / due null, raised at current DB time) and its intent through
   the public domain-work routes. `zero` never gets an INC or WR and both W4 case reads over W are complete zero.
+  `worstcase` (W5-04 V2b, re-review M1; the W5-02 cold precedent) replays the same positive scenario into its own DB,
+  declares the positive Action, then posts four more EV Actions (ACT-000002..5) with 160-code-point title and owner and
+  their intents through the same public domain-work routes and SERVICE principal, and records every ID; the Work
+  window W must list all five.
   `unknown` replays `ev-missing-meter` and is recorded only if the merged selector returns UNKNOWN; `pending` and
   `stale` are not produced by an unmodified registered replay and are recorded `unavailable`.
 - `serve`: one uvicorn API per ready DB mode, plus `forbidden` (positive DB, a principal granted no Site: real 403)
@@ -72,11 +76,11 @@ PG_ADMIN, _PG_URL_PREFIX = _server()
 MARKER = ".w504a-walkthrough-work"
 SCHEMA = "w504a-ev-work-walkthrough-2"
 FIXTURE_MODES = ("positive", "zero")
-DB_MODES = FIXTURE_MODES + ("unknown",)
+DB_MODES = FIXTURE_MODES + ("worstcase", "unknown")
 #: Not produced by an unmodified registered replay (build spec "EV producer, UI and registry"): pure vectors.
 UNPRODUCED = {"pending": "a late accepted event before W5-03 reassessment needs a modified replay",
               "stale": "a superseded source binding before reselection needs a modified replay"}
-PORTS = {"positive": 8981, "zero": 8982, "unknown": 8985, "forbidden": 8986, "unavailable": 8987}
+PORTS = {"positive": 8981, "zero": 8982, "worstcase": 8983, "unknown": 8985, "forbidden": 8986, "unavailable": 8987}
 PRINCIPAL = "service:w401-fixture"
 BLOCKED = 3
 DB_NAME = re.compile(r"w504a_[a-z]+_[a-z0-9]+_test")
@@ -252,6 +256,37 @@ def _declare(url: str, mode: str, tag: str, replayed: dict) -> dict:
             "zero_reads": reads}
 
 
+def _worstcase(url: str, tag: str, built: dict) -> dict:
+    """W5-04 V2b (re-review M1, lesson 15): four more EV Actions on the declared Finding with 160-code-point title and
+    owner, raised at current DB time, each with the declared intent basis, through the public domain-work routes and
+    the SERVICE principal (the W5-02 cold `worstcase` precedent). The Work window W must then list all five."""
+    app, _ = _clients(url)
+    code = P.SITE_CODE
+    base = f"/api/sites/{code}/domain-work/actions"
+    rows = []
+    for n in range(2, 6):
+        title = (f"Investigate connector {n} \u2014 long title proof " + "x" * 160)[:160]
+        owner = (f"Charging operations {n} \u2014 long owner proof " + "y" * 160)[:160]
+        if not (len(title) == len(owner) == 160):
+            raise P.ProducerRefused("the worst-case title/owner is not 160 code points")
+        now = _db_now(url)
+        posted = {**built["action_posted"], "title": title, "owner_label": owner, "raised_at": P.iso(now),
+                  "idempotency_key": f"w504a-worstcase-action-{n}-{tag}"}
+        action = _ok(app.post(base, json=posted), 201)
+        intent_posted = {**built["intent_posted"], "declared_at": P.iso(_db_now(url)),
+                         "idempotency_key": f"w504a-worstcase-intent-{n}-{tag}"}
+        intent = _ok(app.post(f"{base}/{action['id']}/intents", json=intent_posted), 201)
+        rows.append({"n": n, "action_id": action["id"], "action_code": action["action_code"],
+                     "recorded_at": _recorded(action, "recorded_at"), "intent_id": intent["intent_id"],
+                     "title_code_points": len(title), "owner_code_points": len(owner)})
+    lo, hi = P.instant(built["work_window_W"]["from"]), P.instant(built["work_window_W"]["to"])
+    index = _ok(app.get(f"/api/sites/{code}/domain-work/action-index", params=_bounds(lo, hi, limit=5)), 200)
+    ids = {built["action"]["id"].lower(), *(r["action_id"].lower() for r in rows)}
+    if index.get("total_count") != 5 or not ids <= P.listed_ids(index, "action_id"):
+        raise P.ProducerRefused(f"worstcase: W does not list the five Actions (total {index.get('total_count')})")
+    return {"actions": rows, "index_total_count": index["total_count"], "index_known_at": index.get("known_at")}
+
+
 def _work_urls(code: str, action_id: str, lo: datetime, hi: datetime) -> dict:
     query = urllib.parse.urlencode(_bounds(lo, hi))
     return {"actions": f"/sites/{code}/work?{query}", "incidents": f"/sites/{code}/work/incidents?{query}",
@@ -369,6 +404,8 @@ def child(op: str, mode: str, work: Path, tag: str) -> int:
             scenario = P.UNKNOWN_SCENARIO if mode == "unknown" else P.POSITIVE_SCENARIO
             replayed = native_replay(scenario, work / "chain" / mode)
             doc = _unknown(url, tag, replayed) if mode == "unknown" else _declare(url, mode, tag, replayed)
+            if mode == "worstcase":
+                doc["worstcase"] = _worstcase(url, tag, doc)
         else:
             doc = json.loads(out.read_text(encoding="utf-8"))
             doc["submitted"] = _attest(url, tag, doc)
