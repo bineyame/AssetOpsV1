@@ -11,7 +11,6 @@ import {
   CausalTimeline,
   DataTable,
   Disclosure,
-  ExactReferences,
   KeyValues,
   MetricCard,
   MetricCards,
@@ -25,8 +24,8 @@ import {
 import { UnavailableInline, UnavailableLinkEntry } from "../ui/UnavailableEntry";
 import { coldWindowSearch } from "./coldAssessmentClient";
 import { siteTime, siteZoneLabel } from "./siteTime";
-import { date, dayHm, hm } from "./coldFormat";
-import { EV_WINDOW_CANNOT_BE_READ, evRefusalText, isEvWindowRefusal, plural } from "./EvAssessmentViews";
+import { dayHm, hm } from "./coldFormat";
+import { NOT_ASSESSED, RefusedGap, RefusedHead, evRefusalText, plural } from "./EvAssessmentViews";
 import type { EvEnvelope, EvRead, EvWindowQuery } from "./evAssessmentClient";
 import type {
   EvAnalysisItem,
@@ -271,59 +270,9 @@ function Gap({ id, children }: { id: string; children: ReactNode }) {
 
 /* ---------- refused pages (post-W6 W2-EV R284, cross-card ruling 5) ---------- */
 
-const NOT_ASSESSED = "Not assessed";
 /** The Overview's five and the Financials' four tile labels, kept on a refused page with `Not assessed` values. */
 const OVERVIEW_TILES = ["Session service", "Availability", "Site power", "Charger condition", "Evidence"];
 const FINANCIAL_TILES = ["Delivered energy", "Gross tariff estimate", "Lost revenue", "Collections"];
-
-/**
- * A refused page keeps its strip and tile labels: a window refusal is titled "Window cannot be read" and never echoes
- * the invalid window; any other refusal keeps its own wording and the requested-window line. No page banner.
- */
-export function RefusedHead({ read, window, label, tiles }: { read: EvRead<unknown>; window: EvWindowQuery; label: string; tiles?: string[] }) {
-  if (read.status === "loaded") return null;
-  const windowRefusal = isEvWindowRefusal(read);
-  const requested = !windowRefusal && date(window.from) !== null && date(window.to) !== null;
-  return (
-    <>
-      {requested ? (
-        <p className="site-date-bar" data-ev-window data-ev-window-requested="">
-          <span className="site-date-bar__window">{`${dayHm(window.from)}–${dayHm(window.to)} UTC`}</span>
-          {date(window.known_at) === null ? null : <span className="site-date-bar__cutoff">{`known at ${dayHm(window.known_at)} UTC`}</span>}
-        </p>
-      ) : null}
-      <StatusBar label={label} data={{ "data-ev-strip": "refused" }}>
-        <Chip word={windowRefusal ? EV_WINDOW_CANNOT_BE_READ : "Unknown"} />
-        {windowRefusal ? null : <Chip word="Confidence: Unknown" />}
-      </StatusBar>
-      {tiles === undefined ? null : (
-        <MetricCards columns={tiles.length === 5 ? 5 : 4} label={`${label} tiles`}>
-          {tiles.map((t) => (
-            <MetricCard key={t} label={t} value={NOT_ASSESSED} tone="muted" word data={{ "data-ev-refused-card": t }} />
-          ))}
-        </MetricCards>
-      )}
-    </>
-  );
-}
-
-/** The one in-panel refusal sentence, with the typed status and code in a technical disclosure. */
-export function RefusedGap({ id, read }: { id: string; read: EvRead<unknown> }) {
-  if (read.status === "loaded") return null;
-  const references =
-    read.status === "refused"
-      ? [
-          { label: "Response status", value: String(read.httpStatus) },
-          { label: "Refusal code", value: read.code },
-        ]
-      : [{ label: "Read state", value: "No answer, or an answer that is not the documented shape" }];
-  return (
-    <>
-      <Gap id={id}>{evRefusalText(read)}</Gap>
-      <ExactReferences variant="tech" name="ev-refusal-detail" references={references} />
-    </>
-  );
-}
 
 /* ---------- shared strip pieces ---------- */
 

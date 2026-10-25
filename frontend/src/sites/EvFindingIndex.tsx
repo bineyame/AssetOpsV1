@@ -7,7 +7,7 @@ import { claimWord, lifecycleWord } from "./coldAssessmentWords";
 import { windowText } from "./coldFormat";
 import type { EvAssessmentClient, EvFindingsRead, EvRead, EvWindowQuery } from "./evAssessmentClient";
 import { renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
-import { RefusedGap, RefusedHead } from "./EvSiteViews";
+import { RefusedGap, RefusedHead } from "./EvAssessmentViews";
 import { LensChips } from "./SiteFindingIndex";
 
 export const EV_FINDING_INDEX_HEADING_ID = "ev-finding-index-heading";

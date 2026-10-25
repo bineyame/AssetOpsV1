@@ -238,6 +238,18 @@ const FINDING_PATH = `/sites/${CODE}/findings/${FINDING}?from=${FROM}&to=${TO}&k
 const main = () => document.querySelector("main") as HTMLElement;
 const strip = () => (document.querySelector(".status-strip") as HTMLElement).textContent ?? "";
 const cardValues = () => Array.from(document.querySelectorAll("[data-ev-card] .v69-metric__value")).map((x) => x.textContent);
+const refusedCards = () => Array.from(document.querySelectorAll("[data-ev-refused-card]")).map((x) => [x.querySelector(".v69-metric__label")?.textContent, x.querySelector(".v69-metric__value")?.textContent]);
+const count = (text: string) => (main().textContent ?? "").split(text).length - 1;
+/** post-W6 W2-EV R284 (cross-card ruling 5): strip title, then exactly one in-panel sentence with a technical disclosure. */
+function expectOneRefusal(status: number, copy: string, gapId: string) {
+  expect(strip()).toContain(status === 422 ? "Window cannot be read" : "Unknown");
+  expect(strip()).not.toContain(copy);
+  expect(count(copy)).toBe(1);
+  const gap = document.querySelector(`[data-panel-gap="${gapId}"]`) as HTMLElement;
+  expect(gap.textContent).toBe(copy);
+  expect(document.querySelector('[data-disclosure="ev-refusal-detail"]')).not.toBeNull();
+  expect(document.querySelector(".notice, [role=alert]")).toBeNull();
+}
 const rowCells = (n = 0) => Array.from(document.querySelectorAll("tbody tr")[n].querySelectorAll("td")).map((td) => td.textContent);
 const subtabs = (label: string) =>
   Array.from(document.querySelectorAll(`nav[aria-label="${label}"] li`)).map((li) => [
@@ -582,8 +594,13 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     renderEv(SESSIONS, refused(status, code));
     await settledScreen();
     expectV69Panels("sessions");
-    expect(strip()).toContain(copy);
-    expect(cardValues()).toEqual(["Unknown", "Unknown", "Unknown", "Unknown"]);
+    expectOneRefusal(status, copy, "ev-records");
+    expect(refusedCards()).toEqual([
+      ["Attempts", "Not assessed"],
+      ["Confirmed delivery", "Not assessed"],
+      ["Fault-aborted", "Not assessed"],
+      ["Incomplete", "Not assessed"],
+    ]);
     expect(document.querySelectorAll("[data-panel-gap]")).toHaveLength(3);
     expect(main().textContent).not.toContain("No charging sessions were observed in this window.");
   });
@@ -592,7 +609,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     renderEv(SESSIONS, { status: "unavailable", message: null });
     await settledScreen();
     expectV69Panels("sessions");
-    expect(strip()).toContain("EV evidence is temporarily unavailable. Retry.");
+    expectOneRefusal(503, "EV evidence is temporarily unavailable. Retry.", "ev-records");
   });
 });
 
@@ -781,7 +798,7 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     renderEv(FINDING_PATH, ok(STATES.complete), refused(status, code));
     await settledScreen();
     expectV69Panels("ev-finding");
-    expect(strip()).toContain(copy);
+    expectOneRefusal(status, copy, "ev-conclusion");
     expect(document.querySelectorAll("[data-panel-gap]")).toHaveLength(3);
   });
 });
@@ -983,6 +1000,7 @@ describe("post-W6 W2-EV R284: the Finding inherits the common window refusal cop
   ] as const)("finding refused 422 %s", async (code, copy) => {
     renderEv(FINDING_PATH, ok(STATES.complete), refused(422, code));
     await settledScreen();
-    expect((document.querySelector('[data-ev-strip="refused"]') as HTMLElement).textContent).toContain(copy);
+    expectOneRefusal(422, copy, "ev-conclusion");
+    expect(strip()).not.toContain("Confidence");
   });
 });

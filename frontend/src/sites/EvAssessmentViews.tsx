@@ -22,7 +22,7 @@ import { coldWindowSearch } from "./coldAssessmentClient";
 import { renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
 import { selectedSourceBlock } from "./sourceProvenance";
 import { classificationWord, lifecycleWord } from "./coldAssessmentWords";
-import { dayHm, hm, windowText } from "./coldFormat";
+import { date, dayHm, hm, windowText } from "./coldFormat";
 import type {
   EvAssessmentClient,
   EvDenominator,
@@ -105,6 +105,60 @@ export function evRefusalText(read: Exclude<EvRead<unknown>, { status: "loaded" 
 /** post-W6 W2-EV R284 (ruling 5): the refused-window title; every other refusal keeps its own wording. */
 export const EV_WINDOW_CANNOT_BE_READ = "Window cannot be read";
 export const isEvWindowRefusal = (read: EvRead<unknown> | null): boolean => read !== null && read.status === "refused" && read.httpStatus === 422;
+
+/* ---------- refused pages (post-W6 W2-EV R284, cross-card ruling 5; shared by the EV Site and assessment pages) ---------- */
+
+export const NOT_ASSESSED = "Not assessed";
+
+/**
+ * A refused page keeps its strip and tile labels: a window refusal is titled "Window cannot be read" and never echoes
+ * the invalid window; any other refusal keeps its own wording and the requested-window line. No page banner.
+ */
+export function RefusedHead({ read, window, label, tiles }: { read: EvRead<unknown>; window: EvWindowQuery; label: string; tiles?: string[] }) {
+  if (read.status === "loaded") return null;
+  const windowRefusal = isEvWindowRefusal(read);
+  const requested = !windowRefusal && date(window.from) !== null && date(window.to) !== null;
+  return (
+    <>
+      {requested ? (
+        <p className="site-date-bar" data-ev-window data-ev-window-requested="">
+          <span className="site-date-bar__window">{`${dayHm(window.from)}–${dayHm(window.to)} UTC`}</span>
+          {date(window.known_at) === null ? null : <span className="site-date-bar__cutoff">{`known at ${dayHm(window.known_at)} UTC`}</span>}
+        </p>
+      ) : null}
+      <StatusBar label={label} data={{ "data-ev-strip": "refused" }}>
+        <Badge tone="neutral" className="ev-chip ev-site-chip">{windowRefusal ? EV_WINDOW_CANNOT_BE_READ : "Unknown"}</Badge>
+        {windowRefusal ? null : <Badge tone="neutral" className="ev-chip ev-site-chip">Confidence: Unknown</Badge>}
+      </StatusBar>
+      {tiles === undefined ? null : (
+        <MetricCards columns={tiles.length === 5 ? 5 : 4} label={`${label} tiles`}>
+          {tiles.map((t) => (
+            <MetricCard key={t} label={t} value={NOT_ASSESSED} tone="muted" word data={{ "data-ev-refused-card": t }} />
+          ))}
+        </MetricCards>
+      )}
+    </>
+  );
+}
+
+/** The one in-panel refusal sentence, with the typed status and code in a technical disclosure. */
+export function RefusedGap({ id, read }: { id: string; read: EvRead<unknown> }) {
+  if (read.status === "loaded") return null;
+  const references =
+    read.status === "refused"
+      ? [
+          { label: "Response status", value: String(read.httpStatus) },
+          { label: "Refusal code", value: read.code },
+        ]
+      : [{ label: "Read state", value: "No answer, or an answer that is not the documented shape" }];
+  return (
+    <>
+      <Gap id={id}>{evRefusalText(read)}</Gap>
+      <ExactReferences variant="tech" name="ev-refusal-detail" references={references} />
+    </>
+  );
+}
+
 
 /* ---------- reads ---------- */
 
@@ -423,12 +477,13 @@ export function outsideOutcomesLine(read: EvSessionsRead | null): string | null 
   return `${outside} of ${d.started === 1 ? "1 attempt is" : `${d.started} attempts are`} outside these three outcomes; see How to read the denominator.`;
 }
 
-function RecordsPanel({ read, gap, findingHref, energyHref }: { read: EvSessionsRead | null; gap: string | null; findingHref: (findingId: string) => string; energyHref: string }) {
+function RecordsPanel({ read, refused, findingHref, energyHref }: { read: EvSessionsRead | null; refused: EvRead<unknown> | null; findingHref: (findingId: string) => string; energyHref: string }) {
   let body: ReactNode;
   const outside = outsideOutcomesLine(read);
   const sourceBlocked = read !== null && read.limitations.includes(EV_COPY.sourceUnassessable);
   if (read === null) {
-    body = <Gap id="ev-records">{gap}</Gap>;
+    // post-W6 W2-EV R284 (cross-card ruling 5): the page's one refusal sentence and its technical disclosure.
+    body = refused === null ? null : <RefusedGap id="ev-records" read={refused} />;
   } else if (read.currentness.state === "UNKNOWN") {
     body = (
       <>
@@ -482,12 +537,12 @@ function denominatorLine(d: EvDenominator): string {
   return `${plural(d.started, "accepted start", "accepted starts")} · ${count(d.completed)} completed · ${plural(d.observed_abort, "observed abort", "observed aborts")} · ${count(d.incomplete)} incomplete · ${count(d.contradictory)} contradictory`;
 }
 
-function DenominatorPanel({ read, gap }: { read: EvSessionsRead | null; gap: string | null }) {
+function DenominatorPanel({ read }: { read: EvSessionsRead | null }) {
   const known = read !== null && read.currentness.state !== "UNKNOWN";
   return (
     <Panel heading="How to read the denominator" headingId="ev-denominator-heading">
       {!known ? (
-        <Gap id="ev-denominator">{read === null ? gap : "Unknown"}</Gap>
+        <Gap id="ev-denominator">{read === null ? NOT_ASSESSED : "Unknown"}</Gap>
       ) : (
         <>
           <p className="prose ev-lines" data-ev-denominator>
@@ -511,12 +566,12 @@ function DenominatorPanel({ read, gap }: { read: EvSessionsRead | null; gap: str
   );
 }
 
-function CausePanel({ read, gap }: { read: EvSessionsRead | null; gap: string | null }) {
+function CausePanel({ read }: { read: EvSessionsRead | null }) {
   const known = read !== null && read.currentness.state !== "UNKNOWN";
   return (
     <Panel heading="Cause remains bounded" headingId="ev-cause-heading">
       {!known ? (
-        <Gap id="ev-cause">{read === null ? gap : "Unknown"}</Gap>
+        <Gap id="ev-cause">{read === null ? NOT_ASSESSED : "Unknown"}</Gap>
       ) : (
         <>
           <p className="prose">{(read.denominator.fault_aborted ?? 0) > 0 ? EV_COPY.causeFault : EV_COPY.causeNone}</p>
@@ -529,6 +584,9 @@ function CausePanel({ read, gap }: { read: EvSessionsRead | null; gap: string | 
     </Panel>
   );
 }
+
+/** The Sessions page's four tile labels, kept on a refused page (ruling 5). */
+const SESSION_TILES = ["Attempts", "Confirmed delivery", "Fault-aborted", "Incomplete"];
 
 function SessionCards({ read }: { read: EvSessionsRead | null }) {
   const state = read?.currentness.state;
@@ -546,14 +604,7 @@ function SessionCards({ read }: { read: EvSessionsRead | null }) {
   );
 }
 
-function SessionsStrip({ read, gap, analysisHref }: { read: EvSessionsRead | null; gap: string | null; analysisHref?: string }) {
-  if (read === null) {
-    return (
-      <StatusBar label="Session service state" data={{ "data-ev-strip": "refused" }}>
-        <Badge tone="neutral" className="ev-chip">Unknown</Badge> <span data-ev-refusal>{gap}</span>
-      </StatusBar>
-    );
-  }
+function SessionsStrip({ read, analysisHref }: { read: EvSessionsRead; analysisHref?: string }) {
   const contradictory = read.status.state === "CONTRADICTORY" && read.currentness.state !== "PENDING_RECOMPUTE" && read.currentness.state !== "UNKNOWN";
   const lines = [currentnessLine(read), historicalStamp(read), contradictory ? EV_COPY.contradictory : null].filter(Boolean);
   return (
@@ -653,7 +704,7 @@ function EvSessionsPage(props: EvSessionsFrameProps) {
   const { siteId, window, client } = props;
   const sessions = useRead(() => client.listSessions(siteId, window), `s|${siteId}|${windowKey(window)}`);
   const read = sessions !== null && sessions.status === "loaded" ? sessions.value : null;
-  const gap = sessions !== null && sessions.status !== "loaded" ? evRefusalText(sessions) : null;
+  const refused = sessions !== null && sessions.status !== "loaded" ? sessions : null;
   return (
     <main aria-labelledby={EV_SESSIONS_HEADING_ID} data-ev-view="sessions">
       <Breadcrumbs trail={[...props.parentTrail, { label: "Performance" }]} />
@@ -670,12 +721,19 @@ function EvSessionsPage(props: EvSessionsFrameProps) {
         <p>{EV_LOADING}</p>
       ) : (
         <>
-          <SessionsStrip read={read} gap={gap} analysisHref={read === null || props.analysisHref === undefined ? undefined : props.analysisHref(selectedWindowSearch(read))} />
-          <SessionCards read={read} />
-          <RecordsPanel read={read} gap={gap} findingHref={props.findingHref} energyHref={props.subtabHref("energy")} />
+          {read === null ? (
+            // post-W6 W2-EV R284 (cross-card ruling 5): strip and the four tile labels with "Not assessed"; no banner.
+            <RefusedHead read={sessions} window={window} label="Session service state" tiles={SESSION_TILES} />
+          ) : (
+            <>
+              <SessionsStrip read={read} analysisHref={props.analysisHref === undefined ? undefined : props.analysisHref(selectedWindowSearch(read))} />
+              <SessionCards read={read} />
+            </>
+          )}
+          <RecordsPanel read={read} refused={refused} findingHref={props.findingHref} energyHref={props.subtabHref("energy")} />
           <div className="panel-pair ev-pair">
-            <DenominatorPanel read={read} gap={gap} />
-            <CausePanel read={read} gap={gap} />
+            <DenominatorPanel read={read} />
+            <CausePanel read={read} />
           </div>
         </>
       )}
@@ -856,18 +914,18 @@ function FindingPanels({ finding, session, analysisHref }: { finding: EvFindingD
   );
 }
 
-function FindingSkeleton({ gap }: { gap: string }) {
+function FindingSkeleton({ read }: { read: EvRead<unknown> }) {
   return (
     <>
       <Panel heading="Bounded conclusion" headingId="ev-conclusion-heading">
-        <Gap id="ev-conclusion">{gap}</Gap>
+        <RefusedGap id="ev-conclusion" read={read} />
       </Panel>
       <div className="panel-pair ev-pair">
         <Panel heading="Operational context" headingId="ev-operational-heading">
-          <Gap id="ev-operational">{gap}</Gap>
+          <Gap id="ev-operational">{NOT_ASSESSED}</Gap>
         </Panel>
         <Panel heading="Recommended next step" headingId="ev-next-step-heading">
-          <Gap id="ev-next-step">{gap}</Gap>
+          <Gap id="ev-next-step">{NOT_ASSESSED}</Gap>
           <UnavailableLinkEntry label="Review recommendation" />
         </Panel>
       </div>
@@ -906,14 +964,9 @@ export function EvFindingFrame(props: EvFindingFrameProps) {
         <p>{EV_LOADING}</p>
       ) : finding.status !== "loaded" ? (
         <>
-          <StatusBar label="Finding state" data={{ "data-ev-strip": "refused" }}>
-            <Badge tone="neutral" className="ev-chip">Unknown</Badge>{" "}
-            <Badge tone="neutral" className="ev-chip">
-              Confidence: Unknown
-            </Badge>{" "}
-            <span data-ev-refusal>{evRefusalText(finding)}</span>
-          </StatusBar>
-          <FindingSkeleton gap={evRefusalText(finding)} />
+          {/* post-W6 W2-EV R284 (cross-card ruling 5): strip, one in-panel sentence and its technical disclosure. */}
+          <RefusedHead read={finding} window={window} label="Finding state" />
+          <FindingSkeleton read={finding} />
         </>
       ) : (
         <>
