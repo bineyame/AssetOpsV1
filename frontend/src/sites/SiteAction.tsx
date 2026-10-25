@@ -25,7 +25,7 @@
  * (`div.page-refusal`), never a panel; an unread Action keeps the selected
  * view's panel slots with the gap inside.
  */
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -699,6 +699,8 @@ const EVENT_BADGE: Record<string, [string, BadgeTone]> = {
   APPLIED: ["Applied", "blue"],
   FAILED: ["Failed", "red"],
   OBSERVED: ["Note", "muted"],
+  RESOLVED: ["Resolved", "blue"],
+  RESOLUTION_WITHDRAWN: ["Resolution withdrawn", "muted"],
 };
 
 /** W1-F4 trim: the Activity log and Action history show this many latest rows by default (as the mock does). */
@@ -997,8 +999,12 @@ function History({
         <span className="product-status__sentence">{words.sentence}</span> <Bound asOf={actionAsOf(body)} />
         {latest ? (
           <>
+            {/* post-W6 W1-b Q30 / R219: the default history's chip; the server's raw event counts sit only in the
+                exact references below. */}
             <span aria-hidden="true"> · </span>
-            <SelectionNote selection={body.selection} view={view} links={links} inline />
+            <StateBadge tone="muted" data={{ "data-action-history-latest": "" }}>
+              Latest at read time
+            </StateBadge>
           </>
         ) : null}
       </p>
@@ -1020,18 +1026,29 @@ function History({
         </p>
       ) : null}
       {(() => {
-        const total = events === null ? 0 : events.events.length + (history?.outcomes.length ?? 0) + (history?.resolution_events.length ?? 0);
+        // post-W6 W1-b Q30 / R219: both counts are the de-duplicated union of recorded entries (Q29); with three or
+        // fewer every entry shows and neither the truncation sentence nor a toggle appears.
+        const rows = events === null ? [] : historyRows(events.events, history, "history");
+        const total = rows.length;
+        const shownCount = events === null ? 0 : shownHistoryRows(rows, events.selection, showAll, false).length;
         const more =
           events !== null && total > SHOWN_ROWS ? (
-            <button
-              type="button"
-              className="w1f4-action-more"
-              aria-expanded={showAll}
-              data-action-history-show-all
-              onClick={() => setShowAll((open) => !open)}
-            >
-              {showAll ? `Show the latest ${SHOWN_ROWS}` : `Show all ${total} events`}
-            </button>
+            <>
+              {showAll ? null : (
+                <span data-action-history-truncated>
+                  Showing the latest {shownCount} of {total} recorded entries; show all to see every entry.{" "}
+                </span>
+              )}
+              <button
+                type="button"
+                className="w1f4-action-more"
+                aria-expanded={showAll}
+                data-action-history-show-all
+                onClick={() => setShowAll((open) => !open)}
+              >
+                {showAll ? `Show the latest ${SHOWN_ROWS}` : `Show all ${total} entries`}
+              </button>
+            </>
           ) : null;
         if (outcomes !== null && outcomes.status !== "loaded") {
           return (
@@ -1075,6 +1092,11 @@ function History({
           { label: "Selected event", value: selected ?? null },
           { label: "Selected recorded time", value: body.selection.kind === "RECORDED_AT" ? (body.selection.recorded_at ?? null) : null },
           { label: "Last included event", value: body.selection.cutoff_event_id ?? null },
+          {
+            label: "Recorded events at read time",
+            value:
+              body.selection.kind === "LATEST" ? `${body.selection.event_count} of ${body.selection.total_event_count}` : null,
+          },
         ]}
       />
     </Panel>
@@ -1082,13 +1104,54 @@ function History({
 }
 
 function resolutionWords(kind: string): string {
-  return kind === "RESOLVED" ? "Resolved" : kind === "RESOLUTION_WITHDRAWN" ? "Resolution withdrawn" : "Resolution activity";
+  return kind === "RESOLVED" ? "Resolved" : kind === "RESOLUTION_WITHDRAWN" ? "Resolution withdrawn" : "Recorded event";
+}
+
+/** post-W6 W1-b Q29 / R218: the ruled meanings; an unrecognised kind never borrows another kind's meaning. */
+export const RESOLVED_MEANING = "The evaluator settled the outcome for this Action.";
+export const RESOLUTION_WITHDRAWN_MEANING = "The evaluator withdrew an earlier outcome; the Action is open for a new outcome.";
+export const UNKNOWN_EVENT_MEANING = "Recorded event; its meaning is not shown in this build.";
+function resolutionMeaning(kind: string): string {
+  return kind === "RESOLVED" ? RESOLVED_MEANING : kind === "RESOLUTION_WITHDRAWN" ? RESOLUTION_WITHDRAWN_MEANING : UNKNOWN_EVENT_MEANING;
 }
 
 type HistoryRow =
   | { kind: "event"; at: number; event: ActionEvent }
   | { kind: "outcome"; at: number; outcome: HistoryBody["outcomes"][number]; current: boolean }
   | { kind: "resolution"; at: number; resolution: HistoryBody["resolution_events"][number] };
+
+/**
+ * post-W6 W1-b Q29 / R218: the History rows, one per recorded entry. An Action event that is also a detailed
+ * resolution event (same ID) is shown once, as the resolution row. History sorts by recorded time; the Activity log
+ * keeps server order. Q30 / R219: `total` is this de-duplicated union, the count the reader is told about.
+ */
+export function historyRows(
+  events: ActionEvent[],
+  verification: HistoryBody | null,
+  mode: "log" | "history",
+): HistoryRow[] {
+  const outcomes = verification?.outcomes ?? [];
+  const resolutions = verification?.resolution_events ?? [];
+  const resolutionIds = new Set(resolutions.map((r) => r.id));
+  const time = (instant: string) => {
+    const at = Date.parse(instant);
+    return Number.isNaN(at) ? Number.POSITIVE_INFINITY : at;
+  };
+  const merged: HistoryRow[] = [
+    ...events.filter((event) => !resolutionIds.has(event.id)).map((event): HistoryRow => ({ kind: "event", at: time(event.recorded_at), event })),
+    ...outcomes.map((outcome, i): HistoryRow => ({ kind: "outcome", at: time(outcome.recorded_at), outcome, current: i === outcomes.length - 1 })),
+    ...resolutions.map((resolution): HistoryRow => ({ kind: "resolution", at: time(resolution.recorded_at), resolution })),
+  ];
+  return mode === "log" ? merged : [...merged].sort((a, b) => a.at - b.at);
+}
+
+/** The rows History shows: the latest `SHOWN_ROWS` unless `showAll`; an earlier selection's events always stay. */
+function shownHistoryRows(rows: HistoryRow[], selection: Selection, showAll: boolean, log: boolean): HistoryRow[] {
+  const isSelected = (event: ActionEvent) => selection.kind === "EVENT_ID" && selection.event_id === event.id;
+  const firstShown = showAll || log ? 0 : Math.max(0, rows.length - SHOWN_ROWS);
+  const keepEvents = selection.kind !== "LATEST";
+  return rows.filter((row, index) => index >= firstShown || (row.kind === "event" && (keepEvents || isSelected(row.event))));
+}
 
 /**
  * The recorded events as the mock's table: on Execution `Record | State |
@@ -1116,9 +1179,8 @@ function EventTable({
   verification?: HistoryBody | null;
   showAll?: boolean;
 }) {
-  const outcomes = verification?.outcomes ?? [];
-  const resolutions = verification?.resolution_events ?? [];
-  if (events.length === 0 && outcomes.length === 0 && resolutions.length === 0) {
+  const rows = historyRows(events, verification, mode);
+  if (rows.length === 0) {
     return (
       <p className="v69-chart-note" data-action-events="none">
         No activity recorded.
@@ -1127,22 +1189,9 @@ function EventTable({
   }
   const log = mode === "log";
   const isSelected = (event: ActionEvent) => selection.kind === "EVENT_ID" && selection.event_id === event.id;
-  const time = (instant: string) => {
-    const at = Date.parse(instant);
-    return Number.isNaN(at) ? Number.POSITIVE_INFINITY : at;
-  };
-  // Events keep server order; verification rows join them in recorded order (a stable sort).
-  const merged: HistoryRow[] = [
-    ...events.map((event): HistoryRow => ({ kind: "event", at: time(event.recorded_at), event })),
-    ...outcomes.map((outcome, i): HistoryRow => ({ kind: "outcome", at: time(outcome.recorded_at), outcome, current: i === outcomes.length - 1 })),
-    ...resolutions.map((resolution): HistoryRow => ({ kind: "resolution", at: time(resolution.recorded_at), resolution })),
-  ];
-  const rows = log ? merged : [...merged].sort((a, b) => a.at - b.at);
-  const firstShown = showAll || log ? 0 : Math.max(0, rows.length - SHOWN_ROWS);
   // An earlier selection's events read is already cut to that selection, so its events always stay shown.
-  const keepEvents = selection.kind !== "LATEST";
-  const shown = rows.filter((row, index) => index >= firstShown || (row.kind === "event" && (keepEvents || isSelected(row.event))));
-  return (
+  const shown = shownHistoryRows(rows, selection, showAll, log);
+  const table = (
     <DataTable labelledBy={`site-action-events-caption-${mode}`}>
       <caption id={`site-action-events-caption-${mode}`} className="w1f4-action-caption">
         {log ? "Activity log" : "Action history"}
@@ -1177,7 +1226,7 @@ function EventTable({
           if (row.kind === "outcome") {
             const o = row.outcome;
             return (
-              <tr key={o.outcome_id} data-action-history-outcome={o.outcome_id}>
+              <tr key={`outcome:${o.outcome_id}`} data-action-history-outcome={o.outcome_id}>
                 <td>Trial outcome recorded</td>
                 <td>
                   <Link to={links.view("verification", { eventId: null, recordedAt: null, outcomeId: o.outcome_id })}>
@@ -1195,12 +1244,10 @@ function EventTable({
           if (row.kind === "resolution") {
             const r = row.resolution;
             return (
-              <tr key={r.id} data-action-history-resolution={r.kind}>
+              <tr key={`resolution:${r.id}`} data-action-history-resolution={r.kind} data-action-history-resolution-id={r.id}>
                 <td>{resolutionWords(r.kind)}</td>
                 <td>
-                  {r.kind === "RESOLUTION_WITHDRAWN"
-                    ? "Later evidence withdrew the resolution; it is not permanent."
-                    : "Records the current outcome; later evidence can withdraw it."}
+                  {resolutionMeaning(r.kind)}
                   {r.verification_outcome_id ? (
                     <>
                       {" "}
@@ -1228,7 +1275,7 @@ function EventTable({
             </td>
           );
           return (
-            <tr key={event.id} data-action-event={event.id} data-action-event-kind={event.kind} aria-current={isSelected(event) ? "true" : undefined}>
+            <tr key={`event:${event.id}`} data-action-event={event.id} data-action-event-kind={event.kind} aria-current={isSelected(event) ? "true" : undefined}>
               <td>{eventWords(event.kind)}</td>
               {log ? (
                 <>
@@ -1262,6 +1309,46 @@ function EventTable({
         })}
       </tbody>
     </DataTable>
+  );
+  return log ? table : <HistoryEntriesScroll>{table}</HistoryEntriesScroll>;
+}
+
+/**
+ * post-W6 W1-b caps ruling 2 (Q37): the Action history table (header and every event row) sits in one labelled,
+ * keyboard-focusable region with a vertical scroll, so the closed panel stays inside its 800 px cap at 390. The
+ * count sentence and the Show all toggle stay outside. Nothing is hidden or truncated; the cue shows only when the
+ * rows overflow the region. Same pattern as Interpretation history and the Finding Revision history.
+ */
+function HistoryEntriesScroll({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (el === null) return;
+    const measure = () => setOverflows(el.scrollHeight > el.clientHeight + 1);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    for (const child of Array.from(el.children)) observer.observe(child);
+    return () => observer.disconnect();
+  }, [children]);
+  return (
+    <>
+      <p className="w1f4-action-history-cue" data-action-history-scroll-cue hidden={!overflows}>
+        Scroll history to see every entry
+      </p>
+      <div
+        ref={ref}
+        className="w1f4-action-history-entries"
+        role="region"
+        aria-label="Action history entries"
+        tabIndex={0}
+        data-action-history-entries
+      >
+        {children}
+      </div>
+    </>
   );
 }
 
@@ -1335,5 +1422,7 @@ function EventDetails({
       </span>
     );
   }
-  return <span>Trial accepted; nothing on the Site changed.</span>;
+  if (event.kind === "ACCEPTED") return <span>Trial accepted; nothing on the Site changed.</span>;
+  // post-W6 W1-b Q29 / R218: a resolution kind has its own meaning, and an unknown kind never reads as ACCEPTED.
+  return <span>{resolutionMeaning(event.kind)}</span>;
 }

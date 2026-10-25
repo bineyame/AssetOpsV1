@@ -1,0 +1,162 @@
+[
+ {
+  "name": "assumptions-default-s408",
+  "variant": "interp-160x5",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 578
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 681
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 15,
+  "fields160": 15,
+  "closedVersions": true,
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "panelH": 2429,
+  "rowHs": [
+   430,
+   430,
+   430,
+   430,
+   429
+  ],
+  "clipped": [],
+  "innerScrollX": [
+   "data-table__scroll:1117/1105"
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "assumptions-default-s408",
+  "variant": "interp-160x5",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 934
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 1045
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 15,
+  "fields160": 15,
+  "closedVersions": true,
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "panelH": 2572,
+  "rowHs": [
+   430,
+   430,
+   430,
+   430,
+   429
+  ],
+  "clipped": [],
+  "innerScrollX": [
+   "data-table__scroll:1117/318",
+   "data-table__scroll:764/286",
+   "data-table__scroll:770/286"
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "assumptions-T3-s408",
+  "variant": "interp-160x5",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 600
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 681
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 15,
+  "fields160": 15,
+  "closedVersions": true,
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "panelH": 2429,
+  "rowHs": [
+   430,
+   430,
+   430,
+   430,
+   429
+  ],
+  "clipped": [],
+  "innerScrollX": [
+   "data-table__scroll:1117/1105"
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "assumptions-T3-s408",
+  "variant": "interp-160x5",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 956
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 1045
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 15,
+  "fields160": 15,
+  "closedVersions": true,
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "panelH": 2572,
+  "rowHs": [
+   430,
+   430,
+   430,
+   430,
+   429
+  ],
+  "clipped": [],
+  "innerScrollX": [
+   "data-table__scroll:1117/318",
+   "data-table__scroll:764/286",
+   "data-table__scroll:770/286"
+  ],
+  "docOverflowX": 0
+ }
+]

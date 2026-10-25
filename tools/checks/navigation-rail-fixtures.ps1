@@ -117,7 +117,13 @@ function Invoke-NavigationRailFixturesCheck {
             @{ Name = "W5-02c: Actions selected unconditionally"; Expect = "passes activeLabel other than railActiveLabel(pathname)";
                Rail = (Edit-Lines $rail 'activeLabel=\{railActiveLabel\(pathname\)\}' 'activeLabel="Actions"') },
             @{ Name = "W5-02c: Actions selection widened to every Site path"; Expect = "does not declare the ruled rail selection helper";
-               Rail = (Edit-Lines $rail '\(/\^\\/sites\\/\[\^/\]\+\\/actions\\/\[\^/\]\+\(\?:\\/\.\*\)\?\$/' '(/^\/sites\//') }
+               Rail = (Edit-Lines $rail '\(/\^\\/sites\\/\[\^/\]\+\\/actions\\/\[\^/\]\+\(\?:\\/\.\*\)\?\$/' '(/^\/sites\//') },
+            # post-W6 W1-b pre-flight ruling 6: the Findings selection stays on Site Finding detail paths; widening it to
+            # the Site Findings index, or to a prefix lookalike, fails the guard.
+            @{ Name = "W1-b: Findings selection widened to the Site Findings index"; Expect = "does not declare the ruled rail selection helper";
+               Rail = (Edit-Lines $rail '\\/findings\\/\[\^/\]\+\(\?:\\/\.\*\)\?\$/' '\/findings(?:\/.*)?$/') },
+            @{ Name = "W1-b: Findings selection widened to a prefix lookalike"; Expect = "does not declare the ruled rail selection helper";
+               Rail = (Edit-Lines $rail '\\/findings\\/\[\^/\]\+' '\/findings[^/]*\/[^/]+') }
         )
     }
     catch {

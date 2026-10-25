@@ -861,7 +861,8 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
 
     // Child views: the helper is the section row's noninteractive next sibling, outside the navigation.
     // post-W6 W1-a Q7 / R184: with Analysis live, Evidence and History carry no helper; Alternatives keeps its own.
-    for (const view of ["evidence", "history"]) {
+    // post-W6 W1-b Q28 / R209: Recommendation's Finding-section helper is retired too; its Analysis tab is live.
+    for (const view of ["evidence", "history", "recommendation"]) {
       frameAt(`/sites/${CODE}/findings/${F}/${view}?revision_id=${REV}`, findingsClient(() => w1(CODE, REV)));
       await settledScreen();
       await waitFor(() => expect(rowHrefs()).toHaveLength(6));

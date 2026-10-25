@@ -44,6 +44,29 @@ export interface BridgeLinks {
   assumptions: (pin?: { revisionId?: string | null; recordedAt?: string | null }) => string;
   /** The Overview pinned to one exact consequence version of the same Finding version (null: the latest). */
   consequence: (findingId: string, revisionId: string, consequenceRevisionId: string | null) => string;
+  /** post-W6 W1-b Q21 / R198: the global Financials list (`Portfolio roll-up →` on the statusbar). */
+  portfolio?: string;
+  /** post-W6 W1-b Q22 / R199: the Site's Dispatch Analysis at one UTC day, optionally one proved interval revision. */
+  dispatchAnalysis?: (day: string, intervalRevisionId: string | null) => string;
+}
+
+/**
+ * post-W6 W1-b Q22 (pre-flight ruling 1): "Inspect technical basis →" targets Dispatch Analysis on the UTC day of the
+ * Finding window start. A revision is added only when an explicit source proves it is a 15-minute interval revision
+ * of the selected Finding on that same day; the bridge read supplies no such proof, and a Finding, consequence or
+ * whole-window primary revision is never used. An absent or invalid window start gives no link.
+ */
+export function technicalBasisHref(
+  windowStart: string | null | undefined,
+  dispatchAnalysis: BridgeLinks["dispatchAnalysis"],
+  proof?: { revisionId: string; intervalRevisionIds: string[]; intervalDay: string } | null,
+): string | null {
+  if (dispatchAnalysis === undefined || typeof windowStart !== "string") return null;
+  if (!/^\d{4}-\d{2}-\d{2}T/.test(windowStart) || Number.isNaN(Date.parse(windowStart))) return null;
+  const day = new Date(windowStart).toISOString().slice(0, 10);
+  const proved =
+    proof != null && proof.intervalRevisionIds.includes(proof.revisionId) && proof.intervalDay === day ? proof.revisionId : null;
+  return dispatchAnalysis(day, proved);
 }
 
 /** Why the fuel quantity could not be bounded, in plain words, keyed by the stored reason. */
@@ -495,7 +518,7 @@ function exposureGapWord(c: FindingFinancialsBody["consequence"]): string {
 }
 
 /** W1-F3: the mock's statusbar for Financials. Financials carry no status of their own; this is a count and a scope. */
-export function FinancialsStatusBar({ lines, currency }: { lines: string; currency: string | null }) {
+export function FinancialsStatusBar({ lines, currency, rollUp }: { lines: string; currency: string | null; rollUp?: string }) {
   return (
     <StatusBar items label="Financials scope" data={{ "data-financials-statusbar": "" }}>
       <span className="badge badge--neutral" data-chip="lines">
@@ -510,6 +533,12 @@ export function FinancialsStatusBar({ lines, currency }: { lines: string; curren
         {currency ? `${currency} · ` : ""}selected finding window · no financial status here; status stays on the source
         finding
       </span>
+      {/* post-W6 W1-b Q21 / R198: the mock's `Portfolio roll-up` link, to the global Financials list. */}
+      {rollUp === undefined ? null : (
+        <Link to={rollUp} data-financials-rollup>
+          Portfolio roll-up →
+        </Link>
+      )}
     </StatusBar>
   );
 }
@@ -567,11 +596,14 @@ export function TradeoffsPanel({
   rev,
   body,
   gap,
+  technicalBasis = null,
 }: {
   rev: ConsequenceRevision | null;
   body: FindingConsequencesBody | null;
   /** A refused read: the gap stated in place of the method. */
   gap?: string;
+  /** post-W6 W1-b Q22 / R199: the exact Dispatch Analysis address, or null when none can be formed. */
+  technicalBasis?: string | null;
 }) {
   return (
     <Panel heading="Trade-offs and exclusions" headingId="site-financials-tradeoffs-heading">
@@ -588,6 +620,13 @@ export function TradeoffsPanel({
         </p>
         {gap ? <p className="v69-gap-line">{gap}</p> : null}
         {rev === null && !gap ? <p>Generator time that was needed, or that could not be judged, is never priced.</p> : null}
+        {technicalBasis === null ? null : (
+          <p>
+            <Link to={technicalBasis} data-financials-technical-basis>
+              Inspect technical basis →
+            </Link>
+          </p>
+        )}
       </div>
       {rev !== null && body !== null ? <HowWorkedOut rev={rev} /> : null}
     </Panel>
@@ -756,7 +795,7 @@ export function FindingBridge({
   };
   return (
     <>
-      <FinancialsStatusBar lines="1 consequence line" currency={c.currency} />
+      <FinancialsStatusBar lines="1 consequence line" currency={c.currency} rollUp={links.portfolio} />
       <div
         data-financials-bridge={c.state}
         data-financials-currentness={c.currentness ?? "NONE"}
@@ -907,7 +946,7 @@ export function FindingBridge({
       </div>
       <div className="panel-pair">
         {assumptions}
-        <TradeoffsPanel rev={drawn} body={body} />
+        <TradeoffsPanel rev={drawn} body={body} technicalBasis={technicalBasisHref(bridge.window.start, links.dispatchAnalysis)} />
       </div>
       <FinancialsNotice />
     </>

@@ -1,0 +1,6 @@
+[{"name":"assumptions-default-s408","url":"http://localhost:5185/sites/KOBO-001/financials/assumptions","variant":"interp-160-3rows"},
+{"name":"assumptions-default-s408","url":"http://localhost:5185/sites/KOBO-001/financials/assumptions","variant":"interp-160-5rows"},
+{"name":"assumptions-T3-s408","url":"http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T09%3A48%3A05.800853%2B00%3A00","variant":"interp-160-3rows"},
+{"name":"assumptions-T3-s408","url":"http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T09%3A48%3A05.800853%2B00%3A00","variant":"interp-160-5rows"},
+{"name":"financials-notfound-s408","url":"http://localhost:5185/sites/KOBO-001/financials?finding_id=00000000-0000-4000-8000-000000000000","variant":"tradeoffs-gap160"},
+{"name":"financials-priced-s408","url":"http://localhost:5185/sites/KOBO-001/financials?finding_id=45b87754-7138-46b1-9cb7-92aaf6754135&revision_id=8d4f276d-817b-47a8-a253-f9aa9307cc4a&consequence_revision_id=93a75a92-b813-4f0f-bcba-aab9f86c7150","variant":"tradeoffs-method160"}]

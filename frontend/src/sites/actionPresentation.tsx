@@ -57,10 +57,14 @@ export const EVENT_WORDS: Record<string, string> = {
   APPLIED: "Applied to the Site Foundation",
   FAILED: "Attempt failed",
   OBSERVED: "Review note recorded",
+  // post-W6 W1-b Q29 / R218: the evaluator's resolution events.
+  RESOLVED: "Resolved",
+  RESOLUTION_WITHDRAWN: "Resolution withdrawn",
 };
 
+/** An unrecognised kind is a plain "Recorded event", never a raw code and never another kind's name. */
 export function eventWords(kind: string): string {
-  return EVENT_WORDS[kind] ?? kind;
+  return EVENT_WORDS[kind] ?? "Recorded event";
 }
 
 export const APPLICATION_WORDS: Record<string, string> = {

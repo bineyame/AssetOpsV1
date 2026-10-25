@@ -1,0 +1,22 @@
+[
+ {
+  "id": "action-plan",
+  "case": "guardrail",
+  "url": "http://localhost:5186/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505/plan"
+ },
+ {
+  "id": "action-evidence",
+  "case": "guardrail",
+  "url": "http://localhost:5186/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505/evidence"
+ },
+ {
+  "id": "action-overview",
+  "case": "guardrail",
+  "url": "http://localhost:5186/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505"
+ },
+ {
+  "id": "recommendation",
+  "case": "guardrail-hold",
+  "url": "http://localhost:5186/sites/KOBO-001/findings/93073b1d-d7fa-44b6-b062-b900dc9e8d77/recommendation?revision_id=53d19260-2951-4ba4-856b-529b582d559c"
+ }
+]

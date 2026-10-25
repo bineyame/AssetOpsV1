@@ -1,0 +1,7 @@
+[
+ {
+  "id": "ev-finding",
+  "case": "interrupted",
+  "url": "http://localhost:5185/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z"
+ }
+]

@@ -1,0 +1,52 @@
+[
+ {
+  "screen": "ev-action",
+  "case": "all-open",
+  "width": "1440",
+  "h1": "ACT-000001 · Investigate connector 2",
+  "titles": [
+   "Declared verification plan"
+  ],
+  "panels": [
+   {
+    "t": "Declared verification plan",
+    "h": 248,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 0,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Actions"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/EV-LAB-001/actions/2494e4b1-3bf2-4dd3-b752-43c897c05820/verification?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "screen": "ev-action",
+  "case": "all-open",
+  "width": "390",
+  "h1": "ACT-000001 · Investigate connector 2",
+  "titles": [
+   "Declared verification plan"
+  ],
+  "panels": [
+   {
+    "t": "Declared verification plan",
+    "h": 406,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 0,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Actions"
+  ],
+  "headerH": 133,
+  "url": "http://localhost:5185/sites/EV-LAB-001/actions/2494e4b1-3bf2-4dd3-b752-43c897c05820/verification?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ }
+]

@@ -5882,3 +5882,18 @@ Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `
 - Guards: navigation inventory has Alternatives (not Analysis); panelStructure admits the Q16 line.
 - Register: R21 narrowed; R386 (error-boundary backlog), R387-R394 G1 split-offs, R395 (Q52 Finding Site tabs).
 - Open: Q11/Q15 cap fallbacks depend on the capture caps table; W2-EV/W2-cold rebase over the mini Finding hunks.
+
+## post-W6 W1-mini-Action-b - W1 mini Recommendation, Action, Financials and Site Findings table D3 fixes (built, in_review)
+
+- Rulings `.agent/post-W6-W1-rulings.md` (W1-b 30-63) amended by `.agent/post-W6-W1-b-preflight-rulings.md`; packet `.agent/post-W6-W1-b-packet.md`; handoff `.agent/post-W6-W1-b-handoff.md`.
+- Rail: `OperatorShellLayout.tsx` `railActiveLabel` (exact ruled line, pinned at `navigation-truthfulness.ps1` `$railHelper`): Finding detail paths select Findings, Action detail paths select Actions; index keeps NavLink matching.
+- Site Findings table: Domain cell `Dispatch` link (UTC day of episode start; `revision` only when in `assessment.interval_assessment_revision_ids`, a type-only field in `findingIndexClient.ts`); renewable helper link.
+- Financials: `FinancialsStatusBar` `Portfolio roll-up` to `/financials`; Trade-offs `Inspect technical basis` to Dispatch `?day=&view=analysis` (day-only; never a whole-window revision); assumptions footer `Return to financial overview`.
+- Interpretation history (`ConsequenceHistory.tsx`): default `history_limit=3`; repeated `history_back` cursor stack (`parseHistoryBack`, `0` = first page); Previous/Next versions and Back to newest; compact rows with `Show this version`; `PriceHistory` inside closed `Price versions recorded (n)`; `siteFinancialAssumptionsHref` carries the stack; Q23 cap fallback `VersionsScroll` (`[data-consequence-history-scroll]`, max 480/900 px in `w1ux02-money.css`, cue only on overflow).
+- Frames (`SiteAnalyticsFrames.tsx`): no Site tabs on Recommendation and all Action views; Finding overview/Analysis/Evidence/History (and the unknown-section state) keep tabs plus one `MOCK DEVIATION D2 (R383)` line; Action `Open site`; `/overview` alias for every Site type; unknown Action section body + `Open Action overview`; subtitle suffix only after a valid `w1ActionCode`; `ANALYSIS_HELPER_SECTION` removed.
+- Action history (`SiteAction.tsx`): RESOLVED / RESOLUTION_WITHDRAWN words, unknown kind `Recorded event`; union deduplicated by resolution ID; `Latest at read time`; truncation sentence and `Show all {total} entries` only past three.
+- Verification: `requirementTone(true)` = info (blue); source words once; scoped row-heading CSS in `w1f4-verification.css`; conflict KPI note `Not read: the address names conflicting selections.`; history gap shown only when distinct per panel.
+- Sitework: mini scope strip `Manage in Actions` to Site `/actions` (cold/EV unchanged).
+- Register: R383 (Finding Site tabs, supersedes W1-a's R395), R384 (B4-21), R385 (B4-22); `test/panelStructure.ts` admits the R383 line.
+- Captures `.agent/post-W6-W1-b-recapture/` (142/142; RESOLUTION_WITHDRAWN produced by s602b `withdrawn`).
+- Open: Evidence requirements (458/956 vs 450/800) and Action history Q37 (963 vs 800 at 390) exceed caps in synthetic probes with no ruled fallback (Architect); R395 marked superseded by R383; R197-R230 D3 dispositions after review.

@@ -1,0 +1,36 @@
+[
+ {
+  "screen": "assumptions",
+  "case": "mixed-withheld",
+  "width": 1440,
+  "start": {
+   "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions",
+   "historyH": 354,
+   "rows": [
+    "Fuel cost version 1"
+   ],
+   "rowCount": 1,
+   "prev": false,
+   "newer": null,
+   "overflowX": 0
+  },
+  "clicks": []
+ },
+ {
+  "screen": "assumptions",
+  "case": "mixed-withheld",
+  "width": 390,
+  "start": {
+   "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions",
+   "historyH": 609,
+   "rows": [
+    "Fuel cost version 1"
+   ],
+   "rowCount": 1,
+   "prev": false,
+   "newer": null,
+   "overflowX": 0
+  },
+  "clicks": []
+ }
+]

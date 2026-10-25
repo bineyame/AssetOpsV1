@@ -1,0 +1,54 @@
+[
+ {
+  "screen": "ev-assumptions",
+  "case": "complete",
+  "width": "1440",
+  "historyScroll": null,
+  "h1": "EV charging lab",
+  "titles": [
+   "Financial assumptions"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 314,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+ },
+ {
+  "screen": "ev-assumptions",
+  "case": "complete",
+  "width": "390",
+  "historyScroll": null,
+  "h1": "EV charging lab",
+  "titles": [
+   "Financial assumptions"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 330,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 54,
+  "url": "http://localhost:5185/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+ }
+]

@@ -1,0 +1,15 @@
+chrome pid 4076
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/0ae3398b-f434-4e1c-a9e7-e30d11420775/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-all-open 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-all-open 1440: mock rendered
+PASS  cold-action-all-open 1440: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/0ae3398b-f434-4e1c-a9e7-e30d11420775/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-all-open 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-all-open 390: mock rendered
+PASS  cold-action-all-open 390: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-all-open 390: no app page overflow  {"overflowX":0}
+
+12/12 claims passed; evidence in part-positive

@@ -1,0 +1,20 @@
+financials priced 1440 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"What happened → wh=417; Assumptions in use=275; Trade-offs and exc=321"}
+financials priced 390 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"What happened → wh=1152; Assumptions in use=308; Trade-offs and exc=413"}
+financials unpriced 1440 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"What happened → wh=374; Assumptions in use=275; Trade-offs and exc=321"}
+financials unpriced 390 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"What happened → wh=638; Assumptions in use=308; Trade-offs and exc=341"}
+financials quantity-unavailable 1440 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"What happened → wh=374; Assumptions in use=275; Trade-offs and exc=321"}
+financials quantity-unavailable 390 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"What happened → wh=594; Assumptions in use=308; Trade-offs and exc=341"}
+financials nofinding 1440 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"What happened → wh=103; Assumptions in use=275; Trade-offs and exc=295"}
+financials nofinding 390 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"What happened → wh=149; Assumptions in use=308; Trade-offs and exc=315"}
+financials notfound 1440 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"What happened → wh=99; Assumptions in use=275; Trade-offs and exc=295"}
+financials notfound 390 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"What happened → wh=119; Assumptions in use=308; Trade-offs and exc=315"}
+finding-evidence labelled 1440 {"ox":0,"tabs":1,"r383":1,"after":true,"rail":["Findings"],"p":"Evidence bundle · =411; Inspect source lin=126"}
+finding-evidence labelled 390 {"ox":0,"tabs":1,"r383":1,"after":true,"rail":["Findings"],"p":"Evidence bundle · =728; Inspect source lin=218"}
+assumptions default 1440 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"Financial assumpti=578; Impact preview=256; Interpretation his=681"}
+assumptions default 390 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"Financial assumpti=934; Impact preview=256; Interpretation his=1045"}
+assumptions recorded-T1 1440 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"Financial assumpti=560; Impact preview=256; Interpretation his=681"}
+assumptions recorded-T1 390 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"Financial assumpti=877; Impact preview=256; Interpretation his=1068"}
+assumptions recorded-T3 1440 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"Financial assumpti=600; Impact preview=256; Interpretation his=681"}
+assumptions recorded-T3 390 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"Financial assumpti=956; Impact preview=256; Interpretation his=1045"}
+assumptions T3-page2 1440 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"Financial assumpti=600; Impact preview=256; Interpretation his=470"}
+assumptions T3-page2 390 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"Financial assumpti=956; Impact preview=256; Interpretation his=837"}

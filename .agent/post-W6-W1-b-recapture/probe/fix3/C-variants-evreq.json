@@ -1,0 +1,2 @@
+[{"name":"action-evidence-s602b-guardrail","url":"http://localhost:5197/sites/KOBO-001/actions/ab57b93c-f0a7-47da-83e3-40ab53ddf077/evidence","variant":"C-evreq-real4-160"},
+ {"name":"action-evidence-s602b-default","url":"http://localhost:5196/sites/KOBO-001/actions/e37ce7b6-674c-45b3-b7c6-df74ed0d1729/evidence","variant":"C-evreq-real4-160"}]

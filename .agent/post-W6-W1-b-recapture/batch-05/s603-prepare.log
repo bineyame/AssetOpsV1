@@ -1,0 +1,10 @@
+=== 1. Private tree (git HEAD) with its own var/ ===
+  C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s603_owner_w1brc\tree (code from 2af5fef6)
+=== 2. Database assetops_s603_owner_audit_w1brc ===
+  created
+=== 3. D-action-records through the real stores and Action API ===
+  built: 2 Actions ['ACT-000002', 'ACT-000001']
+=== 4. Performance comparison (releases the origin Finding reads) ===
+  Performance cutover: permitted
+Prepared. Next: serve (in this window), then the frontend command it prints.
+s603 exit 0

@@ -1,0 +1,6 @@
+finding late-stale 1440 {"ox":0,"tabs":1,"r383":1,"after":true,"rail":["Findings"],"p":"What happened=338; What limits this c=308; What to do next=211; Where to look next=613"}
+finding late-stale 390 {"ox":0,"tabs":1,"r383":1,"after":true,"rail":["Findings"],"p":"What happened=562; What limits this c=414; What to do next=231; Where to look next=716"}
+finding-history late-stale 1440 {"ox":0,"tabs":1,"r383":1,"after":true,"rail":["Findings"],"p":"Revision history=518"}
+finding-history late-stale 390 {"ox":0,"tabs":1,"r383":1,"after":true,"rail":["Findings"],"p":"Revision history=980"}
+sitefindings late-stale 1440 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"Findings at this s=242"}
+sitefindings late-stale 390 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"Findings at this s=437"}

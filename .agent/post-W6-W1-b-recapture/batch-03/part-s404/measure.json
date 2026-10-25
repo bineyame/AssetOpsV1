@@ -1,0 +1,352 @@
+[
+ {
+  "screen": "sitefindings",
+  "case": "stocked",
+  "width": "1440",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 451,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "stocked",
+  "width": "390",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 684,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 72,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "page2",
+  "width": "1440",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 399,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "page2",
+  "width": "390",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 614,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 72,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "empty",
+  "width": "1440",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 262,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "empty",
+  "width": "390",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 476,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 72,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "stale",
+  "width": "1440",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 242,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "stale",
+  "width": "390",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 437,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 72,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "failed",
+  "width": "1440",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 242,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "failed",
+  "width": "390",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 452,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 72,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "unassessed",
+  "width": "1440",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 268,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "unassessed",
+  "width": "390",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 483,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 72,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "nowindow",
+  "width": "1440",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 262,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/findings"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "nowindow",
+  "width": "390",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 476,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 72,
+  "url": "http://localhost:5185/sites/KOBO-001/findings"
+ }
+]

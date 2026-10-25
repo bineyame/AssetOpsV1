@@ -298,6 +298,8 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(text(strip?.querySelector("[data-site-work-scope]"))).toBe("Scoped to GreenHarvest · 2 actions");
     expect(text(strip)).toContain("Cold-chain Actions recorded at this site");
     expect(text(strip)).toContain("Global Actions does not include cold-chain Actions yet.");
+    // post-W6 W1-b pre-flight 10: the mini-only "Manage in Actions" link is absent on cold.
+    expect(text(strip)).not.toContain("Manage in Actions");
     expect(strip?.querySelector("a")).toBeNull();
     expect(Array.from(main.querySelectorAll("thead th")).map(text)).toEqual(["Action", "Source", "Owner", "Due", "State", "Success criterion"]);
     expect(main.querySelector(".panel__description")?.textContent).toBe("Due dates are not yet set");
@@ -921,7 +923,9 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
     expect(where()).toBe(`/sites/${SITE}/actions/${W1_ID}`);
     expect(document.querySelector("[data-domain-action-shell]")).toBeNull();
     expect(fetchRecord.some((u) => u.includes(`/api/sites/${SITE}/actions/${W1_ID}`))).toBe(true);
-    expect(document.querySelector(`nav[aria-label="${OPERATOR_SITE_TABS_LABEL}"]`)).not.toBeNull();
+    // post-W6 W1-b Q26 / R204: the W1 presenter (its Action section row) renders, with no Site tab row.
+    expect(document.querySelector(`nav[aria-label="Action sections"]`)).not.toBeNull();
+    expect(document.querySelector(`nav[aria-label="${OPERATOR_SITE_TABS_LABEL}"]`)).toBeNull();
     cleanup();
     await mountAction(`/sites/${SITE}/actions/${DOMAIN_ID}`, client);
     await waitFor(() => expect(where()).toBe(`/sites/${SITE}/actions/${DOMAIN_ID}/verification`));

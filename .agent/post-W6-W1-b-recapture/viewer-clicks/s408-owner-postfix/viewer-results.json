@@ -1,0 +1,244 @@
+[
+ {
+  "screen": "assumptions",
+  "case": "default",
+  "width": 1440,
+  "start": {
+   "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions",
+   "historyH": 681,
+   "rows": [
+    "Fuel cost version 3",
+    "Fuel cost version 2",
+    "Fuel cost version 2"
+   ],
+   "rowCount": 3,
+   "prev": true,
+   "newer": null,
+   "overflowX": 0
+  },
+  "clicks": [
+   {
+    "click": "Previous versions",
+    "before": "http://localhost:5185/sites/KOBO-001/financials/assumptions",
+    "after": {
+     "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A16%3A18.002159%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjM5NjQwOSswMDowMCIsIjk4NGYxZmM1LTRlODQtNDlmMi1hOGZlLTQzMzBjNTI0Y2IzOSJdLCJmZW5jZSI6InNjaDEtMmVlNmI5YTcxMjVlN2Y1NDgzMzk3MDRhZjc1MDBhMDQxNGM4YzdjNjRhMGU2ODY2OTFiZDljOTVlZTEwZGMxNCIsImxpbWl0IjozLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MTY6MTguMDAyMTU5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=3&history_back=0",
+     "historyH": 681,
+     "rows": [
+      "Fuel cost version 1",
+      "Fuel cost version 1",
+      "Fuel cost version 1"
+     ],
+     "rowCount": 3,
+     "prev": true,
+     "newer": "next",
+     "overflowX": 0
+    }
+   },
+   {
+    "click": "Next versions",
+    "before": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A16%3A18.002159%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjM5NjQwOSswMDowMCIsIjk4NGYxZmM1LTRlODQtNDlmMi1hOGZlLTQzMzBjNTI0Y2IzOSJdLCJmZW5jZSI6InNjaDEtMmVlNmI5YTcxMjVlN2Y1NDgzMzk3MDRhZjc1MDBhMDQxNGM4YzdjNjRhMGU2ODY2OTFiZDljOTVlZTEwZGMxNCIsImxpbWl0IjozLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MTY6MTguMDAyMTU5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=3&history_back=0",
+    "after": {
+     "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A16%3A18.002159%2B00%3A00&history_limit=3",
+     "historyH": 681,
+     "rows": [
+      "Fuel cost version 3",
+      "Fuel cost version 2",
+      "Fuel cost version 2"
+     ],
+     "rowCount": 3,
+     "prev": true,
+     "newer": null,
+     "overflowX": 0
+    }
+   }
+  ]
+ },
+ {
+  "screen": "assumptions",
+  "case": "default",
+  "width": 390,
+  "start": {
+   "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions",
+   "historyH": 1045,
+   "rows": [
+    "Fuel cost version 3",
+    "Fuel cost version 2",
+    "Fuel cost version 2"
+   ],
+   "rowCount": 3,
+   "prev": true,
+   "newer": null,
+   "overflowX": 0
+  },
+  "clicks": [
+   {
+    "click": "Previous versions",
+    "before": "http://localhost:5185/sites/KOBO-001/financials/assumptions",
+    "after": {
+     "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A16%3A23.980280%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjM5NjQwOSswMDowMCIsIjk4NGYxZmM1LTRlODQtNDlmMi1hOGZlLTQzMzBjNTI0Y2IzOSJdLCJmZW5jZSI6InNjaDEtYTRlMmY1ZDNmZjUwMzU2YWUxYTVmNzYwMGE5ODUwMTcyMDRmYTE5NDVkODNjYmZmZDkzZjNiZDExMmI1NjU2MiIsImxpbWl0IjozLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MTY6MjMuOTgwMjgwKzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=3&history_back=0",
+     "historyH": 1068,
+     "rows": [
+      "Fuel cost version 1",
+      "Fuel cost version 1",
+      "Fuel cost version 1"
+     ],
+     "rowCount": 3,
+     "prev": true,
+     "newer": "next",
+     "overflowX": 0
+    }
+   },
+   {
+    "click": "Next versions",
+    "before": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A16%3A23.980280%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjM5NjQwOSswMDowMCIsIjk4NGYxZmM1LTRlODQtNDlmMi1hOGZlLTQzMzBjNTI0Y2IzOSJdLCJmZW5jZSI6InNjaDEtYTRlMmY1ZDNmZjUwMzU2YWUxYTVmNzYwMGE5ODUwMTcyMDRmYTE5NDVkODNjYmZmZDkzZjNiZDExMmI1NjU2MiIsImxpbWl0IjozLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MTY6MjMuOTgwMjgwKzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=3&history_back=0",
+    "after": {
+     "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A16%3A23.980280%2B00%3A00&history_limit=3",
+     "historyH": 1045,
+     "rows": [
+      "Fuel cost version 3",
+      "Fuel cost version 2",
+      "Fuel cost version 2"
+     ],
+     "rowCount": 3,
+     "prev": true,
+     "newer": null,
+     "overflowX": 0
+    }
+   }
+  ]
+ },
+ {
+  "screen": "assumptions",
+  "case": "T3-page2",
+  "width": 1440,
+  "start": {
+   "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2",
+   "historyH": 470,
+   "rows": [
+    "Fuel cost version 2",
+    "Fuel cost version 1"
+   ],
+   "rowCount": 2,
+   "prev": true,
+   "newer": "newest",
+   "overflowX": 0
+  },
+  "clicks": [
+   {
+    "click": "Previous versions",
+    "before": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2",
+    "after": {
+     "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA0OjI0LjkxMDg5NSswMDowMCIsImIzZGFkMjdlLTlkMGQtNDNjZC04OWUzLTk0NTU4OWRlOWQ3NyJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2&history_back=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9",
+     "historyH": 547,
+     "rows": [
+      "Fuel cost version 1",
+      "Fuel cost version 1"
+     ],
+     "rowCount": 2,
+     "prev": true,
+     "newer": "next",
+     "overflowX": 0
+    }
+   },
+   {
+    "click": "Next versions",
+    "before": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA0OjI0LjkxMDg5NSswMDowMCIsImIzZGFkMjdlLTlkMGQtNDNjZC04OWUzLTk0NTU4OWRlOWQ3NyJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2&history_back=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9",
+    "after": {
+     "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2",
+     "historyH": 470,
+     "rows": [
+      "Fuel cost version 2",
+      "Fuel cost version 1"
+     ],
+     "rowCount": 2,
+     "prev": true,
+     "newer": "newest",
+     "overflowX": 0
+    }
+   },
+   {
+    "click": "Back to newest",
+    "before": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2",
+    "after": {
+     "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_limit=2",
+     "historyH": 547,
+     "rows": [
+      "Fuel cost version 3",
+      "Fuel cost version 2"
+     ],
+     "rowCount": 2,
+     "prev": true,
+     "newer": null,
+     "overflowX": 0
+    }
+   }
+  ]
+ },
+ {
+  "screen": "assumptions",
+  "case": "T3-page2",
+  "width": 390,
+  "start": {
+   "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2",
+   "historyH": 837,
+   "rows": [
+    "Fuel cost version 2",
+    "Fuel cost version 1"
+   ],
+   "rowCount": 2,
+   "prev": true,
+   "newer": "newest",
+   "overflowX": 0
+  },
+  "clicks": [
+   {
+    "click": "Previous versions",
+    "before": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2",
+    "after": {
+     "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA0OjI0LjkxMDg5NSswMDowMCIsImIzZGFkMjdlLTlkMGQtNDNjZC04OWUzLTk0NTU4OWRlOWQ3NyJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2&history_back=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9",
+     "historyH": 861,
+     "rows": [
+      "Fuel cost version 1",
+      "Fuel cost version 1"
+     ],
+     "rowCount": 2,
+     "prev": true,
+     "newer": "next",
+     "overflowX": 0
+    }
+   },
+   {
+    "click": "Next versions",
+    "before": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA0OjI0LjkxMDg5NSswMDowMCIsImIzZGFkMjdlLTlkMGQtNDNjZC04OWUzLTk0NTU4OWRlOWQ3NyJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2&history_back=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9",
+    "after": {
+     "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2",
+     "historyH": 837,
+     "rows": [
+      "Fuel cost version 2",
+      "Fuel cost version 1"
+     ],
+     "rowCount": 2,
+     "prev": true,
+     "newer": "newest",
+     "overflowX": 0
+    }
+   },
+   {
+    "click": "Back to newest",
+    "before": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2",
+    "after": {
+     "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_limit=2",
+     "historyH": 837,
+     "rows": [
+      "Fuel cost version 3",
+      "Fuel cost version 2"
+     ],
+     "rowCount": 2,
+     "prev": true,
+     "newer": null,
+     "overflowX": 0
+    }
+   }
+  ]
+ }
+]

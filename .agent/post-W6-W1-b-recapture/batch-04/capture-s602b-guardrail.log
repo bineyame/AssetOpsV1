@@ -1,0 +1,51 @@
+chrome pid 25480
+PASS  loaded http://localhost:5186/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505/plan: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-plan-guardrail 1440: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/action-plan: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-plan-guardrail 1440: mock rendered
+PASS  action-plan-guardrail 1440: same panel count  {"app":["Success criteria"],"mock":["Success criteria"]}
+PASS  action-plan-guardrail 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505/plan: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-plan-guardrail 390: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/action-plan: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-plan-guardrail 390: mock rendered
+PASS  action-plan-guardrail 390: same panel count  {"app":["Success criteria"],"mock":["Success criteria"]}
+PASS  action-plan-guardrail 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-evidence-guardrail 1440: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/action-evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-evidence-guardrail 1440: mock rendered
+PASS  action-evidence-guardrail 1440: same panel count  {"app":["Evidence requirements"],"mock":["Evidence requirements"]}
+PASS  action-evidence-guardrail 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505/evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-evidence-guardrail 390: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/action-evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-evidence-guardrail 390: mock rendered
+PASS  action-evidence-guardrail 390: same panel count  {"app":["Evidence requirements"],"mock":["Evidence requirements"]}
+PASS  action-evidence-guardrail 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-overview-guardrail 1440: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/action-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-overview-guardrail 1440: mock rendered
+PASS  action-overview-guardrail 1440: same panel count  {"app":["Action scope"],"mock":["Action scope"]}
+PASS  action-overview-guardrail 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-overview-guardrail 390: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/action-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-overview-guardrail 390: mock rendered
+PASS  action-overview-guardrail 390: same panel count  {"app":["Action scope"],"mock":["Action scope"]}
+PASS  action-overview-guardrail 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/KOBO-001/findings/93073b1d-d7fa-44b6-b062-b900dc9e8d77/recommendation?revision_id=53d19260-2951-4ba4-856b-529b582d559c: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-guardrail-hold 1440: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/recommendation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-guardrail-hold 1440: mock rendered
+PASS  recommendation-guardrail-hold 1440: same panel count  {"app":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"],"mock":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"]}
+PASS  recommendation-guardrail-hold 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/KOBO-001/findings/93073b1d-d7fa-44b6-b062-b900dc9e8d77/recommendation?revision_id=53d19260-2951-4ba4-856b-529b582d559c: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-guardrail-hold 390: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/recommendation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-guardrail-hold 390: mock rendered
+PASS  recommendation-guardrail-hold 390: same panel count  {"app":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"],"mock":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"]}
+PASS  recommendation-guardrail-hold 390: no app page overflow  {"overflowX":0}
+
+48/48 claims passed; evidence in .agent/post-W6-W1-b-recapture/batch-04/s602b-guardrail

@@ -11,6 +11,7 @@ import { describe, expect, it } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
+import { sitePerformanceHref } from "../operatorSiteRoutes";
 import type { FindingIndexClient, FindingIndexResult } from "../../sites/findingIndexClient";
 import type { SiteDetailClient, SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { analyticsClient } from "../../sites/__tests__/analyticsFixtures";
@@ -288,7 +289,7 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     const { client } = indexClient(() => ({ status: "loaded", value: ROWS }));
     renderAt(PATH, client);
     await settledScreen();
-    expect(card().textContent).toContain("Which Findings belong to this site?");
+    expect(card().textContent).toContain("Domain links back to the Performance view that produced the finding.");
     expect(expectStateLineVisible(statusBar())).toBe("Using the latest checked readings");
     expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
     expect(statusBar().querySelector("[data-product-status-scope]")?.textContent).toContain("25 Oct 2026");
@@ -413,7 +414,7 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     expect(state()).toBe(expected);
     noClaim();
     expectUntimedStateLine(label);
-    expect(card().textContent).toContain("Which Findings belong to this site?");
+    expect(card().textContent).toContain("Domain links back to the Performance view that produced the finding.");
     const main = document.querySelector("main") as HTMLElement;
     const w1 = scanProductVocabulary(main, `site findings ${expected} (W1)`, { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
@@ -528,5 +529,61 @@ describe("W1-F3 height phase: Site Findings index shows the mock's three rows", 
     renderAt(PATH, client);
     await settledScreen();
     expect(document.querySelectorAll("[data-step-strip] [data-step]")).toHaveLength(2);
+  });
+});
+
+// --- post-W6 W1-b Q19/Q20 (R197) -----------------------------------------------------------------------------------
+
+describe("post-W6 W1-b: Site Findings index Domain and renewable links (Q19/Q20)", () => {
+  const dispatch = sitePerformanceHref(SITE_ID, "dispatch");
+  const interval = (id: string) => ({
+    assessment_revision_id: id,
+    analytic_run_id: "run",
+    model_version: "dispatch-3.1",
+    matcher_version: "finding-episode-1",
+    cohort_sha256: null,
+  });
+  const BODY = indexBody({
+    rows: [
+      // A proved 15-minute interval revision: the link selects it.
+      indexRow(FID_B, RID_B, "2026-10-25T18:00:00Z", "2026-10-25T19:00:00Z", {
+        assessment: { ...interval("iv-1"), interval_assessment_revision_ids: ["iv-1"] },
+      }),
+      // A whole-window primary (not in the interval list): day only.
+      indexRow(FID_A, RID_A, "2026-10-25T23:30:00+03:00", "2026-10-25T23:45:00+03:00", {
+        assessment: { ...interval("win-1"), interval_assessment_revision_ids: ["iv-9"] },
+      }),
+      // No interval list at all: day only.
+      indexRow("f-missing-list", "r-missing-list", "2026-10-24T06:00:00Z", "2026-10-24T07:00:00Z", { assessment: interval("ar") }),
+      // An invalid episode start: plain Domain text, no invented day.
+      indexRow("f-invalid", "r-invalid", "not-a-time", "2026-10-24T07:00:00Z", { assessment: interval("ar") }),
+    ],
+    total_count: 4,
+  });
+  const domain = (fid: string) =>
+    card().querySelector(`[data-finding-index-row="${fid}"] [data-finding-index-domain]`) as HTMLElement;
+
+  it("links Dispatch to the row's UTC day, adding a revision only when the row proves it is an interval revision", async () => {
+    const { client } = indexClient(() => ({ status: "loaded", value: BODY }));
+    renderAt(PATH, client);
+    await settledScreen();
+    expect(within(domain(FID_B)).getByRole("link", { name: "Dispatch" })).toHaveAttribute("href", `${dispatch}?day=2026-10-25&revision=iv-1`);
+    // 23:30 at +03:00 is 20:30 UTC on the same day; the whole-window primary is never selected.
+    expect(within(domain(FID_A)).getByRole("link", { name: "Dispatch" })).toHaveAttribute("href", `${dispatch}?day=2026-10-25`);
+    expect(within(domain("f-missing-list")).getByRole("link", { name: "Dispatch" })).toHaveAttribute("href", `${dispatch}?day=2026-10-24`);
+    expect(domain("f-invalid").querySelector("a")).toBeNull();
+    expect(domain("f-invalid").textContent).toBe("Dispatch");
+    expect(card().textContent).toContain("Domain links back to the Performance view that produced the finding.");
+  });
+
+  it("links 'open the renewable evaluation' to the Site's Performance Renewable view, with no Opportunity address", async () => {
+    const { client } = indexClient(() => ({ status: "loaded", value: BODY }));
+    renderAt(PATH, client);
+    await settledScreen();
+    const helper = document.querySelector("[data-opportunity-index-helper]") as HTMLElement;
+    expect(helper.textContent).toBe("Opportunity index unavailable; open the renewable evaluation for this site's five-day study.");
+    const link = within(helper).getByRole("link", { name: "open the renewable evaluation" });
+    expect(link).toHaveAttribute("href", sitePerformanceHref(SITE_ID, "renewable"));
+    expect(link.getAttribute("href")).not.toMatch(/opportunit/i);
   });
 });
