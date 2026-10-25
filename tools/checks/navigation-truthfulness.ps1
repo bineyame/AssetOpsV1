@@ -719,6 +719,22 @@ function Get-OperatorRailFailures {
         }
     }
 
+    # Post-W6 W6 Q13 (R371): an unknown work request section is a shelled operator route before the catch-all that
+    # renders the request's not-served panel, never the bare catch-all frame or a redirect.
+    if ($operatorStart -ge 0 -and $catchAll -gt $operatorStart) {
+        $sectionRoute = $false
+        for ($i = $operatorStart + 1; $i -lt $catchAll; $i++) {
+            if ($AppLines[$i] -match 'path\s*=\s*"/maintenance/requests/:caseId/\*"\s+element=\{<WorkRequestUnknownSectionFrame\s*/>\}') {
+                $sectionRoute = $true
+            }
+        }
+        if (-not $sectionRoute) {
+            $failures.Add(("$appPath registers no operator route 'path=""/maintenance/requests/:caseId/*""' rendering " +
+                "<WorkRequestUnknownSectionFrame /> before the catch-all, so an unknown work request section would " +
+                "fall to the unshelled 'Page not available' frame (post-W6 W6 Q13, R371).")) | Out-Null
+        }
+    }
+
     # NavRail's model forbids a destination on an unavailable item.
     if (($NavRailLines -join "`n") -notmatch
         'interface\s+NavRailUnavailableItem[^{]*\{[^}]*kind:\s*"unavailable";[^}]*to\?:\s*never;') {

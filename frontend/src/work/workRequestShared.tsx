@@ -12,15 +12,17 @@
  */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { MetricHeader, PageHeader } from "../ui";
+import { MetricHeader, PageHeader, Panel } from "../ui";
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import { useCurrentTabInView } from "../ui/useCurrentTabInView";
 import {
   GLOBAL_WORK_DETAIL_REFUSAL_COPY,
   createGlobalWorkClient,
+  findingLinkSelectsRevision,
   globalWorkDetailPageQuery,
   globalWorkRequestHref,
   globalWorkUtc,
+  globalWorkUtcSeconds,
   type GlobalWorkClient,
   type GlobalWorkDetailBody,
   type GlobalWorkDetailPageQuery,
@@ -29,7 +31,7 @@ import {
   type GlobalWorkLink,
   type WorkCaseDetailRecord,
 } from "./globalWorkClient";
-import { Clamp, joined } from "./globalWorkParts";
+import { Clamp, MockDeviation, joined } from "./globalWorkParts";
 import "./globalWork.css";
 
 /** The request route path prefix; `WORK_REQUEST_ROUTE_PATH` in `shell/operatorSiteRoutes.ts` is `${this}/:caseId`. */
@@ -40,7 +42,8 @@ export const WORK_REQUEST_HEADING_ID = "work-request-heading";
 export const WORK_REQUEST_TITLE = "Work request";
 export const WORK_REQUEST_LOADING = "Loading the work request.";
 export const WORK_REQUEST_REFUSED_SUBTITLE = "Request details could not be shown.";
-export const WORK_REQUEST_NO_SITE_SUBTITLE = "Choose a request at a site.";
+/** Post-W6 W6 Q11 (R367): a no-site address states the refusal subtitle and this body sentence. */
+export const WORK_REQUEST_NO_SITE_SENTENCE = "Choose a request at a site.";
 /** P-C2-4: the date-bar line on refusal. */
 export const WORK_REQUEST_UNAVAILABLE = "Work request unavailable.";
 export const NOT_ASSIGNED = "Not assigned";
@@ -52,6 +55,8 @@ const STATE_LABEL: Readonly<Record<string, string>> = {
   IN_PROGRESS: "In progress",
   COMPLETED: "Completed",
   CANCELLED: "Cancelled",
+  // Post-W6 W6 Q12 (R370): no writer enters this state yet; the summary appends `· outcome not established`.
+  VERIFICATION_WINDOW: "Verification open",
 };
 
 export function stateLabel(state: string): string {
@@ -161,23 +166,21 @@ export function WorkRequestBreadcrumbs({ body, tab }: { body: GlobalWorkDetailBo
   );
 }
 
-/** P-C2-3: the mock `Open site` heading action; text without an anchor before load or on refusal. */
+/**
+ * P-C2-3: the mock `Open site` heading action. Post-W6 W6 Q11 (R367): rendered only with a Site href; before load
+ * or on refusal there is no control.
+ */
 export function OpenSite({ body }: { body: GlobalWorkDetailBody | null }) {
   const href = body?.links.site.href ?? null;
   return href ? (
     <Link className="button" to={href} data-work-request-open-site>
       Open site
     </Link>
-  ) : (
-    <span className="button" data-work-request-open-site="text">
-      Open site
-    </span>
-  );
+  ) : null;
 }
 
 export function subtitleOf(page: WorkRequestRead): string {
   if (page.body !== null) return `${page.body.selected.case_code} · ${page.body.links.site.label} · corrective`;
-  if (page.failure?.kind === "no-site") return WORK_REQUEST_NO_SITE_SUBTITLE;
   if (page.failure !== null) return WORK_REQUEST_REFUSED_SUBTITLE;
   return WORK_REQUEST_LOADING;
 }
@@ -229,17 +232,24 @@ export function LiveTab({ page, tab, current }: { page: WorkRequestRead; tab: Wo
  * other tab row uses.
  */
 export function WorkRequestTabs({ page, tab }: { page: WorkRequestRead; tab: WorkRequestTab }) {
-  // W6-01d review M1: at 390 the row scrolls inside itself; keep the current tab (History is fourth) in view.
+  // Post-W6 W6 Q9 (R364, superseding W6-01d M1): at 760 px and below the row wraps with complete labels (CSS), so
+  // nothing is clipped; the in-view hook stays harmless when the row does not scroll.
   const rowRef = useCurrentTabInView<HTMLElement>();
   return (
-    <nav ref={rowRef} aria-label="Context tabs" className="site-tabs work-request-tabs" data-work-request-tabs>
-      <ol className="site-tabs__list">
-        <LiveTab page={page} tab="overview" current={tab} />
-        <LiveTab page={page} tab="record" current={tab} />
-        <UnavailableTab label="Verification" />
-        <LiveTab page={page} tab="history" current={tab} />
-      </ol>
-    </nav>
+    <>
+      <nav ref={rowRef} aria-label="Context tabs" className="site-tabs work-request-tabs" data-work-request-tabs>
+        <ol className="site-tabs__list">
+          <LiveTab page={page} tab="overview" current={tab} />
+          <LiveTab page={page} tab="record" current={tab} />
+          <UnavailableTab label="Verification" />
+          <LiveTab page={page} tab="history" current={tab} />
+        </ol>
+        {/* MOCK DEVIATION D1 (R396): the mock's Verification tab is available; here it is visibly unavailable
+            because no verification view is mounted for a work request. Owner decision open. The line sits under
+            the row inside the same landmark (the T011C precedent). */}
+        <MockDeviation category="D1" id="R396" />
+      </nav>
+    </>
   );
 }
 
@@ -249,21 +259,25 @@ export function WorkRequestBar({ page }: { page: WorkRequestRead }) {
   let line: ReactNode = null;
   if (loading) {
     line = (
-      <p className="global-work-loading" data-global-work-loading>
+      <p role="status" className="global-work-loading" data-global-work-loading>
         {WORK_REQUEST_LOADING}
       </p>
     );
   } else if (body !== null) {
-    const when = globalWorkUtc(body.selected.known_at);
+    // Post-W6 W6 Q14 (R372): a historical cutoff is stated to the second; the current line keeps minutes.
     line = (
       <p className="work-request-asof" data-work-request-asof={target?.knownAt ? "historical" : "current"}>
-        {target?.knownAt ? `Historical as of ${when}` : `As known at ${when}`}
+        {target?.knownAt
+          ? `Historical as of ${globalWorkUtcSeconds(body.selected.known_at)}`
+          : `As known at ${globalWorkUtc(body.selected.known_at)}`}
       </p>
     );
   } else if (failure !== null) {
     line = <p data-work-request-unavailable>{WORK_REQUEST_UNAVAILABLE}</p>;
   }
-  const fetched = page.parsed.status === "valid" && !loading;
+  // Post-W6 W6 Q11 (R367): Reload repeats a loaded read or a 503 store refusal; never 401/403/404/422 or no-site.
+  const retryable = failure?.kind === "code" && failure.code === "WORK_STORE_UNAVAILABLE";
+  const fetched = page.parsed.status === "valid" && !loading && (body !== null || retryable);
   return (
     <div className="site-date-bar global-work-bar work-request-bar" data-global-work-bar>
       {line}
@@ -272,16 +286,19 @@ export function WorkRequestBar({ page }: { page: WorkRequestRead }) {
           Reload
         </button>
       ) : null}
+      {/* MOCK DEVIATION D2 (R363): the added date-bar row states the read cutoff. */}
+      {body !== null ? <MockDeviation category="D2" id="R363" /> : null}
     </div>
   );
 }
 
+/** The one refusal sentence (Post-W6 W6 Q8/Q11: announced as an alert; no-site states its own sentence). */
 export function WorkRequestRefusal({ failure }: { failure: WorkRequestFailure }) {
-  const code: GlobalWorkDetailRefusalCode = failure.kind === "no-site" ? "WORK_CASE_NOT_FOUND" : failure.code;
   const hook = failure.kind === "no-site" ? "NO_SITE" : failure.code;
+  const sentence = failure.kind === "no-site" ? WORK_REQUEST_NO_SITE_SENTENCE : GLOBAL_WORK_DETAIL_REFUSAL_COPY[failure.code];
   return (
-    <div className="notice v69-notice global-work-state" data-global-work-refusal={hook} data-page-refusal={hook}>
-      <p>{GLOBAL_WORK_DETAIL_REFUSAL_COPY[code]}</p>
+    <div role="alert" className="notice v69-notice global-work-state" data-global-work-refusal={hook} data-page-refusal={hook}>
+      <p>{sentence}</p>
     </div>
   );
 }
@@ -304,7 +321,8 @@ export function ownerOf(body: GlobalWorkDetailBody): string {
   return typeof assignee === "string" && assignee !== "" ? assignee : NOT_ASSIGNED;
 }
 
-function SourceLink({ link }: { link: GlobalWorkLink }) {
+function SourceLink({ link, plain = false }: { link: GlobalWorkLink; plain?: boolean }) {
+  if (plain) return <span data-work-request-source-link="plain">{link.label}</span>;
   return link.href ? (
     <Link to={link.href} data-work-request-source-link="">
       {link.label}
@@ -316,17 +334,25 @@ function SourceLink({ link }: { link: GlobalWorkLink }) {
 
 /**
  * P-C2-10: Source shows the incident link (when present), then every outer Finding link joined ` · `; a pinned
- * Finding without lineage is plain text with `Link unavailable at this cutoff`; neither is `Not recorded`.
+ * Finding without lineage is plain text with `Link unavailable at this cutoff`; neither is `Not recorded`. Post-W6
+ * W6 Q2 (R352): a cold or EV Finding is plain `Finding {id8}` with no anchor and no unavailable suffix, because its
+ * domain Finding frame does not select the revision.
  */
 function sourceOf(body: GlobalWorkDetailBody): { node: ReactNode; text: string } {
-  const links = [...(body.links.source_incident ? [body.links.source_incident] : []), ...body.links.findings];
+  const plainFindings = !findingLinkSelectsRevision(body.selected.site_domain);
+  const links = [
+    ...(body.links.source_incident ? [{ link: body.links.source_incident, plain: false }] : []),
+    ...body.links.findings.map((link) => ({ link, plain: plainFindings })),
+  ];
   if (links.length === 0) return { node: NOT_RECORDED, text: NOT_RECORDED };
   return {
     node: joined(
-      links.map((link, index) => <SourceLink key={`${link.label}-${index}`} link={link} />),
+      links.map(({ link, plain }, index) => <SourceLink key={`${link.label}-${index}`} link={link} plain={plain} />),
       " · ",
     ),
-    text: links.map((link) => (link.href ? link.label : `${link.label} · ${LINK_UNAVAILABLE_AT_CUTOFF}`)).join(" · "),
+    text: links
+      .map(({ link, plain }) => (plain || link.href ? link.label : `${link.label} · ${LINK_UNAVAILABLE_AT_CUTOFF}`))
+      .join(" · "),
   };
 }
 
@@ -409,7 +435,49 @@ export function WorkRequestFrame({
         <WorkRequestBar page={page} />
         {failure !== null ? <WorkRequestRefusal failure={failure} /> : null}
         {body !== null ? <WorkRequestMHeader body={body} /> : null}
-        {children(body)}
+        {/* Post-W6 W6 Q11 (R367): a refused request shows the header and one refusal, never page panels. */}
+        {failure === null ? children(body) : null}
+      </div>
+    </main>
+  );
+}
+
+export const UNKNOWN_SECTION_HEADING_ID = "work-request-unknown-section-heading";
+export const UNKNOWN_SECTION_TEXT = "No work request section is served at this address.";
+export const OPEN_REQUEST_OVERVIEW = "Open this request's overview";
+
+/**
+ * Post-W6 W6 Q13 (R371): an unknown section under a work request (`/maintenance/requests/{id}/{anything}`) is stated
+ * inside the operator shell, never redirected and never read from the API. With a valid request ID and Site it
+ * offers that request's Overview, keeping the validated `site_id` and (when valid) `known_at`.
+ */
+export function WorkRequestUnknownSectionFrame() {
+  const { caseId } = useParams();
+  const [params] = useSearchParams();
+  const parsed = globalWorkDetailPageQuery(caseId, params);
+  const target =
+    parsed.status === "valid"
+      ? { caseId: parsed.query.case_id, site_id: parsed.query.site_id, known_at: parsed.query.known_at }
+      : parsed.status === "invalid" && parsed.reason === "known-at" && caseId !== undefined && parsed.siteId !== null
+        ? { caseId, site_id: parsed.siteId, known_at: null }
+        : null;
+  return (
+    <main aria-labelledby={UNKNOWN_SECTION_HEADING_ID}>
+      <div className="global-work work-request work-request--unknown-section" data-work-request-unknown-section>
+        <PageHeader title="Page not available" headingId={UNKNOWN_SECTION_HEADING_ID} />
+        <Panel heading="This address is not served" headingId="work-request-unknown-section-detail">
+          <p>{UNKNOWN_SECTION_TEXT}</p>
+          {target !== null ? (
+            <p>
+              <Link
+                to={globalWorkRequestHref(`${WORK_REQUEST_PATH_PREFIX}/${encodeURIComponent(target.caseId)}`, target)}
+                data-work-request-open-overview
+              >
+                {OPEN_REQUEST_OVERVIEW}
+              </Link>
+            </p>
+          ) : null}
+        </Panel>
       </div>
     </main>
   );

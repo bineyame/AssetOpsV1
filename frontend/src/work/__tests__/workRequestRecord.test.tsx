@@ -5,7 +5,7 @@
  */
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
@@ -73,6 +73,7 @@ function detail(records: WorkCaseDetailRecord[] = [rec("401")], over: Partial<Gl
       case_code: "WR-000001",
       case_kind: "MAINTENANCE_REQUEST",
       known_at: "2026-10-22T12:00:00.000000Z",
+      site_domain: "MINIGRID",
     },
     work_detail: {
       schema_version: "work-case-detail-1",
@@ -364,8 +365,8 @@ describe("W6-01c C3: work request Maintenance record", () => {
     ["UNAUTHENTICATED", "Sign in to see work records."],
     ["SITE_SCOPE_FORBIDDEN", "No access to this Site's work."],
     ["WORK_CASE_NOT_FOUND", "No work case with this ID at this site."],
-    ["WORK_STORE_UNAVAILABLE", "Work records could not be read. Reload."],
-  ] as const)("states the %s refusal, keeps the panel slot and renders no notice", async (code, sentence) => {
+    ["WORK_STORE_UNAVAILABLE", "Work records could not be read."],
+  ] as const)("states the %s refusal with no page panel and no notice", async (code, sentence) => {
     mount(PAGE, client({ status: "refused", code }));
     await settled();
     expect(screen.getByRole("heading", { level: 1, name: "Work request" })).toBeInTheDocument();
@@ -375,9 +376,14 @@ describe("W6-01c C3: work request Maintenance record", () => {
       "href",
       RECORD,
     );
-    expect(screen.getByRole("heading", { level: 2, name: "Maintenance record · activity" })).toBeInTheDocument();
+    // Post-W6 W6 Q11 (R367): the shared header and one alert refusal; no record activity panel or notice.
+    expect(screen.queryByRole("heading", { level: 2, name: "Maintenance record · activity" })).toBeNull();
+    expect(document.querySelectorAll("main .panel")).toHaveLength(0);
     expect(q("[data-work-record-notice]")).toBeNull();
-    expectV69Panels("wr-record");
+    expect(within(screen.getByRole("main")).getByRole("alert")).toHaveAttribute("data-page-refusal", code);
+    expect(q("[data-work-request-open-site]")).toBeNull();
+    if (code === "WORK_STORE_UNAVAILABLE") expect(screen.getByRole("button", { name: "Reload" })).toBeInTheDocument();
+    else expect(screen.queryByRole("button", { name: "Reload" })).toBeNull();
   });
 
   it("does not fetch without a site_id and renders the tabs as text", async () => {
@@ -385,7 +391,9 @@ describe("W6-01c C3: work request Maintenance record", () => {
     mount(`/maintenance/requests/${CASE}/record`, reads);
     await settled();
     expect(reads.calls).toEqual([]);
-    expect(text(q('[data-page-refusal="NO_SITE"]'))).toBe("No work case with this ID at this site.");
+    expect(text(q('[data-page-refusal="NO_SITE"]'))).toBe("Choose a request at a site.");
+    expect(text(q(".page-header p"))).toBe("Request details could not be shown.");
+    expect(document.querySelectorAll("main .panel")).toHaveLength(0);
     const tabs = screen.getByRole("navigation", { name: "Context tabs" });
     expect(within(tabs).queryByRole("link")).toBeNull();
     expect(text(tabs)).toContain("Maintenance record");
@@ -406,7 +414,8 @@ describe("W6-01c C3: work request Maintenance record", () => {
     mount(`${PAGE}${cut}`, withCut);
     await settled();
     expect(withCut.calls).toEqual([{ case_id: CASE, site_id: "KOBO-001", known_at: KNOWN }]);
-    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 12:00 UTC");
+    // Post-W6 W6 Q14 (R372): the historical date bar names its cutoff to the second.
+    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 12:00:01 UTC");
     const tabs = screen.getByRole("navigation", { name: "Context tabs" });
     expect(within(tabs).getByRole("link", { name: "Overview" })).toHaveAttribute("href", `${OVERVIEW}${cut}`);
     expect(within(tabs).getByRole("link", { name: "Maintenance record" })).toHaveAttribute("href", `${RECORD}${cut}`);
@@ -432,5 +441,26 @@ describe("W6-01c C3: the record route in the app shell", () => {
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
     expect(within(rail).getByRole("link", { name: "Maintenance" })).toHaveAttribute("aria-current", "page");
     expect(reads.calls).toHaveLength(1);
+  });
+});
+
+describe("Post-W6 W6: work request Maintenance record corrections", () => {
+  it("R368: the recorded outcome renders without a block inside a paragraph; R365 label in the panel", async () => {
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const base = detail();
+      const records = base.work_detail.records.map((r) => ({ ...r, outcome_note: "Start succeeded on test." }));
+      mount(PAGE, client(loaded({ ...base, work_detail: { ...base.work_detail, records } })));
+      await settled();
+      const outcome = q('[data-work-record-outcome="recorded"]');
+      expect(outcome).not.toBeNull();
+      expect(outcome?.tagName).toBe("DIV");
+      expect(outcome?.closest("p")).toBeNull();
+      const nesting = errors.mock.calls.map((call) => call.map(String).join(" ")).filter((m) => /descendant of <p>|validateDOMNesting/.test(m));
+      expect(nesting).toEqual([]);
+      expect(text(q('[data-mock-deviation="R365"]'))).toBe("MOCK DEVIATION D1 (R365)");
+    } finally {
+      errors.mockRestore();
+    }
   });
 });

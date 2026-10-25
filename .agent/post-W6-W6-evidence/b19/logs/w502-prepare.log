@@ -1,0 +1,13 @@
+=== 1. Private tree (git HEAD) ===
+  C:\Users\assef\Bineyame\AssetOpsV1-review8\var\w502b_w6r19\tree (code from f3da6e90)
+=== 2. positive: database w502b_positive_w6r19_test ===
+  built positive blocked: None {'positive': ('CURRENT', 1), 'zero': ('CURRENT', 0), 'historical': ('HISTORICAL', 1)}  (500s)
+=== 3. worstcase: database w502b_worstcase_w6r19_test ===
+  built worstcase blocked: None {'worstcase': ('CURRENT', 6)}  (442s)
+=== 4. pending: database w502b_pending_w6r19_test ===
+  built pending blocked: None {'pending': ('PENDING_RECOMPUTE', 1)}  (478s)
+=== 5. stale: database w502b_stale_w6r19_test ===
+  built stale blocked: None {'stale': ('STALE_SOURCE', 1)}  (452s)
+=== 6. unknown: database w502b_unknown_w6r19_test ===
+  built unknown blocked: None {'unknown': ('UNKNOWN', 1)}  (275s)
+Manifest: C:\Users\assef\Bineyame\AssetOpsV1-review8\var\w502b_w6r19\manifest.json

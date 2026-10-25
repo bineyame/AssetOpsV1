@@ -1,0 +1,38 @@
+[
+ {
+  "id": "maintenance-preventive",
+  "case": "positive",
+  "url": "http://127.0.0.1:5392/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "all-open",
+  "url": "http://127.0.0.1:5392/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5392/maintenance/preventive?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "refused-span-32d",
+  "url": "http://127.0.0.1:5392/maintenance/preventive?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "refused-one-bound",
+  "url": "http://127.0.0.1:5392/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "refused-bad-known-at",
+  "url": "http://127.0.0.1:5392/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time"
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5392/maintenance/preventive"
+ }
+]

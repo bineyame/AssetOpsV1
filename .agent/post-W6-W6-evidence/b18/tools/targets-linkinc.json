@@ -1,0 +1,14 @@
+[
+ {
+  "id": "link",
+  "case": "r359-incident-wr",
+  "url": "http://127.0.0.1:5388/maintenance/requests/ec2fd18c-428b-4813-854a-d5e175a9e9f8?site_id=KOBO-001",
+  "mock": "wr-overview"
+ },
+ {
+  "id": "link",
+  "case": "r360-current-inc",
+  "url": "http://127.0.0.1:5388/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "mock": "sitework-incidents"
+ }
+]

@@ -1,0 +1,2600 @@
+{
+  "revision": "f3da6e90",
+  "captured_at": "2026-10-25T14:06:39.896Z",
+  "pairs": [
+    {
+      "screen": "link",
+      "case": "r353-evwc-site-from-incidents",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5388/sites/EV-LAB-001/ev",
+      "mock_hash": "#/ev",
+      "app_image": "link-r353-evwc-site-from-incidents-1440-app.png",
+      "mock_image": "link-r353-evwc-site-from-incidents-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened on the service day",
+          "Charging activity and site power",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 248,
+            "y": 457,
+            "w": 1145,
+            "h": 272,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened on the service dayPlain sequence from accepted charger and meter recordsReview sessions →08:01 UTCSession started · REC 74068b5a-3fcc-4f6b-9b96-9b4d557be41608:16 UTCConnector fault · REC de70e082-910a-40f4-ba90-5ffcb08f108708:16 UTCSession aborted · REC 05d3f3cc-4c01-497b-be81-33e1f95fcc70—No accepted event—No accepted event—No accepted event—No accepted eventOnly accepted records are shown; the cause of an interruption is not established.Event details74068b5a-3fcc-4f6b-9b96-9b4d557be416 · Session started · Connector c1 · session · source 2026-10-06T08:01:00.000000Z · received 20",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 248,
+            "y": 747,
+            "w": 725,
+            "h": 374,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Charging activity and site powerPower is operating context, not proof of charger condition or cause.80 kW08:00 UTC09:00 UTCConnector energySite importConfigured limitChart detailsSite import: 3600/3600 s of selected window coveredConnector energy74c05291-c2d5-4001-bb4e-72ffba54eaae · 2026-10-06T08:01:00.000000Z to 2026-10-06T08:05:00.000000Z · 4 kWhddd3a261-152f-49a2-878d-87d13e247c40 · 2026-10-06T08:05:00.000000Z to 2026-10-06T08:10:00.000000Z · 5 kWhe20a8103-2bcb-4e72-84da-1c1a12d902f6 · 2026-10-06T08:10:00.000000Z to 2026-10-06T08:15:00.000000Z · 5 kWh28925878-de9a-4a6f-9b32-d060bc0f6b7c · ",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 747,
+            "w": 403,
+            "h": 374,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1Fault-aborted sessionA session ended with a connector fault.Open Finding →",
+            "h3": [
+              "Fault-aborted session"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1139,
+            "w": 725,
+            "h": 211,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceWithheldThe gross tariff scenario is being refreshed.Scenario detailsExact amount: Not assessedTariff revision: Not declaredSource gate: Not recordedOverlap group: Not recordedOpen financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1139,
+            "w": 403,
+            "h": 211,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepPublish an EV gross tariffNeeded before a gross tariff scenario can be estimated.Review recommendation · Not available yet",
+            "h3": [
+              "Publish an EV gross tariff"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1401,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "cards": [
+            "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete · of 1 attempts",
+            "AvailabilityNot assessedConnector availability is not assessed",
+            "Site power60 kW observed peak3600/3600 s of selected window covered",
+            "Charger conditionNot assessedSource reporting is not equipment condition",
+            "EvidenceLimited4 capabilities · no single score"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 3,
+          "utc": 8,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete · of 1 atte | Session service -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "AvailabilityNot assessedConnector availability is not assessed | Availability -> /sites/EV-LAB-001/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "Site power60 kW observed peak3600/3600 s of selected window covered | Site power -> /sites/EV-LAB-001/performance/energy?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "Charger conditionNot assessedSource reporting is not equipment condition | ",
+            "EvidenceLimited4 capabilities · no single score | Evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+          ],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesEV charging lab",
+          "subtitle": "Overview · operating objectives for the selected period",
+          "headerButtons": [],
+          "strip": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Sites EV charging lab EV charging lab Demonstration data · EV-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence 6 Oct 08:00–6 Oct 09:00 UTC · known at 6 Oct 09:00 UTC Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations. Inspect evidence Let depot vehicles charge when scheduled, within the configured Site import limit. Configured service hours 08:00–16:00 UTC · Site import limit 80 kW Session service Sessions observed 0 completed · 1 observed aborts · 0 incomplete · of 1 attempts Availability Not assessed Connector availability is not assessed Site power 60 kW observed peak 3600/3600 s of selected window covered Charger condition Not assessed Source reporting is not equipment condition Evidence Limited 4 capabilities · no single score What happened on the service day Plain sequence from accepted charger and meter records Review sessions → 08:01 UTC Session started · REC 74068b5a-3fcc-4f6b-9b96-9b4d557be416 08:16 UTC Connector fault · REC de70e082-910a-40f4-ba90-5ffcb08f1087 08:16 UTC Session aborted · REC 05d3f3cc-4c01-497b-be81-33e1f95fcc70 — No accepted event — No accepted event — No accepted event — No accepted event Only accepted records are shown; the cause of an interruption is not established. Event details Charging activity and site power Power is operating context, not proof of charger condition or cause. 80 kW 08:00 UTC 09:00 UTC Connector energy Site import Configured limit Chart details Single line diagram → Opens configuration at window end; evidence cutoff is not carried. Needs attention 1 Fault-aborted session A session ended with a connector fault. Open Finding → Bounded money consequence Withheld The gross tariff scenario is being refreshed. Scenario details Open financial bridge → Next step Publish an EV gross tariff Needed before a gross tariff scenario can be estimated. Review recommendation · Not available yet"
+        },
+        "b18": {
+          "status": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [
+            "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence"
+          ],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "data · EV",
+            "started · REC",
+            "fault · REC",
+            "aborted · REC"
+          ],
+          "enums": [],
+          "utcHits": 8,
+          "bodyText": "Sites EV charging lab EV charging lab Demonstration data · EV-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence 6 Oct 08:00–6 Oct 09:00 UTC · known at 6 Oct 09:00 UTC Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations. Inspect evidence Let depot vehicles charge when scheduled, within the configured Site import limit. Configured service hours 08:00–16:00 UTC · Site import limit 80 kW Session service Sessions observed 0 completed · 1 observed aborts · 0 incomplete · of 1 attempts Availability Not assessed Connector availability is not assessed Site power 60 kW observed peak 3600/3600 s of selected window covered Charger condition Not assessed Source reporting is not equipment condition Evidence Limited 4 capabilities · no single score What happened on the service day Plain sequence from accepted charger and meter records Review sessions → 08:01 UTC Session started · REC 74068b5a-3fcc-4f6b-9b96-9b4d557be416 08:16 UTC Connector fault · REC de70e082-910a-40f4-ba90-5ffcb08f1087 08:16 UTC Session aborted · REC 05d3f3cc-4c01-497b-be81-33e1f95fcc70 — No accepted event — No accepted event — No accepted event — No accepted event Only accepted records are shown; the cause of an interruption is not established. Event details Charging activity and site power Power is operating context, not proof of charger condition or cause. 80 kW 08:00 UTC 09:00 UTC Connector energy Site import Configured limit Chart details Single line diagram → Opens configuration at window end; evidence cutoff is not carried. Needs attention 1 Fault-aborted session A session ended with a connector fault. Open Finding → Bounded money consequence Withheld The gross tariff scenario is being refreshed. Scenario details Open financial bridge → Next step Publish an EV gross tariff Needed before a gross tariff scenario can be estimated. Review recommendation · Not available yet"
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Inspect evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Session service -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Availability -> /sites/EV-LAB-001/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Site power -> /sites/EV-LAB-001/performance/energy?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Review sessions → -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Single line diagram → -> /sites/EV-LAB-001/foundation/sld?at=2026-10-06T09%3A00%3A00.000000Z",
+          "Open Finding → -> /sites/EV-LAB-001/findings/8ba8ba34-c3a5-4abf-a0b6-79dc41f60930?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:00:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+          "Open financial bridge → -> /sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:00:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+        ],
+        "cardsDom": [
+          {
+            "t": "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete ·",
+            "h": 126
+          },
+          {
+            "t": "AvailabilityNot assessedConnector availability is not assessed",
+            "h": 126
+          },
+          {
+            "t": "Site power60 kW observed peak3600/3600 s of selected window covered",
+            "h": 126
+          },
+          {
+            "t": "Charger conditionNot assessedSource reporting is not equipment condition",
+            "h": 126
+          },
+          {
+            "t": "EvidenceLimited4 capabilities · no single score",
+            "h": 126
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "10px": 7,
+          "14px": 6
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1401
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5388/sites/EV-LAB-001/ev",
+          "title": "AssetOps",
+          "h1": "EV charging lab",
+          "crumbs": "SitesEV charging lab",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": [
+            "Sites",
+            "EV charging lab",
+            "Overview",
+            "Foundation",
+            "Health",
+            "Performance",
+            "Findings",
+            "Work",
+            "Financials",
+            "Evidence"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "What happened on the service day",
+          "Charging activity and site power",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened on the service dayPlain sequence from accepted charger and meter recordsOpen Sessions →08:00Charging day startsBoth connectors available10:40Site peak 76 kWUnder the 80 kW limit14:03Session SES-011 startsConnector 214:11A fault stops the sessionConnector 2 · 3.6 kWh delivered14:11–15:00Connector 2 out of serviceStatus reports15:00–16:00Connector 2 status missingNo status reports15:04Session SES-012 starts; no end recordConnector 2Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not ca",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 356,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Charging activity and site power08:00–16:00 · two connectors · context, not a status sourceSingle line diagram →1007550250kW08:0009:2010:4012:0013:2014:4016:00Site importSite power limit",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 356,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1F-130 · Connector 2 stopped a sessionFault event and meter record agree; 3.6 kWh delivered.Findings › F-130 →2One session outcome unknownNo end record for SES-012; it counts as neither success nor failure.Performance › Sessions →3Connector 2 status missing for 1 hAvailability stays a range until the history is recovered.Evidence →",
+            "h3": [
+              "F-130 · Connector 2 stopped a session",
+              "One session outcome unknown",
+              "Connector 2 status missing for 1 h"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1210,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequence$36.00Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: unmet demand is not established.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1210,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepCheck connector 2 and witness a full sessionRetrieve the fault log for SES-011, then run a complete session on connector 2 with start, end and meter records.Review recommendation",
+            "h3": [
+              "Check connector 2 and witness a full session"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1470,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›Depot Charging Hub›Overview",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Sites › Depot Charging Hub › Overview Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Needs attention Confidence: Medium ⓘ Assessed: session service, availability and site power · cause of the interruption not yet established Inspect evidence ↗ Objective: let depot vehicles charge when scheduled, within the 80 kW site import limit. Session service Needs attention 1 interrupted · 1 outcome unknown · of 12 attempts View detail → Availability Watch Connector 2: 1 h out of service, 1 h unknown View detail → Site power Healthy Peak 76 kW, under the 80 kW limit View detail → Charger condition Unknown Fault seen; cause not diagnosed View detail → Evidence Limited One session end and 1 h of status missing View detail → What happened on the service day Plain sequence from accepted charger and meter records Open Sessions → 08:00 Charging day starts Both connectors available 10:40 Site peak 76 kW Under the 80 kW limit 14:03 Session SES-011 starts Connector 2 14:11 A fault stops the session Connector 2 · 3.6 kWh delivered 14:11–15:00 Connector 2 out of service Status reports 15:00–16:00 Connector 2 status missing No status reports 15:04 Session SES-012 starts; no end record Connector 2 Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not cause it; the charger or vehicle cause is not yet diagnosed. Charging activity and site power 08:00–16:00 · two connectors · context, not a status source Single line diagram → 100 75 50 25 0 kW 08:00 09:20 10:40 12:00 13:20 14:40 16:00 Site import Site power limit Needs attention 1 F-130 · Connector 2 stopped a session Fault event and meter record agree; 3.6 kWh delivered. Findings › F-130 → 2 One session outcome unknown No end record for SES-012; it counts as neither success nor failure. Performance › Sessions → 3 Connector 2 status missing for 1 h Availability stays a range until the history is recovered. Evidence → Bounded money consequence $36.00 Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: un"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=ev"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · EV"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Sites › Depot Charging Hub › Overview Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Needs attention Confidence: Medium ⓘ Assessed: session service, availability and site power · cause of the interruption not yet established Inspect evidence ↗ Objective: let depot vehicles charge when scheduled, within the 80 kW site import limit. Session service Needs attention 1 interrupted · 1 outcome unknown · of 12 attempts View detail → Availability Watch Connector 2: 1 h out of service, 1 h unknown View detail → Site power Healthy Peak 76 kW, under the 80 kW limit View detail → Charger condition Unknown Fault seen; cause not diagnosed View detail → Evidence Limited One session end and 1 h of status missing View detail → What happened on the service day Plain sequence from accepted charger and meter records Open Sessions → 08:00 Charging day starts Both connectors available 10:40 Site peak 76 kW Under the 80 kW limit 14:03 Session SES-011 starts Connector 2 14:11 A fault stops the session Connector 2 · 3.6 kWh delivered 14:11–15:00 Connector 2 out of service Status reports 15:00–16:00 Connector 2 status missing No status reports 15:04 Session SES-012 starts; no end record Connector 2 Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not cause it; the charger or vehicle cause is not yet diagnosed. Charging activity and site power 08:00–16:00 · two connectors · context, not a status source Single line diagram → 100 75 50 25 0 kW 08:00 09:20 10:40 12:00 13:20 14:40 16:00 Site import Site power limit Needs attention 1 F-130 · Connector 2 stopped a session Fault event and meter record agree; 3.6 kWh delivered. Findings › F-130 → 2 One session outcome unknown No end record for SES-012; it counts as neither success nor failure. Performance › Sessions → 3 Connector 2 status missing for 1 h Availability stays a range until the history is recovered. Evidence → Bounded money consequence $36.00 Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: unmet demand is not established. Open financial bridge → Next step Check connector 2 and witness a full session Retrieve the fault log for SES-011, then run a complete session on connector 2 with start, end and meter records. Review recommendation Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "View detail → -> #/sessions",
+          "View detail → -> #/availability",
+          "View detail → -> #/energy",
+          "View detail → -> #/ev-health",
+          "View detail → -> #/ev-evidence",
+          "Open Sessions → -> #/sessions",
+          "Single line diagram → -> #/ev-sld",
+          "Findings › F-130 → -> #/ev-finding",
+          "Performance › Sessions → -> #/sessions",
+          "Evidence → -> #/ev-evidence",
+          "Open financial bridge → -> #/ev-financials",
+          "Review recommendation -> #/ev-recommendation"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1426
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link",
+      "case": "r353-evwc-site-from-incidents",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5388/sites/EV-LAB-001/ev",
+      "mock_hash": "#/ev",
+      "app_image": "link-r353-evwc-site-from-incidents-390-app.png",
+      "mock_image": "link-r353-evwc-site-from-incidents-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened on the service day",
+          "Charging activity and site power",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 16,
+            "y": 926,
+            "w": 358,
+            "h": 592,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened on the service dayPlain sequence from accepted charger and meter recordsReview sessions →08:01 UTCSession started · REC 74068b5a-3fcc-4f6b-9b96-9b4d557be41608:16 UTCConnector fault · REC de70e082-910a-40f4-ba90-5ffcb08f108708:16 UTCSession aborted · REC 05d3f3cc-4c01-497b-be81-33e1f95fcc70—No accepted event—No accepted event—No accepted event—No accepted eventOnly accepted records are shown; the cause of an interruption is not established.Event details74068b5a-3fcc-4f6b-9b96-9b4d557be416 · Session started · Connector c1 · session · source 2026-10-06T08:01:00.000000Z · received 20",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 16,
+            "y": 1536,
+            "w": 358,
+            "h": 315,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Charging activity and site powerPower is operating context, not proof of charger condition or cause.80 kW08:00 UTC09:00 UTCConnector energySite importConfigured limitChart detailsSite import: 3600/3600 s of selected window coveredConnector energy74c05291-c2d5-4001-bb4e-72ffba54eaae · 2026-10-06T08:01:00.000000Z to 2026-10-06T08:05:00.000000Z · 4 kWhddd3a261-152f-49a2-878d-87d13e247c40 · 2026-10-06T08:05:00.000000Z to 2026-10-06T08:10:00.000000Z · 5 kWhe20a8103-2bcb-4e72-84da-1c1a12d902f6 · 2026-10-06T08:10:00.000000Z to 2026-10-06T08:15:00.000000Z · 5 kWh28925878-de9a-4a6f-9b32-d060bc0f6b7c · ",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 1867,
+            "w": 358,
+            "h": 153,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1Fault-aborted sessionA session ended with a connector fault.Open Finding →",
+            "h3": [
+              "Fault-aborted session"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2036,
+            "w": 358,
+            "h": 208,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceWithheldThe gross tariff scenario is being refreshed.Scenario detailsExact amount: Not assessedTariff revision: Not declaredSource gate: Not recordedOverlap group: Not recordedOpen financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2260,
+            "w": 358,
+            "h": 197,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepPublish an EV gross tariffNeeded before a gross tariff scenario can be estimated.Review recommendation · Not available yet",
+            "h3": [
+              "Publish an EV gross tariff"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2497,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "cards": [
+            "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete · of 1 attempts",
+            "AvailabilityNot assessedConnector availability is not assessed",
+            "Site power60 kW observed peak3600/3600 s of selected window covered",
+            "Charger conditionNot assessedSource reporting is not equipment condition",
+            "EvidenceLimited4 capabilities · no single score"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 3,
+          "utc": 8,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete · of 1 atte | Session service -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "AvailabilityNot assessedConnector availability is not assessed | Availability -> /sites/EV-LAB-001/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "Site power60 kW observed peak3600/3600 s of selected window covered | Site power -> /sites/EV-LAB-001/performance/energy?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "Charger conditionNot assessedSource reporting is not equipment condition | ",
+            "EvidenceLimited4 capabilities · no single score | Evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+          ],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesEV charging lab",
+          "subtitle": "Overview · operating objectives for the selected period",
+          "headerButtons": [],
+          "strip": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Sites EV charging lab EV charging lab Demonstration data · EV-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence 6 Oct 08:00–6 Oct 09:00 UTC · known at 6 Oct 09:00 UTC Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations. Inspect evidence Let depot vehicles charge when scheduled, within the configured Site import limit. Configured service hours 08:00–16:00 UTC · Site import limit 80 kW Session service Sessions observed 0 completed · 1 observed aborts · 0 incomplete · of 1 attempts Availability Not assessed Connector availability is not assessed Site power 60 kW observed peak 3600/3600 s of selected window covered Charger condition Not assessed Source reporting is not equipment condition Evidence Limited 4 capabilities · no single score What happened on the service day Plain sequence from accepted charger and meter records Review sessions → 08:01 UTC Session started · REC 74068b5a-3fcc-4f6b-9b96-9b4d557be416 08:16 UTC Connector fault · REC de70e082-910a-40f4-ba90-5ffcb08f1087 08:16 UTC Session aborted · REC 05d3f3cc-4c01-497b-be81-33e1f95fcc70 — No accepted event — No accepted event — No accepted event — No accepted event Only accepted records are shown; the cause of an interruption is not established. Event details Charging activity and site power Power is operating context, not proof of charger condition or cause. 80 kW 08:00 UTC 09:00 UTC Connector energy Site import Configured limit Chart details Single line diagram → Opens configuration at window end; evidence cutoff is not carried. Needs attention 1 Fault-aborted session A session ended with a connector fault. Open Finding → Bounded money consequence Withheld The gross tariff scenario is being refreshed. Scenario details Open financial bridge → Next step Publish an EV gross tariff Needed before a gross tariff scenario can be estimated. Review recommendation · Not available yet"
+        },
+        "b18": {
+          "status": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [
+            "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence"
+          ],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "data · EV",
+            "started · REC",
+            "fault · REC",
+            "aborted · REC"
+          ],
+          "enums": [],
+          "utcHits": 8,
+          "bodyText": "Sites EV charging lab EV charging lab Demonstration data · EV-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence 6 Oct 08:00–6 Oct 09:00 UTC · known at 6 Oct 09:00 UTC Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations. Inspect evidence Let depot vehicles charge when scheduled, within the configured Site import limit. Configured service hours 08:00–16:00 UTC · Site import limit 80 kW Session service Sessions observed 0 completed · 1 observed aborts · 0 incomplete · of 1 attempts Availability Not assessed Connector availability is not assessed Site power 60 kW observed peak 3600/3600 s of selected window covered Charger condition Not assessed Source reporting is not equipment condition Evidence Limited 4 capabilities · no single score What happened on the service day Plain sequence from accepted charger and meter records Review sessions → 08:01 UTC Session started · REC 74068b5a-3fcc-4f6b-9b96-9b4d557be416 08:16 UTC Connector fault · REC de70e082-910a-40f4-ba90-5ffcb08f1087 08:16 UTC Session aborted · REC 05d3f3cc-4c01-497b-be81-33e1f95fcc70 — No accepted event — No accepted event — No accepted event — No accepted event Only accepted records are shown; the cause of an interruption is not established. Event details Charging activity and site power Power is operating context, not proof of charger condition or cause. 80 kW 08:00 UTC 09:00 UTC Connector energy Site import Configured limit Chart details Single line diagram → Opens configuration at window end; evidence cutoff is not carried. Needs attention 1 Fault-aborted session A session ended with a connector fault. Open Finding → Bounded money consequence Withheld The gross tariff scenario is being refreshed. Scenario details Open financial bridge → Next step Publish an EV gross tariff Needed before a gross tariff scenario can be estimated. Review recommendation · Not available yet"
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Inspect evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Session service -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Availability -> /sites/EV-LAB-001/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Site power -> /sites/EV-LAB-001/performance/energy?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Review sessions → -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Single line diagram → -> /sites/EV-LAB-001/foundation/sld?at=2026-10-06T09%3A00%3A00.000000Z",
+          "Open Finding → -> /sites/EV-LAB-001/findings/8ba8ba34-c3a5-4abf-a0b6-79dc41f60930?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:00:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+          "Open financial bridge → -> /sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:00:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+        ],
+        "cardsDom": [
+          {
+            "t": "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete ·",
+            "h": 142
+          },
+          {
+            "t": "AvailabilityNot assessedConnector availability is not assessed",
+            "h": 142
+          },
+          {
+            "t": "Site power60 kW observed peak3600/3600 s of selected window covered",
+            "h": 146
+          },
+          {
+            "t": "Charger conditionNot assessedSource reporting is not equipment condition",
+            "h": 146
+          },
+          {
+            "t": "EvidenceLimited4 capabilities · no single score",
+            "h": 110
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "10px": 7,
+          "14px": 6
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5388/sites/EV-LAB-001/ev",
+          "title": "AssetOps",
+          "h1": "EV charging lab",
+          "crumbs": "SitesEV charging lab",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": [
+            "Sites",
+            "EV charging lab",
+            "Overview",
+            "Foundation",
+            "Health",
+            "Performance",
+            "Findings",
+            "Work",
+            "Financials",
+            "Evidence"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "What happened on the service day",
+          "Charging activity and site power",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 15,
+            "y": 1218,
+            "w": 360,
+            "h": 587,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened on the service dayPlain sequence from accepted charger and meter recordsOpen Sessions →08:00Charging day startsBoth connectors available10:40Site peak 76 kWUnder the 80 kW limit14:03Session SES-011 startsConnector 214:11A fault stops the sessionConnector 2 · 3.6 kWh delivered14:11–15:00Connector 2 out of serviceStatus reports15:00–16:00Connector 2 status missingNo status reports15:04Session SES-012 starts; no end recordConnector 2Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not ca",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 15,
+            "y": 1823,
+            "w": 360,
+            "h": 273,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Charging activity and site power08:00–16:00 · two connectors · context, not a status sourceSingle line diagram →1007550250kW08:0009:2010:4012:0013:2014:4016:00Site importSite power limit",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2115,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1F-130 · Connector 2 stopped a sessionFault event and meter record agree; 3.6 kWh delivered.Findings › F-130 →2One session outcome unknownNo end record for SES-012; it counts as neither success nor failure.Performance › Sessions →3Connector 2 status missing for 1 hAvailability stays a range until the history is recovered.Evidence →",
+            "h3": [
+              "F-130 · Connector 2 stopped a session",
+              "One session outcome unknown",
+              "Connector 2 status missing for 1 h"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2469,
+            "w": 360,
+            "h": 233,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequence$36.00Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: unmet demand is not established.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2720,
+            "w": 360,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepCheck connector 2 and witness a full sessionRetrieve the fault log for SES-011, then run a complete session on connector 2 with start, end and meter records.Review recommendation",
+            "h3": [
+              "Check connector 2 and witness a full session"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3007,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›Depot Charging Hub›Overview",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Depot Charging Hub › Overview Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Needs attention Confidence: Medium ⓘ Assessed: session service, availability and site power · cause of the interruption not yet established Inspect evidence ↗ Objective: let depot vehicles charge when scheduled, within the 80 kW site import limit. Session service Needs attention 1 interrupted · 1 outcome unknown · of 12 attempts View detail → Availability Watch Connector 2: 1 h out of service, 1 h unknown View detail → Site power Healthy Peak 76 kW, under the 80 kW limit View detail → Charger condition Unknown Fault seen; cause not diagnosed View detail → Evidence Limited One session end and 1 h of status missing View detail → What happened on the service day Plain sequence from accepted charger and meter records Open Sessions → 08:00 Charging day starts Both connectors available 10:40 Site peak 76 kW Under the 80 kW limit 14:03 Session SES-011 starts Connector 2 14:11 A fault stops the session Connector 2 · 3.6 kWh delivered 14:11–15:00 Connector 2 out of service Status reports 15:00–16:00 Connector 2 status missing No status reports 15:04 Session SES-012 starts; no end record Connector 2 Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not cause it; the charger or vehicle cause is not yet diagnosed. Charging activity and site power 08:00–16:00 · two connectors · context, not a status source Single line diagram → 100 75 50 25 0 kW 08:00 09:20 10:40 12:00 13:20 14:40 16:00 Site import Site power limit Needs attention 1 F-130 · Connector 2 stopped a session Fault event and meter record agree; 3.6 kWh delivered. Findings › F-130 → 2 One session outcome unknown No end record for SES-012; it counts as neither success nor failure. Performance › Sessions → 3 Connector 2 status missing for 1 h Availability stays a range until the history is recovered. Evidence → Bounded money consequence $36.00 Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: unmet demand is not established. Open financi"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=ev"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · EV"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Depot Charging Hub › Overview Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Needs attention Confidence: Medium ⓘ Assessed: session service, availability and site power · cause of the interruption not yet established Inspect evidence ↗ Objective: let depot vehicles charge when scheduled, within the 80 kW site import limit. Session service Needs attention 1 interrupted · 1 outcome unknown · of 12 attempts View detail → Availability Watch Connector 2: 1 h out of service, 1 h unknown View detail → Site power Healthy Peak 76 kW, under the 80 kW limit View detail → Charger condition Unknown Fault seen; cause not diagnosed View detail → Evidence Limited One session end and 1 h of status missing View detail → What happened on the service day Plain sequence from accepted charger and meter records Open Sessions → 08:00 Charging day starts Both connectors available 10:40 Site peak 76 kW Under the 80 kW limit 14:03 Session SES-011 starts Connector 2 14:11 A fault stops the session Connector 2 · 3.6 kWh delivered 14:11–15:00 Connector 2 out of service Status reports 15:00–16:00 Connector 2 status missing No status reports 15:04 Session SES-012 starts; no end record Connector 2 Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not cause it; the charger or vehicle cause is not yet diagnosed. Charging activity and site power 08:00–16:00 · two connectors · context, not a status source Single line diagram → 100 75 50 25 0 kW 08:00 09:20 10:40 12:00 13:20 14:40 16:00 Site import Site power limit Needs attention 1 F-130 · Connector 2 stopped a session Fault event and meter record agree; 3.6 kWh delivered. Findings › F-130 → 2 One session outcome unknown No end record for SES-012; it counts as neither success nor failure. Performance › Sessions → 3 Connector 2 status missing for 1 h Availability stays a range until the history is recovered. Evidence → Bounded money consequence $36.00 Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: unmet demand is not established. Open financial bridge → Next step Check connector 2 and witness a full session Retrieve the fault log for SES-011, then run a complete session on connector 2 with start, end and meter records. Review recommendation Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "View detail → -> #/sessions",
+          "View detail → -> #/availability",
+          "View detail → -> #/energy",
+          "View detail → -> #/ev-health",
+          "View detail → -> #/ev-evidence",
+          "Open Sessions → -> #/sessions",
+          "Single line diagram → -> #/ev-sld",
+          "Findings › F-130 → -> #/ev-finding",
+          "Performance › Sessions → -> #/sessions",
+          "Evidence → -> #/ev-evidence",
+          "Open financial bridge → -> #/ev-financials",
+          "Review recommendation -> #/ev-recommendation"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link",
+      "case": "r353-evwc-site-from-maintenance",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5388/sites/EV-LAB-001/ev",
+      "mock_hash": "#/ev",
+      "app_image": "link-r353-evwc-site-from-maintenance-1440-app.png",
+      "mock_image": "link-r353-evwc-site-from-maintenance-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened on the service day",
+          "Charging activity and site power",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 248,
+            "y": 457,
+            "w": 1145,
+            "h": 272,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened on the service dayPlain sequence from accepted charger and meter recordsReview sessions →08:01 UTCSession started · REC 74068b5a-3fcc-4f6b-9b96-9b4d557be41608:16 UTCConnector fault · REC de70e082-910a-40f4-ba90-5ffcb08f108708:16 UTCSession aborted · REC 05d3f3cc-4c01-497b-be81-33e1f95fcc70—No accepted event—No accepted event—No accepted event—No accepted eventOnly accepted records are shown; the cause of an interruption is not established.Event details74068b5a-3fcc-4f6b-9b96-9b4d557be416 · Session started · Connector c1 · session · source 2026-10-06T08:01:00.000000Z · received 20",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 248,
+            "y": 747,
+            "w": 725,
+            "h": 374,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Charging activity and site powerPower is operating context, not proof of charger condition or cause.80 kW08:00 UTC09:00 UTCConnector energySite importConfigured limitChart detailsSite import: 3600/3600 s of selected window coveredConnector energy74c05291-c2d5-4001-bb4e-72ffba54eaae · 2026-10-06T08:01:00.000000Z to 2026-10-06T08:05:00.000000Z · 4 kWhddd3a261-152f-49a2-878d-87d13e247c40 · 2026-10-06T08:05:00.000000Z to 2026-10-06T08:10:00.000000Z · 5 kWhe20a8103-2bcb-4e72-84da-1c1a12d902f6 · 2026-10-06T08:10:00.000000Z to 2026-10-06T08:15:00.000000Z · 5 kWh28925878-de9a-4a6f-9b32-d060bc0f6b7c · ",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 747,
+            "w": 403,
+            "h": 374,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1Fault-aborted sessionA session ended with a connector fault.Open Finding →",
+            "h3": [
+              "Fault-aborted session"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1139,
+            "w": 725,
+            "h": 211,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceWithheldThe gross tariff scenario is being refreshed.Scenario detailsExact amount: Not assessedTariff revision: Not declaredSource gate: Not recordedOverlap group: Not recordedOpen financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1139,
+            "w": 403,
+            "h": 211,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepPublish an EV gross tariffNeeded before a gross tariff scenario can be estimated.Review recommendation · Not available yet",
+            "h3": [
+              "Publish an EV gross tariff"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1401,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "cards": [
+            "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete · of 1 attempts",
+            "AvailabilityNot assessedConnector availability is not assessed",
+            "Site power60 kW observed peak3600/3600 s of selected window covered",
+            "Charger conditionNot assessedSource reporting is not equipment condition",
+            "EvidenceLimited4 capabilities · no single score"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 3,
+          "utc": 8,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete · of 1 atte | Session service -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "AvailabilityNot assessedConnector availability is not assessed | Availability -> /sites/EV-LAB-001/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "Site power60 kW observed peak3600/3600 s of selected window covered | Site power -> /sites/EV-LAB-001/performance/energy?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "Charger conditionNot assessedSource reporting is not equipment condition | ",
+            "EvidenceLimited4 capabilities · no single score | Evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+          ],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesEV charging lab",
+          "subtitle": "Overview · operating objectives for the selected period",
+          "headerButtons": [],
+          "strip": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Sites EV charging lab EV charging lab Demonstration data · EV-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence 6 Oct 08:00–6 Oct 09:00 UTC · known at 6 Oct 09:00 UTC Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations. Inspect evidence Let depot vehicles charge when scheduled, within the configured Site import limit. Configured service hours 08:00–16:00 UTC · Site import limit 80 kW Session service Sessions observed 0 completed · 1 observed aborts · 0 incomplete · of 1 attempts Availability Not assessed Connector availability is not assessed Site power 60 kW observed peak 3600/3600 s of selected window covered Charger condition Not assessed Source reporting is not equipment condition Evidence Limited 4 capabilities · no single score What happened on the service day Plain sequence from accepted charger and meter records Review sessions → 08:01 UTC Session started · REC 74068b5a-3fcc-4f6b-9b96-9b4d557be416 08:16 UTC Connector fault · REC de70e082-910a-40f4-ba90-5ffcb08f1087 08:16 UTC Session aborted · REC 05d3f3cc-4c01-497b-be81-33e1f95fcc70 — No accepted event — No accepted event — No accepted event — No accepted event Only accepted records are shown; the cause of an interruption is not established. Event details Charging activity and site power Power is operating context, not proof of charger condition or cause. 80 kW 08:00 UTC 09:00 UTC Connector energy Site import Configured limit Chart details Single line diagram → Opens configuration at window end; evidence cutoff is not carried. Needs attention 1 Fault-aborted session A session ended with a connector fault. Open Finding → Bounded money consequence Withheld The gross tariff scenario is being refreshed. Scenario details Open financial bridge → Next step Publish an EV gross tariff Needed before a gross tariff scenario can be estimated. Review recommendation · Not available yet"
+        },
+        "b18": {
+          "status": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [
+            "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence"
+          ],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "data · EV",
+            "started · REC",
+            "fault · REC",
+            "aborted · REC"
+          ],
+          "enums": [],
+          "utcHits": 8,
+          "bodyText": "Sites EV charging lab EV charging lab Demonstration data · EV-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence 6 Oct 08:00–6 Oct 09:00 UTC · known at 6 Oct 09:00 UTC Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations. Inspect evidence Let depot vehicles charge when scheduled, within the configured Site import limit. Configured service hours 08:00–16:00 UTC · Site import limit 80 kW Session service Sessions observed 0 completed · 1 observed aborts · 0 incomplete · of 1 attempts Availability Not assessed Connector availability is not assessed Site power 60 kW observed peak 3600/3600 s of selected window covered Charger condition Not assessed Source reporting is not equipment condition Evidence Limited 4 capabilities · no single score What happened on the service day Plain sequence from accepted charger and meter records Review sessions → 08:01 UTC Session started · REC 74068b5a-3fcc-4f6b-9b96-9b4d557be416 08:16 UTC Connector fault · REC de70e082-910a-40f4-ba90-5ffcb08f1087 08:16 UTC Session aborted · REC 05d3f3cc-4c01-497b-be81-33e1f95fcc70 — No accepted event — No accepted event — No accepted event — No accepted event Only accepted records are shown; the cause of an interruption is not established. Event details Charging activity and site power Power is operating context, not proof of charger condition or cause. 80 kW 08:00 UTC 09:00 UTC Connector energy Site import Configured limit Chart details Single line diagram → Opens configuration at window end; evidence cutoff is not carried. Needs attention 1 Fault-aborted session A session ended with a connector fault. Open Finding → Bounded money consequence Withheld The gross tariff scenario is being refreshed. Scenario details Open financial bridge → Next step Publish an EV gross tariff Needed before a gross tariff scenario can be estimated. Review recommendation · Not available yet"
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Inspect evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Session service -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Availability -> /sites/EV-LAB-001/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Site power -> /sites/EV-LAB-001/performance/energy?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Review sessions → -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Single line diagram → -> /sites/EV-LAB-001/foundation/sld?at=2026-10-06T09%3A00%3A00.000000Z",
+          "Open Finding → -> /sites/EV-LAB-001/findings/8ba8ba34-c3a5-4abf-a0b6-79dc41f60930?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:00:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+          "Open financial bridge → -> /sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:00:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+        ],
+        "cardsDom": [
+          {
+            "t": "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete ·",
+            "h": 126
+          },
+          {
+            "t": "AvailabilityNot assessedConnector availability is not assessed",
+            "h": 126
+          },
+          {
+            "t": "Site power60 kW observed peak3600/3600 s of selected window covered",
+            "h": 126
+          },
+          {
+            "t": "Charger conditionNot assessedSource reporting is not equipment condition",
+            "h": 126
+          },
+          {
+            "t": "EvidenceLimited4 capabilities · no single score",
+            "h": 126
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "10px": 7,
+          "14px": 6
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1401
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5388/sites/EV-LAB-001/ev",
+          "title": "AssetOps",
+          "h1": "EV charging lab",
+          "crumbs": "SitesEV charging lab",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": [
+            "Sites",
+            "EV charging lab",
+            "Overview",
+            "Foundation",
+            "Health",
+            "Performance",
+            "Findings",
+            "Work",
+            "Financials",
+            "Evidence"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "What happened on the service day",
+          "Charging activity and site power",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened on the service dayPlain sequence from accepted charger and meter recordsOpen Sessions →08:00Charging day startsBoth connectors available10:40Site peak 76 kWUnder the 80 kW limit14:03Session SES-011 startsConnector 214:11A fault stops the sessionConnector 2 · 3.6 kWh delivered14:11–15:00Connector 2 out of serviceStatus reports15:00–16:00Connector 2 status missingNo status reports15:04Session SES-012 starts; no end recordConnector 2Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not ca",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 356,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Charging activity and site power08:00–16:00 · two connectors · context, not a status sourceSingle line diagram →1007550250kW08:0009:2010:4012:0013:2014:4016:00Site importSite power limit",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 356,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1F-130 · Connector 2 stopped a sessionFault event and meter record agree; 3.6 kWh delivered.Findings › F-130 →2One session outcome unknownNo end record for SES-012; it counts as neither success nor failure.Performance › Sessions →3Connector 2 status missing for 1 hAvailability stays a range until the history is recovered.Evidence →",
+            "h3": [
+              "F-130 · Connector 2 stopped a session",
+              "One session outcome unknown",
+              "Connector 2 status missing for 1 h"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1210,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequence$36.00Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: unmet demand is not established.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1210,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepCheck connector 2 and witness a full sessionRetrieve the fault log for SES-011, then run a complete session on connector 2 with start, end and meter records.Review recommendation",
+            "h3": [
+              "Check connector 2 and witness a full session"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1470,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›Depot Charging Hub›Overview",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Sites › Depot Charging Hub › Overview Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Needs attention Confidence: Medium ⓘ Assessed: session service, availability and site power · cause of the interruption not yet established Inspect evidence ↗ Objective: let depot vehicles charge when scheduled, within the 80 kW site import limit. Session service Needs attention 1 interrupted · 1 outcome unknown · of 12 attempts View detail → Availability Watch Connector 2: 1 h out of service, 1 h unknown View detail → Site power Healthy Peak 76 kW, under the 80 kW limit View detail → Charger condition Unknown Fault seen; cause not diagnosed View detail → Evidence Limited One session end and 1 h of status missing View detail → What happened on the service day Plain sequence from accepted charger and meter records Open Sessions → 08:00 Charging day starts Both connectors available 10:40 Site peak 76 kW Under the 80 kW limit 14:03 Session SES-011 starts Connector 2 14:11 A fault stops the session Connector 2 · 3.6 kWh delivered 14:11–15:00 Connector 2 out of service Status reports 15:00–16:00 Connector 2 status missing No status reports 15:04 Session SES-012 starts; no end record Connector 2 Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not cause it; the charger or vehicle cause is not yet diagnosed. Charging activity and site power 08:00–16:00 · two connectors · context, not a status source Single line diagram → 100 75 50 25 0 kW 08:00 09:20 10:40 12:00 13:20 14:40 16:00 Site import Site power limit Needs attention 1 F-130 · Connector 2 stopped a session Fault event and meter record agree; 3.6 kWh delivered. Findings › F-130 → 2 One session outcome unknown No end record for SES-012; it counts as neither success nor failure. Performance › Sessions → 3 Connector 2 status missing for 1 h Availability stays a range until the history is recovered. Evidence → Bounded money consequence $36.00 Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: un"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=ev"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · EV"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Sites › Depot Charging Hub › Overview Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Needs attention Confidence: Medium ⓘ Assessed: session service, availability and site power · cause of the interruption not yet established Inspect evidence ↗ Objective: let depot vehicles charge when scheduled, within the 80 kW site import limit. Session service Needs attention 1 interrupted · 1 outcome unknown · of 12 attempts View detail → Availability Watch Connector 2: 1 h out of service, 1 h unknown View detail → Site power Healthy Peak 76 kW, under the 80 kW limit View detail → Charger condition Unknown Fault seen; cause not diagnosed View detail → Evidence Limited One session end and 1 h of status missing View detail → What happened on the service day Plain sequence from accepted charger and meter records Open Sessions → 08:00 Charging day starts Both connectors available 10:40 Site peak 76 kW Under the 80 kW limit 14:03 Session SES-011 starts Connector 2 14:11 A fault stops the session Connector 2 · 3.6 kWh delivered 14:11–15:00 Connector 2 out of service Status reports 15:00–16:00 Connector 2 status missing No status reports 15:04 Session SES-012 starts; no end record Connector 2 Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not cause it; the charger or vehicle cause is not yet diagnosed. Charging activity and site power 08:00–16:00 · two connectors · context, not a status source Single line diagram → 100 75 50 25 0 kW 08:00 09:20 10:40 12:00 13:20 14:40 16:00 Site import Site power limit Needs attention 1 F-130 · Connector 2 stopped a session Fault event and meter record agree; 3.6 kWh delivered. Findings › F-130 → 2 One session outcome unknown No end record for SES-012; it counts as neither success nor failure. Performance › Sessions → 3 Connector 2 status missing for 1 h Availability stays a range until the history is recovered. Evidence → Bounded money consequence $36.00 Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: unmet demand is not established. Open financial bridge → Next step Check connector 2 and witness a full session Retrieve the fault log for SES-011, then run a complete session on connector 2 with start, end and meter records. Review recommendation Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "View detail → -> #/sessions",
+          "View detail → -> #/availability",
+          "View detail → -> #/energy",
+          "View detail → -> #/ev-health",
+          "View detail → -> #/ev-evidence",
+          "Open Sessions → -> #/sessions",
+          "Single line diagram → -> #/ev-sld",
+          "Findings › F-130 → -> #/ev-finding",
+          "Performance › Sessions → -> #/sessions",
+          "Evidence → -> #/ev-evidence",
+          "Open financial bridge → -> #/ev-financials",
+          "Review recommendation -> #/ev-recommendation"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1426
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link",
+      "case": "r353-evwc-site-from-maintenance",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5388/sites/EV-LAB-001/ev",
+      "mock_hash": "#/ev",
+      "app_image": "link-r353-evwc-site-from-maintenance-390-app.png",
+      "mock_image": "link-r353-evwc-site-from-maintenance-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened on the service day",
+          "Charging activity and site power",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 16,
+            "y": 926,
+            "w": 358,
+            "h": 592,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened on the service dayPlain sequence from accepted charger and meter recordsReview sessions →08:01 UTCSession started · REC 74068b5a-3fcc-4f6b-9b96-9b4d557be41608:16 UTCConnector fault · REC de70e082-910a-40f4-ba90-5ffcb08f108708:16 UTCSession aborted · REC 05d3f3cc-4c01-497b-be81-33e1f95fcc70—No accepted event—No accepted event—No accepted event—No accepted eventOnly accepted records are shown; the cause of an interruption is not established.Event details74068b5a-3fcc-4f6b-9b96-9b4d557be416 · Session started · Connector c1 · session · source 2026-10-06T08:01:00.000000Z · received 20",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 16,
+            "y": 1536,
+            "w": 358,
+            "h": 315,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Charging activity and site powerPower is operating context, not proof of charger condition or cause.80 kW08:00 UTC09:00 UTCConnector energySite importConfigured limitChart detailsSite import: 3600/3600 s of selected window coveredConnector energy74c05291-c2d5-4001-bb4e-72ffba54eaae · 2026-10-06T08:01:00.000000Z to 2026-10-06T08:05:00.000000Z · 4 kWhddd3a261-152f-49a2-878d-87d13e247c40 · 2026-10-06T08:05:00.000000Z to 2026-10-06T08:10:00.000000Z · 5 kWhe20a8103-2bcb-4e72-84da-1c1a12d902f6 · 2026-10-06T08:10:00.000000Z to 2026-10-06T08:15:00.000000Z · 5 kWh28925878-de9a-4a6f-9b32-d060bc0f6b7c · ",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 1867,
+            "w": 358,
+            "h": 153,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1Fault-aborted sessionA session ended with a connector fault.Open Finding →",
+            "h3": [
+              "Fault-aborted session"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2036,
+            "w": 358,
+            "h": 208,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceWithheldThe gross tariff scenario is being refreshed.Scenario detailsExact amount: Not assessedTariff revision: Not declaredSource gate: Not recordedOverlap group: Not recordedOpen financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2260,
+            "w": 358,
+            "h": 197,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepPublish an EV gross tariffNeeded before a gross tariff scenario can be estimated.Review recommendation · Not available yet",
+            "h3": [
+              "Publish an EV gross tariff"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2497,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "cards": [
+            "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete · of 1 attempts",
+            "AvailabilityNot assessedConnector availability is not assessed",
+            "Site power60 kW observed peak3600/3600 s of selected window covered",
+            "Charger conditionNot assessedSource reporting is not equipment condition",
+            "EvidenceLimited4 capabilities · no single score"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 3,
+          "utc": 8,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete · of 1 atte | Session service -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "AvailabilityNot assessedConnector availability is not assessed | Availability -> /sites/EV-LAB-001/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "Site power60 kW observed peak3600/3600 s of selected window covered | Site power -> /sites/EV-LAB-001/performance/energy?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "Charger conditionNot assessedSource reporting is not equipment condition | ",
+            "EvidenceLimited4 capabilities · no single score | Evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+          ],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesEV charging lab",
+          "subtitle": "Overview · operating objectives for the selected period",
+          "headerButtons": [],
+          "strip": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Sites EV charging lab EV charging lab Demonstration data · EV-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence 6 Oct 08:00–6 Oct 09:00 UTC · known at 6 Oct 09:00 UTC Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations. Inspect evidence Let depot vehicles charge when scheduled, within the configured Site import limit. Configured service hours 08:00–16:00 UTC · Site import limit 80 kW Session service Sessions observed 0 completed · 1 observed aborts · 0 incomplete · of 1 attempts Availability Not assessed Connector availability is not assessed Site power 60 kW observed peak 3600/3600 s of selected window covered Charger condition Not assessed Source reporting is not equipment condition Evidence Limited 4 capabilities · no single score What happened on the service day Plain sequence from accepted charger and meter records Review sessions → 08:01 UTC Session started · REC 74068b5a-3fcc-4f6b-9b96-9b4d557be416 08:16 UTC Connector fault · REC de70e082-910a-40f4-ba90-5ffcb08f1087 08:16 UTC Session aborted · REC 05d3f3cc-4c01-497b-be81-33e1f95fcc70 — No accepted event — No accepted event — No accepted event — No accepted event Only accepted records are shown; the cause of an interruption is not established. Event details Charging activity and site power Power is operating context, not proof of charger condition or cause. 80 kW 08:00 UTC 09:00 UTC Connector energy Site import Configured limit Chart details Single line diagram → Opens configuration at window end; evidence cutoff is not carried. Needs attention 1 Fault-aborted session A session ended with a connector fault. Open Finding → Bounded money consequence Withheld The gross tariff scenario is being refreshed. Scenario details Open financial bridge → Next step Publish an EV gross tariff Needed before a gross tariff scenario can be estimated. Review recommendation · Not available yet"
+        },
+        "b18": {
+          "status": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [
+            "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations.Inspect evidence"
+          ],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "data · EV",
+            "started · REC",
+            "fault · REC",
+            "aborted · REC"
+          ],
+          "enums": [],
+          "utcHits": 8,
+          "bodyText": "Sites EV charging lab EV charging lab Demonstration data · EV-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence 6 Oct 08:00–6 Oct 09:00 UTC · known at 6 Oct 09:00 UTC Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered test reports; not physical charger observations. Inspect evidence Let depot vehicles charge when scheduled, within the configured Site import limit. Configured service hours 08:00–16:00 UTC · Site import limit 80 kW Session service Sessions observed 0 completed · 1 observed aborts · 0 incomplete · of 1 attempts Availability Not assessed Connector availability is not assessed Site power 60 kW observed peak 3600/3600 s of selected window covered Charger condition Not assessed Source reporting is not equipment condition Evidence Limited 4 capabilities · no single score What happened on the service day Plain sequence from accepted charger and meter records Review sessions → 08:01 UTC Session started · REC 74068b5a-3fcc-4f6b-9b96-9b4d557be416 08:16 UTC Connector fault · REC de70e082-910a-40f4-ba90-5ffcb08f1087 08:16 UTC Session aborted · REC 05d3f3cc-4c01-497b-be81-33e1f95fcc70 — No accepted event — No accepted event — No accepted event — No accepted event Only accepted records are shown; the cause of an interruption is not established. Event details Charging activity and site power Power is operating context, not proof of charger condition or cause. 80 kW 08:00 UTC 09:00 UTC Connector energy Site import Configured limit Chart details Single line diagram → Opens configuration at window end; evidence cutoff is not carried. Needs attention 1 Fault-aborted session A session ended with a connector fault. Open Finding → Bounded money consequence Withheld The gross tariff scenario is being refreshed. Scenario details Open financial bridge → Next step Publish an EV gross tariff Needed before a gross tariff scenario can be estimated. Review recommendation · Not available yet"
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Inspect evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Session service -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Availability -> /sites/EV-LAB-001/performance/availability?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Site power -> /sites/EV-LAB-001/performance/energy?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Evidence -> /sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Review sessions → -> /sites/EV-LAB-001/performance/sessions?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+          "Single line diagram → -> /sites/EV-LAB-001/foundation/sld?at=2026-10-06T09%3A00%3A00.000000Z",
+          "Open Finding → -> /sites/EV-LAB-001/findings/8ba8ba34-c3a5-4abf-a0b6-79dc41f60930?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:00:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+          "Open financial bridge → -> /sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:00:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+        ],
+        "cardsDom": [
+          {
+            "t": "Session serviceSessions observed0 completed · 1 observed aborts · 0 incomplete ·",
+            "h": 142
+          },
+          {
+            "t": "AvailabilityNot assessedConnector availability is not assessed",
+            "h": 142
+          },
+          {
+            "t": "Site power60 kW observed peak3600/3600 s of selected window covered",
+            "h": 146
+          },
+          {
+            "t": "Charger conditionNot assessedSource reporting is not equipment condition",
+            "h": 146
+          },
+          {
+            "t": "EvidenceLimited4 capabilities · no single score",
+            "h": 110
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "10px": 7,
+          "14px": 6
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5388/sites/EV-LAB-001/ev",
+          "title": "AssetOps",
+          "h1": "EV charging lab",
+          "crumbs": "SitesEV charging lab",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": [
+            "Sites",
+            "EV charging lab",
+            "Overview",
+            "Foundation",
+            "Health",
+            "Performance",
+            "Findings",
+            "Work",
+            "Financials",
+            "Evidence"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "What happened on the service day",
+          "Charging activity and site power",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 15,
+            "y": 1218,
+            "w": 360,
+            "h": 587,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened on the service dayPlain sequence from accepted charger and meter recordsOpen Sessions →08:00Charging day startsBoth connectors available10:40Site peak 76 kWUnder the 80 kW limit14:03Session SES-011 startsConnector 214:11A fault stops the sessionConnector 2 · 3.6 kWh delivered14:11–15:00Connector 2 out of serviceStatus reports15:00–16:00Connector 2 status missingNo status reports15:04Session SES-012 starts; no end recordConnector 2Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not ca",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 15,
+            "y": 1823,
+            "w": 360,
+            "h": 273,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Charging activity and site power08:00–16:00 · two connectors · context, not a status sourceSingle line diagram →1007550250kW08:0009:2010:4012:0013:2014:4016:00Site importSite power limit",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2115,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1F-130 · Connector 2 stopped a sessionFault event and meter record agree; 3.6 kWh delivered.Findings › F-130 →2One session outcome unknownNo end record for SES-012; it counts as neither success nor failure.Performance › Sessions →3Connector 2 status missing for 1 hAvailability stays a range until the history is recovered.Evidence →",
+            "h3": [
+              "F-130 · Connector 2 stopped a session",
+              "One session outcome unknown",
+              "Connector 2 status missing for 1 h"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2469,
+            "w": 360,
+            "h": 233,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequence$36.00Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: unmet demand is not established.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2720,
+            "w": 360,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepCheck connector 2 and witness a full sessionRetrieve the fault log for SES-011, then run a complete session on connector 2 with start, end and meter records.Review recommendation",
+            "h3": [
+              "Check connector 2 and witness a full session"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3007,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›Depot Charging Hub›Overview",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Depot Charging Hub › Overview Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Needs attention Confidence: Medium ⓘ Assessed: session service, availability and site power · cause of the interruption not yet established Inspect evidence ↗ Objective: let depot vehicles charge when scheduled, within the 80 kW site import limit. Session service Needs attention 1 interrupted · 1 outcome unknown · of 12 attempts View detail → Availability Watch Connector 2: 1 h out of service, 1 h unknown View detail → Site power Healthy Peak 76 kW, under the 80 kW limit View detail → Charger condition Unknown Fault seen; cause not diagnosed View detail → Evidence Limited One session end and 1 h of status missing View detail → What happened on the service day Plain sequence from accepted charger and meter records Open Sessions → 08:00 Charging day starts Both connectors available 10:40 Site peak 76 kW Under the 80 kW limit 14:03 Session SES-011 starts Connector 2 14:11 A fault stops the session Connector 2 · 3.6 kWh delivered 14:11–15:00 Connector 2 out of service Status reports 15:00–16:00 Connector 2 status missing No status reports 15:04 Session SES-012 starts; no end record Connector 2 Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not cause it; the charger or vehicle cause is not yet diagnosed. Charging activity and site power 08:00–16:00 · two connectors · context, not a status source Single line diagram → 100 75 50 25 0 kW 08:00 09:20 10:40 12:00 13:20 14:40 16:00 Site import Site power limit Needs attention 1 F-130 · Connector 2 stopped a session Fault event and meter record agree; 3.6 kWh delivered. Findings › F-130 → 2 One session outcome unknown No end record for SES-012; it counts as neither success nor failure. Performance › Sessions → 3 Connector 2 status missing for 1 h Availability stays a range until the history is recovered. Evidence → Bounded money consequence $36.00 Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: unmet demand is not established. Open financi"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=ev"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · EV"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Depot Charging Hub › Overview Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Needs attention Confidence: Medium ⓘ Assessed: session service, availability and site power · cause of the interruption not yet established Inspect evidence ↗ Objective: let depot vehicles charge when scheduled, within the 80 kW site import limit. Session service Needs attention 1 interrupted · 1 outcome unknown · of 12 attempts View detail → Availability Watch Connector 2: 1 h out of service, 1 h unknown View detail → Site power Healthy Peak 76 kW, under the 80 kW limit View detail → Charger condition Unknown Fault seen; cause not diagnosed View detail → Evidence Limited One session end and 1 h of status missing View detail → What happened on the service day Plain sequence from accepted charger and meter records Open Sessions → 08:00 Charging day starts Both connectors available 10:40 Site peak 76 kW Under the 80 kW limit 14:03 Session SES-011 starts Connector 2 14:11 A fault stops the session Connector 2 · 3.6 kWh delivered 14:11–15:00 Connector 2 out of service Status reports 15:00–16:00 Connector 2 status missing No status reports 15:04 Session SES-012 starts; no end record Connector 2 Connector 2 stopped a session on a fault and was then out of service for about an hour. Site power stayed under its limit, so the site supply did not cause it; the charger or vehicle cause is not yet diagnosed. Charging activity and site power 08:00–16:00 · two connectors · context, not a status source Single line diagram → 100 75 50 25 0 kW 08:00 09:20 10:40 12:00 13:20 14:40 16:00 Site import Site power limit Needs attention 1 F-130 · Connector 2 stopped a session Fault event and meter record agree; 3.6 kWh delivered. Findings › F-130 → 2 One session outcome unknown No end record for SES-012; it counts as neither success nor failure. Performance › Sessions → 3 Connector 2 status missing for 1 h Availability stays a range until the history is recovered. Evidence → Bounded money consequence $36.00 Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. Not cash collected. The interrupted session is not priced: unmet demand is not established. Open financial bridge → Next step Check connector 2 and witness a full session Retrieve the fault log for SES-011, then run a complete session on connector 2 with start, end and meter records. Review recommendation Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "View detail → -> #/sessions",
+          "View detail → -> #/availability",
+          "View detail → -> #/energy",
+          "View detail → -> #/ev-health",
+          "View detail → -> #/ev-evidence",
+          "Open Sessions → -> #/sessions",
+          "Single line diagram → -> #/ev-sld",
+          "Findings › F-130 → -> #/ev-finding",
+          "Performance › Sessions → -> #/sessions",
+          "Evidence → -> #/ev-evidence",
+          "Open financial bridge → -> #/ev-financials",
+          "Review recommendation -> #/ev-recommendation"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

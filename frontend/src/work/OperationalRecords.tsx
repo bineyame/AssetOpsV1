@@ -17,6 +17,7 @@
 import { useNavigate } from "react-router-dom";
 import { Breadcrumbs, DataTable, MetricCard, MetricCards, PageHeader, Panel } from "../ui";
 import { UnavailableInline } from "../ui/UnavailableEntry";
+import { CellDisclosure } from "./CellDisclosure";
 import {
   GLOBAL_OPERATIONAL_KINDS,
   globalWorkHref,
@@ -32,6 +33,7 @@ import {
   GlobalWorkBar,
   GlobalWorkSlot,
   LinkOrText,
+  MockDeviation,
   Pager,
   SCROLL_TABLE,
   WorkSourceLine,
@@ -54,6 +56,8 @@ export const OPERATIONAL_RECORDS_LOADING = "Loading the operational records acro
 export const OPERATIONAL_RECORDS_DESCRIPTION = "What people on site recorded, and the evidence each one feeds";
 export const MANUAL_READING_DESCRIPTION = "Manual readings cannot be submitted from this page.";
 export const MANUAL_READING_REASON = "Recording requires an authorized work service.";
+/** Post-W6 W6 Q7: the stored time that places a record in the window. */
+export const OPERATIONAL_RECORDS_MEMBERSHIP = "Listed by the time each record's event happened.";
 export const NO_OPERATIONAL_RECORDS = "No operational records in this window.";
 /** CL3-6: the kind-filtered zero sentences. */
 export const KIND_ZERO: Readonly<Record<GlobalOperationalKind, string>> = {
@@ -100,10 +104,14 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
   return (
     <tr data-global-work-row={row.root_id} data-global-work-head={row.head_id}>
       <td>
-        <Clamp data={{ "data-global-work-code": "" }}>{row.code}</Clamp>
+        <CellDisclosure column="Record" row={row.code} data={{ "data-global-work-code": "" }}>
+          {row.code}
+        </CellDisclosure>
         {row.correction_reason !== null ? (
           <>
-            <Clamp data={{ "data-global-work-correction": "" }}>{`Correction: ${row.correction_reason}`}</Clamp>
+            <CellDisclosure column="Record correction" row={row.code} data={{ "data-global-work-correction": "" }}>
+              {`Correction: ${row.correction_reason}`}
+            </CellDisclosure>
             {row.supersedes_record_id !== null ? (
               <details className="global-work-details" data-global-work-supersedes>
                 <summary>Earlier record version</summary>
@@ -115,12 +123,14 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
         <WorkSourceLine provenance={row.source_provenance} />
       </td>
       <td>
-        <Clamp data={{ "data-global-work-kind": row.kind }}>{recKindLabel(row.kind)}</Clamp>
+        <CellDisclosure column="Type" row={row.code} data={{ "data-global-work-kind": row.kind }}>
+          {recKindLabel(row.kind)}
+        </CellDisclosure>
       </td>
       <td>
-        <Clamp>
+        <CellDisclosure column="Site" row={row.code}>
           <LinkOrText link={row.links.site} data={{ "data-global-work-site": row.site_code }} />
-        </Clamp>
+        </CellDisclosure>
       </td>
       <td>
         <Clamp data={{ "data-global-work-when": "" }}>{globalWorkUtc(row.occurred_at)}</Clamp>
@@ -129,7 +139,9 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
         ) : null}
       </td>
       <td>
-        <Clamp data={{ "data-global-work-actor": "" }}>{row.actor_id}</Clamp>
+        <CellDisclosure column="By" row={row.code} data={{ "data-global-work-actor": "" }}>
+          {row.actor_id}
+        </CellDisclosure>
       </td>
       <td>
         <Clamp data={{ "data-global-work-body": "" }}>{row.body}</Clamp>
@@ -140,7 +152,11 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
         </details>
       </td>
       <td>
-        <Clamp data={{ "data-global-work-feeds": row.links.case === null ? "none" : "case" }}>
+        <CellDisclosure
+          column="Feeds"
+          row={row.code}
+          data={{ "data-global-work-feeds": row.links.case === null ? "none" : "case" }}
+        >
           {row.links.case === null ? (
             "None linked"
           ) : (
@@ -149,7 +165,7 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
               {" →"}
             </>
           )}
-        </Clamp>
+        </CellDisclosure>
       </td>
       <td>
         <span className="w1f4-action-badge w1f4-action-badge--blue" data-global-work-state={row.state} data-global-work-tone="blue">
@@ -161,8 +177,12 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
 }
 
 const COLUMNS = ["Record", "Type", "Site", "When", "By", "What it says", "Feeds", "State"];
-/** P-E2-8: the column minimum widths (px, total 1150); the table scrolls inside its panel below their sum. */
-const MIN_WIDTHS = [140, 110, 125, 150, 150, 220, 150, 105];
+/**
+ * Post-W6 W6 Q16 (R356, superseding P-E2-8's 1150 px minimum): fixed column widths (px, total 1085 after the
+ * caps ruling 3 Feeds retune 140 -> 125) that fit the
+ * 1105 px table client width at 1440, with wrapping cells; below 761 px the table keeps its inner horizontal scroll.
+ */
+const MIN_WIDTHS = [90, 110, 150, 130, 120, 270, 125, 90];
 
 function RecordTable({ body }: { body: GlobalOperationalBody }) {
   return (
@@ -261,17 +281,43 @@ function KindChips({ page }: { page: GlobalWorkPageRead<GlobalOperationalBody> }
   );
 }
 
-/** P-E2-5: the mock form, inert (MOCK DEVIATION D1, R12): no POST, no state change, no REC allocated. */
-function ManualReadingPanel() {
+/**
+ * Post-W6 W6 Q17 (R362): the Site options are the response's own authorized Sites (`coverage.sites` codes, named by
+ * a returned row's stored Site name where one is on this page), or one empty placeholder before or without a read.
+ * No mock Site is offered.
+ */
+export function manualReadingSites(body: GlobalOperationalBody | null): { code: string; label: string }[] {
+  if (body === null) return [];
+  const names = new Map(body.rows.map((row) => [row.site_code, row.site_name] as const));
+  return body.coverage.sites.map(({ site_code: code }) => {
+    const name = names.get(code);
+    return { code, label: name ? `${name} · ${code}` : code };
+  });
+}
+
+/**
+ * P-E2-5: the mock form, inert (MOCK DEVIATION D1, R12): no POST, no state change, no REC allocated. Post-W6 W6 Q17
+ * (R362, D4): selected Sites or an empty placeholder, an empty `Event time` input, and the D4 label beside the form.
+ */
+function ManualReadingPanel({ body }: { body: GlobalOperationalBody | null }) {
+  const sites = manualReadingSites(body);
   return (
     <Panel heading="Record a manual reading" headingId={FORM_HEADING_ID} description={MANUAL_READING_DESCRIPTION}>
       <div className="global-work-form" data-global-work-manual-form>
+        <MockDeviation category="D4" id="R362" />
         <div className="input-row">
           <label className="field">
             Site
-            <select disabled aria-disabled="true">
-              <option>Kobo Mini-grid</option>
-              <option>GreenHarvest Cold Room</option>
+            <select disabled aria-disabled="true" data-global-work-form-site>
+              {sites.length === 0 ? (
+                <option value="">No Site selected</option>
+              ) : (
+                sites.map((site) => (
+                  <option key={site.code} value={site.code}>
+                    {site.label}
+                  </option>
+                ))
+              )}
             </select>
           </label>
           <label className="field">
@@ -290,7 +336,7 @@ function ManualReadingPanel() {
           </label>
           <label className="field">
             Taken at
-            <input disabled aria-disabled="true" defaultValue="6 Oct 2026 · 16:00 EAT" />
+            <input disabled aria-disabled="true" defaultValue="" placeholder="Event time" data-global-work-form-time />
           </label>
         </div>
         <div className="form-footer">
@@ -336,7 +382,7 @@ export function OperationalRecordsPage({ client }: { client?: GlobalWorkClient }
     <div className="global-work global-work--oprecords" data-global-work-root="operational-records">
       <Breadcrumbs trail={[{ label: "Operational records" }]} />
       <PageHeader title="Operational records" headingId={OPERATIONAL_RECORDS_HEADING_ID} subtitle={OPERATIONAL_RECORDS_SUBTITLE} />
-      <GlobalWorkBar page={page} label="Operational records window" />
+      <GlobalWorkBar page={page} label="Operational records window" membership={OPERATIONAL_RECORDS_MEMBERSHIP} />
       <GlobalWorkSlot page={page} loading={OPERATIONAL_RECORDS_LOADING} cards={(value) => <Cards body={value} />} />
       <KindChips page={page} />
       <Panel heading="Operational records" headingId={TABLE_HEADING_ID} description={OPERATIONAL_RECORDS_DESCRIPTION}>
@@ -364,7 +410,7 @@ export function OperationalRecordsPage({ client }: { client?: GlobalWorkClient }
         ) : null}
       </Panel>
       <div className="panel-pair global-work-pair">
-        <ManualReadingPanel />
+        <ManualReadingPanel body={shown ? body : null} />
         <RecordsUsedPanel />
       </div>
     </div>

@@ -1,0 +1,4373 @@
+{
+  "revision": "6f54ad1b",
+  "captured_at": "2026-10-25T17:43:08.630Z",
+  "pairs": [
+    {
+      "screen": "link",
+      "case": "linkcold-site-incidents",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+      "mock_hash": "#/cold-work-incidents",
+      "app_image": "link-linkcold-site-incidents-1440-app.png",
+      "mock_image": "link-linkcold-site-incidents-1440-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 248,
+            "y": 348,
+            "w": 1160,
+            "h": 212,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "INC-000001 · Backup response failure",
+                "24 Oct · from 19:11UTC and IDsOccurred2026-10-24 16:11 UTCRecorded2026-10-25 16:16 UTCCase IDdf390d8d-2f82-4a2e-b6ab-f68f92b714e6Version IDb2045d03-c528-46e7-b7fc-8e65fcaef14dLinked actionsAction 87ed2c54Source of cited recordsGenerated test data",
+                "Grid lost, automatic start failed, chamber above policy",
+                "Finding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4 · Finding 29308facFinding versiond7533a0d-57b9-4182-9e34-23d12c9d5dc1",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Action 87ed2c54 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-000001 · Backup response failure24 Oct · from 19:11UTC and IDsOccurred2026-10-24 16:11 UTCRecorded2026-10-25 16:16 UTCCase IDdf390d8d-2f82-4a2e-b6ab-f68f92b714e6Version IDb2045d03-c528-46e7-b7fc-8e65fcaef14dLinked actionsAction 87ed2c54Source of cited recordsGenerated test dataGrid lost, automatic start failed, chamber above policyFinding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4 · Finding 29308facFinding versiond7533a0d-57b9-4182-9e34-23d12c9d5d",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 33,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesCold replay labWork",
+          "subtitle": "Cold-room operations at this site.",
+          "headerButtons": [],
+          "strip": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [
+            "OPEN=Open"
+          ],
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Window From (UTC) To (UTC, exclusive) Apply Scoped to Cold · 1 incident Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Backup response failure 24 Oct · from 19:11UTC and IDs Grid lost, automatic start failed, chamber above policy Finding 1350fd2aFinding version· Finding 29308facFinding version Open Showing 1–1 of 1 What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "b18": {
+          "status": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-19",
+            "=2026-10-26"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "data · COLD"
+          ],
+          "enums": [],
+          "utcHits": 3,
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Window From (UTC) To (UTC, exclusive) Apply Scoped to Cold · 1 incident Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Backup response failure 24 Oct · from 19:11UTC and IDs Grid lost, automatic start failed, chamber above policy Finding 1350fd2aFinding version· Finding 29308facFinding version Open Showing 1–1 of 1 What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Actions (1) -> /sites/COLD-LAB-001/work?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "Incidents (1) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "Maintenance (1) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T17%3A43%3A21.961962Z",
+          "Action 87ed2c54 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 191,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 191,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5392/sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Cold replay lab",
+          "crumbs": "SitesCold replay labWork",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [
+            "Action 87ed2c54 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+          ],
+          "siteLinks": [],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 1120,
+            "cw": 1120,
+            "w": 1120,
+            "layout": "fixed",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 1120,
+            "wrapCw": 1120,
+            "cols": [
+              "Case:246",
+              "Window:179",
+              "What happened:325",
+              "Linked findings:213",
+              "State:157"
+            ],
+            "over": [
+              "DD.fact-list__value ws=normal col=1 r=683 sw=218 cw=157 t=df390d8d-2f82-4a2e-b6ab-f68f92",
+              "DD.fact-list__value ws=normal col=1 r=683 sw=218 cw=157 t=b2045d03-c528-46e7-b7fc-8e65fc",
+              "DIV.disclosure__body ws=normal col=3 r=1220 sw=218 cw=191 t=c9f41242-f2de-4d03-bc62-0bfcdc",
+              "DIV.disclosure__body ws=normal col=3 r=1220 sw=218 cw=191 t=d7533a0d-57b9-4182-9e34-23d12c"
+            ],
+            "rowH": [
+              52
+            ]
+          },
+          "historicalNotice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "tabs": [
+            "Sites",
+            "Cold replay lab",
+            "Work",
+            "Overview",
+            "Foundation",
+            "Health",
+            "Performance",
+            "Findings",
+            "Work",
+            "Financials",
+            "Evidence",
+            "Actions (1)"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 183,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "INC-203 · Backup response failure",
+                "6 Oct · from 19:11",
+                "Grid lost, automatic start failed, chamber above policy",
+                "F-118 · F-119",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "INC-203 · Backup response failure -> #/incident",
+                "F-118 -> #/cold-finding",
+                "F-119 -> #/cold-finding-excursion"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-203 · Backup response failure6 Oct · from 19:11Grid lost, automatic start failed, chamber above policyF-118 · F-119Open",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›GreenHarvest Cold Room›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-203 · Backup response failure 6 Oct · from 19:11 Grid lost, automatic start failed, chamber above policy F-118 · F-119 Open Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=cold"
+          ],
+          "alerts": [],
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · CR",
+            "118 · F"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-203 · Backup response failure 6 Oct · from 19:11 Grid lost, automatic start failed, chamber above policy F-118 · F-119 Open Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Incidents → -> #/incidents",
+          "INC-203 · Backup response failure -> #/incident",
+          "F-118 -> #/cold-finding",
+          "F-119 -> #/cold-finding-excursion"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-site-incidents",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+      "mock_hash": "#/cold-work-incidents",
+      "app_image": "link-linkcold-site-incidents-390-app.png",
+      "mock_image": "link-linkcold-site-incidents-390-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 16,
+            "y": 575,
+            "w": 358,
+            "h": 247,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "INC-000001 · Backup response failure",
+                "24 Oct · from 19:11UTC and IDsOccurred2026-10-24 16:11 UTCRecorded2026-10-25 16:16 UTCCase IDdf390d8d-2f82-4a2e-b6ab-f68f92b714e6Version IDb2045d03-c528-46e7-b7fc-8e65fcaef14dLinked actionsAction 87ed2c54Source of cited recordsGenerated test data",
+                "Grid lost, automatic start failed, chamber above policy",
+                "Finding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4 · Finding 29308facFinding versiond7533a0d-57b9-4182-9e34-23d12c9d5dc1",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Action 87ed2c54 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-000001 · Backup response failure24 Oct · from 19:11UTC and IDsOccurred2026-10-24 16:11 UTCRecorded2026-10-25 16:16 UTCCase IDdf390d8d-2f82-4a2e-b6ab-f68f92b714e6Version IDb2045d03-c528-46e7-b7fc-8e65fcaef14dLinked actionsAction 87ed2c54Source of cited recordsGenerated test dataGrid lost, automatic start failed, chamber above policyFinding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4 · Finding 29308facFinding versiond7533a0d-57b9-4182-9e34-23d12c9d5d",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 942,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.4px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 136,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesCold replay labWork",
+          "subtitle": "Cold-room operations at this site.",
+          "headerButtons": [],
+          "strip": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [
+            "OPEN=Open"
+          ],
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Window From (UTC) To (UTC, exclusive) Apply Scoped to Cold · 1 incident Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Backup response failure 24 Oct · from 19:11UTC and IDs Grid lost, automatic start failed, chamber above policy Finding 1350fd2aFinding version· Finding 29308facFinding version Open Showing 1–1 of 1 Scroll the table for more columns → What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "b18": {
+          "status": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-19",
+            "=2026-10-26"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "data · COLD"
+          ],
+          "enums": [],
+          "utcHits": 3,
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Window From (UTC) To (UTC, exclusive) Apply Scoped to Cold · 1 incident Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Backup response failure 24 Oct · from 19:11UTC and IDs Grid lost, automatic start failed, chamber above policy Finding 1350fd2aFinding version· Finding 29308facFinding version Open Showing 1–1 of 1 Scroll the table for more columns → What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Actions (1) -> /sites/COLD-LAB-001/work?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "Incidents (1) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "Maintenance (1) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T17%3A43%3A28.168119Z",
+          "Action 87ed2c54 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 720,
+            "cw": 324,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5392/sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Cold replay lab",
+          "crumbs": "SitesCold replay labWork",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [
+            "Action 87ed2c54 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+          ],
+          "siteLinks": [],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 720,
+            "cw": 720,
+            "w": 720,
+            "layout": "fixed",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 720,
+            "wrapCw": 324,
+            "cols": [
+              "Case:158",
+              "Window:115",
+              "What happened:209",
+              "Linked findings:137",
+              "State:101"
+            ],
+            "over": [
+              "DD.fact-list__value ws=normal col=1 r=299 sw=218 cw=99 t=df390d8d-2f82-4a2e-b6ab-f68f92",
+              "DD.fact-list__value ws=normal col=1 r=299 sw=218 cw=99 t=b2045d03-c528-46e7-b7fc-8e65fc",
+              "DIV.disclosure__body ws=normal col=3 r=644 sw=218 cw=121 t=c9f41242-f2de-4d03-bc62-0bfcdc",
+              "DIV.disclosure__body ws=normal col=3 r=644 sw=218 cw=121 t=d7533a0d-57b9-4182-9e34-23d12c"
+            ],
+            "rowH": [
+              87
+            ]
+          },
+          "historicalNotice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "tabs": [
+            "Sites",
+            "Cold replay lab",
+            "Work",
+            "Overview",
+            "Foundation",
+            "Health",
+            "Performance",
+            "Findings",
+            "Work",
+            "Financials",
+            "Evidence",
+            "Actions (1)"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 15,
+            "y": 708,
+            "w": 360,
+            "h": 230,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "INC-203 · Backup response failure",
+                "6 Oct · from 19:11",
+                "Grid lost, automatic start failed, chamber above policy",
+                "F-118 · F-119",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "INC-203 · Backup response failure -> #/incident",
+                "F-118 -> #/cold-finding",
+                "F-119 -> #/cold-finding-excursion"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-203 · Backup response failure6 Oct · from 19:11Grid lost, automatic start failed, chamber above policyF-118 · F-119Open",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1128,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›GreenHarvest Cold Room›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-203 · Backup response failure 6 Oct · from 19:11 Grid lost, automatic start failed, chamber above policy F-118 · F-119 Open Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=cold"
+          ],
+          "alerts": [],
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · CR",
+            "118 · F"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-203 · Backup response failure 6 Oct · from 19:11 Grid lost, automatic start failed, chamber above policy F-118 · F-119 Open Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Incidents → -> #/incidents",
+          "INC-203 · Backup response failure -> #/incident",
+          "F-118 -> #/cold-finding",
+          "F-119 -> #/cold-finding-excursion"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 411,
+            "cw": 320,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-site-overview",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/sites/COLD-LAB-001",
+      "mock_hash": "#/cold",
+      "app_image": "link-linkcold-site-overview-1440-app.png",
+      "mock_image": "link-linkcold-site-overview-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 248,
+            "y": 473,
+            "w": 1145,
+            "h": 252,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened · power → cooling → product conditionsNo incident recordedOpen Finding →16:00 UTCGrid supply · Observed16:00 UTCStart requested · Observed16:05 UTCStart result · Observed16:05 UTCGenerator · Observed—Transfer to backup · MissingNo accepted transfer to backup report for this chain16:05 UTCBackup bus · Observed16:05 UTCCompressor · Observed16:05 UTCChamber temperature · ObservedThe steps below are based on the selected accepted records. Missing steps remain unobserved.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 248,
+            "y": 743,
+            "w": 725,
+            "h": 386,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Chamber temperatureOperating conditions, not an inventory-loss model1°2°3°4°5°6°Above policy at least 45 min16:00 · 3.8 °C16:05 · 3.9 °C16:10 · 4 °C16:15 · 4.1 °C16:20 · 4.2 °C16:25 · 4.3 °C16:30 · 4.3 °C16:35 · 4.4 °C16:40 · 4.5 °C16:45 · 4.6 °C16:50 · 4.7 °C16:55 · 4.8 °C17:00 · 4.9 °C16:00 UTC16:15 UTC16:30 UTC16:45 UTC17:00 UTCChamber temperaturePolicy bandPolicy band 2–4°C. Gaps between accepted readings remain unmeasured.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 743,
+            "w": 403,
+            "h": 386,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1New evidence is waiting to be assessedNew evidence is waiting to be assessedEvidence →2Automatic generator start failed in the accepted recordNot observed: transfer to backup.Open Finding →3Transfer-switch position was not observedNot observed: transfer to backup.Performance › Backup →",
+            "h3": [
+              "New evidence is waiting to be assessed",
+              "Automatic generator start failed in the accepted record",
+              "Transfer-switch position was not observed"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1147,
+            "w": 725,
+            "h": 185,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceMoney consequence withheldNew evidence is waiting to be assessedOpen financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1147,
+            "w": 403,
+            "h": 185,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepNew evidence is waiting to be assessedEvidence →",
+            "h3": [
+              "New evidence is waiting to be assessed"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1382,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Degraded Confidence: Bounded Product exposure not establishedInspect evidence",
+          "cards": [
+            "TemperatureNeeds attention1 excursion · latest 4.9 °C · policy 2–4 °C · coverage 13 / 13 readings",
+            "BackupDegraded1 start attempt · 0 started · 1 failed",
+            "CoolingLimitedCooling recovery is not established by the selected start chain. · Recovery comparison not assessed",
+            "MaintenanceNot recordedNo maintenance work record is available for this window · Work record not available",
+            "EvidenceLimited4 capabilities · 1 full · 2 limited · 1 none · no single score"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 1,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 14,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "TemperatureNeeds attention1 excursion · latest 4.9 °C · policy 2–4 °C · coverage 13 / 13 r | Temperature -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+            "BackupDegraded1 start attempt · 0 started · 1 failed | Backup -> /sites/COLD-LAB-001/performance/backup?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+            "CoolingLimitedCooling recovery is not established by the selected start chain. · Recovery  | ",
+            "MaintenanceNot recordedNo maintenance work record is available for this window · Work reco | ",
+            "EvidenceLimited4 capabilities · 1 full · 2 limited · 1 none · no single score | Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z"
+          ],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesCold replay lab",
+          "subtitle": "Overview · operating objectives for the selected period",
+          "headerButtons": [],
+          "strip": "Degraded Confidence: Bounded Product exposure not establishedInspect evidence",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Sites Cold replay lab Cold replay lab Demonstration data · COLD-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence Selected window 24 Oct 2026 16:00–17:05 UTC Selected evidence through 25 Oct 16:16:24 UTC Degraded Confidence: Bounded Product exposure not established Inspect evidence Keep the chamber between 2–4°C through power, cooling and operating disturbances. Temperature Needs attention 1 excursion · latest 4.9 °C · policy 2–4 °C · coverage 13 / 13 readings Backup Degraded 1 start attempt · 0 started · 1 failed Cooling Limited Cooling recovery is not established by the selected start chain. · Recovery comparison not assessed Maintenance Not recorded No maintenance work record is available for this window · Work record not available Evidence Limited 4 capabilities · 1 full · 2 limited · 1 none · no single score What happened · power → cooling → product conditions No incident recorded Open Finding → 16:00 UTC Grid supply · Observed 16:00 UTC Start requested · Observed 16:05 UTC Start result · Observed 16:05 UTC Generator · Observed — Transfer to backup · Missing No accepted transfer to backup report for this chain 16:05 UTC Backup bus · Observed 16:05 UTC Compressor · Observed 16:05 UTC Chamber temperature · Observed The steps below are based on the selected accepted records. Missing steps remain unobserved. Chamber temperature Operating conditions, not an inventory-loss model 1° 2° 3° 4° 5° 6° Above policy at least 45 min 16:00 UTC 16:15 UTC 16:30 UTC 16:45 UTC 17:00 UTC Chamber temperature Policy band Policy band 2–4°C. Gaps between accepted readings remain unmeasured. Needs attention 1 New evidence is waiting to be assessed New evidence is waiting to be assessed Evidence → 2 Automatic generator start failed in the accepted record Not observed: transfer to backup. Open Finding → 3 Transfer-switch position was not observed Not observed: transfer to backup. Performance › Backup → Bounded money consequence Money consequence withheld New evidence is waiting to be assessed Open financial bridge → Next step New evidence is waiting to be assessed Evidence →"
+        },
+        "b18": {
+          "status": "Degraded Confidence: Bounded Product exposure not establishedInspect evidence",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [
+            "Degraded Confidence: Bounded Product exposure not establishedInspect evidence"
+          ],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "data · COLD"
+          ],
+          "enums": [],
+          "utcHits": 14,
+          "bodyText": "Sites Cold replay lab Cold replay lab Demonstration data · COLD-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence Selected window 24 Oct 2026 16:00–17:05 UTC Selected evidence through 25 Oct 16:16:24 UTC Degraded Confidence: Bounded Product exposure not established Inspect evidence Keep the chamber between 2–4°C through power, cooling and operating disturbances. Temperature Needs attention 1 excursion · latest 4.9 °C · policy 2–4 °C · coverage 13 / 13 readings Backup Degraded 1 start attempt · 0 started · 1 failed Cooling Limited Cooling recovery is not established by the selected start chain. · Recovery comparison not assessed Maintenance Not recorded No maintenance work record is available for this window · Work record not available Evidence Limited 4 capabilities · 1 full · 2 limited · 1 none · no single score What happened · power → cooling → product conditions No incident recorded Open Finding → 16:00 UTC Grid supply · Observed 16:00 UTC Start requested · Observed 16:05 UTC Start result · Observed 16:05 UTC Generator · Observed — Transfer to backup · Missing No accepted transfer to backup report for this chain 16:05 UTC Backup bus · Observed 16:05 UTC Compressor · Observed 16:05 UTC Chamber temperature · Observed The steps below are based on the selected accepted records. Missing steps remain unobserved. Chamber temperature Operating conditions, not an inventory-loss model 1° 2° 3° 4° 5° 6° Above policy at least 45 min 16:00 UTC 16:15 UTC 16:30 UTC 16:45 UTC 17:00 UTC Chamber temperature Policy band Policy band 2–4°C. Gaps between accepted readings remain unmeasured. Needs attention 1 New evidence is waiting to be assessed New evidence is waiting to be assessed Evidence → 2 Automatic generator start failed in the accepted record Not observed: transfer to backup. Open Finding → 3 Transfer-switch position was not observed Not observed: transfer to backup. Performance › Backup → Bounded money consequence Money consequence withheld New evidence is waiting to be assessed Open financial bridge → Next step New evidence is waiting to be assessed Evidence →"
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Inspect evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Temperature -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Backup -> /sites/COLD-LAB-001/performance/backup?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Open Finding → -> /sites/COLD-LAB-001/findings/1350fd2a-b5bb-453d-aad0-47d1aebddd63?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Evidence → -> /sites/COLD-LAB-001/evidence?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Open Finding → -> /sites/COLD-LAB-001/findings/1350fd2a-b5bb-453d-aad0-47d1aebddd63?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Performance › Backup → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Open financial bridge → -> /sites/COLD-LAB-001/financials?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Evidence → -> /sites/COLD-LAB-001/evidence?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z"
+        ],
+        "cardsDom": [
+          {
+            "t": "TemperatureNeeds attention1 excursion · latest 4.9 °C · policy 2–4 °C · coverage",
+            "h": 142
+          },
+          {
+            "t": "BackupDegraded1 start attempt · 0 started · 1 failed",
+            "h": 142
+          },
+          {
+            "t": "CoolingLimitedCooling recovery is not established by the selected start chain. ·",
+            "h": 142
+          },
+          {
+            "t": "MaintenanceNot recordedNo maintenance work record is available for this window ·",
+            "h": 142
+          },
+          {
+            "t": "EvidenceLimited4 capabilities · 1 full · 2 limited · 1 none · no single score",
+            "h": 142
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 8,
+          "10px": 9,
+          "14px": 7
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1382
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5392/sites/COLD-LAB-001",
+          "title": "AssetOps",
+          "h1": "Cold replay lab",
+          "crumbs": "SitesCold replay lab",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": [
+            "Sites",
+            "Cold replay lab",
+            "Overview",
+            "Foundation",
+            "Health",
+            "Performance",
+            "Findings",
+            "Work",
+            "Financials",
+            "Evidence"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 234,
+            "y": 579,
+            "w": 1161,
+            "h": 274,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened · power → cooling → product conditionsIncident INC-203 · chronology from accepted readingsOpen incident →19:11Grid supply lostSite power meter19:11Compressor stopped; battery holds controlsBy design at night · inverter-charger19:11:05Automatic start requestedGenerator controller19:11:10Generator failed to startGenerator controller19:14Started by handOperator log19:15Cooling running againCompressor meter19:19Peak 8.2°CChamber probeby 19:45Back within 2–4°CChamber probeGrid power was lost after dark, when solar was not producing. As designed, the battery kept controls and alarms ru",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 234,
+            "y": 872,
+            "w": 735,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Chamber temperatureOperating conditions, not an inventory-loss modelSingle line diagram →Above 4°C for 25–35 min107.552.50°C19:0019:1019:2019:3019:4019:5020:00Chamber temperatureUpper policy limitPolicy band 2–4°C. Shaded area: time above the limit, bounded by 5-minute readings.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 872,
+            "w": 408,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1ACT-051 · Witness an automatic-start testThe starter inspection is done, but no test shows backup works again.Actions › ACT-051 →2WR-019 · Inspection done, outcome unverifiedCompleted work is activity, not a fix.Work › Maintenance →3F-118 · Keep the finding openStays open until the declared start test passes.Findings › F-118 →",
+            "h3": [
+              "ACT-051 · Witness an automatic-start test",
+              "WR-019 · Inspection done, outcome unverified",
+              "F-118 · Keep the finding open"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1263,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceNot pricedPotential product exposure. Stock value and product response are not declared, so no loss figure is stated.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1263,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepWitness an automatic-start testCut grid supply under supervision and record start request, generator start, power to the compressor and chamber temperature.Review action ACT-051",
+            "h3": [
+              "Witness an automatic-start test"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1522,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›GreenHarvest Cold Room›Overview",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Sites › GreenHarvest Cold Room › Overview GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Degraded Confidence: High Potential product exposure Power → backup → cooling chain fully reconstructed · no spoilage determination Inspect evidence ↗ Objective: keep the chamber at 2–4°C through power, cooling and operational disturbances. Temperature Needs attention 1 excursion · 25–35 min above 4°C · peak 8.2°C View detail → Backup Degraded Automatic start failed; started by hand View detail → Cooling Watch Restarted with power; recovery comparison incomplete View detail → Maintenance Needs attention Inspection done · outcome not yet verified View detail → Evidence Limited Loading and door records not connected View detail → What happened · power → cooling → product conditions Incident INC-203 · chronology from accepted readings Open incident → 19:11 Grid supply lost Site power meter 19:11 Compressor stopped; battery holds controls By design at night · inverter-charger 19:11:05 Automatic start requested Generator controller 19:11:10 Generator failed to start Generator controller 19:14 Started by hand Operator log 19:15 Cooling running again Compressor meter 19:19 Peak 8.2°C Chamber probe by 19:45 Back within 2–4°C Chamber probe Grid power was lost after dark, when solar was not producing. As designed, the battery kept controls and alarms running while the compressor waited for the generator — but the generator did not start on its own. Cooling stopped for four minutes until it was started by hand, and the chamber stayed above 4°C for 25–35 minutes. Chamber temperature Operating conditions, not an inventory-loss model Single line diagram → Above 4°C for 25–35 min 10 7.5 5 2.5 0 °C 19:00 19:10 19:20 19:30 19:40 19:50 20:00 Chamber temperature Upper policy limit Policy band 2–4°C. Shaded area: time above the limit, bounded by 5-minute readings. Needs attention 1 ACT-051 · Witness an automatic-start test The starter inspection is done, but no test shows backup works again. Actions › ACT-051 → 2 WR-019 · Inspection done, outcome unverified Completed work is activity, not a fix. Work › Maintenance → 3 F-"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=cold"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · CR"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Sites › GreenHarvest Cold Room › Overview GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Degraded Confidence: High Potential product exposure Power → backup → cooling chain fully reconstructed · no spoilage determination Inspect evidence ↗ Objective: keep the chamber at 2–4°C through power, cooling and operational disturbances. Temperature Needs attention 1 excursion · 25–35 min above 4°C · peak 8.2°C View detail → Backup Degraded Automatic start failed; started by hand View detail → Cooling Watch Restarted with power; recovery comparison incomplete View detail → Maintenance Needs attention Inspection done · outcome not yet verified View detail → Evidence Limited Loading and door records not connected View detail → What happened · power → cooling → product conditions Incident INC-203 · chronology from accepted readings Open incident → 19:11 Grid supply lost Site power meter 19:11 Compressor stopped; battery holds controls By design at night · inverter-charger 19:11:05 Automatic start requested Generator controller 19:11:10 Generator failed to start Generator controller 19:14 Started by hand Operator log 19:15 Cooling running again Compressor meter 19:19 Peak 8.2°C Chamber probe by 19:45 Back within 2–4°C Chamber probe Grid power was lost after dark, when solar was not producing. As designed, the battery kept controls and alarms running while the compressor waited for the generator — but the generator did not start on its own. Cooling stopped for four minutes until it was started by hand, and the chamber stayed above 4°C for 25–35 minutes. Chamber temperature Operating conditions, not an inventory-loss model Single line diagram → Above 4°C for 25–35 min 10 7.5 5 2.5 0 °C 19:00 19:10 19:20 19:30 19:40 19:50 20:00 Chamber temperature Upper policy limit Policy band 2–4°C. Shaded area: time above the limit, bounded by 5-minute readings. Needs attention 1 ACT-051 · Witness an automatic-start test The starter inspection is done, but no test shows backup works again. Actions › ACT-051 → 2 WR-019 · Inspection done, outcome unverified Completed work is activity, not a fix. Work › Maintenance → 3 F-118 · Keep the finding open Stays open until the declared start test passes. Findings › F-118 → Bounded money consequence Not priced Potential product exposure. Stock value and product response are not declared, so no loss figure is stated. Open financial bridge → Next step Witness an automatic-start test Cut grid supply under supervision and record start request, generator start, power to the compressor and chamber temperature. Review action ACT-051 Illustrative mockup data · proposal for imple"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "View detail → -> #/temperature",
+          "View detail → -> #/coldbackup",
+          "View detail → -> #/cooling",
+          "View detail → -> #/cold-work-maintenance",
+          "View detail → -> #/cold-evidence",
+          "Open incident → -> #/incident",
+          "Single line diagram → -> #/cold-sld",
+          "Actions › ACT-051 → -> #/cold-action",
+          "Work › Maintenance → -> #/cold-work-maintenance",
+          "Findings › F-118 → -> #/cold-finding",
+          "Open financial bridge → -> #/cold-financials",
+          "Review action ACT-051 -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1478
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-site-overview",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/sites/COLD-LAB-001",
+      "mock_hash": "#/cold",
+      "app_image": "link-linkcold-site-overview-390-app.png",
+      "mock_image": "link-linkcold-site-overview-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 16,
+            "y": 945,
+            "w": 358,
+            "h": 557,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened · power → cooling → product conditionsNo incident recordedOpen Finding →16:00 UTCGrid supply · Observed16:00 UTCStart requested · Observed16:05 UTCStart result · Observed16:05 UTCGenerator · Observed—Transfer to backup · MissingNo accepted transfer to backup report for this chain16:05 UTCBackup bus · Observed16:05 UTCCompressor · Observed16:05 UTCChamber temperature · ObservedThe steps below are based on the selected accepted records. Missing steps remain unobserved.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 16,
+            "y": 1521,
+            "w": 358,
+            "h": 277,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Chamber temperatureOperating conditions, not an inventory-loss model1°2°3°4°5°6°Above policy at least 45 min16:00 · 3.8 °C16:05 · 3.9 °C16:10 · 4 °C16:15 · 4.1 °C16:20 · 4.2 °C16:25 · 4.3 °C16:30 · 4.3 °C16:35 · 4.4 °C16:40 · 4.5 °C16:45 · 4.6 °C16:50 · 4.7 °C16:55 · 4.8 °C17:00 · 4.9 °C16:00 UTC16:15 UTC16:30 UTC16:45 UTC17:00 UTCChamber temperaturePolicy bandPolicy band 2–4°C. Gaps between accepted readings remain unmeasured.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 1814,
+            "w": 358,
+            "h": 337,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1New evidence is waiting to be assessedNew evidence is waiting to be assessedEvidence →2Automatic generator start failed in the accepted recordNot observed: transfer to backup.Open Finding →3Transfer-switch position was not observedNot observed: transfer to backup.Performance › Backup →",
+            "h3": [
+              "New evidence is waiting to be assessed",
+              "Automatic generator start failed in the accepted record",
+              "Transfer-switch position was not observed"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2167,
+            "w": 358,
+            "h": 181,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceMoney consequence withheldNew evidence is waiting to be assessedOpen financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2364,
+            "w": 358,
+            "h": 158,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepNew evidence is waiting to be assessedEvidence →",
+            "h3": [
+              "New evidence is waiting to be assessed"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2561,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Degraded Confidence: Bounded Product exposure not establishedInspect evidence",
+          "cards": [
+            "TemperatureNeeds attention1 excursion · latest 4.9 °C · policy 2–4 °C · coverage 13 / 13 readings",
+            "BackupDegraded1 start attempt · 0 started · 1 failed",
+            "CoolingLimitedCooling recovery is not established by the selected start chain. · Recovery comparison not assessed",
+            "MaintenanceNot recordedNo maintenance work record is available for this window · Work record not available",
+            "EvidenceLimited4 capabilities · 1 full · 2 limited · 1 none · no single score"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 1,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 14,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "TemperatureNeeds attention1 excursion · latest 4.9 °C · policy 2–4 °C · coverage 13 / 13 r | Temperature -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+            "BackupDegraded1 start attempt · 0 started · 1 failed | Backup -> /sites/COLD-LAB-001/performance/backup?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+            "CoolingLimitedCooling recovery is not established by the selected start chain. · Recovery  | ",
+            "MaintenanceNot recordedNo maintenance work record is available for this window · Work reco | ",
+            "EvidenceLimited4 capabilities · 1 full · 2 limited · 1 none · no single score | Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z"
+          ],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesCold replay lab",
+          "subtitle": "Overview · operating objectives for the selected period",
+          "headerButtons": [],
+          "strip": "Degraded Confidence: Bounded Product exposure not establishedInspect evidence",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Sites Cold replay lab Cold replay lab Demonstration data · COLD-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence Selected window 24 Oct 2026 16:00–17:05 UTC Selected evidence through 25 Oct 16:16:24 UTC Degraded Confidence: Bounded Product exposure not established Inspect evidence Keep the chamber between 2–4°C through power, cooling and operating disturbances. Temperature Needs attention 1 excursion · latest 4.9 °C · policy 2–4 °C · coverage 13 / 13 readings Backup Degraded 1 start attempt · 0 started · 1 failed Cooling Limited Cooling recovery is not established by the selected start chain. · Recovery comparison not assessed Maintenance Not recorded No maintenance work record is available for this window · Work record not available Evidence Limited 4 capabilities · 1 full · 2 limited · 1 none · no single score What happened · power → cooling → product conditions No incident recorded Open Finding → 16:00 UTC Grid supply · Observed 16:00 UTC Start requested · Observed 16:05 UTC Start result · Observed 16:05 UTC Generator · Observed — Transfer to backup · Missing No accepted transfer to backup report for this chain 16:05 UTC Backup bus · Observed 16:05 UTC Compressor · Observed 16:05 UTC Chamber temperature · Observed The steps below are based on the selected accepted records. Missing steps remain unobserved. Chamber temperature Operating conditions, not an inventory-loss model 1° 2° 3° 4° 5° 6° Above policy at least 45 min 16:00 UTC 16:15 UTC 16:30 UTC 16:45 UTC 17:00 UTC Chamber temperature Policy band Policy band 2–4°C. Gaps between accepted readings remain unmeasured. Needs attention 1 New evidence is waiting to be assessed New evidence is waiting to be assessed Evidence → 2 Automatic generator start failed in the accepted record Not observed: transfer to backup. Open Finding → 3 Transfer-switch position was not observed Not observed: transfer to backup. Performance › Backup → Bounded money consequence Money consequence withheld New evidence is waiting to be assessed Open financial bridge → Next step New evidence is waiting to be assessed Evidence →"
+        },
+        "b18": {
+          "status": "Degraded Confidence: Bounded Product exposure not establishedInspect evidence",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [
+            "Degraded Confidence: Bounded Product exposure not establishedInspect evidence"
+          ],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "data · COLD"
+          ],
+          "enums": [],
+          "utcHits": 14,
+          "bodyText": "Sites Cold replay lab Cold replay lab Demonstration data · COLD-LAB-001 Overview · operating objectives for the selected period Overview Foundation Health Performance Findings Work Financials Evidence Selected window 24 Oct 2026 16:00–17:05 UTC Selected evidence through 25 Oct 16:16:24 UTC Degraded Confidence: Bounded Product exposure not established Inspect evidence Keep the chamber between 2–4°C through power, cooling and operating disturbances. Temperature Needs attention 1 excursion · latest 4.9 °C · policy 2–4 °C · coverage 13 / 13 readings Backup Degraded 1 start attempt · 0 started · 1 failed Cooling Limited Cooling recovery is not established by the selected start chain. · Recovery comparison not assessed Maintenance Not recorded No maintenance work record is available for this window · Work record not available Evidence Limited 4 capabilities · 1 full · 2 limited · 1 none · no single score What happened · power → cooling → product conditions No incident recorded Open Finding → 16:00 UTC Grid supply · Observed 16:00 UTC Start requested · Observed 16:05 UTC Start result · Observed 16:05 UTC Generator · Observed — Transfer to backup · Missing No accepted transfer to backup report for this chain 16:05 UTC Backup bus · Observed 16:05 UTC Compressor · Observed 16:05 UTC Chamber temperature · Observed The steps below are based on the selected accepted records. Missing steps remain unobserved. Chamber temperature Operating conditions, not an inventory-loss model 1° 2° 3° 4° 5° 6° Above policy at least 45 min 16:00 UTC 16:15 UTC 16:30 UTC 16:45 UTC 17:00 UTC Chamber temperature Policy band Policy band 2–4°C. Gaps between accepted readings remain unmeasured. Needs attention 1 New evidence is waiting to be assessed New evidence is waiting to be assessed Evidence → 2 Automatic generator start failed in the accepted record Not observed: transfer to backup. Open Finding → 3 Transfer-switch position was not observed Not observed: transfer to backup. Performance › Backup → Bounded money consequence Money consequence withheld New evidence is waiting to be assessed Open financial bridge → Next step New evidence is waiting to be assessed Evidence →"
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Inspect evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Temperature -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Backup -> /sites/COLD-LAB-001/performance/backup?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Open Finding → -> /sites/COLD-LAB-001/findings/1350fd2a-b5bb-453d-aad0-47d1aebddd63?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Evidence → -> /sites/COLD-LAB-001/evidence?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Open Finding → -> /sites/COLD-LAB-001/findings/1350fd2a-b5bb-453d-aad0-47d1aebddd63?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Performance › Backup → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Open financial bridge → -> /sites/COLD-LAB-001/financials?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z",
+          "Evidence → -> /sites/COLD-LAB-001/evidence?from=2026-10-24T16%3A00%3A00.000000Z&to=2026-10-24T17%3A05%3A00.000000Z&known_at=2026-10-25T16%3A16%3A24.716845Z"
+        ],
+        "cardsDom": [
+          {
+            "t": "TemperatureNeeds attention1 excursion · latest 4.9 °C · policy 2–4 °C · coverage",
+            "h": 142
+          },
+          {
+            "t": "BackupDegraded1 start attempt · 0 started · 1 failed",
+            "h": 142
+          },
+          {
+            "t": "CoolingLimitedCooling recovery is not established by the selected start chain. ·",
+            "h": 158
+          },
+          {
+            "t": "MaintenanceNot recordedNo maintenance work record is available for this window ·",
+            "h": 158
+          },
+          {
+            "t": "EvidenceLimited4 capabilities · 1 full · 2 limited · 1 none · no single score",
+            "h": 126
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 8,
+          "10px": 9,
+          "14px": 7
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5392/sites/COLD-LAB-001",
+          "title": "AssetOps",
+          "h1": "Cold replay lab",
+          "crumbs": "SitesCold replay lab",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": [
+            "Sites",
+            "Cold replay lab",
+            "Overview",
+            "Foundation",
+            "Health",
+            "Performance",
+            "Findings",
+            "Work",
+            "Financials",
+            "Evidence"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 15,
+            "y": 1237,
+            "w": 360,
+            "h": 660,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened · power → cooling → product conditionsIncident INC-203 · chronology from accepted readingsOpen incident →19:11Grid supply lostSite power meter19:11Compressor stopped; battery holds controlsBy design at night · inverter-charger19:11:05Automatic start requestedGenerator controller19:11:10Generator failed to startGenerator controller19:14Started by handOperator log19:15Cooling running againCompressor meter19:19Peak 8.2°CChamber probeby 19:45Back within 2–4°CChamber probeGrid power was lost after dark, when solar was not producing. As designed, the battery kept controls and alarms ru",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 15,
+            "y": 1915,
+            "w": 360,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Chamber temperatureOperating conditions, not an inventory-loss modelSingle line diagram →Above 4°C for 25–35 min107.552.50°C19:0019:1019:2019:3019:4019:5020:00Chamber temperatureUpper policy limitPolicy band 2–4°C. Shaded area: time above the limit, bounded by 5-minute readings.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2220,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1ACT-051 · Witness an automatic-start testThe starter inspection is done, but no test shows backup works again.Actions › ACT-051 →2WR-019 · Inspection done, outcome unverifiedCompleted work is activity, not a fix.Work › Maintenance →3F-118 · Keep the finding openStays open until the declared start test passes.Findings › F-118 →",
+            "h3": [
+              "ACT-051 · Witness an automatic-start test",
+              "WR-019 · Inspection done, outcome unverified",
+              "F-118 · Keep the finding open"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2574,
+            "w": 360,
+            "h": 190,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceNot pricedPotential product exposure. Stock value and product response are not declared, so no loss figure is stated.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2782,
+            "w": 360,
+            "h": 215,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepWitness an automatic-start testCut grid supply under supervision and record start request, generator start, power to the compressor and chamber temperature.Review action ACT-051",
+            "h3": [
+              "Witness an automatic-start test"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3091,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›GreenHarvest Cold Room›Overview",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › GreenHarvest Cold Room › Overview GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Degraded Confidence: High Potential product exposure Power → backup → cooling chain fully reconstructed · no spoilage determination Inspect evidence ↗ Objective: keep the chamber at 2–4°C through power, cooling and operational disturbances. Temperature Needs attention 1 excursion · 25–35 min above 4°C · peak 8.2°C View detail → Backup Degraded Automatic start failed; started by hand View detail → Cooling Watch Restarted with power; recovery comparison incomplete View detail → Maintenance Needs attention Inspection done · outcome not yet verified View detail → Evidence Limited Loading and door records not connected View detail → What happened · power → cooling → product conditions Incident INC-203 · chronology from accepted readings Open incident → 19:11 Grid supply lost Site power meter 19:11 Compressor stopped; battery holds controls By design at night · inverter-charger 19:11:05 Automatic start requested Generator controller 19:11:10 Generator failed to start Generator controller 19:14 Started by hand Operator log 19:15 Cooling running again Compressor meter 19:19 Peak 8.2°C Chamber probe by 19:45 Back within 2–4°C Chamber probe Grid power was lost after dark, when solar was not producing. As designed, the battery kept controls and alarms running while the compressor waited for the generator — but the generator did not start on its own. Cooling stopped for four minutes until it was started by hand, and the chamber stayed above 4°C for 25–35 minutes. Chamber temperature Operating conditions, not an inventory-loss model Single line diagram → Above 4°C for 25–35 min 10 7.5 5 2.5 0 °C 19:00 19:10 19:20 19:30 19:40 19:50 20:00 Chamber temperature Upper policy limit Policy band 2–4°C. Shaded area: time above the limit, bounded by 5-minute readings. Needs attention 1 ACT-051 · Witness an automatic-start test The starter inspection is done, but no test shows backup works again. Actions › ACT-051 → 2 WR-019 · Inspection done, outcome unverified Completed work is activity, not a fix. Work › Maintenance → 3 F-118 · Keep the finding open Stays open unti"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=cold"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · CR"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › GreenHarvest Cold Room › Overview GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Degraded Confidence: High Potential product exposure Power → backup → cooling chain fully reconstructed · no spoilage determination Inspect evidence ↗ Objective: keep the chamber at 2–4°C through power, cooling and operational disturbances. Temperature Needs attention 1 excursion · 25–35 min above 4°C · peak 8.2°C View detail → Backup Degraded Automatic start failed; started by hand View detail → Cooling Watch Restarted with power; recovery comparison incomplete View detail → Maintenance Needs attention Inspection done · outcome not yet verified View detail → Evidence Limited Loading and door records not connected View detail → What happened · power → cooling → product conditions Incident INC-203 · chronology from accepted readings Open incident → 19:11 Grid supply lost Site power meter 19:11 Compressor stopped; battery holds controls By design at night · inverter-charger 19:11:05 Automatic start requested Generator controller 19:11:10 Generator failed to start Generator controller 19:14 Started by hand Operator log 19:15 Cooling running again Compressor meter 19:19 Peak 8.2°C Chamber probe by 19:45 Back within 2–4°C Chamber probe Grid power was lost after dark, when solar was not producing. As designed, the battery kept controls and alarms running while the compressor waited for the generator — but the generator did not start on its own. Cooling stopped for four minutes until it was started by hand, and the chamber stayed above 4°C for 25–35 minutes. Chamber temperature Operating conditions, not an inventory-loss model Single line diagram → Above 4°C for 25–35 min 10 7.5 5 2.5 0 °C 19:00 19:10 19:20 19:30 19:40 19:50 20:00 Chamber temperature Upper policy limit Policy band 2–4°C. Shaded area: time above the limit, bounded by 5-minute readings. Needs attention 1 ACT-051 · Witness an automatic-start test The starter inspection is done, but no test shows backup works again. Actions › ACT-051 → 2 WR-019 · Inspection done, outcome unverified Completed work is activity, not a fix. Work › Maintenance → 3 F-118 · Keep the finding open Stays open until the declared start test passes. Findings › F-118 → Bounded money consequence Not priced Potential product exposure. Stock value and product response are not declared, so no loss figure is stated. Open financial bridge → Next step Witness an automatic-start test Cut grid supply under supervision and record start request, generator start, power to the compressor and chamber temperature. Review action ACT-051 Illustrative mockup data · proposal for implementation · not connected to site telemetry"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "View detail → -> #/temperature",
+          "View detail → -> #/coldbackup",
+          "View detail → -> #/cooling",
+          "View detail → -> #/cold-work-maintenance",
+          "View detail → -> #/cold-evidence",
+          "Open incident → -> #/incident",
+          "Single line diagram → -> #/cold-sld",
+          "Actions › ACT-051 → -> #/cold-action",
+          "Work › Maintenance → -> #/cold-work-maintenance",
+          "Findings › F-118 → -> #/cold-finding",
+          "Open financial bridge → -> #/cold-financials",
+          "Review action ACT-051 -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-action",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification",
+      "mock_hash": "#/cold-action",
+      "app_image": "link-linkcold-action-1440-app.png",
+      "mock_image": "link-linkcold-action-1440-mock.png",
+      "app": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 248,
+            "y": 241,
+            "w": 1160,
+            "h": 292,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 248,
+            "y": 551,
+            "w": 1160,
+            "h": 168,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-000002 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Witness automatic-start test",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "OpenMaintenance lead · Cold · Finding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4",
+          "cards": [],
+          "notice": [
+            "Completed inspection does not establish successful service restoration."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "ActionsACT-000001Verification· site: Cold replay lab",
+          "subtitle": "Has backup service been restored after the inspection?",
+          "headerButtons": [
+            "Open site"
+          ],
+          "strip": "OpenMaintenance lead · Cold · Finding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4",
+          "related": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+          "inspect": {
+            "tag": "BUTTON",
+            "text": "Inspect maintenance evidence",
+            "disabled": false,
+            "href": null
+          },
+          "finding": "Open source Finding →",
+          "intentMissing": "",
+          "criteria": [
+            "Automatic startAccepted command followed by successful running statusNot tested",
+            "Power deliveryGenerator supply reaches the cooling systemNot tested",
+            "Cooling recoveryTemperature recovery within declared test conditionsNot established",
+            "RecurrenceCovered observation window without a qualifying repeatPending"
+          ],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "ActionsACT-000001Verification· site: Cold replay lab ACT-000001 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · Cold · Finding 1350fd2a Finding version Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet. Completed inspection does not establish successful service restoration."
+        },
+        "b18": {
+          "status": "OpenMaintenance lead · Cold · Finding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "ActionsACT-000001Verification· site: Cold replay lab ACT-000001 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · Cold · Finding 1350fd2a Finding version Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet. Completed inspection does not establish successful service restoration."
+        },
+        "mainLinks": [
+          "Actions -> /actions",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Open site -> /sites/COLD-LAB-001",
+          "Verification -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 74,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5392/sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification",
+          "title": "AssetOps",
+          "h1": "ACT-000001 · Witness automatic-start test",
+          "crumbs": "ActionsACT-000001Verification· site: Cold replay lab",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 1120,
+            "cw": 1120,
+            "w": 1120,
+            "layout": "auto",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 1120,
+            "wrapCw": 1120,
+            "cols": [
+              "Criterion:227",
+              "Required evidence:661",
+              "Current result:232"
+            ],
+            "over": [],
+            "rowH": [
+              45,
+              45,
+              45,
+              44
+            ]
+          },
+          "historicalNotice": [
+            "Completed inspection does not establish successful service restoration."
+          ],
+          "tabs": [
+            "Actions",
+            "Verification",
+            "· site: Cold replay lab",
+            "· site:",
+            "Cold replay lab",
+            "Verification"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 287,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 234,
+            "y": 671,
+            "w": 1161,
+            "h": 150,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-019 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-051 · Witness automatic-start test",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Actions›ACT-051›Verification· site: GreenHarvest Cold Room",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Actions › ACT-051 › Verification · site: GreenHarvest Cold Room ACT-051 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · GreenHarvest · F-118 Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-019 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → Completed inspection does not establish successful service restoration. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Actions › ACT-051 › Verification · site: GreenHarvest Cold Room ACT-051 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · GreenHarvest · F-118 Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-019 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → Completed inspection does not establish successful service restoration. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Verification -> #/cold-action",
+          "Inspect maintenance evidence -> #/workverification",
+          "Open source Finding → -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-action",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification",
+      "mock_hash": "#/cold-action",
+      "app_image": "link-linkcold-action-390-app.png",
+      "mock_image": "link-linkcold-action-390-mock.png",
+      "app": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 16,
+            "y": 421,
+            "w": 358,
+            "h": 433,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 16,
+            "y": 872,
+            "w": 358,
+            "h": 272,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-000002 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1265,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Witness automatic-start test",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "OpenMaintenance lead · Cold · Finding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4",
+          "cards": [],
+          "notice": [
+            "Completed inspection does not establish successful service restoration."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "ActionsACT-000001Verification· site: Cold replay lab",
+          "subtitle": "Has backup service been restored after the inspection?",
+          "headerButtons": [
+            "Open site"
+          ],
+          "strip": "OpenMaintenance lead · Cold · Finding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4",
+          "related": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+          "inspect": {
+            "tag": "BUTTON",
+            "text": "Inspect maintenance evidence",
+            "disabled": false,
+            "href": null
+          },
+          "finding": "Open source Finding →",
+          "intentMissing": "",
+          "criteria": [
+            "Automatic startAccepted command followed by successful running statusNot tested",
+            "Power deliveryGenerator supply reaches the cooling systemNot tested",
+            "Cooling recoveryTemperature recovery within declared test conditionsNot established",
+            "RecurrenceCovered observation window without a qualifying repeatPending"
+          ],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "ActionsACT-000001Verification· site: Cold replay lab ACT-000001 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · Cold · Finding 1350fd2a Finding version Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet. Completed inspection does not establish successful service restoration."
+        },
+        "b18": {
+          "status": "OpenMaintenance lead · Cold · Finding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "ActionsACT-000001Verification· site: Cold replay lab ACT-000001 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · Cold · Finding 1350fd2a Finding version Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet. Completed inspection does not establish successful service restoration."
+        },
+        "mainLinks": [
+          "Actions -> /actions",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Open site -> /sites/COLD-LAB-001",
+          "Verification -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 74,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5392/sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification",
+          "title": "AssetOps",
+          "h1": "ACT-000001 · Witness automatic-start test",
+          "crumbs": "ActionsACT-000001Verification· site: Cold replay lab",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 318,
+            "cw": 318,
+            "w": 318,
+            "layout": "auto",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 318,
+            "wrapCw": 318,
+            "cols": [
+              "Criterion:78",
+              "Required evidence:134",
+              "Current result:106"
+            ],
+            "over": [],
+            "rowH": [
+              80,
+              80,
+              80,
+              79
+            ]
+          },
+          "historicalNotice": [
+            "Completed inspection does not establish successful service restoration."
+          ],
+          "tabs": [
+            "Actions",
+            "Verification",
+            "· site: Cold replay lab",
+            "· site:",
+            "Cold replay lab",
+            "Verification"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 15,
+            "y": 578,
+            "w": 360,
+            "h": 428,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 15,
+            "y": 1024,
+            "w": 360,
+            "h": 194,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-019 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1391,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-051 · Witness automatic-start test",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Actions›ACT-051›Verification· site: GreenHarvest Cold Room",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Actions › ACT-051 › Verification · site: GreenHarvest Cold Room ACT-051 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · GreenHarvest · F-118 Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-019 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → Completed inspection does not establish successful service restoration. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Actions › ACT-051 › Verification · site: GreenHarvest Cold Room ACT-051 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · GreenHarvest · F-118 Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-019 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → Completed inspection does not establish successful service restoration. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Verification -> #/cold-action",
+          "Inspect maintenance evidence -> #/workverification",
+          "Open source Finding → -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-request",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7?site_id=COLD-LAB-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-linkcold-request-1440-app.png",
+      "mock_image": "link-linkcold-request-1440-mock.png",
+      "app": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 248,
+            "y": 356,
+            "w": 734,
+            "h": 365,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneWitnessed failure requires inspection.Full narrative textWitnessed failure requires inspection.Latest activity: Starter and control inspectionFull activity textStarter and control inspectionTypeCorrectiveAssetBackup generator · generator-1WarrantyWarranty not recordedLinked actionACT-000001MOCK DEVIATION D1 (R365)",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 1000,
+            "y": 356,
+            "w": 408,
+            "h": 365,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified. No work-case outcome evaluator is available.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Starter/control inspection",
+          "top": 56,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 1,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 1,
+          "periodBar": "",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "MaintenanceWR-000002Overview· site: Cold replay lab",
+          "subtitle": "WR-000002 · Cold replay lab · corrective",
+          "headerButtons": [
+            "Open site"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Maintenance WR-000002 Overview · site: Cold replay lab Starter/control inspection WR-000002 · Cold replay lab · corrective Open site Overview Maintenance record Verification · Not available yet History MOCK DEVIATION D1 (R396) As known at 25 Oct 2026, 17:43 UTC Reload MOCK DEVIATION D2 (R363) OWNER Maintenance lead Full owner text DUE / SLA Not set STATE Completed · outcome not established SOURCE Incident INC-000001 · Finding 1350fd2a Full source text SUCCESS CRITERION Not recorded Work done Witnessed failure requires inspection. Full narrative text Latest activity: Starter and control inspection Full activity text Type Corrective Asset Backup generator · generator-1 Warranty Warranty not recorded Linked action ACT-000001 MOCK DEVIATION D1 (R365) Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified. No work-case outcome evaluator is available."
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 1,
+          "bodyText": "Maintenance WR-000002 Overview · site: Cold replay lab Starter/control inspection WR-000002 · Cold replay lab · corrective Open site Overview Maintenance record Verification · Not available yet History MOCK DEVIATION D1 (R396) As known at 25 Oct 2026, 17:43 UTC Reload MOCK DEVIATION D2 (R363) OWNER Maintenance lead Full owner text DUE / SLA Not set STATE Completed · outcome not established SOURCE Incident INC-000001 · Finding 1350fd2a Full source text SUCCESS CRITERION Not recorded Work done Witnessed failure requires inspection. Full narrative text Latest activity: Starter and control inspection Full activity text Type Corrective Asset Backup generator · generator-1 Warranty Warranty not recorded Linked action ACT-000001 MOCK DEVIATION D1 (R365) Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified. No work-case outcome evaluator is available."
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Open site -> /sites/COLD-LAB-001",
+          "Overview -> /maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7?site_id=COLD-LAB-001",
+          "Maintenance record -> /maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7/record?site_id=COLD-LAB-001",
+          "History -> /maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7/history?site_id=COLD-LAB-001",
+          "Incident INC-000001 -> /sites/COLD-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "ACT-000001 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification · Not available yet(off)",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 2,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5392/maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7?site_id=COLD-LAB-001",
+          "title": "AssetOps",
+          "h1": "Starter/control inspection",
+          "crumbs": "MaintenanceWR-000002Overview· site: Cold replay lab",
+          "status": [],
+          "membership": [],
+          "deviations": [
+            "R396|MOCK DEVIATION D1 (R396)|12px",
+            "R363|MOCK DEVIATION D2 (R363)|12px",
+            "R365|MOCK DEVIATION D1 (R365)|12px"
+          ],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": [
+            "Maintenance",
+            "WR-000002",
+            "Overview",
+            "· site: Cold replay lab",
+            "Cold replay lab",
+            "Overview",
+            "Maintenance record",
+            "Verification · Not available yet",
+            "History"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 234,
+            "y": 409,
+            "w": 735,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 987,
+            "y": 409,
+            "w": 408,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Maintenance›WR-019›Overview· site: GreenHarvest Cold Room",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "203 · F"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-request",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7?site_id=COLD-LAB-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-linkcold-request-390-app.png",
+      "mock_image": "link-linkcold-request-390-mock.png",
+      "app": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 16,
+            "y": 672,
+            "w": 358,
+            "h": 365,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneWitnessed failure requires inspection.Full narrative textWitnessed failure requires inspection.Latest activity: Starter and control inspectionFull activity textStarter and control inspectionTypeCorrectiveAssetBackup generator · generator-1WarrantyWarranty not recordedLinked actionACT-000001MOCK DEVIATION D1 (R365)",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 16,
+            "y": 1053,
+            "w": 358,
+            "h": 167,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified. No work-case outcome evaluator is available.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1260,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Starter/control inspection",
+          "top": 163,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 1,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 1,
+          "periodBar": "",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "MaintenanceWR-000002Overview· site: Cold replay lab",
+          "subtitle": "WR-000002 · Cold replay lab · corrective",
+          "headerButtons": [
+            "Open site"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Maintenance WR-000002 Overview · site: Cold replay lab Starter/control inspection WR-000002 · Cold replay lab · corrective Open site Overview Maintenance record Verification · Not available yet History MOCK DEVIATION D1 (R396) As known at 25 Oct 2026, 17:43 UTC Reload MOCK DEVIATION D2 (R363) OWNER Maintenance lead Full owner text DUE / SLA Not set STATE Completed · outcome not established SOURCE Incident INC-000001 · Finding 1350fd2a Full source text SUCCESS CRITERION Not recorded Work done Witnessed failure requires inspection. Full narrative text Latest activity: Starter and control inspection Full activity text Type Corrective Asset Backup generator · generator-1 Warranty Warranty not recorded Linked action ACT-000001 MOCK DEVIATION D1 (R365) Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified. No work-case outcome evaluator is available."
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 1,
+          "bodyText": "Maintenance WR-000002 Overview · site: Cold replay lab Starter/control inspection WR-000002 · Cold replay lab · corrective Open site Overview Maintenance record Verification · Not available yet History MOCK DEVIATION D1 (R396) As known at 25 Oct 2026, 17:43 UTC Reload MOCK DEVIATION D2 (R363) OWNER Maintenance lead Full owner text DUE / SLA Not set STATE Completed · outcome not established SOURCE Incident INC-000001 · Finding 1350fd2a Full source text SUCCESS CRITERION Not recorded Work done Witnessed failure requires inspection. Full narrative text Latest activity: Starter and control inspection Full activity text Type Corrective Asset Backup generator · generator-1 Warranty Warranty not recorded Linked action ACT-000001 MOCK DEVIATION D1 (R365) Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified. No work-case outcome evaluator is available."
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Open site -> /sites/COLD-LAB-001",
+          "Overview -> /maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7?site_id=COLD-LAB-001",
+          "Maintenance record -> /maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7/record?site_id=COLD-LAB-001",
+          "History -> /maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7/history?site_id=COLD-LAB-001",
+          "Incident INC-000001 -> /sites/COLD-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "ACT-000001 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification · Not available yet(off)",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 2,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5392/maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7?site_id=COLD-LAB-001",
+          "title": "AssetOps",
+          "h1": "Starter/control inspection",
+          "crumbs": "MaintenanceWR-000002Overview· site: Cold replay lab",
+          "status": [],
+          "membership": [],
+          "deviations": [
+            "R396|MOCK DEVIATION D1 (R396)|12px",
+            "R363|MOCK DEVIATION D2 (R363)|12px",
+            "R365|MOCK DEVIATION D1 (R365)|12px"
+          ],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": [
+            "Maintenance",
+            "WR-000002",
+            "Overview",
+            "· site: Cold replay lab",
+            "Cold replay lab",
+            "Overview",
+            "Maintenance record",
+            "Verification · Not available yet",
+            "History"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 15,
+            "y": 746,
+            "w": 360,
+            "h": 338,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 15,
+            "y": 1102,
+            "w": 360,
+            "h": 161,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1357,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Maintenance›WR-019›Overview· site: GreenHarvest Cold Room",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "203 · F"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "ev-worstcase-160-wr-000004",
+  "url": "http://127.0.0.1:5389/maintenance/requests/0d5111b1-7c92-49e5-a4c8-496111bbdcbd?site_id=EV-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-worstcase-160-wr-000004",
+  "url": "http://127.0.0.1:5389/maintenance/requests/0d5111b1-7c92-49e5-a4c8-496111bbdcbd/record?site_id=EV-LAB-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-worstcase-160-wr-000004",
+  "url": "http://127.0.0.1:5389/maintenance/requests/0d5111b1-7c92-49e5-a4c8-496111bbdcbd/history?site_id=EV-LAB-001"
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "url": "http://127.0.0.1:5389/maintenance/requests/0d5111b1-7c92-49e5-a4c8-496111bbdcbd?site_id=EV-LAB-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "url": "http://127.0.0.1:5389/maintenance/requests/0d5111b1-7c92-49e5-a4c8-496111bbdcbd/record?site_id=EV-LAB-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "url": "http://127.0.0.1:5389/maintenance/requests/0d5111b1-7c92-49e5-a4c8-496111bbdcbd/history?site_id=EV-LAB-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-worstcase-wr-000002",
+  "url": "http://127.0.0.1:5389/maintenance/requests/9da0ee09-c306-466b-afaf-8c74a0dce0e9?site_id=EV-LAB-001"
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-worstcase-wr-000006",
+  "url": "http://127.0.0.1:5389/maintenance/requests/2b9a6074-f8d4-4c37-ba26-b8a0d084e24f?site_id=EV-LAB-001"
+ }
+]

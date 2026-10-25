@@ -36,7 +36,7 @@ KINDS = ("OPERATOR_LOG", "MANUAL_READING", "SHIFT_NOTE", "SITE_VISIT")
 ROW_KEYS = {"site_code", "site_name", "site_id", "site_code_key", "canonical_record_id", "root_id", "head_id", "code",
             "kind", "body", "root_occurred_at", "occurred_at", "recorded_at", "period_end", "actor_kind", "actor_id",
             "quantity", "unit", "source_document_sha256", "case_id", "case_kind", "case_code", "state",
-            "supersedes_record_id", "correction_reason", "source_provenance", "links"}
+            "supersedes_record_id", "correction_reason", "source_provenance", "links", "site_domain"}
 ENVELOPE = {"schema_version", "scope", "window", "known_at", "status", "coverage", "total_count", "state_counts", "rows",
             "next_cursor", "selection_token"}
 WIRE_SECOND = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
@@ -178,7 +178,7 @@ def test_four_kinds_and_filtered_zero(store, key) -> None:  # noqa: F811
     body = read(demo)
     assert set(body) == ENVELOPE and body["schema_version"] == "global-work-index-1"
     assert body["state_counts"] is None and body["status"] == "CURRENT" and body["total_count"] == 7
-    assert all(set(r) == ROW_KEYS for r in body["rows"])
+    assert all(set(r) == ROW_KEYS and r["site_domain"] == "MINIGRID" for r in body["rows"])
     zero = read(demo, kind="SITE_VISIT")
     assert zero["total_count"] == 0 and zero["rows"] == [] and zero["next_cursor"] is None
     assert zero["state_counts"] is None and zero["status"] == "CURRENT"

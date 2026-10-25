@@ -1,0 +1,40 @@
+[
+ {
+  "h": "Operational records",
+  "H": 265,
+  "trs": 1,
+  "det": 2,
+  "ths": [
+   "Record:90",
+   "Type:111",
+   "Site:151",
+   "When:131",
+   "By:121",
+   "What it says:271",
+   "Feeds:141",
+   "State:90"
+  ],
+  "rowHs": [
+   99
+  ],
+  "rowTall": "<tr data-global-work-row=\"2a50a0b4-5b01-40b6-a72f-3b6dc5d18a4b\" data-global-work-head=\"2a50a0b4-5b01-40b6-a72f-3b6dc5d18a4b\"><td><div class=\"global-work-clamp\" data-global-work-code=\"\">REC-000009</div><details class=\"global-work-details\" data-global-work-source=\"UNKNOWN\"><summary>Source unverified</summary>The origin of this authored work record is not established. No work outcome is verified.</details></td><td><div class=\"global-work-clamp\" data-global-work-kind=\"OPERATOR_LOG\">Operator log</div></td><td><div class=\"global-work-clamp\"><a data-global-work-site=\"KOBO-001\" href=\"/sites/KOBO-001\">Kobo mini-grid</a></div></td><td><div class=\"global-work-clamp\" data-global-work-when=\"\">19 Oct 2026, 12:00 UTC</div></td><td><div class=\"global-work-clamp\" data-global-work-actor=\"\">service:w401-fixture</div></td><td><div class=\"global-work-clamp\" data-global-work-body=\"\">Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator checked the panel and logged readings Operator ch"
+ },
+ {
+  "h": "Record a manual reading",
+  "H": 325,
+  "trs": 0,
+  "det": 0,
+  "ths": [],
+  "rowHs": [],
+  "rowTall": "<div class=\"panel__body\"><div class=\"global-work-form\" data-global-work-manual-form=\"true\"><p class=\"global-work-deviation\" data-mock-deviation=\"R362\">MOCK DEVIATION D4 (R362)</p><div class=\"input-row\"><label class=\"field\">Site<select disabled=\"\" aria-disabled=\"true\" data-global-work-form-site=\"true\"><option value=\"KOBO-001\">Kobo mini-grid · KOBO-001</option><option value=\"KOBO-002\">KOBO-002</option></select></label><label class=\"field\">Reading<select disabled=\"\" aria-disabled=\"true\"><option>Fuel tank dip</option><option>Stock in chamber</option><option>Meter reading</option></select></label></div><div class=\"input-row\"><label class=\"field\">Value<input disabled=\"\" aria-disabled=\"true\" placeholder=\"e.g. 192 L\" value=\"\"></label><label class=\"field\">Taken at<input disabled=\"\" aria-disabled=\"true\" placeholder=\"Event time\" data-global-work-form-time=\"true\" value=\"\"></label></div><div class=\"form-footer\"><button class=\"button primary\" type=\"button\" disabled=\"\" aria-disabled=\"true\" data-rec-submit=\"true\"><span class=\"v69-unavailable-inline\" data-link-unavailable=\"Submit for review\">Submit for review · Not available yet</span></button><span class=\"global-work-form-reason\" data-global-work-form-reason=\"true\">Recording requires an authorized work service.</span></div></div></div>"
+ },
+ {
+  "h": "How records are used",
+  "H": 325,
+  "trs": 0,
+  "det": 0,
+  "ths": [],
+  "rowHs": [],
+  "rowTall": "<div class=\"panel__body\"><div class=\"prose\" data-global-work-records-used=\"true\"><p>Authored records are kept apart from measured readings. This page shows them as <strong>Operator record</strong>; none is accepted equipment evidence.</p><p>A reading that has not been taken remains a visible gap; this page has no request list to count it.</p></div></div>"
+ }
+]

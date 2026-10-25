@@ -29,11 +29,11 @@ KEY = "b1" * 32
 MAINTENANCE_KEYS = {"site_code", "site_name", "site_id", "site_code_key", "case_id", "code", "kind", "revision_id",
                     "title", "narrative", "occurred_at", "created_at", "recorded_at", "state", "owner", "asset_id",
                     "asset_label", "incident_id", "record_id", "activity", "outcome_note", "finding_links",
-                    "action_links", "source_provenance", "links"}
+                    "action_links", "source_provenance", "links", "site_domain"}
 PREVENTIVE_KEYS = {"site_code", "site_name", "site_id", "site_code_key", "canonical_plan_id", "root_id", "head_id",
                    "code", "title", "trigger_kind", "next_due_at", "next_due_hours", "state", "asset_id",
                    "asset_label", "root_occurred_at", "occurred_at", "recorded_at", "supersedes_plan_id",
-                   "correction_reason", "source_provenance", "links"}
+                   "correction_reason", "source_provenance", "links", "site_domain"}
 ENVELOPE = {"schema_version", "scope", "window", "known_at", "status", "coverage", "total_count", "state_counts", "rows",
             "next_cursor", "selection_token"}
 
@@ -122,8 +122,10 @@ def refusal(response, status: int, code: str, message: str) -> None:
     assert response.json() == {"detail": {"code": code, "message": message, "rows": None, "total_count": None}}
 
 
-def query(known_at: str) -> str:
-    return "&".join(f"{k}={quote(v, safe='')}" for k, v in (*WINDOW.items(), ("known_at", known_at)))
+def query(known_at: str | None = None) -> str:
+    """The window, plus `known_at` only for an explicit cutoff (post-W6 W6 Q5, R360)."""
+    pairs = (*WINDOW.items(), *(() if known_at is None else (("known_at", known_at),)))
+    return "&".join(f"{k}={quote(v, safe='')}" for k, v in pairs)
 
 
 def z(at: datetime) -> str:
@@ -208,20 +210,24 @@ def test_owner_payload_and_latest_record(store, key) -> None:  # noqa: F811
 
 
 def test_site_maintenance_fallback_href(store, key) -> None:  # noqa: F811
-    """P-B1-13 / A1Q Q8: label `Site maintenance`, the same window and the response `known_at`. W6-01c C2 replaced
-    only the detail href (`test_detail_href_after_c2`)."""
+    """P-B1-13: label `Site maintenance` and the same window. Post-W6 W6 Q5 (R360, superseding A1Q Q8 here): the
+    fallback carries `known_at` only for an explicit cutoff, at its exact instant; a current read carries none."""
     info = seed("maintenance")
     demo = info["tenants"]["demo"]
     body = read(demo, "maintenance")
+    assert body["rows"]
     for row in body["rows"]:
+        assert row["site_domain"] == "MINIGRID"
         assert row["links"]["site"] == {"label": row["site_name"], "href": f"/sites/{row['site_code']}"}
         assert row["links"]["site_maintenance"] == {
-            "label": "Site maintenance",
-            "href": f"/sites/{row['site_code']}/work/maintenance?{query(body['known_at'])}"}
+            "label": "Site maintenance", "href": f"/sites/{row['site_code']}/work/maintenance?{query()}"}
         assert row["links"]["detail"] is not None
     historical = read(demo, "maintenance", known_at=z(CLOCK))
     assert historical["status"] == "HISTORICAL" and historical["known_at"] == z(CLOCK)
-    assert historical["rows"][0]["links"]["site_maintenance"]["href"].endswith(quote(z(CLOCK), safe=""))
+    exact = CLOCK.strftime("%Y-%m-%dT%H:%M:%S.000000Z")
+    for row in historical["rows"]:
+        assert row["links"]["site_maintenance"]["href"] == (
+            f"/sites/{row['site_code']}/work/maintenance?{query(exact)}")
 
 
 def test_detail_href_after_c2(store, key) -> None:  # noqa: F811
@@ -523,7 +529,8 @@ def test_complete_zero(store, key) -> None:  # noqa: F811
 
 def test_linked_finding_and_action_hrefs(store, key) -> None:  # noqa: F811
     """Q2 item 1: the real S4 Finding (F01, source day 2026-10-06, decided 2026-10-19) and S6 Action (accepted
-    2026-10-20) pinned through W4; at each root's returned `known_at` the global hrefs equal the W4 Site rows."""
+    2026-10-20) pinned through W4; at each root's returned `known_at` the global hrefs equal the W4 Site rows.
+    Post-W6 W6 Q10 (R366): the global Action label is the stored `ACT-` code (W4's Site row keeps `Action {id8}`)."""
     out = seedmod.seed(URL, "linked", datetime(2026, 10, 20, 12, tzinfo=timezone.utc))
     tenant, site = out["tenant_id"], out["site_id"]
     engine_ = create_engine(URL)
@@ -536,6 +543,8 @@ def test_linked_finding_and_action_hrefs(store, key) -> None:  # noqa: F811
                                   {"e": out["action_event_id"]}).scalar_one()
             work_first = c.execute(text("SELECT min(created_at) FROM work_case WHERE tenant_id = :t"),
                                    {"t": tenant}).scalar_one()
+            act_code = c.execute(text("SELECT action_code FROM action WHERE id = :a"),
+                                 {"a": out["action_id"]}).scalar_one()
     finally:
         engine_.dispose()
     assert finding_day.astimezone(timezone.utc).date().isoformat() == "2026-10-06"
@@ -560,9 +569,12 @@ def test_linked_finding_and_action_hrefs(store, key) -> None:  # noqa: F811
         for row in body["rows"]:
             w4_row = w4_rows[row["case_id"]]
             assert row["finding_links"] == [{"label": x["label"], "href": x["href"]} for x in w4_row["finding_links"]]
-            assert row["action_links"] == [{"label": x["label"], "href": x["href"]} for x in w4_row["action_links"]]
+            relabel = {f"Action {aid[:8]}": act_code}
+            assert row["action_links"] == [{"label": relabel.get(x["label"], x["label"]), "href": x["href"]}
+                                           for x in w4_row["action_links"]]
         assert any(x["label"] == f"Finding {fid[:8]}" and x["href"] for r in body["rows"] for x in r["finding_links"])
-        assert any(x["label"] == f"Action {aid[:8]}" and x["href"] for r in body["rows"] for x in r["action_links"])
+        assert act_code.startswith("ACT-")
+        assert any(x["label"] == act_code and x["href"] for r in body["rows"] for x in r["action_links"])
     assert json.dumps(out["hrefs"])
 
 

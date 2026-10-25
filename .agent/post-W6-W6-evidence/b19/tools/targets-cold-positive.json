@@ -1,0 +1,35 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "cold-wr-000002",
+  "url": "http://127.0.0.1:5389/maintenance/requests/f933c2a1-7c30-4dc3-95f3-338927a23989?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-wr-000002",
+  "url": "http://127.0.0.1:5389/maintenance/requests/f933c2a1-7c30-4dc3-95f3-338927a23989/record?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "cold-wr-000002",
+  "url": "http://127.0.0.1:5389/maintenance/requests/f933c2a1-7c30-4dc3-95f3-338927a23989/history?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-overview",
+  "case": "cold-all-open-wr-000002",
+  "url": "http://127.0.0.1:5389/maintenance/requests/f933c2a1-7c30-4dc3-95f3-338927a23989?site_id=COLD-LAB-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-all-open-wr-000002",
+  "url": "http://127.0.0.1:5389/maintenance/requests/f933c2a1-7c30-4dc3-95f3-338927a23989/record?site_id=COLD-LAB-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-history",
+  "case": "cold-all-open-wr-000002",
+  "url": "http://127.0.0.1:5389/maintenance/requests/f933c2a1-7c30-4dc3-95f3-338927a23989/history?site_id=COLD-LAB-001",
+  "openAll": true
+ }
+]

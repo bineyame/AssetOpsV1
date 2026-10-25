@@ -1,0 +1,9 @@
+﻿DONE maint 96/96 claims passed; evidence in ..\part-maint
+DONE stress 96/96 claims passed; evidence in ..\part-stress
+DONE linked 36/36 claims passed; evidence in ..\part-linked
+DONE zero 48/48 claims passed; evidence in ..\part-zero
+DONE absent 48/48 claims passed; evidence in ..\part-absent
+DONE scope 48/48 claims passed; evidence in ..\part-scope
+DONE cold 84/84 claims passed; evidence in ..\part-cold
+DONE coldwc 84/84 claims passed; evidence in ..\part-coldwc
+ALL_DONE

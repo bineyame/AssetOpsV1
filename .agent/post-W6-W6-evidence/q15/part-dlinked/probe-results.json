@@ -1,0 +1,2944 @@
+{
+ "label": "SYNTHETIC LAYOUT PROBE - not product data",
+ "product": "f3da6e90",
+ "results": [
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-workdone-dlinked-WR-000001",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d98234d7-eae5-4e1e-b93a-d57c6aeb6499?site_id=KOBO-001",
+   "kind": "workDone",
+   "panel": "Work done",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 365
+    },
+    {
+     "t": "Lifecycle",
+     "h": 365
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1440,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1160,
+    "listCW": 1160,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "not a row table: narrative, latest activity and dl values",
+    "dlTerms": [
+     "Type",
+     "Asset",
+     "Warranty",
+     "Linked action"
+    ],
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 503
+     },
+     {
+      "t": "Lifecycle",
+      "h": 503
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 503,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 559,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 2
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-workdone-dlinked-WR-000001",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d98234d7-eae5-4e1e-b93a-d57c6aeb6499?site_id=KOBO-001",
+   "kind": "workDone",
+   "panel": "Work done",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 365
+    },
+    {
+     "t": "Lifecycle",
+     "h": 167
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 361,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "not a row table: narrative, latest activity and dl values",
+    "dlTerms": [
+     "Type",
+     "Asset",
+     "Warranty",
+     "Linked action"
+    ],
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 690
+     },
+     {
+      "t": "Lifecycle",
+      "h": 167
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 690,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 776,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 2
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-lifecycle-dlinked-WR-000001",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d98234d7-eae5-4e1e-b93a-d57c6aeb6499?site_id=KOBO-001",
+   "kind": "asIs",
+   "panel": "Lifecycle",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 365
+    },
+    {
+     "t": "Lifecycle",
+     "h": 365
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1440,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1160,
+    "listCW": 1160,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 365
+     },
+     {
+      "t": "Lifecycle",
+      "h": 365
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 365,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 365,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-lifecycle-dlinked-WR-000001",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d98234d7-eae5-4e1e-b93a-d57c6aeb6499?site_id=KOBO-001",
+   "kind": "asIs",
+   "panel": "Lifecycle",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 365
+    },
+    {
+     "t": "Lifecycle",
+     "h": 167
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 361,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 365
+     },
+     {
+      "t": "Lifecycle",
+      "h": 167
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 167,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 167,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-record-dlinked-WR-000001",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d98234d7-eae5-4e1e-b93a-d57c6aeb6499/record?site_id=KOBO-001",
+   "kind": "recordGroups5",
+   "panel": "Maintenance record · activity",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Maintenance record · activity",
+     "h": 561
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1425,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1145,
+    "listCW": 1145,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1145,
+      "cw": 1145,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1145,
+      "cw": 1145,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1145,
+      "cw": 1145,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "rowUnit": "record group (tbody) incl. its item rows",
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "panelsAfter": [
+     {
+      "t": "Maintenance record · activity",
+      "h": 622
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 3465,
+      "ch": 500,
+      "maxH": "500px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-record-heading"
+     }
+    ],
+    "panelH": 622,
+    "rowHs": [
+     686,
+     686,
+     686,
+     686,
+     686
+    ],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1090,
+      "cw": 1090,
+      "scrollable": false,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 3625,
+      "ch": 500,
+      "maxH": "500px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-record-heading"
+     }
+    ],
+    "panelH": 622,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 5
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-record-dlinked-WR-000001",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d98234d7-eae5-4e1e-b93a-d57c6aeb6499/record?site_id=KOBO-001",
+   "kind": "recordGroups5",
+   "panel": "Maintenance record · activity",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Maintenance record · activity",
+     "h": 601
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 361,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "rowUnit": "record group (tbody) incl. its item rows",
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "panelsAfter": [
+     {
+      "t": "Maintenance record · activity",
+      "h": 763
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 3904,
+      "ch": 600,
+      "maxH": "600px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-record-heading"
+     }
+    ],
+    "panelH": 763,
+    "rowHs": [
+     774,
+     774,
+     774,
+     774,
+     774
+    ],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 960,
+      "cw": 318,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 4064,
+      "ch": 600,
+      "maxH": "600px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-record-heading"
+     }
+    ],
+    "panelH": 763,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 5
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-history-dlinked-WR-000001",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d98234d7-eae5-4e1e-b93a-d57c6aeb6499/history?site_id=KOBO-001",
+   "kind": "rows5",
+   "panel": "History",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "History",
+     "h": 485
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1440,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1160,
+    "listCW": 1160,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "History",
+      "h": 558
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 533,
+      "ch": 430,
+      "maxH": "430px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 558,
+    "rowHs": [
+     100,
+     100,
+     100,
+     100,
+     99
+    ],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1105,
+      "cw": 1105,
+      "scrollable": false,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 613,
+      "ch": 430,
+      "maxH": "430px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 558,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-history-dlinked-WR-000001",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d98234d7-eae5-4e1e-b93a-d57c6aeb6499/history?site_id=KOBO-001",
+   "kind": "rows5",
+   "panel": "History",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "History",
+     "h": 508
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 290,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 290,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 290,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 337,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "History",
+      "h": 630
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 709,
+      "ch": 480,
+      "maxH": "480px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 630,
+    "rowHs": [
+     135,
+     135,
+     135,
+     135,
+     134
+    ],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 750,
+      "cw": 318,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 789,
+      "ch": 480,
+      "maxH": "480px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 630,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-workdone-dlinked-WR-000002",
+   "url": "http://127.0.0.1:5390/maintenance/requests/11b0da67-9bf6-4c65-967b-b3096b248af6?site_id=KOBO-001",
+   "kind": "workDone",
+   "panel": "Work done",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 325
+    },
+    {
+     "t": "Lifecycle",
+     "h": 325
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1440,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1160,
+    "listCW": 1160,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "not a row table: narrative, latest activity and dl values",
+    "dlTerms": [
+     "Type",
+     "Asset",
+     "Warranty",
+     "Linked action"
+    ],
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 463
+     },
+     {
+      "t": "Lifecycle",
+      "h": 463
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 463,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 491,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 1
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-workdone-dlinked-WR-000002",
+   "url": "http://127.0.0.1:5390/maintenance/requests/11b0da67-9bf6-4c65-967b-b3096b248af6?site_id=KOBO-001",
+   "kind": "workDone",
+   "panel": "Work done",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 325
+    },
+    {
+     "t": "Lifecycle",
+     "h": 194
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "not a row table: narrative, latest activity and dl values",
+    "dlTerms": [
+     "Type",
+     "Asset",
+     "Warranty",
+     "Linked action"
+    ],
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 651
+     },
+     {
+      "t": "Lifecycle",
+      "h": 194
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 651,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 694,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 1
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-lifecycle-dlinked-WR-000002",
+   "url": "http://127.0.0.1:5390/maintenance/requests/11b0da67-9bf6-4c65-967b-b3096b248af6?site_id=KOBO-001",
+   "kind": "asIs",
+   "panel": "Lifecycle",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 325
+    },
+    {
+     "t": "Lifecycle",
+     "h": 325
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1440,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1160,
+    "listCW": 1160,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 325
+     },
+     {
+      "t": "Lifecycle",
+      "h": 325
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 325,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 325,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-lifecycle-dlinked-WR-000002",
+   "url": "http://127.0.0.1:5390/maintenance/requests/11b0da67-9bf6-4c65-967b-b3096b248af6?site_id=KOBO-001",
+   "kind": "asIs",
+   "panel": "Lifecycle",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 325
+    },
+    {
+     "t": "Lifecycle",
+     "h": 194
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 325
+     },
+     {
+      "t": "Lifecycle",
+      "h": 194
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 194,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 194,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "name": "wr-record-dlinked-WR-000002",
+   "url": "http://127.0.0.1:5390/maintenance/requests/11b0da67-9bf6-4c65-967b-b3096b248af6/record?site_id=KOBO-001",
+   "kind": "recordGroups5",
+   "panel": "Maintenance record · activity",
+   "w": 1440,
+   "skipped": "no record table",
+   "baselinePanels": [
+    {
+     "t": "Maintenance record · activity",
+     "h": 160
+    }
+   ]
+  },
+  {
+   "name": "wr-record-dlinked-WR-000002",
+   "url": "http://127.0.0.1:5390/maintenance/requests/11b0da67-9bf6-4c65-967b-b3096b248af6/record?site_id=KOBO-001",
+   "kind": "recordGroups5",
+   "panel": "Maintenance record · activity",
+   "w": 390,
+   "skipped": "no record table",
+   "baselinePanels": [
+    {
+     "t": "Maintenance record · activity",
+     "h": 178
+    }
+   ]
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-history-dlinked-WR-000002",
+   "url": "http://127.0.0.1:5390/maintenance/requests/11b0da67-9bf6-4c65-967b-b3096b248af6/history?site_id=KOBO-001",
+   "kind": "rows5",
+   "panel": "History",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "History",
+     "h": 352
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1440,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1160,
+    "listCW": 1160,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "History",
+      "h": 529
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 533,
+      "ch": 430,
+      "maxH": "430px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 529,
+    "rowHs": [
+     100,
+     100,
+     100,
+     100,
+     99
+    ],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1105,
+      "cw": 1105,
+      "scrollable": false,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 613,
+      "ch": 430,
+      "maxH": "430px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 529,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-history-dlinked-WR-000002",
+   "url": "http://127.0.0.1:5390/maintenance/requests/11b0da67-9bf6-4c65-967b-b3096b248af6/history?site_id=KOBO-001",
+   "kind": "rows5",
+   "panel": "History",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "History",
+     "h": 375
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 258,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "History",
+      "h": 602
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 709,
+      "ch": 480,
+      "maxH": "480px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 602,
+    "rowHs": [
+     135,
+     135,
+     135,
+     135,
+     134
+    ],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 750,
+      "cw": 318,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 789,
+      "ch": 480,
+      "maxH": "480px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 602,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-workdone-dlinked-WR-000005",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d81f3e97-0e9c-4d86-afee-cad6c1454191?site_id=KOBO-001",
+   "kind": "workDone",
+   "panel": "Work done",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 325
+    },
+    {
+     "t": "Lifecycle",
+     "h": 325
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1440,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1160,
+    "listCW": 1160,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "not a row table: narrative, latest activity and dl values",
+    "dlTerms": [
+     "Type",
+     "Asset",
+     "Warranty",
+     "Linked action"
+    ],
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "a[data-work-request-action=]"
+    ],
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 463
+     },
+     {
+      "t": "Lifecycle",
+      "h": 463
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 463,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 491,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 1
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-workdone-dlinked-WR-000005",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d81f3e97-0e9c-4d86-afee-cad6c1454191?site_id=KOBO-001",
+   "kind": "workDone",
+   "panel": "Work done",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 325
+    },
+    {
+     "t": "Lifecycle",
+     "h": 167
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 285,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 285,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 285,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 332,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "not a row table: narrative, latest activity and dl values",
+    "dlTerms": [
+     "Type",
+     "Asset",
+     "Warranty",
+     "Linked action"
+    ],
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "a[data-work-request-action=]"
+    ],
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 651
+     },
+     {
+      "t": "Lifecycle",
+      "h": 167
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 651,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 694,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 1
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-lifecycle-dlinked-WR-000005",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d81f3e97-0e9c-4d86-afee-cad6c1454191?site_id=KOBO-001",
+   "kind": "asIs",
+   "panel": "Lifecycle",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 325
+    },
+    {
+     "t": "Lifecycle",
+     "h": 325
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1440,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1160,
+    "listCW": 1160,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 325
+     },
+     {
+      "t": "Lifecycle",
+      "h": 325
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 325,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 325,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-lifecycle-dlinked-WR-000005",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d81f3e97-0e9c-4d86-afee-cad6c1454191?site_id=KOBO-001",
+   "kind": "asIs",
+   "panel": "Lifecycle",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 325
+    },
+    {
+     "t": "Lifecycle",
+     "h": 167
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 285,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 285,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 285,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 332,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 325
+     },
+     {
+      "t": "Lifecycle",
+      "h": 167
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 167,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 167,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "name": "wr-record-dlinked-WR-000005",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d81f3e97-0e9c-4d86-afee-cad6c1454191/record?site_id=KOBO-001",
+   "kind": "recordGroups5",
+   "panel": "Maintenance record · activity",
+   "w": 1440,
+   "skipped": "no record table",
+   "baselinePanels": [
+    {
+     "t": "Maintenance record · activity",
+     "h": 160
+    }
+   ]
+  },
+  {
+   "name": "wr-record-dlinked-WR-000005",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d81f3e97-0e9c-4d86-afee-cad6c1454191/record?site_id=KOBO-001",
+   "kind": "recordGroups5",
+   "panel": "Maintenance record · activity",
+   "w": 390,
+   "skipped": "no record table",
+   "baselinePanels": [
+    {
+     "t": "Maintenance record · activity",
+     "h": 178
+    }
+   ]
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-history-dlinked-WR-000005",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d81f3e97-0e9c-4d86-afee-cad6c1454191/history?site_id=KOBO-001",
+   "kind": "rows5",
+   "panel": "History",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "History",
+     "h": 287
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1440,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 132,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1160,
+    "listCW": 1160,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     3,
+     3,
+     3,
+     3,
+     3
+    ],
+    "intendedFields": 15,
+    "fields160": 15,
+    "fieldNames": [
+     "td[data-history-event]",
+     "a[data-history-source-link]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "History",
+      "h": 529
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 533,
+      "ch": 430,
+      "maxH": "430px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 529,
+    "rowHs": [
+     100,
+     100,
+     100,
+     100,
+     99
+    ],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1105,
+      "cw": 1105,
+      "scrollable": false,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 613,
+      "ch": 430,
+      "maxH": "430px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 529,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-history-dlinked-WR-000005",
+   "url": "http://127.0.0.1:5390/maintenance/requests/d81f3e97-0e9c-4d86-afee-cad6c1454191/history?site_id=KOBO-001",
+   "kind": "rows5",
+   "panel": "History",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "History",
+     "h": 310
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 261,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 261,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 261,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 308,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     3,
+     3,
+     3,
+     3,
+     3
+    ],
+    "intendedFields": 15,
+    "fields160": 15,
+    "fieldNames": [
+     "td[data-history-event]",
+     "a[data-history-source-link]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "History",
+      "h": 602
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 709,
+      "ch": 480,
+      "maxH": "480px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 602,
+    "rowHs": [
+     135,
+     135,
+     135,
+     135,
+     134
+    ],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 750,
+      "cw": 318,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 789,
+      "ch": 480,
+      "maxH": "480px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 602,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  }
+ ]
+}

@@ -1,0 +1,3348 @@
+{
+  "revision": "ffcf6e13",
+  "captured_at": "2026-10-25T16:40:55.870Z",
+  "pairs": [
+    {
+      "screen": "incidents",
+      "case": "linked",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/incidents",
+      "app_image": "incidents-linked-1440-app.png",
+      "mock_image": "incidents-linked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Incident cases",
+          "Case boundaries"
+        ],
+        "panels": [
+          {
+            "title": "Incident cases",
+            "x": 248,
+            "y": 371,
+            "w": 1160,
+            "h": 278,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Incident",
+              "Site",
+              "Start",
+              "Severity",
+              "State",
+              "Owner",
+              "Findings / work"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [
+              [
+                "INC-000001 · Generator stopped after the FindingFull title textGenerator stopped after the FindingSource unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "Kobo mini-grid",
+                "18 Oct 2026, 09:00 UTC",
+                "Not recorded",
+                "Open",
+                "Not assigned",
+                "Finding 81bdbc13 · ACT-000001"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "INC-000001 · Generator stopped after the Finding -> /sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+                "Kobo mini-grid -> /sites/KOBO-001",
+                "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+                "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+              ]
+            ],
+            "panelText": "Incident casesAn incident connects authored events and linked records; a gap alone does not create a case.Scroll table horizontallyIncidentSiteStartSeverityStateOwnerFindings / workINC-000001 · Generator stopped after the FindingFull title textGenerator stopped after the FindingSource unverifiedThe origin of this authored work record is not established. No work outcome is verified.Kobo mini-grid18 Oct 2026, 09:00 UTCNot recordedOpenNot assignedFinding 81bdbc13 · ACT-000001Showing 1–1 of 1MOCK DEVIATION D1 (R73)MOCK DEVIATION D1 (R358)",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Case boundaries",
+            "x": 248,
+            "y": 666,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Case boundariesA closed case records a workflow step. Cause and outcome need their own evidence.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Incidents",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [
+            "Open incidents1Open or in progress in this window",
+            "High severityNot assessedSeverity is not recorded on work cases",
+            "Awaiting evidenceNot assessedNo case evidence review state",
+            "Closed verifiedNot assessedClosed does not verify an outcome"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 1,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 4,
+          "periodBar": "From (UTC) To (UTC, exclusive) Show recordsReload",
+          "details": 2,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Open incidents1Open or in progress in this window | ",
+            "High severityNot assessedSeverity is not recorded on work cases | ",
+            "Awaiting evidenceNot assessedNo case evidence review state | ",
+            "Closed verifiedNot assessedClosed does not verify an outcome | "
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Incidents",
+          "subtitle": "Operational event cases · linked Findings and work",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Incidents Incidents Operational event cases · linked Findings and work From (UTC) To (UTC, exclusive) Show records Reload Listed by incident start time. As known at 25 Oct 2026, 16:41 UTC Open incidents 1 Open or in progress in this window High severity Not assessed Severity is not recorded on work cases Awaiting evidence Not assessed No case evidence review state Closed verified Not assessed Closed does not verify an outcome Incident cases An incident connects authored events and linked records; a gap alone does not create a case. INCIDENT SITE START SEVERITY STATE OWNER FINDINGS / WORK INC-000001 · Generator stopped after the Finding Full title text Source unverified Kobo mini-grid 18 Oct 2026, 09:00 UTC Not recorded Open Not assigned Finding 81bdbc13 · ACT-000001 Showing 1–1 of 1 MOCK DEVIATION D1 (R73) MOCK DEVIATION D1 (R358) Case boundaries A closed case records a workflow step. Cause and outcome need their own evidence."
+        },
+        "b18": {
+          "status": "As known at 25 Oct 2026, 16:41 UTC",
+          "showing": "Showing 1–1 of 1",
+          "pager": [],
+          "siteLinks": [
+            "KOBO-001 -> /sites/KOBO-001"
+          ],
+          "workLinks": [
+            "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+          ],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-14",
+            "=2026-10-21"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "81bdbc13 · ACT"
+          ],
+          "enums": [],
+          "utcHits": 4,
+          "bodyText": "Incidents Incidents Operational event cases · linked Findings and work From (UTC) To (UTC, exclusive) Show records Reload Listed by incident start time. As known at 25 Oct 2026, 16:41 UTC Open incidents 1 Open or in progress in this window High severity Not assessed Severity is not recorded on work cases Awaiting evidence Not assessed No case evidence review state Closed verified Not assessed Closed does not verify an outcome Incident cases An incident connects authored events and linked records; a gap alone does not create a case. INCIDENT SITE START SEVERITY STATE OWNER FINDINGS / WORK INC-000001 · Generator stopped after the Finding Full title text Source unverified Kobo mini-grid 18 Oct 2026, 09:00 UTC Not recorded Open Not assigned Finding 81bdbc13 · ACT-000001 Showing 1–1 of 1 MOCK DEVIATION D1 (R73) MOCK DEVIATION D1 (R358) Case boundaries A closed case records a workflow step. Cause and outcome need their own evidence."
+        },
+        "mainLinks": [
+          "INC-000001 · Generator stopped after the Finding -> /sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+          "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+        ],
+        "cardsDom": [
+          {
+            "t": "Open incidents1Open or in progress in this window",
+            "h": 115
+          },
+          {
+            "t": "High severityNot assessedSeverity is not recorded on work cases",
+            "h": 115
+          },
+          {
+            "t": "Awaiting evidenceNot assessedNo case evidence review state",
+            "h": 115
+          },
+          {
+            "t": "Closed verifiedNot assessedClosed does not verify an outcome",
+            "h": 115
+          }
+        ],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5392/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Incidents",
+          "crumbs": "Incidents",
+          "status": [
+            "As known at 25 Oct 2026, 16:41 UTC"
+          ],
+          "membership": [
+            "Listed by incident start time."
+          ],
+          "deviations": [
+            "R73|MOCK DEVIATION D1 (R73)|12px",
+            "R358|MOCK DEVIATION D1 (R358)|12px"
+          ],
+          "showing": "Showing 1–1 of 1",
+          "findings": [
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Finding 81bdbc13 · ACT-000001 | anchors=/sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6 ; /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+          ],
+          "requestLinks": [],
+          "rowLinks": [
+            "INC-000001 · Generator stopped after the Finding -> /sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+            "Kobo mini-grid -> /sites/KOBO-001",
+            "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+          ],
+          "siteLinks": [
+            "Kobo mini-grid -> /sites/KOBO-001"
+          ],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 1120,
+            "cw": 1120,
+            "w": 1120,
+            "layout": "auto",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 1120,
+            "wrapCw": 1120,
+            "cols": [
+              "Incident:291",
+              "Site:134",
+              "Start:146",
+              "Severity:112",
+              "State:112",
+              "Owner:146",
+              "Findings / work:179"
+            ],
+            "over": [],
+            "rowH": [
+              64
+            ]
+          },
+          "historicalNotice": [],
+          "tabs": [
+            "Incidents",
+            "Showing 1–1 of 1"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Incident cases",
+          "Case boundaries"
+        ],
+        "panels": [
+          {
+            "title": "Incident cases",
+            "x": 234,
+            "y": 375,
+            "w": 1161,
+            "h": 183,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Incident",
+              "Site",
+              "Start",
+              "Severity",
+              "State",
+              "Owner",
+              "Findings / work"
+            ],
+            "chips": [
+              "High",
+              "Awaiting evidence"
+            ],
+            "links": 6,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "INC-203 · Backup response failure",
+                "GreenHarvest",
+                "6 Oct 19:11",
+                "High",
+                "Awaiting evidence",
+                "Maintenance lead",
+                "F-118 · F-119 / WR-019 · ACT-051"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "INC-203 · Backup response failure -> #/incident",
+                "GreenHarvest -> #/cold",
+                "F-118 -> #/cold-finding",
+                "F-119 -> #/cold-finding-excursion",
+                "WR-019 -> #/wr-overview",
+                "ACT-051 -> #/cold-action"
+              ]
+            ],
+            "panelText": "Incident casesStates: New → Acknowledged → Investigating → Work open → Awaiting evidence → Closed verifiedIncidentSiteStartSeverityStateOwnerFindings / workINC-203 · Backup response failureGreenHarvest6 Oct 19:11HighAwaiting evidenceMaintenance leadF-118 · F-119 / WR-019 · ACT-051",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Case boundaries",
+            "x": 234,
+            "y": 576,
+            "w": 1161,
+            "h": 99,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Case boundariesA correlated power-to-cooling chain supports this incident. Arbitrary data gaps or unrelated observations are not promoted into cases.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Incidents",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Incidents",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · each site’s event window▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · each site’s event window ▾ BY Incidents Incidents Operational event cases · linked Findings and work Open incidents 1 INC-203 High severity 1 Cold-room backup failure Awaiting evidence 1 Closure needs a witnessed start Closed verified 0 In the selected window Incident cases States: New → Acknowledged → Investigating → Work open → Awaiting evidence → Closed verified INCIDENT SITE START SEVERITY STATE OWNER FINDINGS / WORK INC-203 · Backup response failure GreenHarvest 6 Oct 19:11 High Awaiting evidence Maintenance lead F-118 · F-119 / WR-019 · ACT-051 Case boundaries A correlated power-to-cooling chain supports this incident. Arbitrary data gaps or unrelated observations are not promoted into cases. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "118 · F",
+            "019 · ACT"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · each site’s event window ▾ BY Incidents Incidents Operational event cases · linked Findings and work Open incidents 1 INC-203 High severity 1 Cold-room backup failure Awaiting evidence 1 Closure needs a witnessed start Closed verified 0 In the selected window Incident cases States: New → Acknowledged → Investigating → Work open → Awaiting evidence → Closed verified INCIDENT SITE START SEVERITY STATE OWNER FINDINGS / WORK INC-203 · Backup response failure GreenHarvest 6 Oct 19:11 High Awaiting evidence Maintenance lead F-118 · F-119 / WR-019 · ACT-051 Case boundaries A correlated power-to-cooling chain supports this incident. Arbitrary data gaps or unrelated observations are not promoted into cases. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Incidents -> #/incidents",
+          "INC-203 · Backup response failure -> #/incident",
+          "GreenHarvest -> #/cold",
+          "F-118 -> #/cold-finding",
+          "F-119 -> #/cold-finding-excursion",
+          "WR-019 -> #/wr-overview",
+          "ACT-051 -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "incidents",
+      "case": "linked",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/incidents",
+      "app_image": "incidents-linked-390-app.png",
+      "mock_image": "incidents-linked-390-mock.png",
+      "app": {
+        "titles": [
+          "Incident cases",
+          "Case boundaries"
+        ],
+        "panels": [
+          {
+            "title": "Incident cases",
+            "x": 16,
+            "y": 729,
+            "w": 358,
+            "h": 356,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Incident",
+              "Site",
+              "Start",
+              "Severity",
+              "State",
+              "Owner",
+              "Findings / work"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [
+              [
+                "INC-000001 · Generator stopped after the FindingFull title textGenerator stopped after the FindingSource unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "Kobo mini-grid",
+                "18 Oct 2026, 09:00 UTC",
+                "Not recorded",
+                "Open",
+                "Not assigned",
+                "Finding 81bdbc13 · ACT-000001"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "INC-000001 · Generator stopped after the Finding -> /sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+                "Kobo mini-grid -> /sites/KOBO-001",
+                "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+                "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+              ]
+            ],
+            "panelText": "Incident casesAn incident connects authored events and linked records; a gap alone does not create a case.Scroll table horizontallyIncidentSiteStartSeverityStateOwnerFindings / workINC-000001 · Generator stopped after the FindingFull title textGenerator stopped after the FindingSource unverifiedThe origin of this authored work record is not established. No work outcome is verified.Kobo mini-grid18 Oct 2026, 09:00 UTCNot recordedOpenNot assignedFinding 81bdbc13 · ACT-000001Showing 1–1 of 1MOCK DEVIATION D1 (R73)MOCK DEVIATION D1 (R358)",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Case boundaries",
+            "x": 16,
+            "y": 1103,
+            "w": 358,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Case boundariesA closed case records a workflow step. Cause and outcome need their own evidence.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1270,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Incidents",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [
+            "Open incidents1Open or in progress in this window",
+            "High severityNot assessedSeverity is not recorded on work cases",
+            "Awaiting evidenceNot assessedNo case evidence review state",
+            "Closed verifiedNot assessedClosed does not verify an outcome"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 1,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 4,
+          "periodBar": "From (UTC) To (UTC, exclusive) Show recordsReload",
+          "details": 2,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Open incidents1Open or in progress in this window | ",
+            "High severityNot assessedSeverity is not recorded on work cases | ",
+            "Awaiting evidenceNot assessedNo case evidence review state | ",
+            "Closed verifiedNot assessedClosed does not verify an outcome | "
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Incidents",
+          "subtitle": "Operational event cases · linked Findings and work",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Incidents Incidents Operational event cases · linked Findings and work From (UTC) To (UTC, exclusive) Show records Reload Listed by incident start time. As known at 25 Oct 2026, 16:41 UTC Open incidents 1 Open or in progress in this window High severity Not assessed Severity is not recorded on work cases Awaiting evidence Not assessed No case evidence review state Closed verified Not assessed Closed does not verify an outcome Incident cases An incident connects authored events and linked records; a gap alone does not create a case. Scroll table horizontally INCIDENT SITE START SEVERITY STATE OWNER FINDINGS / WORK INC-000001 · Generator stopped after the Finding Full title text Source unverified Kobo mini-grid 18 Oct 2026, 09:00 UTC Not recorded Open Not assigned Finding 81bdbc13 · ACT-000001 Showing 1–1 of 1 MOCK DEVIATION D1 (R73) MOCK DEVIATION D1 (R358) Case boundaries A closed case records a workflow step. Cause and outcome need their own evidence."
+        },
+        "b18": {
+          "status": "As known at 25 Oct 2026, 16:41 UTC",
+          "showing": "Showing 1–1 of 1",
+          "pager": [],
+          "siteLinks": [
+            "KOBO-001 -> /sites/KOBO-001"
+          ],
+          "workLinks": [
+            "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+          ],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-14",
+            "=2026-10-21"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "81bdbc13 · ACT"
+          ],
+          "enums": [],
+          "utcHits": 4,
+          "bodyText": "Incidents Incidents Operational event cases · linked Findings and work From (UTC) To (UTC, exclusive) Show records Reload Listed by incident start time. As known at 25 Oct 2026, 16:41 UTC Open incidents 1 Open or in progress in this window High severity Not assessed Severity is not recorded on work cases Awaiting evidence Not assessed No case evidence review state Closed verified Not assessed Closed does not verify an outcome Incident cases An incident connects authored events and linked records; a gap alone does not create a case. Scroll table horizontally INCIDENT SITE START SEVERITY STATE OWNER FINDINGS / WORK INC-000001 · Generator stopped after the Finding Full title text Source unverified Kobo mini-grid 18 Oct 2026, 09:00 UTC Not recorded Open Not assigned Finding 81bdbc13 · ACT-000001 Showing 1–1 of 1 MOCK DEVIATION D1 (R73) MOCK DEVIATION D1 (R358) Case boundaries A closed case records a workflow step. Cause and outcome need their own evidence."
+        },
+        "mainLinks": [
+          "INC-000001 · Generator stopped after the Finding -> /sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+          "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+        ],
+        "cardsDom": [
+          {
+            "t": "Open incidents1Open or in progress in this window",
+            "h": 127
+          },
+          {
+            "t": "High severityNot assessedSeverity is not recorded on work cases",
+            "h": 127
+          },
+          {
+            "t": "Awaiting evidenceNot assessedNo case evidence review state",
+            "h": 124
+          },
+          {
+            "t": "Closed verifiedNot assessedClosed does not verify an outcome",
+            "h": 124
+          }
+        ],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 720,
+            "cw": 318,
+            "panel": "Incident cases"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 1,
+          "12px": 2,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5392/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Incidents",
+          "crumbs": "Incidents",
+          "status": [
+            "As known at 25 Oct 2026, 16:41 UTC"
+          ],
+          "membership": [
+            "Listed by incident start time."
+          ],
+          "deviations": [
+            "R73|MOCK DEVIATION D1 (R73)|12px",
+            "R358|MOCK DEVIATION D1 (R358)|12px"
+          ],
+          "showing": "Showing 1–1 of 1",
+          "findings": [
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Finding 81bdbc13 · ACT-000001 | anchors=/sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6 ; /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+          ],
+          "requestLinks": [],
+          "rowLinks": [
+            "INC-000001 · Generator stopped after the Finding -> /sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+            "Kobo mini-grid -> /sites/KOBO-001",
+            "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+          ],
+          "siteLinks": [
+            "Kobo mini-grid -> /sites/KOBO-001"
+          ],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 720,
+            "cw": 720,
+            "w": 720,
+            "layout": "auto",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 720,
+            "wrapCw": 318,
+            "cols": [
+              "Incident:187",
+              "Site:86",
+              "Start:94",
+              "Severity:72",
+              "State:72",
+              "Owner:94",
+              "Findings / work:115"
+            ],
+            "over": [],
+            "rowH": [
+              102
+            ]
+          },
+          "historicalNotice": [],
+          "tabs": [
+            "Incidents",
+            "Showing 1–1 of 1"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Incident cases",
+          "Case boundaries"
+        ],
+        "panels": [
+          {
+            "title": "Incident cases",
+            "x": 15,
+            "y": 638,
+            "w": 360,
+            "h": 248,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Incident",
+              "Site",
+              "Start",
+              "Severity",
+              "State",
+              "Owner",
+              "Findings / work"
+            ],
+            "chips": [
+              "High",
+              "Awaiting evidence"
+            ],
+            "links": 6,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "INC-203 · Backup response failure",
+                "GreenHarvest",
+                "6 Oct 19:11",
+                "High",
+                "Awaiting evidence",
+                "Maintenance lead",
+                "F-118 · F-119 / WR-019 · ACT-051"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "INC-203 · Backup response failure -> #/incident",
+                "GreenHarvest -> #/cold",
+                "F-118 -> #/cold-finding",
+                "F-119 -> #/cold-finding-excursion",
+                "WR-019 -> #/wr-overview",
+                "ACT-051 -> #/cold-action"
+              ]
+            ],
+            "panelText": "Incident casesStates: New → Acknowledged → Investigating → Work open → Awaiting evidence → Closed verifiedIncidentSiteStartSeverityStateOwnerFindings / workINC-203 · Backup response failureGreenHarvest6 Oct 19:11HighAwaiting evidenceMaintenance leadF-118 · F-119 / WR-019 · ACT-051",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Case boundaries",
+            "x": 15,
+            "y": 903,
+            "w": 360,
+            "h": 142,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Case boundariesA correlated power-to-cooling chain supports this incident. Arbitrary data gaps or unrelated observations are not promoted into cases.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1139,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Incidents",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Incidents",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · each site’s event window▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Incidents Incidents Operational event cases · linked Findings and work Open incidents 1 INC-203 High severity 1 Cold-room backup failure Awaiting evidence 1 Closure needs a witnessed start Closed verified 0 In the selected window Incident cases States: New → Acknowledged → Investigating → Work open → Awaiting evidence → Closed verified INCIDENT SITE START SEVERITY STATE OWNER FINDINGS / WORK INC-203 · Backup response failure GreenHarvest 6 Oct 19:11 High Awaiting evidence Maintenance lead F-118 · F-119 / WR-019 · ACT-051 Case boundaries A correlated power-to-cooling chain supports this incident. Arbitrary data gaps or unrelated observations are not promoted into cases. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "118 · F",
+            "019 · ACT"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Incidents Incidents Operational event cases · linked Findings and work Open incidents 1 INC-203 High severity 1 Cold-room backup failure Awaiting evidence 1 Closure needs a witnessed start Closed verified 0 In the selected window Incident cases States: New → Acknowledged → Investigating → Work open → Awaiting evidence → Closed verified INCIDENT SITE START SEVERITY STATE OWNER FINDINGS / WORK INC-203 · Backup response failure GreenHarvest 6 Oct 19:11 High Awaiting evidence Maintenance lead F-118 · F-119 / WR-019 · ACT-051 Case boundaries A correlated power-to-cooling chain supports this incident. Arbitrary data gaps or unrelated observations are not promoted into cases. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Incidents -> #/incidents",
+          "INC-203 · Backup response failure -> #/incident",
+          "GreenHarvest -> #/cold",
+          "F-118 -> #/cold-finding",
+          "F-119 -> #/cold-finding-excursion",
+          "WR-019 -> #/wr-overview",
+          "ACT-051 -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 594,
+            "cw": 320,
+            "panel": "Incident cases"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "maintenance",
+      "case": "linked",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/maintenance",
+      "app_image": "maintenance-linked-1440-app.png",
+      "mock_image": "maintenance-linked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Corrective work requests"
+        ],
+        "panels": [
+          {
+            "title": "Corrective work requests",
+            "x": 248,
+            "y": 453,
+            "w": 1160,
+            "h": 418,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Work request",
+              "Asset / site",
+              "Owner",
+              "State",
+              "Verification",
+              "Warranty"
+            ],
+            "chips": [
+              "Open",
+              "Not established",
+              "Not recorded",
+              "Open",
+              "Not established",
+              "Not recorded"
+            ],
+            "links": 7,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "WR-000003 · Follow up the accepted ActionFull title textFollow up the accepted ActionACT-000001Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "No asset recorded · Kobo mini-grid",
+                "Not assigned",
+                "Open",
+                "Not established",
+                "Not recorded"
+              ],
+              [
+                "WR-000002 · Inspect starter for the FindingFull title textInspect starter for the FindingFinding 81bdbc13 · ACT-000001Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "No asset recorded · Kobo mini-grid",
+                "Not assigned",
+                "Open",
+                "Not established",
+                "Not recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000003 · Follow up the accepted Action -> /maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001",
+                "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+                "Kobo mini-grid -> /sites/KOBO-001"
+              ],
+              [
+                "WR-000002 · Inspect starter for the Finding -> /maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001",
+                "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+                "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+                "Kobo mini-grid -> /sites/KOBO-001"
+              ]
+            ],
+            "panelText": "Corrective work requestsCompleted is activity evidence only; outcome is verified separatelyScroll table horizontallyWork requestAsset / siteOwnerStateVerificationWarrantyWR-000003 · Follow up the accepted ActionFull title textFollow up the accepted ActionACT-000001Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.No asset recorded · Kobo mini-gridNot assignedOpenNot establishedNot recordedWR-000002 · Inspect starter for the FindingFull title textInspect starter for the FindingFinding 81bdbc13 · ACT-000001Source unverifiedThe origin of this",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Maintenance",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [
+            "Open work22 requests in progress or open",
+            "Verification overdueNot assessedNo work-outcome verification clock",
+            "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+            "Repeat findingsNot assessedNo repeat-finding assessment"
+          ],
+          "notice": [
+            "A completed request records activity; an equipment outcome remains unverified."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 2,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "From (UTC) To (UTC, exclusive) Show recordsReload",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Open work22 requests in progress or open | ",
+            "Verification overdueNot assessedNo work-outcome verification clock | ",
+            "Preventive due in 30 daysNot assessedSee PreventiveView detail → | View detail → -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+            "Repeat findingsNot assessedNo repeat-finding assessment | "
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Maintenance",
+          "subtitle": "Physical maintenance work and outcome verification",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Maintenance Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled From (UTC) To (UTC, exclusive) Show records Reload Listed by the time each request was opened. As known at 25 Oct 2026, 16:41 UTC Open work 2 2 requests in progress or open Verification overdue Not assessed No work-outcome verification clock Preventive due in 30 days Not assessed See Preventive View detail → Repeat findings Not assessed No repeat-finding assessment Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-000003 · Follow up the accepted Action Full title text ACT-000001 Source unverified No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded WR-000002 · Inspect starter for the Finding Full title text Finding 81bdbc13 · ACT-000001 Source unverified No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded Showing 1–2 of 2 MOCK DEVIATION D1 (R355) MOCK DEVIATION D1 (R358) A completed request records activity; an equipment outcome remains unverified."
+        },
+        "b18": {
+          "status": "As known at 25 Oct 2026, 16:41 UTC",
+          "showing": "Showing 1–2 of 2",
+          "pager": [],
+          "siteLinks": [
+            "KOBO-001 -> /sites/KOBO-001",
+            "KOBO-001 -> /sites/KOBO-001"
+          ],
+          "workLinks": [
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+            "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+          ],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-14",
+            "=2026-10-21"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "81bdbc13 · ACT"
+          ],
+          "enums": [],
+          "utcHits": 3,
+          "bodyText": "Maintenance Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled From (UTC) To (UTC, exclusive) Show records Reload Listed by the time each request was opened. As known at 25 Oct 2026, 16:41 UTC Open work 2 2 requests in progress or open Verification overdue Not assessed No work-outcome verification clock Preventive due in 30 days Not assessed See Preventive View detail → Repeat findings Not assessed No repeat-finding assessment Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-000003 · Follow up the accepted Action Full title text ACT-000001 Source unverified No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded WR-000002 · Inspect starter for the Finding Full title text Finding 81bdbc13 · ACT-000001 Source unverified No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded Showing 1–2 of 2 MOCK DEVIATION D1 (R355) MOCK DEVIATION D1 (R358) A completed request records activity; an equipment outcome remains unverified."
+        },
+        "mainLinks": [
+          "Preventive · scheduled -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "View detail → -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "WR-000003 · Follow up the accepted Action -> /maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001",
+          "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "WR-000002 · Inspect starter for the Finding -> /maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001",
+          "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+          "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+          "Kobo mini-grid -> /sites/KOBO-001"
+        ],
+        "cardsDom": [
+          {
+            "t": "Open work22 requests in progress or open",
+            "h": 130
+          },
+          {
+            "t": "Verification overdueNot assessedNo work-outcome verification clock",
+            "h": 130
+          },
+          {
+            "t": "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+            "h": 130
+          },
+          {
+            "t": "Repeat findingsNot assessedNo repeat-finding assessment",
+            "h": 130
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs global-work-tabs",
+            "items": [
+              "Corrective*(off)",
+              "Preventive · scheduled"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Maintenance",
+          "crumbs": "Maintenance",
+          "status": [
+            "As known at 25 Oct 2026, 16:41 UTC"
+          ],
+          "membership": [
+            "Listed by the time each request was opened."
+          ],
+          "deviations": [
+            "R355|MOCK DEVIATION D1 (R355)|12px",
+            "R358|MOCK DEVIATION D1 (R358)|12px"
+          ],
+          "showing": "Showing 1–2 of 2",
+          "findings": [
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors="
+          ],
+          "requestLinks": [],
+          "rowLinks": [
+            "WR-000003 · Follow up the accepted Action -> /maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+            "Kobo mini-grid -> /sites/KOBO-001",
+            "WR-000002 · Inspect starter for the Finding -> /maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001",
+            "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+            "Kobo mini-grid -> /sites/KOBO-001"
+          ],
+          "siteLinks": [
+            "Kobo mini-grid -> /sites/KOBO-001",
+            "Kobo mini-grid -> /sites/KOBO-001"
+          ],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 1120,
+            "cw": 1120,
+            "w": 1120,
+            "layout": "auto",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 1120,
+            "wrapCw": 1120,
+            "cols": [
+              "Work request:239",
+              "Asset / site:228",
+              "Owner:174",
+              "State:130",
+              "Verification:185",
+              "Warranty:163"
+            ],
+            "over": [],
+            "rowH": [
+              102,
+              102
+            ]
+          },
+          "historicalNotice": [
+            "A completed request records activity; an equipment outcome remains unverified."
+          ],
+          "tabs": [
+            "Maintenance",
+            "Corrective",
+            "Preventive · scheduled",
+            "Showing 1–2 of 2"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Corrective work requests"
+        ],
+        "panels": [
+          {
+            "title": "Corrective work requests",
+            "x": 234,
+            "y": 460,
+            "w": 1161,
+            "h": 234,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Work request",
+              "Asset / site",
+              "Owner",
+              "State",
+              "Verification",
+              "Warranty"
+            ],
+            "chips": [
+              "Completed",
+              "Pending · witness test missing",
+              "Expired",
+              "Open · waiting for diagnostics",
+              "Required",
+              "Claimable"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "WR-019 · Starter and control inspection",
+                "GEN-CR-01 · GreenHarvest",
+                "Maintenance lead",
+                "Completed",
+                "Pending · witness test missing",
+                "Expired"
+              ],
+              [
+                "WR-021 · Connector 2 repair",
+                "CHG-002 · Depot",
+                "Charging operations lead",
+                "Open · waiting for diagnostics",
+                "Required",
+                "Claimable"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-019 · Starter and control inspection -> #/wr-overview"
+              ],
+              []
+            ],
+            "panelText": "Corrective work requestsCompleted is activity evidence only; outcome is verified separatelyWork requestAsset / siteOwnerStateVerificationWarrantyWR-019 · Starter and control inspectionGEN-CR-01 · GreenHarvestMaintenance leadCompletedPending · witness test missingExpiredWR-021 · Connector 2 repairCHG-002 · DepotCharging operations leadOpen · waiting for diagnosticsRequiredClaimable",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Maintenance",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Maintenance›",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · each site’s event window▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · each site’s event window ▾ BY Maintenance › Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled Open work 2 WR-019, WR-021 Verification overdue 1 WR-019 · witnessed start test missing Preventive due in 30 days 4 See Preventive View detail → Repeat findings 0 No repeat after completed work Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-019 · Starter and control inspection GEN-CR-01 · GreenHarvest Maintenance lead Completed Pending · witness test missing Expired WR-021 · Connector 2 repair CHG-002 · Depot Charging operations lead Open · waiting for diagnostics Required Claimable Work requests share the managed-task lifecycle with Actions: Open → In progress → Completed → Verification window → Verified, Ineffective or Inconclusive. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · each site’s event window ▾ BY Maintenance › Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled Open work 2 WR-019, WR-021 Verification overdue 1 WR-019 · witnessed start test missing Preventive due in 30 days 4 See Preventive View detail → Repeat findings 0 No repeat after completed work Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-019 · Starter and control inspection GEN-CR-01 · GreenHarvest Maintenance lead Completed Pending · witness test missing Expired WR-021 · Connector 2 repair CHG-002 · Depot Charging operations lead Open · waiting for diagnostics Required Claimable Work requests share the managed-task lifecycle with Actions: Open → In progress → Completed → Verification window → Verified, Ineffective or Inconclusive. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "Corrective -> #/maintenance",
+          "Preventive · scheduled -> #/maintenance-preventive",
+          "View detail → -> #/maintenance-preventive",
+          "WR-019 · Starter and control inspection -> #/wr-overview"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Corrective*",
+              "Preventive · scheduled"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "maintenance",
+      "case": "linked",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/maintenance",
+      "app_image": "maintenance-linked-390-app.png",
+      "mock_image": "maintenance-linked-390-mock.png",
+      "app": {
+        "titles": [
+          "Corrective work requests"
+        ],
+        "panels": [
+          {
+            "title": "Corrective work requests",
+            "x": 16,
+            "y": 801,
+            "w": 358,
+            "h": 493,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Work request",
+              "Asset / site",
+              "Owner",
+              "State",
+              "Verification",
+              "Warranty"
+            ],
+            "chips": [
+              "Open",
+              "Not established",
+              "Not recorded",
+              "Open",
+              "Not established",
+              "Not recorded"
+            ],
+            "links": 7,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "WR-000003 · Follow up the accepted ActionFull title textFollow up the accepted ActionACT-000001Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "No asset recorded · Kobo mini-grid",
+                "Not assigned",
+                "Open",
+                "Not established",
+                "Not recorded"
+              ],
+              [
+                "WR-000002 · Inspect starter for the FindingFull title textInspect starter for the FindingFinding 81bdbc13 · ACT-000001Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "No asset recorded · Kobo mini-grid",
+                "Not assigned",
+                "Open",
+                "Not established",
+                "Not recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000003 · Follow up the accepted Action -> /maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001",
+                "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+                "Kobo mini-grid -> /sites/KOBO-001"
+              ],
+              [
+                "WR-000002 · Inspect starter for the Finding -> /maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001",
+                "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+                "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+                "Kobo mini-grid -> /sites/KOBO-001"
+              ]
+            ],
+            "panelText": "Corrective work requestsCompleted is activity evidence only; outcome is verified separatelyScroll table horizontallyWork requestAsset / siteOwnerStateVerificationWarrantyWR-000003 · Follow up the accepted ActionFull title textFollow up the accepted ActionACT-000001Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.No asset recorded · Kobo mini-gridNot assignedOpenNot establishedNot recordedWR-000002 · Inspect starter for the FindingFull title textInspect starter for the FindingFinding 81bdbc13 · ACT-000001Source unverifiedThe origin of this",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1414,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Maintenance",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [
+            "Open work22 requests in progress or open",
+            "Verification overdueNot assessedNo work-outcome verification clock",
+            "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+            "Repeat findingsNot assessedNo repeat-finding assessment"
+          ],
+          "notice": [
+            "A completed request records activity; an equipment outcome remains unverified."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 2,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "From (UTC) To (UTC, exclusive) Show recordsReload",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Open work22 requests in progress or open | ",
+            "Verification overdueNot assessedNo work-outcome verification clock | ",
+            "Preventive due in 30 daysNot assessedSee PreventiveView detail → | View detail → -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+            "Repeat findingsNot assessedNo repeat-finding assessment | "
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Maintenance",
+          "subtitle": "Physical maintenance work and outcome verification",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Maintenance Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled From (UTC) To (UTC, exclusive) Show records Reload Listed by the time each request was opened. As known at 25 Oct 2026, 16:41 UTC Open work 2 2 requests in progress or open Verification overdue Not assessed No work-outcome verification clock Preventive due in 30 days Not assessed See Preventive View detail → Repeat findings Not assessed No repeat-finding assessment Corrective work requests Completed is activity evidence only; outcome is verified separately Scroll table horizontally WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-000003 · Follow up the accepted Action Full title text ACT-000001 Source unverified No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded WR-000002 · Inspect starter for the Finding Full title text Finding 81bdbc13 · ACT-000001 Source unverified No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded Showing 1–2 of 2 MOCK DEVIATION D1 (R355) MOCK DEVIATION D1 (R358) A completed request records activity; an equipment outcome remains unverified."
+        },
+        "b18": {
+          "status": "As known at 25 Oct 2026, 16:41 UTC",
+          "showing": "Showing 1–2 of 2",
+          "pager": [],
+          "siteLinks": [
+            "KOBO-001 -> /sites/KOBO-001",
+            "KOBO-001 -> /sites/KOBO-001"
+          ],
+          "workLinks": [
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+            "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+          ],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-14",
+            "=2026-10-21"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "81bdbc13 · ACT"
+          ],
+          "enums": [],
+          "utcHits": 3,
+          "bodyText": "Maintenance Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled From (UTC) To (UTC, exclusive) Show records Reload Listed by the time each request was opened. As known at 25 Oct 2026, 16:41 UTC Open work 2 2 requests in progress or open Verification overdue Not assessed No work-outcome verification clock Preventive due in 30 days Not assessed See Preventive View detail → Repeat findings Not assessed No repeat-finding assessment Corrective work requests Completed is activity evidence only; outcome is verified separately Scroll table horizontally WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-000003 · Follow up the accepted Action Full title text ACT-000001 Source unverified No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded WR-000002 · Inspect starter for the Finding Full title text Finding 81bdbc13 · ACT-000001 Source unverified No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded Showing 1–2 of 2 MOCK DEVIATION D1 (R355) MOCK DEVIATION D1 (R358) A completed request records activity; an equipment outcome remains unverified."
+        },
+        "mainLinks": [
+          "Preventive · scheduled -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "View detail → -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "WR-000003 · Follow up the accepted Action -> /maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001",
+          "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "WR-000002 · Inspect starter for the Finding -> /maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001",
+          "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+          "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+          "Kobo mini-grid -> /sites/KOBO-001"
+        ],
+        "cardsDom": [
+          {
+            "t": "Open work22 requests in progress or open",
+            "h": 126
+          },
+          {
+            "t": "Verification overdueNot assessedNo work-outcome verification clock",
+            "h": 126
+          },
+          {
+            "t": "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+            "h": 130
+          },
+          {
+            "t": "Repeat findingsNot assessedNo repeat-finding assessment",
+            "h": 130
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs global-work-tabs",
+            "items": [
+              "Corrective*(off)",
+              "Preventive · scheduled"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 1030,
+            "cw": 318,
+            "panel": "Corrective work requests"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Maintenance",
+          "crumbs": "Maintenance",
+          "status": [
+            "As known at 25 Oct 2026, 16:41 UTC"
+          ],
+          "membership": [
+            "Listed by the time each request was opened."
+          ],
+          "deviations": [
+            "R355|MOCK DEVIATION D1 (R355)|12px",
+            "R358|MOCK DEVIATION D1 (R358)|12px"
+          ],
+          "showing": "Showing 1–2 of 2",
+          "findings": [
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors="
+          ],
+          "requestLinks": [],
+          "rowLinks": [
+            "WR-000003 · Follow up the accepted Action -> /maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+            "Kobo mini-grid -> /sites/KOBO-001",
+            "WR-000002 · Inspect starter for the Finding -> /maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001",
+            "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+            "Kobo mini-grid -> /sites/KOBO-001"
+          ],
+          "siteLinks": [
+            "Kobo mini-grid -> /sites/KOBO-001",
+            "Kobo mini-grid -> /sites/KOBO-001"
+          ],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 1030,
+            "cw": 1030,
+            "w": 1030,
+            "layout": "auto",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 1030,
+            "wrapCw": 318,
+            "cols": [
+              "Work request:220",
+              "Asset / site:210",
+              "Owner:160",
+              "State:120",
+              "Verification:170",
+              "Warranty:150"
+            ],
+            "over": [],
+            "rowH": [
+              120,
+              119
+            ]
+          },
+          "historicalNotice": [
+            "A completed request records activity; an equipment outcome remains unverified."
+          ],
+          "tabs": [
+            "Maintenance",
+            "Corrective",
+            "Preventive · scheduled",
+            "Showing 1–2 of 2"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Corrective work requests"
+        ],
+        "panels": [
+          {
+            "title": "Corrective work requests",
+            "x": 15,
+            "y": 722,
+            "w": 360,
+            "h": 327,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Work request",
+              "Asset / site",
+              "Owner",
+              "State",
+              "Verification",
+              "Warranty"
+            ],
+            "chips": [
+              "Completed",
+              "Pending · witness test missing",
+              "Expired",
+              "Open · waiting for diagnostics",
+              "Required",
+              "Claimable"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "WR-019 · Starter and control inspection",
+                "GEN-CR-01 · GreenHarvest",
+                "Maintenance lead",
+                "Completed",
+                "Pending · witness test missing",
+                "Expired"
+              ],
+              [
+                "WR-021 · Connector 2 repair",
+                "CHG-002 · Depot",
+                "Charging operations lead",
+                "Open · waiting for diagnostics",
+                "Required",
+                "Claimable"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-019 · Starter and control inspection -> #/wr-overview"
+              ],
+              []
+            ],
+            "panelText": "Corrective work requestsCompleted is activity evidence only; outcome is verified separatelyWork requestAsset / siteOwnerStateVerificationWarrantyWR-019 · Starter and control inspectionGEN-CR-01 · GreenHarvestMaintenance leadCompletedPending · witness test missingExpiredWR-021 · Connector 2 repairCHG-002 · DepotCharging operations leadOpen · waiting for diagnosticsRequiredClaimable",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1240,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Maintenance",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Maintenance›",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · each site’s event window▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled Open work 2 WR-019, WR-021 Verification overdue 1 WR-019 · witnessed start test missing Preventive due in 30 days 4 See Preventive View detail → Repeat findings 0 No repeat after completed work Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-019 · Starter and control inspection GEN-CR-01 · GreenHarvest Maintenance lead Completed Pending · witness test missing Expired WR-021 · Connector 2 repair CHG-002 · Depot Charging operations lead Open · waiting for diagnostics Required Claimable Work requests share the managed-task lifecycle with Actions: Open → In progress → Completed → Verification window → Verified, Ineffective or Inconclusive. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled Open work 2 WR-019, WR-021 Verification overdue 1 WR-019 · witnessed start test missing Preventive due in 30 days 4 See Preventive View detail → Repeat findings 0 No repeat after completed work Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-019 · Starter and control inspection GEN-CR-01 · GreenHarvest Maintenance lead Completed Pending · witness test missing Expired WR-021 · Connector 2 repair CHG-002 · Depot Charging operations lead Open · waiting for diagnostics Required Claimable Work requests share the managed-task lifecycle with Actions: Open → In progress → Completed → Verification window → Verified, Ineffective or Inconclusive. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "Corrective -> #/maintenance",
+          "Preventive · scheduled -> #/maintenance-preventive",
+          "View detail → -> #/maintenance-preventive",
+          "WR-019 · Starter and control inspection -> #/wr-overview"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Corrective*",
+              "Preventive · scheduled"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 696,
+            "cw": 320,
+            "panel": "Corrective work requests"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "maintenance",
+      "case": "linked-all-open",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/maintenance",
+      "app_image": "maintenance-linked-all-open-1440-app.png",
+      "mock_image": "maintenance-linked-all-open-1440-mock.png",
+      "app": {
+        "titles": [
+          "Corrective work requests"
+        ],
+        "panels": [
+          {
+            "title": "Corrective work requests",
+            "x": 248,
+            "y": 453,
+            "w": 1145,
+            "h": 514,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Work request",
+              "Asset / site",
+              "Owner",
+              "State",
+              "Verification",
+              "Warranty"
+            ],
+            "chips": [
+              "Open",
+              "Not established",
+              "Not recorded",
+              "Open",
+              "Not established",
+              "Not recorded"
+            ],
+            "links": 7,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "WR-000003 · Follow up the accepted ActionFull title textFollow up the accepted ActionACT-000001Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "No asset recorded · Kobo mini-grid",
+                "Not assigned",
+                "Open",
+                "Not established",
+                "Not recorded"
+              ],
+              [
+                "WR-000002 · Inspect starter for the FindingFull title textInspect starter for the FindingFinding 81bdbc13 · ACT-000001Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "No asset recorded · Kobo mini-grid",
+                "Not assigned",
+                "Open",
+                "Not established",
+                "Not recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000003 · Follow up the accepted Action -> /maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001",
+                "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+                "Kobo mini-grid -> /sites/KOBO-001"
+              ],
+              [
+                "WR-000002 · Inspect starter for the Finding -> /maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001",
+                "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+                "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+                "Kobo mini-grid -> /sites/KOBO-001"
+              ]
+            ],
+            "panelText": "Corrective work requestsCompleted is activity evidence only; outcome is verified separatelyScroll table horizontallyWork requestAsset / siteOwnerStateVerificationWarrantyWR-000003 · Follow up the accepted ActionFull title textFollow up the accepted ActionACT-000001Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.No asset recorded · Kobo mini-gridNot assignedOpenNot establishedNot recordedWR-000002 · Inspect starter for the FindingFull title textInspect starter for the FindingFinding 81bdbc13 · ACT-000001Source unverifiedThe origin of this",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1077,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Maintenance",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [
+            "Open work22 requests in progress or open",
+            "Verification overdueNot assessedNo work-outcome verification clock",
+            "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+            "Repeat findingsNot assessedNo repeat-finding assessment"
+          ],
+          "notice": [
+            "A completed request records activity; an equipment outcome remains unverified."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 2,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "From (UTC) To (UTC, exclusive) Show recordsReload",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Open work22 requests in progress or open | ",
+            "Verification overdueNot assessedNo work-outcome verification clock | ",
+            "Preventive due in 30 daysNot assessedSee PreventiveView detail → | View detail → -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+            "Repeat findingsNot assessedNo repeat-finding assessment | "
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 4
+        },
+        "b15": {
+          "crumbs": "Maintenance",
+          "subtitle": "Physical maintenance work and outcome verification",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Maintenance Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled From (UTC) To (UTC, exclusive) Show records Reload Listed by the time each request was opened. As known at 25 Oct 2026, 16:41 UTC Open work 2 2 requests in progress or open Verification overdue Not assessed No work-outcome verification clock Preventive due in 30 days Not assessed See Preventive View detail → Repeat findings Not assessed No repeat-finding assessment Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-000003 · Follow up the accepted Action Full title text Follow up the accepted Action ACT-000001 Source unverified The origin of this authored work record is not established. No work outcome is verified. No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded WR-000002 · Inspect starter for the Finding Full title text Inspect starter for the Finding Finding 81bdbc13 · ACT-000001 Source unverified The origin of this authored work record is not established. No work outcome is verified. No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded Showing 1–2 of 2 MOCK DEVIATION D1 (R355) MOCK DEVIATION D1 (R358) A completed request records activity; an equipment outcome remains unverified."
+        },
+        "b18": {
+          "status": "As known at 25 Oct 2026, 16:41 UTC",
+          "showing": "Showing 1–2 of 2",
+          "pager": [],
+          "siteLinks": [
+            "KOBO-001 -> /sites/KOBO-001",
+            "KOBO-001 -> /sites/KOBO-001"
+          ],
+          "workLinks": [
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+            "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+          ],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-14",
+            "=2026-10-21"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "81bdbc13 · ACT"
+          ],
+          "enums": [],
+          "utcHits": 3,
+          "bodyText": "Maintenance Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled From (UTC) To (UTC, exclusive) Show records Reload Listed by the time each request was opened. As known at 25 Oct 2026, 16:41 UTC Open work 2 2 requests in progress or open Verification overdue Not assessed No work-outcome verification clock Preventive due in 30 days Not assessed See Preventive View detail → Repeat findings Not assessed No repeat-finding assessment Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-000003 · Follow up the accepted Action Full title text Follow up the accepted Action ACT-000001 Source unverified The origin of this authored work record is not established. No work outcome is verified. No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded WR-000002 · Inspect starter for the Finding Full title text Inspect starter for the Finding Finding 81bdbc13 · ACT-000001 Source unverified The origin of this authored work record is not established. No work outcome is verified. No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded Showing 1–2 of 2 MOCK DEVIATION D1 (R355) MOCK DEVIATION D1 (R358) A completed request records activity; an equipment outcome remains unverified."
+        },
+        "mainLinks": [
+          "Preventive · scheduled -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "View detail → -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "WR-000003 · Follow up the accepted Action -> /maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001",
+          "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "WR-000002 · Inspect starter for the Finding -> /maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001",
+          "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+          "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+          "Kobo mini-grid -> /sites/KOBO-001"
+        ],
+        "cardsDom": [
+          {
+            "t": "Open work22 requests in progress or open",
+            "h": 130
+          },
+          {
+            "t": "Verification overdueNot assessedNo work-outcome verification clock",
+            "h": 130
+          },
+          {
+            "t": "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+            "h": 130
+          },
+          {
+            "t": "Repeat findingsNot assessedNo repeat-finding assessment",
+            "h": 130
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs global-work-tabs",
+            "items": [
+              "Corrective*(off)",
+              "Preventive · scheduled"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1077
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Maintenance",
+          "crumbs": "Maintenance",
+          "status": [
+            "As known at 25 Oct 2026, 16:41 UTC"
+          ],
+          "membership": [
+            "Listed by the time each request was opened."
+          ],
+          "deviations": [
+            "R355|MOCK DEVIATION D1 (R355)|12px",
+            "R358|MOCK DEVIATION D1 (R358)|12px"
+          ],
+          "showing": "Showing 1–2 of 2",
+          "findings": [
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors="
+          ],
+          "requestLinks": [],
+          "rowLinks": [
+            "WR-000003 · Follow up the accepted Action -> /maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+            "Kobo mini-grid -> /sites/KOBO-001",
+            "WR-000002 · Inspect starter for the Finding -> /maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001",
+            "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+            "Kobo mini-grid -> /sites/KOBO-001"
+          ],
+          "siteLinks": [
+            "Kobo mini-grid -> /sites/KOBO-001",
+            "Kobo mini-grid -> /sites/KOBO-001"
+          ],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 1105,
+            "cw": 1105,
+            "w": 1105,
+            "layout": "auto",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 1105,
+            "wrapCw": 1105,
+            "cols": [
+              "Work request:236",
+              "Asset / site:225",
+              "Owner:172",
+              "State:129",
+              "Verification:182",
+              "Warranty:161"
+            ],
+            "over": [],
+            "rowH": [
+              150,
+              150
+            ]
+          },
+          "historicalNotice": [
+            "A completed request records activity; an equipment outcome remains unverified."
+          ],
+          "tabs": [
+            "Maintenance",
+            "Corrective",
+            "Preventive · scheduled",
+            "Showing 1–2 of 2"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Corrective work requests"
+        ],
+        "panels": [
+          {
+            "title": "Corrective work requests",
+            "x": 234,
+            "y": 460,
+            "w": 1161,
+            "h": 234,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Work request",
+              "Asset / site",
+              "Owner",
+              "State",
+              "Verification",
+              "Warranty"
+            ],
+            "chips": [
+              "Completed",
+              "Pending · witness test missing",
+              "Expired",
+              "Open · waiting for diagnostics",
+              "Required",
+              "Claimable"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "WR-019 · Starter and control inspection",
+                "GEN-CR-01 · GreenHarvest",
+                "Maintenance lead",
+                "Completed",
+                "Pending · witness test missing",
+                "Expired"
+              ],
+              [
+                "WR-021 · Connector 2 repair",
+                "CHG-002 · Depot",
+                "Charging operations lead",
+                "Open · waiting for diagnostics",
+                "Required",
+                "Claimable"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-019 · Starter and control inspection -> #/wr-overview"
+              ],
+              []
+            ],
+            "panelText": "Corrective work requestsCompleted is activity evidence only; outcome is verified separatelyWork requestAsset / siteOwnerStateVerificationWarrantyWR-019 · Starter and control inspectionGEN-CR-01 · GreenHarvestMaintenance leadCompletedPending · witness test missingExpiredWR-021 · Connector 2 repairCHG-002 · DepotCharging operations leadOpen · waiting for diagnosticsRequiredClaimable",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Maintenance",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Maintenance›",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · each site’s event window▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · each site’s event window ▾ BY Maintenance › Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled Open work 2 WR-019, WR-021 Verification overdue 1 WR-019 · witnessed start test missing Preventive due in 30 days 4 See Preventive View detail → Repeat findings 0 No repeat after completed work Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-019 · Starter and control inspection GEN-CR-01 · GreenHarvest Maintenance lead Completed Pending · witness test missing Expired WR-021 · Connector 2 repair CHG-002 · Depot Charging operations lead Open · waiting for diagnostics Required Claimable Work requests share the managed-task lifecycle with Actions: Open → In progress → Completed → Verification window → Verified, Ineffective or Inconclusive. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · each site’s event window ▾ BY Maintenance › Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled Open work 2 WR-019, WR-021 Verification overdue 1 WR-019 · witnessed start test missing Preventive due in 30 days 4 See Preventive View detail → Repeat findings 0 No repeat after completed work Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-019 · Starter and control inspection GEN-CR-01 · GreenHarvest Maintenance lead Completed Pending · witness test missing Expired WR-021 · Connector 2 repair CHG-002 · Depot Charging operations lead Open · waiting for diagnostics Required Claimable Work requests share the managed-task lifecycle with Actions: Open → In progress → Completed → Verification window → Verified, Ineffective or Inconclusive. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "Corrective -> #/maintenance",
+          "Preventive · scheduled -> #/maintenance-preventive",
+          "View detail → -> #/maintenance-preventive",
+          "WR-019 · Starter and control inspection -> #/wr-overview"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Corrective*",
+              "Preventive · scheduled"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "maintenance",
+      "case": "linked-all-open",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/maintenance",
+      "app_image": "maintenance-linked-all-open-390-app.png",
+      "mock_image": "maintenance-linked-all-open-390-mock.png",
+      "app": {
+        "titles": [
+          "Corrective work requests"
+        ],
+        "panels": [
+          {
+            "title": "Corrective work requests",
+            "x": 16,
+            "y": 801,
+            "w": 358,
+            "h": 621,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Work request",
+              "Asset / site",
+              "Owner",
+              "State",
+              "Verification",
+              "Warranty"
+            ],
+            "chips": [
+              "Open",
+              "Not established",
+              "Not recorded",
+              "Open",
+              "Not established",
+              "Not recorded"
+            ],
+            "links": 7,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "WR-000003 · Follow up the accepted ActionFull title textFollow up the accepted ActionACT-000001Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "No asset recorded · Kobo mini-grid",
+                "Not assigned",
+                "Open",
+                "Not established",
+                "Not recorded"
+              ],
+              [
+                "WR-000002 · Inspect starter for the FindingFull title textInspect starter for the FindingFinding 81bdbc13 · ACT-000001Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "No asset recorded · Kobo mini-grid",
+                "Not assigned",
+                "Open",
+                "Not established",
+                "Not recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000003 · Follow up the accepted Action -> /maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001",
+                "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+                "Kobo mini-grid -> /sites/KOBO-001"
+              ],
+              [
+                "WR-000002 · Inspect starter for the Finding -> /maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001",
+                "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+                "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+                "Kobo mini-grid -> /sites/KOBO-001"
+              ]
+            ],
+            "panelText": "Corrective work requestsCompleted is activity evidence only; outcome is verified separatelyScroll table horizontallyWork requestAsset / siteOwnerStateVerificationWarrantyWR-000003 · Follow up the accepted ActionFull title textFollow up the accepted ActionACT-000001Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.No asset recorded · Kobo mini-gridNot assignedOpenNot establishedNot recordedWR-000002 · Inspect starter for the FindingFull title textInspect starter for the FindingFinding 81bdbc13 · ACT-000001Source unverifiedThe origin of this",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1542,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Maintenance",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [
+            "Open work22 requests in progress or open",
+            "Verification overdueNot assessedNo work-outcome verification clock",
+            "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+            "Repeat findingsNot assessedNo repeat-finding assessment"
+          ],
+          "notice": [
+            "A completed request records activity; an equipment outcome remains unverified."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 2,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "From (UTC) To (UTC, exclusive) Show recordsReload",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Open work22 requests in progress or open | ",
+            "Verification overdueNot assessedNo work-outcome verification clock | ",
+            "Preventive due in 30 daysNot assessedSee PreventiveView detail → | View detail → -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+            "Repeat findingsNot assessedNo repeat-finding assessment | "
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 4
+        },
+        "b15": {
+          "crumbs": "Maintenance",
+          "subtitle": "Physical maintenance work and outcome verification",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Maintenance Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled From (UTC) To (UTC, exclusive) Show records Reload Listed by the time each request was opened. As known at 25 Oct 2026, 16:41 UTC Open work 2 2 requests in progress or open Verification overdue Not assessed No work-outcome verification clock Preventive due in 30 days Not assessed See Preventive View detail → Repeat findings Not assessed No repeat-finding assessment Corrective work requests Completed is activity evidence only; outcome is verified separately Scroll table horizontally WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-000003 · Follow up the accepted Action Full title text Follow up the accepted Action ACT-000001 Source unverified The origin of this authored work record is not established. No work outcome is verified. No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded WR-000002 · Inspect starter for the Finding Full title text Inspect starter for the Finding Finding 81bdbc13 · ACT-000001 Source unverified The origin of this authored work record is not established. No work outcome is verified. No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded Showing 1–2 of 2 MOCK DEVIATION D1 (R355) MOCK DEVIATION D1 (R358) A completed request records activity; an equipment outcome remains unverified."
+        },
+        "b18": {
+          "status": "As known at 25 Oct 2026, 16:41 UTC",
+          "showing": "Showing 1–2 of 2",
+          "pager": [],
+          "siteLinks": [
+            "KOBO-001 -> /sites/KOBO-001",
+            "KOBO-001 -> /sites/KOBO-001"
+          ],
+          "workLinks": [
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+            "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb"
+          ],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-14",
+            "=2026-10-21"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "81bdbc13 · ACT"
+          ],
+          "enums": [],
+          "utcHits": 3,
+          "bodyText": "Maintenance Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled From (UTC) To (UTC, exclusive) Show records Reload Listed by the time each request was opened. As known at 25 Oct 2026, 16:41 UTC Open work 2 2 requests in progress or open Verification overdue Not assessed No work-outcome verification clock Preventive due in 30 days Not assessed See Preventive View detail → Repeat findings Not assessed No repeat-finding assessment Corrective work requests Completed is activity evidence only; outcome is verified separately Scroll table horizontally WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-000003 · Follow up the accepted Action Full title text Follow up the accepted Action ACT-000001 Source unverified The origin of this authored work record is not established. No work outcome is verified. No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded WR-000002 · Inspect starter for the Finding Full title text Inspect starter for the Finding Finding 81bdbc13 · ACT-000001 Source unverified The origin of this authored work record is not established. No work outcome is verified. No asset recorded · Kobo mini-grid Not assigned Open Not established Not recorded Showing 1–2 of 2 MOCK DEVIATION D1 (R355) MOCK DEVIATION D1 (R358) A completed request records activity; an equipment outcome remains unverified."
+        },
+        "mainLinks": [
+          "Preventive · scheduled -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "View detail → -> /maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "WR-000003 · Follow up the accepted Action -> /maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001",
+          "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "WR-000002 · Inspect starter for the Finding -> /maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001",
+          "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+          "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+          "Kobo mini-grid -> /sites/KOBO-001"
+        ],
+        "cardsDom": [
+          {
+            "t": "Open work22 requests in progress or open",
+            "h": 126
+          },
+          {
+            "t": "Verification overdueNot assessedNo work-outcome verification clock",
+            "h": 126
+          },
+          {
+            "t": "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+            "h": 130
+          },
+          {
+            "t": "Repeat findingsNot assessedNo repeat-finding assessment",
+            "h": 130
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs global-work-tabs",
+            "items": [
+              "Corrective*(off)",
+              "Preventive · scheduled"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 1030,
+            "cw": 318,
+            "panel": "Corrective work requests"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Maintenance",
+          "crumbs": "Maintenance",
+          "status": [
+            "As known at 25 Oct 2026, 16:41 UTC"
+          ],
+          "membership": [
+            "Listed by the time each request was opened."
+          ],
+          "deviations": [
+            "R355|MOCK DEVIATION D1 (R355)|12px",
+            "R358|MOCK DEVIATION D1 (R358)|12px"
+          ],
+          "showing": "Showing 1–2 of 2",
+          "findings": [
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors="
+          ],
+          "requestLinks": [],
+          "rowLinks": [
+            "WR-000003 · Follow up the accepted Action -> /maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+            "Kobo mini-grid -> /sites/KOBO-001",
+            "WR-000002 · Inspect starter for the Finding -> /maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001",
+            "Finding 81bdbc13 -> /sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+            "ACT-000001 -> /sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+            "Kobo mini-grid -> /sites/KOBO-001"
+          ],
+          "siteLinks": [
+            "Kobo mini-grid -> /sites/KOBO-001",
+            "Kobo mini-grid -> /sites/KOBO-001"
+          ],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 1030,
+            "cw": 1030,
+            "w": 1030,
+            "layout": "auto",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 1030,
+            "wrapCw": 318,
+            "cols": [
+              "Work request:220",
+              "Asset / site:210",
+              "Owner:160",
+              "State:120",
+              "Verification:170",
+              "Warranty:150"
+            ],
+            "over": [],
+            "rowH": [
+              184,
+              183
+            ]
+          },
+          "historicalNotice": [
+            "A completed request records activity; an equipment outcome remains unverified."
+          ],
+          "tabs": [
+            "Maintenance",
+            "Corrective",
+            "Preventive · scheduled",
+            "Showing 1–2 of 2"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Corrective work requests"
+        ],
+        "panels": [
+          {
+            "title": "Corrective work requests",
+            "x": 15,
+            "y": 722,
+            "w": 360,
+            "h": 327,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Work request",
+              "Asset / site",
+              "Owner",
+              "State",
+              "Verification",
+              "Warranty"
+            ],
+            "chips": [
+              "Completed",
+              "Pending · witness test missing",
+              "Expired",
+              "Open · waiting for diagnostics",
+              "Required",
+              "Claimable"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "WR-019 · Starter and control inspection",
+                "GEN-CR-01 · GreenHarvest",
+                "Maintenance lead",
+                "Completed",
+                "Pending · witness test missing",
+                "Expired"
+              ],
+              [
+                "WR-021 · Connector 2 repair",
+                "CHG-002 · Depot",
+                "Charging operations lead",
+                "Open · waiting for diagnostics",
+                "Required",
+                "Claimable"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-019 · Starter and control inspection -> #/wr-overview"
+              ],
+              []
+            ],
+            "panelText": "Corrective work requestsCompleted is activity evidence only; outcome is verified separatelyWork requestAsset / siteOwnerStateVerificationWarrantyWR-019 · Starter and control inspectionGEN-CR-01 · GreenHarvestMaintenance leadCompletedPending · witness test missingExpiredWR-021 · Connector 2 repairCHG-002 · DepotCharging operations leadOpen · waiting for diagnosticsRequiredClaimable",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1240,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Maintenance",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Maintenance›",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · each site’s event window▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled Open work 2 WR-019, WR-021 Verification overdue 1 WR-019 · witnessed start test missing Preventive due in 30 days 4 See Preventive View detail → Repeat findings 0 No repeat after completed work Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-019 · Starter and control inspection GEN-CR-01 · GreenHarvest Maintenance lead Completed Pending · witness test missing Expired WR-021 · Connector 2 repair CHG-002 · Depot Charging operations lead Open · waiting for diagnostics Required Claimable Work requests share the managed-task lifecycle with Actions: Open → In progress → Completed → Verification window → Verified, Ineffective or Inconclusive. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › Maintenance Physical maintenance work and outcome verification Corrective Preventive · scheduled Open work 2 WR-019, WR-021 Verification overdue 1 WR-019 · witnessed start test missing Preventive due in 30 days 4 See Preventive View detail → Repeat findings 0 No repeat after completed work Corrective work requests Completed is activity evidence only; outcome is verified separately WORK REQUEST ASSET / SITE OWNER STATE VERIFICATION WARRANTY WR-019 · Starter and control inspection GEN-CR-01 · GreenHarvest Maintenance lead Completed Pending · witness test missing Expired WR-021 · Connector 2 repair CHG-002 · Depot Charging operations lead Open · waiting for diagnostics Required Claimable Work requests share the managed-task lifecycle with Actions: Open → In progress → Completed → Verification window → Verified, Ineffective or Inconclusive. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "Corrective -> #/maintenance",
+          "Preventive · scheduled -> #/maintenance-preventive",
+          "View detail → -> #/maintenance-preventive",
+          "WR-019 · Starter and control inspection -> #/wr-overview"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Corrective*",
+              "Preventive · scheduled"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 696,
+            "cw": 320,
+            "panel": "Corrective work requests"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

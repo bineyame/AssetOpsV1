@@ -1,0 +1,8 @@
+stopped positive pid 21644
+stopped worstcase pid 11316
+stopped forbidden pid 31608
+dropped database w504a_positive_w6r18_test
+dropped database w504a_zero_w6r18_test
+dropped database w504a_worstcase_w6r18_test
+dropped database w504a_unknown_w6r18_test
+removed C:\Users\assef\Bineyame\AssetOpsV1-review8\var\w504a_w6r18

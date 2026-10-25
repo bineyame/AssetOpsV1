@@ -16,10 +16,13 @@ import {
   GLOBAL_WORK_PAGE_LIMIT,
   GLOBAL_WORK_REFUSAL_COPY,
   createGlobalWorkClient,
+  findingLinkSelectsRevision,
   globalWorkHref,
   globalWorkPageQuery,
   globalWorkUtc,
+  globalWorkUtcSeconds,
   type GlobalOperationalKind,
+  type GlobalSiteDomain,
   type GlobalWorkClient,
   type GlobalWorkLink,
   type GlobalWorkPageQuery,
@@ -92,14 +95,60 @@ export function WorkSourceLine({ provenance }: { provenance: GlobalWorkProvenanc
   );
 }
 
+/**
+ * Post-W6 W6 Q4/Q9/Q17: the visible 12 px label of a registered mock departure, adjacent to the element it explains,
+ * with the matching `data-mock-deviation` register ID. It states a departure; it never claims the mock fact.
+ */
+export function MockDeviation({ category, id }: { category: "D1" | "D2" | "D4"; id: string }) {
+  return (
+    <p className="global-work-deviation" data-mock-deviation={id}>
+      {`MOCK DEVIATION ${category} (${id})`}
+    </p>
+  );
+}
+
+/** Post-W6 W6 Q18: the plain asset words for a stored asset type; an unlisted type keeps its stored label. */
+const ASSET_WORDS: Readonly<Record<string, (code: string) => string>> = {
+  EV_CONNECTOR: (code) => `EV connector ${code}`,
+  GENERATOR: (code) => `Backup generator · ${code}`,
+};
+
+/** Post-W6 W6 Q18: `EV connector c1` / `Backup generator · generator-1` from the stored code and type. */
+export function assetWords(code: string, type: string): string {
+  const words = ASSET_WORDS[type];
+  return words ? words(code) : `${code} · ${type}`;
+}
+
+/** The same words from a row's stored `code · TYPE` asset label (null when the row records no asset). */
+export function assetLabelWords(label: string | null): string | null {
+  if (label === null) return null;
+  const at = label.lastIndexOf(" · ");
+  return at < 0 ? label : assetWords(label.slice(0, at), label.slice(at + 3));
+}
+
+/** Post-W6 W6 Q18: `1 request`, `{n} requests`. */
+export const requestCount = (n: number): string => `${n} ${n === 1 ? "request" : "requests"}`;
+
+/**
+ * Post-W6 W6 Q2 (R352): a cold or EV Finding is plain `Finding {id8}` (R66/R75): its domain Finding frame does not
+ * select the revision, so it is never an anchor and carries no unavailable-link suffix. A mini-grid Finding keeps its
+ * exact-revision link.
+ */
+export function findingLinks(links: GlobalWorkLink[], domain: GlobalSiteDomain): GlobalWorkLink[] {
+  return findingLinkSelectsRevision(domain) ? links : links.map((link) => ({ label: link.label, href: null }));
+}
+
 export function joined(parts: ReactNode[], separator: string): ReactNode[] {
   return parts.flatMap((part, index) => (index === 0 ? [part] : [separator, part]));
 }
 
-/** A2Q6: one refusal sentence, with `Reload the first page` for a changed list or a stale cursor. */
+/**
+ * A2Q6: one refusal sentence, with `Reload the first page` for a changed list or a stale cursor. Post-W6 W6 Q8
+ * (R361): the refusal is announced as an alert.
+ */
 export function RefusalBlock({ code, firstPage }: { code: GlobalWorkPageRefusalCode; firstPage: string }) {
   return (
-    <div className="notice v69-notice global-work-state" data-global-work-refusal={code} data-page-refusal={code}>
+    <div role="alert" className="notice v69-notice global-work-state" data-global-work-refusal={code} data-page-refusal={code}>
       <p>{code === "INVALID_KIND" ? CHOOSE_RECORD_TYPE : GLOBAL_WORK_REFUSAL_COPY[code]}</p>
       {code !== "INVALID_KIND" && GLOBAL_WORK_FIRST_PAGE_CODES.has(code) ? (
         <p>
@@ -167,9 +216,12 @@ export interface GlobalWorkBodyBase {
   next_cursor: string | null;
 }
 
+/** Post-W6 W6 Q14 (R372): a historical line names its cutoff to the second; a current line keeps minutes. */
 export function StatusLine({ body }: { body: GlobalWorkBodyBase }) {
   const text =
-    body.status === "HISTORICAL" ? `Historical as of ${globalWorkUtc(body.known_at)}` : `As known at ${globalWorkUtc(body.known_at)}`;
+    body.status === "HISTORICAL"
+      ? `Historical as of ${globalWorkUtcSeconds(body.known_at)}`
+      : `As known at ${globalWorkUtc(body.known_at)}`;
   return (
     <p className="global-work-status" data-global-work-status={body.status}>
       {text}
@@ -193,9 +245,13 @@ export function Pager({
 }) {
   const a = trail.length * GLOBAL_WORK_PAGE_LIMIT + 1;
   const b = a + body.rows.length - 1;
+  // Post-W6 W6 Q6 (R354): a later page opened from its URL has no local trail, so its offset is unknown; it states
+  // the page's row count without a numeric range. Previous then returns to page one.
+  const unknownOffset = cursor !== null && (trail.length === 0 || trail[0] !== null);
+  const caption = unknownOffset ? `Later page · ${body.rows.length} of ${body.total_count}` : `Showing ${a}–${b} of ${body.total_count}`;
   return (
     <nav className="global-work-pager" aria-label={label} data-global-work-pager>
-      <span data-global-work-showing>{`Showing ${a}–${b} of ${body.total_count}`}</span>
+      <span data-global-work-showing>{caption}</span>
       {cursor !== null ? (
         <button
           type="button"
@@ -307,8 +363,19 @@ export function useGlobalWorkPage<B extends GlobalWorkBodyBase>(
   };
 }
 
-/** The date-bar slot (R6): the control bar and, once a body is read, the status line. */
-export function GlobalWorkBar<B extends GlobalWorkBodyBase>({ page, label }: { page: GlobalWorkPageRead<B>; label: string }) {
+/**
+ * The date-bar slot (R6): the control bar, the root's membership line (Post-W6 W6 Q7: which stored time places a row
+ * in the window) and, once a body is read, the status line.
+ */
+export function GlobalWorkBar<B extends GlobalWorkBodyBase>({
+  page,
+  label,
+  membership,
+}: {
+  page: GlobalWorkPageRead<B>;
+  label: string;
+  membership: string;
+}) {
   const { query, rawFrom, rawTo, body } = page;
   return (
     <div className="site-date-bar global-work-bar" data-global-work-bar>
@@ -322,6 +389,9 @@ export function GlobalWorkBar<B extends GlobalWorkBodyBase>({ page, label }: { p
         }
         onReload={page.reload}
       />
+      <p className="global-work-membership" data-global-work-membership>
+        {membership}
+      </p>
       {body !== null ? <StatusLine body={body} /> : null}
     </div>
   );
@@ -345,7 +415,7 @@ export function GlobalWorkSlot<B extends GlobalWorkBodyBase>({
   if (parsed.status === "invalid") return <RefusalBlock code={parsed.code} firstPage={firstPage} />;
   if (read === null) {
     return (
-      <p className="global-work-loading" data-global-work-loading>
+      <p role="status" className="global-work-loading" data-global-work-loading>
         {loading}
       </p>
     );
@@ -354,7 +424,12 @@ export function GlobalWorkSlot<B extends GlobalWorkBodyBase>({
   if (read.value.status === "EMPTY_SCOPE") {
     return (
       // `data-page-refusal` is the panel-structure test's leading-state hook; EMPTY_SCOPE is stated, never a zero.
-      <div className="notice v69-notice global-work-state" data-global-work-empty-scope data-page-refusal="EMPTY_SCOPE">
+      <div
+        role="status"
+        className="notice v69-notice global-work-state"
+        data-global-work-empty-scope
+        data-page-refusal="EMPTY_SCOPE"
+      >
         <p>{NO_ACCESSIBLE_SITES}</p>
       </div>
     );

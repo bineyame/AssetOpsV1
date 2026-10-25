@@ -1,0 +1,38 @@
+[
+ {
+  "id": "link-check",
+  "case": "unknown-subtab-overview",
+  "url": "http://127.0.0.1:5389/maintenance/requests/e490e95f-d395-4410-b7da-42ed0b087968/overview?site_id=KOBO-001",
+  "mock": "wr-overview"
+ },
+ {
+  "id": "link-check",
+  "case": "unknown-subtab-evidence",
+  "url": "http://127.0.0.1:5389/maintenance/requests/e490e95f-d395-4410-b7da-42ed0b087968/evidence?site_id=KOBO-001",
+  "mock": "wr-overview"
+ },
+ {
+  "id": "link-check",
+  "case": "unknown-subtab-execution",
+  "url": "http://127.0.0.1:5389/maintenance/requests/e490e95f-d395-4410-b7da-42ed0b087968/execution?site_id=KOBO-001",
+  "mock": "wr-overview"
+ },
+ {
+  "id": "link-check",
+  "case": "unknown-subtab-records",
+  "url": "http://127.0.0.1:5389/maintenance/requests/e490e95f-d395-4410-b7da-42ed0b087968/records?site_id=KOBO-001",
+  "mock": "wr-overview"
+ },
+ {
+  "id": "link-check",
+  "case": "unknown-subtab-records-known-at",
+  "url": "http://127.0.0.1:5389/maintenance/requests/e490e95f-d395-4410-b7da-42ed0b087968/records?site_id=KOBO-001&known_at=2026-10-20T11:59:04Z",
+  "mock": "wr-overview"
+ },
+ {
+  "id": "link-check",
+  "case": "maintenance-list",
+  "url": "http://127.0.0.1:5389/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+  "mock": "maintenance"
+ }
+]

@@ -26,8 +26,10 @@ from typing import Any, Sequence
 from urllib.parse import quote
 from uuid import UUID
 
+from assetops_backend.estate.evidence_money import site_home_href
 from assetops_backend.work import model as m
 from assetops_backend.work.detail import parse_known_at, select_case_detail
+from assetops_backend.work.global_index import coded_actions
 from assetops_backend.work.model import WorkRefused, WorkStoreUnavailable
 from assetops_backend.work.site_index import _action_link, _finding_link, action_selection_key
 
@@ -88,14 +90,16 @@ def _body(gx: Any, rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, cid:
     case = work_detail["case"]
     revision_id = work_detail["selected_revision"]["id"]
     cutoff = f"&known_at={_q(m.iso(known_at))}" if explicit else ""
-    site_href = f"/sites/{_q(site_code)}"
+    site_href = f"/sites/{_q(site_code)}"  # the Site Work tab base (source incident); never the Site home link
+    site_domain = gx.site_type(tenant_id, site_id)  # Post-W6 W6 Q2/Q3: the stored type, read in this snapshot
 
     selections = rx.link_selections(revision_id, None, None, known_at)
     by_key = {(s["kind"], s["id"], s["selected_id"]): s for s in selections}
     findings = [_finding_link(site_code, x, by_key.get(("FINDING", x["finding_id"], x["finding_revision_id"]),
                                                        {"lineage": False})["lineage"])
                 for x in work_detail["finding_links"]]
-    actions = [_action_link(site_code, x, by_key.get(action_selection_key(x))) for x in work_detail["action_links"]]
+    actions, _codes = coded_actions(gx, tenant_id, site_id, [
+        _action_link(site_code, x, by_key.get(action_selection_key(x))) for x in work_detail["action_links"]])
 
     source_incident = None
     if case["incident_id"] is not None:
@@ -122,12 +126,12 @@ def _body(gx: Any, rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, cid:
     return {
         "schema_version": SCHEMA_GLOBAL_DETAIL,
         "selected": {"site_code": site_code, "site_id": str(site_id), "case_id": cid, "case_code": case["code"],
-                     "case_kind": case["kind"], "known_at": m.iso(known_at)},
+                     "case_kind": case["kind"], "known_at": m.iso(known_at), "site_domain": site_domain},
         "work_detail": work_detail,
         "work_asset": None if case["asset_id"] is None else gx.asset(tenant_id, site_id, case["asset_id"]),
         "history": {"revisions": revisions, "operational_records": operational},
         "links": {
-            "site": {"label": rx.site_name(), "href": site_href},
+            "site": {"label": rx.site_name(), "href": site_home_href(site_code, site_domain)},
             "overview": {"label": "Overview", "href": f"{request}{query}"},
             "record": {"label": "Maintenance record", "href": f"{request}/record{query}"},
             "history": {"label": "History", "href": f"{request}/history{query}"},

@@ -1,0 +1,45 @@
+{
+ "tabs": [
+  "OL.site-tabs__list > LI.site-tabs__item > a.site-tabs__link class=site-tabs__link data-work-request-tab=overview «Overview»",
+  "OL.site-tabs__list > LI.site-tabs__item > a.site-tabs__link class=site-tabs__link data-work-request-tab=history «History»"
+ ],
+ "panels": [
+  {
+   "h": "Work done",
+   "H": 442,
+   "texts": [
+    "h2 class=panel__heading len=9 «Work done»",
+    "div class=global-work-clamp work-request data-work-request-clamp=narrative len=4000 «Inspection narrative Inspection narrative Inspecti»",
+    "summary  len=19 «Full narrative text»",
+    "[C] details class=global-work-details data-work-request-full=narrative len=4000 «Inspection narrative Inspection narrative Inspecti»",
+    "span class=work-request-latest__label len=17 «Latest activity:»",
+    "div class=global-work-clamp work-request data-work-request-clamp=activity len=4000 «Replaced starter relay and tested Replaced starter»",
+    "summary  len=18 «Full activity text»",
+    "[C] details class=global-work-details data-work-request-full=activity len=4000 «Replaced starter relay and tested Replaced starter»",
+    "dt  len=4 «Type»",
+    "dd  len=10 «Corrective»",
+    "dt  len=5 «Asset»",
+    "dd  len=17 «No asset recorded»",
+    "dt  len=8 «Warranty»",
+    "dd  len=21 «Warranty not recorded»",
+    "dt  len=13 «Linked action»",
+    "dd  len=25 «No linked action recorded»",
+    "p class=global-work-deviation data-mock-deviation=R365 len=24 «MOCK DEVIATION D1 (R365)»"
+   ]
+  },
+  {
+   "h": "Lifecycle",
+   "H": 442,
+   "texts": [
+    "h2 class=panel__heading len=9 «Lifecycle»",
+    "li data-lifecycle-step=Finding data-done=false len=7 «Finding»",
+    "li class=done data-lifecycle-step=Triage data-done=true len=6 «Triage»",
+    "li class=done data-lifecycle-step=Assigned data-done=true len=8 «Assigned»",
+    "li class=done data-lifecycle-step=Visit data-done=true len=5 «Visit»",
+    "li data-lifecycle-step=Completed data-done=false len=9 «Completed»",
+    "li data-lifecycle-step=Verified data-done=false len=8 «Verified»",
+    "p class=v69-chart-note data-work-request-chart-note=true len=71 «Completed is not Verified. No work-case outcome ev»"
+   ]
+  }
+ ]
+}

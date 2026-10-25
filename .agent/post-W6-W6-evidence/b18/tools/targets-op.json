@@ -1,0 +1,78 @@
+[
+ {
+  "id": "oprecords",
+  "case": "positive",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "oprecords",
+  "case": "all-open",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "oprecords",
+  "case": "page-two",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6MDZlZDM2YTJlMWUwZjBjMjJkODYyNzk1MzMzOWQzMTUzYTI2MDRlMGZhN2Y4YzllYWM1N2U1ZDEwMjgzNmZhMCIsImFmdGVyIjpbIjIwMjYtMTAtMjFUMTE6NTk6MDUuMDAwMDAwWiIsImtvYm8tMDAxIiwiZmMyMjE2YzktNjAwYy00OWExLTg0YzctMjRkNDUzMjFhZTJjIiwiNmE3MDNmNDEtYmFjOC00MTMwLTg5OTMtMzllMDM4YjRjMjA0Il0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiNzk5MTQ1YzUtNzg1MC00MzEyLTg1YWUtYWM2MjQ0YTdiNWNhIiwiZmMyMjE2YzktNjAwYy00OWExLTg0YzctMjRkNDUzMjFhZTJjIl0sImZpbHRlciI6ImFsbCIsImZyb20iOiIyMDI2LTEwLTE0VDAwOjAwOjAwLjAwMDAwMFoiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjVUMTI6MjM6MDAuMjI2NzkzWiIsIm1hYyI6IjNmZmU2YjZkZDU5ZmU0OGVmYjQ3NGM1ZjcyYzcwMzJmY2RjM2NiMDkyY2Y3NWQ0MWQwMjRiYmRhYzFhNzU4MGIiLCJwYWdlX29uZV9tb2RlIjoiY3VycmVudCIsInJvdXRlIjoib3BlcmF0aW9uYWwtcmVjb3JkcyIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1ZWI5MWY0MmIyYjhiOGQ3MmExYmEwZjE2OTgzYzFiNjQ3ZGNiMjM5NzRmMTViZmE4YjdhNWY4YWU3NTJjNjQ3IiwidGVuYW50X2lkIjoiMmZjN2Q3ZDgtNzRkOS00MTU4LWIwNzYtZDk1NDFiMzU0ZWEyIiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ"
+ },
+ {
+  "id": "oprecords",
+  "case": "kind-OPERATOR_LOG",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=OPERATOR_LOG"
+ },
+ {
+  "id": "oprecords",
+  "case": "kind-MANUAL_READING",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=MANUAL_READING"
+ },
+ {
+  "id": "oprecords",
+  "case": "kind-SHIFT_NOTE",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SHIFT_NOTE"
+ },
+ {
+  "id": "oprecords",
+  "case": "kind-SITE_VISIT",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SITE_VISIT"
+ },
+ {
+  "id": "oprecords",
+  "case": "historical",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z"
+ },
+ {
+  "id": "oprecords",
+  "case": "invalid-kind",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=BOGUS"
+ },
+ {
+  "id": "oprecords",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z"
+ },
+ {
+  "id": "oprecords",
+  "case": "refused-span-32d",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "oprecords",
+  "case": "refused-one-bound",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z"
+ },
+ {
+  "id": "oprecords",
+  "case": "refused-bad-known-at",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time"
+ },
+ {
+  "id": "oprecords",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5388/operational-records"
+ },
+ {
+  "id": "incidents",
+  "case": "one-row",
+  "url": "http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ }
+]

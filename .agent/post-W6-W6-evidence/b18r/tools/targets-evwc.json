@@ -1,0 +1,39 @@
+[
+ {
+  "id": "incidents",
+  "case": "evwc",
+  "url": "http://127.0.0.1:5392/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "evwc",
+  "url": "http://127.0.0.1:5392/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "evwc",
+  "url": "http://127.0.0.1:5392/maintenance/preventive?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "oprecords",
+  "case": "evwc",
+  "url": "http://127.0.0.1:5392/operational-records?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "incidents",
+  "case": "evwc-all-open",
+  "url": "http://127.0.0.1:5392/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "maintenance",
+  "case": "evwc-all-open",
+  "url": "http://127.0.0.1:5392/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "incidents",
+  "case": "evwc-default-window",
+  "url": "http://127.0.0.1:5392/incidents"
+ }
+]
