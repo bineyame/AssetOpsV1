@@ -1,4 +1,4 @@
-chrome pid 22768
+chrome pid 18240
 OK   sitework-incidents-one-incident-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
   Incidents at this site fields160 1440: real=291 synthetic=455 verified=true fields=10/10 clipped=10 open=788 openClipped=10 doc=0
   Incidents at this site fields160-gap 1440: real=291 synthetic=488 verified=true fields=10/10 clipped=10 open=821 openClipped=10 doc=0
@@ -6,11 +6,11 @@ OK   sitework-incidents-one-incident-390 h1="Mini-grid depth demonstration" over
   Incidents at this site fields160 390: real=354 synthetic=412 verified=true fields=10/10 clipped=10 open=1053 openClipped=10 doc=0
   Incidents at this site fields160-gap 390: real=354 synthetic=494 verified=true fields=10/10 clipped=10 open=1136 openClipped=10 doc=0
 OK   sitework-maintenance-one-request-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
-  Maintenance at this site fields160 1440: real=212 synthetic=832 verified=false fields=20/25 clipped=0 open=undefined openClipped=undefined doc=0
-  Maintenance at this site fields160-gap 1440: real=212 synthetic=865 verified=false fields=20/25 clipped=0 open=undefined openClipped=undefined doc=0
+  Maintenance at this site fields160 1440: real=212 synthetic=832 verified=true fields=25/25 clipped=0 open=11828 openClipped=0 doc=0
+  Maintenance at this site fields160-gap 1440: real=212 synthetic=865 verified=true fields=25/25 clipped=0 open=11861 openClipped=0 doc=0
 OK   sitework-maintenance-one-request-390 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
-  Maintenance at this site fields160 390: real=260 synthetic=1123 verified=false fields=20/25 clipped=0 open=undefined openClipped=undefined doc=0
-  Maintenance at this site fields160-gap 390: real=260 synthetic=1205 verified=false fields=20/25 clipped=0 open=undefined openClipped=undefined doc=0
+  Maintenance at this site fields160 390: real=260 synthetic=1123 verified=true fields=25/25 clipped=0 open=11588 openClipped=0 doc=0
+  Maintenance at this site fields160-gap 390: real=260 synthetic=1205 verified=true fields=25/25 clipped=0 open=11671 openClipped=0 doc=0
 OK   sitework-incidents-empty-kobo-1440 h1="Kobo mini-grid" overflowX=0 panels=1 console=0
   Incidents at this site fields160 1440: real=337 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
   Incidents at this site fields160-gap 1440: real=337 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel

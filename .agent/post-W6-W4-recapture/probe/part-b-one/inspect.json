@@ -1,5 +1,5 @@
 {
- "revision": "98c50573",
+ "revision": "3bfafdb7",
  "label": "Probe sections (rows160*, title160*, title-episode160*) are SYNTHETIC LAYOUT EVIDENCE, NOT PRODUCT DATA",
  "results": [
   {
@@ -8,7 +8,7 @@
    "width": 1440,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -654,7 +654,7 @@
    "width": 390,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -1316,7 +1316,7 @@
    "width": 1440,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -1450,10 +1450,10 @@
      },
      "fields160": {
       "synthetic": true,
-      "verified": false,
+      "verified": true,
       "realRows": 1,
       "intendedFields": 25,
-      "fieldsChanged": 20,
+      "fieldsChanged": 25,
       "table": {
        "cw": 1105,
        "sw": 1105,
@@ -1486,14 +1486,33 @@
       "details": 6,
       "detailsOpen": 0,
       "docOverflowX": 0,
-      "openedAll": null
+      "openedAll": {
+       "panelH": 11828,
+       "naturalH": 11828,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 6,
+       "detailsOpen": 6,
+       "docOverflowX": 0
+      }
      },
      "fields160-gap": {
       "synthetic": true,
-      "verified": false,
+      "verified": true,
       "realRows": 1,
       "intendedFields": 25,
-      "fieldsChanged": 20,
+      "fieldsChanged": 25,
       "table": {
        "cw": 1105,
        "sw": 1105,
@@ -1526,7 +1545,26 @@
       "details": 6,
       "detailsOpen": 0,
       "docOverflowX": 0,
-      "openedAll": null
+      "openedAll": {
+       "panelH": 11861,
+       "naturalH": 11861,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 6,
+       "detailsOpen": 6,
+       "docOverflowX": 0
+      }
      }
     }
    ]
@@ -1537,7 +1575,7 @@
    "width": 390,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -1671,10 +1709,10 @@
      },
      "fields160": {
       "synthetic": true,
-      "verified": false,
+      "verified": true,
       "realRows": 1,
       "intendedFields": 25,
-      "fieldsChanged": 20,
+      "fieldsChanged": 25,
       "table": {
        "cw": 760,
        "sw": 760,
@@ -1707,14 +1745,33 @@
       "details": 6,
       "detailsOpen": 0,
       "docOverflowX": 0,
-      "openedAll": null
+      "openedAll": {
+       "panelH": 11588,
+       "naturalH": 11588,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 760,
+         "cw": 324,
+         "scrolls": true
+        }
+       ],
+       "details": 6,
+       "detailsOpen": 6,
+       "docOverflowX": 0
+      }
      },
      "fields160-gap": {
       "synthetic": true,
-      "verified": false,
+      "verified": true,
       "realRows": 1,
       "intendedFields": 25,
-      "fieldsChanged": 20,
+      "fieldsChanged": 25,
       "table": {
        "cw": 760,
        "sw": 760,
@@ -1747,7 +1804,26 @@
       "details": 6,
       "detailsOpen": 0,
       "docOverflowX": 0,
-      "openedAll": null
+      "openedAll": {
+       "panelH": 11671,
+       "naturalH": 11671,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 760,
+         "cw": 324,
+         "scrolls": true
+        }
+       ],
+       "details": 6,
+       "detailsOpen": 6,
+       "docOverflowX": 0
+      }
      }
     }
    ]
@@ -1758,7 +1834,7 @@
    "width": 1440,
    "url": "http://127.0.0.1:5452/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Kobo mini-grid",
    "bars": [],
    "chips": [],
@@ -1895,7 +1971,7 @@
    "width": 390,
    "url": "http://127.0.0.1:5452/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Kobo mini-grid",
    "bars": [],
    "chips": [],
@@ -2032,7 +2108,7 @@
    "width": 1440,
    "url": "http://127.0.0.1:5452/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Kobo mini-grid",
    "bars": [],
    "chips": [],
@@ -2169,7 +2245,7 @@
    "width": 390,
    "url": "http://127.0.0.1:5452/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Kobo mini-grid",
    "bars": [],
    "chips": [],
@@ -2306,7 +2382,7 @@
    "width": 1440,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -2443,7 +2519,7 @@
    "width": 390,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -2580,7 +2656,7 @@
    "width": 1440,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -2715,7 +2791,7 @@
    "width": 390,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -2850,7 +2926,7 @@
    "width": 1440,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -2985,7 +3061,7 @@
    "width": 390,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -3120,7 +3196,7 @@
    "width": 1440,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -3255,7 +3331,7 @@
    "width": 390,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -3390,7 +3466,7 @@
    "width": 1440,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -3527,7 +3603,7 @@
    "width": 390,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -3662,9 +3738,9 @@
    "screen": "opportunity-finding",
    "case": "supported-current",
    "width": 1440,
-   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Productive-use headroom at Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -3692,7 +3768,7 @@
     [
      {
       "text": "Overview",
-      "href": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c"
+      "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198"
      }
     ]
    ],
@@ -3716,7 +3792,7 @@
    "clippedDoc": [],
    "docOverflowX": 0,
    "viewport": 1440,
-   "location": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c",
+   "location": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
    "consoleErrors": [],
    "caps": [
     {
@@ -3821,9 +3897,9 @@
    "screen": "opportunity-finding",
    "case": "supported-current",
    "width": 390,
-   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Productive-use headroom at Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -3851,7 +3927,7 @@
     [
      {
       "text": "Overview",
-      "href": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c"
+      "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198"
      }
     ]
    ],
@@ -3875,7 +3951,7 @@
    "clippedDoc": [],
    "docOverflowX": 0,
    "viewport": 390,
-   "location": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c",
+   "location": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
    "consoleErrors": [],
    "caps": [
     {
@@ -3980,9 +4056,9 @@
    "screen": "opportunity-finding",
    "case": "supported-historical",
    "width": 1440,
-   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c?known_at=2026-10-25T21%3A24%3A51.700571Z",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A31%3A01.545702Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Productive-use headroom at Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -4010,7 +4086,7 @@
     [
      {
       "text": "Overview",
-      "href": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c?known_at=2026-10-25T21%3A24%3A51.700571Z"
+      "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A31%3A01.545702Z"
      }
     ]
    ],
@@ -4034,7 +4110,7 @@
    "clippedDoc": [],
    "docOverflowX": 0,
    "viewport": 1440,
-   "location": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c?known_at=2026-10-25T21%3A24%3A51.700571Z",
+   "location": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A31%3A01.545702Z",
    "consoleErrors": [],
    "caps": [
     {
@@ -4139,9 +4215,9 @@
    "screen": "opportunity-finding",
    "case": "supported-historical",
    "width": 390,
-   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c?known_at=2026-10-25T21%3A24%3A51.700571Z",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A31%3A01.545702Z",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Productive-use headroom at Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -4169,7 +4245,7 @@
     [
      {
       "text": "Overview",
-      "href": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c?known_at=2026-10-25T21%3A24%3A51.700571Z"
+      "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A31%3A01.545702Z"
      }
     ]
    ],
@@ -4193,7 +4269,7 @@
    "clippedDoc": [],
    "docOverflowX": 0,
    "viewport": 390,
-   "location": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c?known_at=2026-10-25T21%3A24%3A51.700571Z",
+   "location": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A31%3A01.545702Z",
    "consoleErrors": [],
    "caps": [
     {
@@ -4300,7 +4376,7 @@
    "width": 1440,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -4382,7 +4458,7 @@
    "clippedDoc": [],
    "docOverflowX": 0,
    "viewport": 1440,
-   "location": "/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00%3A00%3A00.000000Z&to=2026-10-25T21%3A29%3A53.485151Z&known_at=2026-10-25T21%3A29%3A53.485150Z",
+   "location": "/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00%3A00%3A00.000000Z&to=2026-10-25T23%3A38%3A25.698135Z&known_at=2026-10-25T23%3A38%3A25.698134Z",
    "consoleErrors": [],
    "caps": [
     {
@@ -4557,7 +4633,7 @@
    "width": 390,
    "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Mini-grid depth demonstration",
    "bars": [],
    "chips": [],
@@ -4639,7 +4715,7 @@
    "clippedDoc": [],
    "docOverflowX": 0,
    "viewport": 390,
-   "location": "/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00%3A00%3A00.000000Z&to=2026-10-25T21%3A30%3A11.452077Z&known_at=2026-10-25T21%3A30%3A11.452076Z",
+   "location": "/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00%3A00%3A00.000000Z&to=2026-10-25T23%3A38%3A56.058633Z&known_at=2026-10-25T23%3A38%3A56.058632Z",
    "consoleErrors": [],
    "caps": [
     {
@@ -4812,9 +4888,9 @@
    "screen": "alternatives",
    "case": "db-time-409",
    "width": 1440,
-   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Generator support merits review: bounded candidate avoidable running",
    "bars": [],
    "chips": [],
@@ -4830,27 +4906,27 @@
     [
      {
       "text": "Overview",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "Analysis",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0&view=analysis"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25&view=analysis"
      },
      {
       "text": "Evidence",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/evidence?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/evidence?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "Alternatives",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "Recommendation",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/recommendation?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/recommendation?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "History",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/history?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/history?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      }
     ]
    ],
@@ -4869,7 +4945,7 @@
    "clippedDoc": [],
    "docOverflowX": 0,
    "viewport": 1440,
-   "location": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+   "location": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
    "consoleErrors": [],
    "caps": []
   },
@@ -4877,9 +4953,9 @@
    "screen": "alternatives",
    "case": "db-time-409",
    "width": 390,
-   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Generator support merits review: bounded candidate avoidable running",
    "bars": [],
    "chips": [],
@@ -4895,27 +4971,27 @@
     [
      {
       "text": "Overview",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "Analysis",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0&view=analysis"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25&view=analysis"
      },
      {
       "text": "Evidence",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/evidence?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/evidence?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "Alternatives",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "Recommendation",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/recommendation?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/recommendation?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "History",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/history?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/history?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      }
     ]
    ],
@@ -4934,7 +5010,7 @@
    "clippedDoc": [],
    "docOverflowX": 0,
    "viewport": 390,
-   "location": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+   "location": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
    "consoleErrors": [],
    "caps": []
   },
@@ -4942,9 +5018,9 @@
    "screen": "alternatives",
    "case": "no-revision",
    "width": 1440,
-   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives",
+   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Generator support merits review: bounded candidate avoidable running",
    "bars": [],
    "chips": [],
@@ -4960,27 +5036,27 @@
     [
      {
       "text": "Overview",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "Analysis",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0&view=analysis"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25&view=analysis"
      },
      {
       "text": "Evidence",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/evidence?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/evidence?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "Alternatives",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "Recommendation",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/recommendation?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/recommendation?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "History",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/history?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/history?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      }
     ]
    ],
@@ -4999,7 +5075,7 @@
    "clippedDoc": [],
    "docOverflowX": 0,
    "viewport": 1440,
-   "location": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+   "location": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
    "consoleErrors": [],
    "caps": []
   },
@@ -5007,9 +5083,9 @@
    "screen": "alternatives",
    "case": "no-revision",
    "width": 390,
-   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives",
+   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives",
    "ready": true,
-   "revision": "98c50573",
+   "revision": "3bfafdb7",
    "h1": "Generator support merits review: bounded candidate avoidable running",
    "bars": [],
    "chips": [],
@@ -5025,27 +5101,27 @@
     [
      {
       "text": "Overview",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "Analysis",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0&view=analysis"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25&view=analysis"
      },
      {
       "text": "Evidence",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/evidence?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/evidence?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "Alternatives",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "Recommendation",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/recommendation?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/recommendation?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      },
      {
       "text": "History",
-      "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/history?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/history?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
      }
     ]
    ],
@@ -5064,7 +5140,7 @@
    "clippedDoc": [],
    "docOverflowX": 0,
    "viewport": 390,
-   "location": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+   "location": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
    "consoleErrors": [],
    "caps": []
   }

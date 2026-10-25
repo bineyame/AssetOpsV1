@@ -4,7 +4,7 @@ here = os.path.dirname(os.path.abspath(__file__))
 phase = sys.argv[1]
 T = json.load(open(os.path.join(here, f"targets-{phase}.json")))
 INC = ["[data-work-case-title]", "[data-work-mini-long^='work-mini-narrative']"]
-MNT = ["[data-work-case-title]", "[data-work-asset]", "[data-work-activity]", "[data-work-outcome-note]", "[data-work-mini-long^='work-mini-next']"]
+MNT = ["[data-work-case-title]", "[data-work-asset], td:nth-child(2) .muted", "[data-work-activity]", "[data-work-outcome-note]", "[data-work-mini-long^='work-mini-next']"]
 SCN = ["[data-scenario-name]", "[data-scenario-declared]"]
 caps = {
     "sitework-incidents": [dict(panel="Incidents at this site", kind="fields", fields=INC)],

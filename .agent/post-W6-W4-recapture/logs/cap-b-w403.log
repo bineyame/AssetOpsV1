@@ -1,4 +1,4 @@
-chrome pid 23508
+chrome pid 23236
 PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  renewable-w403-decision-positive 1440: app rendered
 PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/renewable: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}

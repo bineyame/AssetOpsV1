@@ -24,7 +24,7 @@
     "kind": "fields",
     "fields": [
      "[data-work-case-title]",
-     "[data-work-asset]",
+     "[data-work-asset], td:nth-child(2) .muted",
      "[data-work-activity]",
      "[data-work-outcome-note]",
      "[data-work-mini-long^='work-mini-next']"

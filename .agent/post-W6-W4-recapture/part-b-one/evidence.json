@@ -1,6 +1,6 @@
 {
-  "revision": "98c50573",
-  "captured_at": "2026-10-25T21:24:52.975Z",
+  "revision": "3bfafdb7",
+  "captured_at": "2026-10-25T23:31:03.358Z",
   "pairs": [
     {
       "screen": "sitework-incidents",
@@ -15,7 +15,7 @@
           {
             "summary": "UTC and IDs",
             "bodyLen": 185,
-            "body": "Occurred2026-10-25 20:24 UTCRecorded2026-10-25 21:24 UTCCase IDc025ce37-b408-4b6f-ba78-31410609189fVersion IDbb4c378f-e2eb-4f66-ba9c-7eb30f8537e5Source of cited recordsSource unverified",
+            "body": "Occurred2026-10-25 22:30 UTCRecorded2026-10-25 23:30 UTCCase ID03324d0f-69eb-4e7c-a101-546b45546075Version ID941e7b0a-1957-4ba2-aa0d-3a210dede6d1Source of cited recordsSource unverified",
             "scrollH": 2150
           },
           {
@@ -28,12 +28,12 @@
             "summary": "Read full text",
             "bodyLen": 91,
             "body": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected narrative)",
-            "scrollH": 84
+            "scrollH": 34
           },
           {
             "summary": "What this list is based on",
             "bodyLen": 586,
-            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 00:24 EAT (2026-10-25 21:24 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:f42893fc6353e987a85df3e1452474f0fd1a276736602fe218fc317ee8976c49Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 02:31 EAT (2026-10-25 23:31 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:3de86a619b52035008b2dd0bfed15e8a2273a8a2b961e039118789cf225b5f7aEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
             "scrollH": 5174
           }
         ],
@@ -104,12 +104,12 @@
             "panel": ""
           },
           {
-            "href": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T21%3A24%3A55.419443Z",
+            "href": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T23%3A31%3A07.437707Z",
             "text": "Manage in Incidents",
             "panel": ""
           },
           {
-            "href": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c",
+            "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
             "text": "OPP-000001",
             "panel": "Incidents at this site"
           }
@@ -251,7 +251,7 @@
         "mainTop": 24,
         "viewportH": 1000,
         "consoleErrors": [],
-        "mainText": "Sites Mini-grid depth demonstration Work Mini-grid depth demonstration Demonstration data · MG-W402-001 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (0) Incidents (1) Maintenance (1) Scoped to Mini-grid · 1 incident These are work records at this site Manage in Incidents Incidents at this site A case links chronology, findings and work without copying them Occurred from (EAT) to (EAT, included) Show incidents CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Mill trial supply complaint 25 Oct · from 23:24 EATUTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. Read full text No linked finding Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected narrative) (Scenario detail unavailable) Read full text Open Showing 1–1 of 1 What this list is based on Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet."
+        "mainText": "Sites Mini-grid depth demonstration Work Mini-grid depth demonstration Demonstration data · MG-W402-001 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (0) Incidents (1) Maintenance (1) Scoped to Mini-grid · 1 incident These are work records at this site Manage in Incidents Incidents at this site A case links chronology, findings and work without copying them Occurred from (EAT) to (EAT, included) Show incidents CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Mill trial supply complaint 26 Oct · from 01:30 EATUTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. Read full text No linked finding Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected narrative) (Scenario detail unavailable) Read full text Open Showing 1–1 of 1 What this list is based on Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet."
       },
       "mock": {
         "closedDetails": [],
@@ -450,7 +450,7 @@
           {
             "summary": "UTC and IDs",
             "bodyLen": 185,
-            "body": "Occurred2026-10-25 20:24 UTCRecorded2026-10-25 21:24 UTCCase IDc025ce37-b408-4b6f-ba78-31410609189fVersion IDbb4c378f-e2eb-4f66-ba9c-7eb30f8537e5Source of cited recordsSource unverified",
+            "body": "Occurred2026-10-25 22:30 UTCRecorded2026-10-25 23:30 UTCCase ID03324d0f-69eb-4e7c-a101-546b45546075Version ID941e7b0a-1957-4ba2-aa0d-3a210dede6d1Source of cited recordsSource unverified",
             "scrollH": 2012
           },
           {
@@ -463,12 +463,12 @@
             "summary": "Read full text",
             "bodyLen": 91,
             "body": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected narrative)",
-            "scrollH": 50
+            "scrollH": 130
           },
           {
             "summary": "What this list is based on",
             "bodyLen": 586,
-            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 00:25 EAT (2026-10-25 21:25 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:f3b69c164ad63e5e262be02c36d7227af14959df5cb0efa3e3ab8e2095c902c3Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 02:31 EAT (2026-10-25 23:31 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:19eef2f9e34fec2c4e1f29dedc1c44b4961ae67d1c4efcddec55f462bf9ba00dEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
             "scrollH": 5174
           }
         ],
@@ -539,12 +539,12 @@
             "panel": ""
           },
           {
-            "href": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T21%3A25%3A00.625311Z",
+            "href": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T23%3A31%3A13.441600Z",
             "text": "Manage in Incidents",
             "panel": ""
           },
           {
-            "href": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c",
+            "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
             "text": "OPP-000001",
             "panel": "Incidents at this site"
           }
@@ -702,7 +702,7 @@
         "mainTop": 108,
         "viewportH": 900,
         "consoleErrors": [],
-        "mainText": "Sites Mini-grid depth demonstration Work Mini-grid depth demonstration Demonstration data · MG-W402-001 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Actions (0) Incidents (1) Maintenance (1) Scoped to Mini-grid · 1 incident These are work records at this site Manage in Incidents Incidents at this site A case links chronology, findings and work without copying them Occurred from (EAT) to (EAT, included) Show incidents CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Mill trial supply complaint 25 Oct · from 23:24 EATUTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. Read full text No linked finding Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected narrative) (Scenario detail unavailable) Read full text Open Showing 1–1 of 1 Scroll the table for more columns → What this list is based on Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet."
+        "mainText": "Sites Mini-grid depth demonstration Work Mini-grid depth demonstration Demonstration data · MG-W402-001 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Actions (0) Incidents (1) Maintenance (1) Scoped to Mini-grid · 1 incident These are work records at this site Manage in Incidents Incidents at this site A case links chronology, findings and work without copying them Occurred from (EAT) to (EAT, included) Show incidents CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Mill trial supply complaint 26 Oct · from 01:30 EATUTC and IDs Operator logged a supply complaint during the mill trial window; cause not established. Read full text No linked finding Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected narrative) (Scenario detail unavailable) Read full text Open Showing 1–1 of 1 Scroll the table for more columns → What this list is based on Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet."
       },
       "mock": {
         "closedDetails": [],
@@ -899,13 +899,13 @@
           {
             "summary": "UTC and IDs",
             "bodyLen": 185,
-            "body": "Occurred2026-10-25 20:24 UTCRecorded2026-10-25 21:24 UTCCase ID5437f6e4-dad4-4661-b07b-4e42032d3fd4Version ID352318b4-aacd-4780-aff9-2323ef6437ddSource of cited recordsSource unverified",
+            "body": "Occurred2026-10-25 22:30 UTCRecorded2026-10-25 23:30 UTCCase IDde5b3167-0b98-417d-9b0a-0dc0396c2d0aVersion IDaea78f81-f0cf-40e9-918b-9cb4be4978c1Source of cited recordsSource unverified",
             "scrollH": 2150
           },
           {
             "summary": "What this list is based on",
             "bodyLen": 586,
-            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 00:25 EAT (2026-10-25 21:25 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:0dbebf97971172d831d8155fe49a4b8de277c9f91cc93fd70398e467927f3f29Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 02:31 EAT (2026-10-25 23:31 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:82ddf05efda1227a227cc06f8c9cb59bad9993772504afca02dc9939ddb39478Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
             "scrollH": 5174
           }
         ],
@@ -976,7 +976,7 @@
             "panel": ""
           },
           {
-            "href": "/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T21%3A25%3A04.940254Z",
+            "href": "/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T23%3A31%3A18.923578Z",
             "text": "Manage in Maintenance",
             "panel": ""
           }
@@ -1308,13 +1308,13 @@
           {
             "summary": "UTC and IDs",
             "bodyLen": 185,
-            "body": "Occurred2026-10-25 20:24 UTCRecorded2026-10-25 21:24 UTCCase ID5437f6e4-dad4-4661-b07b-4e42032d3fd4Version ID352318b4-aacd-4780-aff9-2323ef6437ddSource of cited recordsSource unverified",
+            "body": "Occurred2026-10-25 22:30 UTCRecorded2026-10-25 23:30 UTCCase IDde5b3167-0b98-417d-9b0a-0dc0396c2d0aVersion IDaea78f81-f0cf-40e9-918b-9cb4be4978c1Source of cited recordsSource unverified",
             "scrollH": 2012
           },
           {
             "summary": "What this list is based on",
             "bodyLen": 586,
-            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 00:25 EAT (2026-10-25 21:25 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:adb443f9317183b51a1fd24bab1c722ddfb482066da85cc4ca3bf0cdcc007c33Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 02:31 EAT (2026-10-25 23:31 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:5a0717369c0e5f99046f2fe16b181548fd862caa431b745c40f1c1f46d0c9b70Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
             "scrollH": 5174
           }
         ],
@@ -1385,7 +1385,7 @@
             "panel": ""
           },
           {
-            "href": "/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T21%3A25%3A09.188434Z",
+            "href": "/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T23%3A31%3A24.572105Z",
             "text": "Manage in Maintenance",
             "panel": ""
           }
@@ -1722,7 +1722,7 @@
           {
             "summary": "What this list is based on",
             "bodyLen": 586,
-            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 00:25 EAT (2026-10-25 21:25 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:1e86d1fe54dee29bbcac264c03f35379ac0aadd8dc97ebaf172e67fa1eec048eEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 02:31 EAT (2026-10-25 23:31 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:bbd2c8cbb3075703c22656d4a7842465f49748e50d58aff749b1f3a03eec28cdEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
             "scrollH": 5174
           }
         ],
@@ -1793,7 +1793,7 @@
             "panel": ""
           },
           {
-            "href": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T21%3A25%3A13.406483Z",
+            "href": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T23%3A31%3A30.077336Z",
             "text": "Manage in Incidents",
             "panel": ""
           }
@@ -2108,7 +2108,7 @@
           {
             "summary": "What this list is based on",
             "bodyLen": 586,
-            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 00:25 EAT (2026-10-25 21:25 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:4c8c9d14683ba646feb30981d50e46f588561119187efca593d51b1de87303c1Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 02:31 EAT (2026-10-25 23:31 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:f7fc9247b29d5a5b2e2b9a19e4be5f841aef885cb7a042e3e8c753a8f52f274eEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
             "scrollH": 5174
           }
         ],
@@ -2179,7 +2179,7 @@
             "panel": ""
           },
           {
-            "href": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T21%3A25%3A17.525374Z",
+            "href": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T23%3A31%3A35.553211Z",
             "text": "Manage in Incidents",
             "panel": ""
           }
@@ -2492,7 +2492,7 @@
           {
             "summary": "What this list is based on",
             "bodyLen": 586,
-            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 00:25 EAT (2026-10-25 21:25 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:422236f05377d65dd0752b305e2d1f5b8cccea5d9f79a2cee56ec32b81146a4cEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 02:31 EAT (2026-10-25 23:31 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:01c24985f5faa658b1deb34787b353b4571e4abad1bab4eb897942c3f845c9a4Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
             "scrollH": 5174
           }
         ],
@@ -2563,7 +2563,7 @@
             "panel": ""
           },
           {
-            "href": "/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T21%3A25%3A21.509079Z",
+            "href": "/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T23%3A31%3A40.942493Z",
             "text": "Manage in Maintenance",
             "panel": ""
           }
@@ -2878,7 +2878,7 @@
           {
             "summary": "What this list is based on",
             "bodyLen": 586,
-            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 00:25 EAT (2026-10-25 21:25 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:7f509a914986132f4013bbb310340c0b10fbf1f380af4cea2d1a68a6eaa8d12bEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "body": "Window2026-10-18 03:00 EAT to 2026-10-26 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-26 00:00 UTC)Read as of2026-10-26 02:31 EAT (2026-10-25 23:31 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:11594510ab0746ef6d2b03f5c9443744cfa8711d0db82cd7b1bb66784f4d9ac6Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
             "scrollH": 5174
           }
         ],
@@ -2949,7 +2949,7 @@
             "panel": ""
           },
           {
-            "href": "/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T21%3A25%3A25.371497Z",
+            "href": "/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T23%3A31%3A46.389803Z",
             "text": "Manage in Maintenance",
             "panel": ""
           }
@@ -3262,7 +3262,7 @@
           {
             "summary": "What this list is based on",
             "bodyLen": 586,
-            "body": "Window2026-09-01 03:00 EAT to 2026-09-08 03:00 EAT [from, to) (2026-09-01 00:00 UTC to 2026-09-08 00:00 UTC)Read as of2026-10-26 00:25 EAT (2026-10-25 21:25 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:61c098a0fe4843635355327a5b8f1d1a50f69d1885e20809171b601ba4270897Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "body": "Window2026-09-01 03:00 EAT to 2026-09-08 03:00 EAT [from, to) (2026-09-01 00:00 UTC to 2026-09-08 00:00 UTC)Read as of2026-10-26 02:31 EAT (2026-10-25 23:31 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:49cdf04941616b9367a5322ef914b3e681890ec4ce0244c3b37fd5ff1f2e0ecaEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
             "scrollH": 5174
           }
         ],
@@ -3333,7 +3333,7 @@
             "panel": ""
           },
           {
-            "href": "/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&known_at=2026-10-25T21%3A25%3A29.305748Z",
+            "href": "/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&known_at=2026-10-25T23%3A31%3A51.459615Z",
             "text": "Manage in Incidents",
             "panel": ""
           }
@@ -3648,7 +3648,7 @@
           {
             "summary": "What this list is based on",
             "bodyLen": 586,
-            "body": "Window2026-09-01 03:00 EAT to 2026-09-08 03:00 EAT [from, to) (2026-09-01 00:00 UTC to 2026-09-08 00:00 UTC)Read as of2026-10-26 00:25 EAT (2026-10-25 21:25 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:8285d4076f4232f254dabbd2248af75ecdd52cccdd08f47c65758a9ab098c243Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "body": "Window2026-09-01 03:00 EAT to 2026-09-08 03:00 EAT [from, to) (2026-09-01 00:00 UTC to 2026-09-08 00:00 UTC)Read as of2026-10-26 02:31 EAT (2026-10-25 23:31 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:9a2c555a6c14dd153f45f39db43f7b7a5aa38ef9941acfb8f8662c2df51e7167Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
             "scrollH": 5174
           }
         ],
@@ -3719,7 +3719,7 @@
             "panel": ""
           },
           {
-            "href": "/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&known_at=2026-10-25T21%3A25%3A33.315067Z",
+            "href": "/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&known_at=2026-10-25T23%3A31%3A56.845030Z",
             "text": "Manage in Incidents",
             "panel": ""
           }
@@ -6282,7 +6282,7 @@
           {
             "summary": "What this list is based on",
             "bodyLen": 586,
-            "body": "Window2026-10-18 03:00 EAT to 2026-10-25 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-25 00:00 UTC)Read as of2026-10-26 00:25 EAT (2026-10-25 21:25 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:348a1be9f243c28d0ad265a0015464ddb4b6f59edcceed2bf1fc0b0ce4f7ce5bEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "body": "Window2026-10-18 03:00 EAT to 2026-10-25 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-25 00:00 UTC)Read as of2026-10-26 02:32 EAT (2026-10-25 23:32 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:920a4f16f959a74a79c20a35808617b039fb82749afc7b819202dd3022e18c3eEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
             "scrollH": 5174
           }
         ],
@@ -6353,7 +6353,7 @@
             "panel": ""
           },
           {
-            "href": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-25T21%3A25%3A59.733347Z",
+            "href": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-25T23%3A32%3A32.316426Z",
             "text": "Manage in Incidents",
             "panel": ""
           }
@@ -6668,7 +6668,7 @@
           {
             "summary": "What this list is based on",
             "bodyLen": 586,
-            "body": "Window2026-10-18 03:00 EAT to 2026-10-25 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-25 00:00 UTC)Read as of2026-10-26 00:26 EAT (2026-10-25 21:26 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:73aab11bcaa3903f2b82eb5339d78ab211f377e2fac210c2af64d22dc564f8e8Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
+            "body": "Window2026-10-18 03:00 EAT to 2026-10-25 03:00 EAT [from, to) (2026-10-18 00:00 UTC to 2026-10-25 00:00 UTC)Read as of2026-10-26 02:32 EAT (2026-10-25 23:32 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:e27ca2344d73574d23314835ccc392cc3d7b0b07368db7ff322cd266676f513aEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no records.0 accepted records checked.",
             "scrollH": 5174
           }
         ],
@@ -6739,7 +6739,7 @@
             "panel": ""
           },
           {
-            "href": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-25T21%3A26%3A03.556099Z",
+            "href": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-25T23%3A32%3A37.471163Z",
             "text": "Manage in Incidents",
             "panel": ""
           }
@@ -7043,7 +7043,7 @@
       "screen": "opportunity-finding",
       "case": "supported-current",
       "viewport": "1440x1000",
-      "app_url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c",
+      "app_url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
       "mock_hash": "#/opportunity-finding",
       "app_image": "opportunity-finding-supported-current-1440-app.png",
       "mock_image": "opportunity-finding-supported-current-1440-mock.png",
@@ -7061,12 +7061,12 @@
             "panel": ""
           },
           {
-            "href": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c",
+            "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
             "text": "Overview",
             "panel": ""
           },
           {
-            "href": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000000Z&to=2026-10-10T21%3A00%3A00.000000Z&known_at=2026-10-25T21%3A26%3A08.281286Z",
+            "href": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000000Z&to=2026-10-10T21%3A00%3A00.000000Z&known_at=2026-10-25T23%3A32%3A44.140911Z",
             "text": "Open renewable evaluation",
             "panel": "Next decision"
           }
@@ -7374,7 +7374,7 @@
       "screen": "opportunity-finding",
       "case": "supported-current",
       "viewport": "390x900",
-      "app_url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c",
+      "app_url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
       "mock_hash": "#/opportunity-finding",
       "app_image": "opportunity-finding-supported-current-390-app.png",
       "mock_image": "opportunity-finding-supported-current-390-mock.png",
@@ -7392,12 +7392,12 @@
             "panel": ""
           },
           {
-            "href": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c",
+            "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
             "text": "Overview",
             "panel": ""
           },
           {
-            "href": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000000Z&to=2026-10-10T21%3A00%3A00.000000Z&known_at=2026-10-25T21%3A26%3A13.630656Z",
+            "href": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000000Z&to=2026-10-10T21%3A00%3A00.000000Z&known_at=2026-10-25T23%3A32%3A52.680471Z",
             "text": "Open renewable evaluation",
             "panel": "Next decision"
           }
@@ -7696,7 +7696,7 @@
       "screen": "opportunity-finding",
       "case": "supported-historical",
       "viewport": "1440x1000",
-      "app_url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c?known_at=2026-10-25T21%3A24%3A51.700571Z",
+      "app_url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A31%3A01.545702Z",
       "mock_hash": "#/opportunity-finding",
       "app_image": "opportunity-finding-supported-historical-1440-app.png",
       "mock_image": "opportunity-finding-supported-historical-1440-mock.png",
@@ -7714,12 +7714,12 @@
             "panel": ""
           },
           {
-            "href": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c?known_at=2026-10-25T21%3A24%3A51.700571Z",
+            "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A31%3A01.545702Z",
             "text": "Overview",
             "panel": ""
           },
           {
-            "href": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000000Z&to=2026-10-10T21%3A00%3A00.000000Z&known_at=2026-10-25T21%3A24%3A51.700571Z",
+            "href": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000000Z&to=2026-10-10T21%3A00%3A00.000000Z&known_at=2026-10-25T23%3A31%3A01.545702Z",
             "text": "Open renewable evaluation",
             "panel": "Next decision"
           }
@@ -8027,7 +8027,7 @@
       "screen": "opportunity-finding",
       "case": "supported-historical",
       "viewport": "390x900",
-      "app_url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c?known_at=2026-10-25T21%3A24%3A51.700571Z",
+      "app_url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A31%3A01.545702Z",
       "mock_hash": "#/opportunity-finding",
       "app_image": "opportunity-finding-supported-historical-390-app.png",
       "mock_image": "opportunity-finding-supported-historical-390-mock.png",
@@ -8045,12 +8045,12 @@
             "panel": ""
           },
           {
-            "href": "/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c?known_at=2026-10-25T21%3A24%3A51.700571Z",
+            "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A31%3A01.545702Z",
             "text": "Overview",
             "panel": ""
           },
           {
-            "href": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000000Z&to=2026-10-10T21%3A00%3A00.000000Z&known_at=2026-10-25T21%3A24%3A51.700571Z",
+            "href": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000000Z&to=2026-10-10T21%3A00%3A00.000000Z&known_at=2026-10-25T23%3A31%3A01.545702Z",
             "text": "Open renewable evaluation",
             "panel": "Next decision"
           }
@@ -8552,7 +8552,7 @@
         "mainTop": 24,
         "viewportH": 1000,
         "consoleErrors": [],
-        "mainText": "Sites Mini-grid depth demonstration Financials Scenarios Mini-grid depth demonstration Demonstration data · MG-W402-001 Financials · scenarios Overview Foundation Health Performance Findings Work Financials Evidence Overview Assumptions Scenarios Window From (EAT) To (EAT, included) Apply MOCK DEVIATION D2 (R450) Financial scenarios Declared scenarios are separate from measured results. Scenarios created through 25 Oct 2026, 21:26:30 UTC SCENARIO DECLARED CHANGE PHYSICAL BASIS ILLUSTRATIVE RESULT STATE Grain mill trial without tariff · Productive load · SCN-000003 Scenario detail unavailable Duration 1 h; Proposed load 10 kW 5 pinned renewable revisions Inspect pinned revisions 10 kWh energy scenario per eligible window; gross sales unknown Defined · Energy only Grain mill one-hour trial (corrected narrative) · Productive load · SCN-000002 Scenario detail unavailable Duration 1 h; Proposed load 10 kW; Tariff 0.25 USD/kWh 5 pinned renewable revisions Inspect pinned revisions $2.50 gross sales scenario per eligible window, before costs Defined · Gross scenario 2 of 2 Scenario creation unavailable Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+        "mainText": "Sites Mini-grid depth demonstration Financials Scenarios Mini-grid depth demonstration Demonstration data · MG-W402-001 Financials · scenarios Overview Foundation Health Performance Findings Work Financials Evidence Overview Assumptions Scenarios Window From (EAT) To (EAT, included) Apply MOCK DEVIATION D2 (R450) Financial scenarios Declared scenarios are separate from measured results. Scenarios created through 25 Oct 2026, 23:33:19 UTC SCENARIO DECLARED CHANGE PHYSICAL BASIS ILLUSTRATIVE RESULT STATE Grain mill trial without tariff · Productive load · SCN-000003 Scenario detail unavailable Duration 1 h; Proposed load 10 kW 5 pinned renewable revisions Inspect pinned revisions 10 kWh energy scenario per eligible window; gross sales unknown Defined · Energy only Grain mill one-hour trial (corrected narrative) · Productive load · SCN-000002 Scenario detail unavailable Duration 1 h; Proposed load 10 kW; Tariff 0.25 USD/kWh 5 pinned renewable revisions Inspect pinned revisions $2.50 gross sales scenario per eligible window, before costs Defined · Gross scenario 2 of 2 Scenario creation unavailable Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
       },
       "mock": {
         "closedDetails": [],
@@ -8947,7 +8947,7 @@
         "mainTop": 108,
         "viewportH": 900,
         "consoleErrors": [],
-        "mainText": "Sites Mini-grid depth demonstration Financials Scenarios Mini-grid depth demonstration Demonstration data · MG-W402-001 Financials · scenarios Overview Foundation Health Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Overview Assumptions Scenarios Window From (EAT) To (EAT, included) Apply MOCK DEVIATION D2 (R450) Financial scenarios Declared scenarios are separate from measured results. Scenarios created through 25 Oct 2026, 21:26:37 UTC SCENARIO DECLARED CHANGE PHYSICAL BASIS ILLUSTRATIVE RESULT STATE Grain mill trial without tariff · Productive load · SCN-000003 Scenario detail unavailable Duration 1 h; Proposed load 10 kW 5 pinned renewable revisions Inspect pinned revisions 10 kWh energy scenario per eligible window; gross sales unknown Defined · Energy only Grain mill one-hour trial (corrected narrative) · Productive load · SCN-000002 Scenario detail unavailable Duration 1 h; Proposed load 10 kW; Tariff 0.25 USD/kWh 5 pinned renewable revisions Inspect pinned revisions $2.50 gross sales scenario per eligible window, before costs Defined · Gross scenario 2 of 2 Scenario creation unavailable Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+        "mainText": "Sites Mini-grid depth demonstration Financials Scenarios Mini-grid depth demonstration Demonstration data · MG-W402-001 Financials · scenarios Overview Foundation Health Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Overview Assumptions Scenarios Window From (EAT) To (EAT, included) Apply MOCK DEVIATION D2 (R450) Financial scenarios Declared scenarios are separate from measured results. Scenarios created through 25 Oct 2026, 23:33:30 UTC SCENARIO DECLARED CHANGE PHYSICAL BASIS ILLUSTRATIVE RESULT STATE Grain mill trial without tariff · Productive load · SCN-000003 Scenario detail unavailable Duration 1 h; Proposed load 10 kW 5 pinned renewable revisions Inspect pinned revisions 10 kWh energy scenario per eligible window; gross sales unknown Defined · Energy only Grain mill one-hour trial (corrected narrative) · Productive load · SCN-000002 Scenario detail unavailable Duration 1 h; Proposed load 10 kW; Tariff 0.25 USD/kWh 5 pinned renewable revisions Inspect pinned revisions $2.50 gross sales scenario per eligible window, before costs Defined · Gross scenario 2 of 2 Scenario creation unavailable Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
       },
       "mock": {
         "closedDetails": [],
@@ -9130,7 +9130,7 @@
       "screen": "alternatives",
       "case": "db-time-409",
       "viewport": "1440x1000",
-      "app_url": "http://127.0.0.1:5452/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+      "app_url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
       "mock_hash": "#/alternatives",
       "app_image": "alternatives-db-time-409-1440-app.png",
       "mock_image": "alternatives-db-time-409-1440-mock.png",
@@ -9153,32 +9153,32 @@
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Overview",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0&view=analysis",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25&view=analysis",
             "text": "Analysis",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/evidence?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/evidence?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Evidence",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Alternatives",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/recommendation?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/recommendation?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Recommendation",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/history?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/history?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "History",
             "panel": ""
           }
@@ -9445,7 +9445,7 @@
       "screen": "alternatives",
       "case": "db-time-409",
       "viewport": "390x900",
-      "app_url": "http://127.0.0.1:5452/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+      "app_url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
       "mock_hash": "#/alternatives",
       "app_image": "alternatives-db-time-409-390-app.png",
       "mock_image": "alternatives-db-time-409-390-mock.png",
@@ -9468,32 +9468,32 @@
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Overview",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0&view=analysis",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25&view=analysis",
             "text": "Analysis",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/evidence?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/evidence?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Evidence",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Alternatives",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/recommendation?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/recommendation?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Recommendation",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/history?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/history?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "History",
             "panel": ""
           }
@@ -9765,7 +9765,7 @@
       "screen": "alternatives",
       "case": "no-revision",
       "viewport": "1440x1000",
-      "app_url": "http://127.0.0.1:5452/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives",
+      "app_url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives",
       "mock_hash": "#/alternatives",
       "app_image": "alternatives-no-revision-1440-app.png",
       "mock_image": "alternatives-no-revision-1440-mock.png",
@@ -9788,32 +9788,32 @@
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Overview",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0&view=analysis",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25&view=analysis",
             "text": "Analysis",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/evidence?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/evidence?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Evidence",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Alternatives",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/recommendation?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/recommendation?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Recommendation",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/history?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/history?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "History",
             "panel": ""
           }
@@ -10080,7 +10080,7 @@
       "screen": "alternatives",
       "case": "no-revision",
       "viewport": "390x900",
-      "app_url": "http://127.0.0.1:5452/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives",
+      "app_url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives",
       "mock_hash": "#/alternatives",
       "app_image": "alternatives-no-revision-390-app.png",
       "mock_image": "alternatives-no-revision-390-mock.png",
@@ -10103,32 +10103,32 @@
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Overview",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0&view=analysis",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25&view=analysis",
             "text": "Analysis",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/evidence?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/evidence?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Evidence",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Alternatives",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/recommendation?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/recommendation?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "Recommendation",
             "panel": ""
           },
           {
-            "href": "/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/history?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+            "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/history?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
             "text": "History",
             "panel": ""
           }

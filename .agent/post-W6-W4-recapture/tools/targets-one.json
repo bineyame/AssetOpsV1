@@ -47,12 +47,12 @@
  {
   "id": "opportunity-finding",
   "case": "supported-current",
-  "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c"
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198"
  },
  {
   "id": "opportunity-finding",
   "case": "supported-historical",
-  "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c?known_at=2026-10-25T21%3A24%3A51.700571Z"
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A31%3A01.545702Z"
  },
  {
   "id": "scenarios",
@@ -62,11 +62,11 @@
  {
   "id": "alternatives",
   "case": "db-time-409",
-  "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0"
+  "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
  },
  {
   "id": "alternatives",
   "case": "no-revision",
-  "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives"
+  "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives"
  }
 ]
