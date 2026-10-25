@@ -58,6 +58,7 @@ import { ColdCooling } from "./ColdCooling";
 import type { ColdDepthClient } from "./ColdDepthClient";
 import { NO_COLD_ASSESSMENT, RefusedStrip, RefusedTiles, RequestedWindowBar, selected, type ColdSiteRoutes } from "./coldSiteViews";
 import "./w2-cold-assessment.css";
+import "./w1ux02-findings-index.css";
 import "../ui/mock-deviation.css";
 
 /*
@@ -1319,7 +1320,9 @@ export function ColdFindingIndex(props: ColdFindingIndexProps) {
               </thead>
               <tbody>
                 {r.items.map((f) => (
-                  <tr key={f.finding_id} data-cold-finding-row={f.finding_id}>
+                  // The mini index row class (w1ux02-findings-index.css), as EvFindingIndex: a 15rem title column at phone
+                  // width and other cells on one line, so a long title wraps in a readable column (ruled cap fallback 1).
+                  <tr key={f.finding_id} className="finding-index-row" data-cold-finding-row={f.finding_id}>
                     <td>
                       <Link to={selected(routes.finding(f.finding_id), r.window)} data-cold-finding-link={f.finding_id}>
                         {f.title}
