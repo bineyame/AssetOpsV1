@@ -94,6 +94,7 @@ import { deriveSiteView, siteSourceModeLabel } from "../sites/siteViewModel";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import {
   FINDING_CHILD_VIEWS,
+  ACTIONS_PATH,
   FINANCIALS_PATH,
   FINDINGS_PATH,
   findingHref,
@@ -1981,6 +1982,8 @@ export function SiteWorkFrame({
               history: (actionId, eventId) =>
                 siteActionHref(site.site_id, actionId, "history", { eventId, recordedAt: null }),
               finding: (findingId, revisionId) => siteFindingHref(site.site_id, findingId, revisionId),
+              // post-W6 W1-b Q36 / R230: the mini strip's "Manage in Actions →" (cold and EV strips are unchanged).
+              manage: ACTIONS_PATH,
             }}
             onScope={(next) => navigate(siteWorkHref(site.site_id, actionIndexQuery(next)))}
           />

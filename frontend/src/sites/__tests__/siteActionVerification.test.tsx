@@ -39,6 +39,9 @@ import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 import { COLD_SITE, DOMAIN_ID, SITE as COLD_CODE, detailBody, indexBody } from "./coldWorkFixtures";
 import { EV_SITE } from "./evWorkFixtures";
 import type { DomainActionClient, DomainDetailResult } from "../domainActionClient";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { requirementTone, sourcePair } from "../SiteActionVerification";
 
 type Body = any;
 const R = contract.responses as unknown as Record<string, Body>;
@@ -842,5 +845,74 @@ describe("W5-04 V4a: EV /verification dispatch", () => {
     expect(Array.from(document.querySelectorAll("[data-domain-action-result]")).map((c) => c.textContent)).toEqual(["Pending", "Pending", "Pending"]);
     expect(urls).toEqual([]);
     expect(document.body.textContent).not.toContain("Target and guardrails");
+  });
+});
+
+// --- post-W6 W1-b Q31/Q32/Q34 (R220/R221/R228) ---------------------------------------------------------------------
+
+describe("post-W6 W1-b: verification tones, sources, plan row headings and conflict copy", () => {
+  const CONFLICT_TEXT = "Nothing is shown here: the address names selections that conflict.";
+
+  it("Q34: a selector conflict prints its sentence once per panel and the cards say no read was made", async () => {
+    serve({ ...actionReads(`?recorded_at=${encodeURIComponent(CUTOFF)}`) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/verification?recorded_at=${encodeURIComponent(CUTOFF)}&outcome_id=${OUT1}`);
+    await settledScreen();
+    const panels = Array.from(document.querySelectorAll("section.panel")) as HTMLElement[];
+    expect(panels.length).toBeGreaterThan(0);
+    for (const panel of panels) {
+      const count = (panel.textContent ?? "").split(CONFLICT_TEXT).length - 1;
+      expect(count, panel.querySelector("h2")?.textContent ?? "panel").toBeLessThanOrEqual(1);
+    }
+    expect(panels.some((p) => (p.textContent ?? "").includes(CONFLICT_TEXT))).toBe(true);
+    const cards = Array.from(document.querySelectorAll("[data-verification-card]"));
+    expect(cards.length).toBe(4);
+    for (const card of cards) {
+      expect(card.textContent).toContain("Not read: the address names conflicting selections.");
+      expect(card.textContent).not.toContain("The verification read failed");
+    }
+  });
+
+  it("Q34: a true read failure keeps the failure wording on the cards", async () => {
+    serve({ ...actionReads() });
+    mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
+    await settledScreen();
+    const cards = Array.from(document.querySelectorAll("[data-verification-card]"));
+    expect(cards.length).toBe(4);
+    expect(cards.some((c) => (c.textContent ?? "").includes("The verification read failed"))).toBe(true);
+    expect(document.body.textContent).not.toContain("Not read: the address names conflicting selections.");
+  });
+
+  it("Q32: every Available requirement chip is blue (info) and a shared source is named once", async () => {
+    const ev = prep(R.evidence);
+    ev.source_resolution.baseline.state = "REGISTERED_SIMULATION";
+    ev.source_resolution.later.state = "REGISTERED_SIMULATION";
+    serve({ ...actionReads(), [`${V}/evidence`]: ok(ev), [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/evidence`);
+    await settledScreen();
+    const chips = Array.from(document.querySelectorAll(".verify-chip")).filter((c) => c.textContent === "Available");
+    expect(chips.length).toBeGreaterThan(0);
+    for (const chip of chips) {
+      expect(chip.classList.contains("verify-chip--info")).toBe(true);
+      expect(chip.classList.contains("verify-chip--pass")).toBe(false);
+    }
+    expect(requirementTone(true)).toBe("info");
+    expect(requirementTone(false)).toBe("fail");
+    expect(requirementTone(null)).toBe("unknown");
+    const sourceCell = document.querySelector("[data-verification-requirement-pair='conditions'] td") as HTMLElement;
+    expect(sourceCell.textContent?.split("Registered Lab trial data").length).toBe(2);
+    expect(sourcePair("REGISTERED_SIMULATION", "REGISTERED_SIMULATION")).toBe("Registered Lab trial data");
+    expect(sourcePair("REGISTERED_SIMULATION", "MIXED")).toBe("Registered Lab trial data / Mixed sources");
+  });
+
+  it("Q31: Success criteria keep <th scope=row> and the scoped CSS gives them normal weight and table line height", async () => {
+    serve({ ...actionReads(), [`${V}/plan`]: ok(prep(R.plan)) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/plan`);
+    await settledScreen();
+    const panel = panelTitled("Success criteria");
+    expect(panel.closest(".panel")?.classList.contains("w1f4-verification-plan")).toBe(true);
+    const rowHeads = panel.querySelectorAll("tbody th[scope='row']");
+    expect(rowHeads.length).toBeGreaterThan(0);
+    const css = readFileSync(resolve(__dirname, "../w1f4-verification.css"), "utf8");
+    expect(css).toMatch(/\.w1f4-verification-plan \.data-table tbody th\[scope="row"\] \{\s*font-weight: normal;\s*line-height: inherit;\s*\}/);
   });
 });

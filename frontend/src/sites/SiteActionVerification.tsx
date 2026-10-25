@@ -393,7 +393,7 @@ export function ActionVerification({
                   : null
             }
           />
-          <VerificationMetricCards outcome={outcome} record={shown} gap={blocked || refusals.length > 0 ? "Not available" : "Pending"} />
+          <VerificationMetricCards outcome={outcome} record={shown} gap={blocked || refusals.length > 0 ? "Not available" : "Pending"} conflict={blocked} />
           <TargetPanel
             outcome={outcome}
             record={shown}
@@ -405,14 +405,25 @@ export function ActionVerification({
             noOutcomeForPlan={reads.noOutcomeForPlan && plan !== null ? planRevisionId ?? "" : null}
           />
           <div className="panel-pair">
-            <ActivityPanel body={body} history={history} links={links} gap={blocked ? gapOf(null, "", "") : null} historyGap={gapOf(reads.history, VERIFICATION_LOADING.history, "verification history")} />
+            {/* post-W6 W1-b Q34 / R228 (pre-flight ruling 8): each panel states a history gap only when it differs
+                from that panel's main gap, so a selector conflict is printed once per panel. */}
+            <ActivityPanel
+              body={body}
+              history={history}
+              links={links}
+              gap={blocked ? gapOf(null, "", "") : null}
+              historyGap={distinctGap(blocked ? gapOf(null, "", "") : null, gapOf(reads.history, VERIFICATION_LOADING.history, "verification history"))}
+            />
             <OutcomeEvidencePanel
               outcome={outcome}
               record={shown}
               history={history}
               links={links}
               gap={reads.noOutcomeForPlan ? null : gapOf(reads.outcome, VERIFICATION_LOADING.outcome, "verification outcome")}
-              historyGap={gapOf(reads.history, VERIFICATION_LOADING.history, "verification history")}
+              historyGap={distinctGap(
+                reads.noOutcomeForPlan ? null : gapOf(reads.outcome, VERIFICATION_LOADING.outcome, "verification outcome"),
+                gapOf(reads.history, VERIFICATION_LOADING.history, "verification history"),
+              )}
             />
           </div>
         </>
@@ -1300,7 +1311,7 @@ function PlanPanel({ body, action, links, explicit, gap }: { body: PlanBody | nu
   const binding = body.selection_bindings[body.selection_bindings.length - 1] ?? null;
   const [num, den] = plan.target.ratio;
   return (
-    <Panel heading={heading} headingId={headingId}>
+    <Panel heading={heading} headingId={headingId} className="w1f4-verification-plan">
       <p className="v69-chart-note w1f4-verification-lede" data-verification-plan-id={plan.plan_id} data-verification-plan-current={body.is_current_plan ? "yes" : "no"}>
         Fixed {when(plan.recorded_at)}, before the later window was read ·{" "}
         {body.is_current_plan ? "the current plan" : "a later plan replaced this one"}
@@ -1621,7 +1632,7 @@ function EvidencePanel({ body, links, pinnedOutcome, plan, gap }: { body: Eviden
               <RequirementCell
                 name="source"
                 ok={pair.state === "PASS" ? true : pair.state === "FAIL" ? false : null}
-                detail={`source: ${sourceWords(body.source_resolution.baseline.state)} / ${sourceWords(body.source_resolution.later.state)}`}
+                detail={`source: ${sourcePair(body.source_resolution.baseline.state, body.source_resolution.later.state)}`}
                 chip={false}
               />
             </td>
@@ -1654,8 +1665,21 @@ function EvidencePanel({ body, links, pinnedOutcome, plan, gap }: { body: Eviden
   );
 }
 
-function requirementTone(ok: boolean | null): Tone {
-  return ok === true ? "pass" : ok === false ? "fail" : "unknown";
+/** post-W6 W1-b Q32 / R221: every "Available" requirement chip is blue (info); availability is not a pass. */
+export function requirementTone(ok: boolean | null): Tone {
+  return ok === true ? "info" : ok === false ? "fail" : "unknown";
+}
+
+/** post-W6 W1-b Q32 / R221: both windows' source words, said once when they are the same. */
+export function sourcePair(baseline: string | null | undefined, later: string | null | undefined): string {
+  const a = sourceWords(baseline);
+  const b = sourceWords(later);
+  return a === b ? a : `${a} / ${b}`;
+}
+
+/** post-W6 W1-b Q34: a panel's history gap, or null when it says the same as the panel's main gap. */
+function distinctGap(main: PanelGap | null, history: PanelGap | null): PanelGap | null {
+  return history !== null && main !== null && history.kind === main.kind && history.text === main.text ? null : history;
 }
 
 function requirementWord(ok: boolean | null): string {

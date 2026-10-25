@@ -70,7 +70,8 @@ export function stateSentence(state: string, reasons: readonly string[] = []): s
   }
 }
 
-export type Tone = "pass" | "fail" | "unknown" | "waiting";
+/** post-W6 W1-b Q32: "info" is the blue chip for an available requirement (availability is not a pass). */
+export type Tone = "pass" | "fail" | "unknown" | "waiting" | "info";
 
 export function stateTone(state: string): Tone {
   return state === "VERIFIED" ? "pass" : state === "INEFFECTIVE" ? "fail" : state === "INCONCLUSIVE" ? "unknown" : "waiting";

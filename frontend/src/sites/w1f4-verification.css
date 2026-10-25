@@ -173,3 +173,17 @@
   font-weight: 500;
   color: var(--link, #1d4ed8);
 }
+
+/* post-W6 W1-b Q31 / R220: the Success criteria row headings keep their <th scope="row"> semantics but read at the
+   table's normal weight and line height, as the mock's plain first column. */
+.w1f4-verification-plan .data-table tbody th[scope="row"] {
+  font-weight: normal;
+  line-height: inherit;
+}
+
+/* post-W6 W1-b Q32 / R221: the blue chip of an available requirement (scoped here; ui/primitives.css unchanged). */
+.app-frame--operator .verify-chip--info {
+  border-color: #dce6f5;
+  background: #e9f0fd;
+  color: #275ba8;
+}

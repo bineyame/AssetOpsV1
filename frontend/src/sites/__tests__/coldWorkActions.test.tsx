@@ -921,7 +921,9 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
     expect(where()).toBe(`/sites/${SITE}/actions/${W1_ID}`);
     expect(document.querySelector("[data-domain-action-shell]")).toBeNull();
     expect(fetchRecord.some((u) => u.includes(`/api/sites/${SITE}/actions/${W1_ID}`))).toBe(true);
-    expect(document.querySelector(`nav[aria-label="${OPERATOR_SITE_TABS_LABEL}"]`)).not.toBeNull();
+    // post-W6 W1-b Q26 / R204: the W1 presenter (its Action section row) renders, with no Site tab row.
+    expect(document.querySelector(`nav[aria-label="Action sections"]`)).not.toBeNull();
+    expect(document.querySelector(`nav[aria-label="${OPERATOR_SITE_TABS_LABEL}"]`)).toBeNull();
     cleanup();
     await mountAction(`/sites/${SITE}/actions/${DOMAIN_ID}`, client);
     await waitFor(() => expect(where()).toBe(`/sites/${SITE}/actions/${DOMAIN_ID}/verification`));
