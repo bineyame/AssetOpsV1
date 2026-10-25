@@ -1,0 +1,3929 @@
+{
+  "revision": "1daa8821",
+  "captured_at": "2026-10-25T01:07:14.643Z",
+  "pairs": [
+    {
+      "screen": "findings",
+      "case": "partial",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "mock_hash": "#/findings",
+      "app_image": "findings-partial-1440-app.png",
+      "mock_image": "findings-partial-1440-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Finding 00000005",
+            "bodyLen": 114,
+            "body": "Finding 00000005-0000-4000-8000-00000000016d · revision 00000005-0000-4000-8000-00000000016e · Generated test data",
+            "scrollH": 58
+          },
+          {
+            "summary": "Finding 00000005",
+            "bodyLen": 114,
+            "body": "Finding 00000005-0000-4000-8000-000000000173 · revision 00000005-0000-4000-8000-000000000174 · Generated test data",
+            "scrollH": 58
+          },
+          {
+            "summary": "Finding 00000005",
+            "bodyLen": 114,
+            "body": "Finding 00000005-0000-4000-8000-0000000003ce · revision 00000005-0000-4000-8000-0000000003cf · Generated test data",
+            "scrollH": 58
+          },
+          {
+            "summary": "Finding 00000005",
+            "bodyLen": 112,
+            "body": "Finding 00000005-0000-4000-8000-0000000004bd · revision 00000005-0000-4000-8000-00000000058c · Source unverified",
+            "scrollH": 58
+          }
+        ],
+        "links": [
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All states",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=supported",
+            "text": "Supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=unconfirmed",
+            "text": "Unconfirmed",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=no_longer_supported",
+            "text": "No longer supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=merged",
+            "text": "Merged",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000005-0000-4000-8000-00000000016d?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T01%3A03%3A19.610482Z",
+            "text": "Cold room temperature outside its policy band",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "COLD-LAB-001",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000005-0000-4000-8000-000000000173?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T01%3A03%3A19.610482Z",
+            "text": "Backup generator did not start when the grid failed",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "COLD-LAB-001",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-001/findings/00000005-0000-4000-8000-0000000003ce?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Observed EV charging interruption",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev",
+            "text": "EV-LAB-001",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-00000000058c",
+            "text": "Generator support merits review: bounded candidate avoidable running",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "KOBO-001",
+            "panel": "Findings across the estate"
+          }
+        ],
+        "titles": [
+          "Findings across the estate"
+        ],
+        "panels": [
+          {
+            "title": "Findings across the estate",
+            "x": 248,
+            "y": 400,
+            "w": 1145,
+            "h": 455,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "Supported",
+              "Supported",
+              "Supported",
+              "Supported"
+            ],
+            "links": 8,
+            "buttons": 0,
+            "details": 4,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1026,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tableCols": [
+          {
+            "tableW": 1105,
+            "scrollerClientW": 1105,
+            "ths": [
+              {
+                "th": "Finding",
+                "w": 254,
+                "visibleW": 254
+              },
+              {
+                "th": "Site",
+                "w": 144,
+                "visibleW": 144
+              },
+              {
+                "th": "Priority",
+                "w": 111,
+                "visibleW": 111
+              },
+              {
+                "th": "Confidence",
+                "w": 122,
+                "visibleW": 122
+              },
+              {
+                "th": "State",
+                "w": 122,
+                "visibleW": 122
+              },
+              {
+                "th": "Main consequence",
+                "w": 243,
+                "visibleW": 243
+              },
+              {
+                "th": "Lens",
+                "w": 111,
+                "visibleW": 111
+              }
+            ]
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings*",
+              "Cost",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1026
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Findings across the estate",
+            "before": 455,
+            "rows": 4,
+            "clones": 5,
+            "intendedColumns": [
+              "Finding",
+              "Site",
+              "Main consequence"
+            ],
+            "changedColumns": [
+              "Finding",
+              "Site",
+              "Main consequence"
+            ],
+            "verified": true,
+            "intendedFields": 20,
+            "fields160": 20,
+            "primary": {
+              "synthetic": true,
+              "h": 1686,
+              "cloneRowHs": [
+                304,
+                304,
+                304,
+                304,
+                303
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "tableScrollers": [],
+              "docOverflowX": 0
+            }
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-cost",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-risks",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-opportunities",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "#/finding",
+            "text": "F-104 · Generator support review",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/evidence",
+            "text": "F-108 · Battery output-limit report missing",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "F-109 · Productive-use headroom",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/cold-finding",
+            "text": "F-118 · Backup response failed",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest Cold Room",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/cold-finding-excursion",
+            "text": "F-119 · Temperature excursion",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest Cold Room",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/ev-finding",
+            "text": "F-130 · Charging session interrupted",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot Charging Hub",
+            "panel": "Findings across the estate"
+          }
+        ],
+        "titles": [
+          "Findings across the estate"
+        ],
+        "panels": [
+          {
+            "title": "Findings across the estate",
+            "x": 234,
+            "y": 482,
+            "w": 1161,
+            "h": 443,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "High",
+              "Lowⓘ",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Recommendation",
+              "High",
+              "High",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Open"
+            ],
+            "links": 12,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1051,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings*",
+              "Cost",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1007
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "findings",
+      "case": "partial",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "mock_hash": "#/findings",
+      "app_image": "findings-partial-390-app.png",
+      "mock_image": "findings-partial-390-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Finding 00000005",
+            "bodyLen": 114,
+            "body": "Finding 00000005-0000-4000-8000-00000000016d · revision 00000005-0000-4000-8000-00000000016e · Generated test data",
+            "scrollH": 0
+          },
+          {
+            "summary": "Finding 00000005",
+            "bodyLen": 114,
+            "body": "Finding 00000005-0000-4000-8000-000000000173 · revision 00000005-0000-4000-8000-000000000174 · Generated test data",
+            "scrollH": 0
+          },
+          {
+            "summary": "Finding 00000005",
+            "bodyLen": 114,
+            "body": "Finding 00000005-0000-4000-8000-0000000003ce · revision 00000005-0000-4000-8000-0000000003cf · Generated test data",
+            "scrollH": 0
+          },
+          {
+            "summary": "Finding 00000005",
+            "bodyLen": 112,
+            "body": "Finding 00000005-0000-4000-8000-0000000004bd · revision 00000005-0000-4000-8000-00000000058c · Source unverified",
+            "scrollH": 0
+          }
+        ],
+        "links": [
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All states",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=supported",
+            "text": "Supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=unconfirmed",
+            "text": "Unconfirmed",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=no_longer_supported",
+            "text": "No longer supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=merged",
+            "text": "Merged",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000005-0000-4000-8000-00000000016d?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T01%3A03%3A19.610482Z",
+            "text": "Cold room temperature outside its policy band",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "COLD-LAB-001",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000005-0000-4000-8000-000000000173?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T01%3A03%3A19.610482Z",
+            "text": "Backup generator did not start when the grid failed",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "COLD-LAB-001",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-001/findings/00000005-0000-4000-8000-0000000003ce?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Observed EV charging interruption",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev",
+            "text": "EV-LAB-001",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-00000000058c",
+            "text": "Generator support merits review: bounded candidate avoidable running",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "KOBO-001",
+            "panel": "Findings across the estate"
+          }
+        ],
+        "titles": [
+          "Findings across the estate"
+        ],
+        "panels": [
+          {
+            "title": "Findings across the estate",
+            "x": 16,
+            "y": 715,
+            "w": 358,
+            "h": 609,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "Supported",
+              "Supported",
+              "Supported",
+              "Supported"
+            ],
+            "links": 8,
+            "buttons": 0,
+            "details": 4,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1525,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tableCols": [
+          {
+            "tableW": 672,
+            "scrollerClientW": 318,
+            "ths": [
+              {
+                "th": "Finding",
+                "w": 152,
+                "visibleW": 152
+              },
+              {
+                "th": "Site",
+                "w": 80,
+                "visibleW": 80
+              },
+              {
+                "th": "Priority",
+                "w": 64,
+                "visibleW": 64
+              },
+              {
+                "th": "Confidence",
+                "w": 90,
+                "visibleW": 22
+              },
+              {
+                "th": "State",
+                "w": 84,
+                "visibleW": 0
+              },
+              {
+                "th": "Main consequence",
+                "w": 126,
+                "visibleW": 0
+              },
+              {
+                "th": "Lens",
+                "w": 76,
+                "visibleW": 0
+              }
+            ]
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings*",
+              "Cost",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "v69-chips estate-state-chips",
+            "sw": 460,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 672,
+            "cw": 318,
+            "panel": "Findings across the estate"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Findings across the estate",
+            "before": 609,
+            "rows": 4,
+            "clones": 5,
+            "intendedColumns": [
+              "Finding",
+              "Site",
+              "Main consequence"
+            ],
+            "changedColumns": [
+              "Finding",
+              "Site",
+              "Main consequence"
+            ],
+            "verified": true,
+            "intendedFields": 20,
+            "fields160": 20,
+            "primary": {
+              "synthetic": true,
+              "h": 3549,
+              "cloneRowHs": [
+                671,
+                671,
+                671,
+                671,
+                671
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "tableScrollers": [
+                {
+                  "cls": "data-table__scroll",
+                  "sw": 672,
+                  "cw": 318
+                }
+              ],
+              "docOverflowX": 0
+            }
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-cost",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-risks",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-opportunities",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "#/finding",
+            "text": "F-104 · Generator support review",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/evidence",
+            "text": "F-108 · Battery output-limit report missing",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "F-109 · Productive-use headroom",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/cold-finding",
+            "text": "F-118 · Backup response failed",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest Cold Room",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/cold-finding-excursion",
+            "text": "F-119 · Temperature excursion",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest Cold Room",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/ev-finding",
+            "text": "F-130 · Charging session interrupted",
+            "panel": "Findings across the estate"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot Charging Hub",
+            "panel": "Findings across the estate"
+          }
+        ],
+        "titles": [
+          "Findings across the estate"
+        ],
+        "panels": [
+          {
+            "title": "Findings across the estate",
+            "x": 15,
+            "y": 768,
+            "w": 360,
+            "h": 716,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "High",
+              "Lowⓘ",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Recommendation",
+              "High",
+              "High",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Open"
+            ],
+            "links": 12,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1675,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings*",
+              "Cost",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 672,
+            "cw": 320,
+            "panel": "Findings across the estate"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "findings-cost",
+      "case": "partial",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "mock_hash": "#/findings-cost",
+      "app_image": "findings-cost-partial-1440-app.png",
+      "mock_image": "findings-cost-partial-1440-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All states",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=supported",
+            "text": "Supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=unconfirmed",
+            "text": "Unconfirmed",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=no_longer_supported",
+            "text": "No longer supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=merged",
+            "text": "Merged",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Cost lens"
+        ],
+        "panels": [
+          {
+            "title": "Cost lens",
+            "x": 248,
+            "y": 400,
+            "w": 1160,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings",
+              "Cost*",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Cost lens",
+            "before": 126,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-cost",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-risks",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-opportunities",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "#/finding",
+            "text": "F-104 · Generator support review",
+            "panel": "Cost lens"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": "Cost lens"
+          }
+        ],
+        "titles": [
+          "Cost lens"
+        ],
+        "panels": [
+          {
+            "title": "Cost lens",
+            "x": 234,
+            "y": 482,
+            "w": 1161,
+            "h": 185,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "High",
+              "Lowⓘ",
+              "Open"
+            ],
+            "links": 2,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings",
+              "Cost*",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "findings-cost",
+      "case": "partial",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "mock_hash": "#/findings-cost",
+      "app_image": "findings-cost-partial-390-app.png",
+      "mock_image": "findings-cost-partial-390-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All states",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=supported",
+            "text": "Supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=unconfirmed",
+            "text": "Unconfirmed",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=no_longer_supported",
+            "text": "No longer supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=merged",
+            "text": "Merged",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Cost lens"
+        ],
+        "panels": [
+          {
+            "title": "Cost lens",
+            "x": 16,
+            "y": 715,
+            "w": 358,
+            "h": 149,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1027,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings",
+              "Cost*",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "v69-chips estate-state-chips",
+            "sw": 460,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Cost lens",
+            "before": 149,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-cost",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-risks",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-opportunities",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "#/finding",
+            "text": "F-104 · Generator support review",
+            "panel": "Cost lens"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": "Cost lens"
+          }
+        ],
+        "titles": [
+          "Cost lens"
+        ],
+        "panels": [
+          {
+            "title": "Cost lens",
+            "x": 15,
+            "y": 745,
+            "w": 360,
+            "h": 230,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "High",
+              "Lowⓘ",
+              "Open"
+            ],
+            "links": 2,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1165,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings",
+              "Cost*",
+              "Risks",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 505,
+            "cw": 320,
+            "panel": "Cost lens"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "findings-risks",
+      "case": "partial",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "mock_hash": "#/findings-risks",
+      "app_image": "findings-risks-partial-1440-app.png",
+      "mock_image": "findings-risks-partial-1440-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All states",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=supported",
+            "text": "Supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=unconfirmed",
+            "text": "Unconfirmed",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=no_longer_supported",
+            "text": "No longer supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=merged",
+            "text": "Merged",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Risks lens"
+        ],
+        "panels": [
+          {
+            "title": "Risks lens",
+            "x": 248,
+            "y": 400,
+            "w": 1160,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks*",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Risks lens",
+            "before": 126,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-cost",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-risks",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-opportunities",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "#/evidence",
+            "text": "F-108 · Battery output-limit report missing",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/cold-finding",
+            "text": "F-118 · Backup response failed",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest Cold Room",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/cold-finding-excursion",
+            "text": "F-119 · Temperature excursion",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest Cold Room",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/ev-finding",
+            "text": "F-130 · Charging session interrupted",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot Charging Hub",
+            "panel": "Risks lens"
+          }
+        ],
+        "titles": [
+          "Risks lens"
+        ],
+        "panels": [
+          {
+            "title": "Risks lens",
+            "x": 234,
+            "y": 482,
+            "w": 1161,
+            "h": 338,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "Medium",
+              "High",
+              "Open",
+              "High",
+              "High",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Open"
+            ],
+            "links": 8,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks*",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "findings-risks",
+      "case": "partial",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "mock_hash": "#/findings-risks",
+      "app_image": "findings-risks-partial-390-app.png",
+      "mock_image": "findings-risks-partial-390-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All states",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=supported",
+            "text": "Supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=unconfirmed",
+            "text": "Unconfirmed",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=no_longer_supported",
+            "text": "No longer supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=merged",
+            "text": "Merged",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Risks lens"
+        ],
+        "panels": [
+          {
+            "title": "Risks lens",
+            "x": 16,
+            "y": 715,
+            "w": 358,
+            "h": 149,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1027,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks*",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "v69-chips estate-state-chips",
+            "sw": 460,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Risks lens",
+            "before": 149,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-cost",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-risks",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-opportunities",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "#/evidence",
+            "text": "F-108 · Battery output-limit report missing",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/cold-finding",
+            "text": "F-118 · Backup response failed",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest Cold Room",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/cold-finding-excursion",
+            "text": "F-119 · Temperature excursion",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest Cold Room",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/ev-finding",
+            "text": "F-130 · Charging session interrupted",
+            "panel": "Risks lens"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot Charging Hub",
+            "panel": "Risks lens"
+          }
+        ],
+        "titles": [
+          "Risks lens"
+        ],
+        "panels": [
+          {
+            "title": "Risks lens",
+            "x": 15,
+            "y": 745,
+            "w": 360,
+            "h": 522,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "Medium",
+              "High",
+              "Open",
+              "High",
+              "High",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Open"
+            ],
+            "links": 8,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1457,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks*",
+              "Opportunities"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 574,
+            "cw": 320,
+            "panel": "Risks lens"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "findings-opportunities",
+      "case": "partial",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "mock_hash": "#/findings-opportunities",
+      "app_image": "findings-opportunities-partial-1440-app.png",
+      "mock_image": "findings-opportunities-partial-1440-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All states",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=supported",
+            "text": "Supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=unconfirmed",
+            "text": "Unconfirmed",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=no_longer_supported",
+            "text": "No longer supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=merged",
+            "text": "Merged",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Opportunities lens"
+        ],
+        "panels": [
+          {
+            "title": "Opportunities lens",
+            "x": 248,
+            "y": 400,
+            "w": 1160,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks",
+              "Opportunities*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Opportunities lens",
+            "before": 126,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-cost",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-risks",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-opportunities",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "F-109 · Productive-use headroom",
+            "panel": "Opportunities lens"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": "Opportunities lens"
+          }
+        ],
+        "titles": [
+          "Opportunities lens"
+        ],
+        "panels": [
+          {
+            "title": "Opportunities lens",
+            "x": 234,
+            "y": 482,
+            "w": 1161,
+            "h": 185,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "Medium",
+              "Mediumⓘ",
+              "Recommendation"
+            ],
+            "links": 2,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks",
+              "Opportunities*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "findings-opportunities",
+      "case": "partial",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "mock_hash": "#/findings-opportunities",
+      "app_image": "findings-opportunities-partial-390-app.png",
+      "mock_image": "findings-opportunities-partial-390-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "/findings/cost?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "All states",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=supported",
+            "text": "Supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=unconfirmed",
+            "text": "Unconfirmed",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=no_longer_supported",
+            "text": "No longer supported",
+            "panel": ""
+          },
+          {
+            "href": "/findings/opportunities?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&state=merged",
+            "text": "Merged",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Opportunities lens"
+        ],
+        "panels": [
+          {
+            "title": "Opportunities lens",
+            "x": 16,
+            "y": 715,
+            "w": 358,
+            "h": 149,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1027,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs estate-lens-tabs",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks",
+              "Opportunities*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "v69-chips estate-state-chips",
+            "sw": 460,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Opportunities lens",
+            "before": 149,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings",
+            "text": "All findings",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-cost",
+            "text": "Cost",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-risks",
+            "text": "Risks",
+            "panel": ""
+          },
+          {
+            "href": "#/findings-opportunities",
+            "text": "Opportunities",
+            "panel": ""
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "F-109 · Productive-use headroom",
+            "panel": "Opportunities lens"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": "Opportunities lens"
+          }
+        ],
+        "titles": [
+          "Opportunities lens"
+        ],
+        "panels": [
+          {
+            "title": "Opportunities lens",
+            "x": 15,
+            "y": 745,
+            "w": 360,
+            "h": 230,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Finding",
+              "Site",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "Medium",
+              "Mediumⓘ",
+              "Recommendation"
+            ],
+            "links": 2,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1165,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Findings",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "All findings",
+              "Cost",
+              "Risks",
+              "Opportunities*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 626,
+            "cw": 320,
+            "panel": "Opportunities lens"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "actions",
+      "case": "partial",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+      "mock_hash": "#/actions",
+      "app_image": "actions-partial-1440-app.png",
+      "mock_image": "actions-partial-1440-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/sites/KOBO-001/actions/00000005-0000-4000-8000-000000000561?event_id=00000005-0000-4000-8000-00000000057f",
+            "text": "Action ACT-000001",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "/sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-0000000004be",
+            "text": "Finding 00000005",
+            "panel": "Managed actions"
+          }
+        ],
+        "titles": [
+          "Managed actions"
+        ],
+        "panels": [
+          {
+            "title": "Managed actions",
+            "x": 248,
+            "y": 314,
+            "w": 1160,
+            "h": 201,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Applied"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Actions",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tableCols": [
+          {
+            "tableW": 1120,
+            "scrollerClientW": 1120,
+            "ths": [
+              {
+                "th": "Action",
+                "w": 269,
+                "visibleW": 269
+              },
+              {
+                "th": "Site",
+                "w": 146,
+                "visibleW": 146
+              },
+              {
+                "th": "Source",
+                "w": 190,
+                "visibleW": 190
+              },
+              {
+                "th": "Owner",
+                "w": 123,
+                "visibleW": 123
+              },
+              {
+                "th": "State",
+                "w": 146,
+                "visibleW": 146
+              },
+              {
+                "th": "Success criterion",
+                "w": 246,
+                "visibleW": 246
+              }
+            ]
+          }
+        ],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Managed actions",
+            "before": 201,
+            "rows": 1,
+            "clones": 5,
+            "intendedColumns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "Success criterion"
+            ],
+            "changedColumns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "Success criterion"
+            ],
+            "verified": true,
+            "intendedFields": 35,
+            "fields160": 35,
+            "primary": {
+              "synthetic": true,
+              "h": 1655,
+              "cloneRowHs": [
+                304,
+                304,
+                304,
+                304,
+                303
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "tableScrollers": [],
+              "docOverflowX": 0
+            }
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/actions",
+            "text": "Actions",
+            "panel": ""
+          },
+          {
+            "href": "#/verification",
+            "text": "ACT-048 · Review generator stop setting",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/finding",
+            "text": "F-104",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/sitework",
+            "text": "ACT-049 · Restore battery-limit reporting",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/evidence",
+            "text": "F-108",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/cold-action",
+            "text": "ACT-051 · Witness automatic-start test",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/cold-finding",
+            "text": "F-118",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/incident",
+            "text": "INC-203",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/ev-action",
+            "text": "ACT-061 · Investigate connector 2",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/ev-finding",
+            "text": "F-130",
+            "panel": "Managed actions"
+          }
+        ],
+        "titles": [
+          "Managed actions"
+        ],
+        "panels": [
+          {
+            "title": "Managed actions",
+            "x": 234,
+            "y": 375,
+            "w": 1161,
+            "h": 336,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Verification window",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 13,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Actions",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "actions",
+      "case": "partial",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+      "mock_hash": "#/actions",
+      "app_image": "actions-partial-390-app.png",
+      "mock_image": "actions-partial-390-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/sites/KOBO-001/actions/00000005-0000-4000-8000-000000000561?event_id=00000005-0000-4000-8000-00000000057f",
+            "text": "Action ACT-000001",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "/sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-0000000004be",
+            "text": "Finding 00000005",
+            "panel": "Managed actions"
+          }
+        ],
+        "titles": [
+          "Managed actions"
+        ],
+        "panels": [
+          {
+            "title": "Managed actions",
+            "x": 16,
+            "y": 622,
+            "w": 358,
+            "h": 219,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Applied"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 962,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Actions",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tableCols": [
+          {
+            "tableW": 820,
+            "scrollerClientW": 318,
+            "ths": [
+              {
+                "th": "Action",
+                "w": 197,
+                "visibleW": 197
+              },
+              {
+                "th": "Site",
+                "w": 107,
+                "visibleW": 107
+              },
+              {
+                "th": "Source",
+                "w": 139,
+                "visibleW": 15
+              },
+              {
+                "th": "Owner",
+                "w": 90,
+                "visibleW": 0
+              },
+              {
+                "th": "State",
+                "w": 107,
+                "visibleW": 0
+              },
+              {
+                "th": "Success criterion",
+                "w": 180,
+                "visibleW": 0
+              }
+            ]
+          }
+        ],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 820,
+            "cw": 318,
+            "panel": "Managed actions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Managed actions",
+            "before": 219,
+            "rows": 1,
+            "clones": 5,
+            "intendedColumns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "Success criterion"
+            ],
+            "changedColumns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "Success criterion"
+            ],
+            "verified": true,
+            "intendedFields": 35,
+            "fields160": 35,
+            "primary": {
+              "synthetic": true,
+              "h": 2225,
+              "cloneRowHs": [
+                414,
+                414,
+                414,
+                414,
+                414
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "tableScrollers": [
+                {
+                  "cls": "data-table__scroll",
+                  "sw": 820,
+                  "cw": 318
+                }
+              ],
+              "docOverflowX": 0
+            }
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/actions",
+            "text": "Actions",
+            "panel": ""
+          },
+          {
+            "href": "#/verification",
+            "text": "ACT-048 · Review generator stop setting",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/finding",
+            "text": "F-104",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/sitework",
+            "text": "ACT-049 · Restore battery-limit reporting",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/evidence",
+            "text": "F-108",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/cold-action",
+            "text": "ACT-051 · Witness automatic-start test",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/cold-finding",
+            "text": "F-118",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/incident",
+            "text": "INC-203",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/ev-action",
+            "text": "ACT-061 · Investigate connector 2",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Managed actions"
+          },
+          {
+            "href": "#/ev-finding",
+            "text": "F-130",
+            "panel": "Managed actions"
+          }
+        ],
+        "titles": [
+          "Managed actions"
+        ],
+        "panels": [
+          {
+            "title": "Managed actions",
+            "x": 15,
+            "y": 638,
+            "w": 360,
+            "h": 575,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Verification window",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 13,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1385,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Actions",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 573,
+            "cw": 320,
+            "panel": "Managed actions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

@@ -119,7 +119,7 @@ const EV_LINE = line({
   amount: { low: "36.005", high: "36.005", currency: "USD" },
   period_kind: "SCENARIO_WINDOW",
   limit: "Gross scenario only; not cash collected.",
-  links: { site: "/sites/EV-LAB-001", bridge: EV_BRIDGE, evidence: `/sites/EV-LAB-001/ev/evidence?${COLD_QUERY}`, current_view_label: null },
+  links: { site: "/sites/EV-LAB-001/ev", bridge: EV_BRIDGE, evidence: `/sites/EV-LAB-001/ev/evidence?${COLD_QUERY}`, current_view_label: null },
   group_key: KEY(3),
 });
 
@@ -417,7 +417,7 @@ describe("W3-02 estate Financials root", () => {
     const rows = registerRows();
     const site = (r: HTMLElement) => r.querySelector("[data-estate-site-link]")?.getAttribute("href");
     const source = (r: HTMLElement) => r.querySelector("[data-estate-source-link]");
-    expect(rows.map(site)).toEqual(["/sites/KOBO-001", "/sites/COLD-LAB-001", "/sites/EV-LAB-001", "/sites/KOBO-001"]);
+    expect(rows.map(site)).toEqual(["/sites/KOBO-001", "/sites/COLD-LAB-001", "/sites/EV-LAB-001/ev", "/sites/KOBO-001"]);
     // Mini-grid: the server's current-view bridge, labelled as such (no estate cutoff carried).
     expect(source(rows[0])?.getAttribute("href")).toBe("/sites/KOBO-001/financials");
     expect(rows[0].querySelector("[data-estate-current-view]")?.textContent).toBe("Opens current Site view");
@@ -484,6 +484,48 @@ async function readDisk(path: string): Promise<string> {
 }
 
 describe("W3-02 commit 4 measured Financials layout", () => {
+  it("showsFullLimitsInBasisDetailsAndEveryRowWithoutAVerticalCap", async () => {
+    // Post-W6 W3-estate Q12 / Q20: five 160-character, two-sentence limits joined with a space by the server. The cell
+    // shows the first sentence, the Basis details `Limits` line holds the whole text, no `.;` join appears, and
+    // every row (both EV rows included) renders.
+    const longLimit = (n: number) => {
+      const first = `Limit ${n} first sentence states the bounded interpretation of this consequence line in full words.`;
+      const text = `${first} Second sentence ${n} keeps the remaining caveat.`;
+      return text.padEnd(160, "x").slice(0, 159) + ".";
+    };
+    const rows = [
+      line({ ...MINI_LINE, line_key: "mini_grid:l1", limit: longLimit(1) }),
+      line({ ...COLD_LINE, line_key: "cold_chain:l2", limit: longLimit(2) }),
+      line({ ...EV_LINE, line_key: "ev_charging:l3", limit: longLimit(3) }),
+      line({ ...EV_LINE, line_key: "ev_charging:l4", site_id: EV2, site_code: "EV-LAB-002", site_name: "Second EV lab", limit: longLimit(4) }),
+      line({ ...MINI_LINE, line_key: "mini_grid:l5", limit: longLimit(5) }),
+    ];
+    for (const r of rows) expect(r.limit!.length).toBe(160);
+    renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake(loaded(body({ rows }))));
+    await settledScreen();
+    const rendered = registerRows();
+    expect(rendered).toHaveLength(5);
+    expect(rendered.map((r) => r.getAttribute("data-estate-money-row"))).toEqual(rows.map((r) => r.line_key));
+    const evRows = rendered.filter((r) => (r.getAttribute("data-estate-money-row") ?? "").startsWith("ev_charging:"));
+    expect(evRows).toHaveLength(2);
+    expect(evRows.map((r) => r.querySelector("[data-estate-site-link]")?.getAttribute("href"))).toEqual([
+      "/sites/EV-LAB-001/ev",
+      "/sites/EV-LAB-001/ev",
+    ]);
+    rendered.forEach((r, i) => {
+      const limit = rows[i].limit!;
+      expect(r.querySelector("[data-estate-limit]")?.textContent).toBe(limit.slice(0, limit.indexOf(".") + 1));
+      expect(r.querySelector("[data-estate-limits]")?.textContent).toBe(limit);
+      const dt = r.querySelector("[data-estate-limits]")?.previousElementSibling;
+      expect(dt?.textContent).toBe("Limits");
+    });
+    expect(main().textContent).not.toContain(".;");
+    // No vertical cap on the register at either width; horizontal scrolling stays.
+    const css = await readDisk("src/estate/estateFinancials.css");
+    expect(css).not.toMatch(/max-height/);
+    expect(css).toMatch(/\.estate-financials-table \.data-table__scroll \{[^}]*overflow-x: auto/s);
+  });
+
   it("meetsMeasuredNarrowLayoutWithoutDocumentOverflow", async () => {
     // jsdom has no layout: this reads the real-browser 390 px measurements of the mounted `/financials` page
     // (`.agent/W3-02-evidence/capture-financials.mjs`). Ruling c4: the closed results summary stays within its 24 px
@@ -507,11 +549,12 @@ describe("W3-02 commit 4 measured Financials layout", () => {
       expect(t.client).toBeGreaterThan(0);
       expect(t.rows).toBeGreaterThan(0);
       expect(t.scroll).toBeGreaterThanOrEqual(t.client); // the table scrolls inside its own container
-      // Final review H1: the mock's three-row baseline is visible at 390 before any vertical internal scroll, and a
-      // register of up to three rows plus its notes stays within the 448 px cap.
-      const cap = parseFloat(t.maxH);
+      // Final review H1, as amended by post-W6 W3-estate Q12 / build ruling 3: the register has no vertical cap (every
+      // bounded row shows, horizontal scrolling stays), so the measured list never scrolls vertically and every row is
+      // rendered; a register of up to three rows plus its notes still stays within the 448 px allowance.
+      expect(t.maxH, `${state} register list has no vertical cap`).toBe("none");
+      expect(t.rowHs, `${state} every register row measured`).toHaveLength(t.rows);
       const threeRows = t.headH + 3 * Math.max(...t.rowHs);
-      expect(threeRows, `${state} header + 3 rows fit the list cap`).toBeLessThanOrEqual(cap);
       expect(t.scrollH, `${state} register list does not scroll vertically at ${t.rows} rows`).toBeLessThanOrEqual(t.clientH);
       expect(narrow!.pieces.register.h - t.clientH + threeRows, `${state} three-row register within 448`).toBeLessThanOrEqual(448);
       expect(t.client).toBeLessThanOrEqual(narrow!.docClientW);
@@ -536,5 +579,27 @@ describe("W3-02 commit 4 measured Financials layout", () => {
       expect(visible).toBeGreaterThanOrEqual(groups + diagnostics + exclusions);
       expect(o.docScrollW).toBeLessThanOrEqual(o.docClientW);
     }
+  });
+});
+
+describe("post-W6 W3-estate refused window", () => {
+  it("classifiesInvalidWindowFromThePageQueryAndHidesTheDates", async () => {
+    const cases: [string, string][] = [
+      ["from=2026-10-07T00:00:00Z&to=2026-10-05T00:00:00Z", "The selected window needs both a start and an end, with the start before the end."],
+      ["from=2026-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
+      [WINDOW, "The selected window is invalid."],
+    ];
+    for (const [query, copy] of cases) {
+      const view = renderAt(`${ESTATE_FINANCIALS_PATH}?${query}`, fake({ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", copy: "server copy" }));
+      await settledScreen();
+      expect(main().querySelector("[data-page-refusal='INVALID_WINDOW'] p")?.textContent).toBe(copy);
+      expect(main().querySelector("[data-estate-window]")?.textContent).toBe("Window not valid");
+      view.unmount();
+    }
+    const view = renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake({ status: "refused", httpStatus: 403, code: "ESTATE_SCOPE_FORBIDDEN", copy: EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN }));
+    await settledScreen();
+    expect(main().querySelector("[data-page-refusal] p")?.textContent).toBe(EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN);
+    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("Window 2026-10-13 to 2026-10-19 (UTC days)");
+    view.unmount();
   });
 });

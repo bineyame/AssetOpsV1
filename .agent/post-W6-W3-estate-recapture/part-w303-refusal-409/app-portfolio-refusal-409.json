@@ -1,0 +1,176 @@
+[
+ {
+  "width": 1440,
+  "file": "portfolio-refusal-409-1440-app.png",
+  "ready": true,
+  "kind": "refusal-409",
+  "checks": {
+   "code": true,
+   "privilegedAbsent": true,
+   "noForbiddenText": true,
+   "noDocOverflow": true
+  },
+  "failed": [],
+  "leaked": [],
+  "over": [],
+  "missing": [],
+  "docOverflow": false,
+  "beforeClick": {
+   "width": 1440,
+   "ok": true,
+   "status": "CURRENT",
+   "rows": 1,
+   "cards": 5,
+   "matrixSites": [
+    "Cold replay labCOLD-LAB-001",
+    "EV charging labEV-LAB-001",
+    "EV charging lab 2EV-LAB-002",
+    "Kobo mini-gridKOBO-001"
+   ],
+   "loadMore": true
+  },
+  "h1": "Portfolio Value & Operations",
+  "main": "Portfolio",
+  "railCurrent": "Portfolio",
+  "status": null,
+  "contextText": null,
+  "cardStates": [],
+  "rows": 0,
+  "matrixSites": 0,
+  "matrixSiteTexts": [],
+  "panels": [],
+  "cardCount": 0,
+  "loadMore": false,
+  "privileged": 0,
+  "blocks": {
+   "header": {
+    "top": 24,
+    "h": 59,
+    "w": 1160
+   },
+   "context": null,
+   "scope": null,
+   "card0": null,
+   "card1": null,
+   "card2": null,
+   "card3": null,
+   "card4": null,
+   "pulse0": null,
+   "pulse1": null,
+   "pulse2": null,
+   "pulse3": null,
+   "pulseNote": null,
+   "priority": null,
+   "objectives": null,
+   "side": null,
+   "opportunity": null,
+   "progress": null,
+   "footQty": null,
+   "footLink": null,
+   "footCoverage": null,
+   "prompt": null,
+   "doc": {
+    "h": 1000
+   }
+  },
+  "findingsScroll": null,
+  "matrixScroll": null,
+  "docScrollW": 1440,
+  "docClientW": 1440,
+  "refusal": "The list changed. Reload the first page.First page",
+  "refusalCode": "ESTATE_BASIS_CHANGED",
+  "refusalBlock": {
+   "top": 145,
+   "h": 60,
+   "w": 1160
+  },
+  "height": 1000
+ },
+ {
+  "width": 390,
+  "file": "portfolio-refusal-409-390-app.png",
+  "ready": true,
+  "kind": "refusal-409",
+  "checks": {
+   "code": true,
+   "privilegedAbsent": true,
+   "noForbiddenText": true,
+   "noDocOverflow": true
+  },
+  "failed": [],
+  "leaked": [],
+  "over": [],
+  "missing": [],
+  "docOverflow": false,
+  "beforeClick": {
+   "width": 390,
+   "ok": true,
+   "status": "CURRENT",
+   "rows": 1,
+   "cards": 5,
+   "matrixSites": [
+    "Cold replay labCOLD-LAB-001",
+    "EV charging labEV-LAB-001",
+    "EV charging lab 2EV-LAB-002",
+    "Kobo mini-gridKOBO-001"
+   ],
+   "loadMore": true
+  },
+  "h1": "Portfolio Value & Operations",
+  "main": "Portfolio",
+  "railCurrent": "Portfolio",
+  "status": null,
+  "contextText": null,
+  "cardStates": [],
+  "rows": 0,
+  "matrixSites": 0,
+  "matrixSiteTexts": [],
+  "panels": [],
+  "cardCount": 0,
+  "loadMore": false,
+  "privileged": 0,
+  "blocks": {
+   "header": {
+    "top": 315,
+    "h": 72,
+    "w": 358
+   },
+   "context": null,
+   "scope": null,
+   "card0": null,
+   "card1": null,
+   "card2": null,
+   "card3": null,
+   "card4": null,
+   "pulse0": null,
+   "pulse1": null,
+   "pulse2": null,
+   "pulse3": null,
+   "pulseNote": null,
+   "priority": null,
+   "objectives": null,
+   "side": null,
+   "opportunity": null,
+   "progress": null,
+   "footQty": null,
+   "footLink": null,
+   "footCoverage": null,
+   "prompt": null,
+   "doc": {
+    "h": 900
+   }
+  },
+  "findingsScroll": null,
+  "matrixScroll": null,
+  "docScrollW": 390,
+  "docClientW": 390,
+  "refusal": "The list changed. Reload the first page.First page",
+  "refusalCode": "ESTATE_BASIS_CHANGED",
+  "refusalBlock": {
+   "top": 590,
+   "h": 60,
+   "w": 358
+  },
+  "height": 900
+ }
+]

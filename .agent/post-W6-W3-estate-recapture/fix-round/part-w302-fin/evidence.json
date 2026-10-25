@@ -1,0 +1,1684 @@
+{
+  "revision": "b7913438",
+  "captured_at": "2026-10-25T01:10:20.122Z",
+  "pairs": [
+    {
+      "screen": "globalfinancials",
+      "case": "w302-positive",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "mock_hash": "#/globalfinancials",
+      "app_image": "globalfinancials-w302-positive-1440-app.png",
+      "mock_image": "globalfinancials-w302-positive-1440-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Basis details",
+            "bodyLen": 691,
+            "body": "SiteEV charging lab · EV-LAB-001LimitsGross tariff scenario; not cash collected. Gross scenario only; not cash collected.Assumption references00000005-0000-4000-8000-0000000003d0Assumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000005-0000-4000-8000-0000000003d2Line referenceev_charging:00000005-0000-4000-8000-0000000003d2Technical inputs00000005-0000-4000-8000-0000000003c9Evidence references00000005-0000-4000-8000-000000000266, 00000005-0000-4000-8000-000000000285, 00000005-0000-4000-8000-0000000002a4, 00000005-0000-4000-8000-0",
+            "scrollH": 677
+          },
+          {
+            "summary": "Results (3) · No comparable total 3 grouping results. Comparable total unavailab",
+            "bodyLen": 287,
+            "body": "Single lineGross tariff estimate · 1 lineNo linesCandidate operating-cost exposureNo consequence lines in this categoryCoverage incompletePotential product exposureNo consequence lines in this category; some Sites have no complete selectionComparable total unavailable for this selection",
+            "scrollH": 76
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites/EV-LAB-001/ev",
+            "text": "EV charging lab",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          }
+        ],
+        "titles": [
+          "Consequence register",
+          "Aggregation rule"
+        ],
+        "panels": [
+          {
+            "title": "Consequence register",
+            "x": 248,
+            "y": 265,
+            "w": 1160,
+            "h": 178,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Value",
+              "Basis / limit",
+              "Source"
+            ],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Aggregation rule",
+            "x": 248,
+            "y": 521,
+            "w": 1160,
+            "h": 121,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Single line",
+              "No lines",
+              "Coverage incomplete"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio financials",
+          "top": 43,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "600",
+            "lineHeight": "15px",
+            "color": "rgb(107, 118, 144)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.95px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "13.05px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tableCols": [
+          {
+            "tableW": 1120,
+            "scrollerClientW": 1120,
+            "ths": [
+              {
+                "th": "Site",
+                "w": 123,
+                "visibleW": 123
+              },
+              {
+                "th": "Category",
+                "w": 235,
+                "visibleW": 235
+              },
+              {
+                "th": "Window / quantity",
+                "w": 224,
+                "visibleW": 224
+              },
+              {
+                "th": "Value",
+                "w": 112,
+                "visibleW": 112
+              },
+              {
+                "th": "Basis / limit",
+                "w": 269,
+                "visibleW": 269
+              },
+              {
+                "th": "Source",
+                "w": 157,
+                "visibleW": 157
+              }
+            ]
+          }
+        ],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Consequence register",
+            "before": 178,
+            "rows": 1,
+            "clones": 5,
+            "intendedColumns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Basis / limit",
+              "Source"
+            ],
+            "changedColumns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Basis / limit",
+              "Source"
+            ],
+            "verified": true,
+            "intendedFields": 30,
+            "fields160": 30,
+            "primary": {
+              "synthetic": true,
+              "h": 950,
+              "cloneRowHs": [
+                164,
+                164,
+                164,
+                164,
+                163
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "tableScrollers": [],
+              "docOverflowX": 0
+            }
+          },
+          {
+            "title": "Aggregation rule",
+            "before": 121,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/globalfinancials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/financials",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/temperature",
+            "text": "Site evidence →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/energy",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          }
+        ],
+        "titles": [
+          "Consequence register",
+          "Aggregation rule"
+        ],
+        "panels": [
+          {
+            "title": "Consequence register",
+            "x": 234,
+            "y": 306,
+            "w": 1161,
+            "h": 266,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Value",
+              "Basis / limit",
+              "Source"
+            ],
+            "chips": [],
+            "links": 6,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Aggregation rule",
+            "x": 234,
+            "y": 650,
+            "w": 1161,
+            "h": 99,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Portfolio financials",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "globalfinancials",
+      "case": "w302-positive",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "mock_hash": "#/globalfinancials",
+      "app_image": "globalfinancials-w302-positive-390-app.png",
+      "mock_image": "globalfinancials-w302-positive-390-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Basis details",
+            "bodyLen": 691,
+            "body": "SiteEV charging lab · EV-LAB-001LimitsGross tariff scenario; not cash collected. Gross scenario only; not cash collected.Assumption references00000005-0000-4000-8000-0000000003d0Assumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000005-0000-4000-8000-0000000003d2Line referenceev_charging:00000005-0000-4000-8000-0000000003d2Technical inputs00000005-0000-4000-8000-0000000003c9Evidence references00000005-0000-4000-8000-000000000266, 00000005-0000-4000-8000-000000000285, 00000005-0000-4000-8000-0000000002a4, 00000005-0000-4000-8000-0",
+            "scrollH": 1981
+          },
+          {
+            "summary": "Results (3) · No comparable total 3 grouping results. Comparable total unavailab",
+            "bodyLen": 287,
+            "body": "Single lineGross tariff estimate · 1 lineNo linesCandidate operating-cost exposureNo consequence lines in this categoryCoverage incompletePotential product exposureNo consequence lines in this category; some Sites have no complete selectionComparable total unavailable for this selection",
+            "scrollH": 155
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites/EV-LAB-001/ev",
+            "text": "EV charging lab",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          }
+        ],
+        "titles": [
+          "Consequence register",
+          "Aggregation rule"
+        ],
+        "panels": [
+          {
+            "title": "Consequence register",
+            "x": 16,
+            "y": 476,
+            "w": 358,
+            "h": 194,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Value",
+              "Basis / limit",
+              "Source"
+            ],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Aggregation rule",
+            "x": 16,
+            "y": 768,
+            "w": 358,
+            "h": 186,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Single line",
+              "No lines",
+              "Coverage incomplete"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 995,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio financials",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "600",
+            "lineHeight": "15px",
+            "color": "rgb(107, 118, 144)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.95px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "13.05px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tableCols": [
+          {
+            "tableW": 800,
+            "scrollerClientW": 318,
+            "ths": [
+              {
+                "th": "Site",
+                "w": 88,
+                "visibleW": 88
+              },
+              {
+                "th": "Category",
+                "w": 168,
+                "visibleW": 168
+              },
+              {
+                "th": "Window / quantity",
+                "w": 160,
+                "visibleW": 62
+              },
+              {
+                "th": "Value",
+                "w": 80,
+                "visibleW": 0
+              },
+              {
+                "th": "Basis / limit",
+                "w": 192,
+                "visibleW": 0
+              },
+              {
+                "th": "Source",
+                "w": 112,
+                "visibleW": 0
+              }
+            ]
+          }
+        ],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 800,
+            "cw": 318,
+            "panel": "Consequence register"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Consequence register",
+            "before": 194,
+            "rows": 1,
+            "clones": 5,
+            "intendedColumns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Basis / limit",
+              "Source"
+            ],
+            "changedColumns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Basis / limit",
+              "Source"
+            ],
+            "verified": true,
+            "intendedFields": 30,
+            "fields160": 30,
+            "primary": {
+              "synthetic": true,
+              "h": 1363,
+              "cloneRowHs": [
+                246,
+                246,
+                246,
+                246,
+                246
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "tableScrollers": [
+                {
+                  "cls": "data-table__scroll",
+                  "sw": 800,
+                  "cw": 318
+                }
+              ],
+              "docOverflowX": 0
+            }
+          },
+          {
+            "title": "Aggregation rule",
+            "before": 186,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/globalfinancials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/financials",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/temperature",
+            "text": "Site evidence →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/energy",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          }
+        ],
+        "titles": [
+          "Consequence register",
+          "Aggregation rule"
+        ],
+        "panels": [
+          {
+            "title": "Consequence register",
+            "x": 15,
+            "y": 503,
+            "w": 360,
+            "h": 407,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Value",
+              "Basis / limit",
+              "Source"
+            ],
+            "chips": [],
+            "links": 6,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Aggregation rule",
+            "x": 15,
+            "y": 1024,
+            "w": 360,
+            "h": 163,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1282,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Portfolio financials",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 514,
+            "cw": 320,
+            "panel": "Consequence register"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "globalfinancials",
+      "case": "w302-partial-week",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/financials?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+      "mock_hash": "#/globalfinancials",
+      "app_image": "globalfinancials-w302-partial-week-1440-app.png",
+      "mock_image": "globalfinancials-w302-partial-week-1440-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Basis details",
+            "bodyLen": 691,
+            "body": "SiteEV charging lab · EV-LAB-001LimitsGross tariff scenario; not cash collected. Gross scenario only; not cash collected.Assumption references00000005-0000-4000-8000-0000000003d0Assumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000005-0000-4000-8000-0000000003d2Line referenceev_charging:00000005-0000-4000-8000-0000000003d2Technical inputs00000005-0000-4000-8000-0000000003c9Evidence references00000005-0000-4000-8000-000000000266, 00000005-0000-4000-8000-000000000285, 00000005-0000-4000-8000-0000000002a4, 00000005-0000-4000-8000-0",
+            "scrollH": 677
+          },
+          {
+            "summary": "Results (3) · No comparable total 3 grouping results. Comparable total unavailab",
+            "bodyLen": 337,
+            "body": "Single lineGross tariff estimate · 1 lineCoverage incompleteCandidate operating-cost exposureNo consequence lines in this category; some Sites have no complete selectionCoverage incompletePotential product exposureNo consequence lines in this category; some Sites have no complete selectionComparable total unavailable for this selection",
+            "scrollH": 76
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites/EV-LAB-001/ev",
+            "text": "EV charging lab",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          }
+        ],
+        "titles": [
+          "Consequence register",
+          "Aggregation rule"
+        ],
+        "panels": [
+          {
+            "title": "Consequence register",
+            "x": 248,
+            "y": 265,
+            "w": 1160,
+            "h": 202,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Value",
+              "Basis / limit",
+              "Source"
+            ],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Aggregation rule",
+            "x": 248,
+            "y": 545,
+            "w": 1160,
+            "h": 121,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Single line",
+              "Coverage incomplete",
+              "Coverage incomplete"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio financials",
+          "top": 43,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "600",
+            "lineHeight": "15px",
+            "color": "rgb(107, 118, 144)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.95px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "13.05px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tableCols": [
+          {
+            "tableW": 1120,
+            "scrollerClientW": 1120,
+            "ths": [
+              {
+                "th": "Site",
+                "w": 123,
+                "visibleW": 123
+              },
+              {
+                "th": "Category",
+                "w": 235,
+                "visibleW": 235
+              },
+              {
+                "th": "Window / quantity",
+                "w": 224,
+                "visibleW": 224
+              },
+              {
+                "th": "Value",
+                "w": 112,
+                "visibleW": 112
+              },
+              {
+                "th": "Basis / limit",
+                "w": 269,
+                "visibleW": 269
+              },
+              {
+                "th": "Source",
+                "w": 157,
+                "visibleW": 157
+              }
+            ]
+          }
+        ],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Consequence register",
+            "before": 202,
+            "rows": 1,
+            "clones": 5,
+            "intendedColumns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Basis / limit",
+              "Source"
+            ],
+            "changedColumns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Basis / limit",
+              "Source"
+            ],
+            "verified": true,
+            "intendedFields": 30,
+            "fields160": 30,
+            "primary": {
+              "synthetic": true,
+              "h": 974,
+              "cloneRowHs": [
+                164,
+                164,
+                164,
+                164,
+                163
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "tableScrollers": [],
+              "docOverflowX": 0
+            }
+          },
+          {
+            "title": "Aggregation rule",
+            "before": 121,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/globalfinancials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/financials",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/temperature",
+            "text": "Site evidence →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/energy",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          }
+        ],
+        "titles": [
+          "Consequence register",
+          "Aggregation rule"
+        ],
+        "panels": [
+          {
+            "title": "Consequence register",
+            "x": 234,
+            "y": 306,
+            "w": 1161,
+            "h": 266,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Value",
+              "Basis / limit",
+              "Source"
+            ],
+            "chips": [],
+            "links": 6,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Aggregation rule",
+            "x": 234,
+            "y": 650,
+            "w": 1161,
+            "h": 99,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Portfolio financials",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "globalfinancials",
+      "case": "w302-partial-week",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/financials?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+      "mock_hash": "#/globalfinancials",
+      "app_image": "globalfinancials-w302-partial-week-390-app.png",
+      "mock_image": "globalfinancials-w302-partial-week-390-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Basis details",
+            "bodyLen": 691,
+            "body": "SiteEV charging lab · EV-LAB-001LimitsGross tariff scenario; not cash collected. Gross scenario only; not cash collected.Assumption references00000005-0000-4000-8000-0000000003d0Assumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000005-0000-4000-8000-0000000003d2Line referenceev_charging:00000005-0000-4000-8000-0000000003d2Technical inputs00000005-0000-4000-8000-0000000003c9Evidence references00000005-0000-4000-8000-000000000266, 00000005-0000-4000-8000-000000000285, 00000005-0000-4000-8000-0000000002a4, 00000005-0000-4000-8000-0",
+            "scrollH": 1981
+          },
+          {
+            "summary": "Results (3) · No comparable total 3 grouping results. Comparable total unavailab",
+            "bodyLen": 337,
+            "body": "Single lineGross tariff estimate · 1 lineCoverage incompleteCandidate operating-cost exposureNo consequence lines in this category; some Sites have no complete selectionCoverage incompletePotential product exposureNo consequence lines in this category; some Sites have no complete selectionComparable total unavailable for this selection",
+            "scrollH": 166
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites/EV-LAB-001/ev",
+            "text": "EV charging lab",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          }
+        ],
+        "titles": [
+          "Consequence register",
+          "Aggregation rule"
+        ],
+        "panels": [
+          {
+            "title": "Consequence register",
+            "x": 16,
+            "y": 476,
+            "w": 358,
+            "h": 238,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Value",
+              "Basis / limit",
+              "Source"
+            ],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Aggregation rule",
+            "x": 16,
+            "y": 811,
+            "w": 358,
+            "h": 186,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Single line",
+              "Coverage incomplete",
+              "Coverage incomplete"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1039,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio financials",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "600",
+            "lineHeight": "15px",
+            "color": "rgb(107, 118, 144)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.95px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "13.05px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tableCols": [
+          {
+            "tableW": 800,
+            "scrollerClientW": 318,
+            "ths": [
+              {
+                "th": "Site",
+                "w": 88,
+                "visibleW": 88
+              },
+              {
+                "th": "Category",
+                "w": 168,
+                "visibleW": 168
+              },
+              {
+                "th": "Window / quantity",
+                "w": 160,
+                "visibleW": 62
+              },
+              {
+                "th": "Value",
+                "w": 80,
+                "visibleW": 0
+              },
+              {
+                "th": "Basis / limit",
+                "w": 192,
+                "visibleW": 0
+              },
+              {
+                "th": "Source",
+                "w": 112,
+                "visibleW": 0
+              }
+            ]
+          }
+        ],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 800,
+            "cw": 318,
+            "panel": "Consequence register"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Consequence register",
+            "before": 238,
+            "rows": 1,
+            "clones": 5,
+            "intendedColumns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Basis / limit",
+              "Source"
+            ],
+            "changedColumns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Basis / limit",
+              "Source"
+            ],
+            "verified": true,
+            "intendedFields": 30,
+            "fields160": 30,
+            "primary": {
+              "synthetic": true,
+              "h": 1407,
+              "cloneRowHs": [
+                246,
+                246,
+                246,
+                246,
+                246
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "tableScrollers": [
+                {
+                  "cls": "data-table__scroll",
+                  "sw": 800,
+                  "cw": 318
+                }
+              ],
+              "docOverflowX": 0
+            }
+          },
+          {
+            "title": "Aggregation rule",
+            "before": 186,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/globalfinancials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/financials",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/temperature",
+            "text": "Site evidence →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/energy",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          }
+        ],
+        "titles": [
+          "Consequence register",
+          "Aggregation rule"
+        ],
+        "panels": [
+          {
+            "title": "Consequence register",
+            "x": 15,
+            "y": 503,
+            "w": 360,
+            "h": 407,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Value",
+              "Basis / limit",
+              "Source"
+            ],
+            "chips": [],
+            "links": 6,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Aggregation rule",
+            "x": 15,
+            "y": 1024,
+            "w": 360,
+            "h": 163,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1282,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Portfolio financials",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tableCols": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 514,
+            "cw": 320,
+            "panel": "Consequence register"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

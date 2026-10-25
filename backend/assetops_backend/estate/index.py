@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Any, Callable
+from urllib.parse import quote
 
 from assetops_backend.estate.coverage import (
     ACTIONS, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PENDING, STALE, UNKNOWN,
@@ -59,6 +60,42 @@ def _page(rows: list[dict[str, Any]], key: Callable[[dict[str, Any]], tuple], af
     return page, (page[-1] if len(remaining) > limit else None)
 
 
+class _WindowRecorder:
+    """Post-W6 W3-estate Q4/Q10: the caller's snapshot, recording the Site evidence cutoff and the exact selected
+    windows `site_coverage` reads (no extra query), so a cold/EV Finding row knows which selected Site window
+    holds it."""
+
+    def __init__(self, snap: Any) -> None:
+        self._snap, self.cutoff, self.windows = snap, None, []
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._snap, name)
+
+    def evidence_cutoff(self, *args: Any) -> Any:
+        self.cutoff = self._snap.evidence_cutoff(*args)
+        return self.cutoff
+
+    def selected_windows(self, *args: Any) -> list[dict[str, Any]]:
+        self.windows = self._snap.selected_windows(*args)
+        return self.windows
+
+
+def _finding_links(code: str, domain: str, fid: str, frid: str, rec: _WindowRecorder | None,
+                   k: datetime) -> dict[str, Any]:
+    """The Site home (EV `/sites/{code}/ev`) and the Finding route: mini-grid keeps its exact `revision_id`; a
+    cold/EV Finding opens over the one selected Site window holding it with the proven row-local cutoff, else
+    null (closure 5 B5 via `finding_window_href`)."""
+    from assetops_backend.estate.evidence_money import finding_window_href, site_home_href  # import cycle
+    if domain == MINI_GRID:
+        finding = f"/sites/{quote(code, safe='')}/findings/{fid}?revision_id={frid}"
+    else:
+        holding = [w for w in (rec.windows if rec is not None else ())
+                   if any(f["finding_id"] == fid for f in w.get("findings") or ())]
+        finding = (finding_window_href(code, fid, holding[0]["window_start"], holding[0]["window_end"], rec.cutoff,
+                                       rec.cutoff, k) if len(holding) == 1 else None)
+    return {"finding": finding, "site": site_home_href(code, domain)}
+
+
 def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                          scope: dict[str, Any]) -> tuple[list[tuple[dict[str, Any], str, dict[str, Any]]],
                                                           list[dict[str, Any]]]:
@@ -66,15 +103,18 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
     lifecycle heads) before lens/state filtering, sorting and paging, on the caller's one snapshot and `scope`.
     Private keys carry the Portfolio row facts (`_domain` stored Site type, `_episode_end`, `_mechanism`); the
     Findings root strips them with every other private key."""
-    per_site = []
+    per_site, recorders = [], {}
     for site in scope["sites"]:
         domain = DOMAIN_OF_SITE_TYPE.get(site["site_type"])
+        rec = None if domain in (None, MINI_GRID) else _WindowRecorder(snap)
         cov = (not_applicable() if domain is None
-               else site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, scope["k"]))
+               else site_coverage(rec or snap, tenant_id, site["site_id"], domain, req.from_, req.to, scope["k"]))
         per_site.append((site, domain or NOT_APPLICABLE, cov))
+        recorders[str(site["site_id"])] = rec
     rows: list[dict[str, Any]] = []
-    for site, _, cov in per_site:
+    for site, domain, cov in per_site:
         code = site["site_code"]
+        rec = recorders[str(site["site_id"])]
         for r in cov["rows"]:
             flags = ["COST"] if r["consequence"]["state"] == "PRICED" else []
             fid, frid = r["finding_id"], r["finding_revision_id"]
@@ -85,7 +125,7 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                 "lifecycle": r["lifecycle"], "lens_flags": flags, "consequence": r["consequence"],
                 "source_provenance": r["source_provenance"], "episode_start": wire_time(r["episode_start"]),
                 "status": cov["state"],
-                "links": {"finding": f"/sites/{code}/findings/{fid}?revision_id={frid}", "site": f"/sites/{code}"},
+                "links": _finding_links(code, domain, fid, frid, rec, scope["k"]),
                 "_at": r["episode_start"], "_site": site, "_domain": site["site_type"],
                 "_episode_end": r.get("episode_end"), "_mechanism": r.get("mechanism")})
     return per_site, rows

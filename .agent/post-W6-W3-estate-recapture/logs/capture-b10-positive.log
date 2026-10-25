@@ -1,0 +1,171 @@
+chrome pid 17224
+PASS  loaded http://127.0.0.1:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-positive 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-positive 1440: mock rendered
+PASS  findings-positive 1440: same panel count  {"app":["Findings across the estate"],"mock":["Findings across the estate"]}
+PASS  findings-positive 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-positive 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-positive 390: mock rendered
+PASS  findings-positive 390: same panel count  {"app":["Findings across the estate"],"mock":["Findings across the estate"]}
+PASS  findings-positive 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-cost-positive 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings-cost: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-cost-positive 1440: mock rendered
+PASS  findings-cost-positive 1440: same panel count  {"app":["Cost lens"],"mock":["Cost lens"]}
+PASS  findings-cost-positive 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-cost-positive 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings-cost: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-cost-positive 390: mock rendered
+PASS  findings-cost-positive 390: same panel count  {"app":["Cost lens"],"mock":["Cost lens"]}
+PASS  findings-cost-positive 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-risks-positive 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings-risks: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-risks-positive 1440: mock rendered
+PASS  findings-risks-positive 1440: same panel count  {"app":["Risks lens"],"mock":["Risks lens"]}
+PASS  findings-risks-positive 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-risks-positive 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings-risks: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-risks-positive 390: mock rendered
+PASS  findings-risks-positive 390: same panel count  {"app":["Risks lens"],"mock":["Risks lens"]}
+PASS  findings-risks-positive 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-opportunities-positive 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings-opportunities: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-opportunities-positive 1440: mock rendered
+PASS  findings-opportunities-positive 1440: same panel count  {"app":["Opportunities lens"],"mock":["Opportunities lens"]}
+PASS  findings-opportunities-positive 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-opportunities-positive 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings-opportunities: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-opportunities-positive 390: mock rendered
+PASS  findings-opportunities-positive 390: same panel count  {"app":["Opportunities lens"],"mock":["Opportunities lens"]}
+PASS  findings-opportunities-positive 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  actions-positive 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/actions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  actions-positive 1440: mock rendered
+PASS  actions-positive 1440: same panel count  {"app":["Managed actions"],"mock":["Managed actions"]}
+PASS  actions-positive 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  actions-positive 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/actions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  actions-positive 390: mock rendered
+PASS  actions-positive 390: same panel count  {"app":["Managed actions"],"mock":["Managed actions"]}
+PASS  actions-positive 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-no-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-no-window 1440: mock rendered
+PASS  findings-no-window 1440: same panel count  {"app":["Findings across the estate"],"mock":["Findings across the estate"]}
+PASS  findings-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-no-window 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-no-window 390: mock rendered
+PASS  findings-no-window 390: same panel count  {"app":["Findings across the estate"],"mock":["Findings across the estate"]}
+PASS  findings-no-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings/cost: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-cost-no-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings-cost: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-cost-no-window 1440: mock rendered
+PASS  findings-cost-no-window 1440: same panel count  {"app":["Cost lens"],"mock":["Cost lens"]}
+PASS  findings-cost-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings/cost: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-cost-no-window 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings-cost: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-cost-no-window 390: mock rendered
+PASS  findings-cost-no-window 390: same panel count  {"app":["Cost lens"],"mock":["Cost lens"]}
+PASS  findings-cost-no-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings/risks: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-risks-no-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings-risks: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-risks-no-window 1440: mock rendered
+PASS  findings-risks-no-window 1440: same panel count  {"app":["Risks lens"],"mock":["Risks lens"]}
+PASS  findings-risks-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings/risks: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-risks-no-window 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings-risks: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-risks-no-window 390: mock rendered
+PASS  findings-risks-no-window 390: same panel count  {"app":["Risks lens"],"mock":["Risks lens"]}
+PASS  findings-risks-no-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings/opportunities: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-opportunities-no-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings-opportunities: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-opportunities-no-window 1440: mock rendered
+PASS  findings-opportunities-no-window 1440: same panel count  {"app":["Opportunities lens"],"mock":["Opportunities lens"]}
+PASS  findings-opportunities-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings/opportunities: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-opportunities-no-window 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings-opportunities: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-opportunities-no-window 390: mock rendered
+PASS  findings-opportunities-no-window 390: same panel count  {"app":["Opportunities lens"],"mock":["Opportunities lens"]}
+PASS  findings-opportunities-no-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/actions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  actions-no-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/actions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  actions-no-window 1440: mock rendered
+PASS  actions-no-window 1440: same panel count  {"app":["Managed actions"],"mock":["Managed actions"]}
+PASS  actions-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/actions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  actions-no-window 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/actions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  actions-no-window 390: mock rendered
+PASS  actions-no-window 390: same panel count  {"app":["Managed actions"],"mock":["Managed actions"]}
+PASS  actions-no-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&state=merged: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-state-merged-empty 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-state-merged-empty 1440: mock rendered
+PASS  findings-state-merged-empty 1440: same panel count  {"app":["Findings across the estate"],"mock":["Findings across the estate"]}
+PASS  findings-state-merged-empty 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&state=merged: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-state-merged-empty 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-state-merged-empty 390: mock rendered
+PASS  findings-state-merged-empty 390: same panel count  {"app":["Findings across the estate"],"mock":["Findings across the estate"]}
+PASS  findings-state-merged-empty 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  actions-empty-day 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/actions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  actions-empty-day 1440: mock rendered
+PASS  actions-empty-day 1440: same panel count  {"app":["Managed actions"],"mock":["Managed actions"]}
+PASS  actions-empty-day 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  actions-empty-day 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/actions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  actions-empty-day 390: mock rendered
+PASS  actions-empty-day 390: same panel count  {"app":["Managed actions"],"mock":["Managed actions"]}
+PASS  actions-empty-day 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-refused-33d 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-refused-33d 1440: mock rendered
+FAIL  findings-refused-33d 1440: same panel count  {"app":[],"mock":["Findings across the estate"]}
+PASS  findings-refused-33d 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/findings?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-refused-33d 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/findings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-refused-33d 390: mock rendered
+FAIL  findings-refused-33d 390: same panel count  {"app":[],"mock":["Findings across the estate"]}
+PASS  findings-refused-33d 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/actions?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  actions-refused-33d 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/actions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  actions-refused-33d 1440: mock rendered
+FAIL  actions-refused-33d 1440: same panel count  {"app":[],"mock":["Managed actions"]}
+PASS  actions-refused-33d 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/actions?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  actions-refused-33d 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/actions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  actions-refused-33d 390: mock rendered
+FAIL  actions-refused-33d 390: same panel count  {"app":[],"mock":["Managed actions"]}
+PASS  actions-refused-33d 390: no app page overflow  {"overflowX":0}
+
+164/168 claims passed; evidence in part-b10-positive

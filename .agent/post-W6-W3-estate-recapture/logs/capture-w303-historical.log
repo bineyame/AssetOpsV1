@@ -1,0 +1,39 @@
+chrome pid 14096
+PASS  loaded http://127.0.0.1:5180/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-09-30T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  globalevidence-w303-historical 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/globalevidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  globalevidence-w303-historical 1440: mock rendered
+PASS  globalevidence-w303-historical 1440: same panel count  {"app":["Capability coverage across sites","Recurring evidence gaps"],"mock":["Capability coverage across sites","Recurring evidence gaps"]}
+PASS  globalevidence-w303-historical 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-09-30T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  globalevidence-w303-historical 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/globalevidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  globalevidence-w303-historical 390: mock rendered
+PASS  globalevidence-w303-historical 390: same panel count  {"app":["Capability coverage across sites","Recurring evidence gaps"],"mock":["Capability coverage across sites","Recurring evidence gaps"]}
+PASS  globalevidence-w303-historical 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-09-30T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  globalfinancials-w303-historical 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/globalfinancials: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  globalfinancials-w303-historical 1440: mock rendered
+PASS  globalfinancials-w303-historical 1440: same panel count  {"app":["Consequence register","Aggregation rule"],"mock":["Consequence register","Aggregation rule"]}
+PASS  globalfinancials-w303-historical 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-09-30T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  globalfinancials-w303-historical 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/globalfinancials: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  globalfinancials-w303-historical 390: mock rendered
+PASS  globalfinancials-w303-historical 390: same panel count  {"app":["Consequence register","Aggregation rule"],"mock":["Consequence register","Aggregation rule"]}
+PASS  globalfinancials-w303-historical 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-09-30T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  portfolio-w303-historical 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/portfolio: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  portfolio-w303-historical 1440: mock rendered
+PASS  portfolio-w303-historical 1440: same panel count  {"app":["Where management should act first","Objectives across the estate","An opportunity beyond reducing cost","What changed in this review"],"mock":["Where management should act first","Objectives across the estate","An opportunity beyond reducing cost","What changed in this review"]}
+PASS  portfolio-w303-historical 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5180/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-09-30T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  portfolio-w303-historical 390: app rendered
+PASS  loaded http://127.0.0.1:5180/mockups/v69/index.html#/portfolio: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  portfolio-w303-historical 390: mock rendered
+PASS  portfolio-w303-historical 390: same panel count  {"app":["Where management should act first","Objectives across the estate","An opportunity beyond reducing cost","What changed in this review"],"mock":["Where management should act first","Objectives across the estate","An opportunity beyond reducing cost","What changed in this review"]}
+PASS  portfolio-w303-historical 390: no app page overflow  {"overflowX":0}
+
+36/36 claims passed; evidence in part-w303-historical

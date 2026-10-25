@@ -1,0 +1,982 @@
+{
+  "revision": "c9665a90",
+  "captured_at": "2026-10-25T00:18:02.637Z",
+  "pairs": [
+    {
+      "screen": "portfolio",
+      "case": "w303-refusal-503",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "mock_hash": "#/portfolio",
+      "app_image": "portfolio-w303-refusal-503-1440-app.png",
+      "mock_image": "portfolio-w303-refusal-503-1440-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [],
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio Value & Operations",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "worstCase": []
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/portfolio",
+            "text": "Portfolio",
+            "panel": ""
+          },
+          {
+            "href": "#/financials",
+            "text": "Operating-cost exposure$3.31–3.97Kobo · 30 min candidate runtimeModelled + scena",
+            "panel": ""
+          },
+          {
+            "href": "#/findings",
+            "text": "Service & product risk2 sitesCold-room excursion + interrupted chargingMeasured ",
+            "panel": ""
+          },
+          {
+            "href": "#/renewable",
+            "text": "Productive-use opportunity18–20 kWKobo · headroom on 3 of 5 daysModelled · deman",
+            "panel": ""
+          },
+          {
+            "href": "#/asset",
+            "text": "Asset-life exposure1 battery on watchReserve and high-power stress observed30-da",
+            "panel": ""
+          },
+          {
+            "href": "#/globalfinancials",
+            "text": "Verified value recoveredNot establishedIntervention outcomes need more evidenceC",
+            "panel": ""
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-finding",
+            "text": "Backup response failed",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-action",
+            "text": "ACT-051",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/finding",
+            "text": "Extended generator support",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/verification",
+            "text": "ACT-048",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/ev-finding",
+            "text": "Charging session interrupted",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/ev-action",
+            "text": "ACT-061",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-finding-excursion",
+            "text": "Temperature excursion",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-finding-excursion",
+            "text": "Review recommendation",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/evidence",
+            "text": "Battery output-limit report missing",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/sitework",
+            "text": "ACT-049",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Productive-use headroom",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Review recommendation",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/findings",
+            "text": "Open all Findings →",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold",
+            "text": "Cold room",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/service",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/temperature",
+            "text": "Attention",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/sessions",
+            "text": "Attention",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/backup",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/coldbackup",
+            "text": "Degraded",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-foundation",
+            "text": "N/A",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/asset",
+            "text": "Watch",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold-health",
+            "text": "Investigate",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-health",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/financials",
+            "text": "Review",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold-financials",
+            "text": "Unassessed",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-financials",
+            "text": "Unassessed",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold-evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/evidence",
+            "text": "Inspect the constraint →",
+            "panel": ""
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Review opportunity Finding →",
+            "panel": "An opportunity beyond reducing cost"
+          },
+          {
+            "href": "#/renewable",
+            "text": "Inspect physical headroom →",
+            "panel": "An opportunity beyond reducing cost"
+          },
+          {
+            "href": "#/energy",
+            "text": "Inspect energy basis →",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Where management should act first",
+          "Objectives across the estate",
+          "An opportunity beyond reducing cost",
+          "What changed in this review"
+        ],
+        "panels": [
+          {
+            "title": "Where management should act first",
+            "x": 234,
+            "y": 518,
+            "w": 836,
+            "h": 709,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Site",
+              "Finding / operating mechanism",
+              "Value / consequence",
+              "Priority",
+              "Confidence",
+              "Action / next move"
+            ],
+            "chips": [
+              "All priorities",
+              "Cost",
+              "Risks",
+              "Opportunities",
+              "High",
+              "High",
+              "High",
+              "Lowⓘ",
+              "Medium",
+              "Mediumⓘ",
+              "Medium",
+              "High",
+              "Medium",
+              "High",
+              "Medium",
+              "Mediumⓘ"
+            ],
+            "links": 19,
+            "buttons": 7,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Objectives across the estate",
+            "x": 1086,
+            "y": 518,
+            "w": 309,
+            "h": 375,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 18,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "An opportunity beyond reducing cost",
+            "x": 234,
+            "y": 1244,
+            "w": 573,
+            "h": 223,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Scenario"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(124, 184, 166) 2px",
+            "radius": "7px"
+          },
+          {
+            "title": "What changed in this review",
+            "x": 823,
+            "y": 1244,
+            "w": 573,
+            "h": 223,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1558,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Portfolio Value & Operations",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "400",
+            "lineHeight": "15px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "8px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "10px": 3,
+          "9px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1514
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "portfolio",
+      "case": "w303-refusal-503",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "mock_hash": "#/portfolio",
+      "app_image": "portfolio-w303-refusal-503-390-app.png",
+      "mock_image": "portfolio-w303-refusal-503-390-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [],
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio Value & Operations",
+          "top": 325,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 309
+          }
+        ],
+        "mainTop": 325,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "worstCase": []
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/portfolio",
+            "text": "Portfolio",
+            "panel": ""
+          },
+          {
+            "href": "#/financials",
+            "text": "Operating-cost exposure$3.31–3.97Kobo · 30 min candidate runtimeModelled + scena",
+            "panel": ""
+          },
+          {
+            "href": "#/findings",
+            "text": "Service & product risk2 sitesCold-room excursion + interrupted chargingMeasured ",
+            "panel": ""
+          },
+          {
+            "href": "#/renewable",
+            "text": "Productive-use opportunity18–20 kWKobo · headroom on 3 of 5 daysModelled · deman",
+            "panel": ""
+          },
+          {
+            "href": "#/asset",
+            "text": "Asset-life exposure1 battery on watchReserve and high-power stress observed30-da",
+            "panel": ""
+          },
+          {
+            "href": "#/globalfinancials",
+            "text": "Verified value recoveredNot establishedIntervention outcomes need more evidenceC",
+            "panel": ""
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-finding",
+            "text": "Backup response failed",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-action",
+            "text": "ACT-051",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/finding",
+            "text": "Extended generator support",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/verification",
+            "text": "ACT-048",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/ev-finding",
+            "text": "Charging session interrupted",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/ev-action",
+            "text": "ACT-061",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-finding-excursion",
+            "text": "Temperature excursion",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-finding-excursion",
+            "text": "Review recommendation",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/evidence",
+            "text": "Battery output-limit report missing",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/sitework",
+            "text": "ACT-049",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Productive-use headroom",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Review recommendation",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/findings",
+            "text": "Open all Findings →",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold",
+            "text": "Cold room",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/service",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/temperature",
+            "text": "Attention",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/sessions",
+            "text": "Attention",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/backup",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/coldbackup",
+            "text": "Degraded",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-foundation",
+            "text": "N/A",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/asset",
+            "text": "Watch",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold-health",
+            "text": "Investigate",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-health",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/financials",
+            "text": "Review",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold-financials",
+            "text": "Unassessed",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-financials",
+            "text": "Unassessed",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold-evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/evidence",
+            "text": "Inspect the constraint →",
+            "panel": ""
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Review opportunity Finding →",
+            "panel": "An opportunity beyond reducing cost"
+          },
+          {
+            "href": "#/renewable",
+            "text": "Inspect physical headroom →",
+            "panel": "An opportunity beyond reducing cost"
+          },
+          {
+            "href": "#/energy",
+            "text": "Inspect energy basis →",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Where management should act first",
+          "Objectives across the estate",
+          "An opportunity beyond reducing cost",
+          "What changed in this review"
+        ],
+        "panels": [
+          {
+            "title": "Where management should act first",
+            "x": 15,
+            "y": 1147,
+            "w": 360,
+            "h": 773,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Site",
+              "Finding / operating mechanism",
+              "Value / consequence",
+              "Priority",
+              "Confidence",
+              "Action / next move"
+            ],
+            "chips": [
+              "All priorities",
+              "Cost",
+              "Risks",
+              "Opportunities",
+              "High",
+              "High",
+              "High",
+              "Lowⓘ",
+              "Medium",
+              "Mediumⓘ",
+              "Medium",
+              "High",
+              "Medium",
+              "High",
+              "Medium",
+              "Mediumⓘ"
+            ],
+            "links": 19,
+            "buttons": 7,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Objectives across the estate",
+            "x": 15,
+            "y": 1936,
+            "w": 360,
+            "h": 375,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 18,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "An opportunity beyond reducing cost",
+            "x": 15,
+            "y": 2465,
+            "w": 360,
+            "h": 247,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Scenario"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(124, 184, 166) 2px",
+            "radius": "7px"
+          },
+          {
+            "title": "What changed in this review",
+            "x": 15,
+            "y": 2740,
+            "w": 360,
+            "h": 298,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3192,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Portfolio Value & Operations",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "400",
+            "lineHeight": "15px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "8px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 720,
+            "cw": 338,
+            "panel": "Where management should act first"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "10px": 3,
+          "9px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

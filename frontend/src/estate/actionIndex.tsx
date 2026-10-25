@@ -89,13 +89,22 @@ function Cards({ body }: { body: EstateActionsBody }) {
   );
 }
 
+/**
+ * Post-W6 W3-estate Q5 (R293): the row title is the selected stored `action_title` when present, otherwise the
+ * `action_code` alone. No Action-kind wording is supplied by the page.
+ */
+export function actionRowTitle(row: Pick<EstateActionRow, "action_title" | "action_code">): string {
+  const title: unknown = row.action_title;
+  return typeof title === "string" && title.trim() !== "" ? title : row.action_code;
+}
+
 function Row({ row }: { row: EstateActionRow }) {
   const state = APPLICATION_WORDS[row.application_state];
   return (
     <tr data-estate-action={row.action_id}>
       <td>
         <Link className="estate-cell__primary" to={row.links.action} data-estate-action-link>
-          {row.action_title}
+          {actionRowTitle(row)}
         </Link>
       </td>
       <td>
@@ -187,12 +196,13 @@ export function EstateActionsPage({ client }: { client?: EstateClient }) {
         key={`${query.from}|${query.to}|${query.known_at ?? ""}`}
         query={query}
         body={body}
+        windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"}
         onApply={(nextQuery) => navigate(estateHref(ESTATE_ACTIONS_PATH, nextQuery))}
       />
       {read === null ? (
         <p className="estate-loading">Loading the Actions across the estate.</p>
       ) : read.status === "refused" ? (
-        <EstateRefusal code={read.code} copy={read.copy} firstPage={firstPage} />
+        <EstateRefusal code={read.code} copy={read.copy} window={query} firstPage={firstPage} />
       ) : (
         <>
           <Cards body={read.value} />
