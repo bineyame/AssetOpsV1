@@ -983,6 +983,9 @@ function WhatNext({ body, links }: { body: FindingDetailBody; links: SiteFinding
   );
 }
 
+/** Related Findings shown inline up to this many; more sit behind a count disclosure (Q15 cap fallback). */
+const RELATED_INLINE_MAX = 2;
+
 /** finding:4: each destination with the exact selection, as the mock's attention list; exact references last. */
 function WhereToLook({ body, links, params }: { body: FindingDetailBody; links: SiteFindingLinks; params: URLSearchParams }) {
   const selected = body.revision;
@@ -1001,6 +1004,17 @@ function WhereToLook({ body, links, params }: { body: FindingDetailBody; links: 
     ...body.relations.merged_from.map((m) => ({ label: "Finding joined into this one", id: m.superseded_finding_id })),
     ...body.relations.merged_into.map((m) => ({ label: "Finding that carries this review", id: m.canonical_finding_id })),
   ];
+  const relatedList = (
+    <ul className="site-finding__inline">
+      {related.map((r) => (
+        <li key={`${r.label}-${r.id}`}>
+          <Link to={links.finding(r.id)} data-finding-related={r.id}>
+            {r.label} →
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
   const cited = selected.cited_evidence.length;
   const items: AttentionItem[] = [
     {
@@ -1080,16 +1094,14 @@ function WhereToLook({ body, links, params }: { body: FindingDetailBody; links: 
       title: "Related Findings",
       body: related.length === 0 ? "None recorded." : "Each opens with its own state.",
       action:
-        related.length === 0 ? undefined : (
-          <ul className="site-finding__inline">
-            {related.map((r) => (
-              <li key={`${r.label}-${r.id}`}>
-                <Link to={links.finding(r.id)} data-finding-related={r.id}>
-                  {r.label} →
-                </Link>
-              </li>
-            ))}
-          </ul>
+        related.length === 0 ? undefined : related.length > RELATED_INLINE_MAX ? (
+          // Q15 fallback (W1-a fix round M1): five long related rows exceed the closed Where-to-look-next cap, so more
+          // than RELATED_INLINE_MAX related Findings sit behind their count disclosure; every link stays keyboard-reachable.
+          <ShowAll name="finding-related" summary={`Show all ${related.length} related Findings`}>
+            {relatedList}
+          </ShowAll>
+        ) : (
+          relatedList
         ),
     },
   ];

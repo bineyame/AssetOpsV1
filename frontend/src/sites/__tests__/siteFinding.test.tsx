@@ -971,6 +971,29 @@ describe("post-W6 W1-a: Finding overview time, links and the exact-version cost 
     );
   });
 
+  it("M1 / Q15 fallback: two related Findings stay inline; five sit behind a count disclosure with every link kept", async () => {
+    const two = body([summary(1, "OPENED")]);
+    two.relations.recurs_after_finding_id = PRIOR;
+    two.relations.split_parts = ["aaaaaaaa-0000-4000-8000-000000000001"];
+    const first = mount(fake({ status: "loaded", value: two }));
+    await settledScreen();
+    const look = () => panelTitled("Where to look next");
+    expect(look().querySelector("[data-show-all='finding-related']")).toBeNull();
+    expect(look().querySelectorAll("[data-finding-related]")).toHaveLength(2);
+    first.unmount();
+    const five = body([summary(1, "OPENED")]);
+    five.relations.recurs_after_finding_id = PRIOR;
+    five.relations.recurred_by = ["aaaaaaaa-0000-4000-8000-000000000002", "aaaaaaaa-0000-4000-8000-000000000003"];
+    five.relations.split_parts = ["aaaaaaaa-0000-4000-8000-000000000001", "aaaaaaaa-0000-4000-8000-000000000004"];
+    mount(fake({ status: "loaded", value: five }));
+    await settledScreen();
+    const disclosure = look().querySelector("details[data-show-all='finding-related']") as HTMLDetailsElement;
+    expect(disclosure.open).toBe(false);
+    expect(disclosure.querySelector("summary")?.textContent).toBe("Show all 5 related Findings");
+    expect(disclosure.querySelectorAll("a[data-finding-related]")).toHaveLength(5);
+    expect(look().querySelectorAll("[data-finding-related]")).toHaveLength(5);
+  });
+
   it("Q12 / R189: a current PRICED answer for the exact version shows Cost exposure, its range and a Financials link", async () => {
     const { client, asked } = costClient((rid) => ({ status: "loaded", value: costBody(rid as string, {}) }));
     mount(loaded(), "", F, true, { financials: client, links: W1A_LINKS });
