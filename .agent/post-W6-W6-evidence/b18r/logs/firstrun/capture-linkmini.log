@@ -1,0 +1,75 @@
+﻿chrome pid 19960
+PASS  loaded http://127.0.0.1:5392/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-linkmini-site-incidents 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/sitework-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  link-linkmini-site-incidents 1440: mock rendered
+FAIL  link-linkmini-site-incidents 1440: same panel count  {"app":["Incidents at this site"],"mock":[]}
+PASS  link-linkmini-site-incidents 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  link-linkmini-site-incidents 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/sitework-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  link-linkmini-site-incidents 390: mock rendered
+PASS  link-linkmini-site-incidents 390: same panel count  {"app":[],"mock":[]}
+PASS  link-linkmini-site-incidents 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/sites/KOBO-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  link-linkmini-site-overview 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/mini: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  link-linkmini-site-overview 1440: mock rendered
+PASS  link-linkmini-site-overview 1440: same panel count  {"app":[],"mock":[]}
+PASS  link-linkmini-site-overview 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/sites/KOBO-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  link-linkmini-site-overview 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/mini: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  link-linkmini-site-overview 390: mock rendered
+PASS  link-linkmini-site-overview 390: same panel count  {"app":[],"mock":[]}
+PASS  link-linkmini-site-overview 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  link-linkmini-finding 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/finding: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  link-linkmini-finding 1440: mock rendered
+PASS  link-linkmini-finding 1440: same panel count  {"app":[],"mock":[]}
+PASS  link-linkmini-finding 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  link-linkmini-finding 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/finding: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  link-linkmini-finding 390: mock rendered
+PASS  link-linkmini-finding 390: same panel count  {"app":[],"mock":[]}
+PASS  link-linkmini-finding 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  link-linkmini-action 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/action-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  link-linkmini-action 1440: mock rendered
+PASS  link-linkmini-action 1440: same panel count  {"app":[],"mock":[]}
+PASS  link-linkmini-action 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  link-linkmini-action 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/action-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  link-linkmini-action 390: mock rendered
+PASS  link-linkmini-action 390: same panel count  {"app":[],"mock":[]}
+PASS  link-linkmini-action 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  link-linkmini-request 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  link-linkmini-request 1440: mock rendered
+PASS  link-linkmini-request 1440: same panel count  {"app":[],"mock":[]}
+PASS  link-linkmini-request 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/maintenance/requests/dea5450d-7b67-418a-8203-33b6510ad98b?site_id=KOBO-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  link-linkmini-request 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  link-linkmini-request 390: mock rendered
+PASS  link-linkmini-request 390: same panel count  {"app":[],"mock":[]}
+PASS  link-linkmini-request 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  link-linkmini-request2 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  link-linkmini-request2 1440: mock rendered
+PASS  link-linkmini-request2 1440: same panel count  {"app":[],"mock":[]}
+PASS  link-linkmini-request2 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/maintenance/requests/5bf4e4f1-8039-48e8-9932-3209201ebba1?site_id=KOBO-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  link-linkmini-request2 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  link-linkmini-request2 390: mock rendered
+PASS  link-linkmini-request2 390: same panel count  {"app":[],"mock":[]}
+PASS  link-linkmini-request2 390: no app page overflow  {"overflowX":0}
+
+48/72 claims passed; evidence in ..\part-linkmini

@@ -1,0 +1,17 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "forbidden-403",
+  "url": "http://127.0.0.1:5393/maintenance/requests/9933c00d-fe7f-4eec-8d94-762b5801473c?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "forbidden-403",
+  "url": "http://127.0.0.1:5393/maintenance/requests/9933c00d-fe7f-4eec-8d94-762b5801473c/record?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "forbidden-403",
+  "url": "http://127.0.0.1:5393/maintenance/requests/9933c00d-fe7f-4eec-8d94-762b5801473c/history?site_id=KOBO-001"
+ }
+]

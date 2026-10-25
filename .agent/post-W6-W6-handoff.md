@@ -50,3 +50,6 @@ and the Maintenance record panel; R369 in the History panel. Labels sit in chrom
    unverified layout claims until captured.
 5. Q19 registry-chain evidence for the packet (A-work-cases <- A-maintenance-index <- A-cold-work-projections; EV left open).
 6. Review packet, CODE_STATE/ACTIVE_CONTEXT updates after captures.
+
+## Caps fix round (closed)
+Rulings `.agent/post-W6-W6-caps-rulings.md`. Commits `cf4a06d9` (rulings), `fff67f3e` (Feeds 125 + CellDisclosure), `ffcf6e13` (correction lines), `6f54ad1b` (Work request Finding/Action line), `ee1a0546` (q15b probe), then closeout (packet, CODE_STATE, ACTIVE_CONTEXT, b18r/b19r). Product is final at 6f54ad1b. Packet `.agent/post-W6-W6-packet.md`. Next step: fresh independent review.

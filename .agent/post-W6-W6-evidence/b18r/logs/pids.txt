@@ -1,0 +1,63 @@
+﻿API 18901 inc assetops_backend.main:app 25224
+API 18902 maint assetops_backend.main:app 6556
+API 18903 prev assetops_backend.main:app 23128
+API 18904 op assetops_backend.main:app 14412
+API 18905 zero assetops_backend.main:app 5972
+API 18906 hist assetops_backend.main:app 32076
+API 18907 stress assetops_backend.main:app 28084
+API 18908 linked assetops_backend.main:app 22592
+API 18909 absent assetops_backend.main:app 10988
+API 18910 op api_empty_scope:app 19032
+VITE inc 7524
+VITE maint 28700
+VITE prev 25060
+API 18911 w502b_positive_w6r18r_test assetops_backend.main:app 27324
+API 18912 w502b_worstcase_w6r18r_test assetops_backend.main:app 3144
+VITE op 19804
+VITE zero 16908
+VITE hist 6660
+VITE stress 7880
+VITE linked 25272
+VITE absent 26288
+VITE scope 24792
+VITE probe 22272
+VITE linked 22044
+VITE cold 7620
+VITE coldwc 31884
+VITE linkmini 32088
+VITE linkmini 7536
+VITE linkinc 25196
+VITE r360hist 16060
+STOPPED API 25224 6556 23128 14412 5972 32076 28084 22592 10988 19032 27324 3144
+API 18901 inc assetops_backend.main:app 31332
+API 18902 maint assetops_backend.main:app 6932
+API 18905 zero assetops_backend.main:app 30264
+API 18906 hist assetops_backend.main:app 1768
+API 18907 stress assetops_backend.main:app 10264
+API 18908 linked assetops_backend.main:app 15960
+API 18909 absent assetops_backend.main:app 26668
+API 18910 op api_empty_scope:app 24580
+API 18911 w502b_positive_w6r18r_test assetops_backend.main:app 2896
+API 18912 w502b_worstcase_w6r18r_test assetops_backend.main:app 16532
+VITE maint 24928
+VITE stress 31848
+VITE linked 23940
+VITE zero 29388
+VITE absent 27632
+VITE scope 13144
+VITE cold 31624
+VITE coldwc 31464
+VITE linkinc 9300
+VITE r360hist 29016
+STOPPED API 31332 6932 30264 1768 10264 15960 26668 24580 2896 16532
+W502 serve pids 16080 10408 11508 31872 (ports 8971/8972/8976/8977)
+VITE linkcold 7448
+VITE linkcold 25564
+W504 serve pids 6544 4568 12744 24436 24888 (ports 18921/22/23/26/27); attest stopped 24888; zero tree 4568 stopped early (not needed)
+API 18928 w504a_positive_w6r18r_test assetops_backend.main:app 15576
+API 18929 w504a_worstcase_w6r18r_test assetops_backend.main:app 18900
+VITE ev 16124
+VITE evwc 22076
+VITE linkev 24548
+VITE linkevwc 15504
+STOPPED API 15576 18900

@@ -1,0 +1,39 @@
+﻿chrome pid 24432
+PASS  loaded http://127.0.0.1:5393/maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7?site_id=COLD-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  wr-overview-cold-forbidden-principal 1440: app rendered
+PASS  loaded http://127.0.0.1:5393/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-overview-cold-forbidden-principal 1440: mock rendered
+FAIL  wr-overview-cold-forbidden-principal 1440: same panel count  {"app":[],"mock":["Work done","Lifecycle"]}
+PASS  wr-overview-cold-forbidden-principal 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5393/maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7?site_id=COLD-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-overview-cold-forbidden-principal 390: app rendered
+PASS  loaded http://127.0.0.1:5393/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-overview-cold-forbidden-principal 390: mock rendered
+FAIL  wr-overview-cold-forbidden-principal 390: same panel count  {"app":[],"mock":["Work done","Lifecycle"]}
+PASS  wr-overview-cold-forbidden-principal 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5393/maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7/record?site_id=COLD-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  wr-record-cold-forbidden-principal 1440: app rendered
+PASS  loaded http://127.0.0.1:5393/mockups/v69/index.html#/wr-record: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-record-cold-forbidden-principal 1440: mock rendered
+FAIL  wr-record-cold-forbidden-principal 1440: same panel count  {"app":[],"mock":["Maintenance record · activity"]}
+PASS  wr-record-cold-forbidden-principal 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5393/maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7/record?site_id=COLD-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-record-cold-forbidden-principal 390: app rendered
+PASS  loaded http://127.0.0.1:5393/mockups/v69/index.html#/wr-record: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-record-cold-forbidden-principal 390: mock rendered
+FAIL  wr-record-cold-forbidden-principal 390: same panel count  {"app":[],"mock":["Maintenance record · activity"]}
+PASS  wr-record-cold-forbidden-principal 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5393/maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7/history?site_id=COLD-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  wr-history-cold-forbidden-principal 1440: app rendered
+PASS  loaded http://127.0.0.1:5393/mockups/v69/index.html#/wr-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-history-cold-forbidden-principal 1440: mock rendered
+FAIL  wr-history-cold-forbidden-principal 1440: same panel count  {"app":[],"mock":["History"]}
+PASS  wr-history-cold-forbidden-principal 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5393/maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7/history?site_id=COLD-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-history-cold-forbidden-principal 390: app rendered
+PASS  loaded http://127.0.0.1:5393/mockups/v69/index.html#/wr-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-history-cold-forbidden-principal 390: mock rendered
+FAIL  wr-history-cold-forbidden-principal 390: same panel count  {"app":[],"mock":["History"]}
+PASS  wr-history-cold-forbidden-principal 390: no app page overflow  {"overflowX":0}
+
+30/36 claims passed; evidence in part-cold-forbidden

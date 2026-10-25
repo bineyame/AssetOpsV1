@@ -1,0 +1,1607 @@
+{
+  "revision": "ffcf6e13",
+  "captured_at": "2026-10-25T17:00:21.931Z",
+  "pairs": [
+    {
+      "screen": "link",
+      "case": "r359-incident-wr",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/maintenance/requests/d7dd5b29-3564-4bf6-9b85-e5de946310d4?site_id=KOBO-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-r359-incident-wr-1440-app.png",
+      "mock_image": "link-r359-incident-wr-1440-mock.png",
+      "app": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 248,
+            "y": 356,
+            "w": 734,
+            "h": 325,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneInspection requested.Full narrative textInspection requested.Latest activity: No maintenance activity recordedTypeCorrectiveAssetNo asset recordedWarrantyWarranty not recordedLinked actionNo linked action recordedMOCK DEVIATION D1 (R365)",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 1000,
+            "y": 356,
+            "w": 408,
+            "h": 325,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified. No work-case outcome evaluator is available.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Inspect starter",
+          "top": 56,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 1,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 1,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "MaintenanceWR-000008Overview· site: Kobo mini-grid",
+          "subtitle": "WR-000008 · Kobo mini-grid · corrective",
+          "headerButtons": [
+            "Open site"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Maintenance WR-000008 Overview · site: Kobo mini-grid Inspect starter WR-000008 · Kobo mini-grid · corrective Open site Overview Maintenance record Verification · Not available yet History MOCK DEVIATION D1 (R396) As known at 25 Oct 2026, 17:00 UTC Reload MOCK DEVIATION D2 (R363) OWNER Not assigned Full owner text DUE / SLA Not set STATE Open · outcome not established SOURCE Incident INC-000001 Full source text SUCCESS CRITERION Not recorded Work done Inspection requested. Full narrative text Latest activity: No maintenance activity recorded Type Corrective Asset No asset recorded Warranty Warranty not recorded Linked action No linked action recorded MOCK DEVIATION D1 (R365) Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified. No work-case outcome evaluator is available."
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 1,
+          "bodyText": "Maintenance WR-000008 Overview · site: Kobo mini-grid Inspect starter WR-000008 · Kobo mini-grid · corrective Open site Overview Maintenance record Verification · Not available yet History MOCK DEVIATION D1 (R396) As known at 25 Oct 2026, 17:00 UTC Reload MOCK DEVIATION D2 (R363) OWNER Not assigned Full owner text DUE / SLA Not set STATE Open · outcome not established SOURCE Incident INC-000001 Full source text SUCCESS CRITERION Not recorded Work done Inspection requested. Full narrative text Latest activity: No maintenance activity recorded Type Corrective Asset No asset recorded Warranty Warranty not recorded Linked action No linked action recorded MOCK DEVIATION D1 (R365) Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified. No work-case outcome evaluator is available."
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "Open site -> /sites/KOBO-001",
+          "Overview -> /maintenance/requests/d7dd5b29-3564-4bf6-9b85-e5de946310d4?site_id=KOBO-001",
+          "Maintenance record -> /maintenance/requests/d7dd5b29-3564-4bf6-9b85-e5de946310d4/record?site_id=KOBO-001",
+          "History -> /maintenance/requests/d7dd5b29-3564-4bf6-9b85-e5de946310d4/history?site_id=KOBO-001",
+          "Incident INC-000001 -> /sites/KOBO-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-20T00%3A00%3A00Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification · Not available yet(off)",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 2,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5392/maintenance/requests/d7dd5b29-3564-4bf6-9b85-e5de946310d4?site_id=KOBO-001",
+          "title": "AssetOps",
+          "h1": "Inspect starter",
+          "crumbs": "MaintenanceWR-000008Overview· site: Kobo mini-grid",
+          "status": [],
+          "membership": [],
+          "deviations": [
+            "R396|MOCK DEVIATION D1 (R396)|12px",
+            "R363|MOCK DEVIATION D2 (R363)|12px",
+            "R365|MOCK DEVIATION D1 (R365)|12px"
+          ],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": [
+            "Maintenance",
+            "WR-000008",
+            "Overview",
+            "· site: Kobo mini-grid",
+            "Kobo mini-grid",
+            "Overview",
+            "Maintenance record",
+            "Verification · Not available yet",
+            "History"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 234,
+            "y": 409,
+            "w": 735,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 987,
+            "y": 409,
+            "w": 408,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Maintenance›WR-019›Overview· site: GreenHarvest Cold Room",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "203 · F"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link",
+      "case": "r359-incident-wr",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/maintenance/requests/d7dd5b29-3564-4bf6-9b85-e5de946310d4?site_id=KOBO-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-r359-incident-wr-390-app.png",
+      "mock_image": "link-r359-incident-wr-390-mock.png",
+      "app": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 16,
+            "y": 655,
+            "w": 358,
+            "h": 325,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneInspection requested.Full narrative textInspection requested.Latest activity: No maintenance activity recordedTypeCorrectiveAssetNo asset recordedWarrantyWarranty not recordedLinked actionNo linked action recordedMOCK DEVIATION D1 (R365)",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 16,
+            "y": 997,
+            "w": 358,
+            "h": 167,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified. No work-case outcome evaluator is available.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1204,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Inspect starter",
+          "top": 163,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 1,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 1,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "MaintenanceWR-000008Overview· site: Kobo mini-grid",
+          "subtitle": "WR-000008 · Kobo mini-grid · corrective",
+          "headerButtons": [
+            "Open site"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Maintenance WR-000008 Overview · site: Kobo mini-grid Inspect starter WR-000008 · Kobo mini-grid · corrective Open site Overview Maintenance record Verification · Not available yet History MOCK DEVIATION D1 (R396) As known at 25 Oct 2026, 17:00 UTC Reload MOCK DEVIATION D2 (R363) OWNER Not assigned Full owner text DUE / SLA Not set STATE Open · outcome not established SOURCE Incident INC-000001 Full source text SUCCESS CRITERION Not recorded Work done Inspection requested. Full narrative text Latest activity: No maintenance activity recorded Type Corrective Asset No asset recorded Warranty Warranty not recorded Linked action No linked action recorded MOCK DEVIATION D1 (R365) Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified. No work-case outcome evaluator is available."
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 1,
+          "bodyText": "Maintenance WR-000008 Overview · site: Kobo mini-grid Inspect starter WR-000008 · Kobo mini-grid · corrective Open site Overview Maintenance record Verification · Not available yet History MOCK DEVIATION D1 (R396) As known at 25 Oct 2026, 17:00 UTC Reload MOCK DEVIATION D2 (R363) OWNER Not assigned Full owner text DUE / SLA Not set STATE Open · outcome not established SOURCE Incident INC-000001 Full source text SUCCESS CRITERION Not recorded Work done Inspection requested. Full narrative text Latest activity: No maintenance activity recorded Type Corrective Asset No asset recorded Warranty Warranty not recorded Linked action No linked action recorded MOCK DEVIATION D1 (R365) Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified. No work-case outcome evaluator is available."
+        },
+        "mainLinks": [
+          "Maintenance -> /maintenance",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "Open site -> /sites/KOBO-001",
+          "Overview -> /maintenance/requests/d7dd5b29-3564-4bf6-9b85-e5de946310d4?site_id=KOBO-001",
+          "Maintenance record -> /maintenance/requests/d7dd5b29-3564-4bf6-9b85-e5de946310d4/record?site_id=KOBO-001",
+          "History -> /maintenance/requests/d7dd5b29-3564-4bf6-9b85-e5de946310d4/history?site_id=KOBO-001",
+          "Incident INC-000001 -> /sites/KOBO-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-20T00%3A00%3A00Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs work-request-tabs",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification · Not available yet(off)",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 2,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5392/maintenance/requests/d7dd5b29-3564-4bf6-9b85-e5de946310d4?site_id=KOBO-001",
+          "title": "AssetOps",
+          "h1": "Inspect starter",
+          "crumbs": "MaintenanceWR-000008Overview· site: Kobo mini-grid",
+          "status": [],
+          "membership": [],
+          "deviations": [
+            "R396|MOCK DEVIATION D1 (R396)|12px",
+            "R363|MOCK DEVIATION D2 (R363)|12px",
+            "R365|MOCK DEVIATION D1 (R365)|12px"
+          ],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": [
+            "Maintenance",
+            "WR-000008",
+            "Overview",
+            "· site: Kobo mini-grid",
+            "Kobo mini-grid",
+            "Overview",
+            "Maintenance record",
+            "Verification · Not available yet",
+            "History"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Work done",
+          "Lifecycle"
+        ],
+        "panels": [
+          {
+            "title": "Work done",
+            "x": 15,
+            "y": 746,
+            "w": 360,
+            "h": 338,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Work doneStarter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place.TypeCorrectiveAssetGEN-CR-01 · backup generator · diagram →WarrantyExpired 31 Mar 2026 · repair at own costLinked actionACT-051 · witnessed start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Lifecycle",
+            "x": 15,
+            "y": 1102,
+            "w": 360,
+            "h": 161,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "LifecycleFindingTriageAssignedVisitCompletedVerifiedCompleted is not Verified: the witnessed start test is still missing.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1357,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Starter and control-circuit inspection",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Maintenance›WR-019›Overview· site: GreenHarvest Cold Room",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "203 · F"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Maintenance › WR-019 › Overview · site: GreenHarvest Cold Room Starter and control-circuit inspection WR-019 · GreenHarvest · corrective Open site Overview Maintenance record Verification History OWNER Maintenance lead DUE / SLA Witness test · not set STATE Completed · unverified SOURCE INC-203 · F-118 SUCCESS CRITERION Automatic start restores cooling within policy on a witnessed outage; no repeat failure Work done Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection re-made; starter relay tested and left in place. Type Corrective Asset GEN-CR-01 · backup generator · diagram → Warranty Expired 31 Mar 2026 · repair at own cost Linked action ACT-051 · witnessed start test Lifecycle Finding Triage Assigned Visit Completed Verified Completed is not Verified: the witnessed start test is still missing. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Maintenance -> #/maintenance",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Overview -> #/wr-overview",
+          "Maintenance record -> #/wr-record",
+          "Verification -> #/workverification",
+          "History -> #/wr-history",
+          "INC-203 -> #/incident",
+          "F-118 -> #/cold-finding",
+          "diagram → -> #/cold-sld",
+          "ACT-051 · witnessed start test -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Maintenance record",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 10,
+          "10px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link",
+      "case": "r360-current-inc",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/sitework-incidents",
+      "app_image": "link-r360-current-inc-1440-app.png",
+      "mock_image": "link-r360-current-inc-1440-mock.png",
+      "app": {
+        "titles": [
+          "Site unavailable"
+        ],
+        "panels": [
+          {
+            "title": "Site unavailable",
+            "x": 248,
+            "y": 76,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Site unavailableThe site store could not be read, so nothing is known about whether the site is configured.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Work",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5392/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Work",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›Kobo Mini-grid›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 14:20–15:20 EAT ▾ BY Sites › Kobo Mini-grid › Work Kobo Mini-grid Simulated site · MG-DEMO-01 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (2) Incidents (0) Maintenance (0) Scoped to Kobo · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=mini"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · MG"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 14:20–15:20 EAT ▾ BY Sites › Kobo Mini-grid › Work Kobo Mini-grid Simulated site · MG-DEMO-01 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (2) Incidents (0) Maintenance (0) Scoped to Kobo · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "Actions (2) -> #/sitework",
+          "Incidents (0) -> #/sitework-incidents",
+          "Maintenance (0) -> #/sitework-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (2)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link",
+      "case": "r360-current-inc",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/sitework-incidents",
+      "app_image": "link-r360-current-inc-390-app.png",
+      "mock_image": "link-r360-current-inc-390-mock.png",
+      "app": {
+        "titles": [
+          "Site unavailable"
+        ],
+        "panels": [
+          {
+            "title": "Site unavailable",
+            "x": 16,
+            "y": 154,
+            "w": 358,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Site unavailableThe site store could not be read, so nothing is known about whether the site is configured.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Work",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5392/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Work",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 15,
+            "y": 632,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1158,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›Kobo Mini-grid›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Kobo Mini-grid › Work Kobo Mini-grid Simulated site · MG-DEMO-01 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (2) Incidents (0) Maintenance (0) Scoped to Kobo · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=mini"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · MG"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Kobo Mini-grid › Work Kobo Mini-grid Simulated site · MG-DEMO-01 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (2) Incidents (0) Maintenance (0) Scoped to Kobo · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "Actions (2) -> #/sitework",
+          "Incidents (0) -> #/sitework-incidents",
+          "Maintenance (0) -> #/sitework-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (2)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}
