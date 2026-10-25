@@ -1064,8 +1064,9 @@ describe("post-W6 W1-a: Finding overview time, links and the exact-version cost 
     await waitFor(() => expect(resolvers.has("rev-1")).toBe(true));
     fireEvent.click(screen.getByText("switch to version 2"));
     await waitFor(() => expect(resolvers.has("rev-2")).toBe(true));
-    // The earlier version's PRICED answer arrives after the selection changed.
-    await act(async () => { resolvers.get("rev-1")?.({ status: "loaded", value: costBody("rev-1", { amount: { low: "1.11", high: "9.99" } }) }); });
+    // The earlier version's PRICED answer arrives after the selection changed. Its payload deliberately names the
+    // current version, so only the request-keyed guard (not the payload version check) can keep it off the screen.
+    await act(async () => { resolvers.get("rev-1")?.({ status: "loaded", value: costBody("rev-2", { amount: { low: "1.11", high: "9.99" } }) }); });
     expect(document.body.textContent).not.toContain("9.99");
     await act(async () => { resolvers.get("rev-2")?.({ status: "loaded", value: costBody("rev-2", { amount: { low: "2.22", high: "7.77" } }) }); });
     await screen.findByText("2.22 to 7.77 USD");
