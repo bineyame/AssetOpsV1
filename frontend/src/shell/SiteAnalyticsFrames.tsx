@@ -2077,7 +2077,13 @@ const WORK_SUBTABS: { key: "actions" | WorkKind; label: string; href: (siteId: s
   { key: "maintenance", label: "Maintenance", href: (siteId, query) => siteWorkMaintenanceHref(siteId, query) },
 ];
 
-type WorkCounts = { actions: number | null; incidents: number | null; maintenance: number | null };
+/**
+ * post-W6 W4 R322 (Q9): `INPUT_REFUSED` is a list the server refused for its input (a 422 window, cutoff or cursor):
+ * its tab is a bare label. `null` stays the unknown count of a source failure, shown with the `(—)` suffix.
+ */
+const INPUT_REFUSED = "input-refused" as const;
+type WorkCount = number | null | typeof INPUT_REFUSED;
+type WorkCounts = { actions: WorkCount; incidents: WorkCount; maintenance: WorkCount };
 const NO_COUNTS: WorkCounts = { actions: null, incidents: null, maintenance: null };
 const fullCount = (value: number): number | null => (Number.isFinite(value) && value >= 0 ? value : null);
 
@@ -2123,7 +2129,7 @@ function useWorkCounts(
     }
     (["incidents", "maintenance"] as const).forEach((kind) => {
       workClient.getWorkIndex(siteId, kind, { from, to, limit: 1, knownAt: coldKnownAt, cursor: null }).then(
-        (r) => put({ [kind]: r.status === "loaded" ? fullCount(r.value.total_count) : null }),
+        (r) => put({ [kind]: r.status === "loaded" ? fullCount(r.value.total_count) : r.status === "invalid" ? INPUT_REFUSED : null }),
         () => put({ [kind]: null }),
       );
     });
@@ -2167,7 +2173,7 @@ function WorkSubrow({
               to={tab.href(siteId, query)}
               aria-current={tab.key === current ? "page" : undefined}
             >
-              {`${tab.label} (${counts[tab.key] ?? "—"})`}
+              {counts[tab.key] === INPUT_REFUSED ? tab.label : `${tab.label} (${counts[tab.key] ?? "—"})`}
             </Link>
           </li>
         ))}

@@ -28,6 +28,7 @@ import { Link } from "react-router-dom";
 import { DataTable, Disclosure, Fact, FactList, Notice, Panel, ProductStatus, RailIcon, type ProductWords } from "../ui";
 import { globalWorkRequestHref } from "../work/globalWorkClient";
 import { READ_FULL_TEXT, coldCurrentnessNotice, coldCurrentnessTone, isLongText } from "./coldWorkPresentation";
+import { siteDateTimeText, siteLocalDate, siteLocalMidnightUtc, siteLocalParts, siteZoneLabel } from "./siteTime";
 import type { DomainStatus } from "./domainActionClient";
 import { EV_ACTION_LINK_LIVE, EV_SOURCE_FINDING_UNAVAILABLE, evActionHref } from "./evWorkPresentation";
 import type { DecisionRead, MiniDecisionsClient, WorkContextsBody, WorkDecisionContext } from "./miniDecisionsClient";
@@ -233,23 +234,19 @@ export function eatWindowText(instant: string): string {
  * W5-02 K3a (M5 withdrawn, RESTORE TO MOCK): `6 Oct · from 19:11` in the selected Site's stored IANA timezone. The
  * month is the mock's `Jan`…`Dec` table (`Sep`, never Intl's `Sept`); the UTC instant itself is unchanged.
  */
-export function siteWindowText(instant: string, timezone: string): string {
-  const date = new Date(instant);
-  if (Number.isNaN(date.getTime())) return instant;
-  const parts = Object.fromEntries(
-    new Intl.DateTimeFormat("en-GB", {
-      timeZone: timezone,
-      day: "numeric",
-      month: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-    })
-      .formatToParts(date)
-      .map((p) => [p.type, p.value]),
-  );
-  // A numeric month makes en-GB pad the day; the mock shows `6 Oct`, so the day is read as a number.
-  return `${Number(parts.day)} ${MONTHS[Number(parts.month) - 1]} · from ${parts.hour}:${parts.minute}`;
+export function siteWindowText(instant: string, timezone: string | null | undefined, withZone = false): string {
+  // post-W6 W4 R320 (Q8, W1 cross-card contract 1): one Site-time formatter, `sites/siteTime.ts`; a missing or invalid
+  // zone falls back to UTC. `withZone` appends the zone label (the mini rows' primary Site-local text).
+  const p = siteLocalParts(instant, timezone);
+  if (p === null) return instant;
+  const text = `${p.day} ${MONTHS[p.m - 1]} · from ${p.hh}:${p.mm}`;
+  return withZone ? `${text} ${p.zone}` : text;
+}
+
+/** post-W6 W4 R320: `2026-10-06 19:11 EAT` in the Site zone (`UTC` when unusable); the stored UTC stays in disclosures. */
+export function workSiteText(instant: string | null | undefined, timezone: string | null | undefined): string {
+  if (!instant) return "not recorded";
+  return siteDateTimeText(instant, timezone) ?? instant;
 }
 
 /**
@@ -302,31 +299,46 @@ function StateChip({ kind, state }: { kind: WorkKind; state: string }) {
 /** `Kobo` from `Kobo Mini-grid`: the mock's short name, for the status copy only (B10). */
 export const shortName = (name: string) => name.trim().split(/\s+/)[0] ?? name;
 
-const firstDay = (instant: string) => new Date(instant).toISOString().slice(0, 10);
-const lastDay = (to: string) => new Date(new Date(to).getTime() - 1).toISOString().slice(0, 10);
+/** post-W6 W4 R320 (Q8): the window's Site-local first and last (included) days; the URL keeps UTC bounds. */
+const firstDay = (instant: string, timeZone: string | null) => siteLocalDate(instant, timeZone);
+const lastDay = (to: string, timeZone: string | null) => siteLocalDate(new Date(new Date(to).getTime() - 1).toISOString(), timeZone);
+const nextDay = (isoDate: string) => {
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+};
 
-function WindowForm({ copy, scope, onScope }: { copy: KindCopy; scope: WorkScope; onScope: SiteWorkCasesProps["onScope"] }) {
+function WindowForm({
+  copy,
+  scope,
+  timeZone,
+  onScope,
+}: {
+  copy: KindCopy;
+  scope: WorkScope;
+  timeZone: string | null;
+  onScope: SiteWorkCasesProps["onScope"];
+}) {
   const valid = !Number.isNaN(new Date(scope.from).getTime()) && !Number.isNaN(new Date(scope.to).getTime());
-  const [first, setFirst] = useState(valid ? firstDay(scope.from) : "");
-  const [last, setLast] = useState(valid ? lastDay(scope.to) : "");
+  const [first, setFirst] = useState(valid ? firstDay(scope.from, timeZone) : "");
+  const [last, setLast] = useState(valid ? lastDay(scope.to, timeZone) : "");
   useEffect(() => {
     if (valid) {
-      setFirst(firstDay(scope.from));
-      setLast(lastDay(scope.to));
+      setFirst(firstDay(scope.from, timeZone));
+      setLast(lastDay(scope.to, timeZone));
     }
-  }, [scope.from, scope.to, valid]);
+  }, [scope.from, scope.to, valid, timeZone]);
+  const zone = siteZoneLabel(timeZone, scope.from);
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (!first || !last) return;
-    const to = new Date(`${last}T00:00:00Z`);
-    to.setUTCDate(to.getUTCDate() + 1);
-    // A new window clears the cutoff, the cursor and the earlier pages.
-    onScope({ from: `${first}T00:00:00Z`, to: `${to.toISOString().slice(0, 10)}T00:00:00Z`, knownAt: null, cursor: null }, []);
+    // A new window clears the cutoff, the cursor and the earlier pages; Site-local midnights, sent as UTC.
+    onScope({ from: siteLocalMidnightUtc(first, timeZone), to: siteLocalMidnightUtc(nextDay(last), timeZone), knownAt: null, cursor: null }, []);
   };
   return (
     <form onSubmit={submit} className="v69-chips w1f4-work-window" data-work-window aria-label={`${copy.global} window`}>
       <label className="w1f4-work-window__field">
-        {`${copy.windowStart} `}
+        {`${copy.windowStart} (${zone}) `}
         <input className="v69-chip-control" type="date" value={first} onChange={(event) => setFirst(event.target.value)} />
       </label>
       <label className="w1f4-work-window__field">
@@ -341,12 +353,12 @@ function WindowForm({ copy, scope, onScope }: { copy: KindCopy; scope: WorkScope
 }
 
 /** The list status, as strip words: a link qualification, never a verdict on the cases. */
-function statusWords(body: WorkIndexBody): { label: string; tone: "neutral" | "amber" } | null {
+function statusWords(body: WorkIndexBody, timeZone: string | null): { label: string; tone: "neutral" | "amber" } | null {
   switch (body.status) {
     case "CURRENT":
       return null;
     case "HISTORICAL":
-      return { label: `Read as of ${workUtcText(body.known_at)}`, tone: "neutral" };
+      return { label: `Read as of ${workSiteText(body.known_at, timeZone)}`, tone: "neutral" };
     case "PENDING_RECOMPUTE":
       return { label: WORK_LINK_PENDING, tone: "amber" };
     case "STALE_SOURCE":
@@ -356,20 +368,31 @@ function statusWords(body: WorkIndexBody): { label: string; tone: "neutral" | "a
   }
 }
 
+/** post-W6 W4 R322 (Q9): why the counts are not shown, from the same result classification as the page. */
+export const WORK_COUNT_INVALID_WINDOW = "Counts not shown: the selected window is not valid.";
+export const WORK_COUNT_EXPIRED_PAGE = "Counts not shown: this page of results expired.";
+
+export function workCountGap(result: WorkIndexResult): string {
+  if (result.status === "invalid") return result.code === "INVALID_CURSOR" ? WORK_COUNT_EXPIRED_PAGE : WORK_COUNT_INVALID_WINDOW;
+  return WORK_COUNT_UNKNOWN;
+}
+
 function WorkStrip({
   copy,
   result,
   scope,
   cold,
+  timeZone,
 }: {
   copy: KindCopy;
   result: WorkIndexResult | null;
   scope: WorkScope;
   cold: boolean;
+  timeZone: string | null;
 }) {
   const loaded = result !== null && result.status === "loaded" ? result.value : null;
   // K3a (P-K3a-7): on COLDCHAIN the currentness notice below the strip carries the status; no duplicate strip label.
-  const words = loaded && !cold ? statusWords(loaded) : null;
+  const words = loaded && !cold ? statusWords(loaded, timeZone) : null;
   return (
     <div className="status-strip status-strip--line" aria-label={`${copy.title}, scope`}>
       <span className="status-strip__lead" data-work-scope>
@@ -380,7 +403,7 @@ function WorkStrip({
         ) : result === null ? (
           <>Reading work records</>
         ) : (
-          <>{WORK_COUNT_UNKNOWN}</>
+          <>{workCountGap(result)}</>
         )}
       </span>
       <span className="muted status-strip__item" data-work-strip-detail>
@@ -410,9 +433,27 @@ const REFUSAL: Record<string, { label: string; sentence: string; tone: ProductWo
   forbidden: { label: "No access", sentence: "You do not have access to this site's work.", tone: "problem" },
   not_found: { label: "Site not found", sentence: "This site was not found.", tone: "problem" },
   basis_changed: { label: "This list changed", sentence: "The list changed. Reload the first page.", tone: "waiting" },
-  invalid: { label: "This list cannot be shown", sentence: "Reload the work list.", tone: "limited" },
+  invalid: { label: "This list cannot be shown", sentence: "This request cannot be used. Check your entries and try again.", tone: "limited" },
   unavailable: { label: "Work records unavailable", sentence: "Work records are unavailable right now. Try again.", tone: "problem" },
 };
+
+const WORK_MAX_DAYS = 31;
+
+/** post-W6 W4 R322: the 422 sentence by code (Q4 wording), with the reversed and over-31-day causes from the bounds. */
+export function workInvalidSentence(code: string | null, scope: Pick<WorkScope, "from" | "to">): string {
+  if (code === "INVALID_CURSOR") return "This page of results expired. Return to the first page.";
+  if (code === "INVALID_KNOWN_AT") return "Choose a valid evidence cutoff.";
+  if (code === "INVALID_WINDOW") {
+    const from = Date.parse(scope.from);
+    const to = Date.parse(scope.to);
+    if (!Number.isNaN(from) && !Number.isNaN(to)) {
+      if (to <= from) return "The end must be after the start.";
+      if (to - from > WORK_MAX_DAYS * 86_400_000) return `Choose a window of ${WORK_MAX_DAYS} days or fewer.`;
+    }
+    return "Choose a valid Site-local window.";
+  }
+  return "This request cannot be used. Check your entries and try again.";
+}
 
 function Refused({
   copy,
@@ -426,9 +467,9 @@ function Refused({
   onScope: SiteWorkCasesProps["onScope"];
 }) {
   const entry = REFUSAL[result.status] ?? REFUSAL.unavailable;
-  // A window refusal keeps the server's own message (the reason is in it); a cursor refusal reads "Reload".
-  const sentence =
-    result.status === "invalid" && result.code !== "INVALID_CURSOR" && result.message ? result.message : entry.sentence;
+  // post-W6 W4 R322: plain copy keyed on the code; the cause is named only when the requested bounds prove it. The
+  // server message never reaches the page.
+  const sentence = result.status === "invalid" ? workInvalidSentence(result.code, scope) : entry.sentence;
   const words: ProductWords = { label: entry.label, sentence, tone: entry.tone, code: result.code, unrecognised: false };
   const restart = result.status === "basis_changed" || (result.status === "invalid" && result.code === "INVALID_CURSOR");
   return (
@@ -450,15 +491,21 @@ function Refused({
   );
 }
 
-function Basis({ body }: { body: WorkIndexBody }) {
+function Basis({ body, timeZone }: { body: WorkIndexBody; timeZone: string | null }) {
   const state = sourceState(body.source_provenance);
   return (
     <Disclosure name="work-basis" summary="What this list is based on" variant="tech">
       <FactList>
         <Fact term="Window">
-          {workUtcText(body.window.from)} to {workUtcText(body.window.to)} {body.window.bounds}
+          {workSiteText(body.window.from, timeZone)} to {workSiteText(body.window.to, timeZone)} {body.window.bounds}
+          <span className="muted" data-work-window-utc>
+            {` (${workUtcText(body.window.from)} to ${workUtcText(body.window.to)})`}
+          </span>
         </Fact>
-        <Fact term="Read as of">{workUtcText(body.known_at)}</Fact>
+        <Fact term="Read as of">
+          {workSiteText(body.known_at, timeZone)}
+          <span className="muted">{` (${workUtcText(body.known_at)})`}</span>
+        </Fact>
         <Fact term="Linked evidence">
           <span data-work-coverage={body.coverage.state}>
             {body.coverage.state}
@@ -551,7 +598,7 @@ function RowDetail({
  * u5 unit 8 / u6: `Decision context:` and each association (Opportunity first); a typed Opportunity URL links, a
  * Scenario has no detail route, and a refused overlay says so without hiding the row or implying no link.
  */
-function DecisionContext({ contexts }: { contexts: CaseContexts }) {
+function DecisionContext({ contexts, caseId = "" }: { contexts: CaseContexts; caseId?: string }) {
   if (contexts === null || (Array.isArray(contexts) && contexts.length === 0)) return null;
   if (contexts === "refused") {
     return (
@@ -560,8 +607,11 @@ function DecisionContext({ contexts }: { contexts: CaseContexts }) {
       </span>
     );
   }
+  // post-W6 W4 R324 (Q12): a long context keeps its preview and gains `Read full text`; links stay in the open body.
+  const full = `Decision context: ${contexts.map((c) => c.label).join(" · ")}`;
   return (
-    <span className="work-cases-context" data-work-decision-context="loaded">
+    <span className="work-cases-context-wrap" data-work-decision-context="loaded" title={full}>
+      <CaseLongText text={full} name={`work-mini-context-${caseId}`} legacyCold={false}>
       Decision context:{" "}
       {contexts.map((c, i) => (
         <span key={`${c.kind}:${c.id}`} data-work-decision={c.kind}>
@@ -577,6 +627,7 @@ function DecisionContext({ contexts }: { contexts: CaseContexts }) {
           )}
         </span>
       ))}
+      </CaseLongText>
     </span>
   );
 }
@@ -601,34 +652,58 @@ function FindingLinks({ row, links }: { row: WorkRow; links: SiteWorkCasesLinks 
   );
 }
 
-/** A case title: plain text while `url` is null (no product detail route yet). */
-function CaseTitle({ row }: { row: WorkRow }) {
-  const label = `${row.code} · ${row.title}`;
+/**
+ * post-W6 W4 R324 (Q12): a long mini value keeps its two-line preview and gains the cold/EV `Read full text`
+ * disclosure (a keyboard-focusable summary; the complete text is in the DOM once opened). `title` stays supplemental.
+ */
+function MiniLongText({ text, name, children }: { text: string; name: string; children?: ReactNode }) {
   return (
-    <span className="work-cases-clamp" data-work-case-title title={label}>
-      {row.url ? <Link to={row.url}>{label}</Link> : label}
+    <span className="work-cases-mini-long" data-work-mini-long={name} title={text}>
+      <CaseLongText text={text} name={name} legacyCold={false}>
+        {children}
+      </CaseLongText>
     </span>
   );
 }
 
-function IncidentCells({ row, links, contexts }: { row: WorkRow; links: SiteWorkCasesLinks; contexts: CaseContexts }) {
+/** A case title: plain text while `url` is null (no product detail route yet). */
+function CaseTitle({ row }: { row: WorkRow }) {
+  const label = `${row.code} · ${row.title}`;
+  return (
+    <span data-work-case-title>
+      <MiniLongText text={label} name={`work-mini-title-${row.case_id}`}>
+        {row.url ? <Link to={row.url}>{label}</Link> : label}
+      </MiniLongText>
+    </span>
+  );
+}
+
+function IncidentCells({
+  row,
+  links,
+  contexts,
+  timeZone,
+}: {
+  row: WorkRow;
+  links: SiteWorkCasesLinks;
+  contexts: CaseContexts;
+  timeZone: string | null;
+}) {
   return (
     <>
       <td className="work-cases-first">
         <CaseTitle row={row} />
       </td>
       <td>
-        <span data-work-window>{eatWindowText(row.occurred_at)}</span>
+        <span data-work-window>{siteWindowText(row.occurred_at, timeZone, true)}</span>
         <RowDetail row={row} />
       </td>
       <td>
-        <span className="work-cases-clamp" title={row.narrative}>
-          {row.narrative}
-        </span>
+        <MiniLongText text={row.narrative} name={`work-mini-narrative-${row.case_id}`} />
       </td>
       <td>
         <FindingLinks row={row} links={links} />
-        <DecisionContext contexts={contexts} />
+        <DecisionContext contexts={contexts} caseId={row.case_id} />
       </td>
       <td>
         <StateChip kind="incidents" state={row.state} />
@@ -648,22 +723,22 @@ function MaintenanceCells({ row, contexts }: { row: WorkRow; contexts: CaseConte
         <RowDetail row={row} />
       </td>
       <td>
-        <span className="work-cases-clamp">
+        <MiniLongText text={row.activity ?? "No activity recorded"} name={`work-mini-activity-${row.case_id}`}>
           <StateChip kind="maintenance" state={row.request_state ?? row.state} />{" "}
           <span data-work-activity>{row.activity ?? "No activity recorded"}</span>
-        </span>
-        <DecisionContext contexts={contexts} />
+        </MiniLongText>
+        <DecisionContext contexts={contexts} caseId={row.case_id} />
       </td>
       <td>
-        <span className="work-cases-clamp">
+        <MiniLongText text={row.outcome_note ?? "No outcome recorded"} name={`work-mini-outcome-${row.case_id}`}>
           <span className="w1f4-action-badge w1f4-action-badge--amber" data-work-outcome={row.outcome_state ?? "UNVERIFIED"}>
             Unverified
           </span>{" "}
           <span data-work-outcome-note>{row.outcome_note ?? "No outcome recorded"}</span>
-        </span>
+        </MiniLongText>
       </td>
       <td>
-        <span className="work-cases-clamp">{row.next_evidence_copy ?? "No next evidence recorded"}</span>
+        <MiniLongText text={row.next_evidence_copy ?? "No next evidence recorded"} name={`work-mini-next-${row.case_id}`} />
       </td>
     </>
   );
@@ -852,12 +927,14 @@ function Rows({
   links,
   overlay,
   cells,
+  timeZone,
 }: {
   copy: KindCopy;
   body: WorkIndexBody;
   links: SiteWorkCasesLinks;
   overlay: DecisionRead<WorkContextsBody> | null;
   cells: DomainCells | null;
+  timeZone: string | null;
 }) {
   // PR-12.3: a refused Incident overlay is one line beside the table for the displayed rows, not one per row; the
   // rows keep their canonical Finding links and show no context. Maintenance keeps its row-level copy.
@@ -904,7 +981,7 @@ function Rows({
                   <DomainMaintenanceCells row={row} cells={cells} />
                 )
               ) : copy.kind === "incidents" ? (
-                <IncidentCells row={row} links={links} contexts={contextsOf(row.case_id)} />
+                <IncidentCells row={row} links={links} contexts={contextsOf(row.case_id)} timeZone={timeZone} />
               ) : (
                 <MaintenanceCells row={row} contexts={contextsOf(row.case_id)} />
               )}
@@ -1013,6 +1090,7 @@ function Loaded({
   siteId,
   decisions,
   cells,
+  timeZone,
 }: {
   copy: KindCopy;
   body: WorkIndexBody;
@@ -1023,6 +1101,7 @@ function Loaded({
   siteId: string;
   decisions?: MiniDecisionsClient;
   cells: DomainCells | null;
+  timeZone: string | null;
 }) {
   const overlay = useDecisionOverlay(decisions, siteId, body);
   if (body.total_count === 0) {
@@ -1036,7 +1115,7 @@ function Loaded({
           <p>{copy.empty[1]}</p>
         </div>
         <div className="w1f4-work-foot">
-          <Basis body={body} />
+          <Basis body={body} timeZone={timeZone} />
         </div>
       </>
     );
@@ -1045,13 +1124,13 @@ function Loaded({
     <div data-work-loaded>
       {/* K3 pre-flight ruling 4: COLDCHAIN and EV hide the coverage line; the currentness notice sits above the panel. */}
       {cells === null ? <CoverageLine body={body} /> : null}
-      <Rows copy={copy} body={body} links={links} overlay={overlay} cells={cells} />
+      <Rows copy={copy} body={body} links={links} overlay={overlay} cells={cells} timeZone={timeZone} />
       {/* MOCK DEVIATION (D2) R93 (cold) / R106 (EV): the W4 Pages block below the table; MOCK DEVIATION (D2) R92
           (cold) / R105 (EV): the selected `What this list is based on` disclosure at the panel foot (also after the
           complete-zero empty card). */}
       <div className="w1f4-work-foot">
         <Pages body={body} scope={scope} trail={trail} onScope={onScope} />
-        <Basis body={body} />
+        <Basis body={body} timeZone={timeZone} />
       </div>
     </div>
   );
@@ -1095,6 +1174,8 @@ export function SiteWorkCases({
       ? { site, knownAt: knownAt ?? null, legacyCold: site.siteType === "COLDCHAIN", from, to }
       : null;
   const legacyCold = cells !== null && cells.legacyCold;
+  // post-W6 W4 R320 (Q8): the Site's stored timezone for every type (MINIGRID included); null reads as UTC.
+  const timeZone = site?.timezone ?? null;
   const loadedBody = result !== null && result.status === "loaded" ? result.value : null;
   // K3a (P-K3a-7, K3 pre-flight ruling 5): the domain notice comes from the W4 envelope `status`, never `coverage`.
   const currentness =
@@ -1113,7 +1194,7 @@ export function SiteWorkCases({
     <Body copy={copy} cells={cells}>
       {/* Cold K3 pre-flight ruling 6 / EV pre-flight 35: the mock strip sentence and `Manage in {kind} →` to the
           mounted W6 root; MOCK DEVIATION (D4) R111 (EV): the stored Site display name's short form. */}
-      <WorkStrip copy={copy} result={result} scope={scope} cold={cells !== null} />
+      <WorkStrip copy={copy} result={result} scope={scope} cold={cells !== null} timeZone={timeZone} />
       {/* MOCK DEVIATION (D2) R91 (cold, K3 pre-flight ruling 5) / R80 + R104 (EV): the selected-state notice between
           strip and panel, blue for Historical/Unknown and amber for Pending recompute/Stale source; absent on CURRENT. */}
       {loadedBody !== null && currentness !== null ? (
@@ -1126,7 +1207,7 @@ export function SiteWorkCases({
         heading={copy.title}
         headingId={`site-work-${kind}-heading`}
         description={copy.subcopy}
-        actions={windowForm ? <WindowForm copy={copy} scope={scope} onScope={onScope} /> : undefined}
+        actions={windowForm ? <WindowForm copy={copy} scope={scope} timeZone={timeZone} onScope={onScope} /> : undefined}
       >
         {result === null ? (
           <p data-work-loading>Loading the site&apos;s work records.</p>
@@ -1141,6 +1222,7 @@ export function SiteWorkCases({
             siteId={siteId}
             decisions={decisions}
             cells={cells}
+            timeZone={timeZone}
           />
         ) : (
           <Refused copy={copy} result={result} scope={scope} onScope={onScope} />

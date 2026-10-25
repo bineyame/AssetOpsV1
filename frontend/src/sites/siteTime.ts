@@ -124,3 +124,21 @@ export function siteLocalMidnightUtc(isoDate: string, timeZone: string | null | 
   utc = wall - offsetAt(utc);
   return new Date(utc).toISOString().replace(".000Z", "Z");
 }
+
+/** Site-local calendar and clock parts of an instant, with the zone label; UTC (and `UTC`) when the zone is unusable. */
+export function siteLocalParts(
+  value: string | null | undefined,
+  timeZone: string | null | undefined,
+): { y: number; m: number; day: number; hh: string; mm: string; ss: string; zone: string } | null {
+  const d = parse(value);
+  if (d === null) return null;
+  const zone = validZone(timeZone);
+  return { ...parts(d, zone ?? "UTC"), zone: zone === null ? "UTC" : siteZoneLabel(zone, value) };
+}
+
+/** `2026-10-06 19:11 EAT`: the Site-local twin of the `2026-10-06 16:11 UTC` work text. */
+export function siteDateTimeText(value: string | null | undefined, timeZone: string | null | undefined): string | null {
+  const p = siteLocalParts(value, timeZone);
+  if (p === null) return null;
+  return `${p.y}-${String(p.m).padStart(2, "0")}-${String(p.day).padStart(2, "0")} ${p.hh}:${p.mm} ${p.zone}`;
+}

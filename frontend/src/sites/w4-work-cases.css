@@ -83,6 +83,14 @@
   font-size: 12px;
 }
 
+/* post-W6 W4 R324 (Q12): the mini decision context with its own Read full text disclosure; the preview inside keeps
+   the shared two-line .work-cases-clamp, and the opened body is never clipped. */
+.work-cases-context-wrap {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
 /* PR-12.3: the single refused-overlay line beside the Incident table. */
 .work-cases-context--panel {
   display: block;
