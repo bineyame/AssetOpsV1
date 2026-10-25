@@ -5620,7 +5620,27 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/backup?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-12/part-main/evidence.json",
+   "app_image": "backup-gap-limited-1440-app.png",
+   "titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Backup event chains": 188,
+    "Backup readiness evidence": 299,
+    "Operating evidence": 163,
+    "Next evidence": 163
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 12,
@@ -5632,7 +5652,27 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/backup?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-12/part-main/evidence.json",
+   "app_image": "backup-gap-limited-390-app.png",
+   "titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Backup event chains": 217,
+    "Backup readiness evidence": 380,
+    "Operating evidence": 186,
+    "Next evidence": 186
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 12,
@@ -5644,7 +5684,25 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-12/part-main/evidence.json",
+   "app_image": "fuel-gap-limited-1440-app.png",
+   "titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Fuel balance at a glance": 294,
+    "Balance bridge": 353,
+    "Inspect existing generator fuel interpretation": 134
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 12,
@@ -5656,7 +5714,25 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-12/part-main/evidence.json",
+   "app_image": "fuel-gap-limited-390-app.png",
+   "titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Fuel balance at a glance": 310,
+    "Balance bridge": 579,
+    "Inspect existing generator fuel interpretation": 193
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 12,
@@ -5668,7 +5744,25 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-07T21:00:00Z&to=2026-10-12T21:00:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-12/part-main/evidence.json",
+   "app_image": "renewable-gap-limited-1440-app.png",
+   "titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "From physical headroom to an opportunity": 263,
+    "Productive-use evaluation": 263,
+    "Eligible and excluded windows": 383
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 12,
@@ -5680,7 +5774,25 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-07T21:00:00Z&to=2026-10-12T21:00:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-12/part-main/evidence.json",
+   "app_image": "renewable-gap-limited-390-app.png",
+   "titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "From physical headroom to an opportunity": 263,
+    "Productive-use evaluation": 257,
+    "Eligible and excluded windows": 482
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 12,
@@ -5692,7 +5804,27 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/service?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-12/part-main/evidence.json",
+   "app_image": "service-gap-limited-1440-app.png",
+   "titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Where the power went": 263,
+    "Delivered power by addressed load": 266,
+    "What is supported": 201,
+    "What unlocks a service conclusion": 201
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 12,
@@ -5704,7 +5836,27 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/service?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-12/part-main/evidence.json",
+   "app_image": "service-gap-limited-390-app.png",
+   "titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Where the power went": 263,
+    "Delivered power by addressed load": 326,
+    "What is supported": 149,
+    "What unlocks a service conclusion": 201
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5716,7 +5868,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/KOBO-001/findings/b62e0ef8-8530-4963-8443-eb5941c56f30/alternatives?revision_id=d4df8338-62ac-4c97-8b5d-08650246816c",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-late/evidence.json",
+   "app_image": "alternatives-db-time-409-late-1440-app.png",
+   "titles": [
+    "Alternatives to investigate"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Alternatives to investigate": 99
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5728,7 +5894,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/KOBO-001/findings/b62e0ef8-8530-4963-8443-eb5941c56f30/alternatives?revision_id=d4df8338-62ac-4c97-8b5d-08650246816c",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-late/evidence.json",
+   "app_image": "alternatives-db-time-409-late-390-app.png",
+   "titles": [
+    "Alternatives to investigate"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Alternatives to investigate": 99
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5740,7 +5920,25 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-late/evidence.json",
+   "app_image": "opportunity-finding-late-settled-current-1440-app.png",
+   "titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Bounded opportunity": 185,
+    "Next decision": 267,
+    "Consequence basis": 267
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5752,7 +5950,25 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-late/evidence.json",
+   "app_image": "opportunity-finding-late-settled-current-390-app.png",
+   "titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Bounded opportunity": 271,
+    "Next decision": 176,
+    "Consequence basis": 267
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5764,7 +5980,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/financials/scenarios",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-late/evidence.json",
+   "app_image": "scenarios-populated-1440-app.png",
+   "titles": [
+    "Financial scenarios"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Financial scenarios": 328
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5776,7 +6006,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/financials/scenarios",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-late/evidence.json",
+   "app_image": "scenarios-populated-390-app.png",
+   "titles": [
+    "Financial scenarios"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Financial scenarios": 372
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5789,7 +6033,31 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-late/evidence.json",
+   "app_image": "sitework-incidents-late-stocked-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-context",
+     "text": "Decision context: OPP-000001 \u00b7 SCN-000002 \u00b7 Grain mill one-hour trial (corrected",
+     "sw": 191,
+     "cw": 191,
+     "sh": 72,
+     "ch": 36
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 443
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5802,7 +6070,76 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-late/evidence.json",
+   "app_image": "sitework-incidents-late-stocked-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+     "sw": 193,
+     "cw": 193,
+     "sh": 46,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+     "sw": 193,
+     "cw": 193,
+     "sh": 46,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+     "sw": 193,
+     "cw": 193,
+     "sh": 46,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+     "sw": 193,
+     "cw": 193,
+     "sh": 46,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+     "sw": 193,
+     "cw": 193,
+     "sh": 46,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-context",
+     "text": "Decision context: OPP-000001 \u00b7 SCN-000002 \u00b7 Grain mill one-hour trial (corrected",
+     "sw": 121,
+     "cw": 121,
+     "sh": 101,
+     "ch": 34
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 412
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5815,7 +6152,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-late/evidence.json",
+   "app_image": "sitework-maintenance-late-stocked-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 316
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5828,7 +6179,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-late/evidence.json",
+   "app_image": "sitework-maintenance-late-stocked-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 345
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5840,7 +6205,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/KOBO-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-incidents-empty-kobo-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 337
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5852,7 +6231,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/KOBO-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-incidents-empty-kobo-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 403
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5864,7 +6257,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-incidents-empty-past-window-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 337
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5876,7 +6283,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-incidents-empty-past-window-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 403
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5888,7 +6309,31 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-incidents-no-window-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-context",
+     "text": "Decision context: OPP-000001 \u00b7 SCN-000002 \u00b7 Grain mill one-hour trial (corrected",
+     "sw": 191,
+     "cw": 191,
+     "sh": 72,
+     "ch": 36
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 235
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5900,7 +6345,40 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-incidents-no-window-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+     "sw": 193,
+     "cw": 193,
+     "sh": 46,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-context",
+     "text": "Decision context: OPP-000001 \u00b7 SCN-000002 \u00b7 Grain mill one-hour trial (corrected",
+     "sw": 121,
+     "cw": 121,
+     "sh": 101,
+     "ch": 34
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 282
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5912,7 +6390,31 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-incidents-one-incident-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-context",
+     "text": "Decision context: OPP-000001 \u00b7 SCN-000002 \u00b7 Grain mill one-hour trial (corrected",
+     "sw": 191,
+     "cw": 191,
+     "sh": 72,
+     "ch": 36
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 235
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5924,7 +6426,40 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-incidents-one-incident-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+     "sw": 193,
+     "cw": 193,
+     "sh": 46,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-context",
+     "text": "Decision context: OPP-000001 \u00b7 SCN-000002 \u00b7 Grain mill one-hour trial (corrected",
+     "sw": 121,
+     "cw": 121,
+     "sh": 101,
+     "ch": 34
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 282
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5936,7 +6471,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-incidents-refused-long-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5948,7 +6497,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-incidents-refused-long-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 233
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5960,7 +6523,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-17T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-incidents-refused-reversed-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5972,7 +6549,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-17T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-incidents-refused-reversed-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5984,7 +6575,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/KOBO-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-maintenance-empty-kobo-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 317
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -5996,7 +6601,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/KOBO-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-maintenance-empty-kobo-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 383
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -6008,7 +6627,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-maintenance-one-request-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -6020,7 +6653,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-maintenance-one-request-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 260
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -6032,7 +6679,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-17T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-maintenance-refused-reversed-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -6044,7 +6705,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-17T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-one/evidence.json",
+   "app_image": "sitework-maintenance-refused-reversed-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -6056,7 +6731,31 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-stocked/evidence.json",
+   "app_image": "sitework-incidents-stocked-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-context",
+     "text": "Decision context: OPP-000001 \u00b7 SCN-000002 \u00b7 Grain mill one-hour trial (corrected",
+     "sw": 191,
+     "cw": 191,
+     "sh": 72,
+     "ch": 36
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 443
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -6068,7 +6767,76 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-stocked/evidence.json",
+   "app_image": "sitework-incidents-stocked-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+     "sw": 193,
+     "cw": 193,
+     "sh": 46,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+     "sw": 193,
+     "cw": 193,
+     "sh": 46,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+     "sw": 193,
+     "cw": 193,
+     "sh": 46,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+     "sw": 193,
+     "cw": 193,
+     "sh": 46,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+     "sw": 193,
+     "cw": 193,
+     "sh": 46,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-context",
+     "text": "Decision context: OPP-000001 \u00b7 SCN-000002 \u00b7 Grain mill one-hour trial (corrected",
+     "sw": 121,
+     "cw": 121,
+     "sh": 101,
+     "ch": 34
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 412
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -6080,7 +6848,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-stocked/evidence.json",
+   "app_image": "sitework-maintenance-stocked-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 316
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 13,
@@ -6092,7 +6874,21 @@
    ],
    "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db ass",
    "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-13/part-stocked/evidence.json",
+   "app_image": "sitework-maintenance-stocked-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 345
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 14,
@@ -6104,7 +6900,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b14 --tag b14 prepare / serve (unmodified; DBs w502b_<mode>_b14_test; API ports 8971-89",
    "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-14/part-positive/evidence.json",
+   "app_image": "cold-health-all-open-1440-app.png",
+   "titles": [
+    "Condition and evidence"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Condition and evidence": 251
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 14,
@@ -6116,7 +6926,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b14 --tag b14 prepare / serve (unmodified; DBs w502b_<mode>_b14_test; API ports 8971-89",
    "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-14/part-positive/evidence.json",
+   "app_image": "cold-health-all-open-390-app.png",
+   "titles": [
+    "Condition and evidence"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Condition and evidence": 472
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 14,
@@ -6128,7 +6952,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b14 --tag b14 prepare / serve (unmodified; DBs w502b_<mode>_b14_test; API ports 8971-89",
    "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-14/part-positive/evidence.json",
+   "app_image": "cold-scenarios-all-open-1440-app.png",
+   "titles": [
+    "Financial scenarios"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Financial scenarios": 305
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 14,
@@ -6140,7 +6978,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b14 --tag b14 prepare / serve (unmodified; DBs w502b_<mode>_b14_test; API ports 8971-89",
    "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-14/part-positive/evidence.json",
+   "app_image": "cold-scenarios-all-open-390-app.png",
+   "titles": [
+    "Financial scenarios"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Financial scenarios": 345
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 14,
@@ -6152,7 +7004,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b14 --tag b14 prepare / serve (unmodified; DBs w502b_<mode>_b14_test; API ports 8971-89",
    "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-14/part-positive/evidence.json",
+   "app_image": "cold-work-all-open-1440-app.png",
+   "titles": [
+    "Actions at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Actions at this site": 204
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 14,
@@ -6164,7 +7030,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b14 --tag b14 prepare / serve (unmodified; DBs w502b_<mode>_b14_test; API ports 8971-89",
    "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-14/part-positive/evidence.json",
+   "app_image": "cold-work-all-open-390-app.png",
+   "titles": [
+    "Actions at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Actions at this site": 259
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 14,
@@ -6176,7 +7056,25 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b14 --tag b14 prepare / serve (unmodified; DBs w502b_<mode>_b14_test; API ports 8971-89",
    "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-14/part-positive/evidence.json",
+   "app_image": "cooling-all-open-1440-app.png",
+   "titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Recovery curves": 417,
+    "Context normalization": 417,
+    "Next best evidence": 191
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 14,
@@ -6188,7 +7086,25 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b14 --tag b14 prepare / serve (unmodified; DBs w502b_<mode>_b14_test; API ports 8971-89",
    "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-14/part-positive/evidence.json",
+   "app_image": "cooling-all-open-390-app.png",
+   "titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Recovery curves": 412,
+    "Context normalization": 466,
+    "Next best evidence": 208
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6200,7 +7116,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-forbidden/evidence.json",
+   "app_image": "cold-work-incidents-forbidden-403-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6212,7 +7142,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-forbidden/evidence.json",
+   "app_image": "cold-work-incidents-forbidden-403-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 153
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6224,7 +7168,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-forbidden/evidence.json",
+   "app_image": "cold-work-maintenance-forbidden-403-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6236,7 +7194,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-forbidden/evidence.json",
+   "app_image": "cold-work-maintenance-forbidden-403-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 153
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6248,7 +7220,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A47%3A13.858916Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-pending/evidence.json",
+   "app_image": "cold-work-incidents-pending-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6260,7 +7246,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A47%3A13.858916Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-pending/evidence.json",
+   "app_image": "cold-work-incidents-pending-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 247
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6272,7 +7272,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A47%3A13.858916Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-pending/evidence.json",
+   "app_image": "cold-work-maintenance-pending-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6284,7 +7298,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A47%3A13.858916Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-pending/evidence.json",
+   "app_image": "cold-work-maintenance-pending-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 201
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6296,7 +7324,23 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/actions/5198a58a-3695-44da-a4f6-b673da41f79a/verification",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-action-all-open-1440-app.png",
+   "titles": [
+    "Declared outcome criteria",
+    "Related activity"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Declared outcome criteria": 292,
+    "Related activity": 168
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6308,7 +7352,23 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/actions/5198a58a-3695-44da-a4f6-b673da41f79a/verification",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-action-all-open-390-app.png",
+   "titles": [
+    "Declared outcome criteria",
+    "Related activity"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Declared outcome criteria": 433,
+    "Related activity": 272
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6321,7 +7381,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-all-open-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 783
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6334,7 +7408,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-all-open-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 1023
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6346,7 +7434,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-current-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6358,7 +7460,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-current-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 247
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6370,7 +7486,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A24.534962Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-historical-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6382,7 +7512,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A24.534962Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-historical-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 247
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6394,7 +7538,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-no-window-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6406,7 +7564,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-no-window-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 247
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6418,7 +7590,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A24.655619Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-positive-cutoff-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6430,7 +7616,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A24.655619Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-positive-cutoff-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 247
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6442,7 +7642,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-23T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-refused-reversed-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6454,7 +7668,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-23T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-refused-reversed-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 153
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6466,7 +7694,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-refused-span-32d-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6478,7 +7720,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-refused-span-32d-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 174
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6490,7 +7746,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-zero-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 337
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6502,7 +7772,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-incidents-zero-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 344
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6515,7 +7799,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-all-open-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 963
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6528,7 +7826,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-all-open-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 1120
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6540,7 +7852,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-current-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6552,7 +7878,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-current-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 201
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6564,7 +7904,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A24.534962Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-historical-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6576,7 +7930,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A24.534962Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-historical-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 201
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6588,7 +7956,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-no-window-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 317
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6600,7 +7982,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-no-window-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 324
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6612,7 +8008,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A24.655619Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-positive-cutoff-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6624,7 +8034,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A24.655619Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-positive-cutoff-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 201
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6636,7 +8060,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-23T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-refused-reversed-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6648,7 +8086,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-23T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-refused-reversed-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 153
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6660,7 +8112,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-refused-span-32d-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6672,7 +8138,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-refused-span-32d-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 174
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6684,7 +8164,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-zero-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 317
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6696,7 +8190,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-positive/evidence.json",
+   "app_image": "cold-work-maintenance-zero-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 324
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6708,7 +8216,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A47%3A40.879710Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-stale/evidence.json",
+   "app_image": "cold-work-incidents-stale-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6720,7 +8242,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A47%3A40.879710Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-stale/evidence.json",
+   "app_image": "cold-work-incidents-stale-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 247
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6732,7 +8268,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A47%3A40.879710Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-stale/evidence.json",
+   "app_image": "cold-work-maintenance-stale-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6744,7 +8294,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A47%3A40.879710Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-stale/evidence.json",
+   "app_image": "cold-work-maintenance-stale-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 201
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6756,7 +8320,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-unavailable/evidence.json",
+   "app_image": "cold-work-incidents-unavailable-503-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6768,7 +8346,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-unavailable/evidence.json",
+   "app_image": "cold-work-incidents-unavailable-503-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 174
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6780,7 +8372,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-unavailable/evidence.json",
+   "app_image": "cold-work-maintenance-unavailable-503-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6792,7 +8398,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-unavailable/evidence.json",
+   "app_image": "cold-work-maintenance-unavailable-503-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 174
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6804,7 +8424,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A48%3A04.600947Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-unknown/evidence.json",
+   "app_image": "cold-work-incidents-unknown-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6816,7 +8450,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A48%3A04.600947Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-unknown/evidence.json",
+   "app_image": "cold-work-incidents-unknown-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 201
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6828,7 +8476,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A48%3A04.600947Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-unknown/evidence.json",
+   "app_image": "cold-work-maintenance-unknown-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6840,7 +8502,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A48%3A04.600947Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-unknown/evidence.json",
+   "app_image": "cold-work-maintenance-unknown-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 201
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6852,7 +8528,94 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A51.403558Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-worstcase/evidence.json",
+   "app_image": "cold-work-incidents-worstcase-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000009 \u00b7 Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 221,
+     "cw": 221,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Grid lost, automatic start failed 4 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+     "sw": 298,
+     "cw": 298,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000007 \u00b7 Backup response failure 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 221,
+     "cw": 221,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Grid lost, automatic start failed 3 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+     "sw": 298,
+     "cw": 298,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000005 \u00b7 Backup response failure 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 221,
+     "cw": 221,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Grid lost, automatic start failed 2 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+     "sw": 298,
+     "cw": 298,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000003 \u00b7 Backup response failure 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 221,
+     "cw": 221,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Grid lost, automatic start failed 1 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+     "sw": 298,
+     "cw": 298,
+     "sh": 83,
+     "ch": 33
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 486
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6864,7 +8627,94 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A51.403558Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-worstcase/evidence.json",
+   "app_image": "cold-work-incidents-worstcase-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000009 \u00b7 Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 142,
+     "cw": 142,
+     "sh": 123,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Grid lost, automatic start failed 4 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+     "sw": 193,
+     "cw": 193,
+     "sh": 108,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000007 \u00b7 Backup response failure 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 142,
+     "cw": 142,
+     "sh": 123,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Grid lost, automatic start failed 3 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+     "sw": 193,
+     "cw": 193,
+     "sh": 108,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000005 \u00b7 Backup response failure 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 142,
+     "cw": 142,
+     "sh": 123,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Grid lost, automatic start failed 2 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+     "sw": 193,
+     "cw": 193,
+     "sh": 108,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000003 \u00b7 Backup response failure 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 142,
+     "cw": 142,
+     "sh": 123,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Grid lost, automatic start failed 1 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+     "sw": 193,
+     "cw": 193,
+     "sh": 108,
+     "ch": 31
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 599
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6876,7 +8726,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A51.403558Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-worstcase/evidence.json",
+   "app_image": "cold-work-incidents-worstcase-all-open-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 2007
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6888,7 +8752,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A51.403558Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-worstcase/evidence.json",
+   "app_image": "cold-work-incidents-worstcase-all-open-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 2233
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6900,7 +8778,58 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A51.403558Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-worstcase/evidence.json",
+   "app_image": "cold-work-maintenance-worstcase-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000010 \u00b7 Starter/control inspection 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 221,
+     "cw": 221,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000008 \u00b7 Starter/control inspection 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 221,
+     "cw": 221,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000006 \u00b7 Starter/control inspection 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 221,
+     "cw": 221,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000004 \u00b7 Starter/control inspection 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 221,
+     "cw": 221,
+     "sh": 83,
+     "ch": 33
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 486
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6912,7 +8841,58 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A51.403558Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-worstcase/evidence.json",
+   "app_image": "cold-work-maintenance-worstcase-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000010 \u00b7 Starter/control inspection 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 151,
+     "cw": 151,
+     "sh": 123,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000008 \u00b7 Starter/control inspection 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 151,
+     "cw": 151,
+     "sh": 123,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000006 \u00b7 Starter/control inspection 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 151,
+     "cw": 151,
+     "sh": 123,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000004 \u00b7 Starter/control inspection 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "sw": 151,
+     "cw": 151,
+     "sh": 123,
+     "ch": 31
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 430
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6924,7 +8904,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A51.403558Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-worstcase/evidence.json",
+   "app_image": "cold-work-maintenance-worstcase-all-open-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 2907
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 15,
@@ -6936,7 +8930,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>",
    "route": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A46%3A51.403558Z",
-   "status": "not captured"
+   "sha": "06e019ba",
+   "evidence": "batch-15/part-worstcase/evidence.json",
+   "app_image": "cold-work-maintenance-worstcase-all-open-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 2718
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 16,
@@ -6948,7 +8956,25 @@
    ],
    "producer": "W504_API_PORT_BASE=18600 tools/w504_ev_work_walkthrough.py --work var/w504a_b16 --tag b16 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-16/part-positive/evidence.json",
+   "app_image": "availability-all-open-1440-app.png",
+   "titles": [
+    "Connector states over the service schedule",
+    "Full-schedule availability bound",
+    "Most useful next evidence"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Connector states over the service schedule": 275,
+    "Full-schedule availability bound": 182,
+    "Most useful next evidence": 182
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 16,
@@ -6960,7 +8986,25 @@
    ],
    "producer": "W504_API_PORT_BASE=18600 tools/w504_ev_work_walkthrough.py --work var/w504a_b16 --tag b16 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-16/part-positive/evidence.json",
+   "app_image": "availability-all-open-390-app.png",
+   "titles": [
+    "Connector states over the service schedule",
+    "Full-schedule availability bound",
+    "Most useful next evidence"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Connector states over the service schedule": 316,
+    "Full-schedule availability bound": 182,
+    "Most useful next evidence": 205
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 16,
@@ -6972,7 +9016,25 @@
    ],
    "producer": "W504_API_PORT_BASE=18600 tools/w504_ev_work_walkthrough.py --work var/w504a_b16 --tag b16 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-16/part-positive/evidence.json",
+   "app_image": "energy-all-open-1440-app.png",
+   "titles": [
+    "Import power and configured limit",
+    "What can be concluded",
+    "Technical-to-financial bridge"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Import power and configured limit": 888,
+    "What can be concluded": 888,
+    "Technical-to-financial bridge": 183
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 16,
@@ -6984,7 +9046,25 @@
    ],
    "producer": "W504_API_PORT_BASE=18600 tools/w504_ev_work_walkthrough.py --work var/w504a_b16 --tag b16 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-16/part-positive/evidence.json",
+   "app_image": "energy-all-open-390-app.png",
+   "titles": [
+    "Import power and configured limit",
+    "What can be concluded",
+    "Technical-to-financial bridge"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Import power and configured limit": 777,
+    "What can be concluded": 339,
+    "Technical-to-financial bridge": 211
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 16,
@@ -6996,7 +9076,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18600 tools/w504_ev_work_walkthrough.py --work var/w504a_b16 --tag b16 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-16/part-positive/evidence.json",
+   "app_image": "ev-health-all-open-1440-app.png",
+   "titles": [
+    "Condition and evidence"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Condition and evidence": 324
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 16,
@@ -7008,7 +9102,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18600 tools/w504_ev_work_walkthrough.py --work var/w504a_b16 --tag b16 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-16/part-positive/evidence.json",
+   "app_image": "ev-health-all-open-390-app.png",
+   "titles": [
+    "Condition and evidence"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Condition and evidence": 455
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 16,
@@ -7020,7 +9128,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18600 tools/w504_ev_work_walkthrough.py --work var/w504a_b16 --tag b16 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-16/part-positive/evidence.json",
+   "app_image": "ev-scenarios-all-open-1440-app.png",
+   "titles": [
+    "Financial scenarios"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Financial scenarios": 305
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 16,
@@ -7032,7 +9154,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18600 tools/w504_ev_work_walkthrough.py --work var/w504a_b16 --tag b16 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-16/part-positive/evidence.json",
+   "app_image": "ev-scenarios-all-open-390-app.png",
+   "titles": [
+    "Financial scenarios"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Financial scenarios": 345
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 16,
@@ -7044,7 +9180,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18600 tools/w504_ev_work_walkthrough.py --work var/w504a_b16 --tag b16 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-16/part-positive/evidence.json",
+   "app_image": "ev-work-all-open-1440-app.png",
+   "titles": [
+    "Actions at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Actions at this site": 222
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 16,
@@ -7056,7 +9206,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18600 tools/w504_ev_work_walkthrough.py --work var/w504a_b16 --tag b16 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-16/part-positive/evidence.json",
+   "app_image": "ev-work-all-open-390-app.png",
+   "titles": [
+    "Actions at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Actions at this site": 329
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7068,7 +9232,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-forbidden/evidence.json",
+   "app_image": "ev-work-incidents-forbidden-403-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7080,7 +9258,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-forbidden/evidence.json",
+   "app_image": "ev-work-incidents-forbidden-403-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 153
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7092,7 +9284,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-forbidden/evidence.json",
+   "app_image": "ev-work-maintenance-forbidden-403-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7104,7 +9310,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-forbidden/evidence.json",
+   "app_image": "ev-work-maintenance-forbidden-403-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 153
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7116,7 +9336,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-action-all-open-1440-app.png",
+   "titles": [
+    "Declared verification plan"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Declared verification plan": 248
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7128,7 +9362,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-action-all-open-390-app.png",
+   "titles": [
+    "Declared verification plan"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Declared verification plan": 406
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7141,7 +9389,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-incidents-all-open-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 783
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7154,7 +9416,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-incidents-all-open-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 1023
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7166,7 +9442,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A13%3A10.456299Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-incidents-historical-index-known-at-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 337
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7178,7 +9468,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A13%3A10.456299Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-incidents-historical-index-known-at-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 344
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7190,7 +9494,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-incidents-no-window-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 337
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7202,7 +9520,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-incidents-no-window-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 344
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7214,7 +9546,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-incidents-positive-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 212
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7226,7 +9572,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-incidents-positive-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 201
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7238,7 +9598,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-incidents-refused-reversed-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7250,7 +9624,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-incidents-refused-reversed-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 153
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7262,7 +9650,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-incidents-refused-span-32d-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7274,7 +9676,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-incidents-refused-span-32d-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 174
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7287,7 +9703,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-maintenance-all-open-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 827
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7300,7 +9730,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-maintenance-all-open-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 1050
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7312,7 +9756,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A13%3A10.456299Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-maintenance-historical-index-known-at-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 317
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7324,7 +9782,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A13%3A10.456299Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-maintenance-historical-index-known-at-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 324
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7336,7 +9808,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-maintenance-no-window-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 317
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7348,7 +9834,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-maintenance-no-window-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 324
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7360,7 +9860,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-maintenance-positive-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 195
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7372,7 +9886,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-maintenance-positive-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 216
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7384,7 +9912,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-maintenance-refused-reversed-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7396,7 +9938,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-maintenance-refused-reversed-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 153
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7408,7 +9964,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-maintenance-refused-span-32d-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 145
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7420,7 +9990,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-positive/evidence.json",
+   "app_image": "ev-work-maintenance-refused-span-32d-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 174
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7432,7 +10016,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-unavailable/evidence.json",
+   "app_image": "ev-work-incidents-store-unavailable-503-1440-app.png",
+   "titles": [
+    "Site unavailable"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Site unavailable": 103
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7444,7 +10042,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-unavailable/evidence.json",
+   "app_image": "ev-work-incidents-store-unavailable-503-390-app.png",
+   "titles": [
+    "Site unavailable"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Site unavailable": 126
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7456,7 +10068,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-unavailable/evidence.json",
+   "app_image": "ev-work-maintenance-store-unavailable-503-1440-app.png",
+   "titles": [
+    "Site unavailable"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Site unavailable": 103
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7468,7 +10094,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-unavailable/evidence.json",
+   "app_image": "ev-work-maintenance-store-unavailable-503-390-app.png",
+   "titles": [
+    "Site unavailable"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Site unavailable": 126
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7480,7 +10120,112 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-worstcase/evidence.json",
+   "app_image": "ev-work-incidents-worstcase-five-160-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000009 \u00b7 Charging session fault 5 \u2014 long case title proof xxxxxxxxxxxxxxxxxx",
+     "sw": 224,
+     "cw": 224,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Connector fault 5 ended a charging session \u2014 long narrative proof nnnnnnnnnnnnnn",
+     "sw": 303,
+     "cw": 303,
+     "sh": 66,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000007 \u00b7 Charging session fault 4 \u2014 long case title proof xxxxxxxxxxxxxxxxxx",
+     "sw": 224,
+     "cw": 224,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Connector fault 4 ended a charging session \u2014 long narrative proof nnnnnnnnnnnnnn",
+     "sw": 303,
+     "cw": 303,
+     "sh": 66,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000005 \u00b7 Charging session fault 3 \u2014 long case title proof xxxxxxxxxxxxxxxxxx",
+     "sw": 224,
+     "cw": 224,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Connector fault 3 ended a charging session \u2014 long narrative proof nnnnnnnnnnnnnn",
+     "sw": 303,
+     "cw": 303,
+     "sh": 66,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000003 \u00b7 Charging session fault 2 \u2014 long case title proof xxxxxxxxxxxxxxxxxx",
+     "sw": 224,
+     "cw": 224,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Connector fault 2 ended a charging session \u2014 long narrative proof nnnnnnnnnnnnnn",
+     "sw": 303,
+     "cw": 303,
+     "sh": 66,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000001 \u00b7 Charging session fault 1 \u2014 long case title proof xxxxxxxxxxxxxxxxxx",
+     "sw": 224,
+     "cw": 224,
+     "sh": 83,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Connector fault 1 ended a charging session \u2014 long narrative proof nnnnnnnnnnnnnn",
+     "sw": 303,
+     "cw": 303,
+     "sh": 66,
+     "ch": 33
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 502
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7492,7 +10237,112 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-worstcase/evidence.json",
+   "app_image": "ev-work-incidents-worstcase-five-160-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000009 \u00b7 Charging session fault 5 \u2014 long case title proof xxxxxxxxxxxxxxxxxx",
+     "sw": 142,
+     "cw": 142,
+     "sh": 108,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Connector fault 5 ended a charging session \u2014 long narrative proof nnnnnnnnnnnnnn",
+     "sw": 193,
+     "cw": 193,
+     "sh": 92,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000007 \u00b7 Charging session fault 4 \u2014 long case title proof xxxxxxxxxxxxxxxxxx",
+     "sw": 142,
+     "cw": 142,
+     "sh": 108,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Connector fault 4 ended a charging session \u2014 long narrative proof nnnnnnnnnnnnnn",
+     "sw": 193,
+     "cw": 193,
+     "sh": 92,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000005 \u00b7 Charging session fault 3 \u2014 long case title proof xxxxxxxxxxxxxxxxxx",
+     "sw": 142,
+     "cw": 142,
+     "sh": 108,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Connector fault 3 ended a charging session \u2014 long narrative proof nnnnnnnnnnnnnn",
+     "sw": 193,
+     "cw": 193,
+     "sh": 92,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000003 \u00b7 Charging session fault 2 \u2014 long case title proof xxxxxxxxxxxxxxxxxx",
+     "sw": 142,
+     "cw": 142,
+     "sh": 108,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Connector fault 2 ended a charging session \u2014 long narrative proof nnnnnnnnnnnnnn",
+     "sw": 193,
+     "cw": 193,
+     "sh": 92,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "INC-000001 \u00b7 Charging session fault 1 \u2014 long case title proof xxxxxxxxxxxxxxxxxx",
+     "sw": 142,
+     "cw": 142,
+     "sh": 108,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "Connector fault 1 ended a charging session \u2014 long narrative proof nnnnnnnnnnnnnn",
+     "sw": 193,
+     "cw": 193,
+     "sh": 92,
+     "ch": 31
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 445
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7504,7 +10354,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-worstcase/evidence.json",
+   "app_image": "ev-work-incidents-worstcase-five-160-all-open-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 1998
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7516,7 +10380,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-worstcase/evidence.json",
+   "app_image": "ev-work-incidents-worstcase-five-160-all-open-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 2206
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7528,7 +10406,67 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-worstcase/evidence.json",
+   "app_image": "ev-work-maintenance-worstcase-five-160-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000010 \u00b7 Connector diagnostic inspection 5 \u2014 long request title proof wwwwwww",
+     "sw": 224,
+     "cw": 224,
+     "sh": 99,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000008 \u00b7 Connector diagnostic inspection 4 \u2014 long request title proof wwwwwww",
+     "sw": 224,
+     "cw": 224,
+     "sh": 99,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000006 \u00b7 Connector diagnostic inspection 3 \u2014 long request title proof wwwwwww",
+     "sw": 224,
+     "cw": 224,
+     "sh": 99,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000004 \u00b7 Connector diagnostic inspection 2 \u2014 long request title proof wwwwwww",
+     "sw": 224,
+     "cw": 224,
+     "sh": 99,
+     "ch": 33
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000002 \u00b7 Connector diagnostic inspection 1 \u2014 long request title proof wwwwwww",
+     "sw": 224,
+     "cw": 224,
+     "sh": 99,
+     "ch": 33
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 502
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7540,7 +10478,67 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-worstcase/evidence.json",
+   "app_image": "ev-work-maintenance-worstcase-five-160-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000010 \u00b7 Connector diagnostic inspection 5 \u2014 long request title proof wwwwwww",
+     "sw": 151,
+     "cw": 151,
+     "sh": 139,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000008 \u00b7 Connector diagnostic inspection 4 \u2014 long request title proof wwwwwww",
+     "sw": 151,
+     "cw": 151,
+     "sh": 139,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000006 \u00b7 Connector diagnostic inspection 3 \u2014 long request title proof wwwwwww",
+     "sw": 151,
+     "cw": 151,
+     "sh": 139,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000004 \u00b7 Connector diagnostic inspection 2 \u2014 long request title proof wwwwwww",
+     "sw": 151,
+     "cw": 151,
+     "sh": 139,
+     "ch": 31
+    },
+    {
+     "tag": "SPAN",
+     "cls": "work-cases-clamp",
+     "text": "WR-000002 \u00b7 Connector diagnostic inspection 1 \u2014 long request title proof wwwwwww",
+     "sw": 151,
+     "cw": 151,
+     "sh": 139,
+     "ch": 31
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 445
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7552,7 +10550,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-worstcase/evidence.json",
+   "app_image": "ev-work-maintenance-worstcase-five-160-all-open-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 2216
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7564,7 +10576,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-worstcase/evidence.json",
+   "app_image": "ev-work-maintenance-worstcase-five-160-all-open-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 2342
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7576,7 +10602,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-zero/evidence.json",
+   "app_image": "ev-work-incidents-zero-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 337
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7588,7 +10628,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-zero/evidence.json",
+   "app_image": "ev-work-incidents-zero-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 344
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7600,7 +10654,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-zero/evidence.json",
+   "app_image": "ev-work-incidents-zero-prior-day-1440-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 337
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7612,7 +10680,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-zero/evidence.json",
+   "app_image": "ev-work-incidents-zero-prior-day-390-app.png",
+   "titles": [
+    "Incidents at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incidents at this site": 344
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7624,7 +10706,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-zero/evidence.json",
+   "app_image": "ev-work-maintenance-zero-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 317
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7636,7 +10732,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-zero/evidence.json",
+   "app_image": "ev-work-maintenance-zero-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 324
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7648,7 +10758,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-zero/evidence.json",
+   "app_image": "ev-work-maintenance-zero-prior-day-1440-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 317
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 17,
@@ -7660,7 +10784,21 @@
    ],
    "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; produ",
    "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-17/part-zero/evidence.json",
+   "app_image": "ev-work-maintenance-zero-prior-day-390-app.png",
+   "titles": [
+    "Maintenance at this site"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Maintenance at this site": 324
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 18,
@@ -7672,7 +10810,23 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b18 --tag b18 prepare --modes positive,worstcase (unmodified; DBs w502b_<mode>_b18_test",
    "route": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-18/part-cold/evidence.json",
+   "app_image": "incidents-cold-1440-app.png",
+   "titles": [
+    "Incident cases",
+    "Case boundaries"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Incident cases": 245,
+    "Case boundaries": 103
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 18,
@@ -7684,7 +10838,33 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b18 --tag b18 prepare --modes positive,worstcase (unmodified; DBs w502b_<mode>_b18_test",
    "route": "/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-18/part-cold/evidence.json",
+   "app_image": "incidents-cold-390-app.png",
+   "titles": [
+    "Incident cases",
+    "Case boundaries"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [
+    {
+     "tag": "DIV",
+     "cls": "global-work-clamp",
+     "text": "Finding 9a1caad3 \u00b7 Finding de581a3f \u00b7 Action 78bd71d9 / WR-000002",
+     "sw": 93,
+     "cw": 93,
+     "sh": 70,
+     "ch": 53
+    }
+   ],
+   "console_errors": 0,
+   "heights": {
+    "Incident cases": 308,
+    "Case boundaries": 126
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 18,
@@ -7696,7 +10876,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b18 --tag b18 prepare --modes positive,worstcase (unmodified; DBs w502b_<mode>_b18_test",
    "route": "/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-18/part-cold/evidence.json",
+   "app_image": "maintenance-cold-1440-app.png",
+   "titles": [
+    "Corrective work requests"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Corrective work requests": 268
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 18,
@@ -7708,7 +10902,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b18 --tag b18 prepare --modes positive,worstcase (unmodified; DBs w502b_<mode>_b18_test",
    "route": "/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-18/part-cold/evidence.json",
+   "app_image": "maintenance-cold-390-app.png",
+   "titles": [
+    "Corrective work requests"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Corrective work requests": 308
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 18,
@@ -7720,7 +10928,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b18 --tag b18 prepare --modes positive,worstcase (unmodified; DBs w502b_<mode>_b18_test",
    "route": "/maintenance/preventive?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-18/part-cold/evidence.json",
+   "app_image": "maintenance-preventive-cold-1440-app.png",
+   "titles": [
+    "Preventive plan"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Preventive plan": 177
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 18,
@@ -7732,7 +10954,21 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b18 --tag b18 prepare --modes positive,worstcase (unmodified; DBs w502b_<mode>_b18_test",
    "route": "/maintenance/preventive?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-18/part-cold/evidence.json",
+   "app_image": "maintenance-preventive-cold-390-app.png",
+   "titles": [
+    "Preventive plan"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Preventive plan": 195
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 18,
@@ -7744,7 +10980,25 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b18 --tag b18 prepare --modes positive,worstcase (unmodified; DBs w502b_<mode>_b18_test",
    "route": "/operational-records?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-18/part-cold/evidence.json",
+   "app_image": "oprecords-cold-1440-app.png",
+   "titles": [
+    "Operational records",
+    "Record a manual reading",
+    "How records are used"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Operational records": 177,
+    "Record a manual reading": 298,
+    "How records are used": 298
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 18,
@@ -7756,7 +11010,25 @@
    ],
    "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b18 --tag b18 prepare --modes positive,worstcase (unmodified; DBs w502b_<mode>_b18_test",
    "route": "/operational-records?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-18/part-cold/evidence.json",
+   "app_image": "oprecords-cold-390-app.png",
+   "titles": [
+    "Operational records",
+    "Record a manual reading",
+    "How records are used"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Operational records": 177,
+    "Record a manual reading": 486,
+    "How records are used": 223
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 19,
@@ -7768,7 +11040,21 @@
    ],
    "producer": "tools/w601_seed.py --db assetops_w601_b19detail_test --fixture detail --clock 2026-10-20T12:00:00Z (unmodified); uvicorn assetops_backend.ma",
    "route": "/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/history?site_id=KOBO-001",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-19/part-detail/evidence.json",
+   "app_image": "wr-history-all-open-wr1-1440-app.png",
+   "titles": [
+    "History"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "History": 538
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 19,
@@ -7780,7 +11066,21 @@
    ],
    "producer": "tools/w601_seed.py --db assetops_w601_b19detail_test --fixture detail --clock 2026-10-20T12:00:00Z (unmodified); uvicorn assetops_backend.ma",
    "route": "/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/history?site_id=KOBO-001",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-19/part-detail/evidence.json",
+   "app_image": "wr-history-all-open-wr1-390-app.png",
+   "titles": [
+    "History"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "History": 568
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 19,
@@ -7792,7 +11092,23 @@
    ],
    "producer": "tools/w601_seed.py --db assetops_w601_b19detail_test --fixture detail --clock 2026-10-20T12:00:00Z (unmodified); uvicorn assetops_backend.ma",
    "route": "/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105?site_id=KOBO-001",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-19/part-detail/evidence.json",
+   "app_image": "wr-overview-all-open-wr1-1440-app.png",
+   "titles": [
+    "Work done",
+    "Lifecycle"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Work done": 372,
+    "Lifecycle": 372
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 19,
@@ -7804,7 +11120,23 @@
    ],
    "producer": "tools/w601_seed.py --db assetops_w601_b19detail_test --fixture detail --clock 2026-10-20T12:00:00Z (unmodified); uvicorn assetops_backend.ma",
    "route": "/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105?site_id=KOBO-001",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-19/part-detail/evidence.json",
+   "app_image": "wr-overview-all-open-wr1-390-app.png",
+   "titles": [
+    "Work done",
+    "Lifecycle"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 0,
+   "heights": {
+    "Work done": 372,
+    "Lifecycle": 167
+   },
+   "flags": [],
+   "status": "ok"
   },
   {
    "batch": 19,
@@ -7816,7 +11148,23 @@
    ],
    "producer": "tools/w601_seed.py --db assetops_w601_b19detail_test --fixture detail --clock 2026-10-20T12:00:00Z (unmodified); uvicorn assetops_backend.ma",
    "route": "/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/record?site_id=KOBO-001",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-19/part-detail/evidence.json",
+   "app_image": "wr-record-all-open-wr1-1440-app.png",
+   "titles": [
+    "Maintenance record \u00b7 activity"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 1,
+   "heights": {
+    "Maintenance record \u00b7 activity": 558
+   },
+   "flags": [
+    "1 console errors"
+   ],
+   "status": "flag"
   },
   {
    "batch": 19,
@@ -7828,7 +11176,23 @@
    ],
    "producer": "tools/w601_seed.py --db assetops_w601_b19detail_test --fixture detail --clock 2026-10-20T12:00:00Z (unmodified); uvicorn assetops_backend.ma",
    "route": "/maintenance/requests/9b43962f-ea60-419f-8293-96d27fb81105/record?site_id=KOBO-001",
-   "status": "not captured"
+   "sha": "7e7b3dd597a5597bbbac5354fe98d0a6af86c18a",
+   "evidence": "batch-19/part-detail/evidence.json",
+   "app_image": "wr-record-all-open-wr1-390-app.png",
+   "titles": [
+    "Maintenance record \u00b7 activity"
+   ],
+   "titles_match": true,
+   "overflowX": 0,
+   "clipped": [],
+   "console_errors": 1,
+   "heights": {
+    "Maintenance record \u00b7 activity": 599
+   },
+   "flags": [
+    "1 console errors"
+   ],
+   "status": "flag"
   }
  ]
 }

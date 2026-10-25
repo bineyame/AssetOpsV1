@@ -1,0 +1,22 @@
+[
+ {
+  "id": "incidents",
+  "case": "cold",
+  "url": "http://localhost:5181/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "cold",
+  "url": "http://localhost:5181/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "cold",
+  "url": "http://localhost:5181/maintenance/preventive?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "oprecords",
+  "case": "cold",
+  "url": "http://localhost:5181/operational-records?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ }
+]

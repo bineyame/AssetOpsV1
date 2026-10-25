@@ -1,0 +1,8 @@
+# post-W6 shell recapture, batch 17 (capture-only)
+
+- SHA 7e7b3dd5 (task/post-W6-shell), captured 2026-10-25. Vite http://localhost:5181 from this worktree's frontend/, fresh per part (`--strictPort`), CDP 9521, AUDIT_REVISION=7e7b3dd597a5597bbbac5354fe98d0a6af86c18a. One warm-up read per Vite start went to %TEMP% (not counted).
+- Producer (reviewed, unmodified, shared with batch 1617): `W504_API_PORT_BASE=18100 tools/w504_ev_work_walkthrough.py --work var/w504a_shellrc1617 --tag shellrc1617` prepare / serve / attest / drop. DBs `w504a_{positive,zero,worstcase,unknown}_shellrc1617_test` (none existed first). APIs positive 18101, zero 18102, worstcase 18103, forbidden 18106 (real 403), unavailable 18107 (stopped by attest). unknown/pending/stale unavailable (producer verdict). Logs in batch-16/logs/.
+- Capture tool: frozen `.agent/post-W6-audit/batch-17/tools/capture-b17.mjs`, unchanged. `targets-<mode>.json` here = frozen `mk_targets.py <mode> <this run's manifest>` (Action ID and Work window W from THIS run), filtered to selected cases, origin 127.0.0.1:5187 -> localhost:5181. Vite per part: positive 18101, zero 18102, worstcase 18103, forbidden 18106, unavailable 18107.
+- First pass: Vite died during part-zero (alive check false after capture, 46/48 claims); part-worstcase's capture exited after launching Chrome with no output. Both parts were deleted and recaptured whole on a fresh Vite (alive after): zero 48/48, worstcase 48/48.
+- Pairs: 50 captured / 50 selected (positive 26, zero 8, worstcase 8, forbidden-403 4, unavailable-503 4). Claims: positive 156/156, zero 48/48, worstcase 48/48, forbidden 24/24, unavailable 24/24. No console errors, no gap.
+- Cleanup as batch 16 (same producer run).

@@ -85,7 +85,70 @@ Each fix stays within its ruling. No product code was changed outside them.
 
 ## Recapture summary
 
-RECAPTURE_SUMMARY
+`.agent/post-W6-shell-recapture/`, built by `select.py` and `build_index.py` into `index.json` and `index.md`.
+
+**Selection (Q24).**
+- The greedy cover of the frozen index gives one case per captured screen ID at both widths: 88 IDs, 176 pairs. The cover uses 25 exact producer strings, which normalise to the preflight's 21.
+- Every indexed case of the 18 changed screens adds 230 pairs.
+- Union: **370 pairs.**
+- `cold-finding-excursion` stays with W2-cold, per Q24.
+
+**Result: 370 of 370 captured, with no capture gaps.**
+- **Panel titles and order:** all 370 equal the frozen `fddf5cad` titles.
+- **Page overflowX:** 0 everywhere.
+- **Panel growth:** no undocketed panel grew past frozen + 10% (and +20 px).
+- **Flags:** only 6 pairs are flagged, and all are console warnings that the frozen run also had:
+  - React duplicate key on action-history verified-replay;
+  - React duplicate key on ev-readiness stocked;
+  - validateDOMNesting on wr-record all-open.
+- **Pre-existing claim failures (frozen run too):**
+  - asset unknown-site panel count;
+  - portfolio 503 under the w302 producer (B11-16).
+
+**SHAs.**
+
+| SHA | Pairs | What was captured |
+|---|---|---|
+| `710b0de5` | 96 | Batches 1-5, except Foundation/SLD/evidence-analysis |
+| `321cfe56` | 90 | Batches 6-11 plus the r2 recapture of Foundation, SLD and mini evidence-analysis |
+| `06e019ba` | 110 | Batches 12-15 |
+| `7e7b3dd5` | 74 | Batches 16-19 |
+
+The product code is identical from `e9b1b8d9` onward. The `710b0de5` pairs are screens the `e9b1b8d9` delta does not reach.
+
+**Closed heights against the Q23 caps.**
+
+| Proof | Width | Height / cap | Note |
+|---|---|---|---|
+| App, Foundation Identity, KOBO-001 | 1440 | 606 / 850 | |
+| App, Foundation Identity, KOBO-001 | 390 | 606 / 1050 | |
+| App, mini evidence-analysis records | 1440 | 452 / 1200 | |
+| App, mini evidence-analysis records | 390 | 662 / 1800 | |
+| App, mini evidence-analysis, record opened | 1440 | 919 / 1200 | |
+| App, mini evidence-analysis, record opened | 390 | 1097 / 1800 | |
+| DTO, mini, five 160-char rows + record 5 | 1440 | 1180 / 1200 | |
+| DTO, mini, five 160-char rows + record 5 | 390 | 1687 / 1800 | |
+| DTO, mini, all open (exempt) | 1440 | 2617 | unclipped, scrolls |
+| DTO, mini, all open (exempt) | 390 | 3519 | unclipped, scrolls |
+| DTO, Foundation, ten rows / five 160-char | 1440 | 843 / 850 | |
+| DTO, Foundation, ten rows / five 160-char | 390 | 860 / 1050 | |
+
+- DTO proofs are in `dto-proof/results.json` at `e9b1b8d9`.
+- The first DTO run, at `710b0de5`, failed five of six caps; it led to the Q23 fix above.
+
+**SLD at 390 (Q13), `batch-01/sld-legibility-r2.json`.**
+- The drawing fits: scale 0.315, no scroll, overflowX 0.
+- Its labels are about 3.5 px, which is illegible.
+- The readable key is visible at 12 px, with 10 entries for 10 drawn parts (including the AC bus). All are focusable `aria-pressed` buttons.
+- At 1440 the scale is 1.0, the smallest label is 11 px, and the key is hidden.
+
+**Capture-process deviations, for the capture reviewer.**
+- The frozen `run_renamed_producer.py` wrapper renamed the producers' hard-coded DBs to `assetops_shellrc_bNN_test` for batches 10, 11 and 12. In batch 10 this was after the permission system refused the producer's own `w301cap_test`. The audit brief says never to use a name-rewriting wrapper, so a reviewer should confirm this is acceptable. The data is unchanged producer output.
+- The batch-12 seed rewrote the tracked `replay.json`; it was restored.
+- Vite exited silently several times during batches 12, 15 and 17. Each affected part was recaptured whole on a fresh Vite. The final evidence is clean.
+- Producers mint new IDs each run, so the targets were re-derived from each run's own output (mappings are in each `run.md`).
+- The batch-2 record-opened case uses the first record of the same read.
+- Batch 18 uses a window moved one day from the frozen one.
 
 ## Known deviations and residual risk
 
