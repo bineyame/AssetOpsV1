@@ -1,6 +1,7 @@
 # post-W6 shell recapture index
 
-Selected 370 pairs (Q24: 176 representative + 230 changed, overlapping). Status: {'ok': 364, 'flag': 6}. SHAs: {'710b0de5': 96, '321cfe56': 90, '06e019ba': 110, '7e7b3dd597a5597bbbac5354fe98d0a6af86c18a': 74}.
+Selected 370 pairs (Q24: 176 representative + 230 changed, overlapping). Status: {'ok': 340, 'flag': 6, 'capture gap': 24}. SHAs: {'710b0de5': 96, '321cfe56': 84, 'ac2e9b4f': 6, '06e019ba': 110, '7e7b3dd597a5597bbbac5354fe98d0a6af86c18a': 74}.
+Qualifying 346; capture gaps 24 (batches 10-12: non-qualifying diagnostic images from the renamed-producer wrapper, closeout ruling 4; replacement capture refused, see batch-10/run.md). The 370-pair recapture is NOT complete.
 Caps (Q23) apply to closed states; cases named open/expanded are exempt. Other panels flag above frozen + 10% and +20 px.
 
 | batch | screen | case | w | status | titles = frozen | overflowX | capped/flagged | image |
@@ -175,30 +176,30 @@ Caps (Q23) apply to closed states; cases named open/expanded are exempt. Other p
 | 9 | ev-evidence | complete | 390 | ok | True | 0 |  | ev-evidence-complete-390-app.png |
 | 9 | ev-financials | complete | 1440 | ok | True | 0 |  | ev-financials-complete-1440-app.png |
 | 9 | ev-financials | complete | 390 | ok | True | 0 |  | ev-financials-complete-390-app.png |
-| 10 | findings-cost | historical | 1440 | ok | True | 0 |  | findings-cost-historical-1440-app.png |
-| 10 | findings-cost | historical | 390 | ok | True | 0 |  | findings-cost-historical-390-app.png |
-| 10 | findings | historical | 1440 | ok | True | 0 |  | findings-historical-1440-app.png |
-| 10 | findings | historical | 390 | ok | True | 0 |  | findings-historical-390-app.png |
-| 10 | findings-opportunities | historical | 1440 | ok | True | 0 |  | findings-opportunities-historical-1440-app.png |
-| 10 | findings-opportunities | historical | 390 | ok | True | 0 |  | findings-opportunities-historical-390-app.png |
-| 10 | findings-risks | historical | 1440 | ok | True | 0 |  | findings-risks-historical-1440-app.png |
-| 10 | findings-risks | historical | 390 | ok | True | 0 |  | findings-risks-historical-390-app.png |
-| 10 | actions | empty-day | 1440 | ok | True | 0 |  | actions-empty-day-1440-app.png |
-| 10 | actions | empty-day | 390 | ok | True | 0 |  | actions-empty-day-390-app.png |
-| 11 | globalevidence | w302-partial-week | 1440 | ok | True | 0 |  | globalevidence-w302-partial-week-1440-app.png |
-| 11 | globalevidence | w302-partial-week | 390 | ok | True | 0 |  | globalevidence-w302-partial-week-390-app.png |
-| 11 | globalfinancials | w302-partial-week | 1440 | ok | True | 0 |  | globalfinancials-w302-partial-week-1440-app.png |
-| 11 | globalfinancials | w302-partial-week | 390 | ok | True | 0 |  | globalfinancials-w302-partial-week-390-app.png |
-| 11 | portfolio | w302-partial-week | 1440 | ok | True | 0 |  | portfolio-w302-partial-week-1440-app.png |
-| 11 | portfolio | w302-partial-week | 390 | ok | True | 0 |  | portfolio-w302-partial-week-390-app.png |
-| 12 | backup | gap-limited | 1440 | ok | True | 0 |  | backup-gap-limited-1440-app.png |
-| 12 | backup | gap-limited | 390 | ok | True | 0 |  | backup-gap-limited-390-app.png |
-| 12 | fuel | gap-limited | 1440 | ok | True | 0 |  | fuel-gap-limited-1440-app.png |
-| 12 | fuel | gap-limited | 390 | ok | True | 0 |  | fuel-gap-limited-390-app.png |
-| 12 | renewable | gap-limited | 1440 | ok | True | 0 |  | renewable-gap-limited-1440-app.png |
-| 12 | renewable | gap-limited | 390 | ok | True | 0 |  | renewable-gap-limited-390-app.png |
-| 12 | service | gap-limited | 1440 | ok | True | 0 |  | service-gap-limited-1440-app.png |
-| 12 | service | gap-limited | 390 | ok | True | 0 |  | service-gap-limited-390-app.png |
+| 10 | findings-cost | historical | 1440 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: findings-cost-historical-1440-app.png |
+| 10 | findings-cost | historical | 390 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: findings-cost-historical-390-app.png |
+| 10 | findings | historical | 1440 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: findings-historical-1440-app.png |
+| 10 | findings | historical | 390 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: findings-historical-390-app.png |
+| 10 | findings-opportunities | historical | 1440 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: findings-opportunities-historical-1440-app.png |
+| 10 | findings-opportunities | historical | 390 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: findings-opportunities-historical-390-app.png |
+| 10 | findings-risks | historical | 1440 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: findings-risks-historical-1440-app.png |
+| 10 | findings-risks | historical | 390 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: findings-risks-historical-390-app.png |
+| 10 | actions | empty-day | 1440 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: actions-empty-day-1440-app.png |
+| 10 | actions | empty-day | 390 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: actions-empty-day-390-app.png |
+| 11 | globalevidence | w302-partial-week | 1440 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: globalevidence-w302-partial-week-1440-app.png |
+| 11 | globalevidence | w302-partial-week | 390 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: globalevidence-w302-partial-week-390-app.png |
+| 11 | globalfinancials | w302-partial-week | 1440 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: globalfinancials-w302-partial-week-1440-app.png |
+| 11 | globalfinancials | w302-partial-week | 390 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: globalfinancials-w302-partial-week-390-app.png |
+| 11 | portfolio | w302-partial-week | 1440 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: portfolio-w302-partial-week-1440-app.png |
+| 11 | portfolio | w302-partial-week | 390 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: portfolio-w302-partial-week-390-app.png |
+| 12 | backup | gap-limited | 1440 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: backup-gap-limited-1440-app.png |
+| 12 | backup | gap-limited | 390 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: backup-gap-limited-390-app.png |
+| 12 | fuel | gap-limited | 1440 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: fuel-gap-limited-1440-app.png |
+| 12 | fuel | gap-limited | 390 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: fuel-gap-limited-390-app.png |
+| 12 | renewable | gap-limited | 1440 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: renewable-gap-limited-1440-app.png |
+| 12 | renewable | gap-limited | 390 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: renewable-gap-limited-390-app.png |
+| 12 | service | gap-limited | 1440 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: service-gap-limited-1440-app.png |
+| 12 | service | gap-limited | 390 | capture gap | True | 0 |  | DIAGNOSTIC ONLY, non-qualifying: service-gap-limited-390-app.png |
 | 13 | alternatives | db-time-409-late | 1440 | ok | True | 0 |  | alternatives-db-time-409-late-1440-app.png |
 | 13 | alternatives | db-time-409-late | 390 | ok | True | 0 |  | alternatives-db-time-409-late-390-app.png |
 | 13 | opportunity-finding | late-settled-current | 1440 | ok | True | 0 |  | opportunity-finding-late-settled-current-1440-app.png |

@@ -1,0 +1,3 @@
+DIAGNOSTIC ONLY - NOT AUDIT EVIDENCE.
+Every image in this folder was captured through the forbidden name-rewriting run_renamed_producer.py.
+Per .agent/post-W6-shell-closeout-rulings.md ruling 4, each pair is a capture gap for the Q24/current-SHA verdict. See run.md.

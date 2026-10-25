@@ -26,7 +26,8 @@
     "In setup": 161
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -54,7 +55,8 @@
     "In setup": 201
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -85,7 +87,8 @@
     "Condition evidence and its limits": 358
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -116,7 +119,8 @@
     "Condition evidence and its limits": 478
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -146,7 +150,8 @@
     "Condition evidence and its limits": 99
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -176,7 +181,8 @@
     "Condition evidence and its limits": 119
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -202,7 +208,8 @@
     "No such site": 103
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -228,7 +235,8 @@
     "No such site": 149
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -257,7 +265,8 @@
     "Decision path": 96
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -286,7 +295,8 @@
     "Decision path": 96
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -314,7 +324,8 @@
     "Decision path": 96
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -342,7 +353,8 @@
     "Decision path": 96
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -372,7 +384,8 @@
     "Time-valid control configuration": 749
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -402,7 +415,8 @@
     "Time-valid control configuration": 1109
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -432,7 +446,8 @@
     "Time-valid control configuration": 101
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -462,7 +477,8 @@
     "Time-valid control configuration": 122
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -493,7 +509,8 @@
     "Time-valid control configuration": 749
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -524,7 +541,8 @@
     "Time-valid control configuration": 1109
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -554,7 +572,8 @@
     "Gateway status \u00b7 No gateway selected": 237
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -584,7 +603,8 @@
     "Gateway status \u00b7 No gateway selected": 440
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -615,7 +635,8 @@
     "Gateway status \u00b7 edge-kobo-001": 822
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -646,7 +667,8 @@
     "Gateway status \u00b7 edge-kobo-001": 1919
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -679,7 +701,8 @@
     "In setup": 234
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -712,7 +735,8 @@
     "In setup": 274
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -724,8 +748,8 @@
    ],
    "producer": "tools/v01a_foundation_walkthrough.py --db assetops_audit_b1_walk_test --empty-db assetops_audit_b1_empty_test --work-name audit-b1-v01a prep",
    "route": "/sites/KOBO-001/foundation/sld?component=battery",
-   "sha": "321cfe56",
-   "evidence": "batch-01/populated-r2/evidence.json",
+   "sha": "ac2e9b4f",
+   "evidence": "batch-01/populated-r3/evidence.json",
    "app_image": "sld-battery-1440-app.png",
    "titles": [
     "Kobo mini-grid",
@@ -740,7 +764,8 @@
     "What each part does": 640
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -752,8 +777,8 @@
    ],
    "producer": "tools/v01a_foundation_walkthrough.py --db assetops_audit_b1_walk_test --empty-db assetops_audit_b1_empty_test --work-name audit-b1-v01a prep",
    "route": "/sites/KOBO-001/foundation/sld?component=battery",
-   "sha": "321cfe56",
-   "evidence": "batch-01/populated-r2/evidence.json",
+   "sha": "ac2e9b4f",
+   "evidence": "batch-01/populated-r3/evidence.json",
    "app_image": "sld-battery-390-app.png",
    "titles": [
     "Kobo mini-grid",
@@ -764,11 +789,12 @@
    "clipped": [],
    "console_errors": 0,
    "heights": {
-    "Kobo mini-grid": 1136,
+    "Kobo mini-grid": 1168,
     "What each part does": 940
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -781,8 +807,8 @@
    ],
    "producer": "tools/v01a_foundation_walkthrough.py --db assetops_audit_b1_walk_test --empty-db assetops_audit_b1_empty_test --work-name audit-b1-v01a prep",
    "route": "/sites/KOBO-001/foundation/sld",
-   "sha": "321cfe56",
-   "evidence": "batch-01/populated-r2/evidence.json",
+   "sha": "ac2e9b4f",
+   "evidence": "batch-01/populated-r3/evidence.json",
    "app_image": "sld-now-1440-app.png",
    "titles": [
     "Kobo mini-grid",
@@ -797,7 +823,8 @@
     "What each part does": 640
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -810,8 +837,8 @@
    ],
    "producer": "tools/v01a_foundation_walkthrough.py --db assetops_audit_b1_walk_test --empty-db assetops_audit_b1_empty_test --work-name audit-b1-v01a prep",
    "route": "/sites/KOBO-001/foundation/sld",
-   "sha": "321cfe56",
-   "evidence": "batch-01/populated-r2/evidence.json",
+   "sha": "ac2e9b4f",
+   "evidence": "batch-01/populated-r3/evidence.json",
    "app_image": "sld-now-390-app.png",
    "titles": [
     "Kobo mini-grid",
@@ -822,11 +849,12 @@
    "clipped": [],
    "console_errors": 0,
    "heights": {
-    "Kobo mini-grid": 922,
+    "Kobo mini-grid": 954,
     "What each part does": 940
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -838,8 +866,8 @@
    ],
    "producer": "tools/v01a_foundation_walkthrough.py --db assetops_audit_b1_walk_test --empty-db assetops_audit_b1_empty_test --work-name audit-b1-v01a prep",
    "route": "/sites/KOBO-001/foundation/sld?component=no-such-part",
-   "sha": "321cfe56",
-   "evidence": "batch-01/populated-r2/evidence.json",
+   "sha": "ac2e9b4f",
+   "evidence": "batch-01/populated-r3/evidence.json",
    "app_image": "sld-unknown-part-1440-app.png",
    "titles": [
     "Kobo mini-grid",
@@ -854,7 +882,8 @@
     "What each part does": 640
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -866,8 +895,8 @@
    ],
    "producer": "tools/v01a_foundation_walkthrough.py --db assetops_audit_b1_walk_test --empty-db assetops_audit_b1_empty_test --work-name audit-b1-v01a prep",
    "route": "/sites/KOBO-001/foundation/sld?component=no-such-part",
-   "sha": "321cfe56",
-   "evidence": "batch-01/populated-r2/evidence.json",
+   "sha": "ac2e9b4f",
+   "evidence": "batch-01/populated-r3/evidence.json",
    "app_image": "sld-unknown-part-390-app.png",
    "titles": [
     "Kobo mini-grid",
@@ -878,11 +907,12 @@
    "clipped": [],
    "console_errors": 0,
    "heights": {
-    "Kobo mini-grid": 922,
+    "Kobo mini-grid": 954,
     "What each part does": 940
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -912,7 +942,8 @@
     "Decision path": 419
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -942,7 +973,8 @@
     "Decision path": 330
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -970,7 +1002,8 @@
     "Decision path": 96
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -998,7 +1031,8 @@
     "Decision path": 96
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -1028,7 +1062,8 @@
     "Decision path": 378
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -1058,7 +1093,8 @@
     "Decision path": 376
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -1088,7 +1124,8 @@
     "Condition evidence and its limits": 358
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -1118,7 +1155,8 @@
     "Condition evidence and its limits": 478
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -1148,7 +1186,8 @@
     "Condition evidence and its limits": 99
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 1,
@@ -1178,7 +1217,8 @@
     "Condition evidence and its limits": 119
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1208,7 +1248,8 @@
     "Coverage, confidence and alternatives": 291
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1238,7 +1279,8 @@
     "Coverage, confidence and alternatives": 457
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1268,7 +1310,8 @@
     "Accepted sample coverage": 203
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1298,7 +1341,8 @@
     "Accepted sample coverage": 219
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1326,7 +1370,8 @@
     "How each limit is set": 241
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1354,7 +1399,8 @@
     "How each limit is set": 413
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1383,7 +1429,8 @@
     "How each limit is set": 266
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1412,7 +1459,8 @@
     "How each limit is set": 497
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1440,7 +1488,8 @@
     "How each limit is set": 266
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1468,7 +1517,8 @@
     "How each limit is set": 497
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1496,7 +1546,8 @@
     "How each limit is set": 266
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1524,7 +1575,8 @@
     "How each limit is set": 517
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1552,7 +1604,8 @@
     "How each limit is set": 241
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1580,7 +1633,8 @@
     "How each limit is set": 413
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1608,7 +1662,8 @@
     "How each limit is set": 311
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1636,7 +1691,8 @@
     "How each limit is set": 542
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1664,7 +1720,8 @@
     "How each limit is set": 266
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1692,7 +1749,8 @@
     "How each limit is set": 517
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1720,7 +1778,8 @@
     "How each limit is set": 266
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1748,7 +1807,8 @@
     "How each limit is set": 497
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1778,7 +1838,8 @@
     "Most useful next evidence": 369
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1808,7 +1869,8 @@
     "Most useful next evidence": 369
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1836,7 +1898,8 @@
     "Data sources \u00b7 data quality, not equipment condition": 766
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1864,7 +1927,8 @@
     "Data sources \u00b7 data quality, not equipment condition": 867
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1898,7 +1962,8 @@
     "Next step": 229
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 2,
@@ -1932,7 +1997,8 @@
     "Next step": 226
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 3,
@@ -1958,7 +2024,8 @@
     "Findings at this site": 298
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 3,
@@ -1984,7 +2051,8 @@
     "Findings at this site": 516
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 3,
@@ -2014,7 +2082,8 @@
     "Interpretation history": 942
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 3,
@@ -2044,7 +2113,8 @@
     "Interpretation history": 1883
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 3,
@@ -2074,7 +2144,8 @@
     "Trade-offs and exclusions": 295
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 3,
@@ -2104,7 +2175,8 @@
     "Trade-offs and exclusions": 315
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 3,
@@ -2132,7 +2204,8 @@
     "Inspect source lineage": 126
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 3,
@@ -2160,7 +2233,8 @@
     "Inspect source lineage": 218
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 3,
@@ -2186,7 +2260,8 @@
     "Revision history": 376
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 3,
@@ -2212,7 +2287,8 @@
     "Revision history": 719
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 3,
@@ -2244,7 +2320,8 @@
     "Where to look next": 502
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 3,
@@ -2276,7 +2353,8 @@
     "Where to look next": 570
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2303,7 +2381,8 @@
     "Evidence requirements": 123
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2330,7 +2409,8 @@
     "Evidence requirements": 139
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2367,7 +2447,8 @@
     "Activity log": 322
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2404,7 +2485,8 @@
     "Activity log": 626
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2440,7 +2522,8 @@
     "Activity log": 364
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2476,7 +2559,8 @@
     "Activity log": 676
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2531,7 +2615,8 @@
     "Action history": 355
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2586,7 +2671,8 @@
     "Action history": 431
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2631,7 +2717,8 @@
     "Action history": 362
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2676,7 +2763,8 @@
     "Action history": 442
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2721,7 +2809,8 @@
     "Action history": 304
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2766,7 +2855,8 @@
     "Action history": 423
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2792,7 +2882,8 @@
     "Action history": 96
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2818,7 +2909,8 @@
     "Action history": 96
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2844,7 +2936,8 @@
     "Action scope": 368
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2870,7 +2963,8 @@
     "Action scope": 549
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2897,7 +2991,8 @@
     "Action scope": 368
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2924,7 +3019,8 @@
     "Action scope": 582
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2950,7 +3046,8 @@
     "No such Action section": 103
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -2976,7 +3073,8 @@
     "No such Action section": 126
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3003,7 +3101,8 @@
     "Success criteria": 123
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3030,7 +3129,8 @@
     "Success criteria": 156
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3060,7 +3160,8 @@
     "Evidence needed to verify": 260
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3090,7 +3191,8 @@
     "Evidence needed to verify": 352
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3126,7 +3228,8 @@
     "Evidence requirements": 373
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3162,7 +3265,8 @@
     "Evidence requirements": 615
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3188,7 +3292,8 @@
     "Action scope": 384
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3214,7 +3319,8 @@
     "Action scope": 644
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3250,7 +3356,8 @@
     "Success criteria": 392
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3286,7 +3393,8 @@
     "Success criteria": 573
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3322,7 +3430,8 @@
     "Evidence requirements": 347
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3358,7 +3467,8 @@
     "Evidence requirements": 524
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3394,7 +3504,8 @@
     "Activity log": 322
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3430,7 +3541,8 @@
     "Activity log": 626
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3468,7 +3580,8 @@
    "flags": [
     "1 console errors"
    ],
-   "status": "flag"
+   "status": "flag",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3506,7 +3619,8 @@
    "flags": [
     "1 console errors"
    ],
-   "status": "flag"
+   "status": "flag",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3532,7 +3646,8 @@
     "Action scope": 384
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3558,7 +3673,8 @@
     "Action scope": 644
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3594,7 +3710,8 @@
     "Success criteria": 366
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3630,7 +3747,8 @@
     "Success criteria": 515
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3666,7 +3784,8 @@
     "Success criteria": 366
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 4,
@@ -3702,7 +3821,8 @@
     "Success criteria": 515
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 5,
@@ -3742,7 +3862,8 @@
     "Outcome evidence": 354
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 5,
@@ -3782,7 +3903,8 @@
     "Outcome evidence": 354
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 5,
@@ -3808,7 +3930,8 @@
     "Actions at this site": 196
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 5,
@@ -3834,7 +3957,8 @@
     "Actions at this site": 340
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 6,
@@ -3864,7 +3988,8 @@
     "Recommended next step": 131
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 6,
@@ -3894,7 +4019,8 @@
     "Recommended next step": 148
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 6,
@@ -3922,7 +4048,8 @@
     "Operating interpretation": 439
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 6,
@@ -3950,7 +4077,8 @@
     "Operating interpretation": 399
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 6,
@@ -3980,7 +4108,8 @@
     "Gateway status \u00b7 edge-cold-lab-001": 669
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 6,
@@ -4010,7 +4139,8 @@
     "Gateway status \u00b7 edge-cold-lab-001": 1340
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 6,
@@ -4038,7 +4168,8 @@
     "What each part does": 514
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 6,
@@ -4066,7 +4197,8 @@
     "What each part does": 759
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 6,
@@ -4098,7 +4230,8 @@
     "Evidence by causal step": 554
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 6,
@@ -4130,7 +4263,8 @@
     "Evidence by causal step": 853
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 6,
@@ -4160,7 +4294,8 @@
     "Claim boundary": 142
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 6,
@@ -4190,7 +4325,8 @@
     "Claim boundary": 211
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 7,
@@ -4216,7 +4352,8 @@
     "Financial assumptions": 315
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 7,
@@ -4242,7 +4379,8 @@
     "Financial assumptions": 373
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 7,
@@ -4270,7 +4408,8 @@
     "How a claim limit is set": 96
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 7,
@@ -4298,7 +4437,8 @@
     "How a claim limit is set": 96
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 7,
@@ -4328,7 +4468,8 @@
     "Most useful next evidence": 119
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 7,
@@ -4358,7 +4499,8 @@
     "Most useful next evidence": 96
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 7,
@@ -4388,7 +4530,8 @@
     "Not included": 254
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 7,
@@ -4418,7 +4561,8 @@
     "Not included": 96
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 7,
@@ -4444,7 +4588,8 @@
     "Findings at this site": 217
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 7,
@@ -4470,7 +4615,8 @@
     "Findings at this site": 430
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 7,
@@ -4504,7 +4650,8 @@
     "Next step": 131
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 7,
@@ -4538,7 +4685,8 @@
     "Next step": 96
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 8,
@@ -4568,7 +4716,8 @@
     "Recommended next step": 269
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 8,
@@ -4598,7 +4747,8 @@
     "Recommended next step": 146
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 8,
@@ -4626,7 +4776,8 @@
     "Operating interpretation": 327
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 8,
@@ -4654,7 +4805,8 @@
     "Operating interpretation": 348
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 8,
@@ -4686,7 +4838,8 @@
    "flags": [
     "5 console errors"
    ],
-   "status": "flag"
+   "status": "flag",
+   "qualifying": true
   },
   {
    "batch": 8,
@@ -4718,7 +4871,8 @@
    "flags": [
     "5 console errors"
    ],
-   "status": "flag"
+   "status": "flag",
+   "qualifying": true
   },
   {
    "batch": 8,
@@ -4746,7 +4900,8 @@
     "What each part does": 370
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 8,
@@ -4774,7 +4929,8 @@
     "What each part does": 528
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 8,
@@ -4804,7 +4960,8 @@
     "Cause remains bounded": 167
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 8,
@@ -4834,7 +4991,8 @@
     "Cause remains bounded": 150
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 8,
@@ -4860,7 +5018,8 @@
     "Findings at this site": 217
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 8,
@@ -4886,7 +5045,8 @@
     "Findings at this site": 430
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 9,
@@ -4912,7 +5072,8 @@
     "Financial assumptions": 314
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 9,
@@ -4938,7 +5099,8 @@
     "Financial assumptions": 330
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 9,
@@ -4972,7 +5134,8 @@
     "Next step": 211
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 9,
@@ -5006,7 +5169,8 @@
     "Next step": 197
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 9,
@@ -5034,7 +5198,8 @@
     "How a claim limit is set": 170
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 9,
@@ -5062,7 +5227,8 @@
     "How a claim limit is set": 216
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 9,
@@ -5092,7 +5258,8 @@
     "Most useful next evidence": 421
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 9,
@@ -5122,7 +5289,8 @@
     "Most useful next evidence": 267
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 9,
@@ -5152,7 +5320,8 @@
     "Not included": 269
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 9,
@@ -5182,7 +5351,8 @@
     "Not included": 126
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 10,
@@ -5196,7 +5366,7 @@
    "route": "/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
    "sha": "321cfe56",
    "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "findings-cost-historical-1440-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-cost-historical-1440-app.png",
    "titles": [
     "Cost lens"
    ],
@@ -5208,7 +5378,10 @@
     "Cost lens": 165
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 10,
@@ -5222,7 +5395,7 @@
    "route": "/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
    "sha": "321cfe56",
    "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "findings-cost-historical-390-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-cost-historical-390-app.png",
    "titles": [
     "Cost lens"
    ],
@@ -5234,7 +5407,10 @@
     "Cost lens": 165
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 10,
@@ -5248,7 +5424,7 @@
    "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
    "sha": "321cfe56",
    "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "findings-historical-1440-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-historical-1440-app.png",
    "titles": [
     "Findings across the estate"
    ],
@@ -5260,7 +5436,10 @@
     "Findings across the estate": 454
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 10,
@@ -5274,7 +5453,7 @@
    "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
    "sha": "321cfe56",
    "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "findings-historical-390-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-historical-390-app.png",
    "titles": [
     "Findings across the estate"
    ],
@@ -5296,7 +5475,10 @@
     "Findings across the estate": 456
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 10,
@@ -5310,7 +5492,7 @@
    "route": "/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
    "sha": "321cfe56",
    "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "findings-opportunities-historical-1440-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-opportunities-historical-1440-app.png",
    "titles": [
     "Opportunities lens"
    ],
@@ -5322,7 +5504,10 @@
     "Opportunities lens": 165
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 10,
@@ -5336,7 +5521,7 @@
    "route": "/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
    "sha": "321cfe56",
    "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "findings-opportunities-historical-390-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-opportunities-historical-390-app.png",
    "titles": [
     "Opportunities lens"
    ],
@@ -5348,7 +5533,10 @@
     "Opportunities lens": 165
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 10,
@@ -5362,7 +5550,7 @@
    "route": "/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
    "sha": "321cfe56",
    "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "findings-risks-historical-1440-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-risks-historical-1440-app.png",
    "titles": [
     "Risks lens"
    ],
@@ -5374,7 +5562,10 @@
     "Risks lens": 165
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 10,
@@ -5388,7 +5579,7 @@
    "route": "/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
    "sha": "321cfe56",
    "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "findings-risks-historical-390-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-risks-historical-390-app.png",
    "titles": [
     "Risks lens"
    ],
@@ -5400,7 +5591,10 @@
     "Risks lens": 165
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 10,
@@ -5414,7 +5608,7 @@
    "route": "/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
    "sha": "321cfe56",
    "evidence": "batch-10/part-positive/evidence.json",
-   "app_image": "actions-empty-day-1440-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: actions-empty-day-1440-app.png",
    "titles": [
     "Managed actions"
    ],
@@ -5426,7 +5620,10 @@
     "Managed actions": 134
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 10,
@@ -5440,7 +5637,7 @@
    "route": "/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
    "sha": "321cfe56",
    "evidence": "batch-10/part-positive/evidence.json",
-   "app_image": "actions-empty-day-390-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: actions-empty-day-390-app.png",
    "titles": [
     "Managed actions"
    ],
@@ -5452,7 +5649,10 @@
     "Managed actions": 152
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 11,
@@ -5466,7 +5666,7 @@
    "route": "/evidence?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
    "sha": "321cfe56",
    "evidence": "batch-11/part-w302-partial-week/evidence.json",
-   "app_image": "globalevidence-w302-partial-week-1440-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: globalevidence-w302-partial-week-1440-app.png",
    "titles": [
     "Capability coverage across sites",
     "Recurring evidence gaps"
@@ -5480,7 +5680,10 @@
     "Recurring evidence gaps": 183
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 11,
@@ -5494,7 +5697,7 @@
    "route": "/evidence?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
    "sha": "321cfe56",
    "evidence": "batch-11/part-w302-partial-week/evidence.json",
-   "app_image": "globalevidence-w302-partial-week-390-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: globalevidence-w302-partial-week-390-app.png",
    "titles": [
     "Capability coverage across sites",
     "Recurring evidence gaps"
@@ -5508,7 +5711,10 @@
     "Recurring evidence gaps": 333
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 11,
@@ -5522,7 +5728,7 @@
    "route": "/financials?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
    "sha": "321cfe56",
    "evidence": "batch-11/part-w302-partial-week/evidence.json",
-   "app_image": "globalfinancials-w302-partial-week-1440-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: globalfinancials-w302-partial-week-1440-app.png",
    "titles": [
     "Consequence register",
     "Aggregation rule"
@@ -5536,7 +5742,10 @@
     "Aggregation rule": 121
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 11,
@@ -5550,7 +5759,7 @@
    "route": "/financials?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
    "sha": "321cfe56",
    "evidence": "batch-11/part-w302-partial-week/evidence.json",
-   "app_image": "globalfinancials-w302-partial-week-390-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: globalfinancials-w302-partial-week-390-app.png",
    "titles": [
     "Consequence register",
     "Aggregation rule"
@@ -5564,7 +5773,10 @@
     "Aggregation rule": 186
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 11,
@@ -5578,7 +5790,7 @@
    "route": "/portfolio?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
    "sha": "321cfe56",
    "evidence": "batch-11/part-w302-partial-week/evidence.json",
-   "app_image": "portfolio-w302-partial-week-1440-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: portfolio-w302-partial-week-1440-app.png",
    "titles": [],
    "titles_match": true,
    "overflowX": 0,
@@ -5586,7 +5798,10 @@
    "console_errors": 0,
    "heights": {},
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 11,
@@ -5600,7 +5815,7 @@
    "route": "/portfolio?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
    "sha": "321cfe56",
    "evidence": "batch-11/part-w302-partial-week/evidence.json",
-   "app_image": "portfolio-w302-partial-week-390-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: portfolio-w302-partial-week-390-app.png",
    "titles": [],
    "titles_match": true,
    "overflowX": 0,
@@ -5608,7 +5823,10 @@
    "console_errors": 0,
    "heights": {},
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 12,
@@ -5622,7 +5840,7 @@
    "route": "/sites/MG-W402-001/performance/backup?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
    "sha": "06e019ba",
    "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "backup-gap-limited-1440-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: backup-gap-limited-1440-app.png",
    "titles": [
     "Backup event chains",
     "Backup readiness evidence",
@@ -5640,7 +5858,10 @@
     "Next evidence": 163
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 12,
@@ -5654,7 +5875,7 @@
    "route": "/sites/MG-W402-001/performance/backup?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
    "sha": "06e019ba",
    "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "backup-gap-limited-390-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: backup-gap-limited-390-app.png",
    "titles": [
     "Backup event chains",
     "Backup readiness evidence",
@@ -5672,7 +5893,10 @@
     "Next evidence": 186
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 12,
@@ -5686,7 +5910,7 @@
    "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
    "sha": "06e019ba",
    "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "fuel-gap-limited-1440-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: fuel-gap-limited-1440-app.png",
    "titles": [
     "Fuel balance at a glance",
     "Balance bridge",
@@ -5702,7 +5926,10 @@
     "Inspect existing generator fuel interpretation": 134
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 12,
@@ -5716,7 +5943,7 @@
    "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
    "sha": "06e019ba",
    "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "fuel-gap-limited-390-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: fuel-gap-limited-390-app.png",
    "titles": [
     "Fuel balance at a glance",
     "Balance bridge",
@@ -5732,7 +5959,10 @@
     "Inspect existing generator fuel interpretation": 193
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 12,
@@ -5746,7 +5976,7 @@
    "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-07T21:00:00Z&to=2026-10-12T21:00:00Z",
    "sha": "06e019ba",
    "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "renewable-gap-limited-1440-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: renewable-gap-limited-1440-app.png",
    "titles": [
     "From physical headroom to an opportunity",
     "Productive-use evaluation",
@@ -5762,7 +5992,10 @@
     "Eligible and excluded windows": 383
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 12,
@@ -5776,7 +6009,7 @@
    "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-07T21:00:00Z&to=2026-10-12T21:00:00Z",
    "sha": "06e019ba",
    "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "renewable-gap-limited-390-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: renewable-gap-limited-390-app.png",
    "titles": [
     "From physical headroom to an opportunity",
     "Productive-use evaluation",
@@ -5792,7 +6025,10 @@
     "Eligible and excluded windows": 482
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 12,
@@ -5806,7 +6042,7 @@
    "route": "/sites/MG-W402-001/performance/service?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
    "sha": "06e019ba",
    "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "service-gap-limited-1440-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: service-gap-limited-1440-app.png",
    "titles": [
     "Where the power went",
     "Delivered power by addressed load",
@@ -5824,7 +6060,10 @@
     "What unlocks a service conclusion": 201
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 12,
@@ -5838,7 +6077,7 @@
    "route": "/sites/MG-W402-001/performance/service?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
    "sha": "06e019ba",
    "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "service-gap-limited-390-app.png",
+   "app_image": "DIAGNOSTIC ONLY, non-qualifying: service-gap-limited-390-app.png",
    "titles": [
     "Where the power went",
     "Delivered power by addressed load",
@@ -5856,7 +6095,10 @@
     "What unlocks a service conclusion": 201
    },
    "flags": [],
-   "status": "ok"
+   "status": "capture gap",
+   "diagnostic_status": "ok",
+   "qualifying": false,
+   "gap_reason": "renamed-producer wrapper"
   },
   {
    "batch": 13,
@@ -5882,7 +6124,8 @@
     "Alternatives to investigate": 99
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -5908,7 +6151,8 @@
     "Alternatives to investigate": 99
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -5938,7 +6182,8 @@
     "Consequence basis": 267
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -5968,7 +6213,8 @@
     "Consequence basis": 267
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -5994,7 +6240,8 @@
     "Financial scenarios": 328
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6020,7 +6267,8 @@
     "Financial scenarios": 372
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6057,7 +6305,8 @@
     "Incidents at this site": 443
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6139,7 +6388,8 @@
     "Incidents at this site": 412
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6166,7 +6416,8 @@
     "Maintenance at this site": 316
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6193,7 +6444,8 @@
     "Maintenance at this site": 345
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6219,7 +6471,8 @@
     "Incidents at this site": 337
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6245,7 +6498,8 @@
     "Incidents at this site": 403
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6271,7 +6525,8 @@
     "Incidents at this site": 337
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6297,7 +6552,8 @@
     "Incidents at this site": 403
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6333,7 +6589,8 @@
     "Incidents at this site": 235
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6378,7 +6635,8 @@
     "Incidents at this site": 282
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6414,7 +6672,8 @@
     "Incidents at this site": 235
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6459,7 +6718,8 @@
     "Incidents at this site": 282
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6485,7 +6745,8 @@
     "Incidents at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6511,7 +6772,8 @@
     "Incidents at this site": 233
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6537,7 +6799,8 @@
     "Incidents at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6563,7 +6826,8 @@
     "Incidents at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6589,7 +6853,8 @@
     "Maintenance at this site": 317
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6615,7 +6880,8 @@
     "Maintenance at this site": 383
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6641,7 +6907,8 @@
     "Maintenance at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6667,7 +6934,8 @@
     "Maintenance at this site": 260
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6693,7 +6961,8 @@
     "Maintenance at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6719,7 +6988,8 @@
     "Maintenance at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6755,7 +7025,8 @@
     "Incidents at this site": 443
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6836,7 +7107,8 @@
     "Incidents at this site": 412
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6862,7 +7134,8 @@
     "Maintenance at this site": 316
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,
@@ -6888,7 +7161,8 @@
     "Maintenance at this site": 345
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 14,
@@ -6914,7 +7188,8 @@
     "Condition and evidence": 251
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 14,
@@ -6940,7 +7215,8 @@
     "Condition and evidence": 472
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 14,
@@ -6966,7 +7242,8 @@
     "Financial scenarios": 305
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 14,
@@ -6992,7 +7269,8 @@
     "Financial scenarios": 345
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 14,
@@ -7018,7 +7296,8 @@
     "Actions at this site": 204
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 14,
@@ -7044,7 +7323,8 @@
     "Actions at this site": 259
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 14,
@@ -7074,7 +7354,8 @@
     "Next best evidence": 191
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 14,
@@ -7104,7 +7385,8 @@
     "Next best evidence": 208
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7130,7 +7412,8 @@
     "Incidents at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7156,7 +7439,8 @@
     "Incidents at this site": 153
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7182,7 +7466,8 @@
     "Maintenance at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7208,7 +7493,8 @@
     "Maintenance at this site": 153
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7234,7 +7520,8 @@
     "Incidents at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7260,7 +7547,8 @@
     "Incidents at this site": 247
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7286,7 +7574,8 @@
     "Maintenance at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7312,7 +7601,8 @@
     "Maintenance at this site": 201
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7340,7 +7630,8 @@
     "Related activity": 168
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7368,7 +7659,8 @@
     "Related activity": 272
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7395,7 +7687,8 @@
     "Incidents at this site": 783
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7422,7 +7715,8 @@
     "Incidents at this site": 1023
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7448,7 +7742,8 @@
     "Incidents at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7474,7 +7769,8 @@
     "Incidents at this site": 247
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7500,7 +7796,8 @@
     "Incidents at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7526,7 +7823,8 @@
     "Incidents at this site": 247
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7552,7 +7850,8 @@
     "Incidents at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7578,7 +7877,8 @@
     "Incidents at this site": 247
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7604,7 +7904,8 @@
     "Incidents at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7630,7 +7931,8 @@
     "Incidents at this site": 247
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7656,7 +7958,8 @@
     "Incidents at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7682,7 +7985,8 @@
     "Incidents at this site": 153
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7708,7 +8012,8 @@
     "Incidents at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7734,7 +8039,8 @@
     "Incidents at this site": 174
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7760,7 +8066,8 @@
     "Incidents at this site": 337
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7786,7 +8093,8 @@
     "Incidents at this site": 344
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7813,7 +8121,8 @@
     "Maintenance at this site": 963
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7840,7 +8149,8 @@
     "Maintenance at this site": 1120
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7866,7 +8176,8 @@
     "Maintenance at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7892,7 +8203,8 @@
     "Maintenance at this site": 201
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7918,7 +8230,8 @@
     "Maintenance at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7944,7 +8257,8 @@
     "Maintenance at this site": 201
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7970,7 +8284,8 @@
     "Maintenance at this site": 317
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -7996,7 +8311,8 @@
     "Maintenance at this site": 324
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8022,7 +8338,8 @@
     "Maintenance at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8048,7 +8365,8 @@
     "Maintenance at this site": 201
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8074,7 +8392,8 @@
     "Maintenance at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8100,7 +8419,8 @@
     "Maintenance at this site": 153
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8126,7 +8446,8 @@
     "Maintenance at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8152,7 +8473,8 @@
     "Maintenance at this site": 174
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8178,7 +8500,8 @@
     "Maintenance at this site": 317
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8204,7 +8527,8 @@
     "Maintenance at this site": 324
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8230,7 +8554,8 @@
     "Incidents at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8256,7 +8581,8 @@
     "Incidents at this site": 247
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8282,7 +8608,8 @@
     "Maintenance at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8308,7 +8635,8 @@
     "Maintenance at this site": 201
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8334,7 +8662,8 @@
     "Incidents at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8360,7 +8689,8 @@
     "Incidents at this site": 174
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8386,7 +8716,8 @@
     "Maintenance at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8412,7 +8743,8 @@
     "Maintenance at this site": 174
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8438,7 +8770,8 @@
     "Incidents at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8464,7 +8797,8 @@
     "Incidents at this site": 201
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8490,7 +8824,8 @@
     "Maintenance at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8516,7 +8851,8 @@
     "Maintenance at this site": 201
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8615,7 +8951,8 @@
     "Incidents at this site": 486
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8714,7 +9051,8 @@
     "Incidents at this site": 599
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8740,7 +9078,8 @@
     "Incidents at this site": 2007
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8766,7 +9105,8 @@
     "Incidents at this site": 2233
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8829,7 +9169,8 @@
     "Maintenance at this site": 486
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8892,7 +9233,8 @@
     "Maintenance at this site": 430
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8918,7 +9260,8 @@
     "Maintenance at this site": 2907
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 15,
@@ -8944,7 +9287,8 @@
     "Maintenance at this site": 2718
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 16,
@@ -8974,7 +9318,8 @@
     "Most useful next evidence": 182
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 16,
@@ -9004,7 +9349,8 @@
     "Most useful next evidence": 205
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 16,
@@ -9034,7 +9380,8 @@
     "Technical-to-financial bridge": 183
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 16,
@@ -9064,7 +9411,8 @@
     "Technical-to-financial bridge": 211
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 16,
@@ -9090,7 +9438,8 @@
     "Condition and evidence": 324
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 16,
@@ -9116,7 +9465,8 @@
     "Condition and evidence": 455
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 16,
@@ -9142,7 +9492,8 @@
     "Financial scenarios": 305
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 16,
@@ -9168,7 +9519,8 @@
     "Financial scenarios": 345
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 16,
@@ -9194,7 +9546,8 @@
     "Actions at this site": 222
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 16,
@@ -9220,7 +9573,8 @@
     "Actions at this site": 329
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9246,7 +9600,8 @@
     "Incidents at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9272,7 +9627,8 @@
     "Incidents at this site": 153
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9298,7 +9654,8 @@
     "Maintenance at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9324,7 +9681,8 @@
     "Maintenance at this site": 153
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9350,7 +9708,8 @@
     "Declared verification plan": 248
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9376,7 +9735,8 @@
     "Declared verification plan": 406
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9403,7 +9763,8 @@
     "Incidents at this site": 783
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9430,7 +9791,8 @@
     "Incidents at this site": 1023
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9456,7 +9818,8 @@
     "Incidents at this site": 337
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9482,7 +9845,8 @@
     "Incidents at this site": 344
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9508,7 +9872,8 @@
     "Incidents at this site": 337
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9534,7 +9899,8 @@
     "Incidents at this site": 344
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9560,7 +9926,8 @@
     "Incidents at this site": 212
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9586,7 +9953,8 @@
     "Incidents at this site": 201
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9612,7 +9980,8 @@
     "Incidents at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9638,7 +10007,8 @@
     "Incidents at this site": 153
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9664,7 +10034,8 @@
     "Incidents at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9690,7 +10061,8 @@
     "Incidents at this site": 174
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9717,7 +10089,8 @@
     "Maintenance at this site": 827
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9744,7 +10117,8 @@
     "Maintenance at this site": 1050
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9770,7 +10144,8 @@
     "Maintenance at this site": 317
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9796,7 +10171,8 @@
     "Maintenance at this site": 324
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9822,7 +10198,8 @@
     "Maintenance at this site": 317
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9848,7 +10225,8 @@
     "Maintenance at this site": 324
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9874,7 +10252,8 @@
     "Maintenance at this site": 195
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9900,7 +10279,8 @@
     "Maintenance at this site": 216
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9926,7 +10306,8 @@
     "Maintenance at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9952,7 +10333,8 @@
     "Maintenance at this site": 153
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -9978,7 +10360,8 @@
     "Maintenance at this site": 145
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10004,7 +10387,8 @@
     "Maintenance at this site": 174
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10030,7 +10414,8 @@
     "Site unavailable": 103
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10056,7 +10441,8 @@
     "Site unavailable": 126
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10082,7 +10468,8 @@
     "Site unavailable": 103
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10108,7 +10495,8 @@
     "Site unavailable": 126
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10225,7 +10613,8 @@
     "Incidents at this site": 502
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10342,7 +10731,8 @@
     "Incidents at this site": 445
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10368,7 +10758,8 @@
     "Incidents at this site": 1998
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10394,7 +10785,8 @@
     "Incidents at this site": 2206
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10466,7 +10858,8 @@
     "Maintenance at this site": 502
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10538,7 +10931,8 @@
     "Maintenance at this site": 445
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10564,7 +10958,8 @@
     "Maintenance at this site": 2216
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10590,7 +10985,8 @@
     "Maintenance at this site": 2342
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10616,7 +11012,8 @@
     "Incidents at this site": 337
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10642,7 +11039,8 @@
     "Incidents at this site": 344
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10668,7 +11066,8 @@
     "Incidents at this site": 337
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10694,7 +11093,8 @@
     "Incidents at this site": 344
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10720,7 +11120,8 @@
     "Maintenance at this site": 317
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10746,7 +11147,8 @@
     "Maintenance at this site": 324
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10772,7 +11174,8 @@
     "Maintenance at this site": 317
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 17,
@@ -10798,7 +11201,8 @@
     "Maintenance at this site": 324
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 18,
@@ -10826,7 +11230,8 @@
     "Case boundaries": 103
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 18,
@@ -10864,7 +11269,8 @@
     "Case boundaries": 126
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 18,
@@ -10890,7 +11296,8 @@
     "Corrective work requests": 268
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 18,
@@ -10916,7 +11323,8 @@
     "Corrective work requests": 308
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 18,
@@ -10942,7 +11350,8 @@
     "Preventive plan": 177
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 18,
@@ -10968,7 +11377,8 @@
     "Preventive plan": 195
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 18,
@@ -10998,7 +11408,8 @@
     "How records are used": 298
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 18,
@@ -11028,7 +11439,8 @@
     "How records are used": 223
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 19,
@@ -11054,7 +11466,8 @@
     "History": 538
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 19,
@@ -11080,7 +11493,8 @@
     "History": 568
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 19,
@@ -11108,7 +11522,8 @@
     "Lifecycle": 372
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 19,
@@ -11136,7 +11551,8 @@
     "Lifecycle": 167
    },
    "flags": [],
-   "status": "ok"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 19,
@@ -11164,7 +11580,8 @@
    "flags": [
     "1 console errors"
    ],
-   "status": "flag"
+   "status": "flag",
+   "qualifying": true
   },
   {
    "batch": 19,
@@ -11192,7 +11609,8 @@
    "flags": [
     "1 console errors"
    ],
-   "status": "flag"
+   "status": "flag",
+   "qualifying": true
   }
  ]
 }
