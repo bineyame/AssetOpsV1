@@ -432,17 +432,17 @@ Each open D1/D2/D4/D5/D6 row must show `MOCK DEVIATION Dn` beside the affected e
 | R331 | B13-15 | opportunity-finding | D3 | Fix in W4-mini | open |
 | R332 | B13-17 | sitework-incidents | D1 | `MOCK DEVIATION D1`: The stocked five-row Incidents panel is 443/316 = 1.40x at 1440 (1.23x at 390). Measured reason: five 1-2 line rows plus paging vs the mock's empty state; within the reviewed W4-01/W4-03 u9  | open |
 | R333 | B13-18 | sitework-incidents, sitework-maintenance, scenarios | D3 | Fix in W4-mini | open |
-| R334 | B14-03 | cold-work | D3 | Fix in W5-cold-Work | open |
+| R334 | B14-03 | cold-work | D3 | Fix in W5-cold-Work | built on `task/post-W6-W5-cold-work`; recapture pending |
 | R335 | B14-06 | cooling | D1 | `MOCK DEVIATION D1`: Recovery curves 390: 412 px vs mock 235 (1.75x). Measured reason: the panel holds the categorical-lane chart (480 px scroller in 318) PLUS the accessible selected-point table ruled by Codex  | open |
-| R336 | B14-07 | cooling, cold-health | D3 | Fix in W5-cold-Work | open |
-| R337 | B14-08 | cold-scenarios | D3 | Fix in W5-cold-Work | open |
-| R338 | B14-09 | cold-work | D3 | Fix in W5-cold-Work | open |
+| R336 | B14-07 | cooling, cold-health | D3 | Fix in W5-cold-Work | built on `task/post-W6-W5-cold-work`; recapture pending |
+| R337 | B14-08 | cold-scenarios | D3 | Fix in W5-cold-Work | built on `task/post-W6-W5-cold-work`; recapture pending |
+| R338 | B14-09 | cold-work | D3 | Fix in W5-cold-Work | built on `task/post-W6-W5-cold-work`; recapture pending |
 | R339 | B14-10 | cooling, cold-health, cold-scenarios, cold-work | D3 | Fix in W5-cold-Work | open |
 | R340 | B14-14 | link-check | D1 | `MOCK DEVIATION D1`: Cross-check (not counted). Cold Overview at the W5-01 window: Temperature, Backup and Evidence cards link with exact window; the Cooling card ('Limited · Cooling recovery is not established. | open |
 | R341 | B14-17 | cold-health, cold-work | D1 | `MOCK DEVIATION D1`: Other panels over 1.3x, with measured reasons: cold-health all-open 390 472/269 (1.75x) = the three opened 'Full ID' UUID disclosures (all-disclosures-open exemption; would shrink with B14-0 | open |
 | R342 | B15-01 | cold-action | D1 | `MOCK DEVIATION D1`: Action chrome VERIFIED: B4-03, B4-04, B4-05 and B5-01 do NOT recur on cold-action. Breadcrumb is Action-rooted 'Actions / ACT-000001 / Verification · site: Cold replay lab' (mock 'Actions >  | open |
 | R343 | B15-07 | cold-work-incidents, cold-work-maintenance | D1 | `MOCK DEVIATION D1`: The closing notice keeps only 'Opening a record moves you to its own area; the breadcrumb keeps this site.' The mock's second sentence 'New work starts from the global create flow with this  | open |
-| R344 | B15-10 | cold-action | D3 | Fix in W5-cold-Work | open |
+| R344 | B15-10 | cold-action | D3 | Fix in W5-cold-Work | built on `task/post-W6-W5-cold-work`; recapture pending |
 | R345 | B16-06 | availability | D3 | Fix in W5-EV-Work | open |
 | R346 | B16-07 | energy | D3 | Fix in W5-EV-Work | open |
 | R347 | B16-16 | availability, energy, ev-health, ev-scenarios, ev-work | D3 | W2-EV owns common EV tab mechanism; W5-EV-Work applies it to depth/work and recaptures | open |

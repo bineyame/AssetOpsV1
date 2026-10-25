@@ -5923,3 +5923,13 @@ Branch `task/post-W6-W6-global` (from main `821ad6bf`). Rulings `.agent/post-W6-
 - Tests: `work/__tests__/cellDisclosure.test.tsx`, `cellDisclosureStub.ts` (jsdom box-size and ResizeObserver stubs), page tests' "caps ruling 4" blocks.
 - Evidence: `.agent/post-W6-W6-evidence/q15b/` (cap probe at the final SHA), `b18r/`, `b19r/` (recaptures), earlier `b18/`, `b19/`, `q15/`.
 - Open: VERIFICATION_WINDOW has no writer (capture gap); cold/EV preventive and operational rows, one list with all three domains, and pending/stale global states have no producer; registry chain Q19 nodes remain open (see packet); the other 3-line title/body clamps keep their existing "Full ... text" disclosures (not changed by ruling 4).
+
+## post-W6 W5-cold-Work - cold depth and Work D3 fixes (partial: R339 and recapture pending)
+
+- Branch `task/post-W6-W5-cold-work`; rulings `.agent/post-W6-W5-rulings.md` 1-2; packet `.agent/post-W6-W5-cold-packet.md`; handoff `.agent/post-W6-W5-cold-handoff.md`.
+- `defaultWorkWindow` (`sites/workClient.ts`) is `[today−6d, tomorrow)` UTC for every Site Work consumer (cold/EV Actions, all cases incl. mini).
+- `DomainWorkWindow` requires `basis` (`actions|incidents|maintenance`) and states `DOMAIN_WORK_WINDOW_BASIS` under the control; mini cases form has none.
+- `DomainActionPresentation.refusal?` maps a refusal to `{message, retry}`; cold uses `coldActionRefusal` (exact code, Retry only 503/unreached, `role="alert"`); EV absent = unchanged.
+- `relatedSentence` states linked VERIFICATION_WINDOW (with record) and linked CANCELLED; cold `coldDepthStateNotice` / `scenariosStateNotice` make UNKNOWN and pending notices row/count-aware; R25 subtitle replaced.
+- Cooling badges carry W4's `status-tone--*` classes (CSS arrives with W4).
+- Open: R339 (needs W2-cold `coldTabSearch`), unit 5 recapture/caps, B14-04 styling after W4.
