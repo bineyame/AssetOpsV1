@@ -33,11 +33,11 @@ Branch `task/post-W6-W1-a`, worktree `AssetOpsV1-review4`. Base 091045ed. Ruling
 
 ## Tests (focused, all green at 2afb0fcf; each new test failed with its fix reverted)
 
-performanceDispatch 44, s5SiteWindowOverview + siteDetailScreen + s502 166, siteFinding 67, siteFindingEvidence 46, siteFindingHistory, miniDecisions, w1f4RecommendationStructure, s404 37, t028Screens, evidenceClaimLimit, findingTime 5, estateRoots, evDepth. Proofs: Dispatch 2 fail without fix; Overview 9 fail; Finding/Index 33 fail. `tsc` clean; `check-architecture.ps1` passed; check-all earlier: agent workflow and the other 9 guards PASS (re-run after closeout).
+performanceDispatch 44, s5SiteWindowOverview + siteDetailScreen + s502 166, siteFinding 67, siteFindingEvidence 46, siteFindingHistory, miniDecisions, w1f4RecommendationStructure, s404 37, t028Screens, evidenceClaimLimit, findingTime 5, estateRoots, evDepth. Proofs: Dispatch 2 fail without fix; Overview 9 fail; Finding/Index 33 fail. `tsc` clean; `check-architecture.ps1` passed; check-all at de2da2fc: all 11 guards passed.
 
 ## Remaining
 
-1. After shell merges and main is merged in: route shell's `LedgerSiteEvidence.tsx` local formatter through `siteTime.ts` (cross-card 1); keep `{code} · Battery reserve trial` and `siteAction.test.tsx`.
+1. DONE: main (shell 4fc39160, W3-estate d9a73b80) merged cleanly; `siteTime.ts` blob still `2b390038`. `de2da2fc`: shell's `usableZone`/`zoneAbbreviation`/`selectedLocalDay`/`measuredTime` in `LedgerSiteEvidence.tsx` now delegate to `siteTime.ts` (+ `findingTime.ts`); a 3-zone EAT label set (Asmara, Djibouti, Mogadishu) stays in the wrapper because `siteTime.ts` must stay verbatim; W2-EV may fold it into the canonical table. `measuredTime.test.ts` + delegation test, `siteAction.test.tsx` (title contract) green. New register rows, if any, start at R383. Backend suite: not required (coordinator).
 2. Held for clearance: full vitest, production build, real-Postgres backend suite (frontend-only slice; confirm whether it is required), captures: all 88 indexed pairs (mini 12, evidence-analysis 16, dispatch 14, finding 12, finding-evidence 8, finding-history 10, sitefindings 16) + Q40 representatives (alternatives, SiteDetails crumb, cold/EV Finding representative), cap proofs (Where to look 650/1000, What limits 450/800, Revision history 850/2000, Dispatch Selected-block 390 750, Q5 400/800 and 1200/1800, What happened 600). Q11 link moves to the panel foot and Q15 Related Findings goes behind its count disclosure only if measured over cap.
 3. Closeout: review packet, CODE_STATE entry, ACTIVE_CONTEXT, narrow R21 (Finding Analysis no longer unavailable), register the global error boundary follow-up (Q47) as a backlog item, register rows per G1.
 
