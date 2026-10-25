@@ -896,6 +896,8 @@ describe("post-W6 W1-b: verification tones, sources, plan row headings and confl
       expect(chip.classList.contains("verify-chip--pass")).toBe(false);
     }
     expect(requirementTone(true)).toBe("info");
+    // The blue chip is defined in the scoped verification stylesheet (ui/primitives.css is unchanged).
+    expect(readFileSync(resolve(__dirname, "../w1f4-verification.css"), "utf8")).toMatch(/\.verify-chip--info \{[^}]*background: #e9f0fd;[^}]*color: #275ba8;/);
     expect(requirementTone(false)).toBe("fail");
     expect(requirementTone(null)).toBe("unknown");
     const sourceCell = document.querySelector("[data-verification-requirement-pair='conditions'] td") as HTMLElement;
