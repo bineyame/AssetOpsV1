@@ -128,7 +128,23 @@ Informational:
 - Work and Scenarios tab-window preservation, and cold depth/Action copies, are W5-cold-Work's (ownership 3, Q13).
 - R244/R261 close only after all merged instances are reviewed.
 - Register statuses for R241-R261 and R435-R437 update after review.
-- Cold Finding refused window keeps its banner plus per-section sentence (3 occurrences) per Q4; ruling 5's "no duplicate page banner" vs Q4's Finding exemption is for the Reviewer/Architect to confirm. Not escalated as a blocker: Q4 is explicit.
+- Resolved by the Architect refusal ruling (fix round below): the cold Finding refused window no longer has a page banner.
+
+## Fix round (review M1, L1-L3; Architect refusal ruling 1-4)
+
+Ruling copied to `.agent/post-W6-W2-cold-refusal-ruling.md`. Commits on top of `a57cb462`, merged with main at `b4b47183`.
+
+| Item | Change | Proof (single-file revert, restored) |
+| --- | --- | --- |
+| Ruling 1-4 | Refused cold Finding: `PageRefusal` removed; `RefusedStrip` (own title, "Window cannot be read" only for window refusals); `FindingSkeleton` puts the ruled sentence once in Bounded conclusion as the only `role="alert"`, with the technical disclosure (code + exact requested bounds); Operational context and Recommended next step say "Not assessed"; non-window refusals keep their title and the requested-window line | coldRoutes `w2f_finding_strip_confidence` and `refused: cold-finding...`: 2 fail on the old `ColdAssessmentViews.tsx` |
+| M1 | `RefusedGap` (coldSiteViews) renders the technical disclosure after the first-panel sentence on cold, cold-evidence, cold-evidence-analysis, cold-financials, cold-assumptions; `Refusal` carries code and message | coldSiteViews `expectDisclosure` in the 403 and 503 cases (code + from/to): 11 fail on the old file |
+| L1 | Financials repeats the assumptions refusal only when its sentence equals the financials one | `w2f_assumption_rows_match` (different reasons show the assumptions sentence; same reason says Not assessed): 1 fails with the old rule |
+| L2 | Cold Findings strip reads "n open in the first k" when a cursor exists | coldFindingIndex `r253_cursor_note`: 1 fails on the old file |
+| L3 | No change (informational, per the review) | none |
+
+Checks: tsc clean; full vitest 135 files / 3261 tests pass; `check-all.ps1 -Python <main .venv>` 11/11 guards passed.
+
+**r4 recapture** (`.agent/post-W6-W2-cold-recapture/r4-fix/`, product `b4b47183`, 34 refused captures at 1440/390, unmodified `seed.py cold excursion` and `cold backup-failed`; tools `run-r4.sh`, `check_r4.py`; DBs dropped, servers stopped by PID): 34/34 pass, 0 overflow, clipping or console errors, titles equal mock. `cold-finding start-refused-window` at both widths: sentence once (inside Bounded conclusion, as the single alert), Operational context and Recommended next step "Not assessed", three panels, no page banner. r4 supersedes r3.
 
 ## Residual risk and user-review focus
 
