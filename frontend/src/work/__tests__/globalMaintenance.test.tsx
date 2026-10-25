@@ -546,6 +546,7 @@ describe("Post-W6 W6 caps ruling 4: in-cell disclosure on Corrective work reques
       await settled();
       const tr = panelTitled("Corrective work requests").querySelector("tbody tr") as HTMLElement;
       expect(disclosureNames(tr)).toEqual([
+      "Show full Work request links for WR-000001",
       "Show full Asset / site for WR-000001",
       "Show full Owner for WR-000001",
       ]);
@@ -556,7 +557,7 @@ describe("Post-W6 W6 caps ruling 4: in-cell disclosure on Corrective work reques
       const first = tr.querySelector("button[data-cell-disclosure-toggle]") as HTMLButtonElement;
       fireEvent.click(first);
       expect(first.textContent).toBe("Show less");
-      expect(first.getAttribute("aria-label")).toBe("Show less Asset / site for WR-000001");
+      expect(first.getAttribute("aria-label")).toBe("Show less Work request links for WR-000001");
     } finally {
       restore();
     }
@@ -568,7 +569,7 @@ describe("Post-W6 W6 caps ruling 4: in-cell disclosure on Corrective work reques
       mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
       await settled();
       const tr = panelTitled("Corrective work requests").querySelector("tbody tr") as HTMLElement;
-      expect(tr.querySelectorAll("[data-cell-disclosure]")).toHaveLength(2);
+      expect(tr.querySelectorAll("[data-cell-disclosure]")).toHaveLength(3);
       expect(disclosureNames(tr)).toEqual([]);
     } finally {
       restore();

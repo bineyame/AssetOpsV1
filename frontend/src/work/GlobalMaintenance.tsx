@@ -127,7 +127,11 @@ function WorkRequestCell({ row }: { row: GlobalMaintenanceRow }) {
         <summary>Full title text</summary>
         {row.title}
       </details>
-      <Clamp data={{ "data-global-work-lineage": links.length > 0 ? "linked" : "none" }}>
+      <CellDisclosure
+        column="Work request links"
+        row={row.code}
+        data={{ "data-global-work-lineage": links.length > 0 ? "linked" : "none" }}
+      >
         {links.length > 0
           ? joined(
               links.map((link, index) => (
@@ -136,7 +140,7 @@ function WorkRequestCell({ row }: { row: GlobalMaintenanceRow }) {
               " · ",
             )
           : NO_LINKED_FINDING_OR_ACTION}
-      </Clamp>
+      </CellDisclosure>
       <WorkSourceLine provenance={row.source_provenance} />
     </>
   );
