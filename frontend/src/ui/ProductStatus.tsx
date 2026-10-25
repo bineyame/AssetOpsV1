@@ -315,7 +315,15 @@ export interface ValueBarItem {
    * nothing to be scaled against). Off by default.
    */
   marker?: boolean;
+  /**
+   * post-W6 W4 R309 (Q2/Q3): a fixed series identity for the known fill, never an assessment. The row label names the
+   * series in text; a null value keeps the hatched mark whatever the tone.
+   */
+  tone?: ValueBarTone;
 }
+
+/** Series identities with a mock colour (v69 l.615-632): PV amber, retained margin neutral, headroom green, critical load red. */
+export type ValueBarTone = "pv" | "margin" | "headroom" | "critical";
 
 export interface ValueBarsProps {
   /** Accessible name of the whole graphic. */
@@ -323,6 +331,11 @@ export interface ValueBarsProps {
   items: readonly ValueBarItem[];
   /** The words for a null value; "not known" unless a page's mock names it otherwise (W4 mini pages: "Unknown"). */
   unknownText?: string;
+  /**
+   * post-W6 W4 R316: draw no visible caption when the panel heading already names the graphic; `title` then stays the
+   * figure's accessible name.
+   */
+  captionHidden?: boolean;
 }
 
 /**
@@ -331,13 +344,13 @@ export interface ValueBarsProps {
  * bar; a known zero draws an empty track with its "0" text. The scale is the
  * largest known value; with no known positive value every bar is empty.
  */
-export function ValueBars({ title, items, unknownText = "not known" }: ValueBarsProps) {
+export function ValueBars({ title, items, unknownText = "not known", captionHidden = false }: ValueBarsProps) {
   const known = items.map((i) => i.value).filter((v): v is number => v !== null && v > 0);
   const max = known.length === 0 ? 0 : Math.max(...known);
   const description = items.map((i) => `${i.label}: ${i.value === null ? unknownText : i.valueText}`).join("; ");
   return (
-    <figure className="value-bars" data-value-bars>
-      <figcaption className="value-bars__title">{title}</figcaption>
+    <figure className="value-bars" data-value-bars aria-label={captionHidden ? title : undefined}>
+      {captionHidden ? null : <figcaption className="value-bars__title">{title}</figcaption>}
       <ul className="value-bars__list" aria-label={`${title}. ${description}`}>
         {items.map((item) => (
           <li
@@ -354,8 +367,9 @@ export function ValueBars({ title, items, unknownText = "not known" }: ValueBars
                 <span className="value-bars__marker" data-value-bar-mark="range-marker" />
               ) : (
                 <span
-                  className="value-bars__fill"
+                  className={`value-bars__fill${item.tone ? ` value-bars__fill--${item.tone}` : ""}`}
                   data-value-bar-mark="known"
+                  data-value-bar-tone={item.tone}
                   style={{ width: max === 0 ? "0%" : `${Math.round((item.value / max) * 100)}%` }}
                 />
               )}

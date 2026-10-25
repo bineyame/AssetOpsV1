@@ -1197,6 +1197,13 @@ button:focus-visible {
   border-radius: var(--radius-sm);
 }
 
+/* post-W6 W4 R309 (Q2): semantic status tones, applied as a class beside an existing Badge tone and only where a stored
+   enum drives them. The word stays visible; colour only reinforces it. Unrelated Badge callers are unchanged. */
+.badge.status-tone--green { background: var(--status-green-bg); color: var(--status-green-text); border-color: var(--status-green-border); }
+.badge.status-tone--amber { background: var(--status-amber-bg); color: var(--status-amber-text); border-color: var(--status-amber-border); }
+.badge.status-tone--red { background: var(--status-red-bg); color: var(--status-red-text); border-color: var(--status-red-border); }
+.badge.status-tone--neutral { background: var(--status-neutral-bg); color: var(--status-neutral-text); border-color: var(--status-neutral-border); }
+
 /* W1-F3 review H2: a mock chip or column the reads do not support yet ("Not assessed"), muted and dashed. */
 .badge--not-assessed {
   background: transparent;
@@ -4351,6 +4358,12 @@ ul.evidence-notes li { font-size: inherit; }
   height: 100%;
   background: var(--series-1);
 }
+
+/* post-W6 W4 R309 (Q3): fixed series identities, each named by its row label; never an assessment colour. */
+.value-bars__fill--pv { background: var(--series-pv); }
+.value-bars__fill--margin { background: var(--series-margin); }
+.value-bars__fill--headroom { background: var(--series-headroom); }
+.value-bars__fill--critical { background: var(--series-critical); }
 
 /* "Not known" is a hatched full-width mark, never a short or empty bar. */
 .value-bars__unknown {

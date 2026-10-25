@@ -286,7 +286,7 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
     expect(strip()).toContain("No selected assessment");
   });
 
-  it("503 shows the retry copy and retries; 422 shows the API message with the hour bar editable", async () => {
+  it("503 shows the retry copy and retries; 422 keeps the frame with client copy, never the API message, and the hour bar editable", async () => {
     const unavailable: MiniRead<ServiceRead> = { status: "refused", httpStatus: 503, code: "MINI_DEPTH_STORE_UNAVAILABLE", message: "x" };
     const client = renderService([unavailable, ok(read())]);
     await settledScreen();
@@ -298,7 +298,8 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
     const message = "Select a valid complete site-local hour or one to five site-local days.";
     renderService([{ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", message }], `/sites/${CODE}/performance/service?from=a&to=b`);
     await settledScreen();
-    expect(await screen.findByText(message)).toBeTruthy();
+    expect(await screen.findByText("Choose a valid Site-local window.")).toBeTruthy();
+    expect(main().textContent).not.toContain(message);
     expect(document.querySelector("[data-mini-period] select")).not.toBeNull();
   });
 
@@ -315,5 +316,88 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
       to: "2026-10-06T10:00:00Z",
       known_at: "2026-10-07T00:00:00Z",
     });
+  });
+});
+
+describe("post-W6 W4 R309/R313/R316/R318: service tones, heading, word values and the refused frame", () => {
+  const badge = (text: string) => screen.getAllByText(text).find((el) => el.classList.contains("badge")) as HTMLElement;
+
+  it("R316: `Where the power went` is the one visible heading; the figure keeps it as its accessible name", async () => {
+    renderService([ok(read())]);
+    await settledScreen();
+    await screen.findByText("Service assessment: Supported");
+    const panel = panelTitled("Where the power went");
+    expect(panel.querySelector("figcaption")).toBeNull();
+    expect(panel.querySelector("figure")?.getAttribute("aria-label")).toBe("Where the power went");
+    expect(panel.textContent).not.toContain("Delivered power by addressed load");
+  });
+
+  it("R309: strip and row chips toned from stored enums; red only for the stored CRITICAL role and labelled Critical load; R452 beside the chart", async () => {
+    renderService([ok(read({ rows: [row(0, { load_label: "Health post", asset_code: "CRIT-1", role: "CRITICAL", delivered_kw: 4 }), row(1, { assessment: "LIMITED" }), row(2)] }))]);
+    await settledScreen();
+    await screen.findByText("Service assessment: Supported");
+    expect(badge("Service assessment: Supported").className).toContain("status-tone--green");
+    expect(badge("Limited").className).toContain("status-tone--amber");
+    const critical = document.querySelector('[data-value-bar-tone="critical"]')?.closest("[data-value-bar]") as HTMLElement;
+    expect(critical.textContent).toContain("Critical load");
+    expect(document.querySelectorAll('[data-value-bar-tone="critical"]')).toHaveLength(1);
+    const panel = panelTitled("Where the power went");
+    expect(panel.querySelector("[data-mock-deviation='R452']")?.textContent?.trim()).toBe("MOCK DEVIATION D1 (R452)");
+  });
+
+  it("R318: non-numeric card values are word values, so a row never mixes word sizes", async () => {
+    renderService([ok(read({ rows: [row(1, { delivered_kw: null }), row(2, { delivered_kw: null })] }))]);
+    await settledScreen();
+    await screen.findByText("Service assessment: Supported");
+    const cards = Array.from(document.querySelectorAll("[data-mini-cards] .v69-metric"));
+    for (const card of cards) {
+      const value = card.querySelector(".v69-metric__value")?.textContent ?? "";
+      expect([value, card.classList.contains("v69-metric--word")]).toEqual([value, !/^[\d−-]/.test(value)]);
+    }
+    expect(cards.some((card) => card.classList.contains("v69-metric--word"))).toBe(true);
+  });
+  const CASES: Array<[string, string, string]> = [
+    ["two hours", "from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z", "Choose one complete Site-local hour or one day."],
+    ["a reversed range", "from=2026-10-06T10:00:00Z&to=2026-10-06T09:00:00Z", "The end must be after the start."],
+    ["an unprovable cause", "from=2026-10-06T09:30:00Z&to=2026-10-06T10:30:00Z", "Choose a valid Site-local window."],
+  ];
+  const REFUSED_PANELS = ["Where the power went", "Delivered power by addressed load", "What is supported"];
+
+  it.each(CASES)("R313: a refused window (%s) keeps strip, muted tiles and the named panels with one client reason", async (_name, query, reason) => {
+    const message = "SERVER MESSAGE `INVALID_WINDOW` must not show";
+    renderService([{ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", message }], `/sites/${CODE}/performance/service?${query}`);
+    await settledScreen();
+    expect(await screen.findByText(reason)).toBeTruthy();
+    expect(main().textContent).not.toContain("SERVER MESSAGE");
+    expect(main().textContent).not.toContain("INVALID_WINDOW");
+    expect(strip()).toContain("Window cannot be read");
+    expect(strip()).toContain("Confidence: Not assessed");
+    expect(cardValues()).toEqual(["Not assessed", "Not assessed", "Not assessed", "Not assessed"]);
+    expect(panelTitled(REFUSED_PANELS[0]).textContent).toContain(reason);
+    for (const title of REFUSED_PANELS.slice(1)) expect(panelTitled(title).textContent).toContain("Not assessed");
+    expect(screen.getAllByText(reason)).toHaveLength(1);
+  });
+});
+
+const NODE_FS = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+const CWD = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+
+describe("post-W6 W4 R309/R318: shared semantic tokens and the equal-height card rows", () => {
+  it("tokens.css defines green/amber/red/neutral chip tokens and the four series identities; primitives.css applies them", () => {
+    const tokens = NODE_FS.readFileSync(`${CWD}/src/ui/tokens.css`, "utf8");
+    const css = NODE_FS.readFileSync(`${CWD}/src/ui/primitives.css`, "utf8");
+    for (const tone of ["green", "amber", "red", "neutral"]) {
+      for (const part of ["bg", "text", "border"]) expect(tokens).toMatch(new RegExp(`--status-${tone}-${part}: #[0-9a-f]{6};`));
+      expect(css).toContain(`.badge.status-tone--${tone} { background: var(--status-${tone}-bg); color: var(--status-${tone}-text);`);
+    }
+    for (const series of ["pv", "margin", "headroom", "critical"]) {
+      expect(tokens).toMatch(new RegExp(`--series-${series}: #[0-9a-f]{6};`));
+      expect(css).toContain(`.value-bars__fill--${series} { background: var(--series-${series}); }`);
+    }
+  });
+
+  it("w4-mini-performance.css stretches bounded card rows to one row height", () => {
+    const css = NODE_FS.readFileSync(`${CWD}/src/sites/w4-mini-performance.css`, "utf8");
+    expect(css).toMatch(/\.mini-cards-bound \{[^}]*align-items: stretch;[^}]*grid-auto-rows: 1fr;/);
   });
 });

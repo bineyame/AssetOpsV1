@@ -159,10 +159,11 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     expect(main().textContent).toContain("Assess measured solar headroom and its limits.");
     expect(strip()).toContain("Lens: Opportunity");
     expect(strip()).toContain("Selected sources: Generated test data, not field readings");
-    expect(strip()).toContain("Solar headroom on 1 of 1 assessed days");
+    // post-W6 W4 R312: one assessed day does not establish recurrence (five completely assessed days are needed).
+    expect(strip()).toContain("Recurrence is not established for this selection.");
     const dispatch = document.querySelector("[data-mini-dispatch-link] a") as HTMLAnchorElement;
     expect(dispatch.getAttribute("href")).toBe(`/sites/${CODE}/performance/dispatch?day=2026-10-06`);
-    expect(cardValues()).toEqual(["41–43 kW", "20 kW", "18–20 kW", "1 / 1 days"]);
+    expect(cardValues()).toEqual(["41–43 kW", "20 kW", "18–20 kW", "Not established"]);
     expect(main().textContent).toContain("Accepted power over 60/60 min");
     const headroom = panelTitled("From physical headroom to an opportunity");
     expect(headroom.textContent).toContain("Actual accepted interval means cover each eligible one-hour window");
@@ -219,7 +220,7 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     expect(Array.from(document.querySelectorAll("[data-mini-limitations] li"), (li) => li.textContent).join("; ")).toContain("Critical service not established");
     expect(strip()).toContain("Compare with Dispatch evidence · Not available yet");
     expect(document.querySelector("[data-mini-dispatch-link] a")).toBeNull();
-    expect(cardValues()).toEqual(["Unknown", "Unknown", "18–20 kW", "1 / 1 days"]);
+    expect(cardValues()).toEqual(["Unknown", "Unknown", "18–20 kW", "Not established"]);
     expect(panelTitled("From physical headroom to an opportunity").textContent).toContain("Accepted coverage is incomplete");
     expect(Array.from(document.querySelectorAll("tbody tr")).map((tr) => tr.getAttribute("data-mini-row"))).toEqual([
       "assessed",
@@ -249,7 +250,7 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     await settledScreen();
     await screen.findByText("Not assessed");
     expectV69Panels("renewable");
-    expect(cardValues()).toEqual(["Unknown", "Unknown", "Unknown", "Unknown"]);
+    expect(cardValues()).toEqual(["Unknown", "Unknown", "Unknown", "Not established"]);
     expect(panelTitled("Eligible and excluded windows").textContent).toContain("No renewable window has been assessed for this period.");
   });
 
@@ -259,7 +260,8 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     await settledScreen();
     await screen.findByText("No usable headroom");
     expect(strip()).not.toContain("Watch");
-    expect(strip()).not.toContain("Not assessed");
+    // The status word is not `Not assessed`; the separate confidence chip (R310) always is.
+    expect(strip().replace("Confidence: Not assessed", "")).not.toContain("Not assessed");
   });
 
   it("q10-3: pending recompute or unknown provenance never gets Watch", async () => {
@@ -313,7 +315,7 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     expectV69Panels("renewable");
   });
 
-  it("503 shows the retry copy and retries; 422 shows the API message with the period bar editable", async () => {
+  it("503 shows the retry copy and retries; 422 keeps the frame with client copy, never the API message, and the period bar editable", async () => {
     const unavailable: MiniRead<RenewableRead> = { status: "refused", httpStatus: 503, code: "MINI_DEPTH_STORE_UNAVAILABLE", message: "x" };
     const client = renderRenewable([unavailable, ok(read())]);
     await settledScreen();
@@ -325,7 +327,8 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     const message = "Select a valid complete site-local hour or one to five site-local days.";
     renderRenewable([{ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", message }], `/sites/${CODE}/performance/renewable?from=a&to=b`);
     await settledScreen();
-    expect(await screen.findByText(message)).toBeTruthy();
+    expect(await screen.findByText("Choose a valid Site-local window.")).toBeTruthy();
+    expect(main().textContent).not.toContain(message);
     expect(document.querySelector("[data-mini-period] select")).not.toBeNull();
   });
 
@@ -343,5 +346,93 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
       to: "2026-10-06T04:00:00.000Z",
       known_at: null,
     });
+  });
+});
+
+describe("post-W6 W4 R309/R310/R312/R313: renewable tones, confidence, recurrence and the refused frame", () => {
+  const five = ["2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10"];
+  const badge = (text: string) => screen.getAllByText(text).find((el) => el.classList.contains("badge")) as HTMLElement;
+
+  it("R309: chips take tones from stored enums only (Watch amber, Lens green, Eligible green, Limited amber, Excluded neutral) and series fills keep their identity", async () => {
+    const rows = [row("2026-10-06"), row("2026-10-07", { decision: "EXCLUDED", opportunity_kwh: null }), row("2026-10-08", { decision: "LIMITED", opportunity_kwh: null })];
+    const windows = [hour("2026-10-06", true, 1), hour("2026-10-07", true, 2), hour("2026-10-08", true, 3)];
+    renderRenewable([ok(read({ rows, currentness: { state: "CURRENT", job_state: "SETTLED", windows } }))], `/sites/${CODE}/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-08T21:00:00Z`);
+    await settledScreen();
+    await screen.findByText("Watch");
+    expect(badge("Watch").className).toContain("status-tone--amber");
+    expect(badge("Lens: Opportunity").className).toContain("status-tone--green");
+    expect(badge("Eligible").className).toContain("status-tone--green");
+    expect(badge("Excluded").className).toContain("status-tone--neutral");
+    expect(badge("Limited").className).toContain("status-tone--amber");
+    const tones = Array.from(document.querySelectorAll("[data-value-bar-tone]"), (el) => el.getAttribute("data-value-bar-tone"));
+    expect(tones).toEqual(["pv", "headroom"]);
+    // the retained margin is unknown: hatched, never coloured as assessed
+    expect(document.querySelector('[data-value-bar-key="margin"] [data-value-bar-mark="not-known"]')).not.toBeNull();
+  });
+
+  it("R310 / D1 R451: Confidence: Not assessed sits in the strip with its visible deviation label", async () => {
+    renderRenewable([ok(read())]);
+    await settledScreen();
+    await screen.findByText("Watch");
+    const chip = document.querySelector("[data-mini-confidence]") as HTMLElement;
+    expect(chip.querySelector(".badge")?.textContent).toBe("Confidence: Not assessed");
+    expect(chip.querySelector("[data-mock-deviation='R451']")?.textContent?.trim()).toBe("MOCK DEVIATION D1 (R451)");
+  });
+
+  it("R312: 3 of 3 assessed days do not establish recurrence in strip, card or chart note", async () => {
+    const windows = five.slice(0, 3).map((day, i) => hour(day, true, i + 1));
+    const cards = { capability_kw: { low: 41, high: 43 }, used_kw: { low: 20, high: 20 }, headroom_kw: { low: 18, high: 20 }, eligible_days: 3, assessed_days: 3 };
+    renderRenewable([ok(read({ cards, rows: five.slice(0, 3).map((d) => row(d)), currentness: { state: "CURRENT", job_state: "SETTLED", windows } }))]);
+    await settledScreen();
+    await screen.findByText("Watch");
+    expect(strip()).toContain("Recurrence is not established for this selection.");
+    expect(strip()).not.toContain("3 of 3");
+    expect(cardValues()[3]).toBe("Not established");
+    expect(main().textContent).toContain("Needs five completely assessed days.");
+    expect(document.querySelector("[data-mini-recurrence]")?.textContent).toBe("Recurrence is not established for this selection.");
+  });
+
+  it("R312: 5 of 5 completely assessed days establish recurrence at every level", async () => {
+    const windows = five.map((day, i) => hour(day, true, i + 1));
+    const cards = { capability_kw: { low: 41, high: 43 }, used_kw: { low: 20, high: 20 }, headroom_kw: { low: 18, high: 20 }, eligible_days: 3, assessed_days: 5 };
+    renderRenewable([ok(read({ cards, rows: five.map((d) => row(d)), currentness: { state: "CURRENT", job_state: "SETTLED", windows } }))]);
+    await settledScreen();
+    await screen.findByText("Watch");
+    expect(strip()).toContain("Solar headroom on 3 of 5 completely assessed days");
+    expect(cardValues()[3]).toBe("3 / 5 days");
+    expect(document.querySelector("[data-mini-recurrence]")?.textContent).toBe("Usable headroom recurred on 3 of 5 completely assessed days.");
+  });
+
+  it("R312: a gap-limited five-day selection is not established, and selected rows never sit beside `No selected assessment`", async () => {
+    const windows = five.map((day, i) => hour(day, i !== 2, i + 1));
+    const cards = { capability_kw: { low: 41, high: 43 }, used_kw: { low: 20, high: 20 }, headroom_kw: { low: 18, high: 20 }, eligible_days: 3, assessed_days: 4 };
+    renderRenewable([ok(read({ cards, rows: [row(five[0])], currentness: { state: "UNKNOWN", job_state: "NONE", windows } }))]);
+    await settledScreen();
+    await screen.findAllByText("Recurrence is not established for this selection.");
+    expect(strip()).toContain("Recurrence is not established for this selection.");
+    expect(cardValues()[3]).toBe("Not established");
+    expect(strip()).not.toContain("No selected assessment");
+    expect(document.querySelector("[data-mini-currentness]")).toBeNull();
+  });
+
+  it.each([
+    ["six days", "from=2026-10-05T21:00:00Z&to=2026-10-11T21:00:00Z", "Choose one to five complete Site-local days."],
+    ["a reversed range", "from=2026-10-08T21:00:00Z&to=2026-10-05T21:00:00Z", "The end must be after the start."],
+    ["an unprovable cause", "from=2026-10-05T21:00:00Z&to=2026-10-06T22:00:00Z", "Choose a valid Site-local window."],
+  ])("R313: a refused window (%s) keeps strip, muted tiles and the named panels with one client reason", async (_name, query, reason) => {
+    const message = "SERVER MESSAGE `INVALID_WINDOW` must not show";
+    renderRenewable([{ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", message }], `/sites/${CODE}/performance/renewable?${query}`);
+    await settledScreen();
+    expect(await screen.findByText(reason)).toBeTruthy();
+    expect(main().textContent).not.toContain("SERVER MESSAGE");
+    expect(main().textContent).not.toContain("INVALID_WINDOW");
+    expect(strip()).toContain("Window cannot be read");
+    expect(strip()).toContain("Confidence: Not assessed");
+    expect(cardValues()).toEqual(["Not assessed", "Not assessed", "Not assessed", "Not assessed"]);
+    expect(panelTitled("From physical headroom to an opportunity").textContent).toContain(reason);
+    expect(panelTitled("Productive-use evaluation").textContent).toContain("Not assessed");
+    expect(panelTitled("Eligible and excluded windows").textContent).toContain("Not assessed");
+    expect(screen.getAllByText(reason)).toHaveLength(1);
+    expect(document.querySelector("[data-mini-period] select")).not.toBeNull();
   });
 });
