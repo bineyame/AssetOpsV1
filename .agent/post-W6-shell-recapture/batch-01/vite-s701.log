@@ -1,0 +1,10 @@
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m1214[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5181[22m/[39m
+[2m2:37:41 AM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/sites/KOBO-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18101
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
+[2m2:37:41 AM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/sites/KOBO-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18101
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)

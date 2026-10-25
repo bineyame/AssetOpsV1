@@ -263,8 +263,9 @@ export function SiteFoundationFrame({
     return (
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
         <Breadcrumbs trail={[...parentTrail(siteId ?? ""), { label: "Foundation" }]} />
+        {/* post-W6 shell R133 (Q12): the Site read's stored display name, the code only while no read has named it. */}
         <SitePageHeader
-          siteName={siteId ?? ""}
+          siteName={knownSiteName ?? siteId ?? ""}
           siteId={siteId ?? ""}
           description={screenDescription}
           headingId={SITE_CONFIGURATION_HEADING_ID}
@@ -297,7 +298,7 @@ export function SiteFoundationFrame({
         </div>
         <FoundationPanelSkeletons
           view={view}
-          siteName={siteId ?? ""}
+          siteName={knownSiteName ?? siteId ?? ""}
           gap="No Foundation version is stored for the selected time, so nothing is shown as configured in this panel."
         />
       </main>

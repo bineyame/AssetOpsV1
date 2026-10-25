@@ -1,0 +1,27 @@
+chrome pid 3348
+PASS  loaded http://localhost:5181/sites/KOBO-001/performance/dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  dispatch-default-no-day 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  dispatch-default-no-day 1440: mock rendered
+PASS  dispatch-default-no-day 1440: same panel count  {"app":["Sources and 15-minute blocks","Selected block · No block selected","Accepted sample coverage"],"mock":["Sources and 15-minute blocks","Selected block · 14:20–14:35","Accepted sample coverage"]}
+PASS  dispatch-default-no-day 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/performance/dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  dispatch-default-no-day 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  dispatch-default-no-day 390: mock rendered
+PASS  dispatch-default-no-day 390: same panel count  {"app":["Sources and 15-minute blocks","Selected block · No block selected","Accepted sample coverage"],"mock":["Sources and 15-minute blocks","Selected block · 14:20–14:35","Accepted sample coverage"]}
+PASS  dispatch-default-no-day 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  analysis-limited 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  analysis-limited 1440: mock rendered
+PASS  analysis-limited 1440: same panel count  {"app":["Constraint comparison","Bounded fuel calculation","Coverage, confidence and alternatives"],"mock":["Constraint comparison","Bounded fuel calculation","Coverage, confidence and alternatives"]}
+PASS  analysis-limited 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  analysis-limited 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  analysis-limited 390: mock rendered
+PASS  analysis-limited 390: same panel count  {"app":["Constraint comparison","Bounded fuel calculation","Coverage, confidence and alternatives"],"mock":["Constraint comparison","Bounded fuel calculation","Coverage, confidence and alternatives"]}
+PASS  analysis-limited 390: no app page overflow  {"overflowX":0}
+
+24/24 claims passed; evidence in .agent/post-W6-shell-recapture/batch-02/part-dispatch

@@ -1,0 +1,13 @@
+=== 1. Private tree (git HEAD) ===
+  C:\Users\assef\Bineyame\AssetOpsV1-review3\var\w502b_shellrc1415\tree (code from 66488124)
+=== 2. positive: database w502b_positive_shellrc1415_test ===
+  built positive blocked: None {'positive': ('CURRENT', 1), 'zero': ('CURRENT', 0), 'historical': ('HISTORICAL', 1)}  (31s)
+=== 3. worstcase: database w502b_worstcase_shellrc1415_test ===
+  built worstcase blocked: None {'worstcase': ('CURRENT', 6)}  (24s)
+=== 4. pending: database w502b_pending_shellrc1415_test ===
+  built pending blocked: None {'pending': ('PENDING_RECOMPUTE', 1)}  (22s)
+=== 5. stale: database w502b_stale_shellrc1415_test ===
+  built stale blocked: None {'stale': ('STALE_SOURCE', 1)}  (22s)
+=== 6. unknown: database w502b_unknown_shellrc1415_test ===
+  built unknown blocked: None {'unknown': ('UNKNOWN', 1)}  (21s)
+Manifest: C:\Users\assef\Bineyame\AssetOpsV1-review3\var\w502b_shellrc1415\manifest.json

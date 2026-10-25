@@ -1,0 +1,7 @@
+[
+ {
+  "id": "ev-findings",
+  "case": "inventory-check",
+  "url": "http://localhost:5181/sites/EV-LAB-001/findings"
+ }
+]

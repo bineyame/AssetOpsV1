@@ -687,8 +687,7 @@ function SldDrawing({
           aria-labelledby={`${titleId} ${descriptionId}`}
           data-sld-archetype={diagram.archetype}
           data-sld-layout="bus-bar"
-          width={lattice.width}
-          height={lattice.height}
+          style={{ maxWidth: lattice.width }}
           viewBox={`0 0 ${lattice.width} ${lattice.height}`}
         >
           <title id={titleId}>
@@ -759,6 +758,42 @@ function SldDrawing({
             {label(medium, CONNECTION_MEDIUM_LABELS)}
           </li>
         ))}
+      </ul>
+      {/* post-W6 shell Q13: scaled to fit a phone column, the drawing's own labels fall below a readable size, so a
+          readable key of the drawn parts follows it. CSS shows it only at phone width; it never widens the drawing.
+          With a selection, each entry chooses the same part as the drawing, by keyboard or pointer.
+          MOCK DEVIATION D2 (post-W6 shell closeout ruling 3, register R382): the mock's phone drawing has no separate
+          part key, so the key carries a visible label, shown with it at phone width only, pending the owner's choice. */}
+      <p className="sld-key__deviation" data-mock-deviation="R382">
+        MOCK DEVIATION D2 (R382)
+      </p>
+      <ul className="sld-key" aria-label="Parts in the drawing" data-sld-key="">
+        {diagram.nodes.map((node) => {
+          const rating = ratingText(node);
+          const words = (
+            <>
+              <span data-vocabulary-exempt="user-owned">{node.displayName}</span>
+              {rating ? <span className="sld-key__rating">{` · ${rating}`}</span> : null}
+            </>
+          );
+          const pressed = selection !== null && selection.selected === node.componentId;
+          return (
+            <li key={node.nodeId} className="sld-key__item" data-sld-key-part={node.componentId}>
+              {selection === null ? (
+                words
+              ) : (
+                <button
+                  type="button"
+                  className="link-button sld-key__choice"
+                  aria-pressed={pressed}
+                  onClick={() => selection.onSelect(pressed ? null : node.componentId)}
+                >
+                  {words}
+                </button>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </>
   );

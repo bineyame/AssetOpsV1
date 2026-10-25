@@ -807,6 +807,9 @@ describe("W1-F5a: Health and battery state lines (the W1-UX-05/06 words, now in 
       expectRefusedStateLine(strip(), "This could not be read right now");
       expectV69Panels("asset");
       expect(qa("[data-battery-gap]"), name).toHaveLength(3);
+      // post-W6 shell R149 (Q17): refusal sentences use the mock `.prose` size, never a bare 14 px paragraph.
+      for (const gap of qa("[data-battery-gap]")) expect(gap.className, name).toBe("v69-prose");
+      expect(refused.querySelector(":scope > p:not(.page-refusal__title)")?.className, name).toBe("v69-prose");
       expect(q("[data-battery-condition]"), name).toBeNull();
       expect(q("[data-headline-card]"), name).toBeNull();
       expect(defaultReading(), name).not.toMatch(/GOOD|good condition/);

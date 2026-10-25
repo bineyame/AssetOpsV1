@@ -1,0 +1,2 @@
+  L1 deliver (s4-fixture-epoch-1): 65 readings in 6 batches; held []
+Late evidence delivered and NOT assessed: the positive window now reads not current. Reload the old page-2 address (it must restart), then run `settle`.

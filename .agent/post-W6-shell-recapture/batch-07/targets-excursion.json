@@ -1,0 +1,32 @@
+[
+ {
+  "id": "cold-findings",
+  "case": "no-selection",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/findings?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"
+ },
+ {
+  "id": "cold",
+  "case": "no-selection",
+  "url": "http://localhost:5181/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"
+ },
+ {
+  "id": "cold-evidence",
+  "case": "no-selection",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"
+ },
+ {
+  "id": "cold-evidence-analysis",
+  "case": "no-selection",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"
+ },
+ {
+  "id": "cold-financials",
+  "case": "no-selection",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/financials?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"
+ },
+ {
+  "id": "cold-assumptions",
+  "case": "no-selection",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"
+ }
+]

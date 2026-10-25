@@ -1,0 +1,18 @@
+=== 1. Private tree (git HEAD) with its own var/ ===
+  C:\Users\assef\Bineyame\AssetOpsV1-review3\var\s302_shellrc_r2\tree (code from 321cfe56)
+=== 2. Database assetops_s302_audit ===
+  created
+=== 3. s3-claim-limit-records-v1 through Batch V2 ingestion and the S3 worker ===
+  built: full-candidate 2026-10-06 CURRENT, missing-pv 2026-10-08 CURRENT, poor-quality-conflict 2026-10-11 CURRENT, late-revision 2026-10-13 CURRENT, stale-selection 2026-10-15 STALE_PROJECTION
+=== 4. S2 Evidence comparison, then the Performance comparison ===
+  evidence: exit 0 - Evidence cutover: permitted
+  performance: exit 0 - Performance cutover: permitted
+=== 5. Every case's selected revision through the served route ===
+  ok  full-candidate                     2026-10-06 CURRENT          CANDIDATE_AVOIDABLE COMPLETE
+  ok  missing-pv                         2026-10-08 CURRENT          INDETERMINATE NONE
+  ok  poor-quality-conflict              2026-10-11 CURRENT          CANDIDATE_AVOIDABLE LIMITED
+  ok  late-revision                      2026-10-13 CURRENT          CANDIDATE_AVOIDABLE COMPLETE
+  ok  stale-selection                    2026-10-15 STALE_PROJECTION None None
+  ok  late-revision/withdrawn            2026-10-13 HISTORICAL       None None
+  refusal for an unknown revision: 404 ASSESSMENT_REVISION_NOT_FOUND
+Prepared. Next: serve.

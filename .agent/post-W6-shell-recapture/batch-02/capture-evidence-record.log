@@ -1,0 +1,15 @@
+chrome pid 13644
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&record=6eb191fe-e6a1-4dfa-bde4-55b7f05d4103: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-record-opened 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-record-opened 1440: mock rendered
+PASS  evidence-analysis-record-opened 1440: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-record-opened 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&record=6eb191fe-e6a1-4dfa-bde4-55b7f05d4103: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-record-opened 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-record-opened 390: mock rendered
+PASS  evidence-analysis-record-opened 390: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-record-opened 390: no app page overflow  {"overflowX":0}
+
+12/12 claims passed; evidence in .agent/post-W6-shell-recapture/batch-02/part-evidence-record
