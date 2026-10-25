@@ -1,0 +1,14 @@
+assumptions-default-s408 interp-160-3rows 1440 {"panelH":729,"verified":true,"clipped":0,"doc":0,"rows":[150,150,149]}
+assumptions-default-s408 interp-160-3rows 390 {"panelH":1713,"verified":true,"clipped":0,"doc":0,"rows":[430,430,429]}
+retry assumptions-default-s408 interp-160-5rows 1440 Error: {"exceptionId":1,"text":"Uncaught","lineNumber":13,"columnNumber":129,"scriptId":"520","exception":{"type":"object","subtype":"error","className":"TypeEr
+retry assumptions-default-s408 interp-160-5rows 1440 Error: {"exceptionId":1,"text":"Uncaught","lineNumber":13,"columnNumber":92,"scriptId":"7","exception":{"type":"object","subtype":"error","className":"TypeError
+retry assumptions-default-s408 interp-160-5rows 1440 Error: {"exceptionId":2,"text":"Uncaught","lineNumber":13,"columnNumber":92,"scriptId":"7","exception":{"type":"object","subtype":"error","className":"TypeError
+file:///C:/Users/assef/Bineyame/AssetOpsV1-review7/.agent/post-W6-W1-b-recapture/probe/tools/cdp.mjs:24
+  const js = async (expression) => { const r = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails).slice(0, 600)); return r.result.value; };
+                                                                                                                                                                      ^
+
+Error: {"exceptionId":2,"text":"Uncaught","lineNumber":13,"columnNumber":92,"scriptId":"7","exception":{"type":"object","subtype":"error","className":"TypeError","description":"TypeError: Cannot read properties of undefined (reading 'querySelector')\n    at interpCorr (<anonymous>:14:93)\n    at <anonymous>:24:15\n    at <anonymous>:24:32\n    at <anonymous>:24:36","objectId":"6848522834458431264.2.2"}}
+    at Object.js (file:///C:/Users/assef/Bineyame/AssetOpsV1-review7/.agent/post-W6-W1-b-recapture/probe/tools/cdp.mjs:24:167)
+    at async file:///C:/Users/assef/Bineyame/AssetOpsV1-review7/.agent/post-W6-W1-b-recapture/probe/tools/probe.mjs:124:17
+
+Node.js v24.15.0

@@ -1,0 +1,193 @@
+Sun Oct 25 12:41:21 EAST 2026
+
+=== === owner case: database assetops_s408_owner_audit, work C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_owner_audit ===
+
+=== 1. Isolated work directory, database and TLS material ===
+Work directory: C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_owner_audit (code from git HEAD 2af5fef6; own var/)
+Database: assetops_s408_owner_audit (dropped and recreated; the developer database is not touched)
+Imported KOBO-001: Imported KOBO-001 site=e22c5bdb-2fdf-41fc-9e91-ed47ac227b1b revision=900456a7-0a9f-46b5-aba9-45c94f373279 v1 assets=10 sources=8 sha256=459e0b70a0ba461a59d80525
+Published bindings: Foundation revisions inserted: v2; superseded: 1.
+New TLS certificate C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_owner_audit\tls\server.crt (sha256 Fingerprint=EB:8E:5A:1D:BD:F1:6D:28:08:61:3E:A3:D0:27:86:6A:87:5B:13:85:D4:F8:FA:BC:2C:56:53:6E:B0:77:E1:AB); key restricted to the current user
+
+=== 2. TLS product server, registered gateway credential, demo configuration (roles-2) ===
+  Issued aog1.1df00f18d20673b20f574b7c847121d6.<redacted> for gateway 'edge-kobo-001'; revoked 0 earlier credential(s); enabled the gateway and 8 named source(s). The secret was written only to C:\Users
+  Credential file: upload.credential.1df00f18d20673b20f574b7c847121d6 (in C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_owner_audit\credentials)
+  SIMULATED DEMO CONFIGURATION s3-dispatch-demo-config-v1 from `backend/conversions/kobo-001-s3-dispatch-demo-config.json` (sha256 0cc67a9e60909d5a0536cf4dfd3023d575978f7eb138158e892b58350f0400f6).
+  sealing basis: binding set v5 (3ed92b77-1655-453f-a7f4-043930bd9fb3), Foundation v6, snapshot 8c14abb1cec07b01..
+
+=== 3. Setup controls (labelled fixture controls) ===
+  setup: reserve = 20 from 2026-10-03T00:00:00Z (Foundation revision 2791cd59-65b7-4d0b-8f45-b46caf862bd6)
+  setup: runtime = 0 from 2026-10-03T00:00:00Z (Foundation revision b05cf0c2-e36d-4fa3-b780-4ed665180ace)
+
+=== S2 Evidence comparison for KOBO-001 (opens the imported Overview) ===
+  Report: C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_owner_audit\tree\var\evidence\migration\kobo-001\20261025T094148473163Z-d5d06e39-196c-483a-a32b-245230a01010.json | Store root: sha256:3bd15ecd44f446caef7784e4c960a5f2d5c5609271cfcc44a06c122f82755c9a (this workspace's evidence and commit stores; a moved or copied store needs its own comparison) | Evidence cutover: permitted
+
+=== SYSTEM diesel price v1 (before P01, so P01 can be priced) ===
+
+=== P01. P01-power (2026-10-23, s4-power-demo-cases-v1) ===
+  P01-power deliver_power (s4-fixture-power-epoch-1): 25 power means, 150 context readings
+  P01-power assess: 1 job(s), 1 run(s)
+  P01-power match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  runner (P01 consequence), exit 0: {"claimed": true, "selected": 2, "appended": 1, "replayed": 1, "no_op": 0, "failed": 0, "deferred": 0, "backlog": 0}
+    work a28d11c2-46af-4877-87ef-66d70f37d5ca ASSUMPTION_PUBLISHED attempt 1 succeeded=True appended=['e160d288-bb26-4f50-b916-58844cee473b'] replayed=[] no_op=None error=None
+    work d3422c5f-b584-43da-b10c-07942821c816 FINDING_REVISION_APPENDED attempt 1 succeeded=True appended=[] replayed=['e160d288-bb26-4f50-b916-58844cee473b'] no_op=None error=None
+
+=== F01-gateway: ordinary registered gateway day (Lab run, durable gateway, TLS) ===
+  pass  1: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 25, READY 173
+  pass  2: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 50, READY 148
+  pass  3: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 75, READY 123
+  pass  4: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 100, READY 98
+  pass  5: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 125, READY 73
+  pass  6: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 150, READY 48
+  pass  7: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 175, READY 23
+  pass  8: attempted 23 acked 23 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 198
+  pass  9: attempted  0 acked  0 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 198
+  F01-gateway: kobo-mini-grid-prolonged v2 2026-10-02T03:00:00Z..2026-10-02T11:00:00Z on Foundation v7; 198 sealed batches delivered; accepted (epoch, gateway, readings) [('s4-gateway-epoch-1', 'd2b4e630-40ae-4684-b110-1eba5587d534', 329)]
+  F01-gateway match: planned 1, new Findings 1, Findings anchored 2026-10-02: [('2026-10-02 05:15:00+00:00', None)] OK
+  F01-gateway cited evidence: 102 IDs, 0 outside the gateway-sealed batches OK
+
+=== P02 through the LR-01 walk (admission numbering), stopped at WITHHELD_GENERATOR_SERIES ===
+
+=== 0. SYSTEM diesel price v1 ===
+
+=== 1. P02-power-late (admission-sequenced): first delivery without [07:00, 07:05) ===
+  P02-power-late deliver_power (s4-fixture-late-power-epoch-1): 24 power means, 150 context readings
+  P02-power-late assess: 1 job(s), 2 run(s)
+  P02-power-late match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  runner (bootstrap: r1), exit 0: {"claimed": true, "selected": 2, "appended": 2, "replayed": 0, "no_op": 0, "failed": 0, "deferred": 0, "backlog": 0}
+    work 226a3535-11e2-4dad-8e19-dec217bf4c8b FINDING_REVISION_APPENDED attempt 1 succeeded=True appended=['7f9ff2f1-20cd-4e10-a627-b2c36578ec11'] replayed=[] no_op=None error=None
+    work 4812ea74-b14c-4dcc-9c0f-ab8e4110fb18 FINDING_REVISION_APPENDED attempt 1 succeeded=True appended=['131f2906-5c01-49f2-a91f-14da8272a3e9'] replayed=[] no_op=None error=None
+  Performance comparison (source gate): exit 0 -> gate OPEN
+
+=== 2. The withheld 20 kW mean [07:00, 07:05) is accepted late ===
+  read late accepted, before the tick: STALE ['TECHNICAL_INPUT_CHANGED'] head=131f2906-5c01-49f2-a91f-14da8272a3e9 cons#1 QUANTITY_UNAVAILABLE POWER_COVERAGE_GAP bridge=STALE_QUEUED queued=True pending=['840ac60f-6acc-454f-8211-90909037b21d'] s5=False
+    money gate PENDING_REASSESSMENT amount_shown=False cons=131f2906-5c01-49f2-a91f-14da8272a3e9 QUANTITY_UNAVAILABLE None bridge=STALE
+  [ok] late acceptance: PENDING_REASSESSMENT and no current amount
+
+=== 3. Explicit schedule tick: S3, S4 and the consequence drain ===
+  explicit schedule tick: exit 0 COMPLETED
+  Performance comparison (source gate): exit 0 -> gate OPEN
+  read after the late tick: CURRENT [] head=ffe36902-27b9-4191-84e2-7e1b9009f3f7 cons#1 PRICED None bridge=WITHHELD_GENERATOR_SERIES queued=False pending=[] s5=False
+    money gate WITHHELD_GENERATOR_SERIES amount_shown=False cons=ffe36902-27b9-4191-84e2-7e1b9009f3f7 PRICED 7.5625 bridge=WITHHELD_GENERATOR_SERIES
+  [ok] row 1: S3 window INDETERMINATE
+  [ok] row 1: SEQUENCE_ORDER_INVERTED (no attestation) citing the late ID
+  [ok] row 1: new SUPPORTED revision ending 07:00 with SERIES_LIMIT
+  [ok] row 1: recorded 7.5625 USD (CURRENT PRICED basis) withheld, no current amount
+
+=== FAILED day 2026-10-07: a scoped failing assessment (walkthrough-only model) ===
+  staged: FAILED 2026-10-07
+
+=== Schedule pass in the served environment, then the Performance comparison (source gate) ===
+  schedule pass (default): exit 0 COMPLETED
+  schedule pass (default): exit 0 COMPLETED
+  Performance comparison (source gate): exit 0 -> gate OPEN
+
+=== Verify the owner case through the served API (18134) ===
+  p01      {"money": "PRICED", "amount": {"low": "0.00", "high": "15.82"}, "finding_source": "AUTHORED_DEMONSTRATION", "consequence_source": "AUTHORED_DEMONSTRATION", "source_reasons": []}
+  p01      overview {"money": "PRICED", "source": "AUTHORED_DEMONSTRATION", "amount": ["0.00", "15.82", "USD"]}
+  p02      {"money": "WITHHELD_GENERATOR_SERIES", "amount": null, "finding_source": "AUTHORED_DEMONSTRATION", "consequence_source": "AUTHORED_DEMONSTRATION", "source_reasons": []}
+  p02      overview {"money": "WITHHELD_GENERATOR_SERIES", "source": "AUTHORED_DEMONSTRATION", "amount": [null, null, null]}
+  ordinary {"money": "QUANTITY_UNAVAILABLE", "amount": null, "finding_source": "REGISTERED_SIMULATION", "consequence_source": "REGISTERED_SIMULATION", "source_reasons": []}
+  ordinary overview {"money": "QUANTITY_UNAVAILABLE", "source": "REGISTERED_SIMULATION", "amount": [null, null, null]}
+  [ok] P01: Prepared example data on the Finding and its consequence, with a current amount
+  [ok] P01 Overview: PRICED with the same stored source
+  [ok] P02: Prepared example data, its own publication(s)
+  [ok] ordinary registered run: Generated test data, with its recorded run, and no current amount
+
+=== Stopping every process this script started ===
+Evidence: C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_owner_audit\s405-walkthrough.json (0 failed checks)
+
+=== === mixed case: database assetops_s408_mixed_audit, work C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_mixed_audit ===
+
+=== 1. Isolated work directory, database and TLS material ===
+Work directory: C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_mixed_audit (code from git HEAD 2af5fef6; own var/)
+Database: assetops_s408_mixed_audit (dropped and recreated; the developer database is not touched)
+Imported KOBO-001: Imported KOBO-001 site=e449709f-eb19-4b39-9bb3-db0d366586a9 revision=2080fd8c-e61b-4721-a031-fa6c91f63f36 v1 assets=10 sources=8 sha256=459e0b70a0ba461a59d80525
+Published bindings: Foundation revisions inserted: v2; superseded: 1.
+New TLS certificate C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_mixed_audit\tls\server.crt (sha256 Fingerprint=BE:A8:B4:A9:6A:D8:48:C4:A2:43:95:37:35:AA:BB:E4:50:84:64:DD:55:F9:FF:C2:FC:52:6F:E3:F1:94:69:E6); key restricted to the current user
+
+=== 2. TLS product server, registered gateway credential, demo configuration (roles-2) ===
+  Issued aog1.662e27e2c91050e10a7fc3cd50550c22.<redacted> for gateway 'edge-kobo-001'; revoked 0 earlier credential(s); enabled the gateway and 8 named source(s). The secret was written only to C:\Users
+  Credential file: upload.credential.662e27e2c91050e10a7fc3cd50550c22 (in C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_mixed_audit\credentials)
+  SIMULATED DEMO CONFIGURATION s3-dispatch-demo-config-v1 from `backend/conversions/kobo-001-s3-dispatch-demo-config.json` (sha256 0cc67a9e60909d5a0536cf4dfd3023d575978f7eb138158e892b58350f0400f6).
+  sealing basis: binding set v5 (910f3f68-d1bf-49af-8922-f56012285581), Foundation v6, snapshot 4ad872229a2bbf0c..
+
+=== 3. Setup controls (labelled fixture controls) ===
+  setup: reserve = 20 from 2026-10-03T00:00:00Z (Foundation revision ffec4a4a-ccee-4cd9-a8ec-41a0a02cf266)
+  setup: runtime = 0 from 2026-10-03T00:00:00Z (Foundation revision 25ee7cee-d505-4291-9d7d-70512f456d34)
+
+=== S2 Evidence comparison for KOBO-001 (opens the imported Site) ===
+
+=== SYSTEM diesel price v1 (so P01 would be priced if its source allowed it) ===
+
+=== P01. P01-power (2026-10-23, s4-power-demo-cases-v1) ===
+  P01-power deliver_power (s4-fixture-power-epoch-1): 25 power means, 150 context readings
+  P01-power assess: 1 job(s), 1 run(s)
+  P01-power match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  runner (P01 consequence), exit 0: {"claimed": true, "selected": 2, "appended": 1, "replayed": 1, "no_op": 0, "failed": 0, "deferred": 0, "backlog": 0}
+    work a384c347-0d4b-49f0-9e91-a4a162c8974b ASSUMPTION_PUBLISHED attempt 1 succeeded=True appended=['83695fb3-405a-4f96-a181-a8d14e76b2ec'] replayed=[] no_op=None error=None
+    work e2a62261-e007-4c42-9b7a-34534404f55d FINDING_REVISION_APPENDED attempt 1 succeeded=True appended=[] replayed=['83695fb3-405a-4f96-a181-a8d14e76b2ec'] no_op=None error=None
+
+=== Schedule pass in the served environment, then the Performance comparison (source gate) ===
+  schedule pass (default): exit 0 COMPLETED
+  schedule pass (default): exit 0 COMPLETED
+  Performance comparison (source gate): exit 0 -> gate OPEN
+
+=== Verify the mixed case through the served API (18134) ===
+  p01      {"money": "MIXED_OR_UNKNOWN_SOURCE", "amount": null, "finding_source": "MIXED", "consequence_source": "MIXED", "source_reasons": ["BOUND_AND_UNBOUND", "BOUND_AND_UNBOUND"]}
+  p01      overview {"money": "MIXED_OR_UNKNOWN_SOURCE", "source": "MIXED", "amount": [null, null, null]}
+  [ok] P01 (mixed): Sources do not agree on the Finding and consequence, no current amount
+  [ok] P01 (mixed) Overview: MIXED_OR_UNKNOWN_SOURCE, no amount
+  [ok] mixed: the unbound context readings are named
+
+=== Stopping every process this script started ===
+Evidence: C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_mixed_audit\s405-walkthrough.json (0 failed checks)
+prepare finished in 285 s; failed checks: {'owner': 0, 'mixed': 0}
+
+=== S4-08 history: price versions v2-v6 with a schedule pass after each change ===
+  schedule pass (default): exit 0 COMPLETED
+  schedule pass (default): exit 0 COMPLETED
+  price v1: INITIAL version 1 (already published)
+  price v2: SUCCESSION version 2
+  price v3: CORRECTION version 3
+  price v4: CORRECTION version 4
+  schedule pass (default): exit 0 COMPLETED
+  schedule pass (default): exit 0 COMPLETED
+  price v5: SUCCESSION version 5
+  price v6: CORRECTION version 6
+  schedule pass (default): exit 0 COMPLETED
+  schedule pass (default): exit 0 COMPLETED
+
+=== Verify the owner case's history through the served API ===
+  PASS  default read answers 200  200
+  PASS  no current amount is claimed (current_amount_shown false)
+  PASS  default cutoff is fixed by the server  {"recorded_at": "2026-10-25T09:48:11.975961+00:00", "selected_by": "SERVER_DEFAULT", "clock": "DATABASE", "membership": "consequence recorded_at <= cutoff (database clock)"}
+  PASS  price read reports the identical cutoff string  ["2026-10-25T09:48:11.975961+00:00", "2026-10-25T09:48:11.975961+00:00"]
+  PASS  earlier and latest versions are both listed  [["CURRENT_AT_CUTOFF", "QUANTITY_UNAVAILABLE", "FIRST_VERSION"], ["CURRENT_AT_CUTOFF", "SHOWN", "PRICE_ONLY"], ["CURRENT_AT_CUTOFF", "UNPRICED", "PRICE_ONLY"], ["HISTORICAL_AT_CUTOFF", "QUANTITY_UNAVAILABLE", "FIRST_VERSION"], ["HISTORICAL_AT_CUTOFF", "SHOWN", "FIRST_VERSION"], ["HISTORICAL_AT_CUTOF
+  PASS  a recorded amount is shown only as labelled history  4
+  PASS  a price-only change is recognised
+  PASS  an unpriced version is listed with no price link and no amount
+  PASS  every row's source is a confirmed stored source  ["AUTHORED_DEMONSTRATION", "REGISTERED_SIMULATION"]
+  PASS  T1: explicit cutoff is kept  {"recorded_at": "2026-10-25T09:46:45.948687+00:00", "selected_by": "RECORDED_CUTOFF", "clock": "DATABASE", "membership": "consequence recorded_at <= cutoff (database clock)"}
+  PASS  T1: no row recorded after the cutoff
+  PASS  T2: explicit cutoff is kept  {"recorded_at": "2026-10-25T09:47:30.288133+00:00", "selected_by": "RECORDED_CUTOFF", "clock": "DATABASE", "membership": "consequence recorded_at <= cutoff (database clock)"}
+  PASS  T2: no row recorded after the cutoff
+  PASS  T3: explicit cutoff is kept  {"recorded_at": "2026-10-25T09:48:05.800853+00:00", "selected_by": "RECORDED_CUTOFF", "clock": "DATABASE", "membership": "consequence recorded_at <= cutoff (database clock)"}
+  PASS  T3: no row recorded after the cutoff
+  PASS  a version latest at T1 is an earlier version at T3  ["7f9ff2f1-20cd-4e10-a627-b2c36578ec11", "e160d288-bb26-4f50-b916-58844cee473b", "ffe36902-27b9-4191-84e2-7e1b9009f3f7"]
+  PASS  paging at T3 neither duplicates nor skips  4
+  PASS  a cursor this list did not issue is refused with no rows  {"detail": {"code": "INVALID_CURSOR", "message": "The cursor is not a cursor this list issued.", "rows": null, "field": "after"}}
+  PASS  an unknown Site is refused  404
+
+=== Close the owner case's source gate: every version stays listed without an amount ===
+Closed: moved C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_owner_audit\tree\var\evidence\migration-performance -> C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_owner_audit\tree\var\evidence\migration-performance.closed.
+  PASS  closed source keeps every version listed
+  PASS  closed source shows no amount
+Reopened: moved C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_owner_audit\tree\var\evidence\migration-performance.closed -> C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s408_owner_audit\tree\var\evidence\migration-performance.
+
+=== Verify the mixed case: recorded amounts withheld ===
+  PASS  mixed case lists its versions
+  PASS  mixed source withholds every recorded amount  ["MIXED"]
+prepare finished in 427 s; 0 failed checks
+EXIT 0
+Sun Oct 25 12:48:28 EAST 2026

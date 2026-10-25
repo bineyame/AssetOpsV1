@@ -1,0 +1,27 @@
+chrome pid 15528
+PASS  loaded http://localhost:5185/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  ev-financials-complete 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/ev-financials: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  ev-financials-complete 1440: mock rendered
+PASS  ev-financials-complete 1440: same panel count  {"app":["What happened → what it means in money","Assumptions in use","Not included"],"mock":["What happened → what it means in money","Assumptions in use","Not included"]}
+PASS  ev-financials-complete 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  ev-financials-complete 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/ev-financials: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  ev-financials-complete 390: mock rendered
+PASS  ev-financials-complete 390: same panel count  {"app":["What happened → what it means in money","Assumptions in use","Not included"],"mock":["What happened → what it means in money","Assumptions in use","Not included"]}
+PASS  ev-financials-complete 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  ev-assumptions-complete 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/ev-assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  ev-assumptions-complete 1440: mock rendered
+PASS  ev-assumptions-complete 1440: same panel count  {"app":["Financial assumptions"],"mock":["Financial assumptions"]}
+PASS  ev-assumptions-complete 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  ev-assumptions-complete 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/ev-assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  ev-assumptions-complete 390: mock rendered
+PASS  ev-assumptions-complete 390: same panel count  {"app":["Financial assumptions"],"mock":["Financial assumptions"]}
+PASS  ev-assumptions-complete 390: no app page overflow  {"overflowX":0}
+
+24/24 claims passed; evidence in batch-09/part-complete

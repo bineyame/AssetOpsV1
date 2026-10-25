@@ -1,0 +1,76 @@
+[
+ {
+  "name": "financials-priced-current-s405",
+  "variant": "tradeoffs-160x5",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "What happened → what it means in money",
+    "h": 347
+   },
+   {
+    "t": "Assumptions in use",
+    "h": 275
+   },
+   {
+    "t": "Trade-offs and exclusions",
+    "h": 393
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "fields160": 5,
+  "hasMethodBlock": true,
+  "title": "Trade-offs and exclusions",
+  "versionScroll": null,
+  "panelH": 550,
+  "rowHs": [
+   59,
+   59,
+   59,
+   59,
+   59
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "financials-priced-current-s405",
+  "variant": "tradeoffs-160x5",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "What happened → what it means in money",
+    "h": 631
+   },
+   {
+    "t": "Assumptions in use",
+    "h": 308
+   },
+   {
+    "t": "Trade-offs and exclusions",
+    "h": 413
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "fields160": 5,
+  "hasMethodBlock": true,
+  "title": "Trade-offs and exclusions",
+  "versionScroll": null,
+  "panelH": 550,
+  "rowHs": [
+   59,
+   59,
+   59,
+   59,
+   59
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ }
+]

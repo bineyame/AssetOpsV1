@@ -1,0 +1,19 @@
+=== 1. Private tree (git HEAD) with its own var/ ===
+  C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s602b_w1brc\tree (code from 2af5fef6)
+=== 2. Databases assetops_s602b_audit_w1brc, assetops_s602b_audit_w1brc_target_miss, assetops_s602b_audit_w1brc_guardrail, assetops_s602b_audit_w1brc_inconclusive, assetops_s602b_audit_w1brc_withdrawn ===
+  created
+=== 3. Public replay of d-verification-window-v2 (about 4 minutes) ===
+  replay: VERIFIED 7780bf77-74c3-4558-a06c-dfeff1f4e960 a6b64ab8-d7a4-4b07-89ef-bd5fffdc6ee5
+=== 4. Test-scoped cases (S6-02a evaluator builders; not Lab runs), one database each ===
+  case target_miss: INEFFECTIVE ['TARGET_MISS'] action d037b7ec-9a92-4d0f-a8f7-889e995b047a
+  case guardrail: INEFFECTIVE ['GUARDRAIL_FAIL', 'GUARDRAIL:below_reserve_seconds', 'GUARDRAIL:terminal_soc'] action 2111b41c-b7aa-4218-96e9-c7572bbba0ac
+  case inconclusive: INCONCLUSIVE ['COMPARABILITY_UNKNOWN', 'GUARDRAIL_UNKNOWN:unserved_critical_energy', 'INCOMPLETE_BASELINE_WINDOW', 'INCOMPLETE_LATER_WINDOW', 'SOURCE_NOT_COHERENT'] action 51933f81-133b-4d74-8871-86a97278e04a
+  case withdrawn: INCONCLUSIVE ['GUARDRAIL_UNKNOWN:below_reserve_seconds', 'INCOMPLETE_LATER_WINDOW'] action adf4b767-192b-46e3-bd58-8031e4d8180a
+=== 5. Performance comparison (releases the Finding reads) ===
+  assetops_s602b_audit_w1brc: Performance cutover: permitted
+  assetops_s602b_audit_w1brc_target_miss: Performance cutover: permitted
+  assetops_s602b_audit_w1brc_guardrail: Performance cutover: permitted
+  assetops_s602b_audit_w1brc_inconclusive: Performance cutover: permitted
+  assetops_s602b_audit_w1brc_withdrawn: Performance cutover: permitted
+Prepared. Next: serve, then capture.
+done

@@ -1,0 +1,7 @@
+  schedule pass (default): exit 0 COMPLETED
+  Performance comparison (source gate): exit 0 -> gate OPEN
+API for the owner case (assetops_s405_owner_audit) on http://127.0.0.1:18131 (log C:\Users\assef\Bineyame\AssetOpsV1-review7\var\s405_owner_audit\logs\api-18131.log).
+In a second terminal, from frontend/:
+  $env:ASSETOPS_API_PORT="18131"; npm.cmd run dev -- --port 5435 --strictPort
+Then open the [owner] URLs that `links` prints. Ctrl+C stops the API.
+  schedule pass (default): exit 0 COMPLETED

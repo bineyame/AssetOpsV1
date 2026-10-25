@@ -1,0 +1,66 @@
+CHK (3, 'finding-history', 'late-stale', '1440') tabs 1 r383 1 True rail ['Findings'] hdr 59
+CHK (3, 'finding-history', 'late-stale', '390') tabs 1 r383 1 True rail ['Findings'] hdr 91
+CHK (3, 'finding', 'late-stale', '1440') tabs 1 r383 1 True rail ['Findings'] hdr 59
+CHK (3, 'finding', 'late-stale', '390') tabs 1 r383 1 True rail ['Findings'] hdr 91
+TITLES (3, 'financials', 'priced-current', '1440') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+TITLES (3, 'financials', 'priced-current', '390') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+TITLES (3, 'financials', 'mixed-withheld', '1440') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+TITLES (3, 'financials', 'mixed-withheld', '390') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+TITLES (3, 'financials', 'nofinding', '1440') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+TITLES (3, 'financials', 'nofinding', '390') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+TITLES (3, 'financials', 'notfound', '1440') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+TITLES (3, 'financials', 'notfound', '390') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+MEASURE!=EVID (3, 'financials', 'priced', '1440') [('What happened â†’ what it means in money', 609), ('Assumptions in use', 275), ('Trade-offs and exclusions', 393)] [('What happened â†’ what it means in money', 417), ('Assumptions in use', 275), ('Trade-offs and exclusions', 321)]
+TITLES (3, 'financials', 'priced', '1440') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+TITLES (3, 'financials', 'priced', '390') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+TITLES (3, 'financials', 'quantity-unavailable', '1440') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+MEASURE!=EVID (3, 'financials', 'quantity-unavailable', '390') [('What happened â†’ what it means in money', 654), ('Assumptions in use', 308), ('Trade-offs and exclusions', 341)] [('What happened â†’ what it means in money', 594), ('Assumptions in use', 308), ('Trade-offs and exclusions', 341)]
+TITLES (3, 'financials', 'quantity-unavailable', '390') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+MEASURE!=EVID (3, 'financials', 'unpriced', '1440') [('What happened â†’ what it means in money', 400), ('Assumptions in use', 275), ('Trade-offs and exclusions', 321)] [('What happened â†’ what it means in money', 374), ('Assumptions in use', 275), ('Trade-offs and exclusions', 321)]
+TITLES (3, 'financials', 'unpriced', '1440') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+TITLES (3, 'financials', 'unpriced', '390') ['What happened â†’ what it means in money', 'Assumptions in use', 'Trade-offs and exclusions'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Trade-offs and exclusions']
+TITLES (3, 'finding-evidence', 'labelled', '1440') ['Evidence bundle Â· Generator support merits review', 'Inspect source lineage'] frozen ['Evidence bundle · Generator support merits review', 'Inspect source lineage']
+CHK (3, 'finding-evidence', 'labelled', '1440') tabs 1 r383 1 True rail ['Findings'] hdr 59
+TITLES (3, 'finding-evidence', 'labelled', '390') ['Evidence bundle Â· Generator support merits review', 'Inspect source lineage'] frozen ['Evidence bundle · Generator support merits review', 'Inspect source lineage']
+CHK (3, 'finding-evidence', 'labelled', '390') tabs 1 r383 1 True rail ['Findings'] hdr 91
+CHK (6, 'cold-finding', 'start-excursion', '1440') tabs 1 r383 0 False rail ['Findings'] hdr 59
+CHK (6, 'cold-finding', 'start-excursion', '390') tabs 1 r383 0 False rail ['Findings'] hdr 83
+TITLES (7, 'cold-financials', 'no-selection', '1440') ['What happened â†’ what it means in money', 'Assumptions in use', 'Not included'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Not included']
+TITLES (7, 'cold-financials', 'no-selection', '390') ['What happened â†’ what it means in money', 'Assumptions in use', 'Not included'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Not included']
+CHK (8, 'ev-finding', 'interrupted', '1440') tabs 1 r383 0 False rail ['Findings'] hdr 59
+CHK (8, 'ev-finding', 'interrupted', '390') tabs 1 r383 0 False rail ['Findings'] hdr 54
+TITLES (9, 'ev-financials', 'complete', '1440') ['What happened â†’ what it means in money', 'Assumptions in use', 'Not included'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Not included']
+TITLES (9, 'ev-financials', 'complete', '390') ['What happened â†’ what it means in money', 'Assumptions in use', 'Not included'] frozen ['What happened → what it means in money', 'Assumptions in use', 'Not included']
+CHK (13, 'alternatives', 'db-time-409', '1440') tabs 0 r383 0 False rail ['Findings'] hdr 59
+CHK (13, 'alternatives', 'db-time-409', '390') tabs 0 r383 0 False rail ['Findings'] hdr 148
+MISSING (15, 'cold-action', 'all-open', '1440')
+MISSING (15, 'cold-action', 'all-open', '390')
+CHK (17, 'ev-action', 'all-open', '1440') tabs 0 r383 0 False rail ['Actions'] hdr 59
+CHK (17, 'ev-action', 'all-open', '390') tabs 0 r383 0 False rail ['Actions'] hdr 133
+{3: [48, 48], 6: [2, 2], 7: [4, 4], 8: [2, 2], 9: [4, 4], 13: [2, 2], 15: [0, 2], 17: [2, 2]}
+|assumptions|single-price|1440|Interpretation history|681|800|pass|
+|assumptions|single-price|390|Interpretation history|1068|1400|pass|
+|financials|priced-current|1440|Trade-offs and exclusions|393|-|pass|
+|financials|priced-current|390|Trade-offs and exclusions|413|450|pass|
+|assumptions|mixed-withheld|1440|Interpretation history|354|800|pass|
+|assumptions|mixed-withheld|390|Interpretation history|609|1400|pass|
+|financials|mixed-withheld|1440|Trade-offs and exclusions|321|-|pass|
+|financials|mixed-withheld|390|Trade-offs and exclusions|341|450|pass|
+|assumptions|T3-page2|1440|Interpretation history|470|800|pass|
+|assumptions|T3-page2|390|Interpretation history|837|1400|pass|
+|assumptions|default|1440|Interpretation history|681|800|pass|
+|assumptions|default|390|Interpretation history|1045|1400|pass|
+|assumptions|recorded-T1|1440|Interpretation history|681|800|pass|
+|assumptions|recorded-T1|390|Interpretation history|1068|1400|pass|
+|assumptions|recorded-T3|1440|Interpretation history|681|800|pass|
+|assumptions|recorded-T3|390|Interpretation history|1045|1400|pass|
+|financials|nofinding|1440|Trade-offs and exclusions|295|-|pass|
+|financials|nofinding|390|Trade-offs and exclusions|315|450|pass|
+|financials|notfound|1440|Trade-offs and exclusions|295|-|pass|
+|financials|notfound|390|Trade-offs and exclusions|315|450|pass|
+|financials|priced|1440|Trade-offs and exclusions|393|-|pass|
+|financials|priced|390|Trade-offs and exclusions|413|450|pass|
+|financials|quantity-unavailable|1440|Trade-offs and exclusions|321|-|pass|
+|financials|quantity-unavailable|390|Trade-offs and exclusions|341|450|pass|
+|financials|unpriced|1440|Trade-offs and exclusions|321|-|pass|
+|financials|unpriced|390|Trade-offs and exclusions|341|450|pass|

@@ -1,0 +1,52 @@
+[
+ {
+  "screen": "alternatives",
+  "case": "db-time-409",
+  "width": "1440",
+  "h1": "Generator support merits review: bounded candidate avoidable running",
+  "titles": [
+   "Alternatives to investigate"
+  ],
+  "panels": [
+   {
+    "t": "Alternatives to investigate",
+    "h": 99,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 0,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Findings"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/alternatives?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427"
+ },
+ {
+  "screen": "alternatives",
+  "case": "db-time-409",
+  "width": "390",
+  "h1": "Generator support merits review: bounded candidate avoidable running",
+  "titles": [
+   "Alternatives to investigate"
+  ],
+  "panels": [
+   {
+    "t": "Alternatives to investigate",
+    "h": 99,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 0,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Findings"
+  ],
+  "headerH": 148,
+  "url": "http://localhost:5185/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/alternatives?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427"
+ }
+]
