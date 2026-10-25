@@ -1,0 +1,2180 @@
+{
+  "revision": "f3da6e90",
+  "captured_at": "2026-10-25T12:37:46.462Z",
+  "pairs": [
+    {
+      "screen": "incidents",
+      "case": "zero",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/incidents",
+      "app_image": "incidents-zero-1440-app.png",
+      "mock_image": "incidents-zero-1440-mock.png",
+      "app": {
+        "titles": [
+          "Incident cases",
+          "Case boundaries"
+        ],
+        "panels": [
+          {
+            "title": "Incident cases",
+            "x": 248,
+            "y": 371,
+            "w": 1160,
+            "h": 197,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incident casesAn incident connects authored events and linked records; a gap alone does not create a case.No incident cases in this window.Change the UTC window or open a Site record.MOCK DEVIATION D1 (R358)",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Case boundaries",
+            "x": 248,
+            "y": 585,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Case boundariesA closed case records a workflow step. Cause and outcome need their own evidence.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Incidents",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [
+            "Open incidents0Open or in progress in this window",
+            "High severityNot assessedSeverity is not recorded on work cases",
+            "Awaiting evidenceNot assessedNo case evidence review state",
+            "Closed verifiedNot assessedClosed does not verify an outcome"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 4,
+          "periodBar": "From (UTC) To (UTC, exclusive) Show recordsReload",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Open incidents0Open or in progress in this window | ",
+            "High severityNot assessedSeverity is not recorded on work cases | ",
+            "Awaiting evidenceNot assessedNo case evidence review state | ",
+            "Closed verifiedNot assessedClosed does not verify an outcome | "
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Incidents",
+          "subtitle": "Operational event cases · linked Findings and work",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Incidents Incidents Operational event cases · linked Findings and work From (UTC) To (UTC, exclusive) Show records Reload Listed by incident start time. As known at 25 Oct 2026, 12:38 UTC Open incidents 0 Open or in progress in this window High severity Not assessed Severity is not recorded on work cases Awaiting evidence Not assessed No case evidence review state Closed verified Not assessed Closed does not verify an outcome Incident cases An incident connects authored events and linked records; a gap alone does not create a case. No incident cases in this window. Change the UTC window or open a Site record. MOCK DEVIATION D1 (R358) Case boundaries A closed case records a workflow step. Cause and outcome need their own evidence."
+        },
+        "b18": {
+          "status": "As known at 25 Oct 2026, 12:38 UTC",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-14",
+            "=2026-10-21"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 4,
+          "bodyText": "Incidents Incidents Operational event cases · linked Findings and work From (UTC) To (UTC, exclusive) Show records Reload Listed by incident start time. As known at 25 Oct 2026, 12:38 UTC Open incidents 0 Open or in progress in this window High severity Not assessed Severity is not recorded on work cases Awaiting evidence Not assessed No case evidence review state Closed verified Not assessed Closed does not verify an outcome Incident cases An incident connects authored events and linked records; a gap alone does not create a case. No incident cases in this window. Change the UTC window or open a Site record. MOCK DEVIATION D1 (R358) Case boundaries A closed case records a workflow step. Cause and outcome need their own evidence."
+        },
+        "mainLinks": [],
+        "cardsDom": [
+          {
+            "t": "Open incidents0Open or in progress in this window",
+            "h": 115
+          },
+          {
+            "t": "High severityNot assessedSeverity is not recorded on work cases",
+            "h": 115
+          },
+          {
+            "t": "Awaiting evidenceNot assessedNo case evidence review state",
+            "h": 115
+          },
+          {
+            "t": "Closed verifiedNot assessedClosed does not verify an outcome",
+            "h": 115
+          }
+        ],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 3,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Incidents",
+          "crumbs": "Incidents",
+          "status": [
+            "As known at 25 Oct 2026, 12:38 UTC"
+          ],
+          "membership": [
+            "Listed by incident start time."
+          ],
+          "deviations": [
+            "R358|MOCK DEVIATION D1 (R358)|12px"
+          ],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": [
+            "Incidents"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Incident cases",
+          "Case boundaries"
+        ],
+        "panels": [
+          {
+            "title": "Incident cases",
+            "x": 234,
+            "y": 375,
+            "w": 1161,
+            "h": 183,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Incident",
+              "Site",
+              "Start",
+              "Severity",
+              "State",
+              "Owner",
+              "Findings / work"
+            ],
+            "chips": [
+              "High",
+              "Awaiting evidence"
+            ],
+            "links": 6,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "INC-203 · Backup response failure",
+                "GreenHarvest",
+                "6 Oct 19:11",
+                "High",
+                "Awaiting evidence",
+                "Maintenance lead",
+                "F-118 · F-119 / WR-019 · ACT-051"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "INC-203 · Backup response failure -> #/incident",
+                "GreenHarvest -> #/cold",
+                "F-118 -> #/cold-finding",
+                "F-119 -> #/cold-finding-excursion",
+                "WR-019 -> #/wr-overview",
+                "ACT-051 -> #/cold-action"
+              ]
+            ],
+            "panelText": "Incident casesStates: New → Acknowledged → Investigating → Work open → Awaiting evidence → Closed verifiedIncidentSiteStartSeverityStateOwnerFindings / workINC-203 · Backup response failureGreenHarvest6 Oct 19:11HighAwaiting evidenceMaintenance leadF-118 · F-119 / WR-019 · ACT-051",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Case boundaries",
+            "x": 234,
+            "y": 576,
+            "w": 1161,
+            "h": 99,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Case boundariesA correlated power-to-cooling chain supports this incident. Arbitrary data gaps or unrelated observations are not promoted into cases.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Incidents",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Incidents",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · each site’s event window▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · each site’s event window ▾ BY Incidents Incidents Operational event cases · linked Findings and work Open incidents 1 INC-203 High severity 1 Cold-room backup failure Awaiting evidence 1 Closure needs a witnessed start Closed verified 0 In the selected window Incident cases States: New → Acknowledged → Investigating → Work open → Awaiting evidence → Closed verified INCIDENT SITE START SEVERITY STATE OWNER FINDINGS / WORK INC-203 · Backup response failure GreenHarvest 6 Oct 19:11 High Awaiting evidence Maintenance lead F-118 · F-119 / WR-019 · ACT-051 Case boundaries A correlated power-to-cooling chain supports this incident. Arbitrary data gaps or unrelated observations are not promoted into cases. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "118 · F",
+            "019 · ACT"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · each site’s event window ▾ BY Incidents Incidents Operational event cases · linked Findings and work Open incidents 1 INC-203 High severity 1 Cold-room backup failure Awaiting evidence 1 Closure needs a witnessed start Closed verified 0 In the selected window Incident cases States: New → Acknowledged → Investigating → Work open → Awaiting evidence → Closed verified INCIDENT SITE START SEVERITY STATE OWNER FINDINGS / WORK INC-203 · Backup response failure GreenHarvest 6 Oct 19:11 High Awaiting evidence Maintenance lead F-118 · F-119 / WR-019 · ACT-051 Case boundaries A correlated power-to-cooling chain supports this incident. Arbitrary data gaps or unrelated observations are not promoted into cases. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Incidents -> #/incidents",
+          "INC-203 · Backup response failure -> #/incident",
+          "GreenHarvest -> #/cold",
+          "F-118 -> #/cold-finding",
+          "F-119 -> #/cold-finding-excursion",
+          "WR-019 -> #/wr-overview",
+          "ACT-051 -> #/cold-action"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "incidents",
+      "case": "zero",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/incidents",
+      "app_image": "incidents-zero-390-app.png",
+      "mock_image": "incidents-zero-390-mock.png",
+      "app": {
+        "titles": [
+          "Incident cases",
+          "Case boundaries"
+        ],
+        "panels": [
+          {
+            "title": "Incident cases",
+            "x": 16,
+            "y": 472,
+            "w": 358,
+            "h": 121,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incident casesAn incident connects authored events and linked records; a gap alone does not create a case.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Case boundaries",
+            "x": 16,
+            "y": 611,
+            "w": 358,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Case boundariesA closed case records a workflow step. Cause and outcome need their own evidence.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Incidents",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [
+            "Work records could not be read. Reload."
+          ],
+          "refusal": "Work records could not be read. Reload.",
+          "refusalKey": "WORK_STORE_UNAVAILABLE",
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "From (UTC) To (UTC, exclusive) Show recordsReload",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [
+            "Work records could not be read. Reload."
+          ],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Incidents",
+          "subtitle": "Operational event cases · linked Findings and work",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Incidents Incidents Operational event cases · linked Findings and work From (UTC) To (UTC, exclusive) Show records Reload Listed by incident start time. Work records could not be read. Reload. Incident cases An incident connects authored events and linked records; a gap alone does not create a case. Case boundaries A closed case records a workflow step. Cause and outcome need their own evidence."
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-14",
+            "=2026-10-21"
+          ],
+          "alerts": [
+            "Work records could not be read. Reload."
+          ],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 2,
+          "bodyText": "Incidents Incidents Operational event cases · linked Findings and work From (UTC) To (UTC, exclusive) Show records Reload Listed by incident start time. Work records could not be read. Reload. Incident cases An incident connects authored events and linked records; a gap alone does not create a case. Case boundaries A closed case records a workflow step. Cause and outcome need their own evidence."
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Incidents",
+          "crumbs": "Incidents",
+          "status": [],
+          "membership": [
+            "Listed by incident start time."
+          ],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [
+            "Work records could not be read. Reload."
+          ],
+          "tabs": [
+            "Incidents"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 219,
+          "family": "Segoe UI",
+          "size": "22.5px",
+          "weight": "400",
+          "lineHeight": "28.125px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 90,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "maintenance",
+      "case": "zero",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5388/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/maintenance",
+      "app_image": "maintenance-zero-1440-app.png",
+      "mock_image": "maintenance-zero-1440-mock.png",
+      "app": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 258,
+          "family": "Segoe UI",
+          "size": "24px",
+          "weight": "400",
+          "lineHeight": "30px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 140,
+        "viewportH": 1000,
+        "w6": {
+          "url": "chrome-error://chromewebdata/",
+          "title": "127.0.0.1",
+          "h1": "This site can’t be reached",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": []
+      },
+      "mock": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 258,
+          "family": "Segoe UI",
+          "size": "24px",
+          "weight": "400",
+          "lineHeight": "30px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 140,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "maintenance",
+      "case": "zero",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5388/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/maintenance",
+      "app_image": "maintenance-zero-390-app.png",
+      "mock_image": "maintenance-zero-390-mock.png",
+      "app": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 219,
+          "family": "Segoe UI",
+          "size": "22.5px",
+          "weight": "400",
+          "lineHeight": "28.125px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 90,
+        "viewportH": 900,
+        "w6": {
+          "url": "chrome-error://chromewebdata/",
+          "title": "127.0.0.1",
+          "h1": "This site can’t be reached",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": []
+      },
+      "mock": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 219,
+          "family": "Segoe UI",
+          "size": "22.5px",
+          "weight": "400",
+          "lineHeight": "28.125px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 90,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "maintenance-preventive",
+      "case": "zero",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5388/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/maintenance-preventive",
+      "app_image": "maintenance-preventive-zero-1440-app.png",
+      "mock_image": "maintenance-preventive-zero-1440-mock.png",
+      "app": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 258,
+          "family": "Segoe UI",
+          "size": "24px",
+          "weight": "400",
+          "lineHeight": "30px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 140,
+        "viewportH": 1000,
+        "w6": {
+          "url": "chrome-error://chromewebdata/",
+          "title": "127.0.0.1",
+          "h1": "This site can’t be reached",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": []
+      },
+      "mock": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 258,
+          "family": "Segoe UI",
+          "size": "24px",
+          "weight": "400",
+          "lineHeight": "30px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 140,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "maintenance-preventive",
+      "case": "zero",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5388/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/maintenance-preventive",
+      "app_image": "maintenance-preventive-zero-390-app.png",
+      "mock_image": "maintenance-preventive-zero-390-mock.png",
+      "app": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 219,
+          "family": "Segoe UI",
+          "size": "22.5px",
+          "weight": "400",
+          "lineHeight": "28.125px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 90,
+        "viewportH": 900,
+        "w6": {
+          "url": "chrome-error://chromewebdata/",
+          "title": "127.0.0.1",
+          "h1": "This site can’t be reached",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": []
+      },
+      "mock": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 219,
+          "family": "Segoe UI",
+          "size": "22.5px",
+          "weight": "400",
+          "lineHeight": "28.125px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 90,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "oprecords",
+      "case": "zero",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/oprecords",
+      "app_image": "oprecords-zero-1440-app.png",
+      "mock_image": "oprecords-zero-1440-mock.png",
+      "app": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 258,
+          "family": "Segoe UI",
+          "size": "24px",
+          "weight": "400",
+          "lineHeight": "30px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 140,
+        "viewportH": 1000,
+        "w6": {
+          "url": "chrome-error://chromewebdata/",
+          "title": "127.0.0.1",
+          "h1": "This site can’t be reached",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": []
+      },
+      "mock": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 258,
+          "family": "Segoe UI",
+          "size": "24px",
+          "weight": "400",
+          "lineHeight": "30px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 140,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "oprecords",
+      "case": "zero",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/oprecords",
+      "app_image": "oprecords-zero-390-app.png",
+      "mock_image": "oprecords-zero-390-mock.png",
+      "app": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 219,
+          "family": "Segoe UI",
+          "size": "22.5px",
+          "weight": "400",
+          "lineHeight": "28.125px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 90,
+        "viewportH": 900,
+        "w6": {
+          "url": "chrome-error://chromewebdata/",
+          "title": "127.0.0.1",
+          "h1": "This site can’t be reached",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": []
+      },
+      "mock": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 219,
+          "family": "Segoe UI",
+          "size": "22.5px",
+          "weight": "400",
+          "lineHeight": "28.125px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 90,
+        "viewportH": 900
+      }
+    }
+  ]
+}

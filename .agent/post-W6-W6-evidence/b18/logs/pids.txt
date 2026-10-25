@@ -1,0 +1,48 @@
+﻿API 18601 inc assetops_backend.main:app 19068
+API 18602 maint assetops_backend.main:app 12004
+API 18603 prev assetops_backend.main:app 17156
+API 18604 op assetops_backend.main:app 29584
+API 18605 zero assetops_backend.main:app 16740
+API 18606 hist assetops_backend.main:app 17664
+API 18607 stress assetops_backend.main:app 11536
+API 18608 linked assetops_backend.main:app 24620
+API 18609 absent assetops_backend.main:app 14420
+API 18610 op api_empty_scope:app 18864
+VITE inc 28652
+API 18611 w502b_positive_w6r18_test assetops_backend.main:app 3964
+API 18612 w502b_worstcase_w6r18_test assetops_backend.main:app 10412
+VITE maint 31128
+VITE prev 32264
+VITE op 20756
+W504 serve pids 21644 19912 11316 31608 27800 (stopped by producer drop)
+VITE zero 27784
+VITE hist 15032
+VITE stress 15244
+VITE linked 29356
+VITE absent 9556
+VITE scope 7284
+VITE probe 16452
+VITE maint 27016
+VITE op 28932
+VITE zero 24436
+API 18602 w504a_positive_w6r18_test assetops_backend.main:app 8836
+API 18603 w504a_worstcase_w6r18_test assetops_backend.main:app 7316
+STOPPED API 12004 17156 16740 11536 14420 18864
+VITE cold 20108
+VITE coldwc 18696
+VITE ev 15476
+VITE evwc 28968
+W504 zero serve stopped early: 18148 (port 18622), parent 19912 (coordinator CPU report)
+VITE probe 16756
+VITE probe 14632
+W502 serve pids 22260 4816 6260 27364 (ports 8971/8972/8976/8977)
+VITE linkcold 29272
+STOPPED API 3964 10412
+VITE linkev 13424
+VITE linkevwc 14808
+STOPPED API 8836 7316
+VITE linkmini 17208
+VITE linkinc 4132
+VITE r360hist 8916
+VITE linkminiretry 22516
+STOPPED API 19068 29584 17664 24620 (taskkill /T)

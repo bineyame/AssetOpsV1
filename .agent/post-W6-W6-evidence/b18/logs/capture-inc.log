@@ -1,0 +1,99 @@
+﻿chrome pid 27296
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-positive 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-positive 1440: mock rendered
+PASS  incidents-positive 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-positive 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-positive 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-positive 390: mock rendered
+PASS  incidents-positive 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-positive 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-all-open 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-all-open 1440: mock rendered
+PASS  incidents-all-open 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-all-open 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-all-open 390: mock rendered
+PASS  incidents-all-open 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-all-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6MDYzMzY4ZDUyMWI3MjRiZTc1ZGI1MDY1NDEwNzIwYjJjMzIyNzEzMjhmOGZlODU4ZDdkOTNlNDA4ZWFiYjg4ZiIsImFmdGVyIjpbIjIwMjYtMTAtMTlUMDk6MDA6MDAuMDAwMDAwWiIsImtvYm8tMDAyIiwiYmVjODZjN2YtOWVlMS00MmY1LTk3MDgtNzg4ZTY1N2ZkYzcwIiwiNWUzMjg3ZjYtMjYyMy00MjJkLTk0ZGYtMTNkZGRhYjYxM2RhIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiYTMzNmZkNGItYzY0Zi00MWFlLTliNzAtMDYyNjA2YTVhM2Y4IiwiYmVjODZjN2YtOWVlMS00MmY1LTk3MDgtNzg4ZTY1N2ZkYzcwIl0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yNVQxMjoyMjo1My4xMjc0MDBaIiwibWFjIjoiODVjNjg0MzA4YmM3MGZmMDVjYTAyNjQ2ZjlkZTZiNzEwNmVjMGYyZjMyMGU5MDQ0OTA1N2YxNzg4MDBlMjY1YyIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJpbmNpZGVudHMiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6YjYxOGRiMmFjOTliZTdjOTlkZGY0ZTUyNGMyMWEyMjQ3Y2Q2ZTMwODA1MDJjOTlhNTNlNDEyYWE2OTM1NjIzYSIsInRlbmFudF9pZCI6ImE2NjYwMWZhLWU0NTYtNGM0Ni1iNmNjLWIxNzI2MDlmNTAzYSIsInRvIjoiMjAyNi0xMC0yMVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  incidents-page-two 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-page-two 1440: mock rendered
+PASS  incidents-page-two 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-page-two 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6MDYzMzY4ZDUyMWI3MjRiZTc1ZGI1MDY1NDEwNzIwYjJjMzIyNzEzMjhmOGZlODU4ZDdkOTNlNDA4ZWFiYjg4ZiIsImFmdGVyIjpbIjIwMjYtMTAtMTlUMDk6MDA6MDAuMDAwMDAwWiIsImtvYm8tMDAyIiwiYmVjODZjN2YtOWVlMS00MmY1LTk3MDgtNzg4ZTY1N2ZkYzcwIiwiNWUzMjg3ZjYtMjYyMy00MjJkLTk0ZGYtMTNkZGRhYjYxM2RhIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiYTMzNmZkNGItYzY0Zi00MWFlLTliNzAtMDYyNjA2YTVhM2Y4IiwiYmVjODZjN2YtOWVlMS00MmY1LTk3MDgtNzg4ZTY1N2ZkYzcwIl0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yNVQxMjoyMjo1My4xMjc0MDBaIiwibWFjIjoiODVjNjg0MzA4YmM3MGZmMDVjYTAyNjQ2ZjlkZTZiNzEwNmVjMGYyZjMyMGU5MDQ0OTA1N2YxNzg4MDBlMjY1YyIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJpbmNpZGVudHMiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6YjYxOGRiMmFjOTliZTdjOTlkZGY0ZTUyNGMyMWEyMjQ3Y2Q2ZTMwODA1MDJjOTlhNTNlNDEyYWE2OTM1NjIzYSIsInRlbmFudF9pZCI6ImE2NjYwMWZhLWU0NTYtNGM0Ni1iNmNjLWIxNzI2MDlmNTAzYSIsInRvIjoiMjAyNi0xMC0yMVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-page-two 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-page-two 390: mock rendered
+PASS  incidents-page-two 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-page-two 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  incidents-refused-reversed 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-refused-reversed 1440: mock rendered
+PASS  incidents-refused-reversed 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-refused-reversed 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-refused-reversed 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-refused-reversed 390: mock rendered
+PASS  incidents-refused-reversed 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-refused-reversed 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  incidents-refused-span-32d 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-refused-span-32d 1440: mock rendered
+PASS  incidents-refused-span-32d 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-refused-span-32d 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-refused-span-32d 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-refused-span-32d 390: mock rendered
+PASS  incidents-refused-span-32d 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-refused-span-32d 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  incidents-refused-one-bound 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-refused-one-bound 1440: mock rendered
+PASS  incidents-refused-one-bound 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-refused-one-bound 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-refused-one-bound 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-refused-one-bound 390: mock rendered
+PASS  incidents-refused-one-bound 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-refused-one-bound 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  incidents-refused-bad-known-at 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-refused-bad-known-at 1440: mock rendered
+PASS  incidents-refused-bad-known-at 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-refused-bad-known-at 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-refused-bad-known-at 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-refused-bad-known-at 390: mock rendered
+PASS  incidents-refused-bad-known-at 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-refused-bad-known-at 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-no-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-no-window 1440: mock rendered
+PASS  incidents-no-window 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-no-window 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-no-window 390: mock rendered
+PASS  incidents-no-window 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-no-window 390: no app page overflow  {"overflowX":0}
+
+96/96 claims passed; evidence in ..\part-inc

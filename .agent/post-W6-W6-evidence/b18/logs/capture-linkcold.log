@@ -1,0 +1,51 @@
+﻿chrome pid 19924
+PASS  loaded http://127.0.0.1:5388/sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-linkcold-site-incidents 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-linkcold-site-incidents 1440: mock rendered
+PASS  link-linkcold-site-incidents 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  link-linkcold-site-incidents 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkcold-site-incidents 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkcold-site-incidents 390: mock rendered
+PASS  link-linkcold-site-incidents 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  link-linkcold-site-incidents 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/COLD-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-linkcold-site-overview 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/cold: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-linkcold-site-overview 1440: mock rendered
+PASS  link-linkcold-site-overview 1440: same panel count  {"app":["What happened · power → cooling → product conditions","Chamber temperature","Needs attention","Bounded money consequence","Next step"],"mock":["What happened · power → cooling → product conditions","Chamber temperature","Needs attention","Bounded money consequence","Next step"]}
+PASS  link-linkcold-site-overview 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/COLD-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkcold-site-overview 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/cold: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkcold-site-overview 390: mock rendered
+PASS  link-linkcold-site-overview 390: same panel count  {"app":["What happened · power → cooling → product conditions","Chamber temperature","Needs attention","Bounded money consequence","Next step"],"mock":["What happened · power → cooling → product conditions","Chamber temperature","Needs attention","Bounded money consequence","Next step"]}
+PASS  link-linkcold-site-overview 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/COLD-LAB-001/actions/fffc0a5e-5b65-4c84-8973-16396546ea91/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-linkcold-action 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-linkcold-action 1440: mock rendered
+PASS  link-linkcold-action 1440: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-linkcold-action 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/COLD-LAB-001/actions/fffc0a5e-5b65-4c84-8973-16396546ea91/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkcold-action 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkcold-action 390: mock rendered
+PASS  link-linkcold-action 390: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-linkcold-action 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/maintenance/requests/62a9366e-6b17-4133-8dbb-f92ae74e0c12?site_id=COLD-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-linkcold-request 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-linkcold-request 1440: mock rendered
+PASS  link-linkcold-request 1440: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  link-linkcold-request 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/maintenance/requests/62a9366e-6b17-4133-8dbb-f92ae74e0c12?site_id=COLD-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkcold-request 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkcold-request 390: mock rendered
+PASS  link-linkcold-request 390: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  link-linkcold-request 390: no app page overflow  {"overflowX":0}
+
+48/48 claims passed; evidence in ..\part-linkcold

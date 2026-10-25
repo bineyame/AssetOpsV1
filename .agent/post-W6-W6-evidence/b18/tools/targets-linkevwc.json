@@ -1,0 +1,14 @@
+[
+ {
+  "id": "link",
+  "case": "r353-evwc-site-from-incidents",
+  "url": "http://127.0.0.1:5388/sites/EV-LAB-001/ev",
+  "mock": "ev"
+ },
+ {
+  "id": "link",
+  "case": "r353-evwc-site-from-maintenance",
+  "url": "http://127.0.0.1:5388/sites/EV-LAB-001/ev",
+  "mock": "ev"
+ }
+]
