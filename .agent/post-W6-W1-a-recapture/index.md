@@ -116,9 +116,9 @@ Max measured over all non-exempt selected cases per panel and width (n = pairs c
 | evidence-analysis | Accepted records behind the conclusions | 1440 | 1200 | 8 | 919 (record-opened) | pass |
 | evidence-analysis | How each limit is set | 390 | 800 | 8 | 542 (refused-other-day) | pass |
 | evidence-analysis | Accepted records behind the conclusions | 390 | 1800 | 8 | 1097 (record-opened) | pass |
-| finding-history | Revision history | 1440 | 850 | 5 | 635 (version1) | pass |
-| finding-history | Revision history | 390 | 2000 | 5 | 1188 (version1) | pass |
-| finding | What limits this conclusion | 1440 | 450 | 5 | 343 (priced) | pass |
+| finding-history | Revision history | 1440 | 850 | 5 | 641 (version1, SHA 5bbcccab; version list in 400 px scroll region) | pass |
+| finding-history | Revision history | 390 | 2000 | 5 | 1194 (version1, SHA 5bbcccab; region max 1000 px) | pass |
+| finding | What limits this conclusion | 1440 | 500 (caps2 ruling 2; was 450) | 5 | 343 (priced) | pass |
 | finding | Where to look next | 1440 | 650 | 5 | 613 (late-stale) | pass |
 | finding | What happened | 390 | 600 | 5 | 562 (late-stale) | pass |
 | finding | What limits this conclusion | 390 | 800 | 5 | 493 (priced) | pass |

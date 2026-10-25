@@ -1,0 +1,10 @@
+[owner] run `serve --case owner` (database assetops_s408_owner_audit), then open:
+  Default (a new moment each load; the address stays as is): http://localhost:5468/sites/KOBO-001/financials/assumptions
+  Recorded at T1, before the October price change: http://localhost:5468/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T07%3A57%3A29.408505%2B00%3A00
+  Recorded at T2, after the October price change: http://localhost:5468/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T07%3A57%3A48.998304%2B00%3A00
+  Recorded at T3, after the part-way correction (newest P01 version unpriced): http://localhost:5468/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T07%3A58%3A08.271481%2B00%3A00
+  Second page at T3: http://localhost:5468/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T07%3A58%3A08.271481%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDA3OjU3OjM5LjcyMzE0NiswMDowMCIsIjkzNTk4MmJjLTMzZjUtNDk5OS05ZmFlLTVjZDIxOGRkZjA0MCJdLCJmZW5jZSI6InNjaDEtYmRhMmZjNjczZjRkNjc2NDgyOTFjNTNiOTFlNDY2OWIzMTU5NmFlMWVmZWIwMjlmYTU3NjdkM2ZlMTYwYjAzNiIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMDc6NTg6MDguMjcxNDgxKzAwOjAwIiwic2l0ZV9pZCI6IjhlN2YwNDczLTcyMWYtNGYyNi1hMDUwLWYwYTBmZjlkMGE2MyIsInRlbmFudF9pZCI6ImEwZTQ1MGRhLTRhOGItNDRhZS1hYWQzLTQxYWJjYWM4ZmE3MiIsInYiOjF9&history_limit=2
+  A latest version's own Financials view: http://localhost:5468/sites/KOBO-001/financials?finding_id=1ce7083d-ad74-46e4-91d7-13b4f9639997&revision_id=e8e34a33-85bc-4f0c-ae5c-b2bab265ec05&consequence_revision_id=935982bc-33f5-4999-9fae-5cd218ddf040
+  Its Finding: http://localhost:5468/sites/KOBO-001/findings/1ce7083d-ad74-46e4-91d7-13b4f9639997?revision_id=e8e34a33-85bc-4f0c-ae5c-b2bab265ec05
+  Closed source: stop serve, run `close-gate`, serve again and reload the default address; then `open-gate`.
+[mixed] run `serve --case mixed` (database assetops_s408_mixed_audit), then open: http://localhost:5468/sites/KOBO-001/financials/assumptions

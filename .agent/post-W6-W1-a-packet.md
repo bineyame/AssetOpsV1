@@ -205,8 +205,8 @@ Commits on `task/post-W6-W1-a` after 3fd3df6d: 7ec5a29a (rulings 1-4, L1 test), 
 | Where to look next (650/1000) | five related rows, real labels | 613 | 821 | pass |
 | | five related rows, 160-char labels, inline (pre-fix) | 753 | 986 | over at 1440 |
 | | same, behind count disclosure (fixed; opened, exempt: 780/1013) | 614 | 682 | pass |
-| What limits (450/800) | five rows cloned from real rows | 357 | 611 | pass |
-| | five 160-char rows | 465 | 632 | **over at 1440 by 15 px** |
+| What limits (450/800; cap revised to 500/800 by caps2 ruling 2) | five rows cloned from real rows | 357 | 611 | pass |
+| | five 160-char rows | 465 | 632 | over 450 at 1440; passes the revised 500/800 |
 | Revision history (850/2000) | five real version rows + five 160-char related rows | 728 | 1683 | pass |
 | | five version rows with every text field 160 chars + five related | 858 | 2800 | **over at both widths** |
 | How each limit is set (400/800) | five 160-char role rows (rows sit in a closed disclosure, closed panel) | 266 | 497-517 | pass |
@@ -219,3 +219,24 @@ Not fixed, no ruled fallback exists and the ruling says stop: What limits 160-ch
 **L4:** index "Capture gaps: none" contradiction fixed (gaps listed with the probe pointer); Finding `open` reclassified as a normal closed state with caps applied (values unchanged); the shared SiteDetails crumb pair was captured (EV charging lab, `Sites > EV charging lab > Overview`, `recap/shared-crumb/`), so mini is not the only reach.
 
 **Checks (final product revision; later commits are docs and capture files only):** targeted `siteFinding.test.tsx` 75/75; full vitest once, 129 files, 3076/3076; `tsc --noEmit` exit 0; `tools/check-all.ps1` 11/11 guards passed. No backend suite run (not requested).
+
+## Caps2 round (Architect rulings `.agent/post-W6-W1-a-caps2-rulings.md`)
+
+**Ruling 1 (Q15 threshold):** `RELATED_INLINE_MAX = 2` confirmed, no change; closed caps 650/1000 stand (614/682 with the fallback).
+**Ruling 2 (What limits):** closed cap revised 450 to 500 at 1440 (800 at 390 stands). Measured 465/632 with five 160-char rows (passes, 35 px headroom); all rows stay visible, no code change.
+**Ruling 3 (Revision history):** the earlier-version control and both version tables sit in one labelled (`aria-label="Recorded versions"`), focusable (`tabIndex=0`) vertical scroll region, `overflow-y: auto`, max height 400 px at 1440 and 1000 px at 390, with a `Scroll versions to see every row` cue shown only when content overflows (product commit 5bbcccab, `frontend/src/sites/SiteFindingHistory.tsx`). State line, summary, related links, kept-as-recorded note and exact references stay outside the region. Selected-earlier default-open behaviour unchanged.
+
+Probe (`.agent/post-W6-W1-a-fix-probe/out-caps2/`, `probe-results.json`; synthetic variants carry `synthetic: true`; real s404 `late-stale` page, SHA 5bbcccab; Finding with four versions). Selector fixed to `[data-history-versions-scroll] > .data-table__scroll tbody`.
+
+| Variant (Revision history, caps 850/2000) | closed panel 1440 / 390 | scroll region clientH/scrollH 1440 | 390 | clipped | doc overflowX | result |
+|---|---|---|---|---|---|---|
+| five versions, every text field 160 chars, five 160-char related rows (`history-5`) | 707 / 1644 | 400/557 | 1000/2354 | 0 | 0 | pass (was 858/2800) |
+| five real-length versions, five 160-char related rows (`history-real5-rel160`) | 707 / 1644 | 400/427 | 1000/1216 | 0 | 0 | pass |
+| real four versions, latest (`hist-measure`, not synthetic) | 534 / 1036 | 285/285 | 668/668 | 0 | 0 | pass |
+| real, selected earlier (`?revision_id=<version 1>`) | 657 / 1250 | 388/388 | 842/842 | 0 | 0 | pass |
+
+All four variants: closed caps 850/2000 pass at both widths; no cap raised, no row hidden. Opened-all (exempt): 781-839 / 1585-1860 with region scrollH up to 1095 (1440) and 4952 (390), clipped 0, document overflow 0. The probe reads the cue synchronously, so its `cueHidden` flag lags a disclosure opened in the same tick; a separate check (`tools/cue.mjs`) opened every details, waited 500 ms and saw the cue appear (hidden true to false, 19.8 px tall, scrollH 666 vs clientH 400). Caps stay 850/2000.
+
+**Recaptures** (SHA 5bbcccab; `post-W6-W1-a-fix-probe/recap2/`, frozen capture tool, 1440 and 390, all claims passed, doc overflow 0): finding-history `latest` 518/980, `version1` 641/1194, `notfound` 244/263 (unchanged, no versions), `late-stale` 534/1036. Finding IDs are re-derived for this run (Finding with four revisions, first by creation time; version 1 = revision_no 1). s408-owner `priced` 376/665 (unchanged). Servers stopped by PID, producer DBs dropped via each producer drop mode (s404 x3, s408), ports 18121-18126, 5183, 9523 free.
+
+**Checks (caps2 round, SHA 5bbcccab plus docs/probe files only):** full vitest 129 files, 3078/3078 (third run). The first two full runs each had one failure in `s404SiteFindingIndex.test.tsx` "assessed empty > changing the dates writes a new window to the address and reads again" (a file this round does not touch, run under load alongside other worktrees); the file passes alone (37/37) and the third full run was clean, so I record it as a timing flake, not a fix. `tsc --noEmit` exit 0; `tools/check-all.ps1` 11/11 guards passed (PowerShell tool). No backend suite (not requested).

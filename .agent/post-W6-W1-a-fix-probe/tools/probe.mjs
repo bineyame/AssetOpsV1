@@ -16,7 +16,9 @@ const measure = (title, clones) => { const p = panelOf(title); const r = p.getBo
   const clipped = [...p.querySelectorAll("*")].filter((e) => { if (inClosed(e, p) || !e.firstChild) return false; const s = getComputedStyle(e);
     return ((s.overflowX === "hidden" || s.overflowX === "clip" || s.textOverflow === "ellipsis") && e.scrollWidth > e.clientWidth + 1) || ((s.overflowY === "hidden" || s.overflowY === "clip") && e.scrollHeight > e.clientHeight + 2); }).map((e) => e.tagName + "." + String(e.className).slice(0, 30));
   const innerScrollX = [...p.querySelectorAll("*")].filter((e) => { const s = getComputedStyle(e); return (s.overflowX === "auto" || s.overflowX === "scroll") && e.clientWidth > 0 && e.scrollWidth > e.clientWidth + 1; }).map((e) => String(e.className).slice(0, 30) + ":" + e.scrollWidth + "/" + e.clientWidth);
-  return { title, panelH: Math.round(r.height), rowHs: clones.map((c) => Math.round(c.getBoundingClientRect().height)), clipped, innerScrollX, docOverflowX: document.documentElement.scrollWidth - document.documentElement.clientWidth }; };
+  const vs = p.querySelector("[data-history-versions-scroll]"); const cue = p.querySelector("[data-history-scroll-cue]");
+  const versionScroll = vs ? { clientH: vs.clientHeight, scrollH: vs.scrollHeight, overflowY: getComputedStyle(vs).overflowY, maxH: getComputedStyle(vs).maxHeight, cueHidden: cue ? cue.hidden : null, focusable: vs.tabIndex === 0 } : null;
+  return { title, versionScroll, panelH: Math.round(r.height), rowHs: clones.map((c) => Math.round(c.getBoundingClientRect().height)), clipped, innerScrollX, docOverflowX: document.documentElement.scrollWidth - document.documentElement.clientWidth }; };
 const allPanels = () => [...document.querySelectorAll("section.panel")].map((p) => ({ t: (p.querySelector("h2")?.textContent ?? "").trim(), h: Math.round(p.getBoundingClientRect().height) }));
 `;
 const BODIES = {
@@ -38,13 +40,13 @@ const BODIES = {
     ul.replaceChildren(); const cl = []; for (let i = 0; i < 5; i += 1) { const c = tmpls[i % tmpls.length].cloneNode(true); ul.appendChild(c); cl.push(c); }
     const verified = ul.children.length === 5 && !!p.querySelector("[data-finding-limits-alternatives]");
     return { synthetic: true, verified, intendedFields: 5, realTextChars: cl.map((c) => c.textContent.length), ...measure("What limits", cl) }; })()`,
-  "history-real5-rel160": `(() => { const p = panelOf("Revision history"); const tbody = p.querySelector(":scope > .panel__body > .data-table__scroll tbody"); const rows = [...tbody.querySelectorAll(":scope > tr")]; const tm = rows.map((r) => r.cloneNode(true));
+  "history-real5-rel160": `(() => { const p = panelOf("Revision history"); const tbody = p.querySelector("[data-history-versions-scroll] > .data-table__scroll tbody"); const rows = [...tbody.querySelectorAll(":scope > tr")]; const tm = rows.map((r) => r.cloneNode(true));
     tbody.replaceChildren(); const cl = []; for (let i = 0; i < 5; i += 1) { const c = tm[i % tm.length].cloneNode(true); tbody.appendChild(c); cl.push(c); }
     let want = 0, got = 0; const lt = (el, s) => { want += 1; el.textContent = s; if (el.textContent.length === s.length) got += 1; };
     const rl = p.querySelector("[data-history-related-line]"); const spans = [...rl.querySelectorAll(":scope > span")]; const st = spans[0].cloneNode(true); spans.forEach((s) => s.remove());
     const rcl = []; for (let i = 0; i < 5; i += 1) { const s = st.cloneNode(true); lt(s.querySelector("a"), L(160)); if (i > 0) s.prepend(document.createTextNode(" · ")); rl.appendChild(s); rcl.push(s); }
     const verified = cl.length === 5 && want === 5 && got === 5 && rl.querySelectorAll("a[data-history-related]").length === 5;
-    return { synthetic: true, verified, intendedFields: want, fields160: got, relatedRowHs: rcl.map((c) => Math.round(c.getBoundingClientRect().height)), ...measure("Revision history", cl) }; })()`,
+    return { synthetic: true, verified, intendedFields: want, fields160: got, relatedRowHs: rcl.map((c) => Math.round(c.getBoundingClientRect().height)), ...measure("Revision history", cl), ...(() => { const pp = panelOf("Revision history"); pp.querySelectorAll("details").forEach((d) => { d.open = true; }); const o = measure("Revision history", cl); return { openedAll: { panelH: o.panelH, versionScroll: o.versionScroll, clipped: o.clipped.length, docOverflowX: o.docOverflowX } }; })() }; })()`,
   "rel-160x5-disc": `(() => { const p = panelOf("Where to look next"); const ul = p.querySelector("[data-attention-item=related] ul.site-finding__inline"); const tmpl = ul.querySelector("li").cloneNode(true);
     ul.replaceChildren(); const cl = []; for (let i = 0; i < 5; i += 1) { const c = tmpl.cloneNode(true); c.querySelector("a").textContent = L(160); ul.appendChild(c); cl.push(c); }
     const d = document.createElement("details"); d.className = "v69-show-all"; d.setAttribute("data-show-all", "finding-related"); d.innerHTML = '<summary class="v69-show-all__summary">Show all 5 related Findings</summary><div class="v69-show-all__body"></div>';
@@ -62,7 +64,10 @@ const BODIES = {
     const dets = []; for (let e = tbody; e && e !== host; e = e.parentElement) if (e.tagName === "DETAILS") dets.push(e);
     const closedAncestors = dets.length; dets.forEach((d) => { d.open = true; }); const o = measure(title.slice(0, 20), cl);
     return { synthetic: true, verified, hostPanel: title, rowsInsideClosedDisclosure: closedAncestors > 0, intendedFields: want, fields160: got, panelsAfter: panelsAll, ...m, openedPanelH: o.panelH, openedRowHs: o.rowHs, openedClipped: o.clipped, openedInnerScrollX: o.innerScrollX, openedDocOverflowX: o.docOverflowX }; })()`,
-  "history-5": `(() => { const p = panelOf("Revision history"); const tbody = p.querySelector(":scope > .panel__body > .data-table__scroll tbody"); const rows = [...tbody.querySelectorAll(":scope > tr")]; const tmpl = rows[0].cloneNode(true);
+  "hist-measure": `(() => { const p = panelOf("Revision history"); const rows = [...p.querySelectorAll("[data-history-revision]")]; const m = measure("Revision history", rows.slice(0, 5));
+    p.querySelectorAll("details").forEach((d) => { d.open = true; }); const o = measure("Revision history", rows.slice(0, 5));
+    return { synthetic: false, verified: true, versionRows: rows.length, ...m, openedAll: { panelH: o.panelH, versionScroll: o.versionScroll, clipped: o.clipped.length, docOverflowX: o.docOverflowX } }; })()`,
+  "history-5": `(() => { const p = panelOf("Revision history"); const tbody = p.querySelector("[data-history-versions-scroll] > .data-table__scroll tbody"); const rows = [...tbody.querySelectorAll(":scope > tr")]; const tmpl = rows[0].cloneNode(true);
     tbody.replaceChildren(); const cl = []; let want = 0, got = 0; const lt = (el, s) => { want += 1; el.textContent = s; if (el.textContent.length === s.length) got += 1; };
     for (let i = 0; i < 5; i += 1) { const c = tmpl.cloneNode(true); const tds = c.querySelectorAll(":scope > td");
       lt(tds[1].querySelector("strong"), L(160)); const small = tds[1].querySelector("small"); const sn = small.firstChild; want += 1; sn.textContent = L(160) + " · "; if (sn.textContent.length === 163) got += 1;
@@ -70,7 +75,7 @@ const BODIES = {
     const rl = p.querySelector("[data-history-related-line]"); const spans = [...rl.querySelectorAll(":scope > span")]; const st = spans[0].cloneNode(true); spans.forEach((s) => s.remove());
     const rcl = []; for (let i = 0; i < 5; i += 1) { const s = st.cloneNode(true); lt(s.querySelector("a"), L(160)); if (i > 0) s.prepend(document.createTextNode(" · ")); rl.appendChild(s); rcl.push(s); }
     const verified = cl.length === 5 && want > 0 && want === got && rl.querySelectorAll("a[data-history-related]").length === 5;
-    return { synthetic: true, verified, intendedFields: want, fields160: got, relatedRowHs: rcl.map((c) => Math.round(c.getBoundingClientRect().height)), ...measure("Revision history", cl) }; })()`,
+    return { synthetic: true, verified, intendedFields: want, fields160: got, relatedRowHs: rcl.map((c) => Math.round(c.getBoundingClientRect().height)), ...measure("Revision history", cl), ...(() => { const pp = panelOf("Revision history"); pp.querySelectorAll("details").forEach((d) => { d.open = true; }); const o = measure("Revision history", cl); return { openedAll: { panelH: o.panelH, versionScroll: o.versionScroll, clipped: o.clipped.length, docOverflowX: o.docOverflowX } }; })() }; })()`,
 };
 const s = await session();
 const results = [];
