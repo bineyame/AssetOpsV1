@@ -11,3 +11,13 @@ fallback-steps/: the cap fallback measurements step by step. summary.json: per-c
 panel titles vs mock, closed heights, MOCK DEVIATION label counts, refusal sentence counts.
 Tools: capture-cold.mjs (from W2-EV r2 capture-b8.mjs + EXTRA DOM checks), inspect-cold.mjs (from W2-EV r2 inspect.mjs + coldrows
 probe), celldump.mjs (per-cell sizes), mk_targets.py (targets from post-W6-audit/audit-index.json), summarize.py, caps.py, run.sh.
+
+r3-8bfd4730/ (supplement, product SHA 8bfd4730): every refused cold case recaptured after the refusal-sentence change
+(7beb5f72, 8bfd4730). Producers: seed.py "cold excursion" -> assetops_w2coldrc_x_test and "cold backup-failed" ->
+assetops_w2coldrc_b_test (only for the start-refused-window Finding id 00000003-...17c); both dropped, servers stopped.
+Targets tools/targets-r3x.json (8 indexed refused + 8 URL-only one-sided/32-day) and targets-r3b.json; tools/run-r3.sh;
+capture-cold.mjs now also records per-panel sentence / "Not assessed" counts (panelRefusal). tools/check_r3.py asserts:
+sentence count exactly 1, other panels say Not assessed, 0 overflow/clipping/console, titles equal mock -> summary-r3.json.
+Result: 34 captures, 32 pass. FAIL both widths: cold-finding start-refused-window (Finding page, not changed by 7beb5f72/8bfd4730):
+sentence appears 3 times - page refusal block (outside panels) + "Bounded conclusion" + "Operational context";
+"Recommended next step" has neither the sentence nor "Not assessed".

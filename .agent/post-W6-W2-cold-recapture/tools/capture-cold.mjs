@@ -169,6 +169,8 @@ const EXTRA = String.raw`(() => {
   return { location: location.pathname + location.search, labels, sentenceCounts: Object.fromEntries(Object.entries(sentences).map(([k, s]) => [k, count(s)])),
     windowTitle: count("Window cannot be read"), notAssessed: count("Not assessed"), notDetermined: count("Not determined"), banners, tabs,
     globalNote: count("Cold-chain Findings are not in the global Findings list"),
+    panelRefusal: [...root.querySelectorAll("section.panel")].filter((p) => !p.parentElement.closest("section.panel") && p.getBoundingClientRect().height > 0)
+      .map((p) => { const pt = p.innerText; return { title: txt(p.querySelector("h2")), sentences: Object.values(sentences).reduce((n, s) => n + pt.split(s).length - 1, 0), notAssessed: pt.split("Not assessed").length - 1 }; }),
     detailsOpen: root.querySelectorAll("details[open]").length, details: root.querySelectorAll("details").length };
 })()`;
 const evidence = { revision: process.env.AUDIT_REVISION ?? null, captured_at: new Date().toISOString(), pairs: [] };

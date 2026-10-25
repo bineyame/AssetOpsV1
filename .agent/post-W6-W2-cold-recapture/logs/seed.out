@@ -2,3 +2,5 @@ cold excursion db=assetops_w2coldrc_x_test exit=0 secs=39
 cold normal db=assetops_w2coldrc_n_test exit=0 secs=39
 cold backup-failed db=assetops_w2coldrc_b_test exit=0 secs=44
 ev interrupted db=assetops_w2coldrc_e_test exit=0 secs=64
+cold excursion db=assetops_w2coldrc_x_test exit=0 secs=23
+cold backup-failed db=assetops_w2coldrc_b_test exit=0 secs=23

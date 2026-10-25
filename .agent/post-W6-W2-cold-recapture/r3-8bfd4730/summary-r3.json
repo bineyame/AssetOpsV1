@@ -1,0 +1,1308 @@
+{
+ "captures": 34,
+ "passed": 32,
+ "rows": [
+  {
+   "screen": "cold-finding",
+   "case": "start-refused-window",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 3,
+   "panels": [
+    {
+     "title": "Bounded conclusion",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Operational context",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Recommended next step",
+     "sentences": 0,
+     "notAssessed": 0
+    }
+   ],
+   "othersNotAssessed": false,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [
+    {
+     "text": "Window cannot be readThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOL",
+     "inPanel": false
+    }
+   ],
+   "pass": false
+  },
+  {
+   "screen": "cold-finding",
+   "case": "start-refused-window",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 3,
+   "panels": [
+    {
+     "title": "Bounded conclusion",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Operational context",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Recommended next step",
+     "sentences": 0,
+     "notAssessed": 0
+    }
+   ],
+   "othersNotAssessed": false,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [
+    {
+     "text": "Window cannot be readThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOL",
+     "inPanel": false
+    }
+   ],
+   "pass": false
+  },
+  {
+   "screen": "temperature",
+   "case": "refused",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Excursion context",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Claim boundary",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "temperature",
+   "case": "refused",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Excursion context",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Claim boundary",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "coldbackup",
+   "case": "refused",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/backup?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Reconstructed event chain",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Backup event chains",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Evidence by causal step",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "coldbackup",
+   "case": "refused",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/backup?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Reconstructed event chain",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Backup event chains",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Evidence by causal step",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-findings",
+   "case": "refused",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "sentences": 1,
+     "notAssessed": 0
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Findings at this site"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-findings",
+   "case": "refused",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "sentences": 1,
+     "notAssessed": 0
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Findings at this site"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold",
+   "case": "refused",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Chamber temperature",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Needs attention",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Bounded money consequence",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Next step",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
+    "Chamber temperature",
+    "Needs attention",
+    "Bounded money consequence",
+    "Next step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold",
+   "case": "refused",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Chamber temperature",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Needs attention",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Bounded money consequence",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Next step",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
+    "Chamber temperature",
+    "Needs attention",
+    "Bounded money consequence",
+    "Next step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-evidence",
+   "case": "refused",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What we can conclude now",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Data sources \u00b7 data quality, not equipment condition",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Most useful next evidence",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What we can conclude now",
+    "Data sources \u00b7 data quality, not equipment condition",
+    "Most useful next evidence"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-evidence",
+   "case": "refused",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What we can conclude now",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Data sources \u00b7 data quality, not equipment condition",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Most useful next evidence",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What we can conclude now",
+    "Data sources \u00b7 data quality, not equipment condition",
+    "Most useful next evidence"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-evidence-analysis",
+   "case": "refused",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Accepted records behind the conclusions",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "How a claim limit is set",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Accepted records behind the conclusions",
+    "How a claim limit is set"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 0,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-evidence-analysis",
+   "case": "refused",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Accepted records behind the conclusions",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "How a claim limit is set",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Accepted records behind the conclusions",
+    "How a claim limit is set"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 0,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-financials",
+   "case": "refused",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/financials?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What happened \u2192 what it means in money",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Assumptions in use",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Not included",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Not included"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-financials",
+   "case": "refused",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/financials?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What happened \u2192 what it means in money",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Assumptions in use",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Not included",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Not included"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-assumptions",
+   "case": "refused",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Financial assumptions",
+     "sentences": 1,
+     "notAssessed": 0
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Financial assumptions"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 0,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-assumptions",
+   "case": "refused",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Financial assumptions",
+     "sentences": 1,
+     "notAssessed": 0
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Financial assumptions"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 0,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold",
+   "case": "one-sided-from",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Chamber temperature",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Needs attention",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Bounded money consequence",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Next step",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
+    "Chamber temperature",
+    "Needs attention",
+    "Bounded money consequence",
+    "Next step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold",
+   "case": "one-sided-from",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Chamber temperature",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Needs attention",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Bounded money consequence",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Next step",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
+    "Chamber temperature",
+    "Needs attention",
+    "Bounded money consequence",
+    "Next step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold",
+   "case": "long-32d",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Chamber temperature",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Needs attention",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Bounded money consequence",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Next step",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
+    "Chamber temperature",
+    "Needs attention",
+    "Bounded money consequence",
+    "Next step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold",
+   "case": "long-32d",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Chamber temperature",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Needs attention",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Bounded money consequence",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Next step",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
+    "Chamber temperature",
+    "Needs attention",
+    "Bounded money consequence",
+    "Next step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "temperature",
+   "case": "one-sided-from",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Excursion context",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Claim boundary",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "temperature",
+   "case": "one-sided-from",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Excursion context",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Claim boundary",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "temperature",
+   "case": "long-32d",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/temperature?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Excursion context",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Claim boundary",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "temperature",
+   "case": "long-32d",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/temperature?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Temperature with operating context",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Excursion context",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Claim boundary",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Temperature with operating context",
+    "Excursion context",
+    "Claim boundary"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "coldbackup",
+   "case": "one-sided-from",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Reconstructed event chain",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Backup event chains",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Evidence by causal step",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "coldbackup",
+   "case": "one-sided-from",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Reconstructed event chain",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Backup event chains",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Evidence by causal step",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "coldbackup",
+   "case": "long-32d",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/backup?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Reconstructed event chain",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Backup event chains",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Evidence by causal step",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "coldbackup",
+   "case": "long-32d",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/backup?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "What the chain shows",
+     "sentences": 1,
+     "notAssessed": 0
+    },
+    {
+     "title": "Reconstructed event chain",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Backup event chains",
+     "sentences": 0,
+     "notAssessed": 1
+    },
+    {
+     "title": "Evidence by causal step",
+     "sentences": 0,
+     "notAssessed": 1
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "What the chain shows",
+    "Reconstructed event chain",
+    "Backup event chains",
+    "Evidence by causal step"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-findings",
+   "case": "one-sided-from",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "sentences": 1,
+     "notAssessed": 0
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Findings at this site"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-findings",
+   "case": "one-sided-from",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "sentences": 1,
+     "notAssessed": 0
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Findings at this site"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-findings",
+   "case": "long-32d",
+   "w": "1440",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "sentences": 1,
+     "notAssessed": 0
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Findings at this site"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  },
+  {
+   "screen": "cold-findings",
+   "case": "long-32d",
+   "w": "390",
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+   "revision": "8bfd4730",
+   "sentenceTotal": 1,
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "sentences": 1,
+     "notAssessed": 0
+    }
+   ],
+   "othersNotAssessed": true,
+   "overflowX": 0,
+   "clipped": 0,
+   "console": [],
+   "titles": [
+    "Findings at this site"
+   ],
+   "titlesMatchMock": true,
+   "windowTitle": 1,
+   "banners": [],
+   "pass": true
+  }
+ ]
+}
