@@ -90,25 +90,28 @@ function OpportunityHelper({ shown }: { shown: boolean }) {
   ) : null;
 }
 
+/** A future Site-scoped lens; the unbuilt entries stay literal (navigation-truthfulness inventory). */
+function LiveLens({ label, href }: { label: string; href: string }) {
+  return (
+    <li className="v69-chip" data-lens={label.toLowerCase()}>
+      <Link to={href}>{label}</Link>
+    </li>
+  );
+}
+
 function LensChips({ hrefs = {} }: { hrefs?: SiteLensHrefs }) {
-  const lens = (label: "Cost" | "Risks" | "Opportunities") => {
-    const href = hrefs[label];
-    return href === undefined ? (
-      <UnavailableChip label={label} />
-    ) : (
-      <li className="v69-chip" data-lens={label.toLowerCase()}>
-        <Link to={href}>{label}</Link>
-      </li>
-    );
-  };
   return (
     <ul className="v69-chips v69-chips--lenses" aria-label="Finding lenses" data-site-findings-lenses>
       <li className="v69-chip" aria-current="true" data-lens="all">
         All
       </li>
-      {lens("Cost")}
-      {lens("Risks")}
-      {lens("Opportunities")}
+      {hrefs.Cost === undefined ? <UnavailableChip label="Cost" /> : <LiveLens label="Cost" href={hrefs.Cost} />}
+      {hrefs.Risks === undefined ? <UnavailableChip label="Risks" /> : <LiveLens label="Risks" href={hrefs.Risks} />}
+      {hrefs.Opportunities === undefined ? (
+        <UnavailableChip label="Opportunities" />
+      ) : (
+        <LiveLens label="Opportunities" href={hrefs.Opportunities} />
+      )}
     </ul>
   );
 }

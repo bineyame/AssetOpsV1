@@ -182,11 +182,11 @@ function Invoke-NavigationRailFixturesCheck {
                Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Scenarios" />' '<UnavailableTab label="Scenarios" /><UnavailableTab label="Maintenance" />') },
             @{ Name = "a declared unbuilt tab is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Scenarios" />' '') },
-            # W4-03 unit 6b: the mini Finding row's Analysis slot is the declared entry; Alternatives is live.
-            @{ Name = "W4-03: Analysis loses its declared unavailable entry"; Expect = "the W1-plus-W2 inventory is exactly";
-               Modules = (Set-ModuleLines $modules $frames 'label: "Analysis", unavailable: true' 'label: "Analysis", href: "/x"') },
-            @{ Name = "W4-03: Alternatives comes back as an unavailable Finding section"; Expect = "the W1-plus-W2 inventory is exactly";
-               Modules = (Set-ModuleLines $modules $frames 'label: "Analysis", unavailable: true' 'label: "Analysis", unavailable: true }, { id: "x", label: "Alternatives", unavailable: true') },
+            # post-W6 W1-a Q7 / Q16: the refused mini Finding's Alternatives tab is the declared entry; Analysis is live.
+            @{ Name = "post-W6 W1-a: Alternatives loses its declared unavailable entry"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $frames 'label: "Alternatives", unavailable: true' 'label: "Alternatives", href: "/x"') },
+            @{ Name = "post-W6 W1-a: Analysis comes back as an unavailable Finding section"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $frames 'label: "Alternatives", unavailable: true' 'label: "Alternatives", unavailable: true }, { id: "x", label: "Analysis", unavailable: true') },
             # W5-01a C2: Cooling is live; dropping its subtab or its page branch fails.
             @{ Name = "the live cold Cooling subtab is dropped"; Expect = "The live cold Cooling subtab or page branch is missing";
                Modules = (Set-ModuleLines $modules $cold 'data-performance-subtab="cooling"' '') },
