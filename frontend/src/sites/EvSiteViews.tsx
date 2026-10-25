@@ -1294,7 +1294,7 @@ function tariffText(t: EvAssumptionsRead["tariff"]): string {
   return t === null ? "Not declared" : `${t.value} ${t.currency}/kWh${t.basis ? ` · ${basisText(t.basis)}` : ""}`;
 }
 const billingText = (state: string | undefined) => (state === "NOT_CONNECTED" ? "Not connected" : "No record");
-/** MOCK DEVIATION (D4) R286 (Q13): billing is a chip with the wire's wording ("No record" / "Not connected"). */
+/** MOCK DEVIATION (D4) R421 (R286 split, Q13): billing is a chip with the wire's wording ("No record" / "Not connected"). */
 const BillingChip = ({ state }: { state: string | undefined }) => <Chip word={billingText(state)} />;
 
 function consequenceWord(c: EvConsequence | null): string {

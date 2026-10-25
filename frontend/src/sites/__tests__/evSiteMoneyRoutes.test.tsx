@@ -971,7 +971,7 @@ describe("post-W6 W2-EV U3: EV Site refusals, chronology, money links, cards, ev
     expect(Array.from(day.querySelectorAll(".v69-timeline > li")).filter((li) => (li.textContent ?? "").includes("REC "))).toHaveLength(8);
   });
 
-  it("R285 (Q12) and R286 (Q13): Energy source link only when estimated; billing chips follow the wire", async () => {
+  it("R285 (Q12) and R286 fix, D4 R421 (Q13): Energy source link only when estimated; billing chips follow the wire", async () => {
     await renderAt(PATHS["ev-financials"], client());
     const source = main().querySelector('[data-ev-bridge-source="scenario"]') as HTMLElement;
     expect(source.textContent).toBe("Energy ↗");

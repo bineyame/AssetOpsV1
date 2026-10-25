@@ -880,7 +880,7 @@ describe("post-W6 W2-EV U2: Sessions and Finding links, denominator, plurals and
     expect(main().textContent).not.toContain("Inspect session lineage");
   });
 
-  it("R270 (Q4): attempts outside the three outcomes are stated only when the difference is positive", async () => {
+  it("R270 fix, D4 R420 (Q4): attempts outside the three outcomes are stated only when the difference is positive", async () => {
     renderEv(SESSIONS, ok(STATES.complete));
     await settledScreen();
     expect(document.querySelector("[data-ev-outside-outcomes]")).toBeNull();

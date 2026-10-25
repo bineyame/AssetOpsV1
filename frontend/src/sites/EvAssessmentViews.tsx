@@ -409,7 +409,7 @@ function sourceDetail(read: EvSessionsRead) {
 }
 
 /**
- * MOCK DEVIATION (D4) R270 (Q4): the four mock tiles stay; attempts outside confirmed delivery, fault-aborted and
+ * MOCK DEVIATION (D4) R420 (R270 split, Q4): the four mock tiles stay; attempts outside confirmed delivery, fault-aborted and
  * incomplete are stated under the cards (first line of the records panel), never given a fabricated category.
  */
 export function outsideOutcomesLine(read: EvSessionsRead | null): string | null {
