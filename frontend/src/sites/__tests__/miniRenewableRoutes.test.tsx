@@ -373,6 +373,17 @@ describe("post-W6 W4 R309/R310/R312/R313: renewable tones, confidence, recurrenc
     expect(document.querySelector('[data-value-bar-key="margin"] [data-value-bar-mark="not-known"]')).not.toBeNull();
   });
 
+  it("unit 5 (guide §1): the Productive-use evaluation body scrolls in a labelled, focusable region", async () => {
+    renderRenewable([ok(read())]);
+    await settledScreen();
+    await screen.findByText("Watch");
+    const gap = document.querySelector("[data-mini-productive-gap]") as HTMLElement;
+    const region = gap.closest(".mini-scroll") as HTMLElement | null;
+    expect(region).not.toBeNull();
+    expect(region!.getAttribute("tabindex")).toBe("0");
+    expect(region!.getAttribute("aria-label")).toBe("Panel content (scrolls)");
+  });
+
   it("R310 / D1 R451: Confidence: Not assessed sits in the strip with its visible deviation label", async () => {
     renderRenewable([ok(read())]);
     await settledScreen();

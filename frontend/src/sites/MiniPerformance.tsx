@@ -695,9 +695,10 @@ function OpportunityDrawer({ read, timeZone, onClose }: { read: RenewableRead; t
 function ProductiveUsePanel({ read, timeZone, decision }: { read: RenewableRead; timeZone: string; decision?: OpportunityLink }) {
   const [open, setOpen] = useState(false);
   return (
+    // post-W6 W4 unit-5 (guide §1): no table heads this panel, so its overflow scrolls in the labelled, focusable
+    // `mini-scroll` region (the 390 capture found the bare panel body scrolling 11 px without keyboard access).
     <BoundedPanel
       bound="renewable-productive"
-      table
       heading="Productive-use evaluation"
       headingId="mini-renewable-productive-heading"
       description="Electrical feasibility does not establish customer demand"
