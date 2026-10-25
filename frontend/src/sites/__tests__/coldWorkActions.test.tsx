@@ -22,6 +22,7 @@ import {
   type DomainIndexScope,
 } from "../domainActionClient";
 import { WORK_CONTEXT_NOTICE, WORK_CONTEXT_NOTICE_DOMAIN } from "../siteWorkCases";
+import { coldActionCount } from "../coldWorkPresentation";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
 import type { WorkClient, WorkScope } from "../workClient";
@@ -356,7 +357,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(main.querySelector("[data-site-work-window]")).toBeNull();
     // K2 ruling 1: the only form is the page-local cold `Window` control (R88).
     expect(Array.from(main.querySelectorAll("form")).map((f) => f.hasAttribute("data-cold-work-window"))).toEqual([true]);
-    expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to GreenHarvest · 1 actions");
+    expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to GreenHarvest · 1 action");
   });
 
   it("W5-04 V2a ruling 45: cold keeps every K2 data-cold-work name and also carries data-domain-work; its read keeps two arguments", async () => {
@@ -409,6 +410,10 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     const { main } = await mountWork(workPath(), client);
     expect(main.querySelector(".panel__description")).toBeNull();
     expect(text(main.querySelector("[data-cold-work-due]"))).toBe("2026-11-02");
+  });
+
+  it("post-W6 R334: the strip count reads 0 actions, 1 action, 2 actions", () => {
+    expect([0, 1, 2].map(coldActionCount)).toEqual(["0 actions", "1 action", "2 actions"]);
   });
 
   it("defaults to W4's last seven complete UTC days and reads with no cursor and no cutoff", async () => {
@@ -483,7 +488,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     const empty = main.querySelector("[data-cold-work-empty]") as HTMLElement;
     expect(empty.querySelector("svg")).not.toBeNull();
     expect(text(empty.querySelector("h3"))).toBe("No actions at this site");
-    expect(text(empty.querySelector("p"))).toBe("No accepted recommendation or evidence request has been raised here yet.");
+    expect(text(empty.querySelector("p"))).toBe("No Action was raised here in the selected window.");
     expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to GreenHarvest · 0 actions");
     expect(main.querySelector(".panel__description")).toBeNull();
     expect(main.querySelector("table")).toBeNull();
@@ -635,6 +640,26 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(text(form.querySelector("[data-cold-work-window-apply]"))).toBe("Apply");
     expect(form.querySelector("[data-cold-work-window-error]")).toBeNull();
     expectV69Panels("cold-work");
+  });
+
+  it("post-W6 R338: the default window is seven UTC calendar days including today, and states its listing basis", async () => {
+    // A row raised today at 23:59Z is inside the default [today−6d, tomorrow); one raised seven days ago is not.
+    const now = new Date("2026-10-25T23:59:00Z");
+    const w = defaultWorkWindow(now);
+    expect(w).toEqual({ from: "2026-10-19T00:00:00Z", to: "2026-10-26T00:00:00Z" });
+    const inside = (raisedAt: string) => raisedAt >= w.from && raisedAt < w.to;
+    expect(inside("2026-10-25T23:59:00Z")).toBe(true);
+    expect(inside("2026-10-19T00:00:00Z")).toBe(true);
+    expect(inside("2026-10-18T23:59:59Z")).toBe(false);
+    // Month boundary: today 2026-11-01 keeps the six earlier October days.
+    expect(defaultWorkWindow(new Date("2026-11-01T00:00:00Z"))).toEqual({ from: "2026-10-26T00:00:00Z", to: "2026-11-02T00:00:00Z" });
+    const { client, indexCalls } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
+    const { main } = await mountWork(`/sites/${SITE}/work`, client);
+    const today = new Date().toISOString().slice(0, 10);
+    expect(indexCalls[0].scope.to > `${today}T00:00:00Z`).toBe(true);
+    const basis = main.querySelector("[data-cold-work-window] [data-domain-work-window-basis]");
+    expect(basis?.getAttribute("data-domain-work-window-basis")).toBe("actions");
+    expect(text(basis)).toBe("Listed by the time each Action was raised.");
   });
 
   it("Apply writes from,to into the URL, keeps an explicit known_at, drops the cursor and reads page one (ruling 1)", async () => {

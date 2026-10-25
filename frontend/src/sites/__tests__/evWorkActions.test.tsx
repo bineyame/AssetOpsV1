@@ -387,6 +387,10 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     const form = main.querySelector("[data-domain-work-window]") as HTMLFormElement;
     expect((form.querySelector("[data-domain-work-window-from]") as HTMLInputElement).value).toBe(expected.from.slice(0, 10));
     expect((form.querySelector("[data-domain-work-window-to]") as HTMLInputElement).value).toBe(expected.to.slice(0, 10));
+    // post-W6 R338 (W5 rulings 1): the shared default includes today, and EV states the same Actions listing basis.
+    const today = `${new Date().toISOString().slice(0, 10)}T00:00:00Z`;
+    expect(expected.from <= today && today < expected.to).toBe(true);
+    expect(text(form.querySelector("[data-domain-work-window-basis='actions']"))).toBe("Listed by the time each Action was raised.");
     const subtabs = Array.from(main.querySelectorAll(".site-subtabs a")).map((a) => a.getAttribute("href") ?? "");
     for (const href of subtabs) {
       const url = new URL(href, "http://x");

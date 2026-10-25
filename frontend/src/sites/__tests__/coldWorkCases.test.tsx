@@ -370,6 +370,13 @@ describe("W5-02 K3a: cold case currentness and complete zero (K3 pre-flight ruli
       expect(summaries(main)).toContain("What this list is based on");
     });
 
+    it(`post-W6 R338: ${kind} states its listing basis under the Window control`, async () => {
+      const { main } = await mountCases(kind, loaded(body([])));
+      const basis = main.querySelector("[data-cold-work-window] [data-domain-work-window-basis]");
+      expect(basis?.getAttribute("data-domain-work-window-basis")).toBe(kind);
+      expect(text(basis)).toBe(kind === "incidents" ? "Listed by incident start time." : "Listed by the time each request was opened.");
+    });
+
     it(`${kind}: a non-complete zero keeps the currentness notice above the empty card`, async () => {
       const { main } = await mountCases(kind, loaded(body([], { status: "UNKNOWN" })));
       expect(main.querySelector("[data-cold-work-currentness]")?.getAttribute("data-cold-work-currentness")).toBe("UNKNOWN");
@@ -463,6 +470,8 @@ describe("W5-02 K3a: mini-grid isolation", () => {
     expect(main.querySelector("[data-domain-cases]")).toBeNull();
     expect(main.querySelector("[data-domain-work-window]")).toBeNull();
     expect(main.querySelector("[data-domain-work-currentness], [data-domain-work-notice]")).toBeNull();
+    // post-W6 R338 (W5 rulings 1): the mini cases form gets no listing-basis line.
+    expect(main.querySelector("[data-domain-work-window-basis]")).toBeNull();
   });
 
   it("scopes the cold case-cell CSS to COLDCHAIN with [data-cold-cases] on both case tabs (W5-02c K5, ruling 12)", async () => {

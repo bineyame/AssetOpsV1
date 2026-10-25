@@ -377,6 +377,15 @@
   color: #a13838;
 }
 
+/* post-W6 W5-cold R338 (B15-06): the 12px muted listing-basis line under the Window control (W6 Q7 pattern). */
+.domain-work-window__basis {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
 @media (max-width: 760px) {
   .site-date-bar.domain-work-window {
     justify-content: stretch;

@@ -19,7 +19,8 @@ export const COLD_WORK_GLOBAL_GAP = "Global Actions does not include cold-chain 
 // fixture; the subtitle appears only when the full selected set has no due date (`all_due_dates_unset`).
 export const COLD_WORK_DUE_UNSET = "Due dates are not yet set";
 
-export const COLD_WORK_EMPTY = ["No actions at this site", "No accepted recommendation or evidence request has been raised here yet."] as const;
+/** post-W6 W5-cold R338 (B14-09; guide §3): the empty copy names the selected window, not "yet". */
+export const COLD_WORK_EMPTY = ["No actions at this site", "No Action was raised here in the selected window."] as const;
 
 export const COLD_WORK_LOADING = "Loading the site's Actions.";
 export const COLD_ACTION_LOADING = "Loading the cold Action declaration.";
@@ -59,9 +60,9 @@ export const COLD_RESULT_LABELS: Record<string, string> = {
 export const LONG_TEXT_THRESHOLD = 80;
 export const READ_FULL_TEXT = "Read full text";
 
-/** `{n} actions`: the mock's literal count noun, kept as `1 actions` for one (U3). */
+/** post-W6 W5-cold R334 (B14-03; guide §4 local plural, as `evActionCount`): `1 action`, otherwise `{n} actions`. */
 export function coldActionCount(count: number): string {
-  return `${count} actions`;
+  return count === 1 ? "1 action" : `${count} actions`;
 }
 
 /** `Show all {N} Actions`: the current page's row count past the fold. */
