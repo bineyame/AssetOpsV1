@@ -746,7 +746,7 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     const events = hi.events_latest.body.events as { id: string; recorded_at: string; occurred_at: string; kind: string }[];
     // W1-F4 trim: the latest three rows (here the verification rows, recorded last) show by default; the toggle shows all.
     expect(qa("[data-action-event], [data-action-history-outcome], [data-action-history-resolution]")).toHaveLength(3);
-    expect(q("[data-action-history-show-all]")?.textContent).toBe(`Show all ${events.length + 4} events`);
+    expect(q("[data-action-history-show-all]")?.textContent).toBe(`Show all ${events.length + 4} entries`);
     showAllHistory();
     expect(qa("[data-action-event]").map((r) => r.getAttribute("data-action-event"))).toEqual(events.map((e) => e.id));
     const observed = events.find((e) => e.kind === "OBSERVED")!;
@@ -1201,5 +1201,119 @@ describe("post-W6 W1-b: Action and Finding frame chrome", () => {
       expect(labels[0].textContent).toBe("MOCK DEVIATION D2 (R383)");
       expect(siteTabs()[0].nextElementSibling).toBe(labels[0]);
     }
+  });
+});
+
+// --- post-W6 W1-b Q29/Q30 (R218/R219): resolution events and history counts ------------------------------------------
+
+describe("post-W6 W1-b: Action history resolution rows and counts", () => {
+  const base = () => structuredClone(hi.events_latest.body) as any;
+  const ev = (id: string, kind: string, at: string) => ({
+    ...structuredClone(base().events[0]),
+    id,
+    kind,
+    recorded_at: at,
+    occurred_at: at,
+    occurred_before_recorded: false,
+  });
+  const res = (id: string, kind: string, at: string) => ({
+    id,
+    kind,
+    recorded_at: at,
+    verification_plan_id: null,
+    verification_outcome_id: null,
+    triggering_job: null,
+    payload: {},
+  });
+  function reads(events: any[], resolutions: any[] = []) {
+    const body = base();
+    body.events = events;
+    const h = structuredClone((verificationContract as any).responses.history);
+    h.action_id = ACTION;
+    h.outcomes = [];
+    h.resolution_events = resolutions;
+    return {
+      ...actionReads(ov.applied_pending_newer_revision, { status: 200, body }),
+      [`${ACTION_API}/verification/history`]: { status: 200, body: h } as Served,
+    };
+  }
+  const at = (n: number) => `2026-10-0${n}T08:00:00Z`;
+  const rows = () => qa("[data-action-event], [data-action-history-outcome], [data-action-history-resolution]");
+
+  it("shows a resolution once, as its detailed row, with the ruled meanings and no duplicate-key warning", async () => {
+    const errors = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    serve(
+      reads(
+        [ev("e-accepted", "ACCEPTED", at(1)), ev("r-1", "RESOLVED", at(2)), ev("r-2", "RESOLUTION_WITHDRAWN", at(3))],
+        [res("r-1", "RESOLVED", at(2)), res("r-2", "RESOLUTION_WITHDRAWN", at(3))],
+      ),
+    );
+    mount(`/sites/KOBO-001/actions/${ACTION}/history`);
+    await settledScreen();
+    await waitFor(() => expect(q("[data-action-history-resolution-id='r-1']")).not.toBeNull());
+    expect(rows()).toHaveLength(3);
+    expect(q("[data-action-event='r-1']")).toBeNull();
+    expect(q("[data-action-event='r-2']")).toBeNull();
+    expect(q("[data-action-history-resolution-id='r-1']")?.textContent).toContain("Resolved");
+    expect(q("[data-action-history-resolution-id='r-1']")?.textContent).toContain("The evaluator settled the outcome for this Action.");
+    expect(q("[data-action-history-resolution-id='r-2']")?.textContent).toContain("Resolution withdrawn");
+    expect(q("[data-action-history-resolution-id='r-2']")?.textContent).toContain(
+      "The evaluator withdrew an earlier outcome; the Action is open for a new outcome.",
+    );
+    // Three de-duplicated entries: no truncation sentence and no toggle.
+    expect(q("[data-action-history-truncated]")).toBeNull();
+    expect(q("[data-action-history-show-all]")).toBeNull();
+    expect(errors.mock.calls.filter((c) => String(c[0]).includes("same key"))).toEqual([]);
+    errors.mockRestore();
+  });
+
+  it("an Action-only resolution or unknown event has its own meaning and never reads as accepted", async () => {
+    serve(reads([ev("r-9", "RESOLVED", at(1)), ev("x-1", "SOMETHING_NEW", at(2))]));
+    mount(`/sites/KOBO-001/actions/${ACTION}/history`);
+    await settledScreen();
+    await waitFor(() => expect(q("[data-action-event='x-1']")).not.toBeNull());
+    const resolved = q("[data-action-event='r-9']") as HTMLElement;
+    expect(resolved.textContent).toContain("Resolved");
+    expect(resolved.textContent).toContain("The evaluator settled the outcome for this Action.");
+    const unknown = q("[data-action-event='x-1']") as HTMLElement;
+    expect(unknown.textContent).toContain("Recorded event; its meaning is not shown in this build.");
+    expect(unknown.textContent).not.toMatch(/accepted/i);
+    expect(unknown.textContent).not.toContain("SOMETHING_NEW");
+  });
+
+  it.each([
+    ["zero", 0],
+    ["three", 3],
+  ])("with %s entries every entry shows, with the chip and no truncation sentence or toggle", async (_name, n) => {
+    serve(reads(Array.from({ length: n }, (_, i) => ev(`e-${i}`, "OBSERVED", at(i + 1)))));
+    mount(`/sites/KOBO-001/actions/${ACTION}/history`);
+    await settledScreen();
+    await waitFor(() => expect(q("[data-action-history-latest]")).not.toBeNull());
+    expect(q("[data-action-history-latest]")?.textContent).toBe("Latest at read time");
+    expect(qa("[data-action-event]")).toHaveLength(n);
+    expect(q("[data-action-history-truncated]")).toBeNull();
+    expect(q("[data-action-history-show-all]")).toBeNull();
+    expect(document.body.textContent).not.toMatch(/Latest at read time: \d+ of \d+ events/);
+  });
+
+  it("with four de-duplicated entries it states the truncation, offers Show all, and Show the latest 3 when expanded", async () => {
+    serve(
+      reads(
+        [ev("e-1", "OBSERVED", at(1)), ev("e-2", "OBSERVED", at(2)), ev("e-3", "OBSERVED", at(3)), ev("r-1", "RESOLVED", at(4))],
+        [res("r-1", "RESOLVED", at(4)), res("r-2", "RESOLUTION_WITHDRAWN", at(5))],
+      ),
+    );
+    mount(`/sites/KOBO-001/actions/${ACTION}/history`);
+    await settledScreen();
+    await waitFor(() => expect(q("[data-action-history-show-all]")).not.toBeNull());
+    expect(q("[data-action-history-truncated]")?.textContent?.trim()).toBe(
+      "Showing the latest 3 of 5 recorded entries; show all to see every entry.",
+    );
+    expect(q("[data-action-history-show-all]")?.textContent).toBe("Show all 5 entries");
+    expect(rows()).toHaveLength(3);
+    showAllHistory();
+    expect(rows()).toHaveLength(5);
+    expect(q("[data-action-history-show-all]")?.textContent).toBe("Show the latest 3");
+    expect(q("[data-action-history-truncated]")).toBeNull();
   });
 });

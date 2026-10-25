@@ -209,7 +209,8 @@ export interface EventActor {
   triggering: { command: string; fixture: string | null; job: string | null; service: string | null };
 }
 
-export type ActionEventKind = "ACCEPTED" | "APPLIED" | "FAILED" | "OBSERVED";
+/** post-W6 W1-b Q29 / R218: the evaluator also records RESOLVED and RESOLUTION_WITHDRAWN on the Action. */
+export type ActionEventKind = "ACCEPTED" | "APPLIED" | "FAILED" | "OBSERVED" | "RESOLVED" | "RESOLUTION_WITHDRAWN";
 
 export interface ActionEvent {
   action_id: string;
