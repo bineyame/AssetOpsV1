@@ -1,0 +1,13 @@
+stopped positive pid 27364
+stopped worstcase pid 11936
+stopped pending pid 11628
+stopped stale pid 21560
+stopped unknown pid 19028
+stopped forbidden pid 21152
+stopped unavailable pid 11512
+dropped database w502b_pending_shellrc1415_test
+dropped database w502b_positive_shellrc1415_test
+dropped database w502b_stale_shellrc1415_test
+dropped database w502b_unknown_shellrc1415_test
+dropped database w502b_worstcase_shellrc1415_test
+removed C:\Users\assef\Bineyame\AssetOpsV1-review3\var\w502b_shellrc1415
