@@ -247,7 +247,7 @@ export function Pager({
   const b = a + body.rows.length - 1;
   // Post-W6 W6 Q6 (R354): a later page opened from its URL has no local trail, so its offset is unknown; it states
   // the page's row count without a numeric range. Previous then returns to page one.
-  const unknownOffset = cursor !== null && trail.length === 0;
+  const unknownOffset = cursor !== null && (trail.length === 0 || trail[0] !== null);
   const caption = unknownOffset ? `Later page · ${body.rows.length} of ${body.total_count}` : `Showing ${a}–${b} of ${body.total_count}`;
   return (
     <nav className="global-work-pager" aria-label={label} data-global-work-pager>

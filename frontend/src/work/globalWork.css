@@ -38,7 +38,7 @@
 .global-work-status {
   margin: 0 0 14px;
   font-size: 11px;
-  color: var(--muted, #6b7a90);
+  color: var(--text-secondary);
 }
 
 .global-work-loading {
@@ -93,7 +93,7 @@
   vertical-align: top;
   margin: 4px 12px 0 0;
   font-size: 10px;
-  color: var(--muted, #6b7a90);
+  color: var(--text-secondary);
   overflow-wrap: anywhere;
 }
 
@@ -109,7 +109,7 @@
   display: none;
   margin: 0 0 6px;
   font-size: 10px;
-  color: var(--muted, #6b7a90);
+  color: var(--text-secondary);
 }
 
 .global-work-pager {
@@ -342,7 +342,7 @@
 .work-record-outcome__basis {
   display: block;
   font-size: 10px;
-  color: var(--muted, #6b7a90);
+  color: var(--text-secondary);
 }
 
 .work-record-earlier__list {
@@ -434,7 +434,7 @@
   margin: 4px 0 0;
   font-size: 12px;
   line-height: 1.4;
-  color: var(--muted, #6b7a90);
+  color: var(--text-secondary);
 }
 
 .global-work-membership {
@@ -457,7 +457,7 @@
 
 .global-work-form-reason {
   font-size: 11px;
-  color: var(--muted, #6b7a90);
+  color: var(--text-secondary);
   min-width: 0;
   overflow-wrap: anywhere;
 }

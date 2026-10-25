@@ -524,6 +524,22 @@ describe("Post-W6 W6: global Maintenance corrections", () => {
     expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 6");
   });
 
+  it("M1: Next from a URL-opened later page still states no numeric range (the offset stays unknown)", async () => {
+    mount(
+      `${PAGE}&cursor=CURSOR-2`,
+      client({
+        "CURSOR-2": loaded(body([row(6)], { total_count: 12, next_cursor: "CURSOR-3" })),
+        "CURSOR-3": loaded(body([row(7)], { total_count: 12 })),
+      }),
+    );
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 12");
+    fireEvent.click(document.querySelector("[data-global-work-next]") as HTMLElement);
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 12");
+    expect(document.querySelector("[data-global-work-showing]")?.textContent).not.toMatch(/\d+–\d+/);
+  });
+
   it("Q7/Q8/Q17: membership line, alert refusal and the R355/R358 labels", async () => {
     mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
     await settled();

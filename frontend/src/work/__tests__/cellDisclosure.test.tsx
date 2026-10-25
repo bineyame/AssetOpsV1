@@ -110,4 +110,25 @@ describe("caps ruling 4: CellDisclosure", () => {
     });
     expect(screen.getByRole("button", { name: "Show full By for REC-0004" })).toBeTruthy();
   });
+
+  it("L3: a link below the two-line box leaves the tab order while collapsed and returns on Show full", () => {
+    const top = vi.spyOn(HTMLElement.prototype, "offsetTop", "get").mockImplementation(function (this: HTMLElement) {
+      return this.getAttribute("data-below") === "true" ? 60 : 0;
+    });
+    render(
+      <MemoryRouter>
+        <CellDisclosure column="Findings" row="INC-0001">
+          <Link to="/a">{LONG}</Link> <Link to="/b" data-below="true">second</Link>{" "}
+          <Link to="/c" data-below="true" tabIndex={0}>third</Link>
+        </CellDisclosure>
+      </MemoryRouter>,
+    );
+    const link = (name: string) => screen.getByRole("link", { name });
+    expect(link(LONG).hasAttribute("tabindex")).toBe(false);
+    expect(link("second").getAttribute("tabindex")).toBe("-1");
+    fireEvent.click(screen.getByRole("button", { name: "Show full Findings for INC-0001" }));
+    expect(link("second").hasAttribute("tabindex")).toBe(false);
+    expect(link("third").getAttribute("tabindex")).toBe("0");
+    top.mockRestore();
+  });
 });

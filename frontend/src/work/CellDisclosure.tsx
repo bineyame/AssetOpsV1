@@ -36,6 +36,26 @@ export function CellDisclosure({
     if (!expanded) measure();
   }, [expanded, measure, children]);
 
+  // L3: while collapsed and clipped, a focusable below the two-line box is taken out of the tab order (it is not
+  // visible); expanding, or a value that fits, restores exactly the tabindex values this effect changed.
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (el === null || expanded || !overflows) return undefined;
+    const taken: Array<[HTMLElement, string | null]> = [];
+    el.querySelectorAll<HTMLElement>("a[href], button, [tabindex]").forEach((node) => {
+      if (node.offsetTop >= el.clientHeight) {
+        taken.push([node, node.getAttribute("tabindex")]);
+        node.setAttribute("tabindex", "-1");
+      }
+    });
+    return () => {
+      for (const [node, prior] of taken) {
+        if (prior === null) node.removeAttribute("tabindex");
+        else node.setAttribute("tabindex", prior);
+      }
+    };
+  }, [expanded, overflows, children]);
+
   useEffect(() => {
     const el = ref.current;
     if (el === null) return undefined;

@@ -516,6 +516,22 @@ describe("Post-W6 W6: global Incidents corrections", () => {
     expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Showing 1–5 of 6");
   });
 
+  it("M1: Next from a URL-opened later page still states no numeric range (the offset stays unknown)", async () => {
+    mount(
+      `${PAGE}&cursor=CURSOR-2`,
+      client({
+        "CURSOR-2": loaded(body([row(6)], { total_count: 12, next_cursor: "CURSOR-3" })),
+        "CURSOR-3": loaded(body([row(7)], { total_count: 12 })),
+      }),
+    );
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 12");
+    fireEvent.click(document.querySelector("[data-global-work-next]") as HTMLElement);
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 12");
+    expect(document.querySelector("[data-global-work-showing]")?.textContent).not.toMatch(/\d+–\d+/);
+  });
+
   it("Q7: the default window is seven UTC days including today, the membership line is stated, an explicit window is kept", async () => {
     const now = Date.parse("2026-10-25T09:30:00Z");
     expect(defaultGlobalWorkWindow(now)).toEqual({ from: "2026-10-19T00:00:00Z", to: "2026-10-26T00:00:00Z" });
