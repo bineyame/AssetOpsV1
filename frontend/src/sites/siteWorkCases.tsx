@@ -941,8 +941,10 @@ function Rows({
       : overlay.status === "loaded"
         ? (overlay.value.contexts[caseId] ?? "refused")
         : "refused";
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const tallRows = useVerticalOverflow(scrollRef, body.rows.length);
   return (
-    <div className="work-cases-table" data-work-table={copy.kind}>
+    <div className="work-cases-table" data-work-table={copy.kind} data-work-mini={cells === null ? "" : undefined} ref={scrollRef}>
       {panelRefused ? (
         <p
           className="work-cases-context work-cases-context--panel muted"
@@ -985,8 +987,37 @@ function Rows({
           ))}
         </tbody>
       </DataTable>
+      {/* post-W6 W4 unit 5 (guide §1, ruled Incidents 1440 cap 500): when the bounded table region hides rows, say so
+          outside the region; the region itself is the focusable, labelled DataTable scroller. */}
+      {tallRows ? (
+        <p className="work-cases-vscroll-hint" data-work-vscroll-hint>
+          {`Scroll the ${copy.kind === "incidents" ? "incident" : "maintenance"} table to see every row`}
+        </p>
+      ) : null}
     </div>
   );
+}
+
+/**
+ * True while the table's scroll region (`.data-table__scroll` under `ref`) is taller than its box. Re-measured on
+ * row changes and resize; jsdom reports 0/0, so it stays false there unless a test stubs the sizes.
+ */
+function useVerticalOverflow(ref: { current: HTMLElement | null }, rows: number): boolean {
+  const [tall, setTall] = useState(false);
+  useEffect(() => {
+    const region = ref.current?.querySelector<HTMLElement>(".data-table__scroll") ?? null;
+    if (region === null) return undefined;
+    const check = () => setTall(region.scrollHeight > region.clientHeight + 1);
+    check();
+    window.addEventListener("resize", check);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(check);
+    observer?.observe(region);
+    return () => {
+      window.removeEventListener("resize", check);
+      observer?.disconnect();
+    };
+  }, [ref, rows]);
+  return tall;
 }
 
 function Pages({

@@ -901,4 +901,44 @@ describe("post-W6 W4 R320/R322/R324: mini Work in Site time, plain refusals and 
     // Five long rows: every row keeps its own disclosure.
     expect(document.querySelectorAll("[data-work-mini-long^='work-mini-narrative-'] summary")).toHaveLength(5);
   });
+
+  it("unit 5 (ruled Incidents 1440 cap 500): a mini table region that hides rows says so outside the region", async () => {
+    const sh = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollHeight");
+    const ch = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "clientHeight");
+    Object.defineProperty(HTMLElement.prototype, "scrollHeight", { configurable: true, get() { return this.classList?.contains("data-table__scroll") ? 692 : 0; } });
+    Object.defineProperty(HTMLElement.prototype, "clientHeight", { configurable: true, get() { return this.classList?.contains("data-table__scroll") ? 330 : 0; } });
+    try {
+      serve({ [api("incidents", DAY)]: { status: 200, body: body([1, 2, 3, 4, 5].map((n) => incidentRow(n))) } });
+      mount(page("incidents", DAY));
+      await settledScreen();
+      await vi.waitFor(() => expect(document.querySelectorAll("main tbody tr")).toHaveLength(5));
+      const table = document.querySelector("[data-work-table='incidents']") as HTMLElement;
+      expect(table.hasAttribute("data-work-mini")).toBe(true);
+      const hint = await vi.waitFor(() => {
+        const el = table.querySelector("[data-work-vscroll-hint]");
+        expect(el).not.toBeNull();
+        return el as HTMLElement;
+      });
+      expect(text(hint)).toBe("Scroll the incident table to see every row");
+      const region = table.querySelector(".data-table__scroll") as HTMLElement;
+      expect(region.getAttribute("tabindex")).toBe("0");
+      expect(region.getAttribute("role")).toBe("region");
+      expect(region.contains(hint)).toBe(false);
+    } finally {
+      if (sh) Object.defineProperty(HTMLElement.prototype, "scrollHeight", sh);
+      if (ch) Object.defineProperty(HTMLElement.prototype, "clientHeight", ch);
+    }
+  });
+
+  it("unit 5: no hint when every row fits, and the 1440 rule bounds only the mini Incident table", async () => {
+    serve({ [api("incidents", DAY)]: { status: 200, body: body([incidentRow(1)]) } });
+    mount(page("incidents", DAY));
+    await settledScreen();
+    await vi.waitFor(() => expect(document.querySelectorAll("main tbody tr")).toHaveLength(1));
+    expect(document.querySelector("[data-work-vscroll-hint]")).toBeNull();
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/sites/w4-work-cases.css`, "utf8");
+    expect(css).toMatch(/@media \(min-width: 761px\) \{\s*\.work-cases \[data-work-table="incidents"\]\[data-work-mini\] \.data-table__scroll \{ max-height: 330px; overflow: auto; \}/);
+  });
 });
