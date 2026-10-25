@@ -19,7 +19,7 @@ import {
   type ProductWords,
   type ReadResultKind,
 } from "../ui";
-import { ConsequenceHistoryPanel, ConsequenceHistoryRefused } from "./ConsequenceHistory";
+import { ConsequenceHistoryPanel, ConsequenceHistoryRefused, parseHistoryBack } from "./ConsequenceHistory";
 import type {
   AssumptionRevisionBody,
   ConsequenceHistoryBody,
@@ -61,11 +61,22 @@ export interface FinancialsLinks {
     recordedAt?: string | null;
     historyAfter?: string | null;
     historyLimit?: number | null;
+    /** post-W6 W1-b Q23: the prior-cursor stack (repeated `history_back`), oldest first; `0` is the first page. */
+    historyBack?: string[] | null;
   }) => string;
   /** The Overview pinned to one exact fuel cost version of the same Finding version (null: the latest). */
   consequence: (findingId: string, revisionId: string, consequenceRevisionId: string | null) => string;
   findings: string;
+  /** post-W6 W1-b Q21: the global Financials list (`Portfolio roll-up →`). */
+  portfolio?: string;
+  /** post-W6 W1-b Q22: the Site's Dispatch Analysis at one UTC day (no revision unless proved interval). */
+  dispatchAnalysis?: (day: string, intervalRevisionId: string | null) => string;
+  /** post-W6 W1-b Q24 / R201: the Site's Financials overview (`Return to financial overview`). */
+  overview?: string;
 }
+
+/** post-W6 W1-b Q23 / R200: the default Interpretation history page size (an explicit 1-100 address is kept). */
+export const DEFAULT_HISTORY_LIMIT = 3;
 
 const BASIS_WORDS: Record<string, string> = {
   AUTHORED_ESTIMATE: "An estimate written for this site",
@@ -399,8 +410,13 @@ export function SiteAssumptions({
   const recordedAt = recordedAtRaw !== null && !Number.isNaN(new Date(recordedAtRaw).getTime()) ? recordedAtRaw : null;
   const historyAfter = recordedAt !== null ? params.get("history_after") : null;
   // A page size the address names (1-100) is kept through paging: each cursor is issued for one page size.
+  // post-W6 W1-b Q23 / R200: without one, the default view reads three versions at a time.
   const limitRaw = Number(params.get("history_limit"));
-  const historyLimit = Number.isInteger(limitRaw) && limitRaw >= 1 && limitRaw <= 100 ? limitRaw : null;
+  const historyLimit =
+    params.get("history_limit") !== null && Number.isInteger(limitRaw) && limitRaw >= 1 && limitRaw <= 100
+      ? limitRaw
+      : DEFAULT_HISTORY_LIMIT;
+  const historyBack = parseHistoryBack(historyAfter === null ? [] : params.getAll("history_back"), historyAfter);
   const [after, setAfter] = useState(0);
   // Review L5 (S4-02a): "Show later versions" appends to the versions already shown rather than replacing them.
   const [earlier, setEarlier] = useState<PriceRevision[]>([]);
@@ -409,7 +425,7 @@ export function SiteAssumptions({
   // unchanged (review L-R1), is the moment the price list is read at, so both lists describe one instant; the
   // address itself is not rewritten. An explicit `recorded_at` address reads both at that moment.
   const historyRead = useRead<ConsequenceHistoryBody, ConsequenceHistoryResult>(
-    () => client.getConsequenceHistory(siteId, { recordedAt, after: historyAfter, limit: historyLimit ?? undefined }),
+    () => client.getConsequenceHistory(siteId, { recordedAt, after: historyAfter, limit: historyLimit }),
     [client, siteId, recordedAt, historyAfter, historyLimit],
   );
   const cutoff = recordedAt ?? (historyRead?.status === "loaded" ? historyRead.value.cutoff.recorded_at : null);
@@ -452,7 +468,14 @@ export function SiteAssumptions({
   }
   const historyPanel = (prices: ReactNode) =>
     historyRead.status === "loaded" ? (
-      <ConsequenceHistoryPanel body={historyRead.value} siteName={`Site ${siteId}`} links={links} historyLimit={historyLimit}>
+      <ConsequenceHistoryPanel
+        body={historyRead.value}
+        siteName={`Site ${siteId}`}
+        links={links}
+        historyLimit={historyLimit}
+        historyAfter={historyAfter}
+        historyBack={historyBack}
+      >
         {prices}
       </ConsequenceHistoryPanel>
     ) : (
@@ -640,6 +663,12 @@ function FinancialAssumptions({
       ) : null}
       <div className="form-footer">
         <DisabledEdit />
+        {/* post-W6 W1-b Q24 / R201: the mock's form-footer link beside the (disabled) edit. */}
+        {links.overview === undefined ? null : (
+          <Link to={links.overview} data-assumptions-return-overview>
+            Return to financial overview
+          </Link>
+        )}
       </div>
       {body.timeline.length > 0 ? (
         // W1-F3 height phase: the mock's panel ends at the form; when each price applies (the strip and the
@@ -777,7 +806,10 @@ function PriceHistory({
       </tbody>
     </DataTable>
   );
+  // post-W6 W1-b Q23 / R200: the price versions sit below the fuel cost versions in one closed disclosure; their
+  // latest three rows and "Show later versions" stay available inside it.
   return (
+    <Disclosure name="price-versions" summary={`Price versions recorded (${page.total})`}>
     <div role="region" aria-label="Price history" data-price-history-part="">
       <p className="v69-eyebrow">
         Price versions recorded by {body.cutoff.recorded_at ? formatInstant(body.cutoff.recorded_at) : "this moment"}, oldest
@@ -830,6 +862,7 @@ function PriceHistory({
         ) : null}
       </div>
     </div>
+    </Disclosure>
   );
 }
 
@@ -930,7 +963,7 @@ export function SiteFinancialsOverview({
         />
       ) : (
         <>
-          <FinancialsStatusBar lines="No finding selected" currency={null} />
+          <FinancialsStatusBar lines="No finding selected" currency={null} rollUp={links.portfolio} />
           <MetricCards columns={4} label="Money consequence measures">
             <MetricCard
               label="Operating-cost exposure"

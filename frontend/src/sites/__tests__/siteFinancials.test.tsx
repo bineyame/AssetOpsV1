@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SiteFinancialsFrame } from "../../shell/SiteAnalyticsFrames";
+import { technicalBasisHref } from "../FindingConsequence";
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
@@ -369,7 +370,8 @@ describe("Site > Financials > Assumptions", () => {
     expect(id.closest("details")).not.toHaveAttribute("open");
     // S4-08 (review L-R2, deliberate change): the default view no longer reads the current price list. It reads the
     // fuel cost history first and passes that read's exact cutoff string to the price read (was `recordedAt: null`).
-    expect(client.asked.history[0]).toEqual({ recordedAt: null, after: null });
+    // post-W6 W1-b Q23: the default address reads three versions at a time.
+    expect(client.asked.history[0]).toEqual({ recordedAt: null, after: null, limit: 3 });
     expect(client.asked.series[0]).toMatchObject({ recordedAt: CUT, afterRevisionNo: 0 });
     const { violations, scanned } = scanProductVocabulary(container, "assumptions");
     expect(scanned).toBeGreaterThan(10);
@@ -1084,7 +1086,7 @@ describe("Site > Financials > Assumptions > Interpretation history (S4-08)", () 
     const client = fake({ seriesFor: echoSeries });
     mount(client, "/sites/KOBO-001/financials/assumptions");
     await settledScreen();
-    expect(client.asked.history).toEqual([{ recordedAt: null, after: null }]);
+    expect(client.asked.history).toEqual([{ recordedAt: null, after: null, limit: 3 }]);
     // Review L-R1: the same string, microseconds included, never a `Date` round trip.
     expect(client.asked.series.map((q) => q.recordedAt)).toEqual([CUT]);
     expect(screen.getByTestId("where")).toHaveTextContent(/^\/sites\/KOBO-001\/financials\/assumptions$/);
@@ -1111,15 +1113,15 @@ describe("Site > Financials > Assumptions > Interpretation history (S4-08)", () 
     await settledScreen();
     expect(client.asked.history[0]).toEqual({ recordedAt: at, after: null, limit: 2 });
     expect(client.asked.series[0].recordedAt).toBe(at);
-    fireEvent.click(screen.getByRole("link", { name: "Show earlier versions" }));
+    fireEvent.click(screen.getByRole("link", { name: "Previous versions" }));
     await settledScreen();
-    // The cursor was issued for one page size, so the address keeps it.
+    // The cursor was issued for one page size, so the address keeps it; post-W6 W1-b Q23 pushes page one (`0`).
     expect(screen.getByTestId("where")).toHaveTextContent(
-      `/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}&history_after=cursor-1&history_limit=2`,
+      `/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}&history_after=cursor-1&history_limit=2&history_back=0`,
     );
     expect(client.asked.history.at(-1)).toEqual({ recordedAt: at, after: "cursor-1", limit: 2 });
     expect(client.asked.series.every((q) => q.recordedAt === at)).toBe(true);
-    expect(screen.getByRole("link", { name: "Back to the newest versions" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Next versions" })).toBeInTheDocument();
   });
 
   it("lists earlier and latest versions with recorded amounts only as labelled history, and exact links", async () => {
@@ -1207,7 +1209,9 @@ describe("Site > Financials > Assumptions > Interpretation history (S4-08)", () 
     expect(source).toHaveAttribute("data-history-source", state);
     expect(source).toHaveTextContent(label);
     expect(source).toHaveTextContent(statement);
-    expect(visibleOutsideClosedDisclosure(source)).toBe(true);
+    // post-W6 W1-b Q23 / R200: the source sits in the row's closed "Show this version" disclosure.
+    expect(source.closest("details")?.querySelector("summary")).toHaveTextContent("Show this version");
+    expect(visibleOutsideClosedDisclosure(source)).toBe(false);
     expect(row).toHaveTextContent("Not shown: the source of the readings behind this version is not confirmed.");
     expect(row.querySelector("[data-history-recorded-amount]")).toBeNull();
     // No recorded fuel-cost range for this version (a price per litre elsewhere in the panel is not an amount).
@@ -1258,7 +1262,12 @@ describe("Site > Financials > Assumptions > Interpretation history (S4-08)", () 
     expect(showAll.open).toBe(false);
     expect(showAll.querySelector("summary")).toHaveTextContent("Show all 5 versions (2 earlier)");
     expect(ids(showAll)).toEqual(["p-1", "p-2"]);
-    expect(Array.from(document.querySelectorAll("[data-price-history-revision]")).filter((li) => visibleOutsideClosedDisclosure(li)).map((li) => li.getAttribute("data-price-history-revision"))).toEqual(["p-3", "p-4", "p-5"]);
+    // post-W6 W1-b Q23 / R200: the whole price part sits in one closed "Price versions recorded (n)" disclosure; inside
+    // it the latest three rows show directly.
+    const versions = document.querySelector("details[data-disclosure='price-versions']") as HTMLDetailsElement;
+    expect(versions.open).toBe(false);
+    expect(versions.querySelector("summary")).toHaveTextContent("Price versions recorded (5)");
+    expect(Array.from(versions.querySelectorAll("[data-price-history-revision]")).filter((li) => li.closest("details") === versions).map((li) => li.getAttribute("data-price-history-revision"))).toEqual(["p-3", "p-4", "p-5"]);
   });
 
   it("height phase: the state line, price and disabled edit are visible; the strip and full schedule are reachable behind 'When each price applies'", async () => {
@@ -1294,9 +1303,9 @@ describe("Site > Financials > Assumptions > Interpretation history (S4-08)", () 
     mount(client, `/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}&history_after=stale`);
     await settledScreen();
     expect(screen.getByTestId("where")).toHaveTextContent(
-      new RegExp(`^${escaped(`/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}`)}$`),
+      new RegExp(`^${escaped(`/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}&history_limit=3`)}$`),
     );
-    await vi.waitFor(() => expect(client.asked.history.at(-1)).toEqual({ recordedAt: at, after: null }));
+    await vi.waitFor(() => expect(client.asked.history.at(-1)).toEqual({ recordedAt: at, after: null, limit: 3 }));
     await settledScreen();
     expect(document.querySelector("[data-history-row]")).toBeInTheDocument();
   });
@@ -1753,5 +1762,141 @@ describe("W1-UX-02: Site > Financials > Assumptions (assumptions)", () => {
     // W1-F3 (was: no price card): the panel skeleton stays with its gap, and no price line is drawn.
     expectV69Panels("assumptions");
     expect(document.querySelector("[data-price-selection]")).toBeNull();
+  });
+});
+
+// --- post-W6 W1-b (Q21-Q24 / R198-R201) ---------------------------------------------------------------------------
+
+describe("post-W6 W1-b: Site Financials links and Interpretation history paging", () => {
+  const SEVEN = [1, 2, 3, 4, 5, 6, 7].map((n) => `c7000000-0000-4000-8000-00000000000${n}`);
+  const pagedHistory = (q: HistoryQuery): ConsequenceHistoryResult => {
+    const offset = q.after ? Number(q.after.slice(1)) : 0;
+    const limit = q.limit ?? 25;
+    const rows = SEVEN.slice(offset, offset + limit).map((id, i) => hrow(id, { revision_no: offset + i + 1 }));
+    return {
+      status: "loaded",
+      value: historyBody(rows, {
+        cutoff: { recorded_at: CUT, selected_by: q.recordedAt ? "RECORDED_CUTOFF" : "SERVER_DEFAULT", clock: "DATABASE", membership: "x" },
+        next_cursor: offset + limit < SEVEN.length ? `c${offset + limit}` : null,
+        page: { limit, shown: rows.length, is_first: !q.after },
+      }),
+    };
+  };
+  const shownRows = () => Array.from(document.querySelectorAll("[data-history-row]")).map((r) => r.getAttribute("data-history-row"));
+  const where = () => screen.getByTestId("where").textContent ?? "";
+  const base = `/sites/KOBO-001/financials/assumptions`;
+  const cut = encodeURIComponent(CUT);
+
+  it("Q23: pages seven versions three at a time, older and back newer, keeping cutoff, limit and the prior-cursor stack", async () => {
+    const client = fake({ seriesFor: echoSeries, history: pagedHistory });
+    mount(client, base);
+    await settledScreen();
+    expect(client.asked.history[0]).toEqual({ recordedAt: null, after: null, limit: 3 });
+    expect(shownRows()).toEqual(SEVEN.slice(0, 3));
+    expect(screen.queryByRole("link", { name: "Next versions" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Back to newest" })).toBeNull();
+    const older = screen.getByRole("link", { name: "Previous versions" });
+    expect(older.tagName).toBe("A");
+    older.focus();
+    expect(document.activeElement).toBe(older);
+    fireEvent.click(older);
+    await settledScreen();
+    expect(where()).toBe(`${base}?recorded_at=${cut}&history_after=c3&history_limit=3&history_back=0`);
+    expect(shownRows()).toEqual(SEVEN.slice(3, 6));
+    fireEvent.click(screen.getByRole("link", { name: "Previous versions" }));
+    await settledScreen();
+    expect(where()).toBe(`${base}?recorded_at=${cut}&history_after=c6&history_limit=3&history_back=0&history_back=c3`);
+    expect(shownRows()).toEqual(SEVEN.slice(6));
+    expect(screen.queryByRole("link", { name: "Previous versions" })).toBeNull();
+    fireEvent.click(screen.getByRole("link", { name: "Next versions" }));
+    await settledScreen();
+    expect(where()).toBe(`${base}?recorded_at=${cut}&history_after=c3&history_limit=3&history_back=0`);
+    expect(shownRows()).toEqual(SEVEN.slice(3, 6));
+    fireEvent.click(screen.getByRole("link", { name: "Next versions" }));
+    await settledScreen();
+    expect(where()).toBe(`${base}?recorded_at=${cut}&history_limit=3`);
+    expect(shownRows()).toEqual(SEVEN.slice(0, 3));
+    expect(client.asked.history.every((q) => q.limit === 3)).toBe(true);
+  });
+
+  it("Q23: an explicit valid limit is kept; a direct cursor address without a stack offers only Back to newest", async () => {
+    const client = fake({ seriesFor: echoSeries, history: pagedHistory });
+    mount(client, `${base}?recorded_at=${cut}&history_after=c2&history_limit=2`);
+    await settledScreen();
+    expect(client.asked.history[0]).toEqual({ recordedAt: CUT, after: "c2", limit: 2 });
+    expect(screen.queryByRole("link", { name: "Next versions" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Back to newest" })).toHaveAttribute("href", `${base}?recorded_at=${cut}&history_limit=2`);
+    expect(screen.getByRole("link", { name: "Previous versions" })).toHaveAttribute(
+      "href",
+      `${base}?recorded_at=${cut}&history_after=c4&history_limit=2&history_back=c2`,
+    );
+  });
+
+  it.each([
+    ["a malformed value", "history_back=bad%21"],
+    ["a first-page token above the bottom", "history_back=c3&history_back=0"],
+    ["an out-of-range stack", Array.from({ length: 101 }, () => "history_back=c3").join("&")],
+  ])("Q23: rejects %s rather than guessing a prior cursor", async (_name, stack) => {
+    mount(fake({ seriesFor: echoSeries, history: pagedHistory }), `${base}?recorded_at=${cut}&history_after=c3&${stack}`);
+    await settledScreen();
+    expect(screen.queryByRole("link", { name: "Next versions" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Back to newest" })).toHaveAttribute("href", `${base}?recorded_at=${cut}&history_limit=3`);
+  });
+
+  it("Q23: each compact row has Version, Fuel price, Recorded amount and Status, with the full version in a closed disclosure", async () => {
+    mount(fake({ seriesFor: echoSeries, history: pagedHistory }), base);
+    await settledScreen();
+    const panel = panelTitled("Interpretation history");
+    const heads = Array.from(panel.querySelectorAll("table")[0].querySelectorAll("thead th")).map((th) => th.textContent);
+    expect(heads).toEqual(["Version", "Fuel price", "Recorded amount", "Status"]);
+    const row = panel.querySelector("[data-history-row]") as HTMLElement;
+    const details = row.querySelector("details") as HTMLDetailsElement;
+    expect(details.open).toBe(false);
+    expect(details.querySelector("summary")).toHaveTextContent("Show this version");
+    for (const sel of ["[data-history-source]", "[data-history-open]", "[data-history-finding]", "[data-history-version-detail]"]) {
+      expect(details.querySelector(sel), sel).not.toBeNull();
+    }
+  });
+
+  it("Q24: the assumptions form footer links back to the financial overview beside the disabled edit", async () => {
+    mount(fake(), base);
+    await settledScreen();
+    const footer = document.querySelector("[data-price-edit='disabled']")?.closest(".form-footer") as HTMLElement;
+    expect(within(footer).getByRole("link", { name: "Return to financial overview" })).toHaveAttribute("href", "/sites/KOBO-001/financials");
+  });
+
+  it("Q21/Q22: the bridge statusbar links Portfolio roll-up to /financials; Trade-offs links the day's Dispatch Analysis, no revision", async () => {
+    mount(fake({ bridge: { status: "loaded", value: bridgeBody("UNPRICED") } }), `/sites/KOBO-001/financials?finding_id=${FINDING}&revision_id=${FREV}`);
+    await settledScreen();
+    const bar = document.querySelector("[data-financials-statusbar]") as HTMLElement;
+    expect(within(bar).getByRole("link", { name: "Portfolio roll-up →" })).toHaveAttribute("href", "/financials");
+    const basis = within(panelTitled("Trade-offs and exclusions")).getByRole("link", { name: "Inspect technical basis →" });
+    expect(basis.getAttribute("href")).toMatch(/\/sites\/KOBO-001\/performance\/dispatch\?day=2026-10-06&view=analysis$/);
+    expect(basis.getAttribute("href")).not.toContain("revision");
+  });
+
+  it("Q21/Q22: with no finding selected the statusbar still links the roll-up, and Trade-offs has no technical-basis link", async () => {
+    mount(fake(), "/sites/KOBO-001/financials");
+    await settledScreen();
+    expect(within(document.querySelector("[data-financials-statusbar]") as HTMLElement).getByRole("link", { name: "Portfolio roll-up →" })).toHaveAttribute("href", "/financials");
+    expect(within(panelTitled("Trade-offs and exclusions")).queryByRole("link", { name: "Inspect technical basis →" })).toBeNull();
+  });
+
+  it("Q22: an absent or invalid window start gives no technical-basis link", async () => {
+    const body = { ...bridgeBody("UNPRICED"), window: { start: "not-a-time", end: null } };
+    mount(fake({ bridge: { status: "loaded", value: body } }), `/sites/KOBO-001/financials?finding_id=${FINDING}&revision_id=${FREV}`);
+    await settledScreen();
+    expect(within(panelTitled("Trade-offs and exclusions")).queryByRole("link", { name: "Inspect technical basis →" })).toBeNull();
+  });
+
+  it("Q22: technicalBasisHref adds a revision only for a proved interval revision of the same day", () => {
+    const to = (day: string, rev: string | null) => `d=${day}|r=${rev ?? "-"}`;
+    expect(technicalBasisHref("2026-10-06T23:30:00+00:00", to)).toBe("d=2026-10-06|r=-");
+    expect(technicalBasisHref("2026-10-06T23:30:00+00:00", to, { revisionId: "i-1", intervalRevisionIds: ["i-1"], intervalDay: "2026-10-06" })).toBe("d=2026-10-06|r=i-1");
+    expect(technicalBasisHref("2026-10-06T23:30:00+00:00", to, { revisionId: "w-1", intervalRevisionIds: ["i-1"], intervalDay: "2026-10-06" })).toBe("d=2026-10-06|r=-");
+    expect(technicalBasisHref("2026-10-06T23:30:00+00:00", to, { revisionId: "i-1", intervalRevisionIds: ["i-1"], intervalDay: "2026-10-07" })).toBe("d=2026-10-06|r=-");
+    expect(technicalBasisHref(null, to)).toBeNull();
+    expect(technicalBasisHref("", to)).toBeNull();
+    expect(technicalBasisHref("2026-10-06T08:00:00+00:00", undefined)).toBeNull();
   });
 });

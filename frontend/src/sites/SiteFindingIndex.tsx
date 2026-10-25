@@ -75,19 +75,37 @@ const ManageHref = createContext<string | null>(null);
  * have no authoritative classification or Site/window filter yet, so they are "Not available yet" text and
  * cannot change or discard the window selection.
  */
-/** W4-03 closure 4 S11: the mini Site's noninteractive helper below the lens row (no href, handler or focus). */
+/**
+ * W4-03 closure 4 S11: the mini Site's helper in the panel controls. post-W6 W1-b Q20 / R197: "open the renewable
+ * evaluation" links to the Site's mounted Performance Renewable view; the index has no Opportunity ID, so no
+ * Opportunity address is made up.
+ */
 export const OPPORTUNITY_INDEX_HELPER =
   "Opportunity index unavailable; open the renewable evaluation for this site's five-day study.";
+const OPPORTUNITY_HELPER_LINK = "open the renewable evaluation";
 
 /** A Site-scoped lens address; none exists yet, so every current call leaves these out (Q18 / Q49, D5). */
 export type SiteLensHrefs = Partial<Record<"Cost" | "Risks" | "Opportunities", string>>;
 
-function OpportunityHelper({ shown }: { shown: boolean }) {
-  return shown ? (
+function OpportunityHelper({ shown, renewable }: { shown: boolean; renewable?: string }) {
+  if (!shown) return null;
+  if (renewable === undefined) {
+    return (
+      <p className="finding-sections__helper" data-opportunity-index-helper>
+        {OPPORTUNITY_INDEX_HELPER}
+      </p>
+    );
+  }
+  const at = OPPORTUNITY_INDEX_HELPER.indexOf(OPPORTUNITY_HELPER_LINK);
+  return (
     <p className="finding-sections__helper" data-opportunity-index-helper>
-      {OPPORTUNITY_INDEX_HELPER}
+      {OPPORTUNITY_INDEX_HELPER.slice(0, at)}
+      <Link to={renewable} data-opportunity-index-renewable>
+        {OPPORTUNITY_HELPER_LINK}
+      </Link>
+      {OPPORTUNITY_INDEX_HELPER.slice(at + OPPORTUNITY_HELPER_LINK.length)}
     </p>
-  ) : null;
+  );
 }
 
 /** A future Site-scoped lens; the unbuilt entries stay literal (navigation-truthfulness inventory). */
@@ -123,6 +141,26 @@ export interface FindingIndexLinks {
   finding: (findingId: string, revisionId?: string | null) => string;
   /** post-W6 W1-a Q18 / R196: the estate Findings list (`Manage in Findings →` on the scope strip). */
   manage?: string;
+  /** post-W6 W1-b Q19 / R197: the Site's Performance Dispatch at one UTC day, optionally one interval revision. */
+  dispatch?: (day: string, intervalRevisionId: string | null) => string;
+  /** post-W6 W1-b Q20 / R197: the Site's mounted Performance Renewable view (the opportunity helper's link). */
+  renewable?: string;
+}
+
+/**
+ * post-W6 W1-b Q19 (pre-flight ruling 2): the Domain cell's Dispatch day is the UTC date of the episode start; the
+ * revision is added only when the row's assessment revision is proved to be a 15-minute interval revision by the
+ * row's own interval list. A whole-window primary, a missing list or an invalid start never selects a revision, and
+ * an invalid start gives no day at all.
+ */
+export function dispatchTarget(row: FindingIndexRow): { day: string; revisionId: string | null } | null {
+  const start = row.episode.start;
+  if (typeof start !== "string" || !/^\d{4}-\d{2}-\d{2}T/.test(start) || Number.isNaN(Date.parse(start))) return null;
+  const day = new Date(start).toISOString().slice(0, 10);
+  const id = row.assessment?.assessment_revision_id;
+  const intervals = row.assessment?.interval_assessment_revision_ids;
+  const revisionId = typeof id === "string" && id !== "" && Array.isArray(intervals) && intervals.includes(id) ? id : null;
+  return { day, revisionId };
 }
 
 export interface SiteFindingIndexProps {
@@ -139,7 +177,8 @@ export interface SiteFindingIndexProps {
 }
 
 const HEADING_ID = "site-finding-index-heading";
-const QUESTION = "Which Findings belong to this site?";
+/** post-W6 W1-b Q19 / R197: the mock's `Findings at this site` panel description. */
+const PANEL_DESCRIPTION = "Domain links back to the Performance view that produced the finding.";
 const NOT_A_ZERO =
   "No Findings are listed and no count is given. This is not a statement that the window has no Findings.";
 
@@ -462,6 +501,20 @@ function Rows({ body, links }: { body: FindingIndexBody; links: FindingIndexLink
   );
 }
 
+function DomainCell({ row, links }: { row: FindingIndexRow; links: FindingIndexLinks }) {
+  const target = links.dispatch === undefined ? null : dispatchTarget(row);
+  if (target === null || links.dispatch === undefined) return <>Dispatch</>;
+  return (
+    <Link
+      to={links.dispatch(target.day, target.revisionId)}
+      data-finding-index-dispatch={target.day}
+      data-finding-index-dispatch-revision={target.revisionId ?? undefined}
+    >
+      Dispatch
+    </Link>
+  );
+}
+
 function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: FindingIndexLinks }) {
   return (
     <DataTable labelledBy={HEADING_ID}>
@@ -495,7 +548,9 @@ function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: Find
                 {/* W1-F3 review H2/M9: related Findings sit under the title instead of a wrapping column. */}
                 <Relations row={row} links={links} />
               </td>
-              <td data-finding-index-domain>Dispatch</td>
+              <td data-finding-index-domain>
+                <DomainCell row={row} links={links} />
+              </td>
               <td>
                 <span className="badge badge--not-assessed" data-finding-index-priority data-not-assessed>
                   Not assessed
@@ -576,7 +631,7 @@ function View({
           </>
         )}
       </StatusBar>
-      <Panel heading="Findings at this site" headingId={HEADING_ID} description={QUESTION} actions={action}>
+      <Panel heading="Findings at this site" headingId={HEADING_ID} description={PANEL_DESCRIPTION} actions={action}>
         {controls}
         {body}
         {references ?? null}
@@ -884,7 +939,7 @@ export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallba
         value={
           <div className="site-findings-controls" data-site-findings-controls>
             {/* The opportunity helper stays in the panel, the noninteractive line it was before the lenses moved. */}
-            <OpportunityHelper shown={opportunityHelper} />
+            <OpportunityHelper shown={opportunityHelper} renewable={links.renewable} />
             <WindowForm scope={scope} onScope={onScope} />
           </div>
         }

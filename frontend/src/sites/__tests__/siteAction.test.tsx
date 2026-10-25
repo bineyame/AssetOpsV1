@@ -30,7 +30,7 @@
  * and prove the same structure (no command control, a read-only reason) at
  * both; rendered layout at both widths is phase-2 browser evidence.
  */
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -1122,5 +1122,84 @@ describe("post-W6 shell R203: the W1 Action breadcrumb is Action-rooted", () => 
     const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
     expect(q("[data-action-crumb-code]")).toBeNull();
     expect(Array.from(crumbs.querySelectorAll("li")).map((li) => li.textContent)).toEqual(["Actions", "Plan"]);
+  });
+});
+
+// --- post-W6 W1-b Q26/Q27/Q33/Q35 (R204/R205/R222/R229) and Q26 retained Finding tabs (R383) ------------------------
+
+describe("post-W6 W1-b: Action and Finding frame chrome", () => {
+  const SITE = HYBRID_MINI_GRID_SITE.display_name;
+  const siteTabs = () => screen.queryAllByRole("navigation", { name: "Site sections" });
+  const sectionRow = () => screen.getByRole("navigation", { name: "Action sections" });
+  const subtitle = () => document.querySelector(".page-header__subtitle")?.textContent;
+
+  it.each(["", "/plan", "/execution", "/evidence", "/history"])(
+    "the Action view '%s' has no Site tab row, an Open site header action and the loaded subtitle",
+    async (section) => {
+      serve(actionReads(ov.accepted_pending, hi.events_latest));
+      mount(`/sites/KOBO-001/actions/${ACTION}${section}`);
+      await settledScreen();
+      await waitFor(() => expect(q("[data-action-crumb-code]")).not.toBeNull());
+      expect(siteTabs()).toHaveLength(0);
+      expect(q("[data-mock-deviation]")).toBeNull();
+      const open = within(document.querySelector(".page-header__actions") as HTMLElement).getByRole("link", { name: "Open site" });
+      expect(open).toHaveAttribute("href", "/sites/KOBO-001");
+      expect(subtitle()).toBe(`${SITE} · an action raised from a finding`);
+    },
+  );
+
+  it("a pending Action read shows only the Site in the subtitle", async () => {
+    serve({});
+    mount(`/sites/KOBO-001/actions/${ACTION}`);
+    await waitFor(() => expect(document.querySelector("h1")).not.toBeNull());
+    expect(q("[data-action-crumb-code]")).toBeNull();
+    expect(subtitle()).toBe(SITE);
+  });
+
+  it("/overview is an alias of the bare Action route, with Overview selected", async () => {
+    serve(actionReads(ov.accepted_pending, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}/overview`);
+    await settledScreen();
+    expect(q("[data-action-read='section-not-found']")).toBeNull();
+    expect(within(sectionRow()).getByRole("link", { current: "page" })).toHaveTextContent("Overview");
+  });
+
+  it("an unknown section keeps the Action h1 and section row, states the segment as text and links the overview", async () => {
+    serve(actionReads(ov.accepted_pending, hi.events_latest));
+    const segment = "<b>forecast</b>";
+    mount(`/sites/KOBO-001/actions/${ACTION}/${encodeURIComponent(segment)}`);
+    await settledScreen();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Action");
+    expect(within(sectionRow()).queryByRole("link", { current: "page" })).toBeNull();
+    expect(within(sectionRow()).getAllByRole("link")).toHaveLength(6);
+    const body = q("[data-action-read='section-not-found']") as HTMLElement;
+    expect(body.textContent).toBe(`This Action has no section called '${segment}'. Open the Action overview.`);
+    expect(body.querySelector("b")).toBeNull();
+    expect(screen.getByRole("link", { name: "Open Action overview" })).toHaveAttribute("href", `/sites/KOBO-001/actions/${ACTION}`);
+    expect(subtitle()).toBe(SITE);
+    expect(siteTabs()).toHaveLength(0);
+  });
+
+  it.each([
+    ["overview", "", true],
+    ["Analysis", "?view=analysis", true],
+    ["evidence", "/evidence", true],
+    ["history", "/history", true],
+    ["alternatives", "/alternatives", false],
+    ["recommendation", "/recommendation", false],
+  ])("the Finding %s keeps its Site tabs with one R383 label only where the row is retained", async (_name, suffix, retained) => {
+    serve({});
+    const [path, search] = suffix.startsWith("?") ? ["", suffix] : [suffix, ""];
+    mount(`/sites/KOBO-001/findings/f0000000-0000-4000-8000-000000000001${path}${search}`);
+    await waitFor(() => expect(document.querySelector("main")).not.toBeNull());
+    await settledScreen();
+    expect(siteTabs()).toHaveLength(retained ? 1 : 0);
+    const labels = qa("[data-mock-deviation]");
+    expect(labels).toHaveLength(retained ? 1 : 0);
+    if (retained) {
+      expect(labels[0]).toHaveAttribute("data-mock-deviation", "R383");
+      expect(labels[0].textContent).toBe("MOCK DEVIATION D2 (R383)");
+      expect(siteTabs()[0].nextElementSibling).toBe(labels[0]);
+    }
   });
 });

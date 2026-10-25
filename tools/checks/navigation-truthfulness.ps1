@@ -650,8 +650,8 @@ function Get-OperatorRailFailures {
             "renders.")) | Out-Null
     }
     # The selection helper is exactly the ruled source line (whitespace-flexible): Actions only for a Site Action
-    # detail path, null otherwise. A widened pattern or an unconditional label would select Actions elsewhere.
-    $railHelper = 'const railActiveLabel = (pathname: string): "Actions" | null => (/^\/sites\/[^/]+\/actions\/[^/]+(?:\/.*)?$/.test(pathname) ? "Actions" : null);'
+    # detail path, Findings only for a Site Finding detail path (post-W6 W1-b pre-flight ruling 6), null otherwise. A widened pattern or an unconditional label would select Actions elsewhere.
+    $railHelper = 'const railActiveLabel = (pathname: string): "Actions" | "Findings" | null => (/^\/sites\/[^/]+\/actions\/[^/]+(?:\/.*)?$/.test(pathname) ? "Actions" : /^\/sites\/[^/]+\/findings\/[^/]+(?:\/.*)?$/.test(pathname) ? "Findings" : null);'
     $railHelperPattern = (($railHelper -split '\s+') | ForEach-Object { [regex]::Escape($_) }) -join '\s*'
     if (($RailLines -join "`n") -notmatch $railHelperPattern) {
         $failures.Add(("$railPath does not declare the ruled rail selection helper '$railHelper', so the Actions " +

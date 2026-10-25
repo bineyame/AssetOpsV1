@@ -228,7 +228,14 @@ export function siteFinancialsHref(
 
 export function siteFinancialAssumptionsHref(
   siteId: string,
-  pin?: { revisionId?: string | null; recordedAt?: string | null; historyAfter?: string | null; historyLimit?: number | null },
+  pin?: {
+    revisionId?: string | null;
+    recordedAt?: string | null;
+    historyAfter?: string | null;
+    historyLimit?: number | null;
+    /** post-W6 W1-b Q23: the prior-cursor stack, one repeated `history_back` per value, oldest first. */
+    historyBack?: string[] | null;
+  },
 ): string {
   const base = `${siteDetailHref(siteId)}/financials/assumptions`;
   const query = new URLSearchParams();
@@ -237,6 +244,7 @@ export function siteFinancialAssumptionsHref(
   if (pin?.recordedAt) query.set("recorded_at", pin.recordedAt);
   if (pin?.historyAfter) query.set("history_after", pin.historyAfter);
   if (pin?.historyLimit) query.set("history_limit", String(pin.historyLimit));
+  for (const prior of pin?.historyBack ?? []) query.append("history_back", prior);
   const text = query.toString();
   return text ? `${base}?${text}` : base;
 }
