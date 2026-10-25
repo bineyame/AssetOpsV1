@@ -59,7 +59,7 @@ import {
 } from "../sites/MiniOpportunity";
 import { ALTERNATIVES_FINDING_UNAVAILABLE, MiniAlternatives } from "../sites/MiniAlternatives";
 import { createMiniDecisionsClient, scenarioScopeSearch, type MiniDecisionsClient, type ScenarioScope } from "../sites/miniDecisionsClient";
-import { SiteFinding } from "../sites/SiteFinding";
+import { SiteFinding, type FindingCostClient } from "../sites/SiteFinding";
 import { FindingSections, SiteFindingEvidence, type FindingSectionLink } from "../sites/SiteFindingEvidence";
 import { SiteFindingHistory } from "../sites/SiteFindingHistory";
 import { SitePerformance } from "../sites/SitePerformance";
@@ -496,6 +496,7 @@ export function SiteFindingsFrame({
             links={{
               scope: (next) => `${siteFindingsHref(site.site_id)}?${findingIndexScopeQuery(next)}`,
               finding: (id, revisionId) => siteFindingHref(site.site_id, id, revisionId),
+              manage: FINDINGS_PATH,
             }}
             onScope={(next) => navigate(`${siteFindingsHref(site.site_id)}?${findingIndexScopeQuery(next)}`)}
             fallback={
@@ -625,10 +626,13 @@ export function SiteFindingFrame({
   coldAssessment,
   evAssessment,
   miniDecisions = DEFAULT_MINI_DECISIONS,
+  financials,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   findings?: FindingClient;
+  /** post-W6 W1-a Q12 / R189: the one exact-revision cost read of a loaded mini Finding (default: the module client). */
+  financials?: FindingCostClient;
   actions?: ActionClient;
   /** W2-03: a COLDCHAIN Site's Finding renders `cold-finding` or `cold-finding-excursion` by its kind. */
   coldAssessment?: ColdAssessmentClient;
@@ -704,6 +708,7 @@ export function SiteFindingFrame({
               findings={findings}
               actions={actions}
               miniDecisions={miniDecisions}
+              financials={financials ?? DEFAULT_FINANCIALS}
             />
           );
         }
@@ -778,6 +783,7 @@ function CanonicalMiniFinding({
   findings,
   actions,
   miniDecisions,
+  financials,
 }: {
   site: SiteDetailReadModel;
   routeSiteId: string | undefined;
@@ -789,8 +795,12 @@ function CanonicalMiniFinding({
   findings: FindingClient;
   actions: ActionClient;
   miniDecisions: MiniDecisionsClient;
+  financials: FindingCostClient;
 }) {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  // post-W6 W1-a Q7 / R184: the Finding's Analysis is the root's `?view=analysis`, a live section tab.
+  const analysisView = view === "finding" && params.get("view") === "analysis";
   const [selection, setSelection] = useState<MiniSelection>({ status: "loading" });
   // The address replaced with the revision this read already resolved is the same selection: no second read.
   const settled = useRef<{ key: string; revisionId: string } | null>(null);
@@ -828,8 +838,12 @@ function CanonicalMiniFinding({
       navigate(siteFindingAlternativesHref(site.site_id, id, resolved), { replace: true });
     }
   }, [view, revisionId, resolved, navigate, site.site_id, id]);
+  // post-W6 W1-a Q16 / R193: Alternatives and Recommendation are headed by the resolved record's title, and by
+  // "Finding" when the selection refuses.
   useEffect(() => {
-    if (view === "alternatives" && selection.status === "loaded") onTitle(selection.title);
+    if (view !== "alternatives" && view !== "recommendation") return;
+    if (selection.status === "loaded") onTitle(selection.title);
+    else if (selection.status === "refused") onTitle("Finding");
   }, [view, selection, onTitle]);
 
   // u6b ruling 6: a revision-carrying sibling, Overview or money href exists only for the loaded W1 selection; before
@@ -843,11 +857,16 @@ function CanonicalMiniFinding({
     resolved === null
       ? { id: "finding", gap: "Overview" }
       : { id: "finding", label: "Overview", href: siteFindingHref(site.site_id, id, resolved) },
-    { id: "analysis", label: "Analysis", unavailable: true },
-    child("evidence"),
     resolved === null
-      ? { id: "alternatives", gap: ALTERNATIVES_FINDING_UNAVAILABLE }
-      : { id: "alternatives", label: "Alternatives", href: siteFindingAlternativesHref(site.site_id, id, resolved) },
+      ? { id: "analysis", gap: "Analysis" }
+      : { id: "analysis", label: "Analysis", href: `${siteFindingHref(site.site_id, id, resolved)}&view=analysis` },
+    child("evidence"),
+    // post-W6 W1-a Q16 / R193: a refused selection shows the short disabled tab; its full reason sits below the row.
+    resolved !== null
+      ? { id: "alternatives", label: "Alternatives", href: siteFindingAlternativesHref(site.site_id, id, resolved) }
+      : selection.status === "refused"
+        ? { id: "alternatives", label: "Alternatives", unavailable: true }
+        : { id: "alternatives", gap: "Alternatives" },
     child("recommendation"),
     child("history"),
   ];
@@ -884,14 +903,19 @@ function CanonicalMiniFinding({
         title={title}
         headingId={SITE_FINDING_HEADING_ID}
         subtitle={`${site.display_name} · generator support finding`}
-        // H3 (final review; build-spec ledger l.186): Alternatives carries the v69 `Open site` header action, which
-        // resolves the authorized Site Overview, as the Opportunity frame does.
+        // H3 (final review; build-spec ledger l.186) and post-W6 W1-a Q9 / R186: every Finding section (overview,
+        // analysis, evidence, history, alternatives, recommendation) carries the v69 `Open site` header action to the
+        // authorized Site Overview.
         actions={
-          view === "alternatives" ? (
-            <Link to={siteDetailHref(site.site_id)} data-alternatives-open-site>
+          view === null ? undefined : (
+            <Link
+              to={siteDetailHref(site.site_id)}
+              data-finding-open-site={view}
+              data-alternatives-open-site={view === "alternatives" ? "" : undefined}
+            >
               Open site
             </Link>
-          ) : undefined
+          )
         }
       />
       {/* uF 3 (final review M6): the v69 Alternatives screen is a Findings surface with no Site tab row; every other
@@ -905,27 +929,25 @@ function CanonicalMiniFinding({
         </Panel>
       ) : (
         <>
-          {/* W1-F3: the money link sits on the section-tab line; W1-F4: on Recommendation it is a qualified line inside "Proposed intervention" instead. */}
+          {/* post-W6 W1-a Q8 / R185: the section row has no money aside; the Finding's What to do next carries
+              "Inspect financial assumptions", and W1-F4's Recommendation keeps its qualified line. Q7: Evidence and
+              History drop the Analysis helper now that Analysis is live; W1-b retires the Recommendation one. */}
           <FindingSections
             sections={sections}
-            current={view}
-            aside={
-              view === "recommendation" || resolved === null ? undefined : (
-                <span className="finding-financials-link" data-finding-financials-link>
-                  <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId: pinned })}>
-                    What this finding means in money
-                  </Link>
-                </span>
-              )
-            }
+            current={analysisView ? "analysis" : view}
             helper={
-              view === "finding"
-                ? undefined
-                : view === "alternatives"
-                  ? ANALYSIS_HELPER_ALTERNATIVES
-                  : ANALYSIS_HELPER_SECTION
+              view === "alternatives"
+                ? ANALYSIS_HELPER_ALTERNATIVES
+                : view === "recommendation"
+                  ? ANALYSIS_HELPER_SECTION
+                  : undefined
             }
           />
+          {selection.status === "refused" ? (
+            <p className="mini-alternatives-note" data-alternatives-finding-unavailable>
+              {ALTERNATIVES_FINDING_UNAVAILABLE}
+            </p>
+          ) : null}
           {view === "alternatives" ? (
             selection.status === "loaded" && revisionId !== null ? (
               <MiniAlternatives
@@ -936,11 +958,7 @@ function CanonicalMiniFinding({
                 client={miniDecisions}
                 recordHref={(evidenceId) => siteEvidenceAcceptedRecordHref(site.site_id, evidenceId)}
               />
-            ) : selection.status === "refused" ? (
-              <p className="mini-alternatives-note" data-alternatives-finding-unavailable>
-                {ALTERNATIVES_FINDING_UNAVAILABLE}
-              </p>
-            ) : (
+            ) : selection.status === "refused" ? null : (
               <p data-alternatives-finding-loading>Loading the Finding.</p>
             )
           ) : view === "evidence" ? (
@@ -976,6 +994,7 @@ function CanonicalMiniFinding({
               findingId={id}
               client={findings}
               onTitle={onTitle}
+              timeZone={site.timezone}
               links={{
                 history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
                 evidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
@@ -989,6 +1008,8 @@ function CanonicalMiniFinding({
               findingId={id}
               client={findings}
               onTitle={onTitle}
+              timeZone={site.timezone}
+              financials={financials}
               links={{
                 finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
                 dispatch,
@@ -996,6 +1017,9 @@ function CanonicalMiniFinding({
                 findingEvidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
                 history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
                 recommendation: (rev) => siteFindingViewHref(site.site_id, id, "recommendation", rev),
+                alternatives: (rev) => siteFindingAlternativesHref(site.site_id, id, rev),
+                assumptions: siteFinancialAssumptionsHref(site.site_id),
+                financials: (rev) => siteFinancialsHref(site.site_id, { findingId: id, revisionId: rev }),
               }}
             />
           )}

@@ -335,7 +335,7 @@ describe("Finding History child view (S4-03 phase 3)", () => {
 
   it("names the time kinds separately and makes no as-of-a-moment replay claim", async () => {
     await frame(HISTORY, client({ total: 1 }));
-    for (const term of ["Version recorded", "Readings from", "Last cited reading received", "Last cited reading accepted", "Analysis finished"]) {
+    for (const term of ["Version recorded (UTC)", "Readings from", "Last cited reading received", "Last cited reading accepted", "Analysis finished"]) {
       expect(screen.getByText(term)).toBeInTheDocument();
     }
     // W1-F3 phase D: the Basis cell shows one short phrase; its labelled times sit in a closed per-row disclosure.
@@ -453,13 +453,11 @@ describe("Q3: exact versions survive old -> new -> Evidence -> old, reload and b
   });
 });
 
-describe("Finding to Financials bridge link (S4-02a)", () => {
-  it("carries the Finding ID and the pinned version", async () => {
+describe("Finding to Financials bridge link (S4-02a; post-W6 W1-a Q8 / R185)", () => {
+  it("is no longer an aside on the History section row; the Finding's What to do next carries the money link", async () => {
     await frame(`${HISTORY}?revision_id=${rid(2)}`, client({ total: 3 }));
-    expect(q("[data-finding-financials-link] a")).toHaveAttribute(
-      "href",
-      `/sites/${SITE}/financials?finding_id=${F}&revision_id=${rid(2)}`,
-    );
+    expect(q("[data-finding-financials-link]")).toBeNull();
+    expect(q("[data-finding-assumptions-link]")).toBeNull();
   });
 });
 
@@ -670,4 +668,38 @@ describe("W1-F3: Finding History renders exactly the v69 panel (finding-history)
       expect(all("[data-history-revision]")).toHaveLength(0);
     },
   );
+});
+
+describe("post-W6 W1-a Q16 / Q17: History heading and Site-local time", () => {
+  it("Q17 / R195: the Time column is headed with the Site zone; cells are local D Mon · HH:MM with exact UTC in the title and detail", async () => {
+    await frame(`${HISTORY}?revision_id=${rid(1)}`, client({ total: 1 }));
+    const head = document.querySelector("[data-history-time-zone]") as HTMLElement;
+    expect(head.textContent?.trim()).toBe("Time (EAT)");
+    const row = q(`[data-history-revision='${rid(1)}']`) as HTMLElement;
+    const cell = row.querySelector("td time") as HTMLElement;
+    // t(10) is 14:10 UTC, 17:10 in Africa/Kampala.
+    expect(cell.textContent).toBe("6 Oct · 17:10");
+    expect(cell.getAttribute("title")).toBe("2026-10-06T14:10:00.000Z (UTC)");
+    expect(row.querySelector("[data-history-recorded-exact]")?.textContent).toBe("2026-10-06T14:10:00.000Z");
+  });
+
+  it("Q17: a Site without a timezone falls back to UTC and says so in the heading", async () => {
+    const noZone: SiteDetailClient = { getSite: async () => ({ status: "loaded", site: { ...HYBRID_MINI_GRID_SITE, timezone: "" } }) };
+    render(
+      <MemoryRouter initialEntries={[`${HISTORY}?revision_id=${rid(1)}`]}>
+        <Routes>
+          <Route path="/sites/:siteId/findings/:findingId/:findingView" element={<SiteFindingFrame detail={noZone} sitesPath="/sites" findings={client({ total: 1 })} />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect((document.querySelector("[data-history-time-zone]") as HTMLElement).textContent?.trim()).toBe("Time (UTC)");
+    expect(q(`[data-history-revision='${rid(1)}'] td time`)?.textContent).toBe("6 Oct · 14:10");
+  });
+
+  it("Q16 / R193: a refused History read is headed Finding, not a fixed Finding name", async () => {
+    const refused: FindingClient = { ...client({ total: 1 }), getFindingHistory: async () => ({ status: "forbidden", message: null }) };
+    await frame(HISTORY, refused);
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Finding$/);
+  });
 });

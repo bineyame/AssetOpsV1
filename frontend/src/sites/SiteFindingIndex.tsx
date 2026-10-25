@@ -65,6 +65,10 @@ import { UnavailableChip } from "../ui/UnavailableEntry";
  * of the single Findings panel in every state. Supplied once by the index and read by `View`.
  */
 const PanelControls = createContext<ReactNode>(null);
+/** post-W6 W1-a Q18 / R196: the lens row (and its helper) sits above the scope strip, as in the mock. */
+const LensRow = createContext<ReactNode>(null);
+/** post-W6 W1-a Q18: the estate Findings list the scope strip hands off to. */
+const ManageHref = createContext<string | null>(null);
 
 /**
  * The mock's `All | Cost | Risks | Opportunities` lens row. `All` is the selected live view; the other lenses
@@ -75,23 +79,37 @@ const PanelControls = createContext<ReactNode>(null);
 export const OPPORTUNITY_INDEX_HELPER =
   "Opportunity index unavailable; open the renewable evaluation for this site's five-day study.";
 
-function LensChips({ opportunityHelper = false }: { opportunityHelper?: boolean }) {
+/** A Site-scoped lens address; none exists yet, so every current call leaves these out (Q18 / Q49, D5). */
+export type SiteLensHrefs = Partial<Record<"Cost" | "Risks" | "Opportunities", string>>;
+
+function OpportunityHelper({ shown }: { shown: boolean }) {
+  return shown ? (
+    <p className="finding-sections__helper" data-opportunity-index-helper>
+      {OPPORTUNITY_INDEX_HELPER}
+    </p>
+  ) : null;
+}
+
+function LensChips({ hrefs = {} }: { hrefs?: SiteLensHrefs }) {
+  const lens = (label: "Cost" | "Risks" | "Opportunities") => {
+    const href = hrefs[label];
+    return href === undefined ? (
+      <UnavailableChip label={label} />
+    ) : (
+      <li className="v69-chip" data-lens={label.toLowerCase()}>
+        <Link to={href}>{label}</Link>
+      </li>
+    );
+  };
   return (
-    <>
     <ul className="v69-chips v69-chips--lenses" aria-label="Finding lenses" data-site-findings-lenses>
       <li className="v69-chip" aria-current="true" data-lens="all">
         All
       </li>
-      <UnavailableChip label="Cost" />
-      <UnavailableChip label="Risks" />
-      <UnavailableChip label="Opportunities" />
+      {lens("Cost")}
+      {lens("Risks")}
+      {lens("Opportunities")}
     </ul>
-    {opportunityHelper ? (
-      <p className="finding-sections__helper" data-opportunity-index-helper>
-        {OPPORTUNITY_INDEX_HELPER}
-      </p>
-    ) : null}
-    </>
   );
 }
 
@@ -100,6 +118,8 @@ export interface FindingIndexLinks {
   scope: (scope: FindingIndexScope) => string;
   /** One Finding, optionally at an exact revision. */
   finding: (findingId: string, revisionId?: string | null) => string;
+  /** post-W6 W1-a Q18 / R196: the estate Findings list (`Manage in Findings →` on the scope strip). */
+  manage?: string;
 }
 
 export interface SiteFindingIndexProps {
@@ -536,11 +556,22 @@ function View({
   attributes?: Record<string, string>;
 }) {
   const controls = useContext(PanelControls);
+  const lenses = useContext(LensRow);
+  const manage = useContext(ManageHref);
   return (
     <div className="site-findings-view" data-finding-index-state={state} {...attributes}>
+      {lenses}
       <StatusBar items label="Findings state" data={{ "data-site-findings-status": "" }}>
         <strong data-site-findings-claim>{claim}</strong>
         {status}
+        {manage === null ? null : (
+          <>
+            <span className="status-strip__spacer" />
+            <Link to={manage} data-site-findings-manage>
+              Manage in Findings →
+            </Link>
+          </>
+        )}
       </StatusBar>
       <Panel heading="Findings at this site" headingId={HEADING_ID} description={QUESTION} actions={action}>
         {controls}
@@ -844,10 +875,13 @@ export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallba
   }
   return (
     <div className="finding-index" data-findings-index="site-window">
+      <ManageHref.Provider value={links.manage ?? null}>
+      <LensRow.Provider value={<LensChips />}>
       <PanelControls.Provider
         value={
           <div className="site-findings-controls" data-site-findings-controls>
-            <LensChips opportunityHelper={opportunityHelper} />
+            {/* The opportunity helper stays in the panel, the noninteractive line it was before the lenses moved. */}
+            <OpportunityHelper shown={opportunityHelper} />
             <WindowForm scope={scope} onScope={onScope} />
           </div>
         }
@@ -858,6 +892,8 @@ export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallba
           <Refused result={result} scope={scope} links={links} />
         )}
       </PanelControls.Provider>
+      </LensRow.Provider>
+      </ManageHref.Provider>
     </div>
   );
 }

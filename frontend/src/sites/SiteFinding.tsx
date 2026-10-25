@@ -40,7 +40,10 @@ import type {
   FindingDetailBody,
   FindingReadResult,
 } from "./findingClient";
-import { findingRefusalWords, LocalViews, localView, localViewSearch, type LocalView } from "./findingPresentation";
+import { findingRefusalWords, localView, localViewSearch, type LocalView } from "./findingPresentation";
+import type { FinancialReadResult, FinancialsClient, FindingFinancialsBody } from "./financialsClient";
+import { consequenceWords } from "./FindingConsequence";
+import { findingLocalPeriod } from "./findingTime";
 import {
   findingCurrentnessWords,
   unconfirmedCause,
@@ -73,7 +76,16 @@ export interface SiteFindingLinks {
   history?: (revisionId: string | null) => string;
   /** S6-01b: this Finding's Recommendation child view, with the exact version selected. */
   recommendation?: (revisionId: string | null) => string;
+  /** post-W6 W1-a Q14 / Q15: this Finding's Alternatives at the exact resolved version. */
+  alternatives?: (revisionId: string) => string;
+  /** post-W6 W1-a Q8 / R185: Site Financials > Assumptions. */
+  assumptions?: string;
+  /** post-W6 W1-a Q12 / R189: Site Financials overview for this Finding at one exact version. */
+  financials?: (revisionId: string) => string;
 }
+
+/** post-W6 W1-a Q12: the one money read this page makes, for the exact resolved Finding version. */
+export type FindingCostClient = Pick<FinancialsClient, "getFindingFinancials">;
 
 export function SiteFinding({
   siteId,
@@ -81,12 +93,18 @@ export function SiteFinding({
   client,
   links,
   onTitle,
+  timeZone,
+  financials,
 }: {
   siteId: string;
   findingId: string;
   client: FindingClient;
   links: SiteFindingLinks;
   onTitle?: (title: string) => void;
+  /** post-W6 W1-a Q10: the Site's timezone for the status period; missing or invalid falls back to UTC visibly. */
+  timeZone?: string | null;
+  /** post-W6 W1-a Q12: when given, one exact-revision cost read per loaded Finding version. */
+  financials?: FindingCostClient;
 }) {
   const [params] = useSearchParams();
   const revisionId = params.get("revision_id");
@@ -106,6 +124,8 @@ export function SiteFinding({
     };
   }, [client, siteId, findingId, revisionId]);
 
+  const resolvedRevision = read?.status === "loaded" ? read.value.selection.revision_id : null;
+  const cost = useFindingCost(financials, siteId, findingId, resolvedRevision);
   const title = read?.status === "loaded" ? titleOf(read.value) : "Finding";
   useEffect(() => {
     onTitle?.(title);
@@ -129,7 +149,6 @@ export function SiteFinding({
     // The Finding Analysis view (not one of the W1-F3 screens) keeps its answer card and technical panels.
     return (
       <section {...shared} aria-labelledby="site-finding-state-heading">
-        <LocalViews label={FINDING_VIEWS_LABEL} current={view} params={params} />
         <FindingAnswer body={body} links={links} view={view} params={params} />
         <StatusChips body={body} />
         <TechnicalDetail body={body} />
@@ -141,10 +160,9 @@ export function SiteFinding({
   // History and the record lists on Evidence.
   return (
     <div {...shared}>
-      <LocalViews label={FINDING_VIEWS_LABEL} current={view} params={params} />
-      <FindingStatusBar body={body} />
+      <FindingStatusBar body={body} timeZone={timeZone} />
       <WhatHappened body={body} links={links} />
-      <FindingMetrics body={body} />
+      <FindingMetrics body={body} cost={cost} links={links} />
       <div className="panel-pair">
         <WhatLimits body={body} links={links} />
         <WhatNext body={body} links={links} />
@@ -463,10 +481,25 @@ function NextStep({ body, links }: { body: FindingDetailBody; links: SiteFinding
           Open the recommendation
         </Link>
       </p>
+      <AssumptionsLink links={links} />
     </div>
   ) : (
-    <p data-finding-recommendation-link="none">
-      No recorded next action. Nothing here asks you to change how the generator is operated.
+    <>
+      <p data-finding-recommendation-link="none">
+        No recorded next action. Nothing here asks you to change how the generator is operated.
+      </p>
+      <AssumptionsLink links={links} />
+    </>
+  );
+}
+
+/** post-W6 W1-a Q8 / Q13 (R185, R190): the one money link on the Finding, after the recommendation button. */
+function AssumptionsLink({ links }: { links: SiteFindingLinks }) {
+  return links.assumptions === undefined ? null : (
+    <p className="site-finding__foot-link">
+      <Link to={links.assumptions} data-finding-assumptions-link>
+        Inspect financial assumptions →
+      </Link>
     </p>
   );
 }
@@ -510,7 +543,7 @@ function StatusChips({ body }: { body: FindingDetailBody }) {
 }
 
 /** The mock's statusbar: the state, currentness, version and period badges in one line. */
-function FindingStatusBar({ body }: { body: FindingDetailBody }) {
+function FindingStatusBar({ body, timeZone }: { body: FindingDetailBody; timeZone?: string | null }) {
   const selected = body.revision;
   const currentness = findingCurrentnessWords(statusCode(body));
   return (
@@ -532,8 +565,32 @@ function FindingStatusBar({ body }: { body: FindingDetailBody }) {
         {versionWords(body)}
       </span>
       <span className="status-strip__spacer" />
-      <span data-chip="period">{periodWords(selected.episode.start, selected.episode.end)}</span>
+      <LocalPeriod start={selected.episode.start} end={selected.episode.end} timeZone={timeZone} />
     </StatusBar>
+  );
+}
+
+/**
+ * post-W6 W1-a Q10 / R187: the status period in Site-local time, with both exact UTC instants in a closed
+ * "UTC time" detail. A missing or invalid Site timezone falls back to UTC and says so. Stored and query instants
+ * are unchanged.
+ */
+function LocalPeriod({ start, end, timeZone }: { start: string; end: string; timeZone?: string | null }) {
+  const local = findingLocalPeriod(start, end, timeZone);
+  if (local === null) return <span data-chip="period">{periodWords(start, end)}</span>;
+  return (
+    <span className="site-finding__period" data-chip="period" data-period-zone={local.zone} data-period-site-zone={local.siteZone ? "site" : "fallback"}>
+      <span data-period-local>
+        {local.text}
+        {local.siteZone ? "" : " (site time zone not recorded)"}
+      </span>{" "}
+      <details className="site-finding__period-utc" data-period-utc>
+        <summary>UTC time</summary>
+        <span>
+          <time dateTime={local.startUtc}>{local.startUtc}</time> to <time dateTime={local.endUtc}>{local.endUtc}</time>
+        </span>
+      </details>
+    </span>
   );
 }
 
@@ -606,6 +663,14 @@ function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFin
       heading="What happened"
       headingId="site-finding-happened-heading"
       description={`Period covered · ${periodWords(selected.episode.start, selected.episode.end)} · ${durationText(period)}`}
+      actions={
+        // post-W6 W1-a Q11 / R188: the panel-head link to this Finding's Evidence at the selected version.
+        links.findingEvidence ? (
+          <Link to={links.findingEvidence(body.selection.revision_id)} data-finding-inspect-evidence>
+            Inspect evidence →
+          </Link>
+        ) : undefined
+      }
     >
       <BigClaim data={{ "data-finding-claim": "" }}>{headlineText(body, words)}</BigClaim>
       <div className="site-finding__state v69-state-line" data-finding-state>
@@ -677,8 +742,60 @@ function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFin
   );
 }
 
-/** The mock's four metric cards: the separate minute counts and the fuel and cost slot this page does not fill. */
-function FindingMetrics({ body }: { body: FindingDetailBody }) {
+/**
+ * post-W6 W1-a Q12 / R189: the state of the one exact-revision cost read. `key` is the Finding version it answers;
+ * a result whose key is not the current version is never shown, so a stale answer cannot replace a new selection.
+ */
+type FindingCost =
+  | { status: "none" }
+  | { status: "loading" }
+  | { status: "read"; result: FinancialReadResult<FindingFinancialsBody>; revisionId: string };
+
+function useFindingCost(client: FindingCostClient | undefined, siteId: string, findingId: string, revisionId: string | null): FindingCost {
+  const [answer, setAnswer] = useState<{ key: string; result: FinancialReadResult<FindingFinancialsBody> } | null>(null);
+  const key = revisionId === null ? null : `${siteId}/${findingId}/${revisionId}`;
+  useEffect(() => {
+    // Never issue the read without a resolved Finding version.
+    if (client === undefined || key === null || revisionId === null) return;
+    let active = true;
+    void client.getFindingFinancials(siteId, findingId, revisionId).then(
+      (result) => {
+        if (active) setAnswer({ key, result });
+      },
+      () => {
+        if (active) setAnswer({ key, result: { status: "unavailable", message: null } });
+      },
+    );
+    return () => {
+      active = false;
+    };
+  }, [client, siteId, findingId, revisionId, key]);
+  if (client === undefined || key === null || revisionId === null) return { status: "none" };
+  if (answer === null || answer.key !== key) return { status: "loading" };
+  return { status: "read", result: answer.result, revisionId };
+}
+
+/** The cost card's words: an amount only for the loaded exact-version current PRICED answer. */
+function costCard(cost: FindingCost): { priced: true; value: string; revisionId: string } | { priced: false; state: string; note: string } {
+  if (cost.status === "none") return { priced: false, state: "none", note: "No fuel or money estimate is made on this page" };
+  if (cost.status === "loading") return { priced: false, state: "loading", note: "Reading the cost for this Finding version" };
+  const { result, revisionId } = cost;
+  if (result.status === "not_found") return { priced: false, state: "missing", note: "No cost is recorded for this Finding version" };
+  if (result.status !== "loaded") return { priced: false, state: "failed", note: "The cost for this Finding version could not be read" };
+  const body = result.value;
+  if (body.selection.revision_id.toLowerCase() !== revisionId.toLowerCase()) {
+    return { priced: false, state: "mismatch", note: "The cost read answered a different Finding version, so no amount is shown" };
+  }
+  const c = body.consequence;
+  if (c.state === "PRICED" && c.currentness === "CURRENT" && c.amount !== null && c.currency !== null) {
+    return { priced: true, value: `${c.amount.low} to ${c.amount.high} ${c.currency}`, revisionId };
+  }
+  return { priced: false, state: c.state, note: consequenceWords(c, false).label };
+}
+
+/** The mock's four metric cards: the separate minute counts and the cost card (post-W6 W1-a Q12). */
+function FindingMetrics({ body, cost, links }: { body: FindingDetailBody; cost: FindingCost; links: SiteFindingLinks }) {
+  const card = costCard(cost);
   const selected = body.revision;
   const avoidable = minutes(selected.minutes.candidate) ?? 0;
   const needed = minutes(selected.minutes.necessary) ?? 0;
@@ -706,14 +823,30 @@ function FindingMetrics({ body }: { body: FindingDetailBody }) {
         tone="muted"
         data={{ "data-finding-card": "INDETERMINATE" }}
       />
-      <MetricCard
-        label="Fuel and cost"
-        value="Not available"
-        note="No fuel or money estimate is made on this page"
-        tone="muted"
-        word
-        data={{ "data-finding-card": "MONEY" }}
-      />
+      {card.priced ? (
+        <MetricCard
+          label="Cost exposure"
+          value={card.value}
+          note="Bounded for this Finding version; see Financials."
+          link={
+            links.financials === undefined ? undefined : (
+              <Link to={links.financials(card.revisionId)} data-finding-cost-link>
+                Financials →
+              </Link>
+            )
+          }
+          data={{ "data-finding-card": "MONEY", "data-finding-cost": "priced" }}
+        />
+      ) : (
+        <MetricCard
+          label="Cost exposure"
+          value="Not available"
+          note={card.note}
+          tone="muted"
+          word
+          data={{ "data-finding-card": "MONEY", "data-finding-cost": card.state }}
+        />
+      )}
     </MetricCards>
   );
 }
@@ -795,6 +928,14 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
         {selected.lifecycle === "SUPPORTED" ? null : <LifecycleSentence body={body} />}
         <CouldChange body={body} />
       </div>
+      {/* post-W6 W1-a Q14 / R191: the mock's foot link, to this Finding's Alternatives at the resolved version. */}
+      {links.alternatives === undefined ? null : (
+        <p className="site-finding__foot-link">
+          <Link to={links.alternatives(body.selection.revision_id)} data-finding-limits-alternatives>
+            See analysis and alternatives →
+          </Link>
+        </p>
+      )}
     </Panel>
   );
 }
@@ -854,6 +995,21 @@ function WhereToLook({ body, links, params }: { body: FindingDetailBody; links: 
         </Link>
       ),
     },
+    // post-W6 W1-a Q15 / R192: Alternatives sits between Evidence and History, at the exact version.
+    ...(links.alternatives
+      ? [
+          {
+            key: "alternatives",
+            title: "Alternatives",
+            body: "Other explanations and what would tell them apart.",
+            action: (
+              <Link to={links.alternatives(rev)} data-finding-alternatives-link>
+                Open Alternatives →
+              </Link>
+            ),
+          },
+        ]
+      : []),
     ...(links.history
       ? [
           {
