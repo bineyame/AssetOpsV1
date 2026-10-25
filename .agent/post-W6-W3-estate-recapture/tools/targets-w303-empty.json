@@ -1,0 +1,7 @@
+[
+ {
+  "id": "portfolio",
+  "case": "w303-empty-foreign-tenant",
+  "url": "http://127.0.0.1:5180/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z"
+ }
+]
