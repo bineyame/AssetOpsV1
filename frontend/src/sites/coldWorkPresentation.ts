@@ -113,6 +113,24 @@ export function isLongText(text: string): boolean {
 }
 
 /**
+ * post-W6 W5-cold B15-04 (cites R322; W4 Q10 exact-code taxonomy, W5 rulings 2): the cold Action refusal by exact code.
+ * Never the raw server message, cutoff or Site code. Retry only for 503 and an unreached server; a client-authored
+ * sentence (no code: unreachable or unexpected shape) is kept as written.
+ */
+export const COLD_ACTION_REFUSAL_COPY: Record<string, string> = {
+  INVALID_KNOWN_AT: "Choose a valid evidence cutoff.",
+  SITE_SCOPE_FORBIDDEN: "You do not have access to this site.",
+  WORK_STORE_UNAVAILABLE: "Cold work is unavailable right now. Try again.",
+};
+export const COLD_ACTION_REFUSED = "The attempt was refused.";
+
+export function coldActionRefusal(refusal: { http: number | null; code: string | null; message: string }): { message: string; retry: boolean } {
+  const retry = refusal.http === null || refusal.http === 503;
+  if (refusal.code === null) return { message: refusal.message, retry };
+  return { message: COLD_ACTION_REFUSAL_COPY[refusal.code] ?? COLD_ACTION_REFUSED, retry };
+}
+
+/**
  * W5-04 V4a (readiness rulings 15, 41, 47): the cold domain Action detail presentation (v69 `cold-action`,
  * `frontend/mockups/v69/index.html:742-746`), with the K4 literals unchanged so the cold output stays byte-identical:
  * `{owner} · {shortName} · {Finding label}` status (ruling 9), the `Finding version` disclosure, the Related activity
@@ -132,6 +150,7 @@ export const COLD_ACTION_PRESENTATION: DomainActionPresentation = {
   retry: COLD_WORK_RETRY,
   closingNotice: COLD_ACTION_NOTICE,
   windowQuery: false,
+  refusal: coldActionRefusal,
   panel: {
     criteriaTitle: COLD_CRITERIA_TITLE,
     columns: COLD_CRITERIA_COLUMNS,

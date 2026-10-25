@@ -1567,16 +1567,24 @@ function DomainActionShell({
         ) : state.status === "not_found" ? (
           <p data-domain-action-panel="not-found">{p.notFound}</p>
         ) : (
-          <div className="work-cases-state" data-domain-action-panel="refused" data-domain-action-refusal={state.code ?? (state.http === null ? "UNREACHABLE" : "UNEXPECTED")}>
+          // post-W6 W5-cold B15-04: cold maps the exact code to its sentence and offers Retry only for 503/unreached.
+          <div
+            className="work-cases-state"
+            data-domain-action-panel="refused"
+            data-domain-action-refusal={state.code ?? (state.http === null ? "UNREACHABLE" : "UNEXPECTED")}
+            role={p.refusal ? "alert" : undefined}
+          >
             <p>
               <strong>{p.unavailable}</strong>
             </p>
-            <p data-domain-action-refusal-message>{state.message}</p>
-            <p>
-              <button type="button" className="button" onClick={onRetry} data-domain-action-retry>
-                {p.retry}
-              </button>
-            </p>
+            <p data-domain-action-refusal-message>{p.refusal ? p.refusal(state).message : state.message}</p>
+            {p.refusal && !p.refusal(state).retry ? null : (
+              <p>
+                <button type="button" className="button" onClick={onRetry} data-domain-action-retry>
+                  {p.retry}
+                </button>
+              </p>
+            )}
           </div>
         )}
       </Panel>

@@ -68,6 +68,11 @@ export interface DomainActionPresentation {
   closingNotice: string;
   /** Whether the detail's own links keep the selected `from,to` beside `known_at` (EV ruling 14); cold keeps `known_at` only. */
   windowQuery: boolean;
+  /**
+   * post-W6 W5-cold B15-04 (W4 Q10, W5 rulings 2): the refusal sentence and whether Retry is offered, by exact code.
+   * Absent (EV), the shell prints the refusal message with Retry, unchanged.
+   */
+  refusal?: (refusal: { http: number | null; code: string | null; message: string }) => { message: string; retry: boolean };
   panel: DomainActionPanelPresentation;
 }
 

@@ -293,20 +293,36 @@ describe("cold-action strip, currentness and non-loaded states (rulings 3, 4, 6,
     expect(main.textContent).not.toContain("Declared outcome criteria");
   });
 
-  it.each([
-    [403, "SITE_ACCESS_DENIED", "You do not have access to this site's work."],
-    [422, "INVALID_KNOWN_AT", "'known_at' must be one UTC instant no later than the read time."],
-    [503, "WORK_STORE_UNAVAILABLE", "The work store is unavailable."],
-  ])("a %s refusal shows one untitled panel with the server message and Retry", async (http, code, message) => {
+  // post-W6 W5-cold B15-04 (cites R322; W4 Q10, W5 rulings 2): the cold refusal reads its exact code's sentence, never
+  // the raw server message, cutoff or Site code; Retry only for 503 and an unreached server; one alert.
+  it.each<[number | null, string | null, string, string, boolean]>([
+    [422, "INVALID_KNOWN_AT", "'known_at' must be one UTC instant no later than the read time. 2099-01-01T00:00:00Z", "Choose a valid evidence cutoff.", false],
+    [403, "SITE_SCOPE_FORBIDDEN", "No access to Site 'COLD-001'.", "You do not have access to this site.", false],
+    [503, "WORK_STORE_UNAVAILABLE", "The work store is unavailable.", "Cold work is unavailable right now. Try again.", true],
+    [409, "SOMETHING_NEW", "Raw server text COLD-001.", "The attempt was refused.", false],
+    [null, null, "The cold work read could not be reached.", "The cold work read could not be reached.", true],
+    [503, null, "The cold work read answered in an unexpected shape.", "The cold work read answered in an unexpected shape.", true],
+    [500, null, "The cold work read answered in an unexpected shape.", "The cold work read answered in an unexpected shape.", false],
+  ])("a %s %s refusal shows one untitled alert panel with the exact-code sentence", async (http, code, message, sentence, retry) => {
     const { main, calls } = await mount(() => ({ status: "refused", http, code, message }));
     expect(main.querySelectorAll("section.panel")).toHaveLength(1);
     expect(main.querySelector("section.panel h2")).toBeNull();
     const panel = main.querySelector('[data-domain-action-panel="refused"]') as HTMLElement;
-    expect(panel.getAttribute("data-domain-action-refusal")).toBe(code);
+    expect(panel.getAttribute("data-domain-action-refusal")).toBe(code ?? (http === null ? "UNREACHABLE" : "UNEXPECTED"));
+    expect(panel.getAttribute("role")).toBe("alert");
+    expect(main.querySelectorAll('[role="alert"]')).toHaveLength(1);
     expect(text(panel)).toContain("Cold work unavailable");
-    expect(text(panel.querySelector("[data-domain-action-refusal-message]"))).toBe(message);
+    expect(text(panel.querySelector("[data-domain-action-refusal-message]"))).toBe(sentence);
+    expect(text(panel)).not.toContain("COLD-001");
+    expect(text(panel)).not.toContain("2099-01-01");
     expect(main.textContent).not.toContain("Related activity");
-    fireEvent.click(panel.querySelector("[data-domain-action-retry]") as HTMLElement);
+    const button = panel.querySelector("[data-domain-action-retry]") as HTMLElement | null;
+    if (!retry) {
+      expect(button).toBeNull();
+      expect(panel.querySelector("button")).toBeNull();
+      return;
+    }
+    fireEvent.click(button as HTMLElement);
     await settledScreen();
     expect(calls).toHaveLength(2);
   });
