@@ -11,6 +11,7 @@ import {
   CausalTimeline,
   DataTable,
   Disclosure,
+  ExactReferences,
   KeyValues,
   MetricCard,
   MetricCards,
@@ -276,13 +277,18 @@ export interface Refusal {
   key: string;
   /** Ruling 5: the strip chip names the refusal (a 403/404/503 is never called a window error). */
   title?: string;
+  /** Ruling 5: the technical disclosure's code and server message (null when the read gave none). */
+  code?: string | null;
+  message?: string | null;
 }
 function refusalOf(read: ColdRead<unknown> | null): Refusal | null {
   if (read === null || read.status === "loaded") return null;
   const title = refusalText(read).title;
-  if (read.status === "refused" && read.httpStatus === 403) return { sentence: SOURCE_FORBIDDEN, retry: false, key: "forbidden", title };
-  if (read.status === "unavailable" || read.httpStatus === 503) return { sentence: COLD_SITE_UNAVAILABLE, retry: true, key: "unavailable", title };
-  return { sentence: refusalText(read).body, retry: false, key: refusalText(read).key, title };
+  const code = read.status === "refused" ? read.code : null;
+  const message = read.message;
+  if (read.status === "refused" && read.httpStatus === 403) return { sentence: SOURCE_FORBIDDEN, retry: false, key: "forbidden", title, code, message };
+  if (read.status === "unavailable" || read.httpStatus === 503) return { sentence: COLD_SITE_UNAVAILABLE, retry: true, key: "unavailable", title, code, message };
+  return { sentence: refusalText(read).body, retry: false, key: refusalText(read).key, title, code, message };
 }
 
 function Gap({ id, children }: { id: string; children: ReactNode }) {
@@ -297,11 +303,36 @@ function Gap({ id, children }: { id: string; children: ReactNode }) {
  * Cross-card ruling 5: a refused page carries its refusal sentence once, in its first panel; every later panel refused
  * by the same read (`repeat`) says only `Not assessed`, as the EV pages do.
  */
-function RefusedGap({ id, refusal, onRetry, repeat = false }: { id: string; refusal: Refusal; onRetry?: () => void; repeat?: boolean }) {
+function RefusedGap({
+  id,
+  refusal,
+  onRetry,
+  repeat = false,
+  window,
+}: {
+  id: string;
+  refusal: Refusal;
+  onRetry?: () => void;
+  repeat?: boolean;
+  /** The requested window, for the technical disclosure after the first-panel sentence. */
+  window?: ColdWindowQuery;
+}) {
   if (repeat) return <Gap id={id}>Not assessed</Gap>;
   return (
     <>
       <Gap id={id}>{refusal.sentence}</Gap>
+      {window === undefined ? null : (
+        <ExactReferences
+          name="cold-refusal-references"
+          variant="tech"
+          references={[
+            { label: "Refusal code", value: refusal.code ?? null },
+            { label: "Server message", value: refusal.message ?? null },
+            { label: "Selected window start (exact)", value: window.from },
+            { label: "Selected window end (exact)", value: window.to },
+          ]}
+        />
+      )}
       {refusal.retry && onRetry !== undefined ? (
         <p className="cold-panel-link">
           <button type="button" className="button" onClick={onRetry} data-cold-retry>
@@ -668,7 +699,7 @@ function OverviewScreen(p: ScreenProps) {
         actions={firstFinding === null ? undefined : <ToLink href={coldUiHref(firstFinding.link, p.routes)}>Open Finding →</ToLink>}
       >
         {refused !== null ? (
-          <RefusedGap id="cold-site-what-happened" refusal={refused} onRetry={p.retry} />
+          <RefusedGap id="cold-site-what-happened" refusal={refused} onRetry={p.retry} window={p.window} />
         ) : none ? (
           <Gap id="cold-site-what-happened">{NO_COLD_ASSESSMENT}</Gap>
         ) : o!.causal_strip.length === 0 ? (
@@ -916,7 +947,7 @@ function EvidenceScreen(p: ScreenProps) {
       )}
       <Panel heading="What we can conclude now" headingId="cold-site-conclude-heading" description="Evidence readiness is not equipment condition">
         {refused !== null ? (
-          <RefusedGap id="cold-site-conclude" refusal={refused} onRetry={p.retry} />
+          <RefusedGap id="cold-site-conclude" refusal={refused} onRetry={p.retry} window={p.window} />
         ) : none ? (
           <Gap id="cold-site-conclude">{NO_COLD_ASSESSMENT}</Gap>
         ) : (
@@ -1232,7 +1263,7 @@ function AnalysisScreen(p: ScreenProps) {
       )}
       <Panel heading="Accepted records behind the conclusions" headingId="cold-site-records-heading" description="Measured time is kept even when a report arrives late">
         {refused !== null ? (
-          <RefusedGap id="cold-site-records" refusal={refused} onRetry={p.retry} />
+          <RefusedGap id="cold-site-records" refusal={refused} onRetry={p.retry} window={p.window} />
         ) : (
           <>
             <DataTable labelledBy="cold-site-records-heading">
@@ -1425,7 +1456,7 @@ function FinancialsScreen(p: ScreenProps) {
         description={refused === null && anyLink ? "Select a source to return to its Finding" : undefined}
       >
         {refused !== null ? (
-          <RefusedGap id="cold-site-bridge" refusal={refused} onRetry={p.retry} />
+          <RefusedGap id="cold-site-bridge" refusal={refused} onRetry={p.retry} window={p.window} />
         ) : (
           <>
             <DataTable labelledBy="cold-site-bridge-heading">
@@ -1535,7 +1566,7 @@ function FinancialsScreen(p: ScreenProps) {
       <div className="panel-pair">
         <Panel heading="Assumptions in use" headingId="cold-site-in-use-heading">
           {sRefused !== null ? (
-            <RefusedGap id="cold-site-in-use" refusal={sRefused} repeat={refused !== null} />
+            <RefusedGap id="cold-site-in-use" refusal={sRefused} repeat={refused !== null && refused.sentence === sRefused.sentence} window={p.window} />
           ) : (
             <>
               <AssumptionValues read={s!} />
@@ -1627,7 +1658,7 @@ function AssumptionsScreen(p: ScreenProps) {
       <SelectedWindowBar read={s} extra={stateSentence(s)} />
       <Panel heading="Financial assumptions" headingId="cold-site-assumptions-heading" description="Site-scoped business context · no cold assumption publication is available in W2">
         {refused !== null ? (
-          <RefusedGap id="cold-site-assumptions" refusal={refused} onRetry={p.retry} />
+          <RefusedGap id="cold-site-assumptions" refusal={refused} onRetry={p.retry} window={p.window} />
         ) : (
           <>
           <DataTable labelledBy="cold-site-assumptions-heading">

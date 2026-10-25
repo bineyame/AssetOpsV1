@@ -370,6 +370,15 @@ const expectSentenceOnce = (panels: readonly string[], sentence: string) => {
   expect(text(main()).split(sentence).length - 1).toBe(1);
 };
 
+// Review M1 (ruling 5): the first panel's technical disclosure shows the refusal code and the exact requested bounds.
+const expectDisclosure = (firstPanel: string, code: string) => {
+  const d = panelTitled(firstPanel).querySelector('[data-disclosure="cold-refusal-references"]') as HTMLElement;
+  expect(d).not.toBeNull();
+  expect(text(d)).toContain(code);
+  expect(text(d)).toContain(new URLSearchParams(Q).get("from")!);
+  expect(text(d)).toContain(new URLSearchParams(Q).get("to")!);
+};
+
 describe("W2-04: cold Site routes keep the v69 panel structure", () => {
   it.each(ROUTES)("stocked: %s", async (screenId, path) => {
     renderCold(path, STOCKED);
@@ -430,6 +439,7 @@ describe("W2-04: cold Site routes keep the v69 panel structure", () => {
     expectV69Panels(screenId);
     const affected = screenId === "cold-financials" ? ["What happened → what it means in money", "Assumptions in use", "Not included"] : PANELS[screenId];
     expectSentenceOnce(affected, SOURCE_FORBIDDEN);
+    expectDisclosure(affected[0], "COLD_SOURCE_DISCLOSURE_FORBIDDEN");
     expect(text(main())).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-/);
   });
 
@@ -438,6 +448,7 @@ describe("W2-04: cold Site routes keep the v69 panel structure", () => {
     await settledScreen();
     expectV69Panels(screenId);
     expectSentenceOnce(PANELS[screenId], COLD_SITE_UNAVAILABLE);
+    expectDisclosure(PANELS[screenId][0], "COLD_READ_UNAVAILABLE");
     const retries = screen.getAllByRole("button", { name: "Retry" });
     expect(retries.length).toBeGreaterThanOrEqual(1);
     const calls = Object.values(coldSite).reduce((n, f) => n + (f as ReturnType<typeof vi.fn>).mock.calls.length, 0);
@@ -1049,8 +1060,18 @@ describe("W2-F 1b: one honest cooling and product rule across the cold screens",
     }
     renderCold(ROUTES[3][1], { ...STOCKED, assumptions: DOWN as ColdRead<ColdAssumptionsRead> });
     await settledScreen();
-    expect(panelTitled("Assumptions in use").querySelectorAll("dt")).toHaveLength(0);
+    expect(panelTitled("Assumptions in use").querySelectorAll("[data-key-value] dt")).toHaveLength(0);
     expect(panelTitled("Assumptions in use").querySelector("[data-panel-gap]")).not.toBeNull();
+    cleanup();
+    // Review L1: financials refused for a different reason than assumptions -> the assumptions reason is shown, not hidden.
+    renderCold(ROUTES[3][1], { ...STOCKED, financials: FORBIDDEN as never, assumptions: DOWN as ColdRead<ColdAssumptionsRead> });
+    await settledScreen();
+    expect(text(panelTitled("Assumptions in use"))).toContain(COLD_SITE_UNAVAILABLE);
+    cleanup();
+    // Same reason on both -> the sentence appears once and the panel says Not assessed.
+    renderCold(ROUTES[3][1], { ...STOCKED, financials: DOWN as never, assumptions: DOWN as ColdRead<ColdAssumptionsRead> });
+    await settledScreen();
+    expect(text(panelTitled("Assumptions in use"))).toBe("Assumptions in useNot assessed");
   });
 });
 
@@ -1090,7 +1111,10 @@ describe("W2-F 2: cold frame on refusal, consequence counts and record IDs", () 
       renderCold(path.replace(encodeURIComponent(FROM), "not-a-date"), all(INVALID as never));
       await settledScreen();
       expect(document.querySelector("[data-cold-date-bar]")).toBeNull();
-      expect(text(main())).not.toContain("not-a-date");
+      // Only the technical disclosure carries the exact requested bounds (ruling 5); no date line or sentence echoes them.
+      const echoed = main().cloneNode(true) as HTMLElement;
+      echoed.querySelectorAll('[data-disclosure="cold-refusal-references"]').forEach((d) => d.remove());
+      expect(text(echoed)).not.toContain("not-a-date");
       expect(text(strip())).toContain("Window cannot be read");
       expect(tiles().map((t) => t.getAttribute("data-cold-refused-card"))).toEqual(cards);
       for (const t of PANELS[screenId]) expect(panelTitled(t).querySelector("[data-panel-gap]")).not.toBeNull();
