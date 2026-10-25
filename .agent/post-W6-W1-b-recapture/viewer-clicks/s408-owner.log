@@ -1,0 +1,8 @@
+assumptions default 1440 start 3 681 Previous versions->3r/681px | Next versions->3r/681px
+assumptions default 390 start 3 1045 Previous versions->3r/1068px | Next versions->3r/1045px
+assumptions recorded-T1 1440 start 3 681 Previous versions->1r/375px | Next versions->3r/681px
+assumptions recorded-T1 390 start 3 1068 Previous versions->1r/630px | Next versions->3r/1068px
+assumptions recorded-T3 1440 start 3 681 Previous versions->3r/681px | Next versions->3r/681px
+assumptions recorded-T3 390 start 3 1045 Previous versions->3r/1068px | Next versions->3r/1045px
+assumptions T3-page2 1440 start 2 470 Previous versions->2r/547px | Next versions->2r/470px | Back to newest->2r/547px
+assumptions T3-page2 390 start 2 837 Previous versions->2r/861px | Next versions->2r/837px | Back to newest->2r/837px

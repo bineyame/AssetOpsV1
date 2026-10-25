@@ -138,6 +138,7 @@ export function SiteEvidenceFrame({
         client={evidence}
         analytics={analytics}
         profile={presentationProfileFor(site.site_type)}
+        timezone={site.timezone}
         assessmentHref={(day, revisionId) =>
           `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}&revision=${encodeURIComponent(revisionId)}`
         }

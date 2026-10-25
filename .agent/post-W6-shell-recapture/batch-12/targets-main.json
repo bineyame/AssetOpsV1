@@ -1,0 +1,22 @@
+[
+ {
+  "id": "renewable",
+  "case": "gap-limited",
+  "url": "http://localhost:5181/sites/MG-W402-001/performance/renewable?from=2026-10-07T21:00:00Z&to=2026-10-12T21:00:00Z"
+ },
+ {
+  "id": "service",
+  "case": "gap-limited",
+  "url": "http://localhost:5181/sites/MG-W402-001/performance/service?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z"
+ },
+ {
+  "id": "fuel",
+  "case": "gap-limited",
+  "url": "http://localhost:5181/sites/MG-W402-001/performance/fuel?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z"
+ },
+ {
+  "id": "backup",
+  "case": "gap-limited",
+  "url": "http://localhost:5181/sites/MG-W402-001/performance/backup?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z"
+ }
+]

@@ -1,0 +1,32 @@
+[
+ {
+  "id": "availability",
+  "case": "current",
+  "url": "http://127.0.0.1:5199/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "id": "energy",
+  "case": "current",
+  "url": "http://127.0.0.1:5199/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "id": "ev-scenarios",
+  "case": "current",
+  "url": "http://127.0.0.1:5199/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "id": "availability",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5199/sites/EV-LAB-001/performance/availability?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z"
+ },
+ {
+  "id": "energy",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5199/sites/EV-LAB-001/performance/energy?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z"
+ },
+ {
+  "id": "ev-scenarios",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5199/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z"
+ }
+]

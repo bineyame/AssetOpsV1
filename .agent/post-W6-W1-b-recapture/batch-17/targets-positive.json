@@ -1,0 +1,8 @@
+[
+ {
+  "id": "ev-action",
+  "case": "all-open",
+  "url": "http://localhost:5185/sites/EV-LAB-001/actions/2494e4b1-3bf2-4dd3-b752-43c897c05820/verification?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "openAll": true
+ }
+]

@@ -1,0 +1,15 @@
+chrome pid 24992
+PASS  loaded http://localhost:5185/sites/KOBO-001/financials/assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  assumptions-single-price 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  assumptions-single-price 1440: mock rendered
+PASS  assumptions-single-price 1440: same panel count  {"app":["Financial assumptions","Impact preview","Interpretation history"],"mock":["Financial assumptions","Impact preview","Interpretation history"]}
+PASS  assumptions-single-price 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/KOBO-001/financials/assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  assumptions-single-price 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  assumptions-single-price 390: mock rendered
+PASS  assumptions-single-price 390: same panel count  {"app":["Financial assumptions","Impact preview","Interpretation history"],"mock":["Financial assumptions","Impact preview","Interpretation history"]}
+PASS  assumptions-single-price 390: no app page overflow  {"overflowX":0}
+
+12/12 claims passed; evidence in part-s405-fix

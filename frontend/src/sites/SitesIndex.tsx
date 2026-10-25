@@ -145,7 +145,8 @@ export function SitesIndex({
       <>
         <SitesMetrics count={0} />
         <Panel heading="Site inventory" headingId="sites-list-heading" description={INVENTORY_DESCRIPTION}>
-          <div data-sites-state="empty">
+          {/* post-W6 shell R120 (Q7): the mock `.prose` body size (12 px) for the empty-state sentences. */}
+          <div className="v69-prose" data-sites-state="empty">
             <p>
               <strong>No sites configured</strong>
             </p>
@@ -553,6 +554,7 @@ export function SiteRow({ site, siteHref, lineage }: SiteRowProps) {
       </td>
       <td>{view.siteType}</td>
       <td>
+        {/* MOCK DEVIATION D4 (R376): the chip says the truthful "Demonstration data", not the mock's "Simulated". */}
         <Badge tone="provenance">{view.sourceMode}</Badge>
       </td>
       <td data-operating-view="not-available">

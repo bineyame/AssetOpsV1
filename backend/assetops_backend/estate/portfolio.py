@@ -16,9 +16,11 @@ from datetime import datetime
 from typing import Any, Iterable
 from urllib.parse import quote
 
-from assetops_backend.estate.coverage import COVERED, EV, MINI_GRID, NOT_APPLICABLE, PENDING
+from assetops_backend.estate.coverage import (
+    COLD, COVERED, DOMAIN_OF_SITE_TYPE, EV, MINI_GRID, NOT_APPLICABLE, PENDING)
 from assetops_backend.estate.evidence_money import (
-    CONTRADICTORY, EMPTY, EMPTY_SCOPE, FULL, LIMITED, NONE, EstateEvidenceService, select_evidence_scope)
+    CONTRADICTORY, EMPTY, EMPTY_SCOPE, FULL, LIMITED, NONE, EstateEvidenceService, select_evidence_scope,
+    site_home_href)
 from assetops_backend.estate.evidence_money import _groups as evidence_gap_groups
 from assetops_backend.estate.financials import (
     APPLICABLE, COMPARABLE, ELIGIBLE, SINGLE_LINE, UNPRICED, select_financial_scope)
@@ -36,8 +38,6 @@ COMPLETE, PARTIAL, UNKNOWN_STATE = "COMPLETE", "PARTIAL", "UNKNOWN"
 CURRENT_STATUS, HISTORICAL_STATUS, PENDING_STATUS, UNKNOWN_STATUS = "CURRENT", "HISTORICAL", "PENDING", "UNKNOWN"
 #: Closure 5 S4 unit classes: settled and known, unresolved, proven non-applicable.
 G, U, N = "G", "U", "N"
-#: S12: the stored Site type whose exact Finding route is reviewed (W1 mini-grid only).
-DOMAIN_FOR_LINK = {"MINIGRID": MINI_GRID}
 _UNSETTLED_JOBS = ("PENDING", "FAILED", "NONE")
 _UNRESOLVED_MATCH = ("MISSING", "PENDING")
 
@@ -165,10 +165,10 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str,
         "verification_outcome": None if action is None else action["verification_outcome"],
         "workflow_label": workflow_label(action),
         "next_move": None, "source_provenance": r["source_provenance"],
-        "links": {"site": f"/sites/{code}",
-                  # S12: only the W1 mini-grid exact Finding route is reviewed; cold/EV stay inert.
-                  "finding": (f"/sites/{code}/findings/{fid}?revision_id={frid}"
-                              if DOMAIN_FOR_LINK.get(r["_domain"]) else None),
+        # Post-W6 W3-estate Q2/Q10 (S12 inert restriction removed): the Site home (EV `/sites/{code}/ev`) and the
+        # Finding route `select_finding_scope` proved: mini-grid `revision_id`; cold/EV the selected Site window
+        # holding the Finding with its proven row-local cutoff, else null.
+        "links": {"site": r["links"]["site"], "finding": r["links"]["finding"],
                   "action": None if action is None else
                   f"/sites/{code}/actions/{action['action_id']}?event_id={action['selected_event_id']}"},
         "_at": r["_at"], "_marker": (r["_at"], str(site["site_code_key"]), r["site_id"].lower(), fid, frid)}
@@ -295,9 +295,41 @@ def value_cards(lines: list[dict[str, Any]], applicable: dict[str, bool],
             _card("VERIFIED_RECOVERY", "NOT_ESTABLISHED")]
 
 
-def _cell(key: str, state: str) -> dict[str, Any]:
+def _cell(key: str, state: str, destination: str | None = None) -> dict[str, Any]:
     return {"key": key, "state": state, "label": OBJECTIVE_LABEL[state], "reason": OBJECTIVE_REASON[(key, state)],
-            "destination": None}
+            "destination": destination}
+
+
+#: Post-W6 W3-estate Q10: the mounted Site route under `/sites/{code}` of each objective with a fixed target per
+#: domain. EV has no configured Backup objective (None: "No configured objective"); Cost control and Evidence
+#: come from the Site's selected window (`objective_destinations`).
+OBJECTIVE_ROUTE = {
+    MINI_GRID: {"SERVICE_PRODUCT": "/performance/service", "BACKUP": "/performance/backup",
+                "ASSET_CONDITION": "/health"},
+    COLD: {"SERVICE_PRODUCT": "/performance/temperature", "BACKUP": "/performance/backup",
+           "ASSET_CONDITION": "/health"},
+    EV: {"SERVICE_PRODUCT": "/performance/sessions", "BACKUP": None, "ASSET_CONDITION": "/health"}}
+
+
+def objective_destinations(code: str, domain: str, rows: list[dict[str, Any]]) -> dict[str, str | None]:
+    """Post-W6 W3-estate Q10: each matrix cell's mounted Site route. Mini-grid Cost control and Evidence open
+    `/financials` and `/evidence`; cold/EV reuse the selected-window helpers: the latest evidence row whose
+    `window_links` proved its window (closure 5 B5) gives `site_readiness` and the same `_money_links` bridge
+    query, else the Site home (EV `/sites/{code}/ev`). An unknown Site configuration has no destination."""
+    if domain not in OBJECTIVE_ROUTE:
+        return dict.fromkeys(OBJECTIVE_KEYS)
+    base = f"/sites/{quote(code, safe='')}"
+    out = {key: None if route is None else base + route for key, route in OBJECTIVE_ROUTE[domain].items()}
+    if domain == MINI_GRID:
+        return {**out, "COST_CONTROL": f"{base}/financials", "EVIDENCE": f"{base}/evidence"}
+    home = site_home_href(code, domain)
+    proven = [r for r in rows if r["links"]["site_readiness_label"] is None and "?" in r["links"]["site_readiness"]]
+    if not proven:
+        return {**out, "COST_CONTROL": home, "EVIDENCE": home}
+    latest = max(proven, key=lambda r: (r["window_end"] or "", r["window_start"] or ""))
+    readiness = latest["links"]["site_readiness"]
+    bridge = f"{base}/financials" if domain == COLD else f"{base}/ev/financials"
+    return {**out, "COST_CONTROL": f"{bridge}?{readiness.split('?', 1)[1]}", "EVIDENCE": readiness}
 
 
 def evidence_cell_state(domain: str, cov: dict[str, Any], rows: list[dict[str, Any]], historical: bool) -> str:
@@ -331,9 +363,11 @@ def objective(site: dict[str, Any], e: tuple, m: tuple, historical: bool) -> dic
     """One matrix item per authorized Site; the first three cells have no reviewed objective producer."""
     _, e_domain, e_cov, e_rows = e
     _, m_domain, m_cov, m_lines = m
-    cells = [_cell(key, "UNKNOWN") for key in OBJECTIVE_KEYS[:3]]
-    cells.append(_cell("COST_CONTROL", cost_cell_state(m_domain, m_cov, m_lines)))
-    cells.append(_cell("EVIDENCE", evidence_cell_state(e_domain, e_cov, e_rows, historical)))
+    to = objective_destinations(site["site_code"], DOMAIN_OF_SITE_TYPE.get(site["site_type"], NOT_APPLICABLE),
+                                e_rows)
+    cells = [_cell(key, "UNKNOWN", to[key]) for key in OBJECTIVE_KEYS[:3]]
+    cells.append(_cell("COST_CONTROL", cost_cell_state(m_domain, m_cov, m_lines), to["COST_CONTROL"]))
+    cells.append(_cell("EVIDENCE", evidence_cell_state(e_domain, e_cov, e_rows, historical), to["EVIDENCE"]))
     return {"site_id": str(site["site_id"]), "site_code": site["site_code"], "site_name": site["site_name"],
             "domain": site["site_type"], "cells": cells}
 

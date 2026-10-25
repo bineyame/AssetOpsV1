@@ -103,9 +103,11 @@
    * survives contact with a designer: a shared tone is how two vocabularies
    * quietly become one.
    */
-  --badge-provenance-bg: #dcfce7;
-  --badge-provenance-text: #15803d;
-  --badge-provenance-border: #a7e8bd;
+  /* post-W6 shell R125: provenance takes the mock's purple `badge.purple` (#f0eafa / #725094); green is the
+     healthy tone and must not read as a status. Origin keeps its own deeper violet below. */
+  --badge-provenance-bg: #f0eafa;
+  --badge-provenance-text: #725094;
+  --badge-provenance-border: #dccdee;
 
   --badge-lifecycle-bg: #fef3c7;
   --badge-lifecycle-text: #92400e;
@@ -133,6 +135,8 @@
      of equipment, never operating state. */
   --sld-ink: #16233f;
   --sld-bus: #1d3f6e;
+  /* post-W6 shell R129: Foundation topology bus rule (mock `.plant-bus` #6ca99a). */
+  --plant-bus: #6ca99a;
   --sld-cell: #dfe9f6;
   --sld-supply-fill: #fff8ee;
   --sld-supply-stroke: #b4691f;

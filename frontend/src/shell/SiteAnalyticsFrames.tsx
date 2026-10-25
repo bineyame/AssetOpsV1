@@ -28,6 +28,7 @@ import {
 import { COLD_ACTION_PRESENTATION } from "../sites/coldWorkPresentation";
 import { EV_ACTION_PRESENTATION } from "../sites/evWorkPresentation";
 import { shortName } from "../sites/siteWorkCases";
+import "../ui/mock-deviation.css";
 import { DomainActionVerification, type DomainActionPresentation } from "../sites/DomainActionVerification";
 import { SiteWorkIncidents } from "../sites/SiteWorkIncidents";
 import { SiteWorkMaintenance } from "../sites/SiteWorkMaintenance";
@@ -59,7 +60,7 @@ import {
 } from "../sites/MiniOpportunity";
 import { ALTERNATIVES_FINDING_UNAVAILABLE, MiniAlternatives } from "../sites/MiniAlternatives";
 import { createMiniDecisionsClient, scenarioScopeSearch, type MiniDecisionsClient, type ScenarioScope } from "../sites/miniDecisionsClient";
-import { SiteFinding } from "../sites/SiteFinding";
+import { SiteFinding, type FindingCostClient } from "../sites/SiteFinding";
 import { FindingSections, SiteFindingEvidence, type FindingSectionLink } from "../sites/SiteFindingEvidence";
 import { SiteFindingHistory } from "../sites/SiteFindingHistory";
 import { SitePerformance } from "../sites/SitePerformance";
@@ -78,8 +79,9 @@ import { EvFindingFrame, EvSessionsFrame, type EvPerformanceView, evFindingHref 
 import { EvAvailability } from "../sites/EvAvailability";
 import { EvEnergy } from "../sites/EvEnergy";
 import { type EvDepthClient, createEvDepthClient } from "../sites/evDepthClient";
-import { evSiteRoutes } from "./evSiteRoutes";
+import { EV_SITE_TAB_HREFS, evSiteRoutes } from "./evSiteRoutes";
 import type { EvAssessmentClient } from "../sites/evAssessmentClient";
+import { EvFindingIndex } from "../sites/EvFindingIndex";
 import { coldSiteRoutes, coldSiteScreen, coldTabSearch } from "./coldSiteRoutes";
 import { createColdDepthClient, type ColdDepthClient } from "../sites/ColdDepthClient";
 import { presentationProfileFor } from "../sites/presentationProfile";
@@ -94,6 +96,8 @@ import { deriveSiteView, siteSourceModeLabel } from "../sites/siteViewModel";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import {
   FINDING_CHILD_VIEWS,
+  ACTIONS_PATH,
+  FINANCIALS_PATH,
   FINDINGS_PATH,
   findingHref,
   siteActionHref,
@@ -263,13 +267,14 @@ export function SitePerformanceFrame({
               mode={deriveSiteView(site).sourceMode}
               window={window}
               client={evAssessment}
-              tabs={<OperatorSiteTabs siteId={siteId} current="Performance" />}
+              tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Performance" hrefs={EV_SITE_TAB_HREFS} search={search} />}
               parentTrail={[
                 { label: "Sites", to: sitesPath },
                 { label: site.display_name, to: siteDetailHref(site.site_id) },
               ]}
               sessionsHref={`${sitePerformanceHref(site.site_id, "sessions")}${coldWindowSearch(window)}`}
               findingHref={evFindingHref((id) => siteFindingHref(site.site_id, id), window)}
+              analysisHref={(search) => `${evRoutes.analysis}${search}`}
             />
           );
         }
@@ -454,6 +459,7 @@ export function SiteFindingsFrame({
   sitesPath,
   findingIndex = DEFAULT_FINDING_INDEX,
   coldAssessment,
+  evAssessment,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
@@ -461,6 +467,7 @@ export function SiteFindingsFrame({
   findingIndex?: FindingIndexClient;
   /** post-W6 W2-cold R253: a COLDCHAIN Site's index reads its selected cold Findings, not the mini index. */
   coldAssessment?: ColdAssessmentClient;
+  evAssessment?: EvAssessmentClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -490,8 +497,9 @@ export function SiteFindingsFrame({
             description={SITE_SCREEN_DESCRIPTIONS.sitefindings}
             headingId={SITE_FINDINGS_HEADING_ID}
           />
-          <OperatorSiteTabs siteId={siteId} current="Findings" search={coldTabSearch(site, params)} />
           {site.site_type === "COLDCHAIN" && coldAssessment !== undefined ? (
+            <>
+            <OperatorSiteTabs siteId={siteId} current="Findings" search={coldTabSearch(site, params)} />
             <ColdFindingIndex
               siteId={site.site_id}
               siteName={site.display_name}
@@ -500,8 +508,20 @@ export function SiteFindingsFrame({
               routes={coldSiteRoutes(site.site_id)}
               lenses={<LensChips />}
             />
+            </>
+          ) : site.site_type === "EV_CHARGING" && evAssessment !== undefined ? (
+            <EvFindingIndex
+              siteId={site.site_id}
+              siteName={site.display_name}
+              window={coldWindowFromParams(params)}
+              client={evAssessment}
+              findingBase={(id) => siteFindingHref(site.site_id, id)}
+              sessionsBase={sitePerformanceHref(site.site_id, "sessions")}
+              tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={EV_SITE_TAB_HREFS} search={search} />}
+            />
           ) : (
-          // The mini/generic index lines below are left unindented so the shared hunk stays minimal.
+          <>
+          <OperatorSiteTabs siteId={siteId} current="Findings" />
           <SiteFindingIndex
             siteId={site.site_id}
             opportunityHelper={site.site_type === "MINIGRID"}
@@ -510,6 +530,16 @@ export function SiteFindingsFrame({
             links={{
               scope: (next) => `${siteFindingsHref(site.site_id)}?${findingIndexScopeQuery(next)}`,
               finding: (id, revisionId) => siteFindingHref(site.site_id, id, revisionId),
+              manage: FINDINGS_PATH,
+              // post-W6 W1-b Q19/Q20 / R197: the mini Domain cell's Dispatch day and the helper's Renewable view.
+              ...(site.site_type === "MINIGRID"
+                ? {
+                    dispatch: (day: string, intervalRevisionId: string | null) =>
+                      `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}` +
+                      (intervalRevisionId === null ? "" : `&revision=${encodeURIComponent(intervalRevisionId)}`),
+                    renewable: sitePerformanceHref(site.site_id, "renewable"),
+                  }
+                : {}),
             }}
             onScope={(next) => navigate(`${siteFindingsHref(site.site_id)}?${findingIndexScopeQuery(next)}`)}
             fallback={
@@ -522,6 +552,7 @@ export function SiteFindingsFrame({
               />
             }
           />
+          </>
           )}
         </main>
       )}
@@ -624,11 +655,10 @@ const FINDING_SECTION_LABELS: Record<FindingChildView, string> = {
 /** u6 ruling 4: the plain helper beside the canonical mini row on child views (outside the guarded tab). */
 export const ANALYSIS_HELPER_ALTERNATIVES =
   "Analysis unavailable for this authored alternative; use the Finding overview and evidence.";
-export const ANALYSIS_HELPER_SECTION = "Analysis unavailable for this Finding section; use the Finding overview and evidence.";
 /** u6 ruling 1: the W1 detail supplies no public Finding code. */
 export const FINDING_CODE_UNAVAILABLE = "Finding code unavailable";
 /** u6 ruling 3: a cold or EV Finding child address. */
-export const FINDING_SECTION_UNAVAILABLE = "Finding section unavailable for this site.";
+export const FINDING_SECTION_UNAVAILABLE = "This Finding section is not available for this kind of Finding.";
 /** u6b ruling 13: a cold/EV Finding root whose domain read is not composed; never the generic W1 read. */
 export const FINDING_DOMAIN_UNAVAILABLE = "This site's Finding view is unavailable.";
 
@@ -640,10 +670,13 @@ export function SiteFindingFrame({
   coldAssessment,
   evAssessment,
   miniDecisions = DEFAULT_MINI_DECISIONS,
+  financials,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   findings?: FindingClient;
+  /** post-W6 W1-a Q12 / R189: the one exact-revision cost read of a loaded mini Finding (default: the module client). */
+  financials?: FindingCostClient;
   actions?: ActionClient;
   /** W2-03: a COLDCHAIN Site's Finding renders `cold-finding` or `cold-finding-excursion` by its kind. */
   coldAssessment?: ColdAssessmentClient;
@@ -678,7 +711,8 @@ export function SiteFindingFrame({
               findingId={id}
               window={coldWindowFromParams(params)}
               client={evAssessment}
-              tabs={<OperatorSiteTabs siteId={siteId} current="Findings" />}
+              analysisHref={(search) => `${evSiteRoutes(site.site_id).analysis}${search}`}
+              tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={EV_SITE_TAB_HREFS} search={search} />}
               parentTrail={[
                 { label: "Sites", to: sitesPath },
                 { label: site.display_name, to: siteDetailHref(site.site_id) },
@@ -719,6 +753,7 @@ export function SiteFindingFrame({
               findings={findings}
               actions={actions}
               miniDecisions={miniDecisions}
+              financials={financials ?? DEFAULT_FINANCIALS}
             />
           );
         }
@@ -736,7 +771,8 @@ export function SiteFindingFrame({
               ]}
             />
             <PageHeader title={title} headingId={SITE_FINDING_HEADING_ID} subtitle={`${site.display_name} · finding`} />
-            <OperatorSiteTabs siteId={siteId} current="Findings" />
+            {/* post-W6 W2-EV (Q14): an EV child address's main tabs open the EV pages (no read, so no window). */}
+            <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={site.site_type === "EV_CHARGING" ? EV_SITE_TAB_HREFS : undefined} />
             {domainSite && domainRoot ? (
               <Panel heading="Finding" headingId="site-finding-domain-unavailable-heading">
                 <p data-finding-domain-unavailable>{FINDING_DOMAIN_UNAVAILABLE}</p>
@@ -793,6 +829,7 @@ function CanonicalMiniFinding({
   findings,
   actions,
   miniDecisions,
+  financials,
 }: {
   site: SiteDetailReadModel;
   routeSiteId: string | undefined;
@@ -804,8 +841,12 @@ function CanonicalMiniFinding({
   findings: FindingClient;
   actions: ActionClient;
   miniDecisions: MiniDecisionsClient;
+  financials: FindingCostClient;
 }) {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  // post-W6 W1-a Q7 / R184: the Finding's Analysis is the root's `?view=analysis`, a live section tab.
+  const analysisView = view === "finding" && params.get("view") === "analysis";
   const [selection, setSelection] = useState<MiniSelection>({ status: "loading" });
   // The address replaced with the revision this read already resolved is the same selection: no second read.
   const settled = useRef<{ key: string; revisionId: string } | null>(null);
@@ -843,8 +884,12 @@ function CanonicalMiniFinding({
       navigate(siteFindingAlternativesHref(site.site_id, id, resolved), { replace: true });
     }
   }, [view, revisionId, resolved, navigate, site.site_id, id]);
+  // post-W6 W1-a Q16 / R193: Alternatives and Recommendation are headed by the resolved record's title, and by
+  // "Finding" when the selection refuses.
   useEffect(() => {
-    if (view === "alternatives" && selection.status === "loaded") onTitle(selection.title);
+    if (view !== "alternatives" && view !== "recommendation") return;
+    if (selection.status === "loaded") onTitle(selection.title);
+    else if (selection.status === "refused") onTitle("Finding");
   }, [view, selection, onTitle]);
 
   // u6b ruling 6: a revision-carrying sibling, Overview or money href exists only for the loaded W1 selection; before
@@ -858,11 +903,16 @@ function CanonicalMiniFinding({
     resolved === null
       ? { id: "finding", gap: "Overview" }
       : { id: "finding", label: "Overview", href: siteFindingHref(site.site_id, id, resolved) },
-    { id: "analysis", label: "Analysis", unavailable: true },
-    child("evidence"),
     resolved === null
-      ? { id: "alternatives", gap: ALTERNATIVES_FINDING_UNAVAILABLE }
-      : { id: "alternatives", label: "Alternatives", href: siteFindingAlternativesHref(site.site_id, id, resolved) },
+      ? { id: "analysis", gap: "Analysis" }
+      : { id: "analysis", label: "Analysis", href: `${siteFindingHref(site.site_id, id, resolved)}&view=analysis` },
+    child("evidence"),
+    // post-W6 W1-a Q16 / R193: a refused selection shows the short disabled tab; its full reason sits below the row.
+    resolved !== null
+      ? { id: "alternatives", label: "Alternatives", href: siteFindingAlternativesHref(site.site_id, id, resolved) }
+      : selection.status === "refused"
+        ? { id: "alternatives", label: "Alternatives", unavailable: true }
+        : { id: "alternatives", gap: "Alternatives" },
     child("recommendation"),
     child("history"),
   ];
@@ -898,20 +948,34 @@ function CanonicalMiniFinding({
       <PageHeader
         title={title}
         headingId={SITE_FINDING_HEADING_ID}
+        // MOCK DEVIATION D2 (R389): the child subtitle names the Site and Finding kind; the code stays D1 (R65/R74).
         subtitle={`${site.display_name} · generator support finding`}
-        // H3 (final review; build-spec ledger l.186): Alternatives carries the v69 `Open site` header action, which
-        // resolves the authorized Site Overview, as the Opportunity frame does.
+        // H3 (final review; build-spec ledger l.186) and post-W6 W1-a Q9 / R186: every Finding section (overview,
+        // analysis, evidence, history, alternatives, recommendation) carries the v69 `Open site` header action to the
+        // authorized Site Overview.
         actions={
-          view === "alternatives" ? (
-            <Link to={siteDetailHref(site.site_id)} data-alternatives-open-site>
+          view === null ? undefined : (
+            <Link
+              to={siteDetailHref(site.site_id)}
+              data-finding-open-site={view}
+              data-alternatives-open-site={view === "alternatives" ? "" : undefined}
+            >
               Open site
             </Link>
-          ) : undefined
+          )
         }
       />
-      {/* uF 3 (final review M6): the v69 Alternatives screen is a Findings surface with no Site tab row; every other
-          W1 Finding view keeps it. */}
-      {view === "alternatives" ? null : <OperatorSiteTabs siteId={routeSiteId} current="Findings" />}
+      {/* uF 3 (final review M6): the v69 Alternatives screen is a Findings surface with no Site tab row. post-W6 W1-b
+          Q26/Q52: Recommendation drops it too (B4-04). Overview, Analysis, Evidence and History keep it as a registered
+          departure: MOCK DEVIATION D2 (R383; supersedes W1-a's R395), labelled visibly immediately below the retained row. */}
+      {view === "alternatives" || view === "recommendation" ? null : (
+        <>
+          <OperatorSiteTabs siteId={routeSiteId} current="Findings" />
+          <p className="mock-deviation-line" data-mock-deviation="R383">
+            MOCK DEVIATION D2 (R383)
+          </p>
+        </>
+      )}
       {view === null ? (
         <Panel heading="No such Finding section" headingId="site-finding-section-missing-heading">
           <p data-finding-read="not_found">
@@ -920,27 +984,19 @@ function CanonicalMiniFinding({
         </Panel>
       ) : (
         <>
-          {/* W1-F3: the money link sits on the section-tab line; W1-F4: on Recommendation it is a qualified line inside "Proposed intervention" instead. */}
+          {/* post-W6 W1-a Q8 / R185: the section row has no money aside; the Finding's What to do next carries
+              "Inspect financial assumptions", and W1-F4's Recommendation keeps its qualified line. Q7: Evidence and
+              History drop the Analysis helper now that Analysis is live; W1-b Q28 retired the Recommendation one. */}
           <FindingSections
             sections={sections}
-            current={view}
-            aside={
-              view === "recommendation" || resolved === null ? undefined : (
-                <span className="finding-financials-link" data-finding-financials-link>
-                  <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId: pinned })}>
-                    What this finding means in money
-                  </Link>
-                </span>
-              )
-            }
-            helper={
-              view === "finding"
-                ? undefined
-                : view === "alternatives"
-                  ? ANALYSIS_HELPER_ALTERNATIVES
-                  : ANALYSIS_HELPER_SECTION
-            }
+            current={analysisView ? "analysis" : view}
+            helper={view === "alternatives" ? ANALYSIS_HELPER_ALTERNATIVES : undefined}
           />
+          {selection.status === "refused" ? (
+            <p className="mini-alternatives-note" data-alternatives-finding-unavailable>
+              {ALTERNATIVES_FINDING_UNAVAILABLE}
+            </p>
+          ) : null}
           {view === "alternatives" ? (
             selection.status === "loaded" && revisionId !== null ? (
               <MiniAlternatives
@@ -951,11 +1007,7 @@ function CanonicalMiniFinding({
                 client={miniDecisions}
                 recordHref={(evidenceId) => siteEvidenceAcceptedRecordHref(site.site_id, evidenceId)}
               />
-            ) : selection.status === "refused" ? (
-              <p className="mini-alternatives-note" data-alternatives-finding-unavailable>
-                {ALTERNATIVES_FINDING_UNAVAILABLE}
-              </p>
-            ) : (
+            ) : selection.status === "refused" ? null : (
               <p data-alternatives-finding-loading>Loading the Finding.</p>
             )
           ) : view === "evidence" ? (
@@ -991,6 +1043,7 @@ function CanonicalMiniFinding({
               findingId={id}
               client={findings}
               onTitle={onTitle}
+              timeZone={site.timezone}
               links={{
                 history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
                 evidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
@@ -1004,6 +1057,8 @@ function CanonicalMiniFinding({
               findingId={id}
               client={findings}
               onTitle={onTitle}
+              timeZone={site.timezone}
+              financials={financials}
               links={{
                 finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
                 dispatch,
@@ -1011,6 +1066,9 @@ function CanonicalMiniFinding({
                 findingEvidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
                 history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
                 recommendation: (rev) => siteFindingViewHref(site.site_id, id, "recommendation", rev),
+                alternatives: (rev) => siteFindingAlternativesHref(site.site_id, id, rev),
+                assumptions: siteFinancialAssumptionsHref(site.site_id),
+                financials: (rev) => siteFinancialsHref(site.site_id, { findingId: id, revisionId: rev }),
               }}
             />
           )}
@@ -1310,6 +1368,13 @@ export function SiteFinancialsFrame({
           consequence: (findingId, revisionId, consequenceRevisionId) =>
             siteFinancialsHref(site.site_id, { findingId, revisionId, consequenceRevisionId }),
           findings: siteFindingsHref(site.site_id),
+          // post-W6 W1-b Q21/Q22/Q24: the Portfolio roll-up, Dispatch Analysis and Financials overview links.
+          portfolio: FINANCIALS_PATH,
+          dispatchAnalysis: (day, intervalRevisionId) =>
+            `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}` +
+            (intervalRevisionId === null ? "" : `&revision=${encodeURIComponent(intervalRevisionId)}`) +
+            "&view=analysis",
+          overview: siteFinancialsHref(site.site_id),
         };
         return (
           <main aria-labelledby={SITE_FINANCIALS_HEADING_ID}>
@@ -1613,7 +1678,8 @@ function DomainActionRoute({
 
 export function SiteActionFrame({
   detail,
-  sitesPath,
+  // post-W6 shell R203: the Action trail is rooted at Actions, so the Sites root is no longer a crumb here.
+  sitesPath: _sitesPath,
   actions = DEFAULT_ACTIONS,
   domainActions = DEFAULT_DOMAIN_ACTIONS,
 }: {
@@ -1623,7 +1689,10 @@ export function SiteActionFrame({
   /** W5-02 K2a / W5-04 V4a: the domain Action read, used only on a COLDCHAIN or EV_CHARGING Site. */
   domainActions?: DomainActionClient;
 }) {
-  const { siteId, actionId, actionView } = useParams<{ siteId: string; actionId: string; actionView?: string }>();
+  const { siteId, actionId, actionView: rawActionView } = useParams<{ siteId: string; actionId: string; actionView?: string }>();
+  // post-W6 W1-b Q33 / R222 (pre-flight ruling 9): `/overview` is an alias of the canonical bare Action route, for
+  // every Site type, with no selected state of its own.
+  const actionView = rawActionView === "overview" ? undefined : rawActionView;
   const [params] = useSearchParams();
   const eventId = params.get("event_id");
   const recordedAt = params.get("recorded_at");
@@ -1634,7 +1703,7 @@ export function SiteActionFrame({
   const view: ActionView | null =
     actionView === undefined
       ? "overview"
-      : actionView !== "overview" && (ACTION_VIEWS as readonly string[]).includes(actionView)
+      : (ACTION_VIEWS as readonly string[]).includes(actionView)
         ? (actionView as ActionView)
         : null;
   return (
@@ -1671,47 +1740,75 @@ export function SiteActionFrame({
         const href = (target: ActionView, chosen: ActionSelector) => siteActionHref(site.site_id, id, target, chosen);
         return (
           <main aria-labelledby={SITE_ACTION_HEADING_ID}>
-            <Breadcrumbs
-              trail={[
-                { label: "Sites", to: sitesPath },
-                { label: site.display_name, to: siteDetailHref(site.site_id) },
-                { label: "Findings", to: siteFindingsHref(site.site_id) },
-                view === "overview" || view === null
-                  ? { label: "Action" }
-                  : { label: "Action", to: href("overview", selector) },
-                ...(view === "overview" || view === null ? [] : [{ label: ACTION_VIEW_LABELS[view] }]),
-              ]}
-            />
+            {/* post-W6 shell R203 (Q19): the mock's Action-rooted trail, `Actions › {code} › {section} · site: {site}`,
+                in the existing domain Action crumb shape. The code appears only once the W1 Action read has named it
+                (SiteAction reports `{code} · Battery reserve trial` through onTitle; "Action" while loading). */}
+            <nav className="breadcrumbs mini-finding-crumbs" aria-label="Breadcrumb" data-action-crumbs>
+              <ol className="breadcrumbs__list">
+                <li className="breadcrumbs__item">
+                  <Link to="/actions">Actions</Link>
+                </li>
+                {w1ActionCode(title) === null ? null : (
+                  <li className="breadcrumbs__item" data-action-crumb-code>
+                    {w1ActionCode(title)}
+                  </li>
+                )}
+                {view === null ? null : (
+                  <li className="breadcrumbs__item">
+                    <span className="breadcrumbs__current" aria-current="page">
+                      {ACTION_VIEW_LABELS[view]}
+                    </span>
+                  </li>
+                )}
+              </ol>
+              <span className="mini-finding-crumbs__site" data-action-crumb-site>
+                <span className="mini-finding-crumbs__lead">· site:</span>{" "}
+                <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
+              </span>
+            </nav>
+            {/* post-W6 W1-b Q35 / R229: the Action description joins the subtitle only once the loaded Action has named
+                its code; pending or unknown shows only the Site. Q27 / R205: `Open site` header action. Q26 / R204:
+                no Site tab row on the five Action views (B4-04). */}
             <PageHeader
               title={title}
               headingId={SITE_ACTION_HEADING_ID}
-              subtitle={`${site.display_name} · an action raised from a finding`}
+              subtitle={w1ActionCode(title) === null ? site.display_name : `${site.display_name} · an action raised from a finding`}
+              actions={
+                <Link to={siteDetailHref(site.site_id)} data-action-open-site={view ?? "unknown"}>
+                  Open site
+                </Link>
+              }
             />
-            <OperatorSiteTabs siteId={siteId} current="Findings" />
+            <nav className="site-tabs site-subtabs" aria-label={ACTION_SECTIONS_LABEL}>
+              <ol className="site-tabs__list">
+                {ACTION_VIEWS.map((section) => (
+                  <li className="site-tabs__item" key={section}>
+                    <Link
+                      className="site-tabs__link"
+                      to={href(section, selector)}
+                      data-action-section={section}
+                      aria-current={section === view ? "page" : undefined}
+                    >
+                      {ACTION_VIEW_LABELS[section]}
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            </nav>
             {view === null ? (
+              // Q33 / R222 (pre-flight ruling 4): the ruled body, the segment as text, then the overview link.
               <Panel heading="No such Action section" headingId="site-action-section-missing-heading">
                 <p data-action-read="section-not-found">
-                  An Action has no section with that name. <Link to={href("overview", selector)}>Open the Action</Link>
+                  This Action has no section called &apos;{actionView}&apos;. Open the Action overview.
+                </p>
+                <p>
+                  <Link to={siteActionHref(site.site_id, id)} data-action-unknown-overview>
+                    Open Action overview
+                  </Link>
                 </p>
               </Panel>
             ) : (
               <>
-                <nav className="site-tabs site-subtabs" aria-label={ACTION_SECTIONS_LABEL}>
-                  <ol className="site-tabs__list">
-                    {ACTION_VIEWS.map((section) => (
-                      <li className="site-tabs__item" key={section}>
-                        <Link
-                          className="site-tabs__link"
-                          to={href(section, selector)}
-                          data-action-section={section}
-                          aria-current={section === view ? "page" : undefined}
-                        >
-                          {ACTION_VIEW_LABELS[section]}
-                        </Link>
-                      </li>
-                    ))}
-                  </ol>
-                </nav>
                 <SiteAction
                   siteId={site.site_id}
                   actionId={id}
@@ -1742,6 +1839,12 @@ export function SiteActionFrame({
  */
 export const SITE_CHANGE_HEADING_ID = "site-change-heading";
 
+/** post-W6 shell R203: the W1 Action code from SiteAction's reported title, or null while the read is pending. */
+export function w1ActionCode(title: string): string | null {
+  const separator = title.indexOf(" · ");
+  return separator > 0 ? title.slice(0, separator) : null;
+}
+
 function changeLinks(siteId: string): SiteFoundationChangeLinks {
   return {
     action: (actionId, view, selector) => siteActionHref(siteId, actionId, view, selector),
@@ -1769,7 +1872,8 @@ export function SiteFoundationChangeFrame({
               { label: "Sites", to: sitesPath },
               { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Foundation", to: siteFoundationHref(site.site_id) },
-              { label: "Change" },
+              // post-W6 shell R152 (Q16): the same leaf as the bare Changes route.
+              { label: "Change & effect" },
             ]}
           />
           {/* W1-F4: the mock's Site page heading; the change itself leads the status strip. */}
@@ -1915,6 +2019,8 @@ export function SiteWorkFrame({
               history: (actionId, eventId) =>
                 siteActionHref(site.site_id, actionId, "history", { eventId, recordedAt: null }),
               finding: (findingId, revisionId) => siteFindingHref(site.site_id, findingId, revisionId),
+              // post-W6 W1-b Q36 / R230: the mini strip's "Manage in Actions →" (cold and EV strips are unchanged).
+              manage: ACTIONS_PATH,
             }}
             onScope={(next) => navigate(siteWorkHref(site.site_id, actionIndexQuery(next)))}
           />

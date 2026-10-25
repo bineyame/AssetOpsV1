@@ -76,6 +76,10 @@ export interface WindowOverviewLinks {
   evidenceRecord: (evidenceId: string) => string;
   /** S5-02: the full Site Findings page for one index scope (the same window, domain and page). */
   findingList?: (scope: FindingIndexScope) => string;
+  /** post-W6 W1-a Q2 / R157: the Site's mounted Assets page, the Battery card's detail. */
+  assets?: string;
+  /** post-W6 W1-a Q3 / R159: the Foundation single line diagram at one instant (null: the bare mounted route). */
+  sld?: (at: string | null) => string;
 }
 
 /** W4-02 B3: the mini-grid domains whose Overview cards read the mini depth endpoints (Backup has no card). */
@@ -301,7 +305,8 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
               { label: "Assessment state", value: a.state },
               ...(a.status_reasons ?? []).map((reason, i) => ({ label: `Recorded reason ${i + 1}`, value: reason })),
               { label: "Day state", value: f.state },
-              ...reasonReferences("Recorded reason", f.reasons),
+              // post-W6 W1-a Q4 / R164: the Finding's reasons carry their own label, unique beside the assessment's.
+              ...reasonReferences("Finding reason", f.reasons),
               { label: "Source state", value: f.source_reason },
               {
                 label: "Accepted records counted",
@@ -537,18 +542,13 @@ function MiniObjectiveCard({ domain, label, words }: { domain: OverviewMiniDomai
     <MetricCard
       label={label}
       value={words.value}
-      note={
-        <>
-          {words.note}
-          {words.link === null ? null : (
-            <>
-              {" "}
-              <Link to={words.link} data-objective-card-detail={domain}>
-                View detail →
-              </Link>
-            </>
-          )}
-        </>
+      note={words.note}
+      link={
+        words.link === null ? undefined : (
+          <Link to={words.link} data-objective-card-detail={domain}>
+            View detail →
+          </Link>
+        )
       }
       tone={words.state === "value" ? undefined : "muted"}
       word
@@ -628,9 +628,22 @@ function renewableWords(state: OverviewMiniState, mini: OverviewMiniReads): Mini
  * Dispatch reads the day's dispatch assessment. On a MINIGRID Site with mini reads, Service, Fuel and Renewable read
  * the W4-02 mini endpoints (Q24); every other cell is its own no-read state, never a value drawn from the mock.
  */
-function ObjectiveCards({ summary, mini, miniState }: { summary: SiteWindowSummary; mini?: OverviewMiniReads; miniState: OverviewMiniState | null }) {
+function ObjectiveCards({
+  summary,
+  links,
+  mini,
+  miniState,
+}: {
+  summary: SiteWindowSummary;
+  links: WindowOverviewLinks;
+  mini?: OverviewMiniReads;
+  miniState: OverviewMiniState | null;
+}) {
   const a = summary.assessment;
   const current = a.state === "CURRENT" && a.claim_level !== null;
+  // post-W6 W1-a Q2 / R157: the Dispatch card's top border follows only the stored classification it shows: amber
+  // for a possibly avoidable day, gray otherwise; a card with no current read has no border.
+  const dispatchTone = current && a.claim_level === "CANDIDATE_AVOIDABLE" ? "amber" : undefined;
   const w = objectiveWords(a.state);
   const n = a.dispatch_intervals.length;
   const unknown = (key: string, label: string, note: string) => (
@@ -649,9 +662,37 @@ function ObjectiveCards({ summary, mini, miniState }: { summary: SiteWindowSumma
         value={current ? (OUTCOME_WORDS[a.claim_level as string] ?? "Assessed") : w.label}
         note={current ? `${n} ${n === 1 ? "operating period" : "operating periods"} assessed for this day` : w.sentence}
         word
-        data={{ "data-objective-card": "dispatch", "data-objective-card-state": a.state }}
+        assessment={current}
+        tone={dispatchTone}
+        link={
+          <Link to={links.dispatchDay(summary.window.utc_date)} data-objective-card-detail="dispatch">
+            View detail →
+          </Link>
+        }
+        data={{
+          "data-objective-card": "dispatch",
+          "data-objective-card-state": a.state,
+          "data-objective-card-tone": current ? (dispatchTone ?? "gray") : "none",
+        }}
       />
-      {unknown("battery", "Battery", "No battery condition read on this Overview")}
+      {/* Q48: Battery links to its mounted Asset page; it keeps its no-condition value and no status tone.
+          MOCK DEVIATION D1 (R387): the cards' values stay the stored words ("Assessed", "Not available"), not the
+          mock's numbers; only the footer link and the Dispatch border were the D3 fix (R157). */}
+      <MetricCard
+        label="Battery"
+        value="Not available"
+        note="No battery condition read on this Overview"
+        tone="muted"
+        word
+        link={
+          links.assets === undefined ? undefined : (
+            <Link to={links.assets} data-objective-card-detail="battery">
+              View detail →
+            </Link>
+          )
+        }
+        data={{ "data-objective-card": "battery", "data-objective-card-state": "no-read" }}
+      />
       {reads !== null ? (
         <MiniObjectiveCard domain="fuel" label="Fuel" words={fuelWords(reads.state, reads.mini)} />
       ) : (
@@ -836,6 +877,7 @@ function Timeline({ summary }: { summary: SiteWindowSummary }) {
   );
 }
 
+/** MOCK DEVIATION D1 (R388): the mock's operating-context lanes stay as the W1-F5b-ruled timeline/context rows. */
 function Context({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
   const c = summary.context;
   if (c.series === null || c.coverage === null) {
@@ -1200,7 +1242,7 @@ export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, 
             <DaySelector summary={summary} onSelectDay={onSelectDay} />
             <DayStatus summary={summary} links={links} reads={minigrid ? overviewReadable(miniState) : null} />
             <ObjectiveLine summary={summary} minigrid={minigrid} />
-            <ObjectiveCards summary={summary} mini={mini} miniState={miniState} />
+            <ObjectiveCards summary={summary} links={links} mini={mini} miniState={miniState} />
           </>
         }
         happened={{
@@ -1216,6 +1258,13 @@ export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, 
         }}
         context={{
           description: "Selected day · when readings arrived; context for the cards, not a status source",
+          // post-W6 W1-a Q3 / R159: the panel-head link to the single line diagram at the selected window's end.
+          actions:
+            links.sld === undefined ? undefined : (
+              <Link to={links.sld(summary.window.end)} data-overview-sld-link>
+                Single line diagram →
+              </Link>
+            ),
           body: (
             <>
               <Timeline summary={summary} />

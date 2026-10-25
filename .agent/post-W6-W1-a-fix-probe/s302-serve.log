@@ -1,0 +1,19 @@
+API on http://127.0.0.1:18121 (log C:\Users\assef\Bineyame\AssetOpsV1-review4\var\s302_w1arc\logs\api-18121.log), pid 13572
+Frontend, in a second PowerShell at frontend/:  $env:ASSETOPS_API_PORT="18121"; npm.cmd run dev -- --port 5442 --strictPort
+  No assessment selected (Analysis, nothing chosen)
+    http://localhost:5442/sites/KOBO-001/evidence?view=analysis
+  Full coverage (current, Candidate)
+    http://localhost:5442/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=93b50a24-b67e-452f-ab6e-9bd135f4356c
+  Missing solar reading (current, Indeterminate)
+    http://localhost:5442/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=eb0a2da8-1de1-4108-9639-b4504c1a65bb
+  Unreliable and conflicting readings (current, limited)
+    http://localhost:5442/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=292f1403-5428-4218-b1d8-42816e1ebf02
+  Earlier version after a late reading (audit only)
+    http://localhost:5442/sites/KOBO-001/evidence?view=analysis&day=2026-10-13&revision=4f7c57dc-7bc2-4485-a2f6-25c519c4bc0b
+  Out of date, being redone
+    http://localhost:5442/sites/KOBO-001/evidence?view=analysis&day=2026-10-15&revision=55cbcf89-8fd5-4884-a393-315db5c39d3e
+  Day chosen, no assessment selected
+    http://localhost:5442/sites/KOBO-001/evidence?view=analysis&day=2026-10-06
+  Refused: revision from another day
+    http://localhost:5442/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=93b50a24-b67e-452f-ab6e-9bd135f4356c
+  Mock to compare: frontend/mockups/v69/index.html#/evidence-analysis

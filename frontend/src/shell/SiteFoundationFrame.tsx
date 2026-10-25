@@ -16,6 +16,7 @@ import { ColdFoundationFrame } from "../sites/ColdFoundationViews";
 import type { EvFoundationClient } from "../sites/evFoundationClient";
 import { EvFoundationFrame } from "../sites/EvFoundationViews";
 import { Breadcrumbs, PageHeader, plainTime, ProductStatus, readResultWords, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
+import { EV_SITE_TAB_HREFS } from "./evSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
 import {
@@ -23,8 +24,6 @@ import {
   siteDetailHref,
   siteEvHref,
   siteEvidenceHref,
-  siteFinancialAssumptionsHref,
-  siteFinancialsHref,
   siteHealthHref,
   siteFoundationHref,
   siteFoundationViewHref,
@@ -171,9 +170,9 @@ export function SiteFoundationFrame({
         evidenceHref={siteEvidenceHref(siteId)}
         evEvidenceHref={siteEvHref(siteId, "evidence")}
         healthHref={siteHealthHref(siteId)}
-        financialsHref={siteFinancialsHref(siteId)}
-        assumptionsHref={siteFinancialAssumptionsHref(siteId)}
-        tabs={<OperatorSiteTabs siteId={siteId} current="Foundation" />}
+        financialsHref={siteEvHref(siteId, "financials")}
+        assumptionsHref={siteEvHref(siteId, "assumptions")}
+        tabs={<OperatorSiteTabs siteId={siteId} current="Foundation" hrefs={EV_SITE_TAB_HREFS} />}
         parentTrail={[
           { label: "Sites", to: sitesPath },
           { label: siteName, to: siteDetailHref(siteId) },
@@ -263,8 +262,9 @@ export function SiteFoundationFrame({
     return (
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
         <Breadcrumbs trail={[...parentTrail(siteId ?? ""), { label: "Foundation" }]} />
+        {/* post-W6 shell R133 (Q12): the Site read's stored display name, the code only while no read has named it. */}
         <SitePageHeader
-          siteName={siteId ?? ""}
+          siteName={knownSiteName ?? siteId ?? ""}
           siteId={siteId ?? ""}
           description={screenDescription}
           headingId={SITE_CONFIGURATION_HEADING_ID}
@@ -297,7 +297,7 @@ export function SiteFoundationFrame({
         </div>
         <FoundationPanelSkeletons
           view={view}
-          siteName={siteId ?? ""}
+          siteName={knownSiteName ?? siteId ?? ""}
           gap="No Foundation version is stored for the selected time, so nothing is shown as configured in this panel."
         />
       </main>

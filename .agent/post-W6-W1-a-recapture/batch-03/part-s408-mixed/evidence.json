@@ -1,0 +1,627 @@
+{
+  "revision": "56d36bf2",
+  "captured_at": "2026-10-25T04:34:22.690Z",
+  "pairs": [
+    {
+      "screen": "finding-evidence",
+      "case": "mixed-source",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5183/sites/KOBO-001/findings/33aaa84d-cf0f-417c-ba0b-259f073adba2/evidence?revision_id=6d9b798b-170c-46e1-9012-dfda00523688",
+      "mock_hash": "#/finding-evidence",
+      "app_image": "finding-evidence-mixed-source-1440-app.png",
+      "mock_image": "finding-evidence-mixed-source-1440-mock.png",
+      "app": {
+        "titles": [
+          "Evidence bundle · Generator support merits review",
+          "Inspect source lineage"
+        ],
+        "panels": [
+          {
+            "title": "Evidence bundle · Generator support merits review",
+            "x": 248,
+            "y": 248,
+            "w": 1160,
+            "h": 411,
+            "tables": 4,
+            "rows": 4,
+            "columns": [
+              "Input",
+              "Source",
+              "Records",
+              "Coverage",
+              "Use"
+            ],
+            "chips": [],
+            "links": 53,
+            "buttons": 0,
+            "details": 5,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Inspect source lineage",
+            "x": 248,
+            "y": 693,
+            "w": 1160,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Generator support merits review",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs finding-sections",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence*",
+              "Alternatives",
+              "Recommendation",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 8,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Evidence bundle · F-104",
+          "Inspect source lineage"
+        ],
+        "panels": [
+          {
+            "title": "Evidence bundle · F-104",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 287,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Input",
+              "Source",
+              "Coverage",
+              "Use"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Inspect source lineage",
+            "x": 234,
+            "y": 609,
+            "w": 1161,
+            "h": 100,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Generator support review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence*",
+              "Alternatives",
+              "Recommendation",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "finding-evidence",
+      "case": "mixed-source",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5183/sites/KOBO-001/findings/33aaa84d-cf0f-417c-ba0b-259f073adba2/evidence?revision_id=6d9b798b-170c-46e1-9012-dfda00523688",
+      "mock_hash": "#/finding-evidence",
+      "app_image": "finding-evidence-mixed-source-390-app.png",
+      "mock_image": "finding-evidence-mixed-source-390-mock.png",
+      "app": {
+        "titles": [
+          "Evidence bundle · Generator support merits review",
+          "Inspect source lineage"
+        ],
+        "panels": [
+          {
+            "title": "Evidence bundle · Generator support merits review",
+            "x": 16,
+            "y": 384,
+            "w": 358,
+            "h": 728,
+            "tables": 4,
+            "rows": 4,
+            "columns": [
+              "Input",
+              "Source",
+              "Records",
+              "Coverage",
+              "Use"
+            ],
+            "chips": [],
+            "links": 53,
+            "buttons": 0,
+            "details": 5,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Inspect source lineage",
+            "x": 16,
+            "y": 1146,
+            "w": 358,
+            "h": 218,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1406,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Generator support merits review",
+          "top": 149,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs finding-sections",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence*",
+              "Alternatives",
+              "Recommendation",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "site-tabs__list",
+            "sw": 405,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 332,
+            "cw": 318,
+            "panel": "Evidence bundle · Generator support merits review"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 400,
+            "cw": 318,
+            "panel": "Evidence bundle · Generator support merits review"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 635,
+            "cw": 318,
+            "panel": "Evidence bundle · Generator support merits review"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 560,
+            "cw": 318,
+            "panel": "Evidence bundle · Generator support merits review"
+          }
+        ],
+        "pSizes": {
+          "12px": 8,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Evidence bundle · F-104",
+          "Inspect source lineage"
+        ],
+        "panels": [
+          {
+            "title": "Evidence bundle · F-104",
+            "x": 15,
+            "y": 432,
+            "w": 360,
+            "h": 463,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Input",
+              "Source",
+              "Coverage",
+              "Use"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Inspect source lineage",
+            "x": 15,
+            "y": 913,
+            "w": 360,
+            "h": 100,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1107,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Generator support review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence*",
+              "Alternatives",
+              "Recommendation",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 424,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

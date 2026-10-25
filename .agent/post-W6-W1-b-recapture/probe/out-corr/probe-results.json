@@ -1,0 +1,482 @@
+[
+ {
+  "name": "assumptions-default-s408",
+  "variant": "interp-160-3rows",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 578
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 681
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "rows": 3,
+  "intendedFields": 6,
+  "fields160": 6,
+  "realBadges": [
+   "Latest at this moment",
+   "Latest at this moment",
+   "Earlier version"
+  ],
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "panelH": 729,
+  "rowHs": [
+   150,
+   150,
+   149
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "assumptions-default-s408",
+  "variant": "interp-160-3rows",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 934
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 1045
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "rows": 3,
+  "intendedFields": 6,
+  "fields160": 6,
+  "realBadges": [
+   "Latest at this moment",
+   "Latest at this moment",
+   "Earlier version"
+  ],
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "panelH": 1713,
+  "rowHs": [
+   430,
+   430,
+   429
+  ],
+  "clipped": [],
+  "innerScrollX": [
+   "data-table__scroll:416/318",
+   "data-table__scroll:764/286",
+   "data-table__scroll:770/286"
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "assumptions-default-s408",
+  "variant": "interp-160-5rows",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 578
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 681
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "rows": 5,
+  "intendedFields": 10,
+  "fields160": 10,
+  "realBadges": [
+   "Latest at this moment",
+   "Latest at this moment",
+   "Earlier version",
+   "Latest at this moment",
+   "Latest at this moment"
+  ],
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "panelH": 1028,
+  "rowHs": [
+   150,
+   150,
+   150,
+   150,
+   149
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "assumptions-default-s408",
+  "variant": "interp-160-5rows",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 934
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 1045
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "rows": 5,
+  "intendedFields": 10,
+  "fields160": 10,
+  "realBadges": [
+   "Latest at this moment",
+   "Latest at this moment",
+   "Earlier version",
+   "Latest at this moment",
+   "Latest at this moment"
+  ],
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "panelH": 2572,
+  "rowHs": [
+   430,
+   430,
+   430,
+   430,
+   429
+  ],
+  "clipped": [],
+  "innerScrollX": [
+   "data-table__scroll:416/318",
+   "data-table__scroll:764/286",
+   "data-table__scroll:770/286"
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "assumptions-T3-s408",
+  "variant": "interp-160-3rows",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 600
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 681
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "rows": 3,
+  "intendedFields": 6,
+  "fields160": 6,
+  "realBadges": [
+   "Latest at this moment",
+   "Latest at this moment",
+   "Earlier version"
+  ],
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "panelH": 729,
+  "rowHs": [
+   150,
+   150,
+   149
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "assumptions-T3-s408",
+  "variant": "interp-160-3rows",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 956
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 1045
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "rows": 3,
+  "intendedFields": 6,
+  "fields160": 6,
+  "realBadges": [
+   "Latest at this moment",
+   "Latest at this moment",
+   "Earlier version"
+  ],
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "panelH": 1713,
+  "rowHs": [
+   430,
+   430,
+   429
+  ],
+  "clipped": [],
+  "innerScrollX": [
+   "data-table__scroll:416/318",
+   "data-table__scroll:764/286",
+   "data-table__scroll:770/286"
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "assumptions-T3-s408",
+  "variant": "interp-160-5rows",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 600
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 681
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "rows": 5,
+  "intendedFields": 10,
+  "fields160": 10,
+  "realBadges": [
+   "Latest at this moment",
+   "Latest at this moment",
+   "Earlier version",
+   "Latest at this moment",
+   "Latest at this moment"
+  ],
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "panelH": 1028,
+  "rowHs": [
+   150,
+   150,
+   150,
+   150,
+   149
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "assumptions-T3-s408",
+  "variant": "interp-160-5rows",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 956
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 1045
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "rows": 5,
+  "intendedFields": 10,
+  "fields160": 10,
+  "realBadges": [
+   "Latest at this moment",
+   "Latest at this moment",
+   "Earlier version",
+   "Latest at this moment",
+   "Latest at this moment"
+  ],
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "panelH": 2572,
+  "rowHs": [
+   430,
+   430,
+   430,
+   430,
+   429
+  ],
+  "clipped": [],
+  "innerScrollX": [
+   "data-table__scroll:416/318",
+   "data-table__scroll:764/286",
+   "data-table__scroll:770/286"
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "financials-notfound-s408",
+  "variant": "tradeoffs-gap160",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "What happened → what it means in money",
+    "h": 99
+   },
+   {
+    "t": "Assumptions in use",
+    "h": 275
+   },
+   {
+    "t": "Trade-offs and exclusions",
+    "h": 295
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 1,
+  "fields160": 1,
+  "title": "Trade-offs and exclusions",
+  "versionScroll": null,
+  "panelH": 315,
+  "rowHs": [
+   59
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "financials-notfound-s408",
+  "variant": "tradeoffs-gap160",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "What happened → what it means in money",
+    "h": 119
+   },
+   {
+    "t": "Assumptions in use",
+    "h": 308
+   },
+   {
+    "t": "Trade-offs and exclusions",
+    "h": 315
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 1,
+  "fields160": 1,
+  "title": "Trade-offs and exclusions",
+  "versionScroll": null,
+  "panelH": 335,
+  "rowHs": [
+   59
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "financials-priced-s408",
+  "variant": "tradeoffs-method160",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "What happened → what it means in money",
+    "h": 609
+   },
+   {
+    "t": "Assumptions in use",
+    "h": 275
+   },
+   {
+    "t": "Trade-offs and exclusions",
+    "h": 393
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 1,
+  "fields160": 1,
+  "title": "Trade-offs and exclusions",
+  "versionScroll": null,
+  "panelH": 410,
+  "rowHs": [
+   33
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "financials-priced-s408",
+  "variant": "tradeoffs-method160",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "What happened → what it means in money",
+    "h": 1152
+   },
+   {
+    "t": "Assumptions in use",
+    "h": 308
+   },
+   {
+    "t": "Trade-offs and exclusions",
+    "h": 413
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 1,
+  "fields160": 1,
+  "title": "Trade-offs and exclusions",
+  "versionScroll": null,
+  "panelH": 446,
+  "rowHs": [
+   50
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ }
+]

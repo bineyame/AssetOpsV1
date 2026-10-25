@@ -650,8 +650,8 @@ function Get-OperatorRailFailures {
             "renders.")) | Out-Null
     }
     # The selection helper is exactly the ruled source line (whitespace-flexible): Actions only for a Site Action
-    # detail path, null otherwise. A widened pattern or an unconditional label would select Actions elsewhere.
-    $railHelper = 'const railActiveLabel = (pathname: string): "Actions" | null => (/^\/sites\/[^/]+\/actions\/[^/]+(?:\/.*)?$/.test(pathname) ? "Actions" : null);'
+    # detail path, Findings only for a Site Finding detail path (post-W6 W1-b pre-flight ruling 6), null otherwise. A widened pattern or an unconditional label would select Actions elsewhere.
+    $railHelper = 'const railActiveLabel = (pathname: string): "Actions" | "Findings" | null => (/^\/sites\/[^/]+\/actions\/[^/]+(?:\/.*)?$/.test(pathname) ? "Actions" : /^\/sites\/[^/]+\/findings\/[^/]+(?:\/.*)?$/.test(pathname) ? "Findings" : null);'
     $railHelperPattern = (($railHelper -split '\s+') | ForEach-Object { [regex]::Escape($_) }) -join '\s*'
     if (($RailLines -join "`n") -notmatch $railHelperPattern) {
         $failures.Add(("$railPath does not declare the ruled rail selection helper '$railHelper', so the Actions " +
@@ -776,8 +776,11 @@ function Get-InPageUnavailableEntryFailures {
     # one unavailable occurrence is gone too; its live subtab and page branch are held below.
     # W5-03b E6: EV Financials > Scenarios is live (`/sites/{site_code}/ev/financials/scenarios`), so the W2-F M12
     # EV Scenarios slot in EvSiteViews.tsx is gone; its live subtab and page branch are held below.
+    # post-W6 W1-a (Architect W1 rulings Q7 / R184, Q16 / R193): the mini Finding's Analysis is live (the root's
+    # `?view=analysis`), so its entry is gone; a refused Finding selection shows the short disabled
+    # `Alternatives · Not available yet` tab, the one new entry.
     $expectedTabs = @("Scenarios", "Recommendation", "Recommendation",
-        "Analysis", "Verification")
+        "Alternatives", "Verification")
     $expectedChips = @("Cost", "Risks", "Opportunities")
 
     if ($null -eq $Modules) {

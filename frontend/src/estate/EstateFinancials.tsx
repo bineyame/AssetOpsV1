@@ -99,6 +99,12 @@ function ids(values: string[]): string {
   return values.length > 0 ? values.join(", ") : "None recorded";
 }
 
+/** Q12: the first complete sentence of a stored limit, shown in the cell; the full text is in Basis details. */
+export function firstLimitSentence(limit: string): string {
+  const match = /^.*?[.!?](?=\s|$)/s.exec(limit.trim());
+  return match === null ? limit.trim() : match[0];
+}
+
 function BasisDetails({ row }: { row: FinancialRow }) {
   const pinned = row.eligibility === "ELIGIBLE" ? null : lineMoney(row, row.disclosure.pinned_amount);
   return (
@@ -106,6 +112,8 @@ function BasisDetails({ row }: { row: FinancialRow }) {
       <dl className="estate-evidence-facts">
         <dt>Site</dt>
         <dd>{row.site_name.trim() !== "" ? `${row.site_name} · ${row.site_code}` : row.site_code}</dd>
+        <dt>Limits</dt>
+        <dd data-estate-limits>{row.limit ?? LIMIT_NOT_RECORDED}</dd>
         <dt>Assumption references</dt>
         <dd>{ids(row.assumption_revision_ids)}</dd>
         <dt>Assumption fingerprint</dt>
@@ -188,7 +196,9 @@ function RegisterRow({ row, asOf }: { row: FinancialRow; asOf: string }) {
         <ValueCell row={row} asOf={asOf} />
       </td>
       <td>
-        <span className="estate-cell__primary">{row.limit ?? LIMIT_NOT_RECORDED}</span>
+        <span className="estate-cell__primary" data-estate-limit>
+          {row.limit === null ? LIMIT_NOT_RECORDED : firstLimitSentence(row.limit)}
+        </span>
         <BasisDetails row={row} />
       </td>
       <td>
@@ -383,6 +393,7 @@ export function EstateFinancialsPage({ client }: { client?: EstateFinancialsClie
         key={`${query.from}|${query.to}|${query.known_at ?? ""}`}
         query={query}
         body={barBody(body)}
+        windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"}
         onApply={(nextQuery) => navigate(estateHref(ESTATE_FINANCIALS_PATH, nextQuery))}
       />
       {read === null ? (
@@ -390,7 +401,7 @@ export function EstateFinancialsPage({ client }: { client?: EstateFinancialsClie
           Loading financials across the estate.
         </p>
       ) : read.status === "refused" ? (
-        <EstateRefusal code={read.code} copy={read.copy} firstPage={firstPage} />
+        <EstateRefusal code={read.code} copy={read.copy} window={query} firstPage={firstPage} />
       ) : (
         <>
           <StatusBar label="Financial status" data={{ "data-estate-status": "" }}>

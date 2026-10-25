@@ -25,7 +25,8 @@ from assetops_backend.estate.coverage import (
     COLD, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, EV, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PENDING, STALE,
     not_applicable, site_coverage)
 from assetops_backend.estate.evidence_money import (
-    CURRENT_VIEW, EMPTY, EMPTY_SCOPE, _ids, _site_href, _window_state, group_key_for_partition, window_links)
+    CURRENT_VIEW, EMPTY, EMPTY_SCOPE, _ids, _site_href, _window_state, group_key_for_partition, site_home_href,
+    window_links)
 from assetops_backend.estate.index import _coverage_site, _coverage_state, _status, _token_site
 from assetops_backend.estate.scope import EstateRequest, resume_after, selection_token, wire_time
 from assetops_backend.evidence.provenance_read import source_gate
@@ -136,17 +137,18 @@ def _line(site: dict[str, Any], domain: str, category: str, revision_id: str, *,
 def _money_links(code: str, domain: str, pin: dict[str, Any] | None, cutoff: datetime | None,
                  k: datetime) -> dict[str, Any]:
     """Closure 4 / closure 5 B5: the server owns links. Mini-grid opens the current Site view without an estate
-    cutoff; cold/EV carry only the row's own pinned window and proven row-local cutoff, else the base route."""
-    base = _site_href(code)
+    cutoff; cold/EV carry only the row's own pinned window and proven row-local cutoff, else the Site home (EV:
+    `/sites/{code}/ev`, post-W6 W3-estate Q2/Q9)."""
+    base, home = _site_href(code), site_home_href(code, domain)
     if domain == MINI_GRID:
-        return {"site": base, "bridge": f"{base}/financials", "evidence": f"{base}/evidence",
+        return {"site": home, "bridge": f"{base}/financials", "evidence": f"{base}/evidence",
                 "current_view_label": CURRENT_VIEW}
     shown = window_links(code, domain, pin, cutoff, k)
     if shown["site_readiness_label"] is not None:
-        return {"site": base, "bridge": base, "evidence": base, "current_view_label": CURRENT_VIEW}
+        return {"site": home, "bridge": home, "evidence": home, "current_view_label": CURRENT_VIEW}
     query = shown["site_readiness"].split("?", 1)[1]
     bridge = f"{base}/financials" if domain == COLD else f"{base}/ev/financials"
-    return {"site": base, "bridge": f"{bridge}?{query}", "evidence": shown["site_readiness"],
+    return {"site": home, "bridge": f"{bridge}?{query}", "evidence": shown["site_readiness"],
             "current_view_label": None}
 
 
@@ -194,7 +196,7 @@ def mini_grid_lines(snap: Any, t: Any, site: dict[str, Any], cov: dict[str, Any]
             fingerprint=assumption_fingerprint(OPERATING, currency, PRICE_UNIT, price.get("value"),
                                                price.get("state")),
             cited=basis, technical=power, overlap_group=sel.get("overlap_group"),
-            limit="; ".join(sel.get("limitations") or ()) or None, provenance=prov, links=links, decision=decision,
+            limit=" ".join(sel.get("limitations") or ()) or None, provenance=prov, links=links, decision=decision,
             disclosure={"currentness": sel.get("currentness"), "money_eligibility": money}))
     return lines
 

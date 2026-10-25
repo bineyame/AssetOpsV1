@@ -1,0 +1,17 @@
+[
+ {
+  "id": "finding",
+  "case": "late-stale",
+  "url": "http://localhost:5185/sites/KOBO-001/findings/88e322b3-85e3-4188-90e5-f14f32518898"
+ },
+ {
+  "id": "finding-history",
+  "case": "late-stale",
+  "url": "http://localhost:5185/sites/KOBO-001/findings/88e322b3-85e3-4188-90e5-f14f32518898/history"
+ },
+ {
+  "id": "sitefindings",
+  "case": "late-stale",
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch"
+ }
+]

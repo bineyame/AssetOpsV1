@@ -238,6 +238,8 @@ def test_w302_evidence_authorized_scope_and_placeholders(coverage) -> None:
         assert row["selected_revision_ids"] == [] and row["source_provenance"]["basis_sha256"] is None
         assert row["links"]["site_readiness_label"] == "Opens current Site view"
     assert next(r for r in holders if r["site_code"] == "COLD 1")["links"]["site"] == "/sites/COLD%201"
+    ev_holder = next(r for r in holders if r["site_code"] == "EV-1")["links"]  # post-W6 W3-estate Q9 placeholder
+    assert ev_holder["site"] == ev_holder["site_readiness"] == "/sites/EV-1/ev"
     assert body["total_count"] == body["summary"]["capability_count"] == 10
     assert body["summary"]["unknown_count"] == 9 and body["summary"]["limited_count"] == 1
     assert [s["site_id"] for s in body["coverage"]["sites"]] == [str(MG), str(CO), str(EVS)]
@@ -278,16 +280,18 @@ def test_w302_evidence_grouped_rows_and_full_citations() -> None:
     assert ev["links"]["site_readiness"] == (
         "/sites/EV-1/ev/evidence?from=2026-10-13T00%3A00%3A00.000000Z&to=2026-10-14T00%3A00%3A00.000000Z"
         "&known_at=2026-10-20T06%3A00%3A00.000000Z") and ev["links"]["site_readiness_label"] is None
+    assert ev["links"]["site"] == "/sites/EV-1/ev"  # post-W6 W3-estate Q2/Q9: the EV Site home
     assert temp["links"]["site_readiness"].startswith("/sites/COLD%201/evidence?from=2026-10-13")
     assert [c["claim"] for c in ev["disclosure"]["supporting_claims"]] == [
         "SITE_POWER_CONTEXT", "POWER_CONSTRAINT", "GROSS_TARIFF_SCENARIO"]
     assert body["summary"]["limited_site_count"] is None  # a CONTRADICTORY row nulls the affected count
-    # A row-local cutoff later than the estate cutoff (or unequal to the Site cutoff) falls back to the base route.
+    # A row-local cutoff later than the estate cutoff (or unequal to the Site cutoff) falls back to the Site home
+    # (EV `/sites/{code}/ev`, post-W6 W3-estate Q2/Q9).
     bad = evidence_money.window_links("EV-1", "ev_charging", pin(D0), CUT - timedelta(hours=1), READ_AT)
-    assert bad == {"site": "/sites/EV-1", "site_readiness": "/sites/EV-1",
+    assert bad == {"site": "/sites/EV-1/ev", "site_readiness": "/sites/EV-1/ev",
                    "site_readiness_label": "Opens current Site view"}
     late = evidence_money.window_links("EV-1", "ev_charging", pin(D0), CUT, CUT - timedelta(hours=1))
-    assert late["site_readiness"] == "/sites/EV-1"
+    assert late["site_readiness"] == "/sites/EV-1/ev"
 
 
 def test_w302_evidence_typed_gaps_exclude_billing() -> None:

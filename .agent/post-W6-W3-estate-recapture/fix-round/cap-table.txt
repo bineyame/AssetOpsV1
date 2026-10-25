@@ -1,0 +1,36 @@
+SYNTHETIC layout evidence (5 clones, every intended variable field = 160 chars; verified in-page). Not product data.
+panel | case | width | real panel h | synthetic h | cap | row hs (clones) | doc ox | clipped | table scroller | fields160/intended | within cap
+Findings across the estate | findings/partial | 1440 | 455 | 1686 | 1900 | [304, 304, 304, 304, 303] | 0 | 0 | [] | 20/20 | YES
+Findings across the estate | findings/partial | 390 | 609 | 3549 | 3900 | [671, 671, 671, 671, 671] | 0 | 0 | [(672, 318)] | 20/20 | YES
+Managed actions | actions/partial | 1440 | 201 | 1655 | 1850 | [304, 304, 304, 304, 303] | 0 | 0 | [] | 35/35 | YES
+Managed actions | actions/partial | 390 | 219 | 2225 | 2500 | [414, 414, 414, 414, 414] | 0 | 0 | [(820, 318)] | 35/35 | YES
+Findings across the estate | findings/positive | 1440 | 455 | 1686 | 1900 | [304, 304, 304, 304, 303] | 0 | 0 | [] | 20/20 | YES
+Findings across the estate | findings/positive | 390 | 609 | 3549 | 3900 | [671, 671, 671, 671, 671] | 0 | 0 | [(672, 318)] | 20/20 | YES
+Managed actions | actions/positive | 1440 | 201 | 1655 | 1850 | [304, 304, 304, 304, 303] | 0 | 0 | [] | 35/35 | YES
+Managed actions | actions/positive | 390 | 219 | 2225 | 2500 | [414, 414, 414, 414, 414] | 0 | 0 | [(820, 318)] | 35/35 | YES
+Consequence register | globalfinancials/w302-positive | 1440 | 178 | 950 | 1050 | [164, 164, 164, 164, 163] | 0 | 0 | [] | 30/30 | YES
+Consequence register | globalfinancials/w302-positive | 390 | 194 | 1363 | 1800 | [246, 246, 246, 246, 246] | 0 | 0 | [(800, 318)] | 30/30 | YES
+Consequence register | globalfinancials/w302-partial-week | 1440 | 202 | 974 | 1050 | [164, 164, 164, 164, 163] | 0 | 0 | [] | 30/30 | YES
+Consequence register | globalfinancials/w302-partial-week | 390 | 238 | 1407 | 1800 | [246, 246, 246, 246, 246] | 0 | 0 | [(800, 318)] | 30/30 | YES
+Capability coverage across sites | globalevidence/w303-partial | 1440 | 302 | 302 | None | [555, 555, 555, 555, 554] | 0 | 0 | [(2012, 1105)] | 40/40 | n/a
+Recurring evidence gaps | globalevidence/w303-partial | 1440 | 183 | 287 | None | [125, 125, 125, 125, 124] | 0 | 0 | [] | 20/20 | n/a
+Capability coverage across sites | globalevidence/w303-partial | 390 | 445 | 445 | None | [1065, 1065, 1065, 1065, 1064] | 0 | 0 | [(1157, 318)] | 40/40 | n/a
+Recurring evidence gaps | globalevidence/w303-partial | 390 | 312 | 549 | None | [364, 364, 364, 364, 363] | 0 | 0 | [(330, 318)] | 20/20 | n/a
+Consequence register | globalfinancials/w303-partial | 1440 | 389 | 974 | 1050 | [164, 164, 164, 164, 163] | 0 | 0 | [] | 30/30 | YES
+Consequence register | globalfinancials/w303-partial | 390 | 452 | 1575 | 1800 | [284, 284, 284, 284, 283] | 0 | 0 | [(800, 318)] | 30/30 | YES
+Where management should act first | portfolio/w303-partial | 1440 | 498 | 784 | 900 | [442, 442, 442, 442, 441] | 0 | 0 | [] | 85/85 | YES
+Objectives across the estate | portfolio/w303-partial | 1440 | 336 | 336 | 600 | [27, 36, 27, 27, 27] | 0 | 0 | [(3872, 275)] | 33/33 | YES
+Where management should act first | portfolio/w303-partial | 390 | 587 | 854 | 1200 | [457, 457, 457, 457, 456] | 0 | 0 | [(720, 336)] | 85/85 | YES
+Objectives across the estate | portfolio/w303-partial | 390 | 321 | 321 | 800 | [27, 36, 27, 27, 27] | 0 | 0 | [(3872, 328)] | 33/33 | YES
+Capability coverage across sites | globalevidence/w303-positive | 1440 | 302 | 302 | None | [555, 555, 555, 555, 554] | 0 | 0 | [(2012, 1105)] | 40/40 | n/a
+Recurring evidence gaps | globalevidence/w303-positive | 1440 | 183 | 287 | None | [125, 125, 125, 125, 124] | 0 | 0 | [] | 20/20 | n/a
+Capability coverage across sites | globalevidence/w303-positive | 390 | 445 | 445 | None | [1065, 1065, 1065, 1065, 1064] | 0 | 0 | [(1157, 318)] | 40/40 | n/a
+Recurring evidence gaps | globalevidence/w303-positive | 390 | 312 | 549 | None | [364, 364, 364, 364, 363] | 0 | 0 | [(330, 318)] | 20/20 | n/a
+Consequence register | globalfinancials/w303-positive | 1440 | 389 | 974 | 1050 | [164, 164, 164, 164, 163] | 0 | 0 | [] | 30/30 | YES
+Consequence register | globalfinancials/w303-positive | 390 | 452 | 1575 | 1800 | [284, 284, 284, 284, 283] | 0 | 0 | [(800, 318)] | 30/30 | YES
+Where management should act first | portfolio/w303-positive | 1440 | 498 | 784 | 900 | [442, 442, 442, 442, 441] | 0 | 0 | [] | 85/85 | YES
+Objectives across the estate | portfolio/w303-positive | 1440 | 336 | 336 | 600 | [27, 36, 27, 27, 27] | 0 | 0 | [(3872, 275)] | 33/33 | YES
+Where management should act first | portfolio/w303-positive | 390 | 587 | 854 | 1200 | [457, 457, 457, 457, 456] | 0 | 0 | [(720, 336)] | 85/85 | YES
+Objectives across the estate | portfolio/w303-positive | 390 | 321 | 321 | 800 | [27, 36, 27, 27, 27] | 0 | 0 | [(3872, 328)] | 33/33 | YES
+
+Caps per .agent/post-W6-W3-closeout-rulings.md (register 1050/1800) and .agent/post-W6-W3-caps2-rulings.md (Findings 1900/3900, Managed actions 1850/2500).

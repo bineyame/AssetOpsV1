@@ -1,0 +1,11 @@
+  Performance comparison (source gate): exit 0 -> OPEN
+API for assetops_s404_owner_w2evrc_audit: python -m uvicorn lab_app:app --host 127.0.0.1 --port 18490 (log C:\Users\assef\Bineyame\AssetOpsV1-review5\var\s404_owner_w2evrc\logs\api-18490.log)
+Frontend, from frontend/:
+  $env:ASSETOPS_API_PORT="18490"; npm.cmd run dev -- --port 5198 --strictPort
+  positive           http://localhost:5198/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch
+  empty              http://localhost:5198/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch
+  dirty              http://localhost:5198/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch
+  failed             http://localhost:5198/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch
+  unassessed         http://localhost:5198/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch
+  positive, 2 per page http://localhost:5198/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2
+No schedule is installed: `late`, `gate` and `settle` are explicit. Ctrl+C stops the API.

@@ -319,6 +319,10 @@ def test_ev_window_money_has_no_finding_attribution(portfolio_fixture) -> None:
     ev_keys = {x["line_key"] for x in ev}
     assert not ev_keys & {k for card in body["value_cards"] for k in card["line_keys"]}
     assert body["footer"]["line_key"] in ev_keys and "finding" not in str(body["footer"]["destination"])
+    # Post-W6 W3-estate Q2/Q9: an EV line's evidence link is its windowed EV Evidence route or the EV Site home,
+    # never the bare `/sites/{code}`.
+    footer_to = body["footer"]["destination"]
+    assert "/ev/evidence?from=" in footer_to or footer_to.endswith("/ev"), footer_to
     assert set(body["footer"]) == {"line_key", "site_name", "quantity_display", "amount_display",
                                    "source_provenance", "window_start", "window_end", "destination"}
     assert_declined(body)

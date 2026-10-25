@@ -451,7 +451,7 @@ export type GlobalWorkDetailResult =
 /** P-C2-9 and A2Q6: the detail UI sentences (401, 422 and 503 reuse the list rows). */
 export const GLOBAL_WORK_DETAIL_REFUSAL_COPY: Readonly<Record<GlobalWorkDetailRefusalCode, string>> = {
   UNAUTHENTICATED: GLOBAL_WORK_REFUSAL_COPY.UNAUTHENTICATED,
-  SITE_SCOPE_FORBIDDEN: "No access to this Site's work request.",
+  SITE_SCOPE_FORBIDDEN: "No access to this Site's work.",
   SITE_NOT_FOUND: "No imported Site found for this request.",
   WORK_CASE_NOT_FOUND: "No work case with this ID at this site.",
   INVALID_KNOWN_AT: GLOBAL_WORK_REFUSAL_COPY.INVALID_KNOWN_AT,

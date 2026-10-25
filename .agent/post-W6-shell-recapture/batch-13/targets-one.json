@@ -1,0 +1,47 @@
+[
+ {
+  "id": "sitework-incidents",
+  "case": "one-incident",
+  "url": "http://localhost:5181/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "one-request",
+  "url": "http://localhost:5181/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "empty-kobo",
+  "url": "http://localhost:5181/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "empty-kobo",
+  "url": "http://localhost:5181/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "empty-past-window",
+  "url": "http://localhost:5181/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "refused-reversed",
+  "url": "http://localhost:5181/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "refused-reversed",
+  "url": "http://localhost:5181/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "refused-long",
+  "url": "http://localhost:5181/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "no-window",
+  "url": "http://localhost:5181/sites/MG-W402-001/work/incidents"
+ }
+]

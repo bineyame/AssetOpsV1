@@ -8,7 +8,7 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
-import { UnavailableInline, UnavailableLinkEntry } from "../ui/UnavailableEntry";
+import { UnavailableInline } from "../ui/UnavailableEntry";
 import type { EstateEnvelope, EstateQuery } from "./estateClient";
 import {
   createEstateEvidenceMoneyClient,
@@ -42,8 +42,12 @@ export const NO_GAPS = "No recurring evidence gaps recorded for this window";
 export const NO_UNLOCKS = "No supported capability recorded";
 export const NO_NEXT_STEP = "Next step not recorded";
 
-/** Closure 2 Q27: the four static mock CTA slots, kept as inert examples outside the data-backed table. */
-export const EXAMPLE_DESTINATIONS = ["ACT-049, ACT-061", "Map transfer switch", "Operational records", "Preventive plan"] as const;
+/**
+ * Post-W6 W3-estate Q11 (R300): only the two live destinations remain, under `Related records`; the mock-only inert
+ * entries (Action codes and a transfer-switch mapping) are not stored facts and are gone.
+ */
+export const EXAMPLE_DESTINATIONS = ["Operational records", "Preventive plan"] as const;
+export const RELATED_RECORDS = "Related records";
 
 /** Closure 2 Q27: the closed `Unlocks` dictionary, keyed by the display capability's base key. */
 const UNLOCK_LABEL: Readonly<Record<string, string>> = {
@@ -360,10 +364,9 @@ const LIVE_EXAMPLES: Readonly<Record<string, [string, string]>> = {
 };
 
 /**
- * The mock's `Example destinations`. `Preventive plan →` and `Operational records →` open the global Preventive view
+ * The mock's `Example destinations` slot, labelled `Related records`. `Preventive plan →` and `Operational records →` open the global Preventive view
  * and Operational records for the rendered Evidence window (`[from, to)` from the response, falling back to the
- * validated page query) and its explicit cutoff, never a cursor; the other examples stay inert until their
- * destinations exist.
+ * validated page query) and its explicit cutoff, never a cursor.
  */
 function ExampleDestinations({ query, body }: { query: EstateQuery; body: EstateEvidenceBody | null }) {
   const effective = {
@@ -373,16 +376,12 @@ function ExampleDestinations({ query, body }: { query: EstateQuery; body: Estate
   };
   return (
     <div className="note estate-evidence-examples" data-estate-examples>
-      <span className="estate-evidence-examples__label">Example destinations</span>
-      {EXAMPLE_DESTINATIONS.map((label) =>
-        label in LIVE_EXAMPLES ? (
-          <Link key={label} to={estateHref(LIVE_EXAMPLES[label][0], effective)} data-estate-example-live={LIVE_EXAMPLES[label][1]}>
-            {`${label} →`}
-          </Link>
-        ) : (
-          <UnavailableLinkEntry key={label} label={label} />
-        ),
-      )}
+      <span className="estate-evidence-examples__label">{RELATED_RECORDS}</span>
+      {EXAMPLE_DESTINATIONS.map((label) => (
+        <Link key={label} to={estateHref(LIVE_EXAMPLES[label][0], effective)} data-estate-example-live={LIVE_EXAMPLES[label][1]}>
+          {`${label} →`}
+        </Link>
+      ))}
     </div>
   );
 }
@@ -445,6 +444,7 @@ export function EstateEvidencePage({ client }: { client?: EstateEvidenceMoneyCli
         key={`${query.from}|${query.to}|${query.known_at ?? ""}`}
         query={query}
         body={barBody(body)}
+        windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"}
         onApply={(nextQuery) => navigate(estateHref(ESTATE_EVIDENCE_PATH, nextQuery))}
       />
       {read === null ? (
@@ -452,7 +452,7 @@ export function EstateEvidencePage({ client }: { client?: EstateEvidenceMoneyCli
           Loading evidence across the estate.
         </p>
       ) : read.status === "refused" ? (
-        <EstateRefusal code={read.code} copy={read.copy} firstPage={firstPage} />
+        <EstateRefusal code={read.code} copy={read.copy} window={query} firstPage={firstPage} />
       ) : (
         <>
           <Cards body={read.value} />

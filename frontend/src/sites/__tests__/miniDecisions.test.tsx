@@ -7,7 +7,6 @@ import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import {
   ANALYSIS_HELPER_ALTERNATIVES,
-  ANALYSIS_HELPER_SECTION,
   FinancialsSections,
   SiteFindingFrame,
 } from "../../shell/SiteAnalyticsFrames";
@@ -664,7 +663,10 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     await screen.findAllByText("Alternatives for this Finding unavailable");
     expect(refused.getAlternatives).not.toHaveBeenCalled();
     expect(document.querySelector('a[href*="/alternatives"]')).toBeNull();
-    noControl(document.querySelector('[data-finding-section-gap="alternatives"]'));
+    // post-W6 W1-a Q16 / R193: a refused selection shows the short disabled tab; the full reason is below the row.
+    noControl(document.querySelector('[data-tab-unavailable="Alternatives"]'));
+    expect(document.querySelector('[data-tab-unavailable="Alternatives"]')?.textContent).toBe("Alternatives · Not available yet");
+    expect(document.querySelectorAll("[data-alternatives-finding-unavailable]")).toHaveLength(1);
     expect(document.querySelector("[data-finding-code-gap]")).toBeNull();
     expect(location()).toBe(`/sites/${CODE}/findings/${F}/alternatives`);
   });
@@ -674,15 +676,17 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     frameAt(`/sites/${CODE}/findings/${F}/alternatives?revision_id=${REV}`, findings);
     await settledScreen();
     await screen.findByText("No alternatives recorded for this Finding revision.");
+    // post-W6 W1-a Q7 / R184: Analysis is a live section tab (the Finding root's `?view=analysis`).
     expect(sectionRow()).toEqual([
       "Overview",
-      "Analysis · Not available yet",
+      "Analysis",
       "Evidence",
       "Alternatives",
       "Recommendation",
       "History",
     ]);
     const q = `?revision_id=${REV}`;
+    expect(document.querySelector('[data-finding-section="analysis"]')).toHaveAttribute("href", `/sites/${CODE}/findings/${F}${q}&view=analysis`);
     expect(document.querySelector('[data-finding-section="finding"]')).toHaveAttribute("href", `/sites/${CODE}/findings/${F}${q}`);
     expect(document.querySelector('[data-finding-section="alternatives"]')).toHaveAttribute(
       "href",
@@ -695,7 +699,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
         `/sites/${CODE}/findings/${F}/${view}${q}`,
       );
     }
-    noControl(document.querySelector('[data-tab-unavailable="Analysis"]'));
+    expect(document.querySelector('[data-tab-unavailable="Analysis"]')).toBeNull();
     expect(document.querySelector("[data-analysis-helper]")).toHaveTextContent(
       /^Analysis unavailable for this authored alternative; use the Finding overview and evidence\.$/,
     );
@@ -733,14 +737,14 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
       "href",
       `/sites/${CODE}/findings/${F}/evidence?revision_id=${LATEST}`,
     );
-    expect(document.querySelector("[data-analysis-helper]")).toHaveTextContent(
-      /^Analysis unavailable for this Finding section; use the Finding overview and evidence\.$/,
-    );
+    // post-W6 W1-a Q7: History no longer carries the Analysis helper.
+    expect(document.querySelector("[data-analysis-helper]")).toBeNull();
     expect(crumbs().textContent).toBe("FindingsFinding code unavailableHistory· site: MINIGRID site");
-    // H3 is the Alternatives action only; the W1 sibling sections keep their header unchanged.
+    // post-W6 W1-a Q9 / R186: every Finding section carries Open site; the Alternatives marker stays its own.
     expect(document.querySelector('nav[aria-label="Site sections"]')).not.toBeNull(); // M6 scope
     expect(document.querySelector("[data-alternatives-open-site]")).toBeNull();
-    expect(document.querySelectorAll("[data-tab-unavailable]")).toHaveLength(1);
+    expect(document.querySelector('.page-header__actions [data-finding-open-site="history"]')).toHaveAttribute("href", `/sites/${CODE}`);
+    expect(document.querySelectorAll("[data-tab-unavailable]")).toHaveLength(0);
     cleanup();
 
     // The analytic CTA links only after a same-Site W1 read resolves this exact Finding; otherwise it is null.
@@ -831,7 +835,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
         const findings = findingsClient(() => w1("OTHER-1", REV));
         const decisions = frameAt(`/sites/OTHER-1/findings/${F}/${view}`, findings, alternatives([]), siteType, "OTHER-1");
         await settledScreen();
-        await screen.findByText(/Finding section unavailable for this site\./);
+        await screen.findByText(/This Finding section is not available for this kind of Finding./);
         const link = screen.getByRole("link", { name: "Open Finding overview" });
         expect(link).toHaveAttribute("href", `/sites/OTHER-1/findings/${F}`);
         expect(decisions.getAlternatives).not.toHaveBeenCalled();
@@ -856,11 +860,17 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     cleanup();
 
     // Child views: the helper is the section row's noninteractive next sibling, outside the navigation.
-    for (const [view, text] of [
-      ["alternatives", ANALYSIS_HELPER_ALTERNATIVES],
-      ["evidence", ANALYSIS_HELPER_SECTION],
-      ["history", ANALYSIS_HELPER_SECTION],
-    ]) {
+    // post-W6 W1-a Q7 / R184: with Analysis live, Evidence and History carry no helper; Alternatives keeps its own.
+    // post-W6 W1-b Q28 / R209: Recommendation's Finding-section helper is retired too; its Analysis tab is live.
+    for (const view of ["evidence", "history", "recommendation"]) {
+      frameAt(`/sites/${CODE}/findings/${F}/${view}?revision_id=${REV}`, findingsClient(() => w1(CODE, REV)));
+      await settledScreen();
+      await waitFor(() => expect(rowHrefs()).toHaveLength(6));
+      expect(document.querySelector("[data-analysis-helper]")).toBeNull();
+      expect(document.querySelector(`[data-finding-section="analysis"]`)?.getAttribute("href")).toContain("view=analysis");
+      cleanup();
+    }
+    for (const [view, text] of [["alternatives", ANALYSIS_HELPER_ALTERNATIVES]]) {
       frameAt(`/sites/${CODE}/findings/${F}/${view}?revision_id=${REV}`, findingsClient(() => w1(CODE, REV)));
       await settledScreen();
       const helper = await waitFor(() => {
@@ -873,10 +883,11 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
       expect(helper.previousElementSibling?.matches('nav[aria-label="Finding sections"]')).toBe(true);
       noControl(helper);
       expect(document.querySelectorAll("[data-analysis-helper]")).toHaveLength(1);
-      // Loaded: Overview, every live sibling and the money link (6 links) carry the same W1-selected revision.
+      // Loaded: Overview, Analysis and every live sibling (6 links) carry the same W1-selected revision.
+      // post-W6 W1-a Q8 / R185: the section row has no money link.
       expect(rowHrefs()).toHaveLength(6);
       for (const href of rowHrefs()) expect(href).toContain(`revision_id=${REV}`);
-      expect(document.querySelector("[data-finding-financials-link] a")?.getAttribute("href")).toContain(REV);
+      expect(document.querySelector("[data-finding-financials-link]")).toBeNull();
       cleanup();
     }
 
@@ -893,9 +904,11 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
       await waitFor(() => expect(document.querySelector("[data-finding-section-gap='evidence']")).not.toBeNull());
       await new Promise((resolve) => setTimeout(resolve, 0));
       expect(rowHrefs()).toEqual([]);
-      for (const gap of ["finding", "evidence", "alternatives", "recommendation", "history"]) {
+      for (const gap of ["finding", "analysis", "evidence", "recommendation", "history"]) {
         noControl(document.querySelector(`[data-finding-section-gap='${gap}']`));
       }
+      // Q16: Alternatives is a plain gap while loading and the short disabled tab once the selection refuses.
+      noControl(document.querySelector("[data-finding-section-gap='alternatives'], [data-tab-unavailable='Alternatives']"));
       expect(document.querySelector("[data-finding-financials-link]")).toBeNull();
       expect(document.querySelectorAll(`nav a[href*="${RAW}"]`)).toHaveLength(0);
       expect(decisions.getAlternatives).not.toHaveBeenCalled();
@@ -942,12 +955,61 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
       } else {
         expect(d.getAlternatives).not.toHaveBeenCalled();
         expect(document.querySelector("[data-finding-section='alternatives']")).toBeNull();
-        expect(document.querySelector("[data-finding-section-gap='alternatives']")?.textContent).toBe(
+        // post-W6 W1-a Q16 / R193: the short disabled tab, with the full reason on the line below the row.
+        expect(document.querySelector("[data-tab-unavailable='Alternatives']")?.textContent).toBe("Alternatives · Not available yet");
+        expect(document.querySelector("[data-alternatives-finding-unavailable]")?.textContent).toBe(
           "Alternatives for this Finding unavailable",
         );
       }
       cleanup();
     }
+  });
+
+  it("post-W6 W1-a Q7 / Q9 / Q16: live Analysis, Open site on every section, record-driven Recommendation heading", async () => {
+    // Q7 / R184: the root's `?view=analysis` is the live Analysis tab, current, at the resolved revision. The frame's
+    // selection read resolves; the root body's own read refuses (this partial fixture is not a full Finding body).
+    let calls = 0;
+    const once: FindingClient = {
+      ...findingsClient(() => w1(CODE, REV)),
+      // React runs the child body's effect before the frame's: the first read is the body's, the second the frame's.
+      getFinding: async () => (calls++ === 0 ? { status: "unavailable", message: null } : w1(CODE, REV)),
+    };
+    frameAt(`/sites/${CODE}/findings/${F}?revision_id=${REV}&view=analysis`, once);
+    await settledScreen();
+    const analysis = await waitFor(() => {
+      const a = document.querySelector('[data-finding-section="analysis"]');
+      expect(a).not.toBeNull();
+      return a!;
+    });
+    expect(analysis).toHaveAttribute("href", `/sites/${CODE}/findings/${F}?revision_id=${REV}&view=analysis`);
+    expect(analysis).toHaveAttribute("aria-current", "page");
+    expect(document.querySelector('[data-finding-section="finding"]')).not.toHaveAttribute("aria-current");
+    expect(document.querySelector('nav[aria-label="Finding views"]')).toBeNull();
+    expect(document.querySelector('.page-header__actions [data-finding-open-site="finding"]')).toHaveAttribute("href", `/sites/${CODE}`);
+    cleanup();
+
+    // Q9 / R186: Open site on every child section; Q16: Recommendation is headed by the resolved record's title.
+    for (const view of ["evidence", "history", "alternatives", "recommendation"]) {
+      frameAt(`/sites/${CODE}/findings/${F}/${view}?revision_id=${REV}`, findingsClient(() => w1(CODE, REV)));
+      await settledScreen();
+      const open = await waitFor(() => {
+        const a = document.querySelector(`.page-header__actions [data-finding-open-site="${view}"]`);
+        expect(a).not.toBeNull();
+        return a!;
+      });
+      expect(open).toHaveTextContent(/^Open site$/);
+      expect(open).toHaveAttribute("href", `/sites/${CODE}`);
+      if (view === "recommendation") {
+        await waitFor(() => expect(document.querySelector("h1")?.textContent).toBe(TITLE));
+      }
+      cleanup();
+    }
+
+    // Q16: a refused selection heads Recommendation "Finding".
+    frameAt(`/sites/${CODE}/findings/${F}/recommendation`, findingsClient(() => ({ status: "forbidden", message: null })));
+    await settledScreen();
+    await waitFor(() => expect(document.querySelector("[data-tab-unavailable='Alternatives']")).not.toBeNull());
+    expect(document.querySelector("h1")?.textContent).toBe("Finding");
   });
 
   it("u6b_alternatives_refusal_copy_reason_and_paging", async () => {
@@ -1069,7 +1131,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
           );
           await waitFor(() => expect(document.querySelector("main h1")).not.toBeNull());
           await new Promise((resolve) => setTimeout(resolve, 0));
-          expect(main().textContent).not.toContain("Finding section unavailable for this site.");
+          expect(main().textContent).not.toContain("This Finding section is not available for this kind of Finding.");
           if (withClient) {
             const row = Array.from(document.querySelectorAll('nav[aria-label="Finding sections"] li'));
             expect(row).toHaveLength(2);
@@ -1097,7 +1159,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
           </Routes>
         </MemoryRouter>,
       );
-      await screen.findByText(/Finding section unavailable for this site\./);
+      await screen.findByText(/This Finding section is not available for this kind of Finding./);
       expect(screen.getByRole("link", { name: "Open Finding overview" }).getAttribute("href")).toBe(
         `/sites/OTHER-1/findings/${F}?from=2026-10-01T00%3A00%3A00Z&to=2026-10-02T00%3A00%3A00Z`,
       );

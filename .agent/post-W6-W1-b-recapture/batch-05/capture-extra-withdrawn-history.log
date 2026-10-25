@@ -1,0 +1,15 @@
+chrome pid 11048
+PASS  loaded http://localhost:5186/sites/KOBO-001/actions/cd814ebb-cafd-447b-9b45-be56fb1eb1ef/history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-history-x-withdrawn 1440: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/action-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-history-x-withdrawn 1440: mock rendered
+PASS  action-history-x-withdrawn 1440: same panel count  {"app":["Action history"],"mock":["Action history"]}
+PASS  action-history-x-withdrawn 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/KOBO-001/actions/cd814ebb-cafd-447b-9b45-be56fb1eb1ef/history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history-x-withdrawn 390: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/action-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history-x-withdrawn 390: mock rendered
+PASS  action-history-x-withdrawn 390: same panel count  {"app":["Action history"],"mock":["Action history"]}
+PASS  action-history-x-withdrawn 390: no app page overflow  {"overflowX":0}
+
+12/12 claims passed; evidence in .agent/post-W6-W1-b-recapture/batch-05/extra-withdrawn-history

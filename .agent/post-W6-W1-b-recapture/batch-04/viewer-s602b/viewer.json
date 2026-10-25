@@ -1,0 +1,32 @@
+[
+ {
+  "screen": "action-history",
+  "case": "verified-replay",
+  "w": 1440,
+  "before": {
+   "url": "http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/history",
+   "panelH": 313,
+   "rows": 3,
+   "button": null,
+   "expanded": null,
+   "truncated": null,
+   "overflowX": 0
+  },
+  "clicked": false
+ },
+ {
+  "screen": "action-history",
+  "case": "verified-replay",
+  "w": 390,
+  "before": {
+   "url": "http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/history",
+   "panelH": 435,
+   "rows": 3,
+   "button": null,
+   "expanded": null,
+   "truncated": null,
+   "overflowX": 0
+  },
+  "clicked": false
+ }
+]

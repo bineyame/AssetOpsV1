@@ -1,7 +1,7 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { DataTable, ExactReferences, Panel, ProductStatus, readResultWords, type ProductWords } from "../ui";
+import { DataTable, Disclosure, ExactReferences, Panel, ProductStatus, readResultWords, type ProductWords } from "../ui";
 import type { ConsequenceHistoryBody, ConsequenceHistoryResult, ConsequenceHistoryRow } from "./financialsClient";
 import { priceWords, quantityWords } from "./FindingConsequence";
 import { formatInstant } from "./FoundationRevisionPanel";
@@ -78,12 +78,57 @@ function emptyWords(pricesOnly: boolean): ProductWords {
   };
 }
 
+/**
+ * post-W6 W1-b Q23 cap fallback (pre-flight ruling 7: "improve wrap, paging or internal scroll"): the version table
+ * sits in one labelled, keyboard-focusable vertical scroll region so the closed Interpretation history stays inside
+ * 800 px at 1440 and 1400 px at 390 even when stored price and amount words are long. Nothing is hidden or truncated;
+ * the cue shows only when the rows overflow the region. Same pattern as the Finding Revision history (caps2 ruling 3).
+ */
+function VersionsScroll({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (el === null) return;
+    const measure = () => setOverflows(el.scrollHeight > el.clientHeight + 1);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    for (const child of Array.from(el.children)) observer.observe(child);
+    el.addEventListener("toggle", measure, true);
+    return () => {
+      observer.disconnect();
+      el.removeEventListener("toggle", measure, true);
+    };
+  }, []);
+  return (
+    <>
+      <p className="consequence-history__scroll-cue" data-consequence-history-scroll-cue hidden={!overflows}>
+        Scroll versions to see every row
+      </p>
+      <div
+        ref={ref}
+        className="consequence-history__versions"
+        role="region"
+        aria-label="Fuel cost versions"
+        tabIndex={0}
+        data-consequence-history-scroll
+      >
+        {children}
+      </div>
+    </>
+  );
+}
+
 function Row({ row, links, pinnedCutoff }: { row: ConsequenceHistoryRow; links: FinancialsLinks; pinnedCutoff?: string }) {
   const current = row.at_cutoff === "CURRENT_AT_CUTOFF";
   const source = SOURCE_WORDS[sourceState(row.source_provenance)];
   const amount = row.recorded_amount.disposition === "SHOWN" ? row.recorded_amount.amount : null;
   const change = CHANGE_WORDS[row.change_from_prior] ?? null;
-  // W1-F3 phase D: one table row per version, as the mock's Interpretation history table.
+  // W1-F3 phase D: one table row per version, as the mock's Interpretation history table. post-W6 W1-b Q23 / R200:
+  // the row is compact (Version, Fuel price, Recorded amount, Status); the source and the full version sit in the
+  // row's closed "Show this version" disclosure, still in the document and keyboard reachable.
   return (
     <tr
       className="consequence-history__row"
@@ -93,44 +138,51 @@ function Row({ row, links, pinnedCutoff }: { row: ConsequenceHistoryRow; links: 
       data-history-price={row.price.state}
     >
       <td>
-        <strong>
-          Finding for {formatInstant(row.window.from)} to {formatInstant(row.window.to)}
-        </strong>
-        {row.finding_revision_no !== null ? `, finding version ${row.finding_revision_no}` : ""}.
-        <small className="consequence-history__line">
-          Fuel cost version {row.revision_no}, recorded {formatInstant(row.recorded_at)}.
-        </small>
-        <small className="consequence-history__line">
-          <Link to={links.consequence(row.finding_id, row.finding_revision_id, row.consequence_revision_id)} data-history-open>
-            Open this fuel cost version
-          </Link>
-          {" · "}
-          <Link to={links.finding(row.finding_id, row.finding_revision_id)} data-history-finding>
-            Open the finding
-          </Link>
-        </small>
-        <ExactReferences
-          name={`history-${row.consequence_revision_id}`}
-          references={[
-            { label: "Finding reference", value: row.finding_id },
-            { label: "Finding version reference", value: row.finding_revision_id },
-            { label: "Fuel cost version reference", value: row.consequence_revision_id },
-            ...(row.price.price_revision_id !== null ? [{ label: "Price version reference", value: row.price.price_revision_id }] : []),
-            { label: "Recorded at", value: row.recorded_at },
-          ]}
-        />
-      </td>
-      <td>
-        {priceText(row)}
-        {row.price.price_revision_id !== null && row.price.state === "LINKED" ? (
-          <>
-            {" · "}
-            <Link to={links.assumptions({ revisionId: row.price.price_revision_id, recordedAt: pinnedCutoff })} data-history-price-link>
-              The price version used
-            </Link>
-          </>
+        <strong>Fuel cost version {row.revision_no}</strong>
+        {row.finding_revision_no !== null ? (
+          <small className="consequence-history__line">Finding version {row.finding_revision_no}</small>
         ) : null}
+        <Disclosure name={`history-version-${row.consequence_revision_id}`} summary="Show this version">
+          <p data-history-version-detail>
+            Finding for {formatInstant(row.window.from)} to {formatInstant(row.window.to)}
+            {row.finding_revision_no !== null ? `, finding version ${row.finding_revision_no}` : ""}. Fuel cost version{" "}
+            {row.revision_no}, recorded {formatInstant(row.recorded_at)}.
+          </p>
+          <p>
+            <span data-history-source={sourceState(row.source_provenance)}>
+              {source.label}. {source.statement}
+            </span>
+          </p>
+          <p>
+            <Link to={links.consequence(row.finding_id, row.finding_revision_id, row.consequence_revision_id)} data-history-open>
+              Open this fuel cost version
+            </Link>
+            {" · "}
+            <Link to={links.finding(row.finding_id, row.finding_revision_id)} data-history-finding>
+              Open the finding
+            </Link>
+            {row.price.price_revision_id !== null && row.price.state === "LINKED" ? (
+              <>
+                {" · "}
+                <Link to={links.assumptions({ revisionId: row.price.price_revision_id, recordedAt: pinnedCutoff })} data-history-price-link>
+                  The price version used
+                </Link>
+              </>
+            ) : null}
+          </p>
+          <ExactReferences
+            name={`history-${row.consequence_revision_id}`}
+            references={[
+              { label: "Finding reference", value: row.finding_id },
+              { label: "Finding version reference", value: row.finding_revision_id },
+              { label: "Fuel cost version reference", value: row.consequence_revision_id },
+              ...(row.price.price_revision_id !== null ? [{ label: "Price version reference", value: row.price.price_revision_id }] : []),
+              { label: "Recorded at", value: row.recorded_at },
+            ]}
+          />
+        </Disclosure>
       </td>
+      <td>{priceText(row)}</td>
       <td>
         {amount ? (
           <span data-history-recorded-amount>
@@ -144,11 +196,6 @@ function Row({ row, links, pinnedCutoff }: { row: ConsequenceHistoryRow; links: 
         )}
       </td>
       <td>
-        <span data-history-source={sourceState(row.source_provenance)}>
-          {source.label}. {source.statement}
-        </span>
-      </td>
-      <td>
         <span className={current ? "badge badge--provenance" : "badge badge--neutral"} data-history-badge={current ? "latest" : "earlier"}>
           {current ? "Latest at this moment" : "Earlier version"}
         </span>
@@ -158,18 +205,38 @@ function Row({ row, links, pinnedCutoff }: { row: ConsequenceHistoryRow; links: 
   );
 }
 
+/**
+ * post-W6 W1-b Q23 (pre-flight ruling 7): the URL-safe prior-cursor stack, one repeated `history_back` value per
+ * newer page, oldest first; `0` is the first page and may only sit at the bottom. A malformed or out-of-range stack
+ * is rejected (null), never repaired into a guessed cursor; the caller then offers only "Back to newest".
+ */
+export const HISTORY_BACK_MAX = 100;
+const CURSOR_TOKEN = /^[A-Za-z0-9_-]{1,4096}$/;
+export function parseHistoryBack(values: string[], currentAfter: string | null): string[] | null {
+  if (values.length === 0) return [];
+  if (currentAfter === null || values.length > HISTORY_BACK_MAX) return null;
+  const ok = values.every((v, i) => (v === "0" ? i === 0 : CURSOR_TOKEN.test(v)));
+  return ok ? values : null;
+}
+
 /** The panel for one loaded page; refusals and loading are the caller's. */
 export function ConsequenceHistoryPanel({
   body,
   siteName,
   links,
   historyLimit = null,
+  historyAfter = null,
+  historyBack = [],
   children,
 }: {
   body: ConsequenceHistoryBody;
   siteName: string;
   links: FinancialsLinks;
   historyLimit?: number | null;
+  /** post-W6 W1-b Q23: the current page's cursor (null on the first page). */
+  historyAfter?: string | null;
+  /** post-W6 W1-b Q23: the parsed prior-cursor stack; null when the address's stack was rejected. */
+  historyBack?: string[] | null;
   /** W1-F3: the price versions recorded at the same moment, inside this panel. */
   children?: ReactNode;
 }) {
@@ -209,13 +276,13 @@ export function ConsequenceHistoryPanel({
         {body.rows.length === 0 ? (
           null
         ) : (
+          <VersionsScroll>
           <DataTable>
             <thead>
               <tr>
                 <th scope="col">Version</th>
-                <th scope="col">Diesel price</th>
+                <th scope="col">Fuel price</th>
                 <th scope="col">Recorded amount</th>
-                <th scope="col">Source</th>
                 <th scope="col">Status</th>
               </tr>
             </thead>
@@ -231,6 +298,7 @@ export function ConsequenceHistoryPanel({
             ))}
             </tbody>
           </DataTable>
+          </VersionsScroll>
         )}
         {body.rows.length === 0 ? null : (
           <p className="v69-chart-note" data-history-kept-note>
@@ -240,24 +308,73 @@ export function ConsequenceHistoryPanel({
             recorded by this moment.
           </p>
         )}
-        <p className="muted">
-          {body.page.is_first ? null : (
-            <>
-              <Link to={links.assumptions({ recordedAt: cutoff, historyLimit })} data-history-first-page>
-                Back to the newest versions
-              </Link>
-              {body.next_cursor !== null ? " · " : null}
-            </>
-          )}
-          {body.next_cursor !== null ? (
-            <Link to={links.assumptions({ recordedAt: cutoff, historyAfter: body.next_cursor, historyLimit })} data-history-next>
-              Show earlier versions
-            </Link>
-          ) : null}
-        </p>
+        <HistoryPager body={body} links={links} historyLimit={historyLimit} historyAfter={historyAfter} historyBack={historyBack} />
       </div>
       {children}
     </Panel>
+  );
+}
+
+/**
+ * post-W6 W1-b Q23 / R200: "Previous versions" (older) follows the server cursor and pushes the current one onto the
+ * stack; "Next versions" (newer) pops one prior cursor. A page reached without a usable stack offers "Back to
+ * newest", which clears cursor and stack. Every link keeps the exact cutoff and page size.
+ */
+function HistoryPager({
+  body,
+  links,
+  historyLimit,
+  historyAfter,
+  historyBack,
+}: {
+  body: ConsequenceHistoryBody;
+  links: FinancialsLinks;
+  historyLimit: number | null;
+  historyAfter: string | null;
+  historyBack: string[] | null;
+}) {
+  const cutoff = body.cutoff.recorded_at;
+  const stack = historyBack ?? [];
+  const older =
+    body.next_cursor === null
+      ? null
+      : links.assumptions({
+          recordedAt: cutoff,
+          historyAfter: body.next_cursor,
+          historyLimit,
+          historyBack: [...stack, historyAfter ?? "0"],
+        });
+  let newer: { href: string; label: string; attr: string } | null = null;
+  if (historyBack !== null && stack.length > 0) {
+    const prior = stack[stack.length - 1];
+    newer = {
+      href: links.assumptions({
+        recordedAt: cutoff,
+        historyAfter: prior === "0" ? null : prior,
+        historyLimit,
+        historyBack: stack.slice(0, -1),
+      }),
+      label: "Next versions",
+      attr: "next",
+    };
+  } else if (!body.page.is_first || historyAfter !== null) {
+    newer = { href: links.assumptions({ recordedAt: cutoff, historyLimit }), label: "Back to newest", attr: "newest" };
+  }
+  if (older === null && newer === null) return null;
+  return (
+    <nav className="muted consequence-history__pager" aria-label="Interpretation history pages" data-history-pager>
+      {newer === null ? null : (
+        <Link to={newer.href} data-history-newer={newer.attr} data-history-first-page={newer.attr === "newest" ? "" : undefined}>
+          {newer.label}
+        </Link>
+      )}
+      {newer !== null && older !== null ? " · " : null}
+      {older === null ? null : (
+        <Link to={older} data-history-next>
+          Previous versions
+        </Link>
+      )}
+    </nav>
   );
 }
 

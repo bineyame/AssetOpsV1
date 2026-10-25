@@ -120,7 +120,7 @@ describe("estate Portfolio page", () => {
     ]);
     expect(text(priority.querySelector("[data-portfolio-count]"))).toBe("2 selected Findings · coverage incomplete");
     const partialObjectives = document.querySelector("[data-portfolio-panel='objectives']") as HTMLElement;
-    expect(text(partialObjectives)).toContain("Site detail is unavailable for these cells.");
+    expect(text(partialObjectives)).not.toContain("Site detail is unavailable for these cells.");
     expect(text(partialObjectives)).not.toContain("Select a linked cell for context.");
     const w1 = priority.querySelector(`[data-portfolio-row^='f1f1f1f1']`) as HTMLElement;
     const cells = Array.from(w1.querySelectorAll("td")).map(lines);
@@ -178,7 +178,7 @@ describe("estate Portfolio page", () => {
     expect(cell("KOBO-001", "SERVICE_PRODUCT").getAttribute("aria-description")).toBe("No reviewed objective assessment");
     expect(objectives.querySelector("a")).toBeNull();
     expect(text(objectives)).toContain(
-      "Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured. Site detail is unavailable for these cells.",
+      "Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured.",
     );
     expect(text(objectives)).not.toContain("Select a linked cell for context.");
   });
@@ -396,7 +396,7 @@ describe("estate Portfolio page", () => {
     expect(basisText).toContain("Evidence IDs: None selected");
     expect(basisText).toContain("Basis SHA-256: ab12cd34");
     expect(basisText).toContain("Reasons: WINDOW_SELECTED");
-    expect(within(footer()).getByRole("link", { name: "Inspect energy basis →" }).getAttribute("href")).toBe("/sites/EV-LAB-001/evidence");
+    expect(within(footer()).getByRole("link", { name: "Inspect energy basis →" }).getAttribute("href")).toBe("/sites/EV-LAB-001/ev/evidence");
     expect(text(footer().querySelector("[data-portfolio-footer-coverage]"))).toBe("Categories and windows remain separate.");
     view.unmount();
     // R12: no eligible footer line, and another applicable EV Site with UNKNOWN coverage.
@@ -448,5 +448,170 @@ describe("estate Portfolio page", () => {
       "progress",
     ]);
     expect(COLD_ROW.links.finding).toBeNull();
+  });
+});
+
+describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window", () => {
+  const WIN = "from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-10-07T00%3A05%3A00Z";
+  // Q10: the server's mounted domain routes per objective (portfolio.py table); EV Backup has none.
+  const ROUTES: Record<string, Record<string, string | null>> = {
+    MINIGRID: {
+      SERVICE_PRODUCT: "/sites/KOBO-001/performance/service",
+      BACKUP: "/sites/KOBO-001/performance/backup",
+      ASSET_CONDITION: "/sites/KOBO-001/health",
+      COST_CONTROL: "/sites/KOBO-001/financials",
+      EVIDENCE: "/sites/KOBO-001/evidence",
+    },
+    COLDCHAIN: {
+      SERVICE_PRODUCT: "/sites/COLD-001/performance/temperature",
+      BACKUP: "/sites/COLD-001/performance/backup",
+      ASSET_CONDITION: "/sites/COLD-001/health",
+      COST_CONTROL: `/sites/COLD-001/financials?${WIN}`,
+      EVIDENCE: `/sites/COLD-001/evidence?${WIN}`,
+    },
+    EV_CHARGING: {
+      SERVICE_PRODUCT: "/sites/EV-LAB-001/performance/sessions",
+      BACKUP: null,
+      ASSET_CONDITION: "/sites/EV-LAB-001/health",
+      COST_CONTROL: `/sites/EV-LAB-001/ev/financials?${WIN}`,
+      EVIDENCE: `/sites/EV-LAB-001/ev/evidence?${WIN}`,
+    },
+  };
+
+  it("objectiveCellsLinkServerDestinationsAndEvBackupHasNoConfiguredObjective", async () => {
+    const base = portfolioBody();
+    const objectives = base.objectives.slice(0, 3).map((site) => ({
+      ...site,
+      cells: site.cells.map((cell) => ({ ...cell, destination: ROUTES[site.domain][cell.key] })),
+    }));
+    // A non-EV cell the server leaves without a destination keeps the labelled unavailable detail.
+    objectives[1] = { ...objectives[1], cells: objectives[1].cells.map((c) => (c.key === "BACKUP" ? { ...c, destination: null } : c)) };
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ objectives }))));
+    await settledScreen();
+    const matrix = panel("Objectives across the estate");
+    const cell = (code: string, key: string) => matrix.querySelector(`[data-portfolio-cell^='${code}|${key}|']`) as HTMLElement;
+    for (const site of objectives) {
+      for (const c of site.cells) {
+        const el = cell(site.site_code, c.key);
+        expect(el.getAttribute("title")).toBe(c.reason);
+        expect(el.getAttribute("aria-description")).toBe(c.reason);
+        if (c.destination !== null) {
+          expect(el.tagName).toBe("A");
+          expect(el.getAttribute("href")).toBe(c.destination);
+          expect(el.textContent).toBe(c.label);
+        } else {
+          expect(el.tagName).toBe("SPAN");
+          expect(el.querySelector("a")).toBeNull();
+        }
+      }
+    }
+    expect(text(cell("EV-LAB-001", "BACKUP"))).toBe("UnknownNo configured objective");
+    expect(text(cell("COLD-001", "BACKUP"))).toBe("UnknownSite detail unavailable");
+    expect(matrix.querySelectorAll("[data-portfolio-cell-link]")).toHaveLength(13);
+  });
+
+  it("coldAndEvFindingTitlesAreLiveOnlyWithAServerWindowedLink", async () => {
+    const coldLink = `/sites/COLD-001/findings/${COLD_ROW.finding_id}?${WIN}`;
+    const live = { ...COLD_ROW, links: { ...COLD_ROW.links, finding: coldLink } };
+    const ev = row({
+      site_id: SITES[2].site_id,
+      site_code: "EV-LAB-001",
+      site_name: "Depot",
+      domain: "EV_CHARGING",
+      finding_id: "f3f3f3f3-0000-4000-8000-000000000003",
+      finding_revision_id: "e3e3e3e3-0000-4000-8000-000000000003",
+      title: "Connector fault",
+      links: { site: "/sites/EV-LAB-001/ev", finding: null, action: null },
+    });
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows: [live, ev], total_count: 2 }))));
+    await settledScreen();
+    const priority = panel("Where management should act first");
+    const coldRow = priority.querySelector("[data-portfolio-row^='f2f2f2f2']") as HTMLElement;
+    expect(coldRow.querySelector("[data-portfolio-finding-link]")?.getAttribute("href")).toBe(coldLink);
+    expect(text(coldRow)).not.toContain("Finding detail unavailable");
+    const evRow = priority.querySelector("[data-portfolio-row^='f3f3f3f3']") as HTMLElement;
+    expect(evRow.querySelector("[data-portfolio-finding-link]")).toBeNull();
+    expect(text(evRow)).toContain("Finding detail unavailable");
+    expect(evRow.querySelector("[data-portfolio-site-link]")?.getAttribute("href")).toBe("/sites/EV-LAB-001/ev");
+  });
+
+  it("scopeDisclosureSummarisesAssessmentsTranslatesCodesAndNestsLongIds", async () => {
+    const longIds = Array.from({ length: 60 }, (_, i) => `e1e1e1e1-0000-4000-8000-${String(i).padStart(12, "0")}`);
+    const base = portfolioBody();
+    const sites = base.scope_disclosure.sites.map((s, i) => ({
+      ...s,
+      selected_revision_ids: i === 0 ? longIds : i === 1 ? ["e2e2e2e2-0000-4000-8000-000000000002"] : [],
+      coverage: coverageSite(s.site_id, i === 3 ? "UNKNOWN" : "CURRENT"),
+    }));
+    const exclusions = [
+      { line_key: "w1-line", group_key: "g-w1", reason_codes: ["UNPRICED"] },
+      { line_key: "cold_chain:c9", group_key: null, reason_codes: ["SOMETHING_NEW"] },
+    ];
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ scope_disclosure: { sites, exclusions } }))));
+    await settledScreen();
+    const drawer = document.querySelector("[data-portfolio-drawer='scope']") as HTMLElement;
+    const summary = (code: string) => text(drawer.querySelector(`[data-portfolio-scope-site='${code}'] [data-portfolio-scope-summary]`));
+    expect(summary("KOBO-001")).toBe("Kobo · 60 selected assessments");
+    expect(summary("COLD-001")).toBe("GreenHarvest · 1 selected assessment");
+    expect(summary("EV-LAB-001")).toBe("Depot · No selected assessment");
+    // The IDs are inside a nested `Assessment IDs` disclosure with its own scroll box, never in the summary.
+    const kobo = drawer.querySelector("[data-portfolio-scope-site='KOBO-001']") as HTMLElement;
+    expect(summary("KOBO-001")).not.toContain("e1e1e1e1");
+    const ids = kobo.querySelector("details") as HTMLDetailsElement;
+    const idsSummary = ids.querySelector("summary") as HTMLElement;
+    expect(idsSummary.textContent).toBe("Assessment IDs");
+    expect(ids.firstElementChild).toBe(idsSummary); // the native summary is the keyboard toggle
+    expect(ids.open).toBe(false);
+    idsSummary.focus();
+    expect(document.activeElement).toBe(idsSummary);
+    fireEvent.click(idsSummary);
+    expect(ids.open).toBe(true);
+    expect(kobo.querySelectorAll("[data-portfolio-assessment-ids] > div")).toHaveLength(60);
+    expect(kobo.querySelector("[data-portfolio-assessment-ids]")?.textContent).toContain(longIds[59]);
+    expect(drawer.querySelector("[data-portfolio-scope-site='EV-LAB-001'] details")).toBeNull();
+    // Coverage words, not raw states.
+    expect(text(drawer.querySelector("[data-portfolio-scope-site='EV-LAB-002'] [data-portfolio-scope-coverage]"))).toBe(
+      "EV charging · Not yet assessed",
+    );
+    expect(text(drawer.querySelector("[data-portfolio-scope-site='KOBO-001'] [data-portfolio-scope-coverage]"))).toContain("Mini-grid · Current");
+    const coverageText = Array.from(drawer.querySelectorAll("[data-portfolio-scope-coverage]")).map((td) => td.textContent).join(" ");
+    expect(coverageText).not.toMatch(/UNKNOWN|CURRENT/);
+    // Exclusions: Site/line label and reason words; an unknown code reads `Excluded from comparison`, raw in detail.
+    const items = Array.from(drawer.querySelectorAll("[data-portfolio-exclusion]")) as HTMLElement[];
+    expect(items.map((li) => text(li.querySelector("[data-portfolio-exclusion-words]")))).toEqual([
+      "Kobo · No price is recorded",
+      "Cold-chain line · Excluded from comparison",
+    ]);
+    expect(items[1].querySelector("details summary")?.textContent).toBe("Record details");
+    expect(items[1].querySelector("details")?.textContent).toContain("cold_chain:c9 · no group · SOMETHING_NEW");
+    // CSS: 160px inner scroll for the IDs; the drawer keeps 320px.
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/estate/estatePortfolio.css`, "utf8");
+    expect(css).toMatch(/\.portfolio-scope-ids\{max-height:160px;overflow:auto/);
+    expect(css).toMatch(/\.portfolio-drawer\{max-height:320px;overflow:auto/);
+  });
+
+  it("refusedWindowUsesTheSharedSentencesAndNeverEchoesDates", async () => {
+    const cases: [string, string][] = [
+      ["/portfolio?from=2026-10-07T00:00:00Z&to=2026-10-05T00:00:00Z", "The selected window needs both a start and an end, with the start before the end."],
+      ["/portfolio?from=2026-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
+      [ENTRY, "The selected window is invalid."],
+    ];
+    for (const [entry, copy] of cases) {
+      const view = renderAt(entry, portfolioClient(refused(422, "INVALID_WINDOW", "server copy")));
+      await settledScreen();
+      expect(text(document.querySelector("[data-page-refusal='INVALID_WINDOW'] p"))).toBe(copy);
+      expect(text(document.querySelector("[data-page-refusal='INVALID_WINDOW'] [data-refusal-title]"))).toBe("Window cannot be read");
+      expect(text(document.querySelector("[data-estate-window]"))).toBe("Window not valid");
+      expect(text(document.querySelector("[data-estate-date-bar]"))).not.toContain("2026-10-07 to");
+      view.unmount();
+    }
+    // A non-window refusal keeps its own copy and the requested window line.
+    const view = renderAt(ENTRY, portfolioClient(refused(503, "ESTATE_STORE_UNAVAILABLE", "Estate records are unavailable right now. Try again.")));
+    await settledScreen();
+    expect(text(document.querySelector("[data-page-refusal]"))).toBe("Estate records are unavailable right now. Try again.");
+    expect(text(document.querySelector("[data-estate-window]"))).toBe("Window 2026-10-06 to 2026-10-06 (UTC days)");
+    view.unmount();
   });
 });

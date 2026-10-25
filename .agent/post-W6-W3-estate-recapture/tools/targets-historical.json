@@ -1,0 +1,27 @@
+[
+ {
+  "id": "findings",
+  "case": "historical",
+  "url": "http://127.0.0.1:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:04:08Z"
+ },
+ {
+  "id": "findings-cost",
+  "case": "historical",
+  "url": "http://127.0.0.1:5180/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:04:08Z"
+ },
+ {
+  "id": "findings-risks",
+  "case": "historical",
+  "url": "http://127.0.0.1:5180/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:04:08Z"
+ },
+ {
+  "id": "findings-opportunities",
+  "case": "historical",
+  "url": "http://127.0.0.1:5180/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:04:08Z"
+ },
+ {
+  "id": "actions",
+  "case": "historical",
+  "url": "http://127.0.0.1:5180/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z&known_at=2026-11-02T11:04:08Z"
+ }
+]

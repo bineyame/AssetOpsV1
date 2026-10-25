@@ -1,0 +1,863 @@
+{
+  "revision": "321cfe56",
+  "captured_at": "2026-10-25T00:20:33.125Z",
+  "rule": "Q13: effective label px under ~8 at 390 is illegible",
+  "results": [
+    {
+      "url": "http://localhost:5181/sites/KOBO-001/foundation/sld",
+      "overflowX": 0,
+      "svg": {
+        "renderedWidth": 292,
+        "renderedHeight": 210.8,
+        "viewBoxWidth": 928,
+        "scale": 0.3147,
+        "svgFontSizes": {
+          "11": 20,
+          "13": 20
+        },
+        "minEffectiveLabelPx": 3.46,
+        "minLabelText": "60 kW",
+        "textNodes": 40,
+        "focusable": {
+          "tabindex": 10,
+          "a": 0,
+          "button": 0,
+          "container": {
+            "tabindex": 10,
+            "a": 0,
+            "button": 0
+          }
+        }
+      },
+      "scroll": {
+        "scrollWidth": 316,
+        "clientWidth": 316,
+        "scrolls": false,
+        "overflowXStyle": "auto"
+      },
+      "selectedPanel": null,
+      "sldClasses": [
+        "sld-status",
+        "sld__scroll",
+        "sld",
+        "sld-run",
+        "sld-run--dc",
+        "sld-run--ac",
+        "sld-run--fuel",
+        "sld-node",
+        "sld-node__halo",
+        "sld-node__box",
+        "sld-node__name",
+        "sld-node__rating",
+        "sld-node__slot",
+        "sld-node--bus",
+        "sld-node__name--bus",
+        "sld-node__bar",
+        "sld-legend",
+        "sld-legend__item",
+        "sld-legend__run",
+        "sld-legend__run--dc",
+        "sld-legend__run--ac",
+        "sld-legend__run--fuel",
+        "sld-key",
+        "sld-key__item",
+        "sld-key__choice",
+        "sld-key__rating",
+        "sld-questions",
+        "sld-questions__lede",
+        "sld-questions__list",
+        "sld-questions__item",
+        "sld-questions__witness"
+      ],
+      "legend": {
+        "text": "DCACFuel",
+        "fontSize": "11px"
+      },
+      "selectedMarkers": [
+        {
+          "tag": "SPAN",
+          "cls": "breadcrumbs__current",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Foundation"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Single line diagram"
+        }
+      ],
+      "status": {
+        "text": "Configured, not liveReadings are not assessed in this view.",
+        "fontSize": "13px"
+      },
+      "key": {
+        "present": true,
+        "visible": true,
+        "rect": {
+          "w": 318,
+          "h": 148
+        },
+        "display": "flex",
+        "ulFontSize": "12px",
+        "itemFontSize": "12px",
+        "buttonFontSize": "12px",
+        "fontSizeCounts": {
+          "12px": 40
+        },
+        "itemCount": 10,
+        "buttonCount": 10,
+        "drawnParts": 10,
+        "drawnBus": 1,
+        "drawnNonBus": 9,
+        "buttonsFocusable": true,
+        "focusedCount": 10,
+        "tabindexNeg": 0,
+        "ariaPressed": [],
+        "firstItems": [
+          "PV array · 60 kW",
+          "PV inverter · 50 kW",
+          "Battery energy storage · 200 kWh",
+          "Battery power conversion system · 30 kW",
+          "Diesel generator · 40 kW",
+          "Generator fuel tank · 400 L",
+          "AC bus · 400 V",
+          "Residential feeder · 25 kW",
+          "Health clinic · 10 kW",
+          "Grain mill · 40 kW"
+        ]
+      },
+      "case": "now",
+      "width": 390,
+      "ready": true,
+      "image": "sld-now-390-legibility-r2.png",
+      "q13_illegible": true
+    },
+    {
+      "url": "http://localhost:5181/sites/KOBO-001/foundation/sld?component=battery",
+      "overflowX": 0,
+      "svg": {
+        "renderedWidth": 292,
+        "renderedHeight": 210.8,
+        "viewBoxWidth": 928,
+        "scale": 0.3147,
+        "svgFontSizes": {
+          "11": 20,
+          "13": 20
+        },
+        "minEffectiveLabelPx": 3.46,
+        "minLabelText": "60 kW",
+        "textNodes": 40,
+        "focusable": {
+          "tabindex": 10,
+          "a": 0,
+          "button": 0,
+          "container": {
+            "tabindex": 10,
+            "a": 0,
+            "button": 0
+          }
+        }
+      },
+      "scroll": {
+        "scrollWidth": 316,
+        "clientWidth": 316,
+        "scrolls": false,
+        "overflowXStyle": "auto"
+      },
+      "selectedPanel": null,
+      "sldClasses": [
+        "sld-status",
+        "sld__scroll",
+        "sld",
+        "sld-run",
+        "sld-run--dc",
+        "sld-run--ac",
+        "sld-run--fuel",
+        "sld-node",
+        "sld-node__halo",
+        "sld-node__box",
+        "sld-node__name",
+        "sld-node__rating",
+        "sld-node__slot",
+        "sld-node--bus",
+        "sld-node__name--bus",
+        "sld-node__bar",
+        "sld-legend",
+        "sld-legend__item",
+        "sld-legend__run",
+        "sld-legend__run--dc",
+        "sld-legend__run--ac",
+        "sld-legend__run--fuel",
+        "sld-key",
+        "sld-key__item",
+        "sld-key__choice",
+        "sld-key__rating",
+        "sld-questions",
+        "sld-questions__lede",
+        "sld-questions__list",
+        "sld-questions__item",
+        "sld-questions__witness"
+      ],
+      "legend": {
+        "text": "DCACFuel",
+        "fontSize": "11px"
+      },
+      "selectedMarkers": [
+        {
+          "tag": "SPAN",
+          "cls": "breadcrumbs__current",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Foundation"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "g",
+          "cls": "sld-node",
+          "aria": "true",
+          "text": "Battery energystorage200 kWhReadings not assessed here"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "link-button sld-key__choice",
+          "aria": "true",
+          "text": "Battery energy storage · 200 kWh"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "part-choice",
+          "aria": "true",
+          "text": "Battery energy storage"
+        }
+      ],
+      "status": {
+        "text": "Configured, not liveReadings are not assessed in this view.",
+        "fontSize": "13px"
+      },
+      "key": {
+        "present": true,
+        "visible": true,
+        "rect": {
+          "w": 318,
+          "h": 148
+        },
+        "display": "flex",
+        "ulFontSize": "12px",
+        "itemFontSize": "12px",
+        "buttonFontSize": "12px",
+        "fontSizeCounts": {
+          "12px": 40
+        },
+        "itemCount": 10,
+        "buttonCount": 10,
+        "drawnParts": 10,
+        "drawnBus": 1,
+        "drawnNonBus": 9,
+        "buttonsFocusable": true,
+        "focusedCount": 10,
+        "tabindexNeg": 0,
+        "ariaPressed": [
+          "Battery energy storage · 200 kWh"
+        ],
+        "firstItems": [
+          "PV array · 60 kW",
+          "PV inverter · 50 kW",
+          "Battery energy storage · 200 kWh",
+          "Battery power conversion system · 30 kW",
+          "Diesel generator · 40 kW",
+          "Generator fuel tank · 400 L",
+          "AC bus · 400 V",
+          "Residential feeder · 25 kW",
+          "Health clinic · 10 kW",
+          "Grain mill · 40 kW"
+        ]
+      },
+      "case": "battery",
+      "width": 390,
+      "ready": true,
+      "image": "sld-battery-390-legibility-r2.png",
+      "q13_illegible": true
+    },
+    {
+      "url": "http://localhost:5181/sites/KOBO-001/foundation/sld",
+      "overflowX": 0,
+      "svg": {
+        "renderedWidth": 292,
+        "renderedHeight": 210.8,
+        "viewBoxWidth": 928,
+        "scale": 0.3147,
+        "svgFontSizes": {
+          "11": 20,
+          "13": 20
+        },
+        "minEffectiveLabelPx": 3.46,
+        "minLabelText": "60 kW",
+        "textNodes": 40,
+        "focusable": {
+          "tabindex": 10,
+          "a": 0,
+          "button": 0,
+          "container": {
+            "tabindex": 10,
+            "a": 0,
+            "button": 0
+          }
+        }
+      },
+      "scroll": {
+        "scrollWidth": 316,
+        "clientWidth": 316,
+        "scrolls": false,
+        "overflowXStyle": "auto"
+      },
+      "selectedPanel": null,
+      "sldClasses": [
+        "sld-status",
+        "sld__scroll",
+        "sld",
+        "sld-run",
+        "sld-run--dc",
+        "sld-run--ac",
+        "sld-run--fuel",
+        "sld-node",
+        "sld-node__halo",
+        "sld-node__box",
+        "sld-node__name",
+        "sld-node__rating",
+        "sld-node__slot",
+        "sld-node--bus",
+        "sld-node__name--bus",
+        "sld-node__bar",
+        "sld-legend",
+        "sld-legend__item",
+        "sld-legend__run",
+        "sld-legend__run--dc",
+        "sld-legend__run--ac",
+        "sld-legend__run--fuel",
+        "sld-key",
+        "sld-key__item",
+        "sld-key__choice",
+        "sld-key__rating",
+        "sld-questions",
+        "sld-questions__lede",
+        "sld-questions__list",
+        "sld-questions__item",
+        "sld-questions__witness"
+      ],
+      "legend": {
+        "text": "DCACFuel",
+        "fontSize": "11px"
+      },
+      "selectedMarkers": [
+        {
+          "tag": "SPAN",
+          "cls": "breadcrumbs__current",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Foundation"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Single line diagram"
+        }
+      ],
+      "status": {
+        "text": "Configured, not liveReadings are not assessed in this view.",
+        "fontSize": "13px"
+      },
+      "key": {
+        "present": true,
+        "visible": true,
+        "rect": {
+          "w": 318,
+          "h": 148
+        },
+        "display": "flex",
+        "ulFontSize": "12px",
+        "itemFontSize": "12px",
+        "buttonFontSize": "12px",
+        "fontSizeCounts": {
+          "12px": 40
+        },
+        "itemCount": 10,
+        "buttonCount": 10,
+        "drawnParts": 10,
+        "drawnBus": 1,
+        "drawnNonBus": 9,
+        "buttonsFocusable": true,
+        "focusedCount": 10,
+        "tabindexNeg": 0,
+        "ariaPressed": [],
+        "firstItems": [
+          "PV array · 60 kW",
+          "PV inverter · 50 kW",
+          "Battery energy storage · 200 kWh",
+          "Battery power conversion system · 30 kW",
+          "Diesel generator · 40 kW",
+          "Generator fuel tank · 400 L",
+          "AC bus · 400 V",
+          "Residential feeder · 25 kW",
+          "Health clinic · 10 kW",
+          "Grain mill · 40 kW"
+        ]
+      },
+      "case": "unknown-part",
+      "width": 390,
+      "ready": true,
+      "image": "sld-unknown-part-390-legibility-r2.png",
+      "q13_illegible": true
+    },
+    {
+      "url": "http://localhost:5181/sites/KOBO-001/foundation/sld",
+      "overflowX": 0,
+      "svg": {
+        "renderedWidth": 928,
+        "renderedHeight": 670,
+        "viewBoxWidth": 928,
+        "scale": 1,
+        "svgFontSizes": {
+          "11": 20,
+          "13": 20
+        },
+        "minEffectiveLabelPx": 11,
+        "minLabelText": "60 kW",
+        "textNodes": 40,
+        "focusable": {
+          "tabindex": 10,
+          "a": 0,
+          "button": 0,
+          "container": {
+            "tabindex": 10,
+            "a": 0,
+            "button": 0
+          }
+        }
+      },
+      "scroll": {
+        "scrollWidth": 1103,
+        "clientWidth": 1103,
+        "scrolls": false,
+        "overflowXStyle": "auto"
+      },
+      "selectedPanel": null,
+      "sldClasses": [
+        "sld-status",
+        "sld__scroll",
+        "sld",
+        "sld-run",
+        "sld-run--dc",
+        "sld-run--ac",
+        "sld-run--fuel",
+        "sld-node",
+        "sld-node__halo",
+        "sld-node__box",
+        "sld-node__name",
+        "sld-node__rating",
+        "sld-node__slot",
+        "sld-node--bus",
+        "sld-node__name--bus",
+        "sld-node__bar",
+        "sld-legend",
+        "sld-legend__item",
+        "sld-legend__run",
+        "sld-legend__run--dc",
+        "sld-legend__run--ac",
+        "sld-legend__run--fuel",
+        "sld-key",
+        "sld-key__item",
+        "sld-key__choice",
+        "sld-key__rating",
+        "sld-questions",
+        "sld-questions__lede",
+        "sld-questions__list",
+        "sld-questions__item",
+        "sld-questions__witness"
+      ],
+      "legend": {
+        "text": "DCACFuel",
+        "fontSize": "11px"
+      },
+      "selectedMarkers": [
+        {
+          "tag": "SPAN",
+          "cls": "breadcrumbs__current",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Foundation"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Single line diagram"
+        }
+      ],
+      "status": {
+        "text": "Configured, not liveReadings are not assessed in this view.",
+        "fontSize": "13px"
+      },
+      "key": {
+        "present": true,
+        "visible": false,
+        "rect": {
+          "w": 0,
+          "h": 0
+        },
+        "display": "none",
+        "ulFontSize": "14px",
+        "itemFontSize": "14px",
+        "buttonFontSize": "14px",
+        "fontSizeCounts": {
+          "14px": 40
+        },
+        "itemCount": 10,
+        "buttonCount": 10,
+        "drawnParts": 10,
+        "drawnBus": 1,
+        "drawnNonBus": 9,
+        "buttonsFocusable": false,
+        "focusedCount": 0,
+        "tabindexNeg": 0,
+        "ariaPressed": [],
+        "firstItems": [
+          "PV array · 60 kW",
+          "PV inverter · 50 kW",
+          "Battery energy storage · 200 kWh",
+          "Battery power conversion system · 30 kW",
+          "Diesel generator · 40 kW",
+          "Generator fuel tank · 400 L",
+          "AC bus · 400 V",
+          "Residential feeder · 25 kW",
+          "Health clinic · 10 kW",
+          "Grain mill · 40 kW"
+        ]
+      },
+      "case": "now",
+      "width": 1440,
+      "ready": true,
+      "image": "sld-now-1440-legibility-r2.png",
+      "q13_illegible": null
+    },
+    {
+      "url": "http://localhost:5181/sites/KOBO-001/foundation/sld?component=battery",
+      "overflowX": 0,
+      "svg": {
+        "renderedWidth": 928,
+        "renderedHeight": 670,
+        "viewBoxWidth": 928,
+        "scale": 1,
+        "svgFontSizes": {
+          "11": 20,
+          "13": 20
+        },
+        "minEffectiveLabelPx": 11,
+        "minLabelText": "60 kW",
+        "textNodes": 40,
+        "focusable": {
+          "tabindex": 10,
+          "a": 0,
+          "button": 0,
+          "container": {
+            "tabindex": 10,
+            "a": 0,
+            "button": 0
+          }
+        }
+      },
+      "scroll": {
+        "scrollWidth": 1103,
+        "clientWidth": 1103,
+        "scrolls": false,
+        "overflowXStyle": "auto"
+      },
+      "selectedPanel": null,
+      "sldClasses": [
+        "sld-status",
+        "sld__scroll",
+        "sld",
+        "sld-run",
+        "sld-run--dc",
+        "sld-run--ac",
+        "sld-run--fuel",
+        "sld-node",
+        "sld-node__halo",
+        "sld-node__box",
+        "sld-node__name",
+        "sld-node__rating",
+        "sld-node__slot",
+        "sld-node--bus",
+        "sld-node__name--bus",
+        "sld-node__bar",
+        "sld-legend",
+        "sld-legend__item",
+        "sld-legend__run",
+        "sld-legend__run--dc",
+        "sld-legend__run--ac",
+        "sld-legend__run--fuel",
+        "sld-key",
+        "sld-key__item",
+        "sld-key__choice",
+        "sld-key__rating",
+        "sld-questions",
+        "sld-questions__lede",
+        "sld-questions__list",
+        "sld-questions__item",
+        "sld-questions__witness"
+      ],
+      "legend": {
+        "text": "DCACFuel",
+        "fontSize": "11px"
+      },
+      "selectedMarkers": [
+        {
+          "tag": "SPAN",
+          "cls": "breadcrumbs__current",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Foundation"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "g",
+          "cls": "sld-node",
+          "aria": "true",
+          "text": "Battery energystorage200 kWhReadings not assessed here"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "link-button sld-key__choice",
+          "aria": "true",
+          "text": "Battery energy storage · 200 kWh"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "part-choice",
+          "aria": "true",
+          "text": "Battery energy storage"
+        }
+      ],
+      "status": {
+        "text": "Configured, not liveReadings are not assessed in this view.",
+        "fontSize": "13px"
+      },
+      "key": {
+        "present": true,
+        "visible": false,
+        "rect": {
+          "w": 0,
+          "h": 0
+        },
+        "display": "none",
+        "ulFontSize": "14px",
+        "itemFontSize": "14px",
+        "buttonFontSize": "14px",
+        "fontSizeCounts": {
+          "14px": 40
+        },
+        "itemCount": 10,
+        "buttonCount": 10,
+        "drawnParts": 10,
+        "drawnBus": 1,
+        "drawnNonBus": 9,
+        "buttonsFocusable": false,
+        "focusedCount": 0,
+        "tabindexNeg": 0,
+        "ariaPressed": [
+          "Battery energy storage · 200 kWh"
+        ],
+        "firstItems": [
+          "PV array · 60 kW",
+          "PV inverter · 50 kW",
+          "Battery energy storage · 200 kWh",
+          "Battery power conversion system · 30 kW",
+          "Diesel generator · 40 kW",
+          "Generator fuel tank · 400 L",
+          "AC bus · 400 V",
+          "Residential feeder · 25 kW",
+          "Health clinic · 10 kW",
+          "Grain mill · 40 kW"
+        ]
+      },
+      "case": "battery",
+      "width": 1440,
+      "ready": true,
+      "image": "sld-battery-1440-legibility-r2.png",
+      "q13_illegible": null
+    },
+    {
+      "url": "http://localhost:5181/sites/KOBO-001/foundation/sld",
+      "overflowX": 0,
+      "svg": {
+        "renderedWidth": 928,
+        "renderedHeight": 670,
+        "viewBoxWidth": 928,
+        "scale": 1,
+        "svgFontSizes": {
+          "11": 20,
+          "13": 20
+        },
+        "minEffectiveLabelPx": 11,
+        "minLabelText": "60 kW",
+        "textNodes": 40,
+        "focusable": {
+          "tabindex": 10,
+          "a": 0,
+          "button": 0,
+          "container": {
+            "tabindex": 10,
+            "a": 0,
+            "button": 0
+          }
+        }
+      },
+      "scroll": {
+        "scrollWidth": 1103,
+        "clientWidth": 1103,
+        "scrolls": false,
+        "overflowXStyle": "auto"
+      },
+      "selectedPanel": null,
+      "sldClasses": [
+        "sld-status",
+        "sld__scroll",
+        "sld",
+        "sld-run",
+        "sld-run--dc",
+        "sld-run--ac",
+        "sld-run--fuel",
+        "sld-node",
+        "sld-node__halo",
+        "sld-node__box",
+        "sld-node__name",
+        "sld-node__rating",
+        "sld-node__slot",
+        "sld-node--bus",
+        "sld-node__name--bus",
+        "sld-node__bar",
+        "sld-legend",
+        "sld-legend__item",
+        "sld-legend__run",
+        "sld-legend__run--dc",
+        "sld-legend__run--ac",
+        "sld-legend__run--fuel",
+        "sld-key",
+        "sld-key__item",
+        "sld-key__choice",
+        "sld-key__rating",
+        "sld-questions",
+        "sld-questions__lede",
+        "sld-questions__list",
+        "sld-questions__item",
+        "sld-questions__witness"
+      ],
+      "legend": {
+        "text": "DCACFuel",
+        "fontSize": "11px"
+      },
+      "selectedMarkers": [
+        {
+          "tag": "SPAN",
+          "cls": "breadcrumbs__current",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Foundation"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Single line diagram"
+        }
+      ],
+      "status": {
+        "text": "Configured, not liveReadings are not assessed in this view.",
+        "fontSize": "13px"
+      },
+      "key": {
+        "present": true,
+        "visible": false,
+        "rect": {
+          "w": 0,
+          "h": 0
+        },
+        "display": "none",
+        "ulFontSize": "14px",
+        "itemFontSize": "14px",
+        "buttonFontSize": "14px",
+        "fontSizeCounts": {
+          "14px": 40
+        },
+        "itemCount": 10,
+        "buttonCount": 10,
+        "drawnParts": 10,
+        "drawnBus": 1,
+        "drawnNonBus": 9,
+        "buttonsFocusable": false,
+        "focusedCount": 0,
+        "tabindexNeg": 0,
+        "ariaPressed": [],
+        "firstItems": [
+          "PV array · 60 kW",
+          "PV inverter · 50 kW",
+          "Battery energy storage · 200 kWh",
+          "Battery power conversion system · 30 kW",
+          "Diesel generator · 40 kW",
+          "Generator fuel tank · 400 L",
+          "AC bus · 400 V",
+          "Residential feeder · 25 kW",
+          "Health clinic · 10 kW",
+          "Grain mill · 40 kW"
+        ]
+      },
+      "case": "unknown-part",
+      "width": 1440,
+      "ready": true,
+      "image": "sld-unknown-part-1440-legibility-r2.png",
+      "q13_illegible": null
+    }
+  ]
+}

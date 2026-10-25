@@ -1,0 +1,8 @@
+/* post-W6 W1-b Q26/Q52: the visible MOCK DEVIATION line (R383, R384, R385). Loaded by every component that renders
+   such a line (SiteAnalyticsFrames, SiteActionVerification), not through a Mini page's stylesheet. */
+.mock-deviation-line {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}

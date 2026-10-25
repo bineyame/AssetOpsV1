@@ -1,0 +1,6073 @@
+{
+  "revision": "710b0de5",
+  "captured_at": "2026-10-24T22:53:00.806Z",
+  "pairs": [
+    {
+      "screen": "recommendation",
+      "case": "accepted",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/findings/b1cde1f1-c43d-4bcf-9ab8-e8ef2d842ae5/recommendation?revision_id=2a6d740f-42c9-4344-93a5-451fb0c0861d",
+      "mock_hash": "#/recommendation",
+      "app_image": "recommendation-accepted-1440-app.png",
+      "mock_image": "recommendation-accepted-1440-mock.png",
+      "app": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 248,
+            "y": 372,
+            "w": 725,
+            "h": 475,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 6,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 991,
+            "y": 372,
+            "w": 403,
+            "h": 475,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Role",
+              "Criterion"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 248,
+            "y": 960,
+            "w": 1145,
+            "h": 260,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "No verification plan yet"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Applied change record",
+              "Later operating readings"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1270,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Generator support review",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs finding-sections",
+            "items": [
+              "Overview",
+              "Analysis · Not available yet(off)",
+              "Evidence",
+              "Alternatives",
+              "Recommendation*",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 7,
+          "10px": 4,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1270
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 234,
+            "y": 366,
+            "w": 735,
+            "h": 370,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 987,
+            "y": 366,
+            "w": 408,
+            "h": 370,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Role",
+              "Criterion"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 234,
+            "y": 814,
+            "w": 1161,
+            "h": 234,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Applied configuration record",
+              "Later operating evidence"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1114,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Generator support merits review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence",
+              "Alternatives",
+              "Recommendation*",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "11px": 6,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1070
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "recommendation",
+      "case": "accepted",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/findings/b1cde1f1-c43d-4bcf-9ab8-e8ef2d842ae5/recommendation?revision_id=2a6d740f-42c9-4344-93a5-451fb0c0861d",
+      "mock_hash": "#/recommendation",
+      "app_image": "recommendation-accepted-390-app.png",
+      "mock_image": "recommendation-accepted-390-mock.png",
+      "app": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 16,
+            "y": 589,
+            "w": 358,
+            "h": 604,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 6,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 16,
+            "y": 1210,
+            "w": 358,
+            "h": 475,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Role",
+              "Criterion"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 16,
+            "y": 1841,
+            "w": 358,
+            "h": 352,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "No verification plan yet"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Applied change record",
+              "Later operating readings"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2235,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Generator support review",
+          "top": 149,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs finding-sections",
+            "items": [
+              "Overview",
+              "Analysis · Not available yet(off)",
+              "Evidence",
+              "Alternatives",
+              "Recommendation*",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "site-tabs__list",
+            "sw": 493,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "12px": 1,
+          "11px": 7,
+          "10px": 4,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 15,
+            "y": 577,
+            "w": 360,
+            "h": 457,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 15,
+            "y": 1051,
+            "w": 360,
+            "h": 367,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Role",
+              "Criterion"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 15,
+            "y": 1515,
+            "w": 360,
+            "h": 251,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Applied configuration record",
+              "Later operating evidence"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1860,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Generator support merits review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence",
+              "Alternatives",
+              "Recommendation*",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 427,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "12px": 1,
+          "11px": 6,
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "action-overview",
+      "case": "recorded",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a",
+      "mock_hash": "#/action-overview",
+      "app_image": "action-overview-recorded-1440-app.png",
+      "mock_image": "action-overview-recorded-1440-mock.png",
+      "app": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 248,
+            "y": 248,
+            "w": 1160,
+            "h": 368,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "No trial plan yet"
+            ],
+            "links": 6,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Plan",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 6,
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "action-overview",
+      "case": "recorded",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a",
+      "mock_hash": "#/action-overview",
+      "app_image": "action-overview-recorded-390-app.png",
+      "mock_image": "action-overview-recorded-390-mock.png",
+      "app": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 16,
+            "y": 327,
+            "w": 358,
+            "h": 582,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "No trial plan yet"
+            ],
+            "links": 6,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 951,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Plan",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 6,
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1015,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "action-overview",
+      "case": "pending-f02",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/7e3a7942-abc3-4626-956d-069125bc6b23",
+      "mock_hash": "#/action-overview",
+      "app_image": "action-overview-pending-f02-1440-app.png",
+      "mock_image": "action-overview-pending-f02-1440-mock.png",
+      "app": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 248,
+            "y": 248,
+            "w": 1160,
+            "h": 368,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "No trial plan yet"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000002 · Battery reserve trial",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Plan",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 6,
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "action-overview",
+      "case": "pending-f02",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/7e3a7942-abc3-4626-956d-069125bc6b23",
+      "mock_hash": "#/action-overview",
+      "app_image": "action-overview-pending-f02-390-app.png",
+      "mock_image": "action-overview-pending-f02-390-mock.png",
+      "app": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 16,
+            "y": 327,
+            "w": 358,
+            "h": 549,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "No trial plan yet"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 918,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000002 · Battery reserve trial",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*",
+              "Plan",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 6,
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1015,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "action-overview",
+      "case": "unknown-section",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/nosuch",
+      "mock_hash": "#/action-overview",
+      "app_image": "action-overview-unknown-section-1440-app.png",
+      "mock_image": "action-overview-unknown-section-1440-mock.png",
+      "app": {
+        "titles": [
+          "No such Action section"
+        ],
+        "panels": [
+          {
+            "title": "No such Action section",
+            "x": 248,
+            "y": 189,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Action",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "action-overview",
+      "case": "unknown-section",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/nosuch",
+      "mock_hash": "#/action-overview",
+      "app_image": "action-overview-unknown-section-390-app.png",
+      "mock_image": "action-overview-unknown-section-390-mock.png",
+      "app": {
+        "titles": [
+          "No such Action section"
+        ],
+        "panels": [
+          {
+            "title": "No such Action section",
+            "x": 16,
+            "y": 267,
+            "w": 358,
+            "h": 126,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Action",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1015,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "action-execution",
+      "case": "applied",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/execution",
+      "mock_hash": "#/action-execution",
+      "app_image": "action-execution-applied-1440-app.png",
+      "mock_image": "action-execution-applied-1440-mock.png",
+      "app": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 248,
+            "y": 248,
+            "w": 1160,
+            "h": 322,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Record",
+              "State",
+              "Evidence",
+              "Recorded",
+              "Acted by"
+            ],
+            "chips": [
+              "Applied; effect not yet measured",
+              "Failed",
+              "Failed",
+              "Applied"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application*",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "CAPTION",
+            "cls": "w1f4-action-caption",
+            "text": "Activity log",
+            "sw": 76,
+            "cw": 22,
+            "sh": 42,
+            "ch": 24
+          }
+        ],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 211,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Record",
+              "State",
+              "Evidence"
+            ],
+            "chips": [
+              "Completed",
+              "Pending"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution*",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "action-execution",
+      "case": "applied",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/execution",
+      "mock_hash": "#/action-execution",
+      "app_image": "action-execution-applied-390-app.png",
+      "mock_image": "action-execution-applied-390-mock.png",
+      "app": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 16,
+            "y": 327,
+            "w": 358,
+            "h": 626,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Record",
+              "State",
+              "Evidence",
+              "Recorded",
+              "Acted by"
+            ],
+            "chips": [
+              "Applied; effect not yet measured",
+              "Failed",
+              "Failed",
+              "Applied"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 995,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application*",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "CAPTION",
+            "cls": "w1f4-action-caption",
+            "text": "Activity log",
+            "sw": 76,
+            "cw": 22,
+            "sh": 42,
+            "ch": 24
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 394,
+            "cw": 318,
+            "panel": "Activity log"
+          }
+        ],
+        "pSizes": {
+          "10px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 233,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Record",
+              "State",
+              "Evidence"
+            ],
+            "chips": [
+              "Completed",
+              "Pending"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1015,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution*",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "action-execution",
+      "case": "failed-pending",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/7e3a7942-abc3-4626-956d-069125bc6b23/execution",
+      "mock_hash": "#/action-execution",
+      "app_image": "action-execution-failed-pending-1440-app.png",
+      "mock_image": "action-execution-failed-pending-1440-mock.png",
+      "app": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 248,
+            "y": 248,
+            "w": 1160,
+            "h": 364,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Record",
+              "State",
+              "Evidence",
+              "Recorded",
+              "Acted by"
+            ],
+            "chips": [
+              "Not applied yet; an attempt failed",
+              "Accepted",
+              "Failed"
+            ],
+            "links": 2,
+            "buttons": 1,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000002 · Battery reserve trial",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application*",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "CAPTION",
+            "cls": "w1f4-action-caption",
+            "text": "Activity log",
+            "sw": 76,
+            "cw": 22,
+            "sh": 42,
+            "ch": 24
+          }
+        ],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 4
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 211,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Record",
+              "State",
+              "Evidence"
+            ],
+            "chips": [
+              "Completed",
+              "Pending"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution*",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "action-execution",
+      "case": "failed-pending",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/7e3a7942-abc3-4626-956d-069125bc6b23/execution",
+      "mock_hash": "#/action-execution",
+      "app_image": "action-execution-failed-pending-390-app.png",
+      "mock_image": "action-execution-failed-pending-390-mock.png",
+      "app": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 16,
+            "y": 327,
+            "w": 358,
+            "h": 676,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Record",
+              "State",
+              "Evidence",
+              "Recorded",
+              "Acted by"
+            ],
+            "chips": [
+              "Not applied yet; an attempt failed",
+              "Accepted",
+              "Failed"
+            ],
+            "links": 2,
+            "buttons": 1,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1044,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000002 · Battery reserve trial",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application*",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "CAPTION",
+            "cls": "w1f4-action-caption",
+            "text": "Activity log",
+            "sw": 76,
+            "cw": 22,
+            "sh": 42,
+            "ch": 24
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 383,
+            "cw": 318,
+            "panel": "Activity log"
+          }
+        ],
+        "pSizes": {
+          "10px": 4
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 233,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Record",
+              "State",
+              "Evidence"
+            ],
+            "chips": [
+              "Completed",
+              "Pending"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1015,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution*",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "action-history",
+      "case": "all",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/history",
+      "mock_hash": "#/action-history",
+      "app_image": "action-history-all-1440-app.png",
+      "mock_image": "action-history-all-1440-mock.png",
+      "app": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 248,
+            "y": 248,
+            "w": 1160,
+            "h": 355,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Event",
+              "Meaning",
+              "Recorded",
+              "Select"
+            ],
+            "chips": [
+              "Every recorded event"
+            ],
+            "links": 7,
+            "buttons": 1,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "CAPTION",
+            "cls": "w1f4-action-caption",
+            "text": "Action history",
+            "sw": 89,
+            "cw": 22,
+            "sh": 42,
+            "ch": 24
+          },
+          {
+            "tag": "CODE",
+            "cls": "action-ref",
+            "text": "3ba8911e-bb7d-4f3a-9082-009456700db3",
+            "sw": 257,
+            "cw": 86,
+            "sh": 21,
+            "ch": 21
+          },
+          {
+            "tag": "CODE",
+            "cls": "action-ref",
+            "text": "4902825c-c650-472f-b471-808e9be170fd",
+            "sw": 257,
+            "cw": 86,
+            "sh": 21,
+            "ch": 21
+          }
+        ],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Event",
+              "Meaning"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "action-history",
+      "case": "all",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/history",
+      "mock_hash": "#/action-history",
+      "app_image": "action-history-all-390-app.png",
+      "mock_image": "action-history-all-390-mock.png",
+      "app": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 16,
+            "y": 327,
+            "w": 358,
+            "h": 431,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Event",
+              "Meaning",
+              "Recorded",
+              "Select"
+            ],
+            "chips": [
+              "Every recorded event"
+            ],
+            "links": 7,
+            "buttons": 1,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "CAPTION",
+            "cls": "w1f4-action-caption",
+            "text": "Action history",
+            "sw": 89,
+            "cw": 22,
+            "sh": 42,
+            "ch": 24
+          },
+          {
+            "tag": "CODE",
+            "cls": "action-ref",
+            "text": "3ba8911e-bb7d-4f3a-9082-009456700db3",
+            "sw": 257,
+            "cw": 86,
+            "sh": 21,
+            "ch": 21
+          },
+          {
+            "tag": "CODE",
+            "cls": "action-ref",
+            "text": "4902825c-c650-472f-b471-808e9be170fd",
+            "sw": 257,
+            "cw": 86,
+            "sh": 21,
+            "ch": 21
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 576,
+            "cw": 318,
+            "panel": "Action history"
+          }
+        ],
+        "pSizes": {
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Event",
+              "Meaning"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1015,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "action-history",
+      "case": "event-failed-stale",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/history?event_id=b18bab92-394a-43b9-a5a1-611ec4fae41d",
+      "mock_hash": "#/action-history",
+      "app_image": "action-history-event-failed-stale-1440-app.png",
+      "mock_image": "action-history-event-failed-stale-1440-mock.png",
+      "app": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 248,
+            "y": 248,
+            "w": 1160,
+            "h": 362,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Event",
+              "Meaning",
+              "Recorded",
+              "Select"
+            ],
+            "chips": [
+              "Earlier version, kept for the record"
+            ],
+            "links": 7,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "CODE",
+            "cls": "action-ref",
+            "text": "b18bab92-394a-43b9-a5a1-611ec4fae41d",
+            "sw": 257,
+            "cw": 86,
+            "sh": 21,
+            "ch": 21
+          },
+          {
+            "tag": "CAPTION",
+            "cls": "w1f4-action-caption",
+            "text": "Action history",
+            "sw": 89,
+            "cw": 22,
+            "sh": 42,
+            "ch": 24
+          }
+        ],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Event",
+              "Meaning"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "action-history",
+      "case": "event-failed-stale",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/history?event_id=b18bab92-394a-43b9-a5a1-611ec4fae41d",
+      "mock_hash": "#/action-history",
+      "app_image": "action-history-event-failed-stale-390-app.png",
+      "mock_image": "action-history-event-failed-stale-390-mock.png",
+      "app": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 16,
+            "y": 327,
+            "w": 358,
+            "h": 442,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Event",
+              "Meaning",
+              "Recorded",
+              "Select"
+            ],
+            "chips": [
+              "Earlier version, kept for the record"
+            ],
+            "links": 7,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "CODE",
+            "cls": "action-ref",
+            "text": "b18bab92-394a-43b9-a5a1-611ec4fae41d",
+            "sw": 257,
+            "cw": 86,
+            "sh": 21,
+            "ch": 21
+          },
+          {
+            "tag": "CAPTION",
+            "cls": "w1f4-action-caption",
+            "text": "Action history",
+            "sw": 89,
+            "cw": 22,
+            "sh": 42,
+            "ch": 24
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 996,
+            "cw": 318,
+            "panel": "Action history"
+          }
+        ],
+        "pSizes": {
+          "10px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Event",
+              "Meaning"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1015,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "action-history",
+      "case": "recorded-at",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/history?recorded_at=2026-11-01T00:30:00%2B00:00",
+      "mock_hash": "#/action-history",
+      "app_image": "action-history-recorded-at-1440-app.png",
+      "mock_image": "action-history-recorded-at-1440-mock.png",
+      "app": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 248,
+            "y": 248,
+            "w": 1160,
+            "h": 304,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Event",
+              "Meaning",
+              "Recorded",
+              "Select"
+            ],
+            "chips": [
+              "Earlier version, kept for the record"
+            ],
+            "links": 5,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "CODE",
+            "cls": "action-ref",
+            "text": "152243eb-3583-40f3-8e31-f750347139b7",
+            "sw": 257,
+            "cw": 86,
+            "sh": 21,
+            "ch": 21
+          },
+          {
+            "tag": "CAPTION",
+            "cls": "w1f4-action-caption",
+            "text": "Action history",
+            "sw": 89,
+            "cw": 22,
+            "sh": 42,
+            "ch": 24
+          }
+        ],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Event",
+              "Meaning"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "action-history",
+      "case": "recorded-at",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/history?recorded_at=2026-11-01T00:30:00%2B00:00",
+      "mock_hash": "#/action-history",
+      "app_image": "action-history-recorded-at-390-app.png",
+      "mock_image": "action-history-recorded-at-390-mock.png",
+      "app": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 16,
+            "y": 327,
+            "w": 358,
+            "h": 423,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Event",
+              "Meaning",
+              "Recorded",
+              "Select"
+            ],
+            "chips": [
+              "Earlier version, kept for the record"
+            ],
+            "links": 5,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "CODE",
+            "cls": "action-ref",
+            "text": "152243eb-3583-40f3-8e31-f750347139b7",
+            "sw": 257,
+            "cw": 86,
+            "sh": 21,
+            "ch": 21
+          },
+          {
+            "tag": "CAPTION",
+            "cls": "w1f4-action-caption",
+            "text": "Action history",
+            "sw": 89,
+            "cw": 22,
+            "sh": 42,
+            "ch": 24
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 678,
+            "cw": 318,
+            "panel": "Action history"
+          }
+        ],
+        "pSizes": {
+          "10px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Event",
+              "Meaning"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1015,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "action-history",
+      "case": "selector-conflict",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/history?event_id=152243eb-3583-40f3-8e31-f750347139b7&recorded_at=2026-11-01T00:30:00%2B00:00",
+      "mock_hash": "#/action-history",
+      "app_image": "action-history-selector-conflict-1440-app.png",
+      "mock_image": "action-history-selector-conflict-1440-mock.png",
+      "app": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 248,
+            "y": 427,
+            "w": 1160,
+            "h": 96,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Action",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Event",
+              "Meaning"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "action-history",
+      "case": "selector-conflict",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/history?event_id=152243eb-3583-40f3-8e31-f750347139b7&recorded_at=2026-11-01T00:30:00%2B00:00",
+      "mock_hash": "#/action-history",
+      "app_image": "action-history-selector-conflict-390-app.png",
+      "mock_image": "action-history-selector-conflict-390-mock.png",
+      "app": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 16,
+            "y": 583,
+            "w": 358,
+            "h": 96,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Action",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Event",
+              "Meaning"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1015,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "action-plan",
+      "case": "pre-plan-s601b",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/plan",
+      "mock_hash": "#/action-plan",
+      "app_image": "action-plan-pre-plan-s601b-1440-app.png",
+      "mock_image": "action-plan-pre-plan-s601b-1440-mock.png",
+      "app": {
+        "titles": [
+          "Success criteria"
+        ],
+        "panels": [
+          {
+            "title": "Success criteria",
+            "x": 248,
+            "y": 353,
+            "w": 1160,
+            "h": 123,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan*",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Success criteria"
+        ],
+        "panels": [
+          {
+            "title": "Success criteria",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 287,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Rule"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan*",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "action-plan",
+      "case": "pre-plan-s601b",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/plan",
+      "mock_hash": "#/action-plan",
+      "app_image": "action-plan-pre-plan-s601b-390-app.png",
+      "mock_image": "action-plan-pre-plan-s601b-390-mock.png",
+      "app": {
+        "titles": [
+          "Success criteria"
+        ],
+        "panels": [
+          {
+            "title": "Success criteria",
+            "x": 16,
+            "y": 493,
+            "w": 358,
+            "h": 156,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan*",
+              "Application",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Success criteria"
+        ],
+        "panels": [
+          {
+            "title": "Success criteria",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 358,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Rule"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1015,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan*",
+              "Execution",
+              "Evidence",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "action-evidence",
+      "case": "pre-plan-s601b",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/evidence",
+      "mock_hash": "#/action-evidence",
+      "app_image": "action-evidence-pre-plan-s601b-1440-app.png",
+      "mock_image": "action-evidence-pre-plan-s601b-1440-mock.png",
+      "app": {
+        "titles": [
+          "Evidence requirements"
+        ],
+        "panels": [
+          {
+            "title": "Evidence requirements",
+            "x": 248,
+            "y": 410,
+            "w": 1160,
+            "h": 123,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application",
+              "Evidence*",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Evidence requirements"
+        ],
+        "panels": [
+          {
+            "title": "Evidence requirements",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 262,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Evidence set",
+              "Status"
+            ],
+            "chips": [
+              "Available",
+              "Provisional",
+              "Incomplete"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution",
+              "Evidence*",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "action-evidence",
+      "case": "pre-plan-s601b",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/evidence",
+      "mock_hash": "#/action-evidence",
+      "app_image": "action-evidence-pre-plan-s601b-390-app.png",
+      "mock_image": "action-evidence-pre-plan-s601b-390-mock.png",
+      "app": {
+        "titles": [
+          "Evidence requirements"
+        ],
+        "panels": [
+          {
+            "title": "Evidence requirements",
+            "x": 16,
+            "y": 526,
+            "w": 358,
+            "h": 139,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Battery reserve trial",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Plan",
+              "Application",
+              "Evidence*",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Evidence requirements"
+        ],
+        "panels": [
+          {
+            "title": "Evidence requirements",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 262,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Evidence set",
+              "Status"
+            ],
+            "chips": [
+              "Available",
+              "Provisional",
+              "Incomplete"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1015,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-048 · Generator policy review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Plan",
+              "Execution",
+              "Evidence*",
+              "Verification",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

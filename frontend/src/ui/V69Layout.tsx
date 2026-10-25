@@ -99,11 +99,15 @@ export function MetricHeader({ cells, label, data }: { cells: [ReactNode, ReactN
 }
 
 /** The mock's `.key-values`: term left, value right. */
-export function KeyValues({ rows, label }: { rows: [ReactNode, ReactNode, string?][]; label?: string }) {
+/**
+ * post-W6 shell Q23: a row marked `wide` (a long free-text value) puts its value on its own full-width line under the
+ * term, still right-aligned, so long stored values do not wrap into a half-width column.
+ */
+export function KeyValues({ rows, label }: { rows: [ReactNode, ReactNode, string?, boolean?][]; label?: string }) {
   return (
     <dl className="v69-key-values" aria-label={label}>
-      {rows.map(([term, value, key], index) => (
-        <div key={key ?? index} data-key-value={key}>
+      {rows.map(([term, value, key, wide], index) => (
+        <div key={key ?? index} data-key-value={key} data-key-value-wide={wide ? "" : undefined}>
           <dt>{term}</dt>
           <dd>{value}</dd>
         </div>

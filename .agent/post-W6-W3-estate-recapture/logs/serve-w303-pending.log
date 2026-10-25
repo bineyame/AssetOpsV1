@@ -1,0 +1,7 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\assef\Bineyame\AssetOpsV1-review6
+plugins: anyio-4.15.1, xdist-3.8.0
+collected 1 item
+
+.agent\W3-03-evidence\test_serve_portfolio.py SERVE db=assetops_w3estate_portfolio_test frozen=2026-10-30T09:03:00+00:00 sites=['COLD-LAB-001', 'EV-LAB-001', 'EV-LAB-002', 'KOBO-001'] router=main

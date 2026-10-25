@@ -1,0 +1,64 @@
+[
+ {
+  "screen": "cold-action",
+  "case": "all-open",
+  "width": "1440",
+  "h1": "ACT-000001 · Witness automatic-start test",
+  "titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "panels": [
+   {
+    "t": "Declared outcome criteria",
+    "h": 292,
+    "openDetails": 0
+   },
+   {
+    "t": "Related activity",
+    "h": 168,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 0,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Actions"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/COLD-LAB-001/actions/0ae3398b-f434-4e1c-a9e7-e30d11420775/verification"
+ },
+ {
+  "screen": "cold-action",
+  "case": "all-open",
+  "width": "390",
+  "h1": "ACT-000001 · Witness automatic-start test",
+  "titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "panels": [
+   {
+    "t": "Declared outcome criteria",
+    "h": 433,
+    "openDetails": 0
+   },
+   {
+    "t": "Related activity",
+    "h": 272,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 0,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Actions"
+  ],
+  "headerH": 133,
+  "url": "http://localhost:5185/sites/COLD-LAB-001/actions/0ae3398b-f434-4e1c-a9e7-e30d11420775/verification"
+ }
+]

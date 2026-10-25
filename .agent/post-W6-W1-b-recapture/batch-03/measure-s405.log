@@ -1,0 +1,4 @@
+financials priced-current 1440 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"What happened → wh=347; Assumptions in use=275; Trade-offs and exc=393"}
+financials priced-current 390 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"What happened → wh=631; Assumptions in use=308; Trade-offs and exc=413"}
+assumptions single-price 1440 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"Financial assumpti=539; Impact preview=256; Interpretation his=681"}
+assumptions single-price 390 {"ox":0,"tabs":1,"r383":0,"after":false,"rail":["Sites"],"p":"Financial assumpti=855; Impact preview=256; Interpretation his=1068"}

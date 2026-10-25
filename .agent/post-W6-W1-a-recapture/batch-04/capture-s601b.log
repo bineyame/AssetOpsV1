@@ -1,0 +1,15 @@
+chrome pid 16192
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/939c8cb4-5dcc-40b1-b70d-74a78aeaae09/recommendation?revision_id=5a4a1238-3723-423d-bb1e-8e94a1105f28: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-accepted 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/recommendation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-accepted 1440: mock rendered
+PASS  recommendation-accepted 1440: same panel count  {"app":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"],"mock":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"]}
+PASS  recommendation-accepted 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/939c8cb4-5dcc-40b1-b70d-74a78aeaae09/recommendation?revision_id=5a4a1238-3723-423d-bb1e-8e94a1105f28: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-accepted 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/recommendation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-accepted 390: mock rendered
+PASS  recommendation-accepted 390: same panel count  {"app":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"],"mock":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"]}
+PASS  recommendation-accepted 390: no app page overflow  {"overflowX":0}
+
+12/12 claims passed; evidence in .agent/post-W6-W1-a-recapture/batch-04/s601b

@@ -64,8 +64,8 @@ export const REVIEWED_EXEMPTIONS = [
     file: 'frontend/src/ui/UnavailableEntry.tsx',
     constName: 'IN_PAGE_UNAVAILABLE_STATUS',
     text: 'Not available yet',
-    decision: 'D-2026-10-17-f5-subtabs-and-contact; W2-05a Run 8 rulings (review r1) M1, L2',
-    reason: 'The status of an unbuilt v69 in-page tab or lens chip (the rail rule extended to the named rows), and of the W2-05a EV readiness unavailable destinations: Financials and Assumptions (Next step cells) and the attention row 2 Investigation action; it describes a destination this build has not made, not a missing claim about a site, so it is not a mock_gaps placement.',
+    decision: 'D-2026-10-17-f5-subtabs-and-contact; W2-05a Run 8 rulings (review r1) M1, L2; post-W6 W2-EV rulings Q1, Q21',
+    reason: 'The status of an unbuilt v69 in-page tab or lens chip (the rail rule extended to the named rows), and of the W2-05a EV readiness attention row 2 Investigation action (Financials and Assumptions are live links since post-W6 W2-EV); it describes a destination this build has not made, not a missing claim about a site, so it is not a mock_gaps placement.',
   },
   {
     file: 'frontend/src/sites/siteWorkCases.tsx',

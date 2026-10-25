@@ -6,9 +6,12 @@
 import type {
   EstateDomain,
   EstatePortfolioBody,
+  EstatePortfolioExclusion,
   EstatePortfolioStatus,
+  EstateSiteState,
   EstateValueCardKey,
 } from "./estateClient";
+import { hasReasonWord, reasonText } from "./estateFinancialsWords";
 
 export const PORTFOLIO_PATH = "/portfolio";
 export const PORTFOLIO_TITLE = "Portfolio Value & Operations";
@@ -20,7 +23,7 @@ export const PRIORITY_SUBTITLE = "Selected Findings across accessible Sites; pri
 export const OBJECTIVES_PANEL = "Objectives across the estate";
 export const OBJECTIVES_SUBTITLE = "Operating condition, not a composite health score";
 export const OBJECTIVES_FOOTNOTE =
-  "Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured. Site detail is unavailable for these cells.";
+  "Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured.";
 export const EVIDENCE_ASIDE = "Evidence that would change a decision";
 export const OPPORTUNITY_PANEL = "An opportunity beyond reducing cost";
 export const PROGRESS_PANEL = "What changed in this review";
@@ -105,3 +108,53 @@ export const VALUE_OWNERSHIP =
   "Each consequence remains owned by its source Site, category, period, currency and assumption. Exclusions and provenance are shown with the selected lines.";
 export const SCOPE_NOTICE =
   "The selected windows share one request; their underlying event periods may differ. No monthly extrapolation or asset valuation is established.";
+
+/**
+ * Post-W6 W3-estate Q13 (R307): the scope disclosure's plain words. Coverage states follow the estate Site state
+ * words (UNKNOWN reads `Not yet assessed`); an exclusion's reason codes use the money reason dictionary, and an
+ * exclusion with any code outside it reads `Excluded from comparison` with the raw codes kept in a detail.
+ */
+export const ASSESSMENT_IDS = "Assessment IDs";
+/** Q10: an EV Site has no Backup objective target; any other matrix cell without a destination. */
+export const NO_CONFIGURED_OBJECTIVE = "No configured objective";
+export const OBJECTIVE_DETAIL_UNAVAILABLE = "Site detail unavailable";
+export const NO_SELECTED_ASSESSMENT = "No selected assessment";
+export const EXCLUDED_FROM_COMPARISON = "Excluded from comparison";
+
+export const COVERAGE_STATE_WORDS: Readonly<Record<EstateSiteState, string>> = {
+  CURRENT: "Current",
+  PENDING_RECOMPUTE: "New evidence is being assessed",
+  STALE_SOURCE: "May miss newer readings",
+  HISTORICAL: "Earlier evidence cutoff",
+  UNKNOWN: "Not yet assessed",
+  NOT_APPLICABLE: "Not applicable",
+};
+
+export function coverageStateWords(state: string): string {
+  return COVERAGE_STATE_WORDS[state as EstateSiteState] ?? "Not yet assessed";
+}
+
+/** `{n} selected assessment(s)` or `No selected assessment`. */
+export function selectedAssessmentWords(count: number): string {
+  if (count === 0) return NO_SELECTED_ASSESSMENT;
+  return `${count} selected ${count === 1 ? "assessment" : "assessments"}`;
+}
+
+export function exclusionReasonWords(exclusion: EstatePortfolioExclusion): string {
+  const codes = exclusion.reason_codes;
+  if (codes.length === 0 || !codes.every(hasReasonWord)) return EXCLUDED_FROM_COMPARISON;
+  return reasonText(codes);
+}
+
+const LINE_DOMAIN_WORD: Readonly<Record<string, string>> = {
+  mini_grid: "Mini-grid line",
+  cold_chain: "Cold-chain line",
+  ev_charging: "EV charging line",
+};
+
+/** The Site that owns an excluded line (from the selected lines), else its domain, else a plain fallback. */
+export function exclusionLineLabel(lineKey: string, body: Pick<EstatePortfolioBody, "selected_lines">): string {
+  const line = body.selected_lines.find((l) => l.line_key === lineKey);
+  if (line !== undefined && line.site_name.trim() !== "") return line.site_name;
+  return LINE_DOMAIN_WORD[lineKey.split(":")[0]] ?? "Consequence line";
+}

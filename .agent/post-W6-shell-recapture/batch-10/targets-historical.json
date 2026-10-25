@@ -1,0 +1,22 @@
+[
+ {
+  "id": "findings",
+  "case": "historical",
+  "url": "http://localhost:5181/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z"
+ },
+ {
+  "id": "findings-cost",
+  "case": "historical",
+  "url": "http://localhost:5181/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z"
+ },
+ {
+  "id": "findings-risks",
+  "case": "historical",
+  "url": "http://localhost:5181/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z"
+ },
+ {
+  "id": "findings-opportunities",
+  "case": "historical",
+  "url": "http://localhost:5181/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z"
+ }
+]

@@ -1,0 +1,26 @@
+chrome pid 13908
+OK   ev-findings-inventory-check-window-1440 h1="EV charging lab" overflowX=0 panels=1 console=0
+  Findings at this site rows160 1440: real=159 synthetic=1059 verified=true fields=35/35 clipped=0 open=1059 openClipped=0 doc=0
+  Findings at this site rows160-gap 1440: real=159 synthetic=1092 verified=true fields=35/35 clipped=0 open=1092 openClipped=0 doc=0
+  Findings at this site varcells160 1440: real=159 synthetic=429 verified=true fields=5/5 clipped=0 open=429 openClipped=0 doc=0
+  Findings at this site varcells160-gap 1440: real=159 synthetic=462 verified=true fields=5/5 clipped=0 open=462 openClipped=0 doc=0
+  Findings at this site firstcell160 1440: real=159 synthetic=429 verified=true fields=5/5 clipped=0 open=429 openClipped=0 doc=0
+OK   ev-findings-inventory-check-window-390 h1="EV charging lab" overflowX=0 panels=1 console=0
+  Findings at this site rows160 390: real=159 synthetic=699 verified=true fields=35/35 clipped=0 open=699 openClipped=0 doc=0
+  Findings at this site rows160-gap 390: real=159 synthetic=781 verified=true fields=35/35 clipped=0 open=781 openClipped=0 doc=0
+  Findings at this site varcells160 390: real=159 synthetic=699 verified=true fields=5/5 clipped=0 open=699 openClipped=0 doc=0
+  Findings at this site varcells160-gap 390: real=159 synthetic=781 verified=true fields=5/5 clipped=0 open=781 openClipped=0 doc=0
+  Findings at this site firstcell160 390: real=159 synthetic=699 verified=true fields=5/5 clipped=0 open=699 openClipped=0 doc=0
+OK   ev-evidence-analysis-interrupted-1440 h1="EV charging lab" overflowX=0 panels=2 console=0
+  Accepted records behind the conclusions rows160 1440: real=399 synthetic=1344 verified=true fields=30/30 clipped=0 open=5905 openClipped=0 doc=0
+  Accepted records behind the conclusions rows160-gap 1440: real=399 synthetic=1377 verified=true fields=30/30 clipped=0 open=5938 openClipped=0 doc=0
+  Accepted records behind the conclusions varcells160 1440: real=399 synthetic=1344 verified=true fields=10/10 clipped=0 open=5905 openClipped=0 doc=0
+  Accepted records behind the conclusions varcells160-gap 1440: real=399 synthetic=1377 verified=true fields=10/10 clipped=0 open=5938 openClipped=0 doc=0
+  Accepted records behind the conclusions firstcell160 1440: real=399 synthetic=562 verified=true fields=5/5 clipped=0 open=5124 openClipped=0 doc=0
+OK   ev-evidence-analysis-interrupted-390 h1="EV charging lab" overflowX=0 panels=2 console=0
+  Accepted records behind the conclusions rows160 390: real=357 synthetic=1032 verified=true fields=30/30 clipped=0 open=10365 openClipped=0 doc=0
+  Accepted records behind the conclusions rows160-gap 390: real=357 synthetic=1115 verified=true fields=30/30 clipped=0 open=10447 openClipped=0 doc=0
+  Accepted records behind the conclusions varcells160 390: real=357 synthetic=655 verified=true fields=10/10 clipped=0 open=9987 openClipped=0 doc=0
+  Accepted records behind the conclusions varcells160-gap 390: real=357 synthetic=737 verified=true fields=10/10 clipped=0 open=10070 openClipped=0 doc=0
+  Accepted records behind the conclusions firstcell160 390: real=357 synthetic=577 verified=true fields=5/5 clipped=0 open=9909 openClipped=0 doc=0
+done 4 records

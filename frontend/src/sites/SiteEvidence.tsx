@@ -62,6 +62,8 @@ export interface SiteEvidenceProps {
   profile?: DomainPresentationProfile | null;
   /** S3-02b: the Performance > Dispatch address of one pinned assessment revision. */
   assessmentHref?: (day: string, revisionId: string) => string;
+  /** post-W6 shell R170: the selected Site's stored timezone for the ledger records' measured time. */
+  timezone?: string | null;
 }
 
 /** Shown for a rejection when the backend serves no plain reason; never its code. */
@@ -94,6 +96,7 @@ export function SiteEvidence({
   analytics,
   profile = null,
   assessmentHref,
+  timezone = null,
 }: SiteEvidenceProps) {
   const [params, setParams] = useSearchParams();
   const from = params.get("from");
@@ -188,6 +191,7 @@ export function SiteEvidence({
         gatewayHealth={client.gatewayHealth}
         claimLimit={client.claimLimit}
         assessmentHref={assessmentHref}
+        timezone={timezone}
       />
     );
   }

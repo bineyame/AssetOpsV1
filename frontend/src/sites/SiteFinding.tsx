@@ -40,7 +40,10 @@ import type {
   FindingDetailBody,
   FindingReadResult,
 } from "./findingClient";
-import { findingRefusalWords, LocalViews, localView, localViewSearch, type LocalView } from "./findingPresentation";
+import { findingRefusalWords, localView, localViewSearch, type LocalView } from "./findingPresentation";
+import type { FinancialReadResult, FinancialsClient, FindingFinancialsBody } from "./financialsClient";
+import { consequenceWords } from "./FindingConsequence";
+import { findingLocalPeriod, findingLocalTime } from "./findingTime";
 import {
   findingCurrentnessWords,
   unconfirmedCause,
@@ -73,7 +76,16 @@ export interface SiteFindingLinks {
   history?: (revisionId: string | null) => string;
   /** S6-01b: this Finding's Recommendation child view, with the exact version selected. */
   recommendation?: (revisionId: string | null) => string;
+  /** post-W6 W1-a Q14 / Q15: this Finding's Alternatives at the exact resolved version. */
+  alternatives?: (revisionId: string) => string;
+  /** post-W6 W1-a Q8 / R185: Site Financials > Assumptions. */
+  assumptions?: string;
+  /** post-W6 W1-a Q12 / R189: Site Financials overview for this Finding at one exact version. */
+  financials?: (revisionId: string) => string;
 }
+
+/** post-W6 W1-a Q12: the one money read this page makes, for the exact resolved Finding version. */
+export type FindingCostClient = Pick<FinancialsClient, "getFindingFinancials">;
 
 export function SiteFinding({
   siteId,
@@ -81,12 +93,18 @@ export function SiteFinding({
   client,
   links,
   onTitle,
+  timeZone,
+  financials,
 }: {
   siteId: string;
   findingId: string;
   client: FindingClient;
   links: SiteFindingLinks;
   onTitle?: (title: string) => void;
+  /** post-W6 W1-a Q10: the Site's timezone for the status period; missing or invalid falls back to UTC visibly. */
+  timeZone?: string | null;
+  /** post-W6 W1-a Q12: when given, one exact-revision cost read per loaded Finding version. */
+  financials?: FindingCostClient;
 }) {
   const [params] = useSearchParams();
   const revisionId = params.get("revision_id");
@@ -106,6 +124,8 @@ export function SiteFinding({
     };
   }, [client, siteId, findingId, revisionId]);
 
+  const resolvedRevision = read?.status === "loaded" ? read.value.selection.revision_id : null;
+  const cost = useFindingCost(financials, siteId, findingId, resolvedRevision);
   const title = read?.status === "loaded" ? titleOf(read.value) : "Finding";
   useEffect(() => {
     onTitle?.(title);
@@ -129,7 +149,6 @@ export function SiteFinding({
     // The Finding Analysis view (not one of the W1-F3 screens) keeps its answer card and technical panels.
     return (
       <section {...shared} aria-labelledby="site-finding-state-heading">
-        <LocalViews label={FINDING_VIEWS_LABEL} current={view} params={params} />
         <FindingAnswer body={body} links={links} view={view} params={params} />
         <StatusChips body={body} />
         <TechnicalDetail body={body} />
@@ -141,12 +160,11 @@ export function SiteFinding({
   // History and the record lists on Evidence.
   return (
     <div {...shared}>
-      <LocalViews label={FINDING_VIEWS_LABEL} current={view} params={params} />
-      <FindingStatusBar body={body} />
-      <WhatHappened body={body} links={links} />
-      <FindingMetrics body={body} />
+      <FindingStatusBar body={body} timeZone={timeZone} />
+      <WhatHappened body={body} links={links} timeZone={timeZone} />
+      <FindingMetrics body={body} cost={cost} links={links} />
       <div className="panel-pair">
-        <WhatLimits body={body} links={links} />
+        <WhatLimits body={body} links={links} timeZone={timeZone} />
         <WhatNext body={body} links={links} />
       </div>
       <WhereToLook body={body} links={links} params={params} />
@@ -463,10 +481,25 @@ function NextStep({ body, links }: { body: FindingDetailBody; links: SiteFinding
           Open the recommendation
         </Link>
       </p>
+      <AssumptionsLink links={links} />
     </div>
   ) : (
-    <p data-finding-recommendation-link="none">
-      No recorded next action. Nothing here asks you to change how the generator is operated.
+    <>
+      <p data-finding-recommendation-link="none">
+        No recorded next action. Nothing here asks you to change how the generator is operated.
+      </p>
+      <AssumptionsLink links={links} />
+    </>
+  );
+}
+
+/** post-W6 W1-a Q8 / Q13 (R185, R190): the one money link on the Finding, after the recommendation button. */
+function AssumptionsLink({ links }: { links: SiteFindingLinks }) {
+  return links.assumptions === undefined ? null : (
+    <p className="site-finding__foot-link">
+      <Link to={links.assumptions} data-finding-assumptions-link>
+        Inspect financial assumptions →
+      </Link>
     </p>
   );
 }
@@ -510,12 +543,13 @@ function StatusChips({ body }: { body: FindingDetailBody }) {
 }
 
 /** The mock's statusbar: the state, currentness, version and period badges in one line. */
-function FindingStatusBar({ body }: { body: FindingDetailBody }) {
+function FindingStatusBar({ body, timeZone }: { body: FindingDetailBody; timeZone?: string | null }) {
   const selected = body.revision;
   const currentness = findingCurrentnessWords(statusCode(body));
   return (
     <StatusBar items label="Finding status" data={{ "data-finding-statusbar": "" }}>
       {/* W1-F3 review H2: the mock's Priority and Confidence chips; no read assesses either yet. */}
+      {/* MOCK DEVIATION D1 (R390): the mock's Priority, Confidence, Claim and Lens chips have no stored read. */}
       <span className="badge badge--not-assessed" data-chip="priority" data-not-assessed>
         Priority: not assessed
       </span>
@@ -532,9 +566,53 @@ function FindingStatusBar({ body }: { body: FindingDetailBody }) {
         {versionWords(body)}
       </span>
       <span className="status-strip__spacer" />
-      <span data-chip="period">{periodWords(selected.episode.start, selected.episode.end)}</span>
+      <LocalPeriod start={selected.episode.start} end={selected.episode.end} timeZone={timeZone} />
     </StatusBar>
   );
+}
+
+/**
+ * post-W6 W1-a Q10 / R187: the status period in Site-local time, with both exact UTC instants in a closed
+ * "UTC time" detail. A missing or invalid Site timezone falls back to UTC and says so. Stored and query instants
+ * are unchanged.
+ */
+function LocalPeriod({ start, end, timeZone }: { start: string; end: string; timeZone?: string | null }) {
+  const local = findingLocalPeriod(start, end, timeZone);
+  if (local === null) return <span data-chip="period">{periodWords(start, end)}</span>;
+  return (
+    <span className="site-finding__period" data-chip="period" data-period-zone={local.zone} data-period-site-zone={local.siteZone ? "site" : "fallback"}>
+      <span data-period-local>
+        {local.text}
+        {local.siteZone ? "" : ` ${ZONE_UNAVAILABLE}`}
+      </span>{" "}
+      <details className="site-finding__period-utc" data-period-utc>
+        <summary>UTC time</summary>
+        <span>
+          <time dateTime={local.startUtc}>{local.startUtc}</time> to <time dateTime={local.endUtc}>{local.endUtc}</time>
+        </span>
+      </details>
+    </span>
+  );
+}
+
+/** Architect ruling 3: one suffix for a missing and an unresolvable Site zone, beside the UTC fallback period. */
+const ZONE_UNAVAILABLE = "(site time zone unavailable; UTC shown)";
+
+/**
+ * Architect ruling 2 (Q10): the episode period as prose, in Site time (the same `findingLocalPeriod` result as the
+ * status period). An unformattable instant shows the explicitly labelled UTC period.
+ */
+function periodText(start: string, end: string, timeZone: string | null | undefined): string {
+  const local = findingLocalPeriod(start, end, timeZone);
+  if (local === null) return periodWords(start, end);
+  return local.siteZone ? local.text : `${local.text} ${ZONE_UNAVAILABLE}`;
+}
+
+/** The episode end as prose in Site time (same conversion as the period); labelled UTC when unformattable. */
+function endText(end: string, timeZone: string | null | undefined): string {
+  const t = findingLocalTime(end, timeZone);
+  if (t === null) return `${stamp(end)} UTC`;
+  return `${t.day} ${t.clock} ${t.zone}${t.siteZone ? "" : ` ${ZONE_UNAVAILABLE}`}`;
 }
 
 function periodWords(start: string, end: string): string {
@@ -572,15 +650,15 @@ function portionsOf(body: FindingDetailBody): Portion[] {
   return [...spans, ...others].sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
 }
 
-function runWords(body: FindingDetailBody): string {
+function runWords(body: FindingDetailBody, timeZone: string | null | undefined): string {
   const { start, end } = body.revision.episode;
   const stops = (body.revision.claim.continuity ?? []).flatMap((gap) => gap.stops ?? []).length;
   return stops > 0
-    ? `The generator ran between ${periodWords(start, end)}, with ${stops === 1 ? "one short stop" : `${stops} short stops`} recorded in that time.`
-    : `The generator stayed on from ${periodWords(start, end)}.`;
+    ? `The generator ran between ${periodText(start, end, timeZone)}, with ${stops === 1 ? "one short stop" : `${stops} short stops`} recorded in that time.`
+    : `The generator stayed on from ${periodText(start, end, timeZone)}.`;
 }
 
-function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFindingLinks }) {
+function WhatHappened({ body, links, timeZone }: { body: FindingDetailBody; links: SiteFindingLinks; timeZone?: string | null }) {
   const [params, setParams] = useSearchParams();
   const selected = body.revision;
   const portions = portionsOf(body);
@@ -605,7 +683,15 @@ function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFin
     <Panel
       heading="What happened"
       headingId="site-finding-happened-heading"
-      description={`Period covered · ${periodWords(selected.episode.start, selected.episode.end)} · ${durationText(period)}`}
+      description={`Period covered · ${periodText(selected.episode.start, selected.episode.end, timeZone)} · ${durationText(period)}`}
+      actions={
+        // post-W6 W1-a Q11 / R188: the panel-head link to this Finding's Evidence at the selected version.
+        links.findingEvidence ? (
+          <Link to={links.findingEvidence(body.selection.revision_id)} data-finding-inspect-evidence>
+            Inspect evidence →
+          </Link>
+        ) : undefined
+      }
     >
       <BigClaim data={{ "data-finding-claim": "" }}>{headlineText(body, words)}</BigClaim>
       <div className="site-finding__state v69-state-line" data-finding-state>
@@ -613,12 +699,12 @@ function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFin
       </div>
       <p className="v69-prose site-finding__sentence" data-finding-sentence>
         {supported
-          ? `${runWords(body)} For ${durationText(avoidable)} of that time, solar power and the battery reported enough capacity to meet site demand, so the generator was possibly avoidable.`
+          ? `${runWords(body, timeZone)} For ${durationText(avoidable)} of that time, solar power and the battery reported enough capacity to meet site demand, so the generator was possibly avoidable.`
           : selected.lifecycle === "MERGED"
-            ? `This Finding covered ${periodWords(selected.episode.start, selected.episode.end)} before it was joined into an earlier Finding.`
+            ? `This Finding covered ${periodText(selected.episode.start, selected.episode.end, timeZone)} before it was joined into an earlier Finding.`
             : selected.lifecycle === "UNCONFIRMED"
-              ? `This Finding covers ${periodWords(selected.episode.start, selected.episode.end)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} cannot decide whether any of that time was possibly avoidable.`
-              : `This Finding covers ${periodWords(selected.episode.start, selected.episode.end)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} of that period counts no possibly avoidable time.`}
+              ? `This Finding covers ${periodText(selected.episode.start, selected.episode.end, timeZone)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} cannot decide whether any of that time was possibly avoidable.`
+              : `This Finding covers ${periodText(selected.episode.start, selected.episode.end, timeZone)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} of that period counts no possibly avoidable time.`}
       </p>
       {portions.length > 0 ? (
         <div className="site-finding__timeline">
@@ -677,8 +763,69 @@ function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFin
   );
 }
 
-/** The mock's four metric cards: the separate minute counts and the fuel and cost slot this page does not fill. */
-function FindingMetrics({ body }: { body: FindingDetailBody }) {
+/**
+ * post-W6 W1-a Q12 / R189: the state of the one exact-revision cost read. `key` is the Finding version it answers;
+ * a result whose key is not the current version is never shown, so a stale answer cannot replace a new selection.
+ */
+type FindingCost =
+  | { status: "none" }
+  | { status: "loading" }
+  | { status: "read"; result: FinancialReadResult<FindingFinancialsBody>; revisionId: string };
+
+function useFindingCost(client: FindingCostClient | undefined, siteId: string, findingId: string, revisionId: string | null): FindingCost {
+  const [answer, setAnswer] = useState<{ key: string; result: FinancialReadResult<FindingFinancialsBody> } | null>(null);
+  const key = revisionId === null ? null : `${siteId}/${findingId}/${revisionId}`;
+  useEffect(() => {
+    // Never issue the read without a resolved Finding version.
+    if (client === undefined || key === null || revisionId === null) return;
+    let active = true;
+    void client.getFindingFinancials(siteId, findingId, revisionId).then(
+      (result) => {
+        if (active) setAnswer({ key, result });
+      },
+      () => {
+        if (active) setAnswer({ key, result: { status: "unavailable", message: null } });
+      },
+    );
+    return () => {
+      active = false;
+    };
+  }, [client, siteId, findingId, revisionId, key]);
+  if (client === undefined || key === null || revisionId === null) return { status: "none" };
+  if (answer === null || answer.key !== key) return { status: "loading" };
+  return { status: "read", result: answer.result, revisionId };
+}
+
+/** The cost card's words: an amount only for the loaded exact-version current PRICED answer. */
+function costCard(cost: FindingCost): { priced: true; value: string; revisionId: string } | { priced: false; state: string; note: string } {
+  if (cost.status === "none") return { priced: false, state: "none", note: "No fuel or money estimate is made on this page" };
+  if (cost.status === "loading") return { priced: false, state: "loading", note: "Reading the cost for this Finding version" };
+  const { result, revisionId } = cost;
+  if (result.status === "not_found") return { priced: false, state: "missing", note: "No cost is recorded for this Finding version" };
+  if (result.status !== "loaded") return { priced: false, state: "failed", note: "The cost for this Finding version could not be read" };
+  const body = result.value;
+  if (body.selection.revision_id.toLowerCase() !== revisionId.toLowerCase()) {
+    return { priced: false, state: "mismatch", note: "The cost read answered a different Finding version, so no amount is shown" };
+  }
+  const c = body.consequence;
+  if (c.state === "PRICED" && c.currentness === "CURRENT" && c.amount !== null && c.currency !== null) {
+    return { priced: true, value: `${c.amount.low} to ${c.amount.high} ${c.currency}`, revisionId };
+  }
+  if (c.state === "PRICED" && c.currentness !== "CURRENT") {
+    // Architect ruling 4: a priced answer that is not current is never shown as an amount, and the reason names it.
+    return { priced: false, state: c.state, note: pricedNotCurrentNote(c.currentness) };
+  }
+  return { priced: false, state: c.state, note: consequenceWords(c, false).label };
+}
+
+function pricedNotCurrentNote(currentness: string | null): string {
+  if (currentness === "STALE") return "The cost for this Finding version is out of date; no current amount is shown.";
+  return `The cost for this Finding version is not current (${(currentness ?? "unknown").toLowerCase().replace(/_/g, " ")}); no current amount is shown.`;
+}
+
+/** The mock's four metric cards: the separate minute counts and the cost card (post-W6 W1-a Q12). */
+function FindingMetrics({ body, cost, links }: { body: FindingDetailBody; cost: FindingCost; links: SiteFindingLinks }) {
+  const card = costCard(cost);
   const selected = body.revision;
   const avoidable = minutes(selected.minutes.candidate) ?? 0;
   const needed = minutes(selected.minutes.necessary) ?? 0;
@@ -706,19 +853,35 @@ function FindingMetrics({ body }: { body: FindingDetailBody }) {
         tone="muted"
         data={{ "data-finding-card": "INDETERMINATE" }}
       />
-      <MetricCard
-        label="Fuel and cost"
-        value="Not available"
-        note="No fuel or money estimate is made on this page"
-        tone="muted"
-        word
-        data={{ "data-finding-card": "MONEY" }}
-      />
+      {card.priced ? (
+        <MetricCard
+          label="Cost exposure"
+          value={card.value}
+          note="Bounded for this Finding version; see Financials."
+          link={
+            links.financials === undefined ? undefined : (
+              <Link to={links.financials(card.revisionId)} data-finding-cost-link>
+                Financials →
+              </Link>
+            )
+          }
+          data={{ "data-finding-card": "MONEY", "data-finding-cost": "priced" }}
+        />
+      ) : (
+        <MetricCard
+          label="Cost exposure"
+          value="Not available"
+          note={card.note}
+          tone="muted"
+          word
+          data={{ "data-finding-card": "MONEY", "data-finding-cost": card.state }}
+        />
+      )}
     </MetricCards>
   );
 }
 
-function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindingLinks }) {
+function WhatLimits({ body, links, timeZone }: { body: FindingDetailBody; links: SiteFindingLinks; timeZone?: string | null }) {
   const selected = body.revision;
   const groups = groupLimitations(selected.limitations);
   // Segment-level record gaps never reach a revision's limitations; the read classifies them (re-review C8).
@@ -743,7 +906,7 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
         ) : null}
         {selected.claim.end_reason === "SERIES_LIMIT" ? (
           <li data-finding-end-reason="SERIES_LIMIT">
-            This finding ends at {stamp(selected.episode.end)} UTC because later generator records could not be put in a
+            This finding ends at {endText(selected.episode.end, timeZone)} because later generator records could not be put in a
             proven time order, so later time is not judged and no current cost is shown.
           </li>
         ) : null}
@@ -781,6 +944,7 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
           </li>
         ) : null}
       </ul>
+      {/* MOCK DEVIATION D2 (R392): the closed "Access and review context" disclosure is extra, truthful context. */}
       <ShowAll name="finding-limits-context" summary="Access and review context">
         <ul className="site-finding__limits v69-prose" data-finding-limits-context>
           <li>Shown under the pilot&apos;s development access; sign-in and per-person access are not installed yet.</li>
@@ -795,11 +959,20 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
         {selected.lifecycle === "SUPPORTED" ? null : <LifecycleSentence body={body} />}
         <CouldChange body={body} />
       </div>
+      {/* post-W6 W1-a Q14 / R191: the mock's foot link, to this Finding's Alternatives at the resolved version. */}
+      {links.alternatives === undefined ? null : (
+        <p className="site-finding__foot-link">
+          <Link to={links.alternatives(body.selection.revision_id)} data-finding-limits-alternatives>
+            See analysis and alternatives →
+          </Link>
+        </p>
+      )}
     </Panel>
   );
 }
 
 /** finding:3 "What to do next". */
+/** MOCK DEVIATION D1 (R391): no stored next-step heading or policy text; the rule's own words stand in. */
 function WhatNext({ body, links }: { body: FindingDetailBody; links: SiteFindingLinks }) {
   return (
     <Panel heading="What to do next" headingId="site-finding-next-heading">
@@ -809,6 +982,9 @@ function WhatNext({ body, links }: { body: FindingDetailBody; links: SiteFinding
     </Panel>
   );
 }
+
+/** Related Findings shown inline up to this many; more sit behind a count disclosure (Q15 cap fallback). */
+const RELATED_INLINE_MAX = 2;
 
 /** finding:4: each destination with the exact selection, as the mock's attention list; exact references last. */
 function WhereToLook({ body, links, params }: { body: FindingDetailBody; links: SiteFindingLinks; params: URLSearchParams }) {
@@ -828,6 +1004,17 @@ function WhereToLook({ body, links, params }: { body: FindingDetailBody; links: 
     ...body.relations.merged_from.map((m) => ({ label: "Finding joined into this one", id: m.superseded_finding_id })),
     ...body.relations.merged_into.map((m) => ({ label: "Finding that carries this review", id: m.canonical_finding_id })),
   ];
+  const relatedList = (
+    <ul className="site-finding__inline">
+      {related.map((r) => (
+        <li key={`${r.label}-${r.id}`}>
+          <Link to={links.finding(r.id)} data-finding-related={r.id}>
+            {r.label} →
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
   const cited = selected.cited_evidence.length;
   const items: AttentionItem[] = [
     {
@@ -854,6 +1041,21 @@ function WhereToLook({ body, links, params }: { body: FindingDetailBody; links: 
         </Link>
       ),
     },
+    // post-W6 W1-a Q15 / R192: Alternatives sits between Evidence and History, at the exact version.
+    ...(links.alternatives
+      ? [
+          {
+            key: "alternatives",
+            title: "Alternatives",
+            body: "Other explanations and what would tell them apart.",
+            action: (
+              <Link to={links.alternatives(rev)} data-finding-alternatives-link>
+                Open Alternatives →
+              </Link>
+            ),
+          },
+        ]
+      : []),
     ...(links.history
       ? [
           {
@@ -886,21 +1088,20 @@ function WhereToLook({ body, links, params }: { body: FindingDetailBody; links: 
         </ul>
       ),
     },
+    // MOCK DEVIATION D1 (R393): no stored linked Action for the mock's "Linked action" item; Related Findings stand.
     {
       key: "related",
       title: "Related Findings",
       body: related.length === 0 ? "None recorded." : "Each opens with its own state.",
       action:
-        related.length === 0 ? undefined : (
-          <ul className="site-finding__inline">
-            {related.map((r) => (
-              <li key={`${r.label}-${r.id}`}>
-                <Link to={links.finding(r.id)} data-finding-related={r.id}>
-                  {r.label} →
-                </Link>
-              </li>
-            ))}
-          </ul>
+        related.length === 0 ? undefined : related.length > RELATED_INLINE_MAX ? (
+          // Q15 fallback (W1-a fix round M1): five long related rows exceed the closed Where-to-look-next cap, so more
+          // than RELATED_INLINE_MAX related Findings sit behind their count disclosure; every link stays keyboard-reachable.
+          <ShowAll name="finding-related" summary={`Show all ${related.length} related Findings`}>
+            {relatedList}
+          </ShowAll>
+        ) : (
+          relatedList
         ),
     },
   ];

@@ -1,0 +1,406 @@
+[
+ {
+  "name": "finding-history",
+  "variant": "history-5",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Revision history",
+    "h": 534
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 25,
+  "fields160": 25,
+  "relatedRowHs": [
+   16,
+   36,
+   36,
+   36,
+   16
+  ],
+  "title": "Revision history",
+  "versionScroll": {
+   "clientH": 400,
+   "scrollH": 557,
+   "overflowY": "auto",
+   "maxH": "400px",
+   "cueHidden": true,
+   "focusable": true
+  },
+  "panelH": 707,
+  "rowHs": [
+   98,
+   98,
+   98,
+   98,
+   98
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedAll": {
+   "panelH": 839,
+   "versionScroll": {
+    "clientH": 400,
+    "scrollH": 1095,
+    "overflowY": "auto",
+    "maxH": "400px",
+    "cueHidden": true,
+    "focusable": true
+   },
+   "clipped": 0,
+   "docOverflowX": 0
+  }
+ },
+ {
+  "name": "finding-history",
+  "variant": "history-5",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Revision history",
+    "h": 1036
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 25,
+  "fields160": 25,
+  "relatedRowHs": [
+   75,
+   75,
+   75,
+   75,
+   75
+  ],
+  "title": "Revision history",
+  "versionScroll": {
+   "clientH": 1000,
+   "scrollH": 2354,
+   "overflowY": "auto",
+   "maxH": "1000px",
+   "cueHidden": true,
+   "focusable": true
+  },
+  "panelH": 1644,
+  "rowHs": [
+   458,
+   458,
+   458,
+   458,
+   458
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedAll": {
+   "panelH": 1860,
+   "versionScroll": {
+    "clientH": 1000,
+    "scrollH": 4952,
+    "overflowY": "auto",
+    "maxH": "1000px",
+    "cueHidden": true,
+    "focusable": true
+   },
+   "clipped": 0,
+   "docOverflowX": 0
+  }
+ },
+ {
+  "name": "finding-history",
+  "variant": "history-real5-rel160",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Revision history",
+    "h": 534
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "fields160": 5,
+  "relatedRowHs": [
+   16,
+   36,
+   36,
+   36,
+   16
+  ],
+  "title": "Revision history",
+  "versionScroll": {
+   "clientH": 400,
+   "scrollH": 427,
+   "overflowY": "auto",
+   "maxH": "400px",
+   "cueHidden": true,
+   "focusable": true
+  },
+  "panelH": 707,
+  "rowHs": [
+   63,
+   79,
+   79,
+   63,
+   79
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedAll": {
+   "panelH": 839,
+   "versionScroll": {
+    "clientH": 400,
+    "scrollH": 948,
+    "overflowY": "auto",
+    "maxH": "400px",
+    "cueHidden": true,
+    "focusable": true
+   },
+   "clipped": 0,
+   "docOverflowX": 0
+  }
+ },
+ {
+  "name": "finding-history",
+  "variant": "history-real5-rel160",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Revision history",
+    "h": 1036
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "fields160": 5,
+  "relatedRowHs": [
+   75,
+   75,
+   75,
+   75,
+   75
+  ],
+  "title": "Revision history",
+  "versionScroll": {
+   "clientH": 1000,
+   "scrollH": 1216,
+   "overflowY": "auto",
+   "maxH": "1000px",
+   "cueHidden": true,
+   "focusable": true
+  },
+  "panelH": 1644,
+  "rowHs": [
+   205,
+   241,
+   259,
+   205,
+   241
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedAll": {
+   "panelH": 1860,
+   "versionScroll": {
+    "clientH": 1000,
+    "scrollH": 4317,
+    "overflowY": "auto",
+    "maxH": "1000px",
+    "cueHidden": true,
+    "focusable": true
+   },
+   "clipped": 0,
+   "docOverflowX": 0
+  }
+ },
+ {
+  "name": "finding-history",
+  "variant": "hist-measure",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Revision history",
+    "h": 534
+   }
+  ],
+  "synthetic": false,
+  "verified": true,
+  "versionRows": 4,
+  "title": "Revision history",
+  "versionScroll": {
+   "clientH": 285,
+   "scrollH": 285,
+   "overflowY": "auto",
+   "maxH": "400px",
+   "cueHidden": true,
+   "focusable": true
+  },
+  "panelH": 534,
+  "rowHs": [
+   62,
+   63,
+   79,
+   79
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedAll": {
+   "panelH": 781,
+   "versionScroll": {
+    "clientH": 400,
+    "scrollH": 666,
+    "overflowY": "auto",
+    "maxH": "400px",
+    "cueHidden": true,
+    "focusable": true
+   },
+   "clipped": 0,
+   "docOverflowX": 0
+  }
+ },
+ {
+  "name": "finding-history",
+  "variant": "hist-measure",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Revision history",
+    "h": 1036
+   }
+  ],
+  "synthetic": false,
+  "verified": true,
+  "versionRows": 4,
+  "title": "Revision history",
+  "versionScroll": {
+   "clientH": 668,
+   "scrollH": 668,
+   "overflowY": "auto",
+   "maxH": "1000px",
+   "cueHidden": true,
+   "focusable": true
+  },
+  "panelH": 1036,
+  "rowHs": [
+   151,
+   169,
+   208,
+   226
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedAll": {
+   "panelH": 1585,
+   "versionScroll": {
+    "clientH": 1000,
+    "scrollH": 2872,
+    "overflowY": "auto",
+    "maxH": "1000px",
+    "cueHidden": true,
+    "focusable": true
+   },
+   "clipped": 0,
+   "docOverflowX": 0
+  }
+ },
+ {
+  "name": "finding-history-v1",
+  "variant": "hist-measure",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Revision history",
+    "h": 657
+   }
+  ],
+  "synthetic": false,
+  "verified": true,
+  "versionRows": 4,
+  "title": "Revision history",
+  "versionScroll": {
+   "clientH": 388,
+   "scrollH": 388,
+   "overflowY": "auto",
+   "maxH": "400px",
+   "cueHidden": true,
+   "focusable": true
+  },
+  "panelH": 657,
+  "rowHs": [
+   62,
+   63,
+   79,
+   79
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedAll": {
+   "panelH": 801,
+   "versionScroll": {
+    "clientH": 400,
+    "scrollH": 674,
+    "overflowY": "auto",
+    "maxH": "400px",
+    "cueHidden": true,
+    "focusable": true
+   },
+   "clipped": 0,
+   "docOverflowX": 0
+  }
+ },
+ {
+  "name": "finding-history-v1",
+  "variant": "hist-measure",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Revision history",
+    "h": 1250
+   }
+  ],
+  "synthetic": false,
+  "verified": true,
+  "versionRows": 4,
+  "title": "Revision history",
+  "versionScroll": {
+   "clientH": 842,
+   "scrollH": 842,
+   "overflowY": "auto",
+   "maxH": "1000px",
+   "cueHidden": true,
+   "focusable": true
+  },
+  "panelH": 1250,
+  "rowHs": [
+   151,
+   169,
+   208,
+   208
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedAll": {
+   "panelH": 1624,
+   "versionScroll": {
+    "clientH": 1000,
+    "scrollH": 2872,
+    "overflowY": "auto",
+    "maxH": "1000px",
+    "cueHidden": true,
+    "focusable": true
+   },
+   "clipped": 0,
+   "docOverflowX": 0
+  }
+ }
+]

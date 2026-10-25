@@ -1,0 +1,2820 @@
+{
+ "pairs": [
+  {
+   "batch": 3,
+   "screen": "finding-history",
+   "case": "late-stale",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a/history",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py late --db assetops_s404_owner_audit ... then serve",
+   "frozen_app": "batch-03/part-s404-late/finding-history-late-stale-1440-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Revision history"
+   ],
+   "frozen_heights": [
+    512
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "finding-history",
+   "case": "late-stale",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a/history",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py late --db assetops_s404_owner_audit ... then serve",
+   "frozen_app": "batch-03/part-s404-late/finding-history-late-stale-390-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Revision history"
+   ],
+   "frozen_heights": [
+    1097
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "finding",
+   "case": "late-stale",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py late --db assetops_s404_owner_audit ... then serve",
+   "frozen_app": "batch-03/part-s404-late/finding-late-stale-1440-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "frozen_heights": [
+    338,
+    282,
+    179,
+    525
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "finding",
+   "case": "late-stale",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py late --db assetops_s404_owner_audit ... then serve",
+   "frozen_app": "batch-03/part-s404-late/finding-late-stale-390-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "frozen_heights": [
+    534,
+    389,
+    199,
+    628
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "late-stale",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py late --db assetops_s404_owner_audit ... then serve",
+   "frozen_app": "batch-03/part-s404-late/sitefindings-late-stale-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    298
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "late-stale",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py late --db assetops_s404_owner_audit ... then serve",
+   "frozen_app": "batch-03/part-s404-late/sitefindings-late-stale-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    516
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "empty",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-empty-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    318
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "empty",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-empty-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    555
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "failed",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-failed-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    298
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "failed",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-failed-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    531
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "nowindow",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-nowindow-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    324
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "nowindow",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-nowindow-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    562
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "page2",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-page2-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    455
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "page2",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-page2-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    693
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "stale",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-stale-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    298
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "stale",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-stale-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    516
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "stocked",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-stocked-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    507
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "stocked",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-stocked-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    763
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "unassessed",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-unassessed-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    324
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "sitefindings",
+   "case": "unassessed",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": ".venv/Scripts/python.exe tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_audit --work var/s404_owner_audit --api-port 18301 --tls-port 18302 --http-port 18303",
+   "frozen_app": "batch-03/part-s404/sitefindings-unassessed-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Findings at this site"
+   ],
+   "frozen_heights": [
+    562
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "assumptions",
+   "case": "single-price",
+   "width": "1440",
+   "route": "/sites/KOBO-001/financials/assumptions",
+   "producer": ".venv/Scripts/python.exe tools/s405_provenance_walkthrough.py prepare --only owner --suffix _audit; serve --case owner --suffix _audit --api-port 18301",
+   "frozen_app": "batch-03/part-s405/assumptions-single-price-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "frozen_heights": [
+    506,
+    256,
+    1121
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "assumptions",
+   "case": "single-price",
+   "width": "390",
+   "route": "/sites/KOBO-001/financials/assumptions",
+   "producer": ".venv/Scripts/python.exe tools/s405_provenance_walkthrough.py prepare --only owner --suffix _audit; serve --case owner --suffix _audit --api-port 18301",
+   "frozen_app": "batch-03/part-s405/assumptions-single-price-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "frozen_heights": [
+    822,
+    256,
+    2726
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "priced-current",
+   "width": "1440",
+   "route": "/sites/KOBO-001/financials?finding_id=b6b17a85-0b1d-4b2e-87f1-a2756b57e745&revision_id=ffc6bc5c-fef3-4773-85fa-13a83ab8d0f0",
+   "producer": ".venv/Scripts/python.exe tools/s405_provenance_walkthrough.py prepare --only owner --suffix _audit; serve --case owner --suffix _audit --api-port 18301",
+   "frozen_app": "batch-03/part-s405/financials-priced-current-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    347,
+    275,
+    368
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "priced-current",
+   "width": "390",
+   "route": "/sites/KOBO-001/financials?finding_id=b6b17a85-0b1d-4b2e-87f1-a2756b57e745&revision_id=ffc6bc5c-fef3-4773-85fa-13a83ab8d0f0",
+   "producer": ".venv/Scripts/python.exe tools/s405_provenance_walkthrough.py prepare --only owner --suffix _audit; serve --case owner --suffix _audit --api-port 18301",
+   "frozen_app": "batch-03/part-s405/financials-priced-current-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    631,
+    308,
+    387
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "assumptions",
+   "case": "mixed-withheld",
+   "width": "1440",
+   "route": "/sites/KOBO-001/financials/assumptions",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py serve --case mixed --suffix _audit --api-port 18301",
+   "frozen_app": "batch-03/part-s408-mixed/assumptions-mixed-withheld-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "frozen_heights": [
+    506,
+    256,
+    554
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "assumptions",
+   "case": "mixed-withheld",
+   "width": "390",
+   "route": "/sites/KOBO-001/financials/assumptions",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py serve --case mixed --suffix _audit --api-port 18301",
+   "frozen_app": "batch-03/part-s408-mixed/assumptions-mixed-withheld-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "frozen_heights": [
+    822,
+    256,
+    1091
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "mixed-withheld",
+   "width": "1440",
+   "route": "/sites/KOBO-001/financials?finding_id=4f566b9c-fb13-4d4b-8d96-d8eff49e94ac&revision_id=e46abda4-4c99-49fa-ae97-3e79ce3f665d",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py serve --case mixed --suffix _audit --api-port 18301",
+   "frozen_app": "batch-03/part-s408-mixed/financials-mixed-withheld-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    397,
+    275,
+    295
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "mixed-withheld",
+   "width": "390",
+   "route": "/sites/KOBO-001/financials?finding_id=4f566b9c-fb13-4d4b-8d96-d8eff49e94ac&revision_id=e46abda4-4c99-49fa-ae97-3e79ce3f665d",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py serve --case mixed --suffix _audit --api-port 18301",
+   "frozen_app": "batch-03/part-s408-mixed/financials-mixed-withheld-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    683,
+    308,
+    315
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "assumptions",
+   "case": "T3-page2",
+   "width": "1440",
+   "route": "/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-24T13%3A33%3A23.010748%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI0VDEzOjMyOjIxLjI1MDc0MCswMDowMCIsIjJmY2UxODQ0LTM4NGEtNGZmZC04NzRjLTIyMWI4NDE2YzQ2ZSJdLCJmZW5jZSI6InNjaDEtMWJkNzJkNWFlZTM4ODcyNDkzYWEzNjE3NThhOTFlYzlhNzBlYmI4NTdkYjExZjcwYWE3MjU1MTg1ZDIyYjA1YSIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjRUMTM6MzM6MjMuMDEwNzQ4KzAwOjAwIiwic2l0ZV9pZCI6Ijc5MGEwNzRjLTJiZmUtNGQ1ZS05ZGZiLTUyOGFiMDQzYjFiOSIsInRlbmFudF9pZCI6IjI4OTg3ZjQ5LTNmZGEtNGM5MS05YjBkLTVlZjU0MTg3ZjE2YyIsInYiOjF9&history_limit=2",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/assumptions-T3-page2-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "frozen_heights": [
+    567,
+    256,
+    942
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "assumptions",
+   "case": "T3-page2",
+   "width": "390",
+   "route": "/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-24T13%3A33%3A23.010748%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI0VDEzOjMyOjIxLjI1MDc0MCswMDowMCIsIjJmY2UxODQ0LTM4NGEtNGZmZC04NzRjLTIyMWI4NDE2YzQ2ZSJdLCJmZW5jZSI6InNjaDEtMWJkNzJkNWFlZTM4ODcyNDkzYWEzNjE3NThhOTFlYzlhNzBlYmI4NTdkYjExZjcwYWE3MjU1MTg1ZDIyYjA1YSIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjRUMTM6MzM6MjMuMDEwNzQ4KzAwOjAwIiwic2l0ZV9pZCI6Ijc5MGEwNzRjLTJiZmUtNGQ1ZS05ZGZiLTUyOGFiMDQzYjFiOSIsInRlbmFudF9pZCI6IjI4OTg3ZjQ5LTNmZGEtNGM5MS05YjBkLTVlZjU0MTg3ZjE2YyIsInYiOjF9&history_limit=2",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/assumptions-T3-page2-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "frozen_heights": [
+    923,
+    256,
+    1883
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "assumptions",
+   "case": "default",
+   "width": "1440",
+   "route": "/sites/KOBO-001/financials/assumptions",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/assumptions-default-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "frozen_heights": [
+    545,
+    256,
+    1823
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "assumptions",
+   "case": "default",
+   "width": "390",
+   "route": "/sites/KOBO-001/financials/assumptions",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/assumptions-default-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "frozen_heights": [
+    901,
+    256,
+    4572
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "assumptions",
+   "case": "recorded-T1",
+   "width": "1440",
+   "route": "/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-24T13%3A31%3A59.108265%2B00%3A00",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/assumptions-recorded-T1-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "frozen_heights": [
+    527,
+    256,
+    1121
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "assumptions",
+   "case": "recorded-T1",
+   "width": "390",
+   "route": "/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-24T13%3A31%3A59.108265%2B00%3A00",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/assumptions-recorded-T1-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "frozen_heights": [
+    844,
+    256,
+    2726
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "assumptions",
+   "case": "recorded-T3",
+   "width": "1440",
+   "route": "/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-24T13%3A33%3A23.010748%2B00%3A00",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/assumptions-recorded-T3-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "frozen_heights": [
+    567,
+    256,
+    1823
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "assumptions",
+   "case": "recorded-T3",
+   "width": "390",
+   "route": "/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-24T13%3A33%3A23.010748%2B00%3A00",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/assumptions-recorded-T3-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "frozen_heights": [
+    923,
+    256,
+    4572
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "nofinding",
+   "width": "1440",
+   "route": "/sites/KOBO-001/financials",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/financials-nofinding-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    103,
+    275,
+    295
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "nofinding",
+   "width": "390",
+   "route": "/sites/KOBO-001/financials",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/financials-nofinding-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    149,
+    308,
+    315
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "notfound",
+   "width": "1440",
+   "route": "/sites/KOBO-001/financials?finding_id=00000000-0000-4000-8000-000000000000",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/financials-notfound-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    99,
+    275,
+    295
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "notfound",
+   "width": "390",
+   "route": "/sites/KOBO-001/financials?finding_id=00000000-0000-4000-8000-000000000000",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/financials-notfound-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    119,
+    308,
+    315
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "priced",
+   "width": "1440",
+   "route": "/sites/KOBO-001/financials?finding_id=f1753882-7d2c-4b57-b00d-11a74c44f1c7&revision_id=3a9738f5-ec76-4ac9-a2df-d59909e0d886&consequence_revision_id=2fce1844-384a-4ffd-874c-221b8416c46e",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/financials-priced-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    609,
+    275,
+    368
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "priced",
+   "width": "390",
+   "route": "/sites/KOBO-001/financials?finding_id=f1753882-7d2c-4b57-b00d-11a74c44f1c7&revision_id=3a9738f5-ec76-4ac9-a2df-d59909e0d886&consequence_revision_id=2fce1844-384a-4ffd-874c-221b8416c46e",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/financials-priced-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    1152,
+    308,
+    387
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "quantity-unavailable",
+   "width": "1440",
+   "route": "/sites/KOBO-001/financials?finding_id=f1753882-7d2c-4b57-b00d-11a74c44f1c7&revision_id=26ac2bed-1349-4726-9647-00d6d135f898",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/financials-quantity-unavailable-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    374,
+    275,
+    295
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "quantity-unavailable",
+   "width": "390",
+   "route": "/sites/KOBO-001/financials?finding_id=f1753882-7d2c-4b57-b00d-11a74c44f1c7&revision_id=26ac2bed-1349-4726-9647-00d6d135f898",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/financials-quantity-unavailable-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    654,
+    308,
+    315
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "unpriced",
+   "width": "1440",
+   "route": "/sites/KOBO-001/financials?finding_id=8acabc0a-10c6-4e96-96b9-18804e48f7b3&revision_id=27ffbb1e-ef1f-4532-b33d-c3538a29ef7c",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/financials-unpriced-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    374,
+    275,
+    295
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "financials",
+   "case": "unpriced",
+   "width": "390",
+   "route": "/sites/KOBO-001/financials?finding_id=8acabc0a-10c6-4e96-96b9-18804e48f7b3&revision_id=27ffbb1e-ef1f-4532-b33d-c3538a29ef7c",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/financials-unpriced-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "frozen_heights": [
+    638,
+    308,
+    315
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "finding-evidence",
+   "case": "labelled",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings/f1753882-7d2c-4b57-b00d-11a74c44f1c7/evidence?revision_id=3a9738f5-ec76-4ac9-a2df-d59909e0d886",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/finding-evidence-labelled-1440-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Evidence bundle \u00b7 Generator support merits review",
+    "Inspect source lineage"
+   ],
+   "frozen_heights": [
+    411,
+    126
+   ]
+  },
+  {
+   "batch": 3,
+   "screen": "finding-evidence",
+   "case": "labelled",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings/f1753882-7d2c-4b57-b00d-11a74c44f1c7/evidence?revision_id=3a9738f5-ec76-4ac9-a2df-d59909e0d886",
+   "producer": ".venv/Scripts/python.exe tools/s408_assumption_history_walkthrough.py prepare|serve --case owner --suffix _audit --api-port 18301 (prepare on 18304-18306)",
+   "frozen_app": "batch-03/part-s408-owner/finding-evidence-labelled-390-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Evidence bundle \u00b7 Generator support merits review",
+    "Inspect source lineage"
+   ],
+   "frozen_heights": [
+    728,
+    218
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-evidence",
+   "case": "pre-plan-s601b",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/evidence",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-evidence-pre-plan-s601b-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Evidence requirements"
+   ],
+   "frozen_heights": [
+    123
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-evidence",
+   "case": "pre-plan-s601b",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/evidence",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-evidence-pre-plan-s601b-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Evidence requirements"
+   ],
+   "frozen_heights": [
+    139
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-execution",
+   "case": "applied",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/execution",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-execution-applied-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Activity log"
+   ],
+   "frozen_heights": [
+    322
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-execution",
+   "case": "applied",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/execution",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-execution-applied-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Activity log"
+   ],
+   "frozen_heights": [
+    626
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-execution",
+   "case": "failed-pending",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/8741979f-b243-40e0-8360-87a331d3435d/execution",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-execution-failed-pending-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Activity log"
+   ],
+   "frozen_heights": [
+    364
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-execution",
+   "case": "failed-pending",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/8741979f-b243-40e0-8360-87a331d3435d/execution",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-execution-failed-pending-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Activity log"
+   ],
+   "frozen_heights": [
+    676
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-history",
+   "case": "all",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-history-all-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action history"
+   ],
+   "frozen_heights": [
+    355
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-history",
+   "case": "all",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-history-all-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action history"
+   ],
+   "frozen_heights": [
+    431
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-history",
+   "case": "event-failed-stale",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history?event_id=7779eb1e-f8ae-4a31-8798-138c399b72ce",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-history-event-failed-stale-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action history"
+   ],
+   "frozen_heights": [
+    362
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-history",
+   "case": "event-failed-stale",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history?event_id=7779eb1e-f8ae-4a31-8798-138c399b72ce",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-history-event-failed-stale-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action history"
+   ],
+   "frozen_heights": [
+    442
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-history",
+   "case": "recorded-at",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history?recorded_at=2026-11-01T00:30:00%2B00:00",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-history-recorded-at-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action history"
+   ],
+   "frozen_heights": [
+    304
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-history",
+   "case": "recorded-at",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history?recorded_at=2026-11-01T00:30:00%2B00:00",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-history-recorded-at-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action history"
+   ],
+   "frozen_heights": [
+    423
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-history",
+   "case": "selector-conflict",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history?event_id=1122043e-30dc-4951-832a-e7673a06f9e5&recorded_at=2026-11-01T00:30:00%2B00:00",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-history-selector-conflict-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action history"
+   ],
+   "frozen_heights": [
+    96
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-history",
+   "case": "selector-conflict",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history?event_id=1122043e-30dc-4951-832a-e7673a06f9e5&recorded_at=2026-11-01T00:30:00%2B00:00",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-history-selector-conflict-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action history"
+   ],
+   "frozen_heights": [
+    96
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-overview",
+   "case": "pending-f02",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/8741979f-b243-40e0-8360-87a331d3435d",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-overview-pending-f02-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action scope"
+   ],
+   "frozen_heights": [
+    368
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-overview",
+   "case": "pending-f02",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/8741979f-b243-40e0-8360-87a331d3435d",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-overview-pending-f02-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action scope"
+   ],
+   "frozen_heights": [
+    549
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-overview",
+   "case": "recorded",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-overview-recorded-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action scope"
+   ],
+   "frozen_heights": [
+    368
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-overview",
+   "case": "recorded",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-overview-recorded-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action scope"
+   ],
+   "frozen_heights": [
+    582
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-overview",
+   "case": "unknown-section",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/nosuch",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-overview-unknown-section-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "No such Action section"
+   ],
+   "frozen_heights": [
+    103
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-overview",
+   "case": "unknown-section",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/nosuch",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-overview-unknown-section-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "No such Action section"
+   ],
+   "frozen_heights": [
+    126
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-plan",
+   "case": "pre-plan-s601b",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/plan",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-plan-pre-plan-s601b-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Success criteria"
+   ],
+   "frozen_heights": [
+    123
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-plan",
+   "case": "pre-plan-s601b",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/plan",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/action-plan-pre-plan-s601b-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Success criteria"
+   ],
+   "frozen_heights": [
+    156
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "recommendation",
+   "case": "accepted",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings/a13f1fe5-5ec8-49cd-92db-3cb022ce9467/recommendation?revision_id=673e6a4e-594a-45e6-b2a0-e3acb78534a5",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/recommendation-accepted-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "frozen_heights": [
+    475,
+    475,
+    260
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "recommendation",
+   "case": "accepted",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings/a13f1fe5-5ec8-49cd-92db-3cb022ce9467/recommendation?revision_id=673e6a4e-594a-45e6-b2a0-e3acb78534a5",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/recommendation-accepted-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "frozen_heights": [
+    604,
+    475,
+    352
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "recommendation",
+   "case": "latest-trial-open",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings/a13f1fe5-5ec8-49cd-92db-3cb022ce9467/recommendation",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/recommendation-latest-trial-open-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "frozen_heights": [
+    481,
+    481,
+    123
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "recommendation",
+   "case": "latest-trial-open",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings/a13f1fe5-5ec8-49cd-92db-3cb022ce9467/recommendation",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/recommendation-latest-trial-open-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "frozen_heights": [
+    633,
+    139,
+    123
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "recommendation",
+   "case": "unavailable",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings/8cf723d2-9843-4cfd-99f9-d67e8f07a838/recommendation",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/recommendation-unavailable-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "frozen_heights": [
+    496,
+    496,
+    123
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "recommendation",
+   "case": "unavailable",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings/8cf723d2-9843-4cfd-99f9-d67e8f07a838/recommendation",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "frozen_app": "batch-04/s601b/recommendation-unavailable-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "frozen_heights": [
+    648,
+    139,
+    123
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-evidence",
+   "case": "guardrail",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75/evidence",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "frozen_app": "batch-04/s602b-guardrail/action-evidence-guardrail-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Evidence requirements"
+   ],
+   "frozen_heights": [
+    373
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-evidence",
+   "case": "guardrail",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75/evidence",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "frozen_app": "batch-04/s602b-guardrail/action-evidence-guardrail-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Evidence requirements"
+   ],
+   "frozen_heights": [
+    615
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-overview",
+   "case": "guardrail",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "frozen_app": "batch-04/s602b-guardrail/action-overview-guardrail-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action scope"
+   ],
+   "frozen_heights": [
+    384
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-overview",
+   "case": "guardrail",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "frozen_app": "batch-04/s602b-guardrail/action-overview-guardrail-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action scope"
+   ],
+   "frozen_heights": [
+    644
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-plan",
+   "case": "guardrail",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75/plan",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "frozen_app": "batch-04/s602b-guardrail/action-plan-guardrail-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Success criteria"
+   ],
+   "frozen_heights": [
+    392
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-plan",
+   "case": "guardrail",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75/plan",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "frozen_app": "batch-04/s602b-guardrail/action-plan-guardrail-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Success criteria"
+   ],
+   "frozen_heights": [
+    573
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "recommendation",
+   "case": "guardrail-hold",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings/fee50247-6779-4dda-9d3b-38902951ff11/recommendation?revision_id=c7bf62bc-c3ea-4d7f-9fd6-1a2206d25911",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "frozen_app": "batch-04/s602b-guardrail/recommendation-guardrail-hold-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "frozen_heights": [
+    513,
+    513,
+    123
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "recommendation",
+   "case": "guardrail-hold",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings/fee50247-6779-4dda-9d3b-38902951ff11/recommendation?revision_id=c7bf62bc-c3ea-4d7f-9fd6-1a2206d25911",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "frozen_app": "batch-04/s602b-guardrail/recommendation-guardrail-hold-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "frozen_heights": [
+    710,
+    139,
+    123
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-evidence",
+   "case": "pass",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/evidence",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/action-evidence-pass-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Evidence requirements"
+   ],
+   "frozen_heights": [
+    347
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-evidence",
+   "case": "pass",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/evidence",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/action-evidence-pass-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Evidence requirements"
+   ],
+   "frozen_heights": [
+    524
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-execution",
+   "case": "verified-replay",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/execution",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/action-execution-verified-replay-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Activity log"
+   ],
+   "frozen_heights": [
+    322
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-execution",
+   "case": "verified-replay",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/execution",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/action-execution-verified-replay-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Activity log"
+   ],
+   "frozen_heights": [
+    626
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-history",
+   "case": "verified-replay",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/history",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/action-history-verified-replay-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action history"
+   ],
+   "frozen_heights": [
+    295
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-history",
+   "case": "verified-replay",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/history",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/action-history-verified-replay-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action history"
+   ],
+   "frozen_heights": [
+    589
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-overview",
+   "case": "verified-replay",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/action-overview-verified-replay-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action scope"
+   ],
+   "frozen_heights": [
+    384
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-overview",
+   "case": "verified-replay",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/action-overview-verified-replay-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Action scope"
+   ],
+   "frozen_heights": [
+    644
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-plan",
+   "case": "exact-plan",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/plan?plan_revision_id=504af0fd-35a7-402e-8671-e0e9d8220d55",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/action-plan-exact-plan-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Success criteria"
+   ],
+   "frozen_heights": [
+    366
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-plan",
+   "case": "exact-plan",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/plan?plan_revision_id=504af0fd-35a7-402e-8671-e0e9d8220d55",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/action-plan-exact-plan-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Success criteria"
+   ],
+   "frozen_heights": [
+    515
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-plan",
+   "case": "pass",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/plan",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/action-plan-pass-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Success criteria"
+   ],
+   "frozen_heights": [
+    366
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "action-plan",
+   "case": "pass",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/plan",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/action-plan-pass-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Success criteria"
+   ],
+   "frozen_heights": [
+    515
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "recommendation",
+   "case": "verified-replay",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings/bd96cfc9-a2b0-4e6c-b987-1ac36a7366f4/recommendation?revision_id=8ae175fc-a00c-479d-a0e6-78dc44463365",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/recommendation-verified-replay-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "frozen_heights": [
+    475,
+    475,
+    260
+   ]
+  },
+  {
+   "batch": 4,
+   "screen": "recommendation",
+   "case": "verified-replay",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings/bd96cfc9-a2b0-4e6c-b987-1ac36a7366f4/recommendation?revision_id=8ae175fc-a00c-479d-a0e6-78dc44463365",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "frozen_app": "batch-04/s602b/recommendation-verified-replay-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "frozen_heights": [
+    621,
+    475,
+    352
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "guardrail",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/c1e32234-99e1-47b9-93d5-98563235cd27/verification",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "frozen_app": "batch-05/part-s602b-cases/guardrail/verification-guardrail-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    390,
+    354,
+    354
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "guardrail",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/c1e32234-99e1-47b9-93d5-98563235cd27/verification",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "frozen_app": "batch-05/part-s602b-cases/guardrail/verification-guardrail-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    751,
+    314,
+    354
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "inconclusive",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/26849529-f152-425b-9f7a-49b6a7f32f98/verification",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "frozen_app": "batch-05/part-s602b-cases/inconclusive/verification-inconclusive-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    390,
+    361,
+    361
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "inconclusive",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/26849529-f152-425b-9f7a-49b6a7f32f98/verification",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "frozen_app": "batch-05/part-s602b-cases/inconclusive/verification-inconclusive-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    751,
+    298,
+    377
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "target_miss",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/6a9f1b95-e629-4cb6-b667-f449cc8397e0/verification",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "frozen_app": "batch-05/part-s602b-cases/target_miss/verification-target_miss-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    347,
+    354,
+    354
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "target_miss",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/6a9f1b95-e629-4cb6-b667-f449cc8397e0/verification",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "frozen_app": "batch-05/part-s602b-cases/target_miss/verification-target_miss-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    642,
+    314,
+    354
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "withdrawn",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/1d4ee6a2-f5a4-4fa2-8902-69c1e3104489/verification",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "frozen_app": "batch-05/part-s602b-cases/withdrawn/verification-withdrawn-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    373,
+    361,
+    361
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "withdrawn",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/1d4ee6a2-f5a4-4fa2-8902-69c1e3104489/verification",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit serve --case <name> --port 18502 (case API on 18503)",
+   "frozen_app": "batch-05/part-s602b-cases/withdrawn/verification-withdrawn-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    718,
+    347,
+    361
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "historical-outcome",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "frozen_app": "batch-05/part-s602b-replay/verification-historical-outcome-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    366,
+    338,
+    338
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "historical-outcome",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "frozen_app": "batch-05/part-s602b-replay/verification-historical-outcome-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    678,
+    314,
+    338
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "selector-conflict",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299&recorded_at=2026-10-16T01%3A00%3A00%2B00%3A00",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "frozen_app": "batch-05/part-s602b-replay/verification-selector-conflict-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    96,
+    184,
+    184
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "selector-conflict",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299&recorded_at=2026-10-16T01%3A00%3A00%2B00%3A00",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "frozen_app": "batch-05/part-s602b-replay/verification-selector-conflict-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    96,
+    96,
+    185
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "unknown-action",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/00000000-0000-4000-8000-000000000000/verification",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "frozen_app": "batch-05/part-s602b-replay/verification-unknown-action-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    96,
+    96,
+    96
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "unknown-action",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/00000000-0000-4000-8000-000000000000/verification",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "frozen_app": "batch-05/part-s602b-replay/verification-unknown-action-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    96,
+    96,
+    96
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "verified-current",
+   "width": "1440",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "frozen_app": "batch-05/part-s602b-replay/verification-verified-current-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    347,
+    338,
+    338
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "verification",
+   "case": "verified-current",
+   "width": "390",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification",
+   "producer": ".venv/Scripts/python.exe tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit prepare|serve --port 18502 --web-port 5185|drop (replay API on 18502)",
+   "frozen_app": "batch-05/part-s602b-replay/verification-verified-current-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "frozen_heights": [
+    659,
+    314,
+    338
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "sitework",
+   "case": "invalid-window",
+   "width": "1440",
+   "route": "/sites/KOBO-001/work?from=2026-11-02T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "producer": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "frozen_app": "batch-05/part-s603/sitework-invalid-window-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Actions at this site"
+   ],
+   "frozen_heights": [
+    196
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "sitework",
+   "case": "invalid-window",
+   "width": "390",
+   "route": "/sites/KOBO-001/work?from=2026-11-02T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "producer": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "frozen_app": "batch-05/part-s603/sitework-invalid-window-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Actions at this site"
+   ],
+   "frozen_heights": [
+    340
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "sitework",
+   "case": "no-window",
+   "width": "1440",
+   "route": "/sites/KOBO-001/work",
+   "producer": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "frozen_app": "batch-05/part-s603/sitework-no-window-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Actions at this site"
+   ],
+   "frozen_heights": [
+    196
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "sitework",
+   "case": "no-window",
+   "width": "390",
+   "route": "/sites/KOBO-001/work",
+   "producer": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "frozen_app": "batch-05/part-s603/sitework-no-window-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Actions at this site"
+   ],
+   "frozen_heights": [
+    340
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "sitework",
+   "case": "page1-limit1",
+   "width": "1440",
+   "route": "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1",
+   "producer": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "frozen_app": "batch-05/part-s603/sitework-page1-limit1-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Actions at this site"
+   ],
+   "frozen_heights": [
+    254
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "sitework",
+   "case": "page1-limit1",
+   "width": "390",
+   "route": "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1",
+   "producer": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "frozen_app": "batch-05/part-s603/sitework-page1-limit1-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Actions at this site"
+   ],
+   "frozen_heights": [
+    482
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "sitework",
+   "case": "positive",
+   "width": "1440",
+   "route": "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
+   "producer": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "frozen_app": "batch-05/part-s603/sitework-positive-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Actions at this site"
+   ],
+   "frozen_heights": [
+    319
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "sitework",
+   "case": "positive",
+   "width": "390",
+   "route": "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
+   "producer": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "frozen_app": "batch-05/part-s603/sitework-positive-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Actions at this site"
+   ],
+   "frozen_heights": [
+    598
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "sitework",
+   "case": "zero",
+   "width": "1440",
+   "route": "/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "producer": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "frozen_app": "batch-05/part-s603/sitework-zero-1440-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Actions at this site"
+   ],
+   "frozen_heights": [
+    233
+   ]
+  },
+  {
+   "batch": 5,
+   "screen": "sitework",
+   "case": "zero",
+   "width": "390",
+   "route": "/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "producer": ".venv/Scripts/python.exe tools/s603_site_work_walkthrough.py --db assetops_s603_owner_audit --work var/s603_owner_audit prepare|attest|serve --port 18501 --web-port 5185|drop",
+   "frozen_app": "batch-05/part-s603/sitework-zero-390-app.png",
+   "tags": [
+    "w1b"
+   ],
+   "frozen_titles": [
+    "Actions at this site"
+   ],
+   "frozen_heights": [
+    393
+   ]
+  },
+  {
+   "batch": 6,
+   "screen": "cold-finding",
+   "case": "start-excursion",
+   "width": "1440",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "frozen_app": "batch-06/excursion/cold-finding-start-excursion-1440-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "frozen_heights": [
+    217,
+    261,
+    131
+   ]
+  },
+  {
+   "batch": 6,
+   "screen": "cold-finding",
+   "case": "start-excursion",
+   "width": "390",
+   "route": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176",
+   "producer": "seed.py cold excursion (.agent/W2-F-evidence/seed.py, unmodified; W2-02 replay -> attest -> upload -> W2-03 worker -> W2-04 drain)",
+   "frozen_app": "batch-06/excursion/cold-finding-start-excursion-390-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "frozen_heights": [
+    294,
+    527,
+    148
+   ]
+  },
+  {
+   "batch": 7,
+   "screen": "cold-assumptions",
+   "case": "no-selection",
+   "width": "1440",
+   "route": "/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+   "producer": "ASSETOPS_TEST_DATABASE_URL=.../assetops_audit_b07_test PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W2-F-evidence/seed.py cold excursion; API: host/ uvicorn lab_app:app --port 18701 (DATABASE_URL=assetops_audit_b07_test); Vite 5187 ASSETOPS_API_PORT=18701",
+   "frozen_app": "batch-07/part-excursion/cold-assumptions-no-selection-1440-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Financial assumptions"
+   ],
+   "frozen_heights": [
+    315
+   ]
+  },
+  {
+   "batch": 7,
+   "screen": "cold-assumptions",
+   "case": "no-selection",
+   "width": "390",
+   "route": "/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+   "producer": "ASSETOPS_TEST_DATABASE_URL=.../assetops_audit_b07_test PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W2-F-evidence/seed.py cold excursion; API: host/ uvicorn lab_app:app --port 18701 (DATABASE_URL=assetops_audit_b07_test); Vite 5187 ASSETOPS_API_PORT=18701",
+   "frozen_app": "batch-07/part-excursion/cold-assumptions-no-selection-390-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Financial assumptions"
+   ],
+   "frozen_heights": [
+    373
+   ]
+  },
+  {
+   "batch": 7,
+   "screen": "cold-financials",
+   "case": "no-selection",
+   "width": "1440",
+   "route": "/sites/COLD-LAB-001/financials?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+   "producer": "ASSETOPS_TEST_DATABASE_URL=.../assetops_audit_b07_test PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W2-F-evidence/seed.py cold excursion; API: host/ uvicorn lab_app:app --port 18701 (DATABASE_URL=assetops_audit_b07_test); Vite 5187 ASSETOPS_API_PORT=18701",
+   "frozen_app": "batch-07/part-excursion/cold-financials-no-selection-1440-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Not included"
+   ],
+   "frozen_heights": [
+    167,
+    254,
+    254
+   ]
+  },
+  {
+   "batch": 7,
+   "screen": "cold-financials",
+   "case": "no-selection",
+   "width": "390",
+   "route": "/sites/COLD-LAB-001/financials?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+   "producer": "ASSETOPS_TEST_DATABASE_URL=.../assetops_audit_b07_test PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W2-F-evidence/seed.py cold excursion; API: host/ uvicorn lab_app:app --port 18701 (DATABASE_URL=assetops_audit_b07_test); Vite 5187 ASSETOPS_API_PORT=18701",
+   "frozen_app": "batch-07/part-excursion/cold-financials-no-selection-390-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Not included"
+   ],
+   "frozen_heights": [
+    167,
+    270,
+    96
+   ]
+  },
+  {
+   "batch": 8,
+   "screen": "ev-finding",
+   "case": "interrupted",
+   "width": "1440",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "frozen_app": "batch-08/interrupted/ev-finding-interrupted-1440-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "frozen_heights": [
+    250,
+    273,
+    273
+   ]
+  },
+  {
+   "batch": 8,
+   "screen": "ev-finding",
+   "case": "interrupted",
+   "width": "390",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "frozen_app": "batch-08/interrupted/ev-finding-interrupted-390-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "frozen_heights": [
+    372,
+    290,
+    146
+   ]
+  },
+  {
+   "batch": 9,
+   "screen": "ev-assumptions",
+   "case": "complete",
+   "width": "1440",
+   "route": "/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+   "producer": "ASSETOPS_TEST_DATABASE_URL=.../assetops_audit_b09_test PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W2-F-evidence/seed.py ev complete; API: host/ uvicorn lab_app:app --port 18901 (DATABASE_URL=assetops_audit_b09_test); Vite 5189 ASSETOPS_API_PORT=18901",
+   "frozen_app": "batch-09/part-complete/ev-assumptions-complete-1440-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Financial assumptions"
+   ],
+   "frozen_heights": [
+    314
+   ]
+  },
+  {
+   "batch": 9,
+   "screen": "ev-assumptions",
+   "case": "complete",
+   "width": "390",
+   "route": "/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+   "producer": "ASSETOPS_TEST_DATABASE_URL=.../assetops_audit_b09_test PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W2-F-evidence/seed.py ev complete; API: host/ uvicorn lab_app:app --port 18901 (DATABASE_URL=assetops_audit_b09_test); Vite 5189 ASSETOPS_API_PORT=18901",
+   "frozen_app": "batch-09/part-complete/ev-assumptions-complete-390-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Financial assumptions"
+   ],
+   "frozen_heights": [
+    330
+   ]
+  },
+  {
+   "batch": 9,
+   "screen": "ev-financials",
+   "case": "complete",
+   "width": "1440",
+   "route": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+   "producer": "ASSETOPS_TEST_DATABASE_URL=.../assetops_audit_b09_test PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W2-F-evidence/seed.py ev complete; API: host/ uvicorn lab_app:app --port 18901 (DATABASE_URL=assetops_audit_b09_test); Vite 5189 ASSETOPS_API_PORT=18901",
+   "frozen_app": "batch-09/part-complete/ev-financials-complete-1440-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Not included"
+   ],
+   "frozen_heights": [
+    216,
+    269,
+    269
+   ]
+  },
+  {
+   "batch": 9,
+   "screen": "ev-financials",
+   "case": "complete",
+   "width": "390",
+   "route": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+   "producer": "ASSETOPS_TEST_DATABASE_URL=.../assetops_audit_b09_test PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W2-F-evidence/seed.py ev complete; API: host/ uvicorn lab_app:app --port 18901 (DATABASE_URL=assetops_audit_b09_test); Vite 5189 ASSETOPS_API_PORT=18901",
+   "frozen_app": "batch-09/part-complete/ev-financials-complete-390-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Not included"
+   ],
+   "frozen_heights": [
+    216,
+    285,
+    126
+   ]
+  },
+  {
+   "batch": 13,
+   "screen": "alternatives",
+   "case": "db-time-409",
+   "width": "1440",
+   "route": "/sites/KOBO-001/findings/b62e0ef8-8530-4963-8443-eb5941c56f30/alternatives?revision_id=d4df8338-62ac-4c97-8b5d-08650246816c",
+   "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db assetops_audit_b13_test --work var/w403_b13 prepare; serve; replay-positive (serve on API 127.0.0.1:9761, hard-coded by the producer); Vite 127.0.0.1:5183 ASSETOPS_API_PORT=9761",
+   "frozen_app": "batch-13/part-one/alternatives-db-time-409-1440-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Alternatives to investigate"
+   ],
+   "frozen_heights": [
+    99
+   ]
+  },
+  {
+   "batch": 13,
+   "screen": "alternatives",
+   "case": "db-time-409",
+   "width": "390",
+   "route": "/sites/KOBO-001/findings/b62e0ef8-8530-4963-8443-eb5941c56f30/alternatives?revision_id=d4df8338-62ac-4c97-8b5d-08650246816c",
+   "producer": "PYTHONPATH=backend;backend/tests;contracts;gateway;simulator;host .venv/Scripts/python.exe tools/w403_mini_decisions_walkthrough.py --db assetops_audit_b13_test --work var/w403_b13 prepare; serve; replay-positive (serve on API 127.0.0.1:9761, hard-coded by the producer); Vite 127.0.0.1:5183 ASSETOPS_API_PORT=9761",
+   "frozen_app": "batch-13/part-one/alternatives-db-time-409-390-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Alternatives to investigate"
+   ],
+   "frozen_heights": [
+    99
+   ]
+  },
+  {
+   "batch": 15,
+   "screen": "cold-action",
+   "case": "all-open",
+   "width": "1440",
+   "route": "/sites/COLD-LAB-001/actions/5198a58a-3695-44da-a4f6-b673da41f79a/verification",
+   "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>_b15_test; API ports 8971-8977 hard-coded, checked free first); Vite 127.0.0.1:5185 restarted per mode with ASSETOPS_API_PORT=<mode port>; CDP 9525 [positive :8971]",
+   "frozen_app": "batch-15/part-positive/cold-action-all-open-1440-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Declared outcome criteria",
+    "Related activity"
+   ],
+   "frozen_heights": [
+    292,
+    168
+   ]
+  },
+  {
+   "batch": 15,
+   "screen": "cold-action",
+   "case": "all-open",
+   "width": "390",
+   "route": "/sites/COLD-LAB-001/actions/5198a58a-3695-44da-a4f6-b673da41f79a/verification",
+   "producer": "tools/w502_cold_work_walkthrough.py --work var/w502b_b15 --tag b15 prepare / serve / attest (ATTEST OK) / drop (unmodified; DBs w502b_<mode>_b15_test; API ports 8971-8977 hard-coded, checked free first); Vite 127.0.0.1:5185 restarted per mode with ASSETOPS_API_PORT=<mode port>; CDP 9525 [positive :8971]",
+   "frozen_app": "batch-15/part-positive/cold-action-all-open-390-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Declared outcome criteria",
+    "Related activity"
+   ],
+   "frozen_heights": [
+    433,
+    272
+   ]
+  },
+  {
+   "batch": 17,
+   "screen": "ev-action",
+   "case": "all-open",
+   "width": "1440",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; producer env knob for its own port block; DBs w504a_<mode>_b17_test); Vite 127.0.0.1:5187 restarted per mode with ASSETOPS_API_PORT=<mode port>; CDP 9527 [positive :18701]",
+   "frozen_app": "batch-17/part-positive/ev-action-all-open-1440-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Declared verification plan"
+   ],
+   "frozen_heights": [
+    248
+   ]
+  },
+  {
+   "batch": 17,
+   "screen": "ev-action",
+   "case": "all-open",
+   "width": "390",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": "W504_API_PORT_BASE=18700 tools/w504_ev_work_walkthrough.py --work var/w504a_b17 --tag b17 prepare / serve / attest / drop (unmodified; producer env knob for its own port block; DBs w504a_<mode>_b17_test); Vite 127.0.0.1:5187 restarted per mode with ASSETOPS_API_PORT=<mode port>; CDP 9527 [positive :18701]",
+   "frozen_app": "batch-17/part-positive/ev-action-all-open-390-app.png",
+   "tags": [
+    "q40"
+   ],
+   "frozen_titles": [
+    "Declared verification plan"
+   ],
+   "frozen_heights": [
+    406
+   ]
+  }
+ ]
+}

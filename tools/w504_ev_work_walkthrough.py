@@ -477,7 +477,8 @@ def child(op: str, mode: str, work: Path, tag: str) -> int:
 
 SERVE_ENTRY = r'''
 """Tool-local uvicorn entry (tools/w504_ev_work_walkthrough.py serve): the product host app plus, ahead of its
-domain-work routes, the same router behind a WorkGate whose access is a server-configured operator grant."""
+domain-work routes, the same router behind a WorkGate whose access is a server-configured operator grant. Since R373 the global Work
+router (`build_global_work_router`) also sits ahead of the product routes behind that same grant."""
 import json, os
 from lab_app import app
 from assetops_backend import main as M
@@ -499,6 +500,13 @@ routes = list(build_domain_work_router(
     (M.WORK_UNAVAILABLE,), reads=build_domain_action_read_service(url)).routes)
 routes += list(build_work_router(None, registry.ledger_scope, (M.WORK_UNAVAILABLE,), access=access,
                                  command_access=access, lists=build_work_index_service(url)).routes)
+# R373 (B19-15) ruling Q7: global Work (request detail and the four lists) behind the same server-side grant, with
+# the product global router's own service, tenant, scope and unavailable dependencies: denied detail 403, lists filtered.
+from assetops_backend.global_work_api import build_global_work_router
+routes += list(build_global_work_router(
+    M.build_global_work_index_service(url), M.registry_tenant(registry), access=access,
+    unavailable=(M.SiteStoreUnavailable,), details=M.build_global_work_detail_service(url),
+    scope=registry.ledger_scope).routes)
 app.router.routes[0:0] = routes
 '''
 

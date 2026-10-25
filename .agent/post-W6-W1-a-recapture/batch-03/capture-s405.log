@@ -1,0 +1,15 @@
+chrome pid 23888
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/057de30c-0c82-4621-b36b-b43a36d09077?revision_id=385ca44a-95c9-410c-bef2-0d31fdd2f850: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-priced-current 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-priced-current 1440: mock rendered
+PASS  finding-priced-current 1440: same panel count  {"app":["What happened","What limits this conclusion","What to do next","Where to look next"],"mock":["What happened","What limits this conclusion","What to do next","Where to look next"]}
+PASS  finding-priced-current 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/057de30c-0c82-4621-b36b-b43a36d09077?revision_id=385ca44a-95c9-410c-bef2-0d31fdd2f850: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-priced-current 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-priced-current 390: mock rendered
+PASS  finding-priced-current 390: same panel count  {"app":["What happened","What limits this conclusion","What to do next","Where to look next"],"mock":["What happened","What limits this conclusion","What to do next","Where to look next"]}
+PASS  finding-priced-current 390: no app page overflow  {"overflowX":0}
+
+12/12 claims passed; evidence in .agent/post-W6-W1-a-recapture/batch-03/part-s405

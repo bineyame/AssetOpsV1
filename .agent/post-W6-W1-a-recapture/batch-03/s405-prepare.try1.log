@@ -1,0 +1,38 @@
+
+=== === owner case: database assetops_s405_owner_audit, work C:\Users\assef\Bineyame\AssetOpsV1-review4\var\s405_owner_audit ===
+
+=== 1. Isolated work directory, database and TLS material ===
+Work directory: C:\Users\assef\Bineyame\AssetOpsV1-review4\var\s405_owner_audit (code from git HEAD 2b27676c; own var/)
+Database: assetops_s405_owner_audit (dropped and recreated; the developer database is not touched)
+Imported KOBO-001: Imported KOBO-001 site=d7a86d60-ebd0-4a01-9513-32a3e0aeca3c revision=6d9eb76c-65cc-492a-aefe-aba33614d5e1 v1 assets=10 sources=8 sha256=459e0b70a0ba461a59d80525
+Published bindings: Foundation revisions inserted: v2; superseded: 1.
+New TLS certificate C:\Users\assef\Bineyame\AssetOpsV1-review4\var\s405_owner_audit\tls\server.crt (sha256 Fingerprint=4C:F9:C8:BE:AD:30:76:E9:21:AF:96:B7:0C:06:76:CD:3A:6C:57:A5:FE:C5:D9:90:B5:68:AE:3D:8F:71:76:FE); key restricted to the current user
+
+=== 2. TLS product server, registered gateway credential, demo configuration (roles-2) ===
+  Issued aog1.a24552a27e8cce34c8d3e40c09e5a3d0.<redacted> for gateway 'edge-kobo-001'; revoked 0 earlier credential(s); enabled the gateway and 8 named source(s). The secret was written only to C:\Users
+  Credential file: upload.credential.a24552a27e8cce34c8d3e40c09e5a3d0 (in C:\Users\assef\Bineyame\AssetOpsV1-review4\var\s405_owner_audit\credentials)
+  SIMULATED DEMO CONFIGURATION s3-dispatch-demo-config-v1 from `backend/conversions/kobo-001-s3-dispatch-demo-config.json` (sha256 0cc67a9e60909d5a0536cf4dfd3023d575978f7eb138158e892b58350f0400f6).
+  sealing basis: binding set v5 (4022f9a4-c6d4-4fc0-b780-c7c0d8e74d79), Foundation v6, snapshot 140054541a89e1c3..
+
+=== 3. Setup controls (labelled fixture controls) ===
+  setup: reserve = 20 from 2026-10-03T00:00:00Z (Foundation revision 9a4ca547-a310-41ed-9ad4-72029799aa50)
+  setup: runtime = 0 from 2026-10-03T00:00:00Z (Foundation revision b2eb7140-b86a-45aa-8329-bd895140c432)
+
+=== S2 Evidence comparison for KOBO-001 (opens the imported Overview) ===
+  Report: C:\Users\assef\Bineyame\AssetOpsV1-review4\var\s405_owner_audit\tree\var\evidence\migration\kobo-001\20261025T041643054059Z-308f674d-c74f-4db1-822c-40c0a75dbe88.json | Store root: sha256:45c9aee14c06eb6faa860bc04cd3d55d0f9f4320af2d8fd3a7420249e25005f9 (this workspace's evidence and commit stores; a moved or copied store needs its own comparison) | Evidence cutover: permitted
+
+=== SYSTEM diesel price v1 (before P01, so P01 can be priced) ===
+
+=== P01. P01-power (2026-10-23, s4-power-demo-cases-v1) ===
+  P01-power deliver_power (s4-fixture-power-epoch-1): 25 power means, 150 context readings
+  P01-power assess: 1 job(s), 1 run(s)
+  P01-power match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  runner (P01 consequence), exit 0: {"claimed": true, "selected": 2, "appended": 1, "replayed": 1, "no_op": 0, "failed": 0, "deferred": 0, "backlog": 0}
+    work 77a08766-9064-4850-b201-f07d7c412923 ASSUMPTION_PUBLISHED attempt 1 succeeded=True appended=['c825ff93-bd71-46a9-9973-753f146cecde'] replayed=[] no_op=None error=None
+    work ec0c4f85-0bae-4311-9abc-858ebd6fadb4 FINDING_REVISION_APPENDED attempt 1 succeeded=True appended=[] replayed=['c825ff93-bd71-46a9-9973-753f146cecde'] no_op=None error=None
+
+=== F01-gateway: ordinary registered gateway day (Lab run, durable gateway, TLS) ===
+
+=== Stopping every process this script started ===
+gateway exited early; see C:\Users\assef\Bineyame\AssetOpsV1-review4\var\s405_owner_audit\logs\gateway.log
+s405 exit 1

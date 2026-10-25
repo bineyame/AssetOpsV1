@@ -1,6 +1,7 @@
-import { useParams, useSearchParams } from "react-router-dom";
+import { Navigate, useParams, useSearchParams } from "react-router-dom";
 
 import type { FeatureFlags } from "../config/featureFlags";
+import { PageHeader } from "../ui";
 import {
   SITE_DETAIL_HEADING_ID,
   SiteDetails,
@@ -19,6 +20,7 @@ import { useSiteRecord } from "../sites/useSiteRecord";
 import { coldSiteScreen, coldTabSearch } from "./coldSiteRoutes";
 import {
   findingHref,
+  siteEvHref,
   siteEvidenceAcceptedRecordHref,
   siteEvidenceHref,
   siteEvidenceRecordHref,
@@ -27,6 +29,9 @@ import {
   siteFindingHref,
   siteFindingsHref,
   sitePerformanceHref,
+  siteAssetsHref,
+  siteDetailHref,
+  siteFoundationViewHref,
 } from "./operatorSiteRoutes";
 import { findingIndexScopeQuery } from "./SiteAnalyticsFrames";
 import { simulatorLabSiteActions } from "./simulatorLabRoutes";
@@ -130,6 +135,21 @@ export function SiteDetailFrame({
     });
   }
 
+  // post-W6 W2-EV (Q14): an EV_CHARGING Site's home is its built EV Overview; the address query is kept. While the
+  // type is unread, the mini loading state shows, so an EV Site never flashes the mini Overview.
+  if (coldSite !== undefined && record === null) {
+    return (
+      <main aria-labelledby={SITE_DETAIL_HEADING_ID}>
+        <PageHeader title="Site" headingId={SITE_DETAIL_HEADING_ID} />
+        <p>Loading the configured site.</p>
+      </main>
+    );
+  }
+  if (record?.status === "loaded" && record.site.site_type === "EV_CHARGING") {
+    const query = params.toString();
+    return <Navigate replace to={`${siteEvHref(record.site.site_id)}${query === "" ? "" : `?${query}`}`} />;
+  }
+
   return (
     <main aria-labelledby={SITE_DETAIL_HEADING_ID}>
       <SiteDetails
@@ -138,6 +158,7 @@ export function SiteDetailFrame({
         templateLineage={templateLineage}
         tabs={<OperatorSiteTabs siteId={siteId} current="Overview" />}
         parentTrail={() => [{ label: "Sites", to: sitesPath }]}
+        siteHref={siteDetailHref}
         overview={(canonicalId, site) => (
           <SiteOverview
             mini={
@@ -173,6 +194,8 @@ export function SiteDetailFrame({
               assumption: (revisionId) => siteFinancialAssumptionsHref(canonicalId, { revisionId }),
               evidenceRecord: (evidenceId) => siteEvidenceAcceptedRecordHref(canonicalId, evidenceId),
               findingList: (scope) => `${siteFindingsHref(canonicalId)}?${findingIndexScopeQuery(scope)}`,
+              assets: siteAssetsHref(canonicalId),
+              sld: (at) => siteFoundationViewHref(canonicalId, "sld", at),
             }}
             findingIndex={findingIndex}
             analysisHref={(assessmentId, isFinding) =>

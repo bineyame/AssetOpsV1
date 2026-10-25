@@ -1,0 +1,396 @@
+[
+ {
+  "name": "action-evidence-s602b-guardrail",
+  "variant": "C-evreq-real4-160",
+  "w": 1440,
+  "url": "http://localhost:5197/sites/KOBO-001/actions/ab57b93c-f0a7-47da-83e3-40ab53ddf077/evidence",
+  "baseline": {
+   "panels": [
+    {
+     "t": "Evidence requirements",
+     "h": 396
+    }
+   ],
+   "docOverflowX": 0
+  },
+  "synthetic": true,
+  "verified": true,
+  "rows": 4,
+  "labels": [
+   "Earlier window readings",
+   "Later window readings",
+   "Avoidable generator time, both windows",
+   "Comparable conditions and source"
+  ],
+  "chips": [
+   [
+    "Available"
+   ],
+   [
+    "Available"
+   ],
+   [
+    "Available"
+   ],
+   [
+    "Available"
+   ]
+  ],
+  "changedNodes": [
+   "Earlier window readings: detail text",
+   "Earlier window readings: data-verification-window-problems,data-verification-window-gaps",
+   "Later window readings: detail text",
+   "Later window readings: data-verification-window-problems,data-verification-window-gaps",
+   "Avoidable generator time, both windows: detail text",
+   "Comparable conditions and source: comparability detail",
+   "Comparable conditions and source: source detail"
+  ],
+  "fields160": 7,
+  "intendedFields": 7,
+  "title": "Evidence requirements",
+  "panelH": 458,
+  "rowHs": [
+   58,
+   59,
+   54,
+   58
+  ],
+  "clipped": [
+   "CAPTION.visually-hidden"
+  ],
+  "innerScrollX": [
+   "data-table__scroll:1990/1088",
+   "data-table__scroll:1990/1088"
+  ],
+  "tableScroller": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1120,
+    "cw": 1120
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1088,
+    "cw": 1088
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1088,
+    "cw": 1088
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1990,
+    "cw": 1088
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1088,
+    "cw": 1088
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1990,
+    "cw": 1088
+   }
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "action-evidence-s602b-guardrail",
+  "variant": "C-evreq-real4-160",
+  "w": 390,
+  "url": "http://localhost:5197/sites/KOBO-001/actions/ab57b93c-f0a7-47da-83e3-40ab53ddf077/evidence",
+  "baseline": {
+   "panels": [
+    {
+     "t": "Evidence requirements",
+     "h": 605
+    }
+   ],
+   "docOverflowX": 0
+  },
+  "synthetic": true,
+  "verified": true,
+  "rows": 4,
+  "labels": [
+   "Earlier window readings",
+   "Later window readings",
+   "Avoidable generator time, both windows",
+   "Comparable conditions and source"
+  ],
+  "chips": [
+   [
+    "Available"
+   ],
+   [
+    "Available"
+   ],
+   [
+    "Available"
+   ],
+   [
+    "Available"
+   ]
+  ],
+  "changedNodes": [
+   "Earlier window readings: detail text",
+   "Earlier window readings: data-verification-window-problems,data-verification-window-gaps",
+   "Later window readings: detail text",
+   "Later window readings: data-verification-window-problems,data-verification-window-gaps",
+   "Avoidable generator time, both windows: detail text",
+   "Comparable conditions and source: comparability detail",
+   "Comparable conditions and source: source detail"
+  ],
+  "fields160": 7,
+  "intendedFields": 7,
+  "title": "Evidence requirements",
+  "panelH": 956,
+  "rowHs": [
+   174,
+   174,
+   108,
+   174
+  ],
+  "clipped": [
+   "CAPTION.visually-hidden"
+  ],
+  "innerScrollX": [
+   "data-table__scroll:390/286",
+   "data-table__scroll:923/286",
+   "data-table__scroll:1990/286",
+   "data-table__scroll:923/286",
+   "data-table__scroll:1990/286"
+  ],
+  "tableScroller": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 318,
+    "cw": 318
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 390,
+    "cw": 286
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 923,
+    "cw": 286
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1990,
+    "cw": 286
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 923,
+    "cw": 286
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1990,
+    "cw": 286
+   }
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "action-evidence-s602b-default",
+  "variant": "C-evreq-real4-160",
+  "w": 1440,
+  "url": "http://localhost:5196/sites/KOBO-001/actions/e37ce7b6-674c-45b3-b7c6-df74ed0d1729/evidence",
+  "baseline": {
+   "panels": [
+    {
+     "t": "Evidence requirements",
+     "h": 370
+    }
+   ],
+   "docOverflowX": 0
+  },
+  "synthetic": true,
+  "verified": true,
+  "rows": 4,
+  "labels": [
+   "Earlier window readings",
+   "Later window readings",
+   "Avoidable generator time, both windows",
+   "Comparable conditions and source"
+  ],
+  "chips": [
+   [
+    "Available"
+   ],
+   [
+    "Available"
+   ],
+   [
+    "Available"
+   ],
+   [
+    "Available"
+   ]
+  ],
+  "changedNodes": [
+   "Earlier window readings: detail text",
+   "Earlier window readings: data-verification-window-problems,data-verification-window-gaps",
+   "Later window readings: detail text",
+   "Later window readings: data-verification-window-problems,data-verification-window-gaps",
+   "Avoidable generator time, both windows: detail text",
+   "Comparable conditions and source: comparability detail",
+   "Comparable conditions and source: source detail"
+  ],
+  "fields160": 7,
+  "intendedFields": 7,
+  "title": "Evidence requirements",
+  "panelH": 432,
+  "rowHs": [
+   58,
+   59,
+   54,
+   58
+  ],
+  "clipped": [
+   "CAPTION.visually-hidden"
+  ],
+  "innerScrollX": [
+   "data-table__scroll:1990/1088",
+   "data-table__scroll:1990/1088"
+  ],
+  "tableScroller": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1120,
+    "cw": 1120
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1088,
+    "cw": 1088
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1088,
+    "cw": 1088
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1990,
+    "cw": 1088
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1088,
+    "cw": 1088
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1990,
+    "cw": 1088
+   }
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "action-evidence-s602b-default",
+  "variant": "C-evreq-real4-160",
+  "w": 390,
+  "url": "http://localhost:5196/sites/KOBO-001/actions/e37ce7b6-674c-45b3-b7c6-df74ed0d1729/evidence",
+  "baseline": {
+   "panels": [
+    {
+     "t": "Evidence requirements",
+     "h": 531
+    }
+   ],
+   "docOverflowX": 0
+  },
+  "synthetic": true,
+  "verified": true,
+  "rows": 4,
+  "labels": [
+   "Earlier window readings",
+   "Later window readings",
+   "Avoidable generator time, both windows",
+   "Comparable conditions and source"
+  ],
+  "chips": [
+   [
+    "Available"
+   ],
+   [
+    "Available"
+   ],
+   [
+    "Available"
+   ],
+   [
+    "Available"
+   ]
+  ],
+  "changedNodes": [
+   "Earlier window readings: detail text",
+   "Earlier window readings: data-verification-window-problems,data-verification-window-gaps",
+   "Later window readings: detail text",
+   "Later window readings: data-verification-window-problems,data-verification-window-gaps",
+   "Avoidable generator time, both windows: detail text",
+   "Comparable conditions and source: comparability detail",
+   "Comparable conditions and source: source detail"
+  ],
+  "fields160": 7,
+  "intendedFields": 7,
+  "title": "Evidence requirements",
+  "panelH": 898,
+  "rowHs": [
+   174,
+   174,
+   108,
+   174
+  ],
+  "clipped": [
+   "CAPTION.visually-hidden"
+  ],
+  "innerScrollX": [
+   "data-table__scroll:390/286",
+   "data-table__scroll:923/286",
+   "data-table__scroll:1990/286",
+   "data-table__scroll:923/286",
+   "data-table__scroll:1990/286"
+  ],
+  "tableScroller": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 318,
+    "cw": 318
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 390,
+    "cw": 286
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 923,
+    "cw": 286
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1990,
+    "cw": 286
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 923,
+    "cw": 286
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1990,
+    "cw": 286
+   }
+  ],
+  "docOverflowX": 0
+ }
+]

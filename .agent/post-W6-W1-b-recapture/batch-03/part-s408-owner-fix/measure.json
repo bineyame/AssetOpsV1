@@ -1,0 +1,354 @@
+[
+ {
+  "screen": "assumptions",
+  "case": "default",
+  "width": "1440",
+  "historyScroll": {
+   "clientH": 436,
+   "scrollH": 436,
+   "cueHidden": true,
+   "focusable": true,
+   "rows": 3
+  },
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 578,
+    "openDetails": 0
+   },
+   {
+    "t": "Impact preview",
+    "h": 256,
+    "openDetails": 0
+   },
+   {
+    "t": "Interpretation history",
+    "h": 681,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions"
+ },
+ {
+  "screen": "assumptions",
+  "case": "default",
+  "width": "390",
+  "historyScroll": {
+   "clientH": 656,
+   "scrollH": 656,
+   "cueHidden": true,
+   "focusable": true,
+   "rows": 3
+  },
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 934,
+    "openDetails": 0
+   },
+   {
+    "t": "Impact preview",
+    "h": 256,
+    "openDetails": 0
+   },
+   {
+    "t": "Interpretation history",
+    "h": 1045,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 54,
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions"
+ },
+ {
+  "screen": "assumptions",
+  "case": "recorded-T1",
+  "width": "1440",
+  "historyScroll": {
+   "clientH": 436,
+   "scrollH": 436,
+   "cueHidden": true,
+   "focusable": true,
+   "rows": 3
+  },
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 560,
+    "openDetails": 0
+   },
+   {
+    "t": "Impact preview",
+    "h": 256,
+    "openDetails": 0
+   },
+   {
+    "t": "Interpretation history",
+    "h": 681,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A06%3A45.835527%2B00%3A00"
+ },
+ {
+  "screen": "assumptions",
+  "case": "recorded-T1",
+  "width": "390",
+  "historyScroll": {
+   "clientH": 679,
+   "scrollH": 679,
+   "cueHidden": true,
+   "focusable": true,
+   "rows": 3
+  },
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 877,
+    "openDetails": 0
+   },
+   {
+    "t": "Impact preview",
+    "h": 256,
+    "openDetails": 0
+   },
+   {
+    "t": "Interpretation history",
+    "h": 1068,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 54,
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A06%3A45.835527%2B00%3A00"
+ },
+ {
+  "screen": "assumptions",
+  "case": "recorded-T3",
+  "width": "1440",
+  "historyScroll": {
+   "clientH": 436,
+   "scrollH": 436,
+   "cueHidden": true,
+   "focusable": true,
+   "rows": 3
+  },
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 600,
+    "openDetails": 0
+   },
+   {
+    "t": "Impact preview",
+    "h": 256,
+    "openDetails": 0
+   },
+   {
+    "t": "Interpretation history",
+    "h": 681,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00"
+ },
+ {
+  "screen": "assumptions",
+  "case": "recorded-T3",
+  "width": "390",
+  "historyScroll": {
+   "clientH": 656,
+   "scrollH": 656,
+   "cueHidden": true,
+   "focusable": true,
+   "rows": 3
+  },
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 956,
+    "openDetails": 0
+   },
+   {
+    "t": "Impact preview",
+    "h": 256,
+    "openDetails": 0
+   },
+   {
+    "t": "Interpretation history",
+    "h": 1045,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 54,
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00"
+ },
+ {
+  "screen": "assumptions",
+  "case": "T3-page2",
+  "width": "1440",
+  "historyScroll": {
+   "clientH": 225,
+   "scrollH": 225,
+   "cueHidden": true,
+   "focusable": true,
+   "rows": 2
+  },
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 600,
+    "openDetails": 0
+   },
+   {
+    "t": "Impact preview",
+    "h": 256,
+    "openDetails": 0
+   },
+   {
+    "t": "Interpretation history",
+    "h": 470,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2"
+ },
+ {
+  "screen": "assumptions",
+  "case": "T3-page2",
+  "width": "390",
+  "historyScroll": {
+   "clientH": 449,
+   "scrollH": 449,
+   "cueHidden": true,
+   "focusable": true,
+   "rows": 2
+  },
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 956,
+    "openDetails": 0
+   },
+   {
+    "t": "Impact preview",
+    "h": 256,
+    "openDetails": 0
+   },
+   {
+    "t": "Interpretation history",
+    "h": 837,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 54,
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T10%3A07%3A26.430549%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDEwOjA2OjU2LjQ5NzE2OSswMDowMCIsIjE2ZmZmMTZkLWQyNzEtNDdjNi04N2EyLWQ4MTUyNzk2MzI3MCJdLCJmZW5jZSI6InNjaDEtZGJhMWJhMmI2YWU5OTAxZTMwN2Y4ZWUwNTU4N2JhY2Y3MjM3Zjc0MmIwZTVjY2I2MGM5NDZhNDY3ZTA5YTdiMCIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMTA6MDc6MjYuNDMwNTQ5KzAwOjAwIiwic2l0ZV9pZCI6ImViNWRlYTVmLWRjMzUtNGI2Zi04ZDIwLTVlYmFiMTBiZTNkMiIsInRlbmFudF9pZCI6ImZhMjU5NTA1LWZiMmItNDZlMC1hYmE3LWFjYmQzNDcyZGYxNSIsInYiOjF9&history_limit=2"
+ }
+]

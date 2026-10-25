@@ -1,11 +1,11 @@
 {
   "state": "positive",
-  "captured_at": "2026-10-21T10:02:33.988Z",
+  "captured_at": "2026-10-25T00:23:47.300Z",
   "limitation": "Three Sites are in scope; two have selected consequence lines. The mini-grid has no selected consequence revision for this window, so no mini-grid amount appears in the register. The two-row register height is not a three-row mock-density proof; the 293/448 px register maxima still apply.",
   "results": [
     {
       "width": 1440,
-      "app_url": "http://localhost:5299/financials?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "app_url": "http://127.0.0.1:5180/financials?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
       "image": "financials-positive-1440-app.png",
       "ready": true,
       "maxima": {
@@ -27,16 +27,16 @@
         },
         "register": {
           "top": 265,
-          "h": 256,
+          "h": 240,
           "w": 1160
         },
         "notice": {
-          "top": 539,
+          "top": 523,
           "h": 43,
           "w": 1160
         },
         "aggregation": {
-          "top": 600,
+          "top": 584,
           "h": 121,
           "w": 1160
         }
@@ -44,14 +44,14 @@
       "registerTable": {
         "client": 1120,
         "scroll": 1120,
-        "clientH": 154,
-        "scrollH": 154,
+        "clientH": 138,
+        "scrollH": 138,
         "rows": 2,
-        "maxH": "176px",
+        "maxH": "none",
         "headH": 30,
         "rowHs": [
           62,
-          62
+          46
         ]
       },
       "results": {
@@ -104,7 +104,7 @@
       "opened": {
         "image": "financials-positive-1440-open-app.png",
         "aggregation": {
-          "top": 600,
+          "top": 584,
           "h": 248,
           "w": 1160
         },
@@ -136,7 +136,7 @@
     },
     {
       "width": 390,
-      "app_url": "http://localhost:5299/financials?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "app_url": "http://127.0.0.1:5180/financials?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
       "image": "financials-positive-390-app.png",
       "ready": true,
       "maxima": {
@@ -158,16 +158,16 @@
         },
         "register": {
           "top": 476,
-          "h": 288,
+          "h": 272,
           "w": 358
         },
         "notice": {
-          "top": 782,
+          "top": 766,
           "h": 61,
           "w": 358
         },
         "aggregation": {
-          "top": 862,
+          "top": 846,
           "h": 186,
           "w": 358
         }
@@ -175,14 +175,14 @@
       "registerTable": {
         "client": 318,
         "scroll": 800,
-        "clientH": 185,
-        "scrollH": 185,
+        "clientH": 170,
+        "scrollH": 170,
         "rows": 2,
-        "maxH": "300px",
+        "maxH": "none",
         "headH": 30,
         "rowHs": [
           78,
-          78
+          62
         ]
       },
       "results": {
@@ -231,11 +231,11 @@
         "visible": 0,
         "chipFont": "12px/nowrap"
       },
-      "height": 1090,
+      "height": 1074,
       "opened": {
         "image": "financials-positive-390-open-app.png",
         "aggregation": {
-          "top": 862,
+          "top": 846,
           "h": 390,
           "w": 358
         },

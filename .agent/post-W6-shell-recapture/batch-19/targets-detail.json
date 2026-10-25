@@ -1,0 +1,20 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "all-open-wr1",
+  "url": "http://localhost:5181/maintenance/requests/8d4f17c7-6cd8-491a-8cc9-a83fb80d7fdc?site_id=KOBO-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-record",
+  "case": "all-open-wr1",
+  "url": "http://localhost:5181/maintenance/requests/8d4f17c7-6cd8-491a-8cc9-a83fb80d7fdc/record?site_id=KOBO-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-history",
+  "case": "all-open-wr1",
+  "url": "http://localhost:5181/maintenance/requests/8d4f17c7-6cd8-491a-8cc9-a83fb80d7fdc/history?site_id=KOBO-001",
+  "openAll": true
+ }
+]

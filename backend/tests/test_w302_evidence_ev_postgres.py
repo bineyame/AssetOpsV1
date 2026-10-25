@@ -53,6 +53,7 @@ def test_w302_evidence_ev_window_rows_links_and_gaps(chain) -> None:  # noqa: F8
             link = urlsplit(r["links"]["site_readiness"])
             q = {k: at(v[0]) for k, v in parse_qs(link.query).items()}
             assert link.path.endswith("/ev/evidence") and r["links"]["site_readiness_label"] is None
+            assert r["links"]["site"] == link.path[:-len("/evidence")]  # post-W6 W3-estate Q9: `/sites/{code}/ev`
             assert (q["from"], q["to"]) == (w["window_start"], w["window_end"])  # never the estate day bounds
             assert q["known_at"] == mark <= at(body["window"]["known_at"]) + timedelta(seconds=1)
     assert all(g["domain"] == "ev_charging" and g["gap_code"] != "BILLING_GAP" and g["missing_role"] is None

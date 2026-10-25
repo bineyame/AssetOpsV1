@@ -1,0 +1,509 @@
+INFO:     127.0.0.1:54724 - "GET /api/sites HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55047 - "POST /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 201 Created
+INFO:     127.0.0.1:55075 - "POST /api/sites/MG-W402-001/financials/scenarios/f9c540fb-1554-4a41-8003-74ca0f173dce/revisions HTTP/1.1" 201 Created
+INFO:     127.0.0.1:55094 - "POST /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 201 Created
+INFO:     127.0.0.1:55116 - "GET /api/sites/MG-W402-001/opportunities?from=2026-10-05T21:00:00.000000Z&to=2026-10-10T21:00:00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55154 - "POST /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1/scenario-links HTTP/1.1" 201 Created
+INFO:     127.0.0.1:55156 - "POST /api/sites/MG-W402-001/work/decision-links HTTP/1.1" 201 Created
+INFO:     127.0.0.1:55159 - "POST /api/sites/MG-W402-001/work/decision-links HTTP/1.1" 201 Created
+INFO:     127.0.0.1:55163 - "POST /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb/alternatives HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:55165 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00:00:00Z&to=2026-10-26T00:00:00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55174 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00:43:13.504636Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55177 - "GET /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55229 - "GET /api/sites/MG-W402-001/opportunities?from=2026-10-05T21:00:00.000000Z&to=2026-10-10T21:00:00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55263 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55294 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=58e43435-ab35-478c-b0df-2cfa58c08635,b5acf27d-5e2f-41d4-b198-3d51f6d0b6a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55295 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb/alternatives?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:55296 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55300 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49918 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52074 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54185 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54186 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54187 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54184 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55902 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53462 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53463 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53464 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61173 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A43%3A44.621212Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57722 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A43%3A44.621212Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63462 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63463 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63465 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63466 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63467 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63464 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60686 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50061 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50677 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50678 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60170 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A43%3A50.102314Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50116 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A43%3A50.102314Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60268 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60272 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60273 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60275 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60276 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60654 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55738 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49976 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60274 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56131 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=b5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A43%3A54.410004Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64599 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58383 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=b5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A43%3A54.410004Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57763 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57764 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57767 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57768 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57771 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57766 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58034 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61247 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49399 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49400 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61577 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=b5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A43%3A59.361066Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60933 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=b5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A43%3A59.361066Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65450 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65454 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65456 - "GET /api/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65457 - "GET /api/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65458 - "GET /api/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65455 - "GET /api/sites/KOBO-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52171 - "GET /api/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58797 - "GET /api/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58798 - "GET /api/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58799 - "GET /api/sites/KOBO-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65236 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65239 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65241 - "GET /api/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65242 - "GET /api/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65244 - "GET /api/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65240 - "GET /api/sites/KOBO-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53664 - "GET /api/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49672 - "GET /api/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63378 - "GET /api/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63381 - "GET /api/sites/KOBO-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62248 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62249 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62252 - "GET /api/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62254 - "GET /api/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62255 - "GET /api/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62251 - "GET /api/sites/KOBO-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57083 - "GET /api/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55651 - "GET /api/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55653 - "GET /api/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55654 - "GET /api/sites/KOBO-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55891 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55892 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55895 - "GET /api/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55896 - "GET /api/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55897 - "GET /api/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55894 - "GET /api/sites/KOBO-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62857 - "GET /api/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62249 - "GET /api/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54647 - "GET /api/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54648 - "GET /api/sites/KOBO-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64180 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64181 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64183 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64184 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64185 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64182 - "GET /api/sites/MG-W402-001/action-index?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51133 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57100 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58644 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58645 - "GET /api/sites/MG-W402-001/action-index?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57028 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57029 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57031 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57032 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57033 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57030 - "GET /api/sites/MG-W402-001/action-index?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59453 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58360 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58035 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58037 - "GET /api/sites/MG-W402-001/action-index?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53685 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53686 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53688 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:53689 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:53690 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=5 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:53687 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:52265 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:53171 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64479 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=5 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64480 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:52167 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52168 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52170 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:52172 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:52173 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=5 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:52169 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:60396 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:60560 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64704 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=5 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64705 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:51781 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51782 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51783 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=5 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:51785 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:51786 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64861 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=5 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:51784 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:51126 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:51127 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:50846 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56458 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56459 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56461 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56462 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56463 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=5 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56460 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:63372 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:63380 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:63381 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=5 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:63382 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:59593 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59594 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59596 - "GET /api/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:59597 - "GET /api/sites/MG-W402-001/work/maintenance?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:59598 - "GET /api/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:59595 - "GET /api/sites/MG-W402-001/action-index?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64101 - "GET /api/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55391 - "GET /api/sites/MG-W402-001/work/maintenance?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:51454 - "GET /api/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:51455 - "GET /api/sites/MG-W402-001/action-index?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:49673 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49674 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49677 - "GET /api/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:49678 - "GET /api/sites/MG-W402-001/work/maintenance?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:49679 - "GET /api/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:49675 - "GET /api/sites/MG-W402-001/action-index?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56752 - "GET /api/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54425 - "GET /api/sites/MG-W402-001/work/maintenance?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:49222 - "GET /api/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:49223 - "GET /api/sites/MG-W402-001/action-index?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54743 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54744 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54750 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54751 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54752 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50397 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57418 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57419 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54749 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51811 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54939 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A44%3A54.067314Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56350 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A44%3A54.067314Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58545 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58546 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58551 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58552 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58553 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58550 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58037 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63196 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51740 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51741 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60203 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A44%3A58.570141Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59883 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A44%3A58.570141Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51877 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51878 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52302 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59739 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65027 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65028 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65030 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65034 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54576 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54622 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57550 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57554 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57555 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1?known_at=2026-10-25T00%3A45%3A09.218000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57590 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1?known_at=2026-10-25T00%3A45%3A09.218000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57642 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1?known_at=2026-10-25T00%3A45%3A09.218000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53458 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53459 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53460 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1?known_at=2026-10-25T00%3A45%3A09.218000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53466 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1?known_at=2026-10-25T00%3A45%3A09.218000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53468 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1?known_at=2026-10-25T00%3A45%3A09.218000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64316 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53824 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55607 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55608 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55609 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55606 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50129 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62784 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50862 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50863 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58821 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=362ba84b-434e-4c75-ad31-171ca4890440%2Cef1647d6-d81f-4e50-8ffc-a47b94bdf11b%2C023ed5f2-8c95-42d0-baac-118ec7bd1907%2C5f6781ea-d4e2-42b9-8e91-d77e43aa6613%2C58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A45%3A53.382195Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56796 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=362ba84b-434e-4c75-ad31-171ca4890440%2Cef1647d6-d81f-4e50-8ffc-a47b94bdf11b%2C023ed5f2-8c95-42d0-baac-118ec7bd1907%2C5f6781ea-d4e2-42b9-8e91-d77e43aa6613%2C58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A45%3A53.382195Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55869 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55871 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55875 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55876 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55877 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55874 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59489 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59490 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50061 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50062 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59122 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=362ba84b-434e-4c75-ad31-171ca4890440%2Cef1647d6-d81f-4e50-8ffc-a47b94bdf11b%2C023ed5f2-8c95-42d0-baac-118ec7bd1907%2C5f6781ea-d4e2-42b9-8e91-d77e43aa6613%2C58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A45%3A59.006984Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64222 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=362ba84b-434e-4c75-ad31-171ca4890440%2Cef1647d6-d81f-4e50-8ffc-a47b94bdf11b%2C023ed5f2-8c95-42d0-baac-118ec7bd1907%2C5f6781ea-d4e2-42b9-8e91-d77e43aa6613%2C58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A45%3A59.006984Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52980 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52983 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52984 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52986 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52987 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63500 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55871 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52985 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55873 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55307 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=ffca65af-9a58-4dca-914f-8f84c6308fdd%2C7e778d31-f192-41cb-a03c-ff560776614a%2Cb5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A46%3A03.561925Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62028 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=ffca65af-9a58-4dca-914f-8f84c6308fdd%2C7e778d31-f192-41cb-a03c-ff560776614a%2Cb5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A46%3A03.561925Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51700 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51701 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51703 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51704 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51705 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51702 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62248 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50398 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50399 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50400 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56784 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=ffca65af-9a58-4dca-914f-8f84c6308fdd%2C7e778d31-f192-41cb-a03c-ff560776614a%2Cb5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A46%3A09.087614Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58036 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=ffca65af-9a58-4dca-914f-8f84c6308fdd%2C7e778d31-f192-41cb-a03c-ff560776614a%2Cb5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A46%3A09.087614Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56558 - "GET /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56559 - "GET /api/sites/MG-W402-001/opportunities?from=2026-10-05T21:00:00.000000Z&to=2026-10-10T21:00:00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56561 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56562 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=58e43435-ab35-478c-b0df-2cfa58c08635,b5acf27d-5e2f-41d4-b198-3d51f6d0b6a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56571 - "GET /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56572 - "GET /api/sites/MG-W402-001/opportunities?from=2026-10-05T21:00:00.000000Z&to=2026-10-10T21:00:00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56573 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56574 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=58e43435-ab35-478c-b0df-2cfa58c08635,b5acf27d-5e2f-41d4-b198-3d51f6d0b6a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56575 - "GET /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56577 - "GET /api/sites/MG-W402-001/opportunities?from=2026-10-05T21:00:00.000000Z&to=2026-10-10T21:00:00.000000Z&known_at=2026-10-25T00:46:19.759298Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56578 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1?known_at=2026-10-25T00:46:19.759298Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56579 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=58e43435-ab35-478c-b0df-2cfa58c08635,b5acf27d-5e2f-41d4-b198-3d51f6d0b6a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56601 - "GET /api/sites/MG-W402-001/opportunities?from=2026-10-07T21:00:00.000000Z&to=2026-10-12T21:00:00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50958 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50959 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50960 - "GET /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50819 - "GET /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61465 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61467 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61468 - "GET /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61469 - "GET /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54624 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54625 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54626 - "GET /api/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00%3A00%3A00.000000Z&to=2026-10-01T00%3A00%3A00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54627 - "GET /api/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00%3A00%3A00.000000Z&to=2026-10-01T00%3A00%3A00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57300 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57301 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57302 - "GET /api/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00%3A00%3A00.000000Z&to=2026-10-01T00%3A00%3A00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57303 - "GET /api/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00%3A00%3A00.000000Z&to=2026-10-01T00%3A00%3A00.000000Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60158 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60159 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60160 - "GET /api/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00%3A00%3A00.000000Z&to=2026-10-01T00%3A00%3A00.000000Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:60161 - "GET /api/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00%3A00%3A00.000000Z&to=2026-10-01T00%3A00%3A00.000000Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54641 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54642 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54644 - "GET /api/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00%3A00%3A00.000000Z&to=2026-10-01T00%3A00%3A00.000000Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54645 - "GET /api/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00%3A00%3A00.000000Z&to=2026-10-01T00%3A00%3A00.000000Z HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:61355 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61356 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61357 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61358 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61359 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb/alternatives?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61360 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb/alternatives?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:62355 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62356 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62357 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62358 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62359 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb/alternatives?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:62360 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb/alternatives?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:55305 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55307 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55308 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55309 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63576 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63577 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63578 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63579 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49672 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49673 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49675 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49678 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49679 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50950 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50951 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50952 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50953 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50954 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58675 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58676 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58677 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1?known_at=2026-10-25T00%3A46%3A19.759298Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58678 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1?known_at=2026-10-25T00%3A46%3A19.759298Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58680 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1?known_at=2026-10-25T00%3A46%3A19.759298Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62428 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62429 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62430 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1?known_at=2026-10-25T00%3A46%3A19.759298Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62431 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1?known_at=2026-10-25T00%3A46%3A19.759298Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62432 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1?known_at=2026-10-25T00%3A46%3A19.759298Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55878 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55879 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55880 - "GET /api/sites/MG-W402-001/opportunities/dcf6dc61-9f25-48d6-9d0c-8cbb68d3d47d HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55881 - "GET /api/sites/MG-W402-001/opportunities/dcf6dc61-9f25-48d6-9d0c-8cbb68d3d47d HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55882 - "GET /api/sites/MG-W402-001/opportunities/dcf6dc61-9f25-48d6-9d0c-8cbb68d3d47d HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58771 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58772 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58773 - "GET /api/sites/MG-W402-001/opportunities/dcf6dc61-9f25-48d6-9d0c-8cbb68d3d47d HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58775 - "GET /api/sites/MG-W402-001/opportunities/dcf6dc61-9f25-48d6-9d0c-8cbb68d3d47d HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58776 - "GET /api/sites/MG-W402-001/opportunities/dcf6dc61-9f25-48d6-9d0c-8cbb68d3d47d HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55554 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55555 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55558 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55559 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55560 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55557 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63194 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49152 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59599 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59600 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54955 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=362ba84b-434e-4c75-ad31-171ca4890440%2Cef1647d6-d81f-4e50-8ffc-a47b94bdf11b%2C023ed5f2-8c95-42d0-baac-118ec7bd1907%2C5f6781ea-d4e2-42b9-8e91-d77e43aa6613%2C58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A48%3A24.187779Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63196 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=362ba84b-434e-4c75-ad31-171ca4890440%2Cef1647d6-d81f-4e50-8ffc-a47b94bdf11b%2C023ed5f2-8c95-42d0-baac-118ec7bd1907%2C5f6781ea-d4e2-42b9-8e91-d77e43aa6613%2C58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A48%3A24.187779Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53157 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53158 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53160 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53161 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53162 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53159 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52694 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59932 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64143 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54079 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51245 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=362ba84b-434e-4c75-ad31-171ca4890440%2Cef1647d6-d81f-4e50-8ffc-a47b94bdf11b%2C023ed5f2-8c95-42d0-baac-118ec7bd1907%2C5f6781ea-d4e2-42b9-8e91-d77e43aa6613%2C58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A48%3A26.544010Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52856 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=362ba84b-434e-4c75-ad31-171ca4890440%2Cef1647d6-d81f-4e50-8ffc-a47b94bdf11b%2C023ed5f2-8c95-42d0-baac-118ec7bd1907%2C5f6781ea-d4e2-42b9-8e91-d77e43aa6613%2C58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A48%3A26.544010Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52668 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52669 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52671 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52672 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52673 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52670 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56620 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57578 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62898 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62899 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62246 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62247 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62249 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62250 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62251 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62248 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51562 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58920 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49792 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49793 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65319 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65320 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65322 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65323 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65324 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51315 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65321 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52710 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50413 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49671 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51592 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=ffca65af-9a58-4dca-914f-8f84c6308fdd%2C7e778d31-f192-41cb-a03c-ff560776614a%2Cb5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A48%3A32.984781Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63196 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=ffca65af-9a58-4dca-914f-8f84c6308fdd%2C7e778d31-f192-41cb-a03c-ff560776614a%2Cb5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A48%3A32.984781Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58880 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58881 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58883 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58884 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58885 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58882 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53954 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61215 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58751 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58752 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61958 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=ffca65af-9a58-4dca-914f-8f84c6308fdd%2C7e778d31-f192-41cb-a03c-ff560776614a%2Cb5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A48%3A34.933023Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64614 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=ffca65af-9a58-4dca-914f-8f84c6308fdd%2C7e778d31-f192-41cb-a03c-ff560776614a%2Cb5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A48%3A34.933023Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57702 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50242 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57758 - "GET /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58456 - "GET /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54753 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54754 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54755 - "GET /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52513 - "GET /api/sites/MG-W402-001/financials/scenarios HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52830 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52831 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52832 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52833 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52834 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb/alternatives?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:52835 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb/alternatives?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:50203 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50204 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50205 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50206 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50207 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb/alternatives?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:50208 - "GET /api/sites/KOBO-001/findings/9d124bfd-42af-4e85-a888-5662682ca0bb/alternatives?revision_id=52d42cfb-98cd-4a7b-92ca-903050878518 HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:65053 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65054 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65055 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65056 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49787 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49788 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49789 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49790 - "GET /api/sites/MG-W402-001/opportunities/80cc19ba-1169-4b0c-a969-9bf96f0f4bb1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62003 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62004 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62006 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62007 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62008 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62005 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60733 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64108 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58202 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58203 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62247 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=362ba84b-434e-4c75-ad31-171ca4890440%2Cef1647d6-d81f-4e50-8ffc-a47b94bdf11b%2C023ed5f2-8c95-42d0-baac-118ec7bd1907%2C5f6781ea-d4e2-42b9-8e91-d77e43aa6613%2C58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A49%3A20.715777Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61984 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=362ba84b-434e-4c75-ad31-171ca4890440%2Cef1647d6-d81f-4e50-8ffc-a47b94bdf11b%2C023ed5f2-8c95-42d0-baac-118ec7bd1907%2C5f6781ea-d4e2-42b9-8e91-d77e43aa6613%2C58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A49%3A20.715777Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56489 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56490 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56492 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56493 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56494 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56491 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59842 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53780 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49673 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49674 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49254 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=362ba84b-434e-4c75-ad31-171ca4890440%2Cef1647d6-d81f-4e50-8ffc-a47b94bdf11b%2C023ed5f2-8c95-42d0-baac-118ec7bd1907%2C5f6781ea-d4e2-42b9-8e91-d77e43aa6613%2C58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A49%3A25.044849Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52273 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=362ba84b-434e-4c75-ad31-171ca4890440%2Cef1647d6-d81f-4e50-8ffc-a47b94bdf11b%2C023ed5f2-8c95-42d0-baac-118ec7bd1907%2C5f6781ea-d4e2-42b9-8e91-d77e43aa6613%2C58e43435-ab35-478c-b0df-2cfa58c08635&known_at=2026-10-25T00%3A49%3A25.044849Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60974 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60975 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60976 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60978 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60979 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59968 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49813 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49814 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60977 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52526 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65096 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=ffca65af-9a58-4dca-914f-8f84c6308fdd%2C7e778d31-f192-41cb-a03c-ff560776614a%2Cb5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A49%3A29.116378Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53656 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=ffca65af-9a58-4dca-914f-8f84c6308fdd%2C7e778d31-f192-41cb-a03c-ff560776614a%2Cb5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A49%3A29.116378Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56990 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56991 - "GET /api/sites/MG-W402-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56993 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56994 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56995 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56992 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58545 - "GET /api/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50939 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52717 - "GET /api/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52718 - "GET /api/sites/MG-W402-001/action-index?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60194 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=ffca65af-9a58-4dca-914f-8f84c6308fdd%2C7e778d31-f192-41cb-a03c-ff560776614a%2Cb5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A49%3A33.268505Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50083 - "GET /api/sites/MG-W402-001/work/decision-contexts?case_ids=ffca65af-9a58-4dca-914f-8f84c6308fdd%2C7e778d31-f192-41cb-a03c-ff560776614a%2Cb5acf27d-5e2f-41d4-b198-3d51f6d0b6a5&known_at=2026-10-25T00%3A49%3A33.268505Z HTTP/1.1" 200 OK

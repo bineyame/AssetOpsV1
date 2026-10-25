@@ -5,7 +5,7 @@
  * Commit 4 adds the Financials read (`GET /api/estate/financials`, `estate-financials-1`) as its own
  * `EstateFinancialsClient`. The cursor is opaque and passed back unchanged.
  */
-import { estateQueryString, type EstateCoverageSite, type EstateQuery, type EstateSourceBlock } from "./estateClient";
+import { estateQueryString, invalidWindowCopy, type EstateCoverageSite, type EstateQuery, type EstateSourceBlock } from "./estateClient";
 
 export const ESTATE_EVIDENCE_API_PATH = "/api/estate/evidence";
 export const EVIDENCE_SCHEMA = "estate-evidence-1";
@@ -208,7 +208,7 @@ export const EVIDENCE_REFUSAL_COPY: Readonly<Record<string, string>> = {
   ESTATE_STORE_UNAVAILABLE: "Estate data is temporarily unavailable. Try again.",
   ESTATE_BASIS_CHANGED: "The selection changed. Refresh to see the latest basis.",
   ESTATE_SELECTION_INCONSISTENT: "The selection changed. Refresh to see the latest basis.",
-  INVALID_WINDOW: "Choose a UTC window of up to 31 days with a start before its end.",
+  INVALID_WINDOW: "The selected window is invalid.",
   INVALID_KNOWN_AT: "This selection cannot be read. Reset the filters.",
   INVALID_LIMIT: "This selection cannot be read. Reset the filters.",
   INVALID_CURSOR: "This selection cannot be read. Reset the filters.",
@@ -237,7 +237,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-async function read<T>(path: string, schema: string): Promise<EvidenceResult<T>> {
+async function read<T>(path: string, schema: string, window: EstateQuery): Promise<EvidenceResult<T>> {
   let response: Response;
   try {
     response = await fetch(path, { headers: { Accept: "application/json" } });
@@ -256,7 +256,8 @@ async function read<T>(path: string, schema: string): Promise<EvidenceResult<T>>
   }
   const detail = isObject(body) && isObject(body.detail) ? body.detail : null;
   const code = detail !== null && typeof detail.code === "string" ? detail.code : "";
-  const copy = EVIDENCE_REFUSAL_COPY[code];
+  // Post-W6 W3-estate Q14: the shared window classifier, from the page query.
+  const copy = code === "INVALID_WINDOW" ? invalidWindowCopy(window) : EVIDENCE_REFUSAL_COPY[code];
   if (copy === undefined) return unavailable();
   return { status: "refused", httpStatus: response.status, code, copy };
 }
@@ -272,6 +273,7 @@ export function createEstateFinancialsClient(financialsPath: string = ESTATE_FIN
       read(
         `${financialsPath}${estateQueryString({ from: query.from, to: query.to, known_at: query.known_at, limit: query.limit, cursor: query.cursor })}`,
         FINANCIALS_SCHEMA,
+        query,
       ),
   };
 }
@@ -282,6 +284,7 @@ export function createEstateEvidenceMoneyClient(evidencePath: string = ESTATE_EV
       read(
         `${evidencePath}${estateQueryString({ from: query.from, to: query.to, known_at: query.known_at, limit: query.limit, cursor: query.cursor })}`,
         EVIDENCE_SCHEMA,
+        query,
       ),
   };
 }

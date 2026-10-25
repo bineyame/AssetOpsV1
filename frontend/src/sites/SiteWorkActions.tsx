@@ -19,8 +19,8 @@
  * panel-foot note. Past four rows the rest stay in the page, hidden behind a
  * "Show all N Actions" toggle. The former
  * W1-UX-04 answer card is merged into the strip and the panel; there is no
- * separate top card. There is no global Actions list in this build, so the
- * strip has no "Manage in Actions" link.
+ * separate top card. post-W6 W1-b Q36 / R230: the strip ends with the mock's
+ * "Manage in Actions →" link to the mounted global Actions list.
  *
  * The default reading is plain; IDs, the selection rule and the list's fence
  * sit in a "What this list is based on" disclosure. Owner, due date, priority,
@@ -99,6 +99,8 @@ export interface SiteWorkLinks {
   history: (actionId: string, eventId: string) => string;
   /** One Finding at an exact revision. */
   finding: (findingId: string, revisionId: string) => string;
+  /** post-W6 W1-b Q36 / R230: the mounted global Actions list (`Manage in Actions →` on the scope strip). */
+  manage?: string;
 }
 
 export interface SiteWorkActionsProps {
@@ -500,10 +502,12 @@ function WorkStrip({
   siteName,
   scope,
   result,
+  manage,
 }: {
   siteName: string;
   scope: ActionIndexScope | null;
   result: ActionIndexResult | null;
+  manage?: string;
 }) {
   let count: string;
   let words: ProductWords | null = null;
@@ -539,6 +543,14 @@ function WorkStrip({
           {detail}
         </span>
       )}
+      {manage === undefined ? null : (
+        <>
+          <span className="status-strip__spacer" />
+          <Link to={manage} data-site-work-manage>
+            Manage in Actions →
+          </Link>
+        </>
+      )}
     </div>
   );
 }
@@ -564,7 +576,7 @@ export function SiteWorkActions({ siteId, siteName, client, scope, links, onScop
   const rows = shown !== null && shown.status === "loaded" && shown.value.total_count > 0;
   return (
     <div className="w1f4-changes-work" data-site-work="actions">
-      <WorkStrip siteName={siteName} scope={scope} result={shown} />
+      <WorkStrip siteName={siteName} scope={scope} result={shown} manage={links.manage} />
       <Panel
         heading={SITE_WORK_PANEL_TITLE}
         headingId={HEADING_ID}
