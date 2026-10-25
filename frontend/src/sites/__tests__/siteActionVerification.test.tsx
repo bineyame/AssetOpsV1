@@ -900,6 +900,11 @@ describe("post-W6 W1-b: verification tones, sources, plan row headings and confl
     expect(readFileSync(resolve(__dirname, "../w1f4-verification.css"), "utf8")).toMatch(/\.verify-chip--info \{[^}]*background: #e9f0fd;[^}]*color: #275ba8;/);
     expect(requirementTone(false)).toBe("fail");
     expect(requirementTone(null)).toBe("unknown");
+    // Q46 (W1 ruling 57): one visible R385 label immediately below the Evidence requirements table.
+    const r385 = document.querySelectorAll("[data-mock-deviation='R385']");
+    expect(r385).toHaveLength(1);
+    expect(r385[0].textContent).toBe("MOCK DEVIATION D2 (R385)");
+    expect(r385[0].previousElementSibling?.querySelector("[data-verification-requirement-pair='conditions']")).not.toBeNull();
     const sourceCell = document.querySelector("[data-verification-requirement-pair='conditions'] td") as HTMLElement;
     expect(sourceCell.textContent?.split("Registered Lab trial data").length).toBe(2);
     expect(sourcePair("REGISTERED_SIMULATION", "REGISTERED_SIMULATION")).toBe("Registered Lab trial data");
@@ -912,6 +917,11 @@ describe("post-W6 W1-b: verification tones, sources, plan row headings and confl
     await settledScreen();
     const panel = panelTitled("Success criteria");
     expect(panel.closest(".panel")?.classList.contains("w1f4-verification-plan")).toBe(true);
+    // Q46 (W1 ruling 57): one visible R384 label immediately below the Success criteria table.
+    const r384 = panel.querySelectorAll("[data-mock-deviation='R384']");
+    expect(r384).toHaveLength(1);
+    expect(r384[0].textContent).toBe("MOCK DEVIATION D2 (R384)");
+    expect(r384[0].previousElementSibling?.querySelector("[data-verification-rule='target']")).not.toBeNull();
     const rowHeads = panel.querySelectorAll("tbody th[scope='row']");
     expect(rowHeads.length).toBeGreaterThan(0);
     const css = readFileSync(resolve(__dirname, "../w1f4-verification.css"), "utf8");

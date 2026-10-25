@@ -1387,6 +1387,11 @@ function PlanPanel({ body, action, links, explicit, gap }: { body: PlanBody | nu
           </tr>
         </tbody>
       </DataTable>
+      {/* MOCK DEVIATION D2 (post-W6 W1-b Q46, register R384): the Windows (UTC) row, plan line, Dig deeper disclosure,
+          footer note and failed-limit line beyond the mock's four-row Success criteria table. */}
+      <p className="mock-deviation-line" data-mock-deviation="R384">
+        MOCK DEVIATION D2 (R384)
+      </p>
       <DigDeeper name="plan">
         <DataTable labelledBy="site-verification-exact-criteria-caption">
           <caption id="site-verification-exact-criteria-caption">Exact rules and windows</caption>
@@ -1639,6 +1644,11 @@ function EvidencePanel({ body, links, pinnedOutcome, plan, gap }: { body: Eviden
           </tr>
         </tbody>
       </DataTable>
+      {/* MOCK DEVIATION D2 (post-W6 W1-b Q46, register R385): the extra requirement row, status details, readings note,
+          closed slot disclosure and footer beyond the mock's three-row table. */}
+      <p className="mock-deviation-line" data-mock-deviation="R385">
+        MOCK DEVIATION D2 (R385)
+      </p>
       {(["baseline", "later"] as const)
         .filter((name) => !lineage[name].planRead || !lineage[name].bound)
         // An unread plan is one fact for both windows: state it once.
