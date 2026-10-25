@@ -1,0 +1,298 @@
+[
+ {
+  "name": "finding",
+  "variant": "rel-real5",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "What happened",
+    "h": 338
+   },
+   {
+    "t": "What limits this conclusion",
+    "h": 286
+   },
+   {
+    "t": "What to do next",
+    "h": 211
+   },
+   {
+    "t": "Where to look next",
+    "h": 613
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "title": "Where to look next",
+  "panelH": 613,
+  "rowHs": [
+   23,
+   23,
+   23,
+   23,
+   23
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "finding",
+  "variant": "rel-real5",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "What happened",
+    "h": 562
+   },
+   {
+    "t": "What limits this conclusion",
+    "h": 453
+   },
+   {
+    "t": "What to do next",
+    "h": 231
+   },
+   {
+    "t": "Where to look next",
+    "h": 716
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "title": "Where to look next",
+  "panelH": 821,
+  "rowHs": [
+   23,
+   23,
+   23,
+   23,
+   23
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "finding",
+  "variant": "rel-160x5",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "What happened",
+    "h": 338
+   },
+   {
+    "t": "What limits this conclusion",
+    "h": 286
+   },
+   {
+    "t": "What to do next",
+    "h": 211
+   },
+   {
+    "t": "Where to look next",
+    "h": 613
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "title": "Where to look next",
+  "panelH": 753,
+  "rowHs": [
+   23,
+   23,
+   23,
+   23,
+   23
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "finding",
+  "variant": "rel-160x5",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "What happened",
+    "h": 562
+   },
+   {
+    "t": "What limits this conclusion",
+    "h": 453
+   },
+   {
+    "t": "What to do next",
+    "h": 231
+   },
+   {
+    "t": "Where to look next",
+    "h": 716
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "title": "Where to look next",
+  "panelH": 986,
+  "rowHs": [
+   56,
+   56,
+   56,
+   56,
+   56
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "finding",
+  "variant": "limits-160x5",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "What happened",
+    "h": 338
+   },
+   {
+    "t": "What limits this conclusion",
+    "h": 286
+   },
+   {
+    "t": "What to do next",
+    "h": 211
+   },
+   {
+    "t": "Where to look next",
+    "h": 613
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "title": "What limits",
+  "panelH": 465,
+  "rowHs": [
+   43,
+   43,
+   43,
+   43,
+   43
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "finding",
+  "variant": "limits-160x5",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "What happened",
+    "h": 562
+   },
+   {
+    "t": "What limits this conclusion",
+    "h": 453
+   },
+   {
+    "t": "What to do next",
+    "h": 231
+   },
+   {
+    "t": "Where to look next",
+    "h": 716
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "title": "What limits",
+  "panelH": 632,
+  "rowHs": [
+   65,
+   65,
+   65,
+   65,
+   65
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "finding-history",
+  "variant": "history-5",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Revision history",
+    "h": 528
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 25,
+  "fields160": 25,
+  "relatedRowHs": [
+   16,
+   36,
+   36,
+   36,
+   16
+  ],
+  "title": "Revision history",
+  "panelH": 858,
+  "rowHs": [
+   98,
+   98,
+   98,
+   98,
+   98
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ },
+ {
+  "name": "finding-history",
+  "variant": "history-5",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Revision history",
+    "h": 1030
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 25,
+  "fields160": 25,
+  "relatedRowHs": [
+   75,
+   75,
+   75,
+   75,
+   75
+  ],
+  "title": "Revision history",
+  "panelH": 2800,
+  "rowHs": [
+   420,
+   420,
+   420,
+   420,
+   419
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0
+ }
+]

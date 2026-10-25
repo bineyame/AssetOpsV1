@@ -1,0 +1,666 @@
+{
+  "revision": "d5349d6d",
+  "captured_at": "2026-10-25T03:55:18.020Z",
+  "pairs": [
+    {
+      "screen": "actions",
+      "case": "empty-day",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "mock_hash": "#/actions",
+      "app_image": "actions-empty-day-1440-app.png",
+      "mock_image": "actions-empty-day-1440-mock.png",
+      "app": {
+        "titles": [
+          "Managed actions"
+        ],
+        "panels": [
+          {
+            "title": "Managed actions",
+            "x": 248,
+            "y": 314,
+            "w": 1160,
+            "h": 134,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Managed actionsPending → Applied → Verification window → Verified or withdrawnNo actions match.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Actions",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "estate": {
+          "cards": [
+            "Open actions0",
+            "Due / overdueNot setNo due dates recorded",
+            "Verification window0",
+            "Verified in 30 days0No verified outcome in the last 30 days"
+          ],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "Evidence cutoff 2026-11-02 11:04:46 UTC (latest at read time)",
+          "historical": "",
+          "notice": "Verification needs a frozen plan and later accepted evidence. An Action event alone does not prove an outcome.",
+          "limitation": "",
+          "empty": "No actions match.",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [],
+        "cardsDom": [
+          {
+            "t": "Open actions0",
+            "h": 115
+          },
+          {
+            "t": "Due / overdueNot setNo due dates recorded",
+            "h": 115
+          },
+          {
+            "t": "Verification window0",
+            "h": 115
+          },
+          {
+            "t": "Verified in 30 days0No verified outcome in the last 30 days",
+            "h": 115
+          }
+        ],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Managed actions"
+        ],
+        "panels": [
+          {
+            "title": "Managed actions",
+            "x": 234,
+            "y": 375,
+            "w": 1161,
+            "h": 336,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Verification window",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 13,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "ACT-048 · Review generator stop setting",
+                "Kobo",
+                "F-104",
+                "Site controls lead",
+                "Verification window",
+                "≥25% less avoidable generator time; no reserve or service trade-off"
+              ],
+              [
+                "ACT-049 · Restore battery-limit reporting",
+                "Kobo",
+                "F-108",
+                "Instrumentation lead",
+                "Open",
+                "Output limit reported every 15 minutes"
+              ],
+              [
+                "ACT-051 · Witness automatic-start test",
+                "GreenHarvest",
+                "F-118 · INC-203",
+                "Maintenance lead",
+                "Open",
+                "Start requested → generator runs → power → cooling"
+              ],
+              [
+                "ACT-061 · Investigate connector 2",
+                "Depot",
+                "F-130",
+                "Charging operations lead",
+                "Open",
+                "Complete witnessed session; no repeat fault"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-048 · Review generator stop setting -> #/verification",
+                "Kobo -> #/mini",
+                "F-104 -> #/finding"
+              ],
+              [
+                "ACT-049 · Restore battery-limit reporting -> #/sitework",
+                "Kobo -> #/mini",
+                "F-108 -> #/evidence"
+              ],
+              [
+                "ACT-051 · Witness automatic-start test -> #/cold-action",
+                "GreenHarvest -> #/cold",
+                "F-118 -> #/cold-finding",
+                "INC-203 -> #/incident"
+              ],
+              [
+                "ACT-061 · Investigate connector 2 -> #/ev-action",
+                "Depot -> #/ev",
+                "F-130 -> #/ev-finding"
+              ]
+            ],
+            "panelText": "Managed actionsLifecycle: Open → In progress → Completed → Verification window → Verified, Ineffective or InconclusiveActionSiteSourceOwnerStateSuccess criterionACT-048 · Review generator stop settingKoboF-104Site controls leadVerification window≥25% less avoidable generator time; no reserve or service trade-offACT-049 · Restore battery-limit reportingKoboF-108Instrumentation leadOpenOutput limit reported every 15 minutesACT-051 · Witness automatic-start testGreenHarvestF-118 · INC-203Maintenance leadOpenStart requested → generator runs → power → coolingACT-061 · Investigate connector 2DepotF-",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Actions",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "estate": {
+          "cards": [],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "",
+          "historical": "",
+          "notice": "",
+          "limitation": "",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "ACT-048 · Review generator stop setting -> #/verification",
+          "Kobo -> #/mini",
+          "F-104 -> #/finding",
+          "ACT-049 · Restore battery-limit reporting -> #/sitework",
+          "Kobo -> #/mini",
+          "F-108 -> #/evidence",
+          "ACT-051 · Witness automatic-start test -> #/cold-action",
+          "GreenHarvest -> #/cold",
+          "F-118 -> #/cold-finding",
+          "INC-203 -> #/incident",
+          "ACT-061 · Investigate connector 2 -> #/ev-action",
+          "Depot -> #/ev",
+          "F-130 -> #/ev-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "actions",
+      "case": "empty-day",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "mock_hash": "#/actions",
+      "app_image": "actions-empty-day-390-app.png",
+      "mock_image": "actions-empty-day-390-mock.png",
+      "app": {
+        "titles": [
+          "Managed actions"
+        ],
+        "panels": [
+          {
+            "title": "Managed actions",
+            "x": 16,
+            "y": 619,
+            "w": 358,
+            "h": 152,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Managed actionsPending → Applied → Verification window → Verified or withdrawnNo actions match.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Actions",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "estate": {
+          "cards": [
+            "Open actions0",
+            "Due / overdueNot setNo due dates recorded",
+            "Verification window0",
+            "Verified in 30 days0No verified outcome in the last 30 days"
+          ],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "Evidence cutoff 2026-11-02 11:04:51 UTC (latest at read time)",
+          "historical": "",
+          "notice": "Verification needs a frozen plan and later accepted evidence. An Action event alone does not prove an outcome.",
+          "limitation": "",
+          "empty": "No actions match.",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [],
+        "cardsDom": [
+          {
+            "t": "Open actions0",
+            "h": 108
+          },
+          {
+            "t": "Due / overdueNot setNo due dates recorded",
+            "h": 108
+          },
+          {
+            "t": "Verification window0",
+            "h": 127
+          },
+          {
+            "t": "Verified in 30 days0No verified outcome in the last 30 days",
+            "h": 127
+          }
+        ],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Managed actions"
+        ],
+        "panels": [
+          {
+            "title": "Managed actions",
+            "x": 15,
+            "y": 638,
+            "w": 360,
+            "h": 575,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Action",
+              "Site",
+              "Source",
+              "Owner",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Verification window",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 13,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "ACT-048 · Review generator stop setting",
+                "Kobo",
+                "F-104",
+                "Site controls lead",
+                "Verification window",
+                "≥25% less avoidable generator time; no reserve or service trade-off"
+              ],
+              [
+                "ACT-049 · Restore battery-limit reporting",
+                "Kobo",
+                "F-108",
+                "Instrumentation lead",
+                "Open",
+                "Output limit reported every 15 minutes"
+              ],
+              [
+                "ACT-051 · Witness automatic-start test",
+                "GreenHarvest",
+                "F-118 · INC-203",
+                "Maintenance lead",
+                "Open",
+                "Start requested → generator runs → power → cooling"
+              ],
+              [
+                "ACT-061 · Investigate connector 2",
+                "Depot",
+                "F-130",
+                "Charging operations lead",
+                "Open",
+                "Complete witnessed session; no repeat fault"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-048 · Review generator stop setting -> #/verification",
+                "Kobo -> #/mini",
+                "F-104 -> #/finding"
+              ],
+              [
+                "ACT-049 · Restore battery-limit reporting -> #/sitework",
+                "Kobo -> #/mini",
+                "F-108 -> #/evidence"
+              ],
+              [
+                "ACT-051 · Witness automatic-start test -> #/cold-action",
+                "GreenHarvest -> #/cold",
+                "F-118 -> #/cold-finding",
+                "INC-203 -> #/incident"
+              ],
+              [
+                "ACT-061 · Investigate connector 2 -> #/ev-action",
+                "Depot -> #/ev",
+                "F-130 -> #/ev-finding"
+              ]
+            ],
+            "panelText": "Managed actionsLifecycle: Open → In progress → Completed → Verification window → Verified, Ineffective or InconclusiveActionSiteSourceOwnerStateSuccess criterionACT-048 · Review generator stop settingKoboF-104Site controls leadVerification window≥25% less avoidable generator time; no reserve or service trade-offACT-049 · Restore battery-limit reportingKoboF-108Instrumentation leadOpenOutput limit reported every 15 minutesACT-051 · Witness automatic-start testGreenHarvestF-118 · INC-203Maintenance leadOpenStart requested → generator runs → power → coolingACT-061 · Investigate connector 2DepotF-",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1385,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Actions",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "estate": {
+          "cards": [],
+          "chips": "",
+          "lenses": "",
+          "cutoff": "",
+          "historical": "",
+          "notice": "",
+          "limitation": "",
+          "empty": "",
+          "partial": "",
+          "refusal": ""
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "ACT-048 · Review generator stop setting -> #/verification",
+          "Kobo -> #/mini",
+          "F-104 -> #/finding",
+          "ACT-049 · Restore battery-limit reporting -> #/sitework",
+          "Kobo -> #/mini",
+          "F-108 -> #/evidence",
+          "ACT-051 · Witness automatic-start test -> #/cold-action",
+          "GreenHarvest -> #/cold",
+          "F-118 -> #/cold-finding",
+          "INC-203 -> #/incident",
+          "ACT-061 · Investigate connector 2 -> #/ev-action",
+          "Depot -> #/ev",
+          "F-130 -> #/ev-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 573,
+            "cw": 320,
+            "panel": "Managed actions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

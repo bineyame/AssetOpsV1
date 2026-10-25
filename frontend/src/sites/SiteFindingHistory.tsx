@@ -15,7 +15,7 @@
  * reading appends a version and never rewrites an earlier one, and the times
  * shown are not a way to view the Finding as of an earlier moment.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { DataTable, Disclosure, ExactReferences, Panel, ProductStatus, ShowAll } from "../ui";
@@ -52,6 +52,48 @@ type HistoryRead =
   | { status: "loading" }
   | { status: "refused"; read: Exclude<FindingReadResult<FindingHistoryBody>, { status: "loaded" }> }
   | { status: "loaded"; first: FindingHistoryBody; rows: HistoryRevision[]; pages: number; complete: boolean; drift: boolean };
+
+/**
+ * Architect caps2 ruling 3: the "Show all N versions" control and both version tables sit in one labelled,
+ * keyboard-focusable vertical scroll region, so the closed panel stays inside its cap. Nothing is hidden or
+ * truncated; the cue appears only when the content overflows the region.
+ */
+function VersionScroll({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (el === null) return;
+    const measure = () => setOverflows(el.scrollHeight > el.clientHeight + 1);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    for (const child of Array.from(el.children)) observer.observe(child);
+    el.addEventListener("toggle", measure, true);
+    return () => {
+      observer.disconnect();
+      el.removeEventListener("toggle", measure, true);
+    };
+  }, []);
+  return (
+    <>
+      <p className="site-finding-history__scroll-cue" data-history-scroll-cue hidden={!overflows}>
+        Scroll versions to see every row
+      </p>
+      <div
+        ref={ref}
+        className="site-finding-history__versions"
+        role="region"
+        aria-label="Recorded versions"
+        tabIndex={0}
+        data-history-versions-scroll
+      >
+        {children}
+      </div>
+    </>
+  );
+}
 
 function at(instant: string | null | undefined): number | null {
   if (!instant) {
@@ -396,22 +438,24 @@ function RevisionHistory({
           </span>
         ) : null}
       </p>
-      {earlier.length === 0 ? null : (
-        <ShowAll
-          name="finding-history-versions"
-          summary={`Show all ${rows.length} versions (${earlier.length} earlier)`}
-          defaultOpen={earlier.some((r) => r.is_selected)}
-        >
-          <DataTable labelledBy={HEADING_ID}>
-            {versionHead}
-            <tbody>{earlier.map(versionRow)}</tbody>
-          </DataTable>
-        </ShowAll>
-      )}
-      <DataTable labelledBy={HEADING_ID}>
-        {versionHead}
-        <tbody>{latest.map(versionRow)}</tbody>
-      </DataTable>
+      <VersionScroll>
+        {earlier.length === 0 ? null : (
+          <ShowAll
+            name="finding-history-versions"
+            summary={`Show all ${rows.length} versions (${earlier.length} earlier)`}
+            defaultOpen={earlier.some((r) => r.is_selected)}
+          >
+            <DataTable labelledBy={HEADING_ID}>
+              {versionHead}
+              <tbody>{earlier.map(versionRow)}</tbody>
+            </DataTable>
+          </ShowAll>
+        )}
+        <DataTable labelledBy={HEADING_ID}>
+          {versionHead}
+          <tbody>{latest.map(versionRow)}</tbody>
+        </DataTable>
+      </VersionScroll>
       {related.length === 0 ? null : (
         <p className="site-finding-history__related" data-history-related-line>
           Related Findings:{" "}

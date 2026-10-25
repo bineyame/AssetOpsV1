@@ -912,6 +912,7 @@ function CanonicalMiniFinding({
       <PageHeader
         title={title}
         headingId={SITE_FINDING_HEADING_ID}
+        // MOCK DEVIATION D2 (R389): the child subtitle names the Site and Finding kind; the code stays D1 (R65/R74).
         subtitle={`${site.display_name} · generator support finding`}
         // H3 (final review; build-spec ledger l.186) and post-W6 W1-a Q9 / R186: every Finding section (overview,
         // analysis, evidence, history, alternatives, recommendation) carries the v69 `Open site` header action to the
@@ -930,7 +931,7 @@ function CanonicalMiniFinding({
       />
       {/* uF 3 (final review M6): the v69 Alternatives screen is a Findings surface with no Site tab row. post-W6 W1-b
           Q26/Q52: Recommendation drops it too (B4-04). Overview, Analysis, Evidence and History keep it as a registered
-          departure: MOCK DEVIATION D2 (R383), labelled visibly immediately below the retained row. */}
+          departure: MOCK DEVIATION D2 (R383; supersedes W1-a's R395), labelled visibly immediately below the retained row. */}
       {view === "alternatives" || view === "recommendation" ? null : (
         <>
           <OperatorSiteTabs siteId={routeSiteId} current="Findings" />

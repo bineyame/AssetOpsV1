@@ -15,7 +15,8 @@ CAPS = {  # Q23: (screen, panel title) -> {width: cap}
 OPEN_CASE = re.compile(r"all-open|open|expanded", re.I)
 # Closeout ruling 4: batches 10-12 were captured through the forbidden name-rewriting `run_renamed_producer.py`.
 # Their images stay only as non-qualifying diagnostic material; each pair is a capture gap for the Q24 verdict until
-# replaced by an unmodified-producer capture (see each batch's run.md "Replacement run ledger").
+# replaced by an unmodified-producer capture (see each batch's run.md "Replacement run ledger"). Replacement captures
+# (owner DB authorization 2026-10-25) live under batch-NN/replacement/ and win the join (sorted after part-*).
 NON_QUALIFYING = {10: "renamed-producer wrapper", 11: "renamed-producer wrapper", 12: "renamed-producer wrapper"}
 
 def width_of(v):
@@ -74,8 +75,8 @@ shas = collections.Counter(r.get("sha") for r in rows if r.get("sha"))
 md = ["# post-W6 shell recapture index", "",
       f"Selected {len(rows)} pairs (Q24: 176 representative + 230 changed, overlapping). Status: {dict(c)}. SHAs: {dict(shas)}.",
       f"Qualifying {sum(1 for r in rows if r.get('qualifying'))}; capture gaps {sum(1 for r in rows if not r.get('qualifying'))} "
-      "(batches 10-12: non-qualifying diagnostic images from the renamed-producer wrapper, closeout ruling 4; "
-      "replacement capture refused, see batch-10/run.md). The 370-pair recapture is NOT complete.",
+      "(batches 10-12 were replaced by unmodified-producer captures under batch-NN/replacement/, owner DB authorization "
+      "2026-10-25; the earlier renamed-producer images stay in batch-NN/part-* as NON-QUALIFYING diagnostics, closeout ruling 4).",
       "Caps (Q23) apply to closed states; cases named open/expanded are exempt. Other panels flag above frozen + 10% and +20 px.",
       "", "| batch | screen | case | w | status | titles = frozen | overflowX | capped/flagged | image |", "|---|---|---|---|---|---|---|---|---|"]
 for r in rows:

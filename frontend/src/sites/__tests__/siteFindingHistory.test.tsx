@@ -5,9 +5,9 @@
  * back/forward keep exact version IDs; an omitted ID is labelled "latest at
  * read time").
  */
-import { fireEvent, render, screen, cleanup } from "@testing-library/react";
+import { fireEvent, render, screen, cleanup, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
@@ -256,7 +256,8 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     expect(q("[data-history-pin]")).toHaveAttribute("href", `${HISTORY}?revision_id=${rid(205)}`);
     expect(q("[data-finding-section='history']")).toHaveAttribute("aria-current", "page");
     // W1-F5b carry 10: the heading is the selected version's Finding name, not a generic "Finding history".
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator support/);
+    // post-W6 W1-a Q16: the heading is "Finding" until the read settles, then set from the frame's title effect.
+    await waitFor(() => expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator support/));
     expect(screen.getByRole("heading", { level: 1 })).not.toHaveTextContent(/history/i);
     const { violations } = scanProductVocabulary(container, "finding history");
     expect(violations, describeViolations(violations)).toEqual([]);
@@ -631,6 +632,44 @@ describe("W1-F3: Finding History renders exactly the v69 panel (finding-history)
     // The state line, the completeness line and the replay disclaimer stay outside any closed disclosure.
     for (const sel of ["[data-history-state-line]", "[data-history-complete]", "[data-history-kept-as-recorded]"]) {
       expect(visibleOutsideClosedDisclosure(panel().querySelector(sel)!), sel).toBe(true);
+    }
+  });
+
+  it("caps2 ruling 3: both version tables and the Show-all control sit in one labelled, focusable scroll region; the rest stays outside", async () => {
+    await frame(HISTORY, client({ total: 205 }));
+    const region = panel().querySelector("[data-history-versions-scroll]") as HTMLElement;
+    expect(region.getAttribute("role")).toBe("region");
+    expect(region.getAttribute("aria-label")).toBe("Recorded versions");
+    expect(region.tabIndex).toBe(0);
+    expect(region.querySelector("details[data-show-all='finding-history-versions']")).not.toBeNull();
+    expect(region.querySelectorAll("table")).toHaveLength(2);
+    expect(region.querySelectorAll("[data-history-revision]")).toHaveLength(205);
+    for (const sel of ["[data-history-state-line]", "[data-history-summary]", "[data-history-kept-as-recorded]", "[data-exact-references]"]) {
+      const el = panel().querySelector(sel);
+      expect(el, sel).not.toBeNull();
+      expect(region.contains(el), sel).toBe(false);
+    }
+    // jsdom has no layout, so the cue is present but hidden; the CSS caps the region at 400 px (1440) and 1000 px (390).
+    const cue = panel().querySelector("[data-history-scroll-cue]") as HTMLElement;
+    expect(cue.textContent).toBe("Scroll versions to see every row");
+    expect(cue.hidden).toBe(true);
+    // vitest serves imported CSS as empty text and node types are absent, so read from disk untyped.
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/sites/w1f3-finding-history.css`, "utf8");
+    expect(css).toMatch(/\.site-finding-history__versions\s*\{[^}]*max-height:\s*400px;[^}]*overflow-y:\s*auto/);
+    expect(css).toMatch(/max-width:\s*640px\)\s*\{\s*\.site-finding-history__versions\s*\{\s*max-height:\s*1000px/);
+  });
+
+  it("caps2 ruling 3: the cue shows when the region's content overflows its viewport", async () => {
+    const sh = vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(900);
+    const ch = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(400);
+    try {
+      await frame(HISTORY, client({ total: 205 }));
+      await waitFor(() => expect((panel().querySelector("[data-history-scroll-cue]") as HTMLElement).hidden).toBe(false));
+    } finally {
+      sh.mockRestore();
+      ch.mockRestore();
     }
   });
 

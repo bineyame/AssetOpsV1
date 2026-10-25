@@ -1,0 +1,450 @@
+[
+ {
+  "name": "evidence-analysis-d06",
+  "variant": "roles-160x5",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Accepted records behind the conclusions",
+    "h": 452
+   },
+   {
+    "t": "Which clock each time uses",
+    "h": 217
+   },
+   {
+    "t": "Sources in this period",
+    "h": 735
+   },
+   {
+    "t": "Deliveries",
+    "h": 2057
+   },
+   {
+    "t": "Readings by input",
+    "h": 450
+   },
+   {
+    "t": "How each limit is set",
+    "h": 266
+   },
+   {
+    "t": "Analysis status",
+    "h": 159
+   },
+   {
+    "t": "Earlier store comparison",
+    "h": 225
+   },
+   {
+    "t": "Gateway contact",
+    "h": 421
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "hostPanel": "How each limit is set",
+  "rowsInsideClosedDisclosure": true,
+  "intendedFields": 20,
+  "fields160": 20,
+  "panelsAfter": [
+   {
+    "t": "Accepted records behind the conclusions",
+    "h": 452
+   },
+   {
+    "t": "Which clock each time uses",
+    "h": 217
+   },
+   {
+    "t": "Sources in this period",
+    "h": 735
+   },
+   {
+    "t": "Deliveries",
+    "h": 2057
+   },
+   {
+    "t": "Readings by input",
+    "h": 450
+   },
+   {
+    "t": "How each limit is set",
+    "h": 266
+   },
+   {
+    "t": "Analysis status",
+    "h": 159
+   },
+   {
+    "t": "Earlier store comparison",
+    "h": 225
+   },
+   {
+    "t": "Gateway contact",
+    "h": 421
+   }
+  ],
+  "title": "How each limit is se",
+  "panelH": 266,
+  "rowHs": [
+   127,
+   127,
+   127,
+   127,
+   127
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedPanelH": 1389,
+  "openedRowHs": [
+   127,
+   127,
+   127,
+   127,
+   127
+  ],
+  "openedClipped": [],
+  "openedInnerScrollX": [],
+  "openedDocOverflowX": 0
+ },
+ {
+  "name": "evidence-analysis-d06",
+  "variant": "roles-160x5",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Accepted records behind the conclusions",
+    "h": 677
+   },
+   {
+    "t": "Which clock each time uses",
+    "h": 479
+   },
+   {
+    "t": "Sources in this period",
+    "h": 873
+   },
+   {
+    "t": "Deliveries",
+    "h": 2057
+   },
+   {
+    "t": "Readings by input",
+    "h": 570
+   },
+   {
+    "t": "How each limit is set",
+    "h": 497
+   },
+   {
+    "t": "Analysis status",
+    "h": 291
+   },
+   {
+    "t": "Earlier store comparison",
+    "h": 462
+   },
+   {
+    "t": "Gateway contact",
+    "h": 1353
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "hostPanel": "How each limit is set",
+  "rowsInsideClosedDisclosure": true,
+  "intendedFields": 20,
+  "fields160": 20,
+  "panelsAfter": [
+   {
+    "t": "Accepted records behind the conclusions",
+    "h": 662
+   },
+   {
+    "t": "Which clock each time uses",
+    "h": 479
+   },
+   {
+    "t": "Sources in this period",
+    "h": 873
+   },
+   {
+    "t": "Deliveries",
+    "h": 2057
+   },
+   {
+    "t": "Readings by input",
+    "h": 570
+   },
+   {
+    "t": "How each limit is set",
+    "h": 497
+   },
+   {
+    "t": "Analysis status",
+    "h": 291
+   },
+   {
+    "t": "Earlier store comparison",
+    "h": 462
+   },
+   {
+    "t": "Gateway contact",
+    "h": 1353
+   }
+  ],
+  "title": "How each limit is se",
+  "panelH": 497,
+  "rowHs": [
+   414,
+   414,
+   414,
+   414,
+   414
+  ],
+  "clipped": [],
+  "innerScrollX": [
+   "data-table__scroll:328/303"
+  ],
+  "docOverflowX": 0,
+  "openedPanelH": 3287,
+  "openedRowHs": [
+   414,
+   414,
+   414,
+   414,
+   414
+  ],
+  "openedClipped": [],
+  "openedInnerScrollX": [
+   "data-table__scroll:328/303"
+  ],
+  "openedDocOverflowX": 0
+ },
+ {
+  "name": "evidence-analysis-d15",
+  "variant": "roles-160x5",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Accepted records behind the conclusions",
+    "h": 452
+   },
+   {
+    "t": "Which clock each time uses",
+    "h": 217
+   },
+   {
+    "t": "Sources in this period",
+    "h": 735
+   },
+   {
+    "t": "Deliveries",
+    "h": 2057
+   },
+   {
+    "t": "Readings by input",
+    "h": 450
+   },
+   {
+    "t": "How each limit is set",
+    "h": 266
+   },
+   {
+    "t": "Analysis status",
+    "h": 159
+   },
+   {
+    "t": "Earlier store comparison",
+    "h": 225
+   },
+   {
+    "t": "Gateway contact",
+    "h": 421
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "hostPanel": "How each limit is set",
+  "rowsInsideClosedDisclosure": true,
+  "intendedFields": 20,
+  "fields160": 20,
+  "panelsAfter": [
+   {
+    "t": "Accepted records behind the conclusions",
+    "h": 452
+   },
+   {
+    "t": "Which clock each time uses",
+    "h": 217
+   },
+   {
+    "t": "Sources in this period",
+    "h": 735
+   },
+   {
+    "t": "Deliveries",
+    "h": 2057
+   },
+   {
+    "t": "Readings by input",
+    "h": 450
+   },
+   {
+    "t": "How each limit is set",
+    "h": 266
+   },
+   {
+    "t": "Analysis status",
+    "h": 159
+   },
+   {
+    "t": "Earlier store comparison",
+    "h": 225
+   },
+   {
+    "t": "Gateway contact",
+    "h": 421
+   }
+  ],
+  "title": "How each limit is se",
+  "panelH": 266,
+  "rowHs": [
+   127,
+   127,
+   127,
+   127,
+   127
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedPanelH": 1426,
+  "openedRowHs": [
+   127,
+   127,
+   127,
+   127,
+   127
+  ],
+  "openedClipped": [],
+  "openedInnerScrollX": [],
+  "openedDocOverflowX": 0
+ },
+ {
+  "name": "evidence-analysis-d15",
+  "variant": "roles-160x5",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Accepted records behind the conclusions",
+    "h": 677
+   },
+   {
+    "t": "Which clock each time uses",
+    "h": 479
+   },
+   {
+    "t": "Sources in this period",
+    "h": 873
+   },
+   {
+    "t": "Deliveries",
+    "h": 2057
+   },
+   {
+    "t": "Readings by input",
+    "h": 570
+   },
+   {
+    "t": "How each limit is set",
+    "h": 517
+   },
+   {
+    "t": "Analysis status",
+    "h": 291
+   },
+   {
+    "t": "Earlier store comparison",
+    "h": 462
+   },
+   {
+    "t": "Gateway contact",
+    "h": 1353
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "hostPanel": "How each limit is set",
+  "rowsInsideClosedDisclosure": true,
+  "intendedFields": 20,
+  "fields160": 20,
+  "panelsAfter": [
+   {
+    "t": "Accepted records behind the conclusions",
+    "h": 662
+   },
+   {
+    "t": "Which clock each time uses",
+    "h": 479
+   },
+   {
+    "t": "Sources in this period",
+    "h": 873
+   },
+   {
+    "t": "Deliveries",
+    "h": 2057
+   },
+   {
+    "t": "Readings by input",
+    "h": 570
+   },
+   {
+    "t": "How each limit is set",
+    "h": 517
+   },
+   {
+    "t": "Analysis status",
+    "h": 291
+   },
+   {
+    "t": "Earlier store comparison",
+    "h": 462
+   },
+   {
+    "t": "Gateway contact",
+    "h": 1353
+   }
+  ],
+  "title": "How each limit is se",
+  "panelH": 517,
+  "rowHs": [
+   414,
+   414,
+   414,
+   414,
+   414
+  ],
+  "clipped": [],
+  "innerScrollX": [
+   "data-table__scroll:328/303"
+  ],
+  "docOverflowX": 0,
+  "openedPanelH": 3414,
+  "openedRowHs": [
+   414,
+   414,
+   414,
+   414,
+   414
+  ],
+  "openedClipped": [],
+  "openedInnerScrollX": [
+   "data-table__scroll:328/303"
+  ],
+  "openedDocOverflowX": 0
+ }
+]

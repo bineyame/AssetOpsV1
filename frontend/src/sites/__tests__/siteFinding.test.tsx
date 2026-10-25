@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
@@ -674,10 +674,10 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
     expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 12 Oct 2026, 08:01 UTC");
     // W1-F3 review M4: the version and period are said once, in the strip; the panel subtitle keeps the period.
     // post-W6 W1-a Q10: with no Site timezone the period falls back to UTC visibly; exact UTC sits in a closed detail.
-    expect(document.querySelector("[data-chip='period'] [data-period-local]")?.textContent).toBe("2026-10-06 08:00–09:00 UTC (site time zone not recorded)");
+    expect(document.querySelector("[data-chip='period'] [data-period-local]")?.textContent).toBe("2026-10-06 08:00–09:00 UTC (site time zone unavailable; UTC shown)");
     expect(answer.querySelector("[data-product-status-scope]")).toBeNull();
     expect(answer.querySelector("[data-product-status-label]")).toBeNull();
-    expect(answer.textContent).toMatch(/Period covered · 2026-10-06 08:00–09:00 UTC · 1 h/);
+    expect(answer.textContent).toMatch(/Period covered · 2026-10-06 08:00–09:00 UTC \(site time zone unavailable; UTC shown\) · 1 h/);
     // The consequence is not worked out on this page: a muted word, never an amount.
     const money = document.querySelector("[data-finding-card='MONEY']") as HTMLElement;
     expect(money.className).toMatch(/v69-metric--muted/);
@@ -971,6 +971,29 @@ describe("post-W6 W1-a: Finding overview time, links and the exact-version cost 
     );
   });
 
+  it("M1 / Q15 fallback: two related Findings stay inline; five sit behind a count disclosure with every link kept", async () => {
+    const two = body([summary(1, "OPENED")]);
+    two.relations.recurs_after_finding_id = PRIOR;
+    two.relations.split_parts = ["aaaaaaaa-0000-4000-8000-000000000001"];
+    const first = mount(fake({ status: "loaded", value: two }));
+    await settledScreen();
+    const look = () => panelTitled("Where to look next");
+    expect(look().querySelector("[data-show-all='finding-related']")).toBeNull();
+    expect(look().querySelectorAll("[data-finding-related]")).toHaveLength(2);
+    first.unmount();
+    const five = body([summary(1, "OPENED")]);
+    five.relations.recurs_after_finding_id = PRIOR;
+    five.relations.recurred_by = ["aaaaaaaa-0000-4000-8000-000000000002", "aaaaaaaa-0000-4000-8000-000000000003"];
+    five.relations.split_parts = ["aaaaaaaa-0000-4000-8000-000000000001", "aaaaaaaa-0000-4000-8000-000000000004"];
+    mount(fake({ status: "loaded", value: five }));
+    await settledScreen();
+    const disclosure = look().querySelector("details[data-show-all='finding-related']") as HTMLDetailsElement;
+    expect(disclosure.open).toBe(false);
+    expect(disclosure.querySelector("summary")?.textContent).toBe("Show all 5 related Findings");
+    expect(disclosure.querySelectorAll("a[data-finding-related]")).toHaveLength(5);
+    expect(look().querySelectorAll("[data-finding-related]")).toHaveLength(5);
+  });
+
   it("Q12 / R189: a current PRICED answer for the exact version shows Cost exposure, its range and a Financials link", async () => {
     const { client, asked } = costClient((rid) => ({ status: "loaded", value: costBody(rid as string, {}) }));
     mount(loaded(), "", F, true, { financials: client, links: W1A_LINKS });
@@ -982,6 +1005,95 @@ describe("post-W6 W1-a: Finding overview time, links and the exact-version cost 
     expect(moneyCard().querySelector("[data-finding-cost-link]")?.getAttribute("href")).toBe(
       `/sites/KOBO-001/financials?finding_id=${F}&revision_id=rev-2`,
     );
+  });
+
+  it("ruling 2: What happened repeats the Site-time period with the exact template, and every prose repeat agrees", async () => {
+    mount(loaded(), "", F, true, { timeZone: "Africa/Addis_Ababa" });
+    await settledScreen();
+    const answer = happened();
+    expect(answer.querySelector(".panel__description, [data-panel-description]")?.textContent ?? answer.textContent).toContain(
+      "Period covered · 2026-10-06 11:00–12:00 EAT · 1 h",
+    );
+    expect(answer.textContent).toContain("The generator stayed on from 2026-10-06 11:00–12:00 EAT.");
+    expect(answer.textContent).not.toContain("08:00–09:00");
+    expect(document.querySelector("details[data-period-utc]")).not.toBeNull();
+  });
+
+  it("ruling 2: a series-limit end line uses Site time", async () => {
+    const base = body([summary(1, "OPENED")]);
+    const limited = { ...base, revision: { ...base.revision, claim: { ...base.revision.claim, end_reason: "SERIES_LIMIT" as const } } };
+    mount(fake({ status: "loaded", value: limited }), "", F, true, { timeZone: "Africa/Addis_Ababa" });
+    await settledScreen();
+    expect(document.querySelector("[data-finding-end-reason='SERIES_LIMIT']")?.textContent).toContain("ends at 2026-10-06 12:00 EAT because");
+  });
+
+  it.each([["missing", null], ["invalid", "Not/AZone"]])("ruling 3: a %s Site zone shows UTC with the one fallback suffix", async (_n, zone) => {
+    mount(loaded(), "", F, true, { timeZone: zone });
+    await settledScreen();
+    expect(document.querySelector("[data-chip='period'] [data-period-local]")?.textContent).toBe(
+      "2026-10-06 08:00–09:00 UTC (site time zone unavailable; UTC shown)",
+    );
+    expect(happened().textContent).toContain("Period covered · 2026-10-06 08:00–09:00 UTC (site time zone unavailable; UTC shown) · 1 h");
+    expect(document.body.textContent).not.toContain("site time zone not recorded");
+  });
+
+  it("ruling 4: a STALE priced answer shows Not available with the exact out-of-date reason", async () => {
+    const { client } = costClient((rid) => ({ status: "loaded", value: costBody(rid as string, { currentness: "STALE" }) }));
+    mount(loaded(), "", F, true, { financials: client, links: W1A_LINKS });
+    await settledScreen();
+    await screen.findByText((_t, el) => el?.getAttribute("data-finding-cost") === "PRICED");
+    expect(moneyCard().querySelector(".v69-metric__note")?.textContent).toBe(
+      "The cost for this Finding version is out of date; no current amount is shown.",
+    );
+    expect(moneyCard().textContent).not.toMatch(/\d+\.\d\d|USD/);
+  });
+
+  it("ruling 4: a HISTORICAL priced answer names its currentness", async () => {
+    const { client } = costClient((rid) => ({ status: "loaded", value: costBody(rid as string, { currentness: "HISTORICAL" }) }));
+    mount(loaded(), "", F, true, { financials: client, links: W1A_LINKS });
+    await settledScreen();
+    await screen.findByText((_t, el) => el?.getAttribute("data-finding-cost") === "PRICED");
+    expect(moneyCard().querySelector(".v69-metric__note")?.textContent).toContain("historical");
+    expect(moneyCard().querySelector("[data-finding-cost-link]")).toBeNull();
+  });
+
+  it("L1: a cost answer for an earlier version that arrives after the selection changed is never shown", async () => {
+    const resolvers = new Map<string, (r: FinancialReadResult<FindingFinancialsBody>) => void>();
+    const client: FindingCostClient = {
+      getFindingFinancials: (_s, _f, rid) => new Promise((res) => { resolvers.set(rid as string, res); }),
+    };
+    const revs = [summary(1, "OPENED"), summary(2, "BASIS_REFRESHED")];
+    const finding = fake((rid) => ({ status: "loaded", value: body(revs, rid === "rev-1" ? 1 : 2) }));
+    function Switch() {
+      const go = useNavigate();
+      return <button type="button" onClick={() => go(`/sites/KOBO-001/findings/${F}?revision_id=rev-2`)}>switch to version 2</button>;
+    }
+    render(
+      <MemoryRouter initialEntries={[`/sites/KOBO-001/findings/${F}?revision_id=rev-1`]}>
+        <Routes>
+          <Route
+            path="/sites/:siteId/findings/:findingId"
+            element={
+              <main>
+                <Switch />
+                <SiteFinding siteId="KOBO-001" findingId={F} client={finding} financials={client} links={{ ...W1A_LINKS, finding: () => "/x", dispatch: () => "/d", evidence: "/e" } as SiteFindingLinks} />
+              </main>
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    await waitFor(() => expect(resolvers.has("rev-1")).toBe(true));
+    fireEvent.click(screen.getByText("switch to version 2"));
+    await waitFor(() => expect(resolvers.has("rev-2")).toBe(true));
+    // The earlier version's PRICED answer arrives after the selection changed. Its payload deliberately names the
+    // current version, so only the request-keyed guard (not the payload version check) can keep it off the screen.
+    await act(async () => { resolvers.get("rev-1")?.({ status: "loaded", value: costBody("rev-2", { amount: { low: "1.11", high: "9.99" } }) }); });
+    expect(document.body.textContent).not.toContain("9.99");
+    await act(async () => { resolvers.get("rev-2")?.({ status: "loaded", value: costBody("rev-2", { amount: { low: "2.22", high: "7.77" } }) }); });
+    await screen.findByText("2.22 to 7.77 USD");
+    expect(document.body.textContent).not.toContain("9.99");
   });
 
   const UNAVAILABLE_CASES: [string, (rid: string) => FinancialReadResult<FindingFinancialsBody>, string][] = [

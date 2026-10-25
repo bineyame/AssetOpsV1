@@ -5868,3 +5868,17 @@ Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `
 - Frontend: `sites/coldSiteViews.tsx` (five routes, `SelectedWindowBar`, `SOURCE_ROWS`, `RECORD_LABEL`), `sites/coldSiteClient.ts`, `sites/w2-cold-site.css` (route-scoped 1440 widths), `shell/coldSiteRoutes.tsx`.
 - Tests: `backend/tests/test_w204_cold_{migration,consequence,worker,reads}.py`, `frontend/src/sites/__tests__/coldSiteViews.test.tsx`; captures `.agent/W2-04-evidence/`.
 - Open: Data sources chips overflow at the ruled widths (D1); Accepted records 423/345 px, Record cell wraps 3 lines (D2); unbound-row closed What copy (R1); Q-R9 record links unproven; `SOURCE_GATE_CHANGED` path untested; host suite and a final full backend run outstanding; W2-03 `How each limit is set` 225/120 follow-up.
+
+## post-W6 W1-mini-Action-a - W1 mini Overview, Dispatch, Finding and Site Findings D3 fixes (built, in_review)
+
+- Rulings `.agent/post-W6-W1-rulings.md`; packet `.agent/post-W6-W1-a-packet.md`; handoff `.agent/post-W6-W1-a-handoff.md`.
+- Time: `sites/siteTime.ts` is canonical (blob identical to W2-EV 3c533f0f); `sites/findingTime.ts` reshapes it (`findingLocalTime`, `findingLocalPeriod`); shell's `usableZone`/`zoneAbbreviation`/`selectedLocalDay`/`measuredTime` in `LedgerSiteEvidence.tsx` delegate to it (extra EAT set for Asmara/Djibouti/Mogadishu kept in the wrapper).
+- Overview: `SiteDetails` `siteHref` prop gives `Sites › {site} › Overview`; `WindowOverviewLinks.assets`/`sld` (optional); objective card links in `MetricCard link`; Dispatch `assessment` border only when CURRENT (`data-objective-card-tone`).
+- Dispatch: `isIntervalRevision` (performanceDispatchClient) guards `WindowView`; refusal `name="not-interval"`.
+- Finding frame (`CanonicalMiniFinding`): Analysis tab = root `?view=analysis`; `Open site` on all sections (`data-finding-open-site`); refused selection -> `UnavailableTab` Alternatives + `[data-alternatives-finding-unavailable]` line; Alternatives/Recommendation heading = selection title or `Finding`; no money aside; helper only on Alternatives/Recommendation.
+- `SiteFinding`: props `timeZone`, `financials` (`FindingCostClient`, one exact-revision `getFindingFinancials`, priced only for same-revision CURRENT PRICED); links `alternatives`, `assumptions`, `financials`; `LocalViews` removed (implementation stays for Dispatch). `SiteFindingFrame` optional `financials` (default module client).
+- `SiteFindingHistory` `timeZone`: `Time ({zone})`, local `D Mon · HH:MM`.
+- `SiteFindingIndex`: `LensRow`/`ManageHref` contexts, `LensChips({hrefs})` (literal unbuilt chips), `FindingIndexLinks.manage`.
+- Guards: navigation inventory has Alternatives (not Analysis); panelStructure admits the Q16 line.
+- Register: R21 narrowed; R386 (error-boundary backlog), R387-R394 G1 split-offs, R395 (Q52 Finding Site tabs).
+- Open: Q11/Q15 cap fallbacks depend on the capture caps table; W2-EV/W2-cold rebase over the mini Finding hunks.

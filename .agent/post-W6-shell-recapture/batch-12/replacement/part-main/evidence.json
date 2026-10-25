@@ -1,0 +1,4601 @@
+{
+  "revision": "d5349d6d",
+  "captured_at": "2026-10-25T04:07:27.848Z",
+  "pairs": [
+    {
+      "screen": "renewable",
+      "case": "gap-limited",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/MG-W402-001/performance/renewable?from=2026-10-07T21:00:00Z&to=2026-10-12T21:00:00Z",
+      "mock_hash": "#/renewable",
+      "app_image": "renewable-gap-limited-1440-app.png",
+      "mock_image": "renewable-gap-limited-1440-mock.png",
+      "app": {
+        "titles": [
+          "From physical headroom to an opportunity",
+          "Productive-use evaluation",
+          "Eligible and excluded windows"
+        ],
+        "panels": [
+          {
+            "title": "From physical headroom to an opportunity",
+            "x": 248,
+            "y": 506,
+            "w": 725,
+            "h": 263,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "From physical headroom to an opportunityAccepted coverage is incompleteSolar power in the assessed hoursAvailable PV41–43 kWObserved use20 kWRetained marginUnknownAfter retained margin18–20 kWBasis and coverageRetained margin: Unknown. The retained-margin value is not available in this read; inspect the pinned Foundation basis before using this breakdown.Accepted coverage: 180 of 300 minutes in the assessed hours. Maximum sources in one assessed hour: 5.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Productive-use evaluation",
+            "x": 991,
+            "y": 506,
+            "w": 403,
+            "h": 263,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Productive-use evaluationElectrical feasibility does not establish customer demandNo productive-use scenario has been assessed.Electrical capacity does not establish customer demand.The evidence changed. Reload this page.Inspect opportunity constraints",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Eligible and excluded windows",
+            "x": 248,
+            "y": 787,
+            "w": 1145,
+            "h": 383,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Day / period",
+              "Opportunity",
+              "Constraint check",
+              "Decision"
+            ],
+            "chips": [
+              "Eligible",
+              "Eligible",
+              "Eligible",
+              "Not assessed",
+              "Conflict"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "2026-10-08 · 12:00–13:00",
+                "18–20 kWh",
+                "All required evidence present · 663 cited records · Evidence",
+                "Eligible"
+              ],
+              [
+                "2026-10-09 · 12:00–13:00",
+                "18–20 kWh",
+                "All required evidence present · 663 cited records · Evidence",
+                "Eligible"
+              ],
+              [
+                "2026-10-10 · 12:00–13:00",
+                "18–20 kWh",
+                "All required evidence present · 663 cited records · Evidence",
+                "Eligible"
+              ],
+              [
+                "2026-10-11 · 12:00–13:00",
+                "—",
+                "No selected assessment for this hour",
+                "Not assessed"
+              ],
+              [
+                "2026-10-12 · 12:00–13:00",
+                "—",
+                "Storage obligation unknown; Critical service not established; Conflicting evidence · 321 cited records · Evidence",
+                "Conflict"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ],
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ],
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ],
+              [],
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ]
+            ],
+            "panelText": "Eligible and excluded windowsDay / periodOpportunityConstraint checkDecision2026-10-08 · 12:00–13:0018–20 kWhAll required evidence present · 663 cited records · EvidenceEligible2026-10-09 · 12:00–13:0018–20 kWhAll required evidence present · 663 cited records · EvidenceEligible2026-10-10 · 12:00–13:0018–20 kWhAll required evidence present · 663 cited records · EvidenceEligible2026-10-11 · 12:00–13:00—No selected assessment for this hourNot assessed2026-10-12 · 12:00–13:00—Storage obligation unknown; Critical service not established; Conflicting evidence · 321 cited records · EvidenceConflictRe",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1281,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Not assessedLens: OpportunitySelected sources: Prepared example data, not field readingsNo selected assessmentLimited by 3 conditionsStorage obligation unknownCritical service not establishedConflicting evidenceSolar headroom on 3 of 3 assessed daysCompare with Dispatch evidence · Not available yet",
+          "cards": [
+            "PV capability41–43 kWReported PV capability and selected uncertainty",
+            "PV used20 kWAccepted power over 180/300 min",
+            "Usable headroom18–20 kWAfter retained margin and service checks",
+            "Recurring opportunity3 / 3 daysEligible complete days / assessed complete days"
+          ],
+          "notice": [
+            "Opportunity is an evidence-backed capacity estimate. A paired load-addition comparison and local demand validation are required before an investment or revenue claim."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 1,
+          "prepared": true,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "Site-local days 2026-10-08 to 2026-10-12 (Africa/Nairobi)UTC 2026-10-07T21:00:00Z to 2026-10-12T21:00:00ZFirst day Days 12345Apply",
+          "details": 2,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Service -> /sites/MG-W402-001/performance/service",
+          "Dispatch -> /sites/MG-W402-001/performance/dispatch",
+          "Fuel -> /sites/MG-W402-001/performance/fuel",
+          "Renewable -> /sites/MG-W402-001/performance/renewable",
+          "Backup -> /sites/MG-W402-001/performance/backup",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Evidence -> /sites/MG-W402-001/evidence"
+        ],
+        "cardsDom": [
+          {
+            "t": "PV capability41–43 kWReported PV capability and selected uncertainty",
+            "h": 115
+          },
+          {
+            "t": "PV used20 kWAccepted power over 180/300 min",
+            "h": 115
+          },
+          {
+            "t": "Usable headroom18–20 kWAfter retained margin and service checks",
+            "h": 115
+          },
+          {
+            "t": "Recurring opportunity3 / 3 daysEligible complete days / assessed complete days",
+            "h": 115
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel",
+              "Renewable*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "13px": 4,
+          "14px": 4,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1281
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "From physical headroom to an opportunity",
+          "Productive-use evaluation",
+          "Eligible and excluded windows"
+        ],
+        "panels": [
+          {
+            "title": "From physical headroom to an opportunity",
+            "x": 234,
+            "y": 548,
+            "w": 735,
+            "h": 244,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "From physical headroom to an opportunityActual one-minute means cover each eligible one-hour windowAvailable PV42 kWObserved use20 kWRetained margin3 kWUsable headroom18–20[41, 43] kW capability bound − 20 kW load − 3 kW margin = 18–20 kW. No charging obligation or critical service deficit is evidenced in eligible windows.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Productive-use evaluation",
+            "x": 987,
+            "y": 548,
+            "w": 408,
+            "h": 244,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Productive-use evaluationElectrical feasibility does not establish customer demandIllustrative grain mill10 kW × 1 hUp to 10 kWh of additional served energy. At a scenario tariff of $0.25/kWh: $2.50 gross sales, before other costs.Inspect opportunity constraints ↗",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Eligible and excluded windows",
+            "x": 234,
+            "y": 810,
+            "w": 1161,
+            "h": 364,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Day / period",
+              "Opportunity",
+              "Constraint check",
+              "Decision"
+            ],
+            "chips": [
+              "Eligible",
+              "Excluded",
+              "Eligible",
+              "Limited",
+              "Eligible"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Day 1 · 12:00–13:00",
+                "18–20 kWh",
+                "Storage charge acceptance 0; service covered",
+                "Eligible"
+              ],
+              [
+                "Day 2 · 12:00–13:00",
+                "—",
+                "Storage charging obligation",
+                "Excluded"
+              ],
+              [
+                "Day 3 · 12:00–13:00",
+                "18–20 kWh",
+                "All required evidence present",
+                "Eligible"
+              ],
+              [
+                "Day 4 · 12:00–13:00",
+                "—",
+                "Critical service evidence missing",
+                "Limited"
+              ],
+              [
+                "Day 5 · 12:00–13:00",
+                "18–20 kWh",
+                "All required evidence present",
+                "Eligible"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Eligible and excluded windowsDay / periodOpportunityConstraint checkDecisionDay 1 · 12:00–13:0018–20 kWhStorage charge acceptance 0; service coveredEligibleDay 2 · 12:00–13:00—Storage charging obligationExcludedDay 3 · 12:00–13:0018–20 kWhAll required evidence presentEligibleDay 4 · 12:00–13:00—Critical service evidence missingLimitedDay 5 · 12:00–13:0018–20 kWhAll required evidence presentEligible",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1300,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "Service -> #/service",
+          "Dispatch -> #/dispatch",
+          "Fuel -> #/fuel",
+          "Renewable -> #/renewable",
+          "Backup -> #/backup",
+          "Compare with Dispatch evidence → -> #/dispatch"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel",
+              "Renewable*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "10px": 1,
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1256
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "renewable",
+      "case": "gap-limited",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/MG-W402-001/performance/renewable?from=2026-10-07T21:00:00Z&to=2026-10-12T21:00:00Z",
+      "mock_hash": "#/renewable",
+      "app_image": "renewable-gap-limited-390-app.png",
+      "mock_image": "renewable-gap-limited-390-mock.png",
+      "app": {
+        "titles": [
+          "From physical headroom to an opportunity",
+          "Productive-use evaluation",
+          "Eligible and excluded windows"
+        ],
+        "panels": [
+          {
+            "title": "From physical headroom to an opportunity",
+            "x": 16,
+            "y": 889,
+            "w": 358,
+            "h": 263,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "From physical headroom to an opportunityAccepted coverage is incompleteSolar power in the assessed hoursAvailable PV41–43 kWObserved use20 kWRetained marginUnknownAfter retained margin18–20 kWBasis and coverageRetained margin: Unknown. The retained-margin value is not available in this read; inspect the pinned Foundation basis before using this breakdown.Accepted coverage: 180 of 300 minutes in the assessed hours. Maximum sources in one assessed hour: 5.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Productive-use evaluation",
+            "x": 16,
+            "y": 1169,
+            "w": 358,
+            "h": 257,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Productive-use evaluationElectrical feasibility does not establish customer demandNo productive-use scenario has been assessed.Electrical capacity does not establish customer demand.The evidence changed. Reload this page.Inspect opportunity constraints",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Eligible and excluded windows",
+            "x": 16,
+            "y": 1441,
+            "w": 358,
+            "h": 482,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Day / period",
+              "Opportunity",
+              "Constraint check",
+              "Decision"
+            ],
+            "chips": [
+              "Eligible",
+              "Eligible",
+              "Eligible",
+              "Not assessed",
+              "Conflict"
+            ],
+            "links": 4,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "2026-10-08 · 12:00–13:00",
+                "18–20 kWh",
+                "All required evidence present · 663 cited records · Evidence",
+                "Eligible"
+              ],
+              [
+                "2026-10-09 · 12:00–13:00",
+                "18–20 kWh",
+                "All required evidence present · 663 cited records · Evidence",
+                "Eligible"
+              ],
+              [
+                "2026-10-10 · 12:00–13:00",
+                "18–20 kWh",
+                "All required evidence present · 663 cited records · Evidence",
+                "Eligible"
+              ],
+              [
+                "2026-10-11 · 12:00–13:00",
+                "—",
+                "No selected assessment for this hour",
+                "Not assessed"
+              ],
+              [
+                "2026-10-12 · 12:00–13:00",
+                "—",
+                "Storage obligation unknown; Critical service not established; Conflicting evidence · 321 cited records · Evidence",
+                "Conflict"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ],
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ],
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ],
+              [],
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ]
+            ],
+            "panelText": "Eligible and excluded windowsDay / periodOpportunityConstraint checkDecision2026-10-08 · 12:00–13:0018–20 kWhAll required evidence present · 663 cited records · EvidenceEligible2026-10-09 · 12:00–13:0018–20 kWhAll required evidence present · 663 cited records · EvidenceEligible2026-10-10 · 12:00–13:0018–20 kWhAll required evidence present · 663 cited records · EvidenceEligible2026-10-11 · 12:00–13:00—No selected assessment for this hourNot assessed2026-10-12 · 12:00–13:00—Storage obligation unknown; Critical service not established; Conflicting evidence · 321 cited records · EvidenceConflictRe",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2063,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Not assessedLens: OpportunitySelected sources: Prepared example data, not field readingsNo selected assessmentLimited by 3 conditionsStorage obligation unknownCritical service not establishedConflicting evidenceSolar headroom on 3 of 3 assessed daysCompare with Dispatch evidence · Not available yet",
+          "cards": [
+            "PV capability41–43 kWReported PV capability and selected uncertainty",
+            "PV used20 kWAccepted power over 180/300 min",
+            "Usable headroom18–20 kWAfter retained margin and service checks",
+            "Recurring opportunity3 / 3 daysEligible complete days / assessed complete days"
+          ],
+          "notice": [
+            "Opportunity is an evidence-backed capacity estimate. A paired load-addition comparison and local demand validation are required before an investment or revenue claim."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 1,
+          "prepared": true,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "Site-local days 2026-10-08 to 2026-10-12 (Africa/Nairobi)UTC 2026-10-07T21:00:00Z to 2026-10-12T21:00:00ZFirst day Days 12345Apply",
+          "details": 2,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Service -> /sites/MG-W402-001/performance/service",
+          "Dispatch -> /sites/MG-W402-001/performance/dispatch",
+          "Fuel -> /sites/MG-W402-001/performance/fuel",
+          "Renewable -> /sites/MG-W402-001/performance/renewable",
+          "Backup -> /sites/MG-W402-001/performance/backup",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Evidence -> /sites/MG-W402-001/evidence"
+        ],
+        "cardsDom": [
+          {
+            "t": "PV capability41–43 kWReported PV capability and selected uncertainty",
+            "h": 127
+          },
+          {
+            "t": "PV used20 kWAccepted power over 180/300 min",
+            "h": 127
+          },
+          {
+            "t": "Usable headroom18–20 kWAfter retained margin and service checks",
+            "h": 127
+          },
+          {
+            "t": "Recurring opportunity3 / 3 daysEligible complete days / assessed complete days",
+            "h": 127
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel",
+              "Renewable*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 410,
+            "cw": 318,
+            "panel": "Eligible and excluded windows"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "13px": 4,
+          "14px": 4,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "From physical headroom to an opportunity",
+          "Productive-use evaluation",
+          "Eligible and excluded windows"
+        ],
+        "panels": [
+          {
+            "title": "From physical headroom to an opportunity",
+            "x": 15,
+            "y": 937,
+            "w": 360,
+            "h": 272,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "From physical headroom to an opportunityActual one-minute means cover each eligible one-hour windowAvailable PV42 kWObserved use20 kWRetained margin3 kWUsable headroom18–20[41, 43] kW capability bound − 20 kW load − 3 kW margin = 18–20 kW. No charging obligation or critical service deficit is evidenced in eligible windows.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Productive-use evaluation",
+            "x": 15,
+            "y": 1227,
+            "w": 360,
+            "h": 241,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Productive-use evaluationElectrical feasibility does not establish customer demandIllustrative grain mill10 kW × 1 hUp to 10 kWh of additional served energy. At a scenario tariff of $0.25/kWh: $2.50 gross sales, before other costs.Inspect opportunity constraints ↗",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Eligible and excluded windows",
+            "x": 15,
+            "y": 1486,
+            "w": 360,
+            "h": 438,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Day / period",
+              "Opportunity",
+              "Constraint check",
+              "Decision"
+            ],
+            "chips": [
+              "Eligible",
+              "Excluded",
+              "Eligible",
+              "Limited",
+              "Eligible"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Day 1 · 12:00–13:00",
+                "18–20 kWh",
+                "Storage charge acceptance 0; service covered",
+                "Eligible"
+              ],
+              [
+                "Day 2 · 12:00–13:00",
+                "—",
+                "Storage charging obligation",
+                "Excluded"
+              ],
+              [
+                "Day 3 · 12:00–13:00",
+                "18–20 kWh",
+                "All required evidence present",
+                "Eligible"
+              ],
+              [
+                "Day 4 · 12:00–13:00",
+                "—",
+                "Critical service evidence missing",
+                "Limited"
+              ],
+              [
+                "Day 5 · 12:00–13:00",
+                "18–20 kWh",
+                "All required evidence present",
+                "Eligible"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Eligible and excluded windowsDay / periodOpportunityConstraint checkDecisionDay 1 · 12:00–13:0018–20 kWhStorage charge acceptance 0; service coveredEligibleDay 2 · 12:00–13:00—Storage charging obligationExcludedDay 3 · 12:00–13:0018–20 kWhAll required evidence presentEligibleDay 4 · 12:00–13:00—Critical service evidence missingLimitedDay 5 · 12:00–13:0018–20 kWhAll required evidence presentEligible",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2114,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "Service -> #/service",
+          "Dispatch -> #/dispatch",
+          "Fuel -> #/fuel",
+          "Renewable -> #/renewable",
+          "Backup -> #/backup",
+          "Compare with Dispatch evidence → -> #/dispatch"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel",
+              "Renewable*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 512,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 379,
+            "cw": 320,
+            "panel": "Eligible and excluded windows"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "10px": 1,
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "service",
+      "case": "gap-limited",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/MG-W402-001/performance/service?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
+      "mock_hash": "#/service",
+      "app_image": "service-gap-limited-1440-app.png",
+      "mock_image": "service-gap-limited-1440-mock.png",
+      "app": {
+        "titles": [
+          "Where the power went",
+          "Delivered power by addressed load",
+          "What is supported",
+          "What unlocks a service conclusion"
+        ],
+        "panels": [
+          {
+            "title": "Where the power went",
+            "x": 248,
+            "y": 487,
+            "w": 1145,
+            "h": 263,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Where the power wentDelivered is measured · needed is notDelivered power by addressed loadClinic feeder delivered power4 kWGrain mill8 kWResidential feeder8 kWWhat was neededUnknownCoverageDelivered power per addressed load, average of the selected hour. Measured 60 of 60 minutes. The hatched bar is the missing half of a service judgement.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Delivered power by addressed load",
+            "x": 248,
+            "y": 768,
+            "w": 1145,
+            "h": 266,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Load",
+              "Role",
+              "Observed power",
+              "Required-service evidence",
+              "Assessment"
+            ],
+            "chips": [
+              "Unknown",
+              "Unknown",
+              "Unknown"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Clinic feeder delivered power · load-clinic",
+                "Critical service",
+                "4 kW · measured 60 of 60 minutes",
+                "No accepted requested-power record · 60 cited records · Evidence",
+                "Unknown"
+              ],
+              [
+                "Grain mill · load-mill",
+                "Unclassified load",
+                "8 kW · measured 60 of 60 minutes",
+                "No accepted requested-power record · 60 cited records · Evidence",
+                "Unknown"
+              ],
+              [
+                "Residential feeder · load-res",
+                "Unclassified load",
+                "8 kW · measured 60 of 60 minutes",
+                "No accepted requested-power record · 60 cited records · Evidence",
+                "Unknown"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ],
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ],
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ]
+            ],
+            "panelText": "Delivered power by addressed loadLoadRoleObserved powerRequired-service evidenceAssessmentClinic feeder delivered power · load-clinicCritical service4 kW · measured 60 of 60 minutesNo accepted requested-power record · 60 cited records · EvidenceUnknownGrain mill · load-millUnclassified load8 kW · measured 60 of 60 minutesNo accepted requested-power record · 60 cited records · EvidenceUnknownResidential feeder · load-resUnclassified load8 kW · measured 60 of 60 minutesNo accepted requested-power record · 60 cited records · EvidenceUnknown",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "What is supported",
+            "x": 248,
+            "y": 1052,
+            "w": 725,
+            "h": 201,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What is supportedThese readings show delivered power where measured. They do not establish what customers required.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "What unlocks a service conclusion",
+            "x": 991,
+            "y": 1052,
+            "w": 403,
+            "h": 201,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What unlocks a service conclusion3 pieces of evidence would unlock a conclusion:Health clinic (critical): an accepted requested-power record for the same hourGrain mill: an accepted requested-power record for the same hourResidential feeder: an accepted requested-power record for the same hourSee effect on verification · Not available yet",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1303,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Service assessment: UnknownCurrent selectionSelected sources: Prepared example data, not field readingsLimited by 2 conditionsDelivered power is observed; requested-service baseline is incompleteRequested-service baseline missing",
+          "cards": [
+            "Delivered load20 kWMeasured 60 of 60 minutes",
+            "Interruptions seenUnknownNeeds delivered and requested power for every load",
+            "Health clinic (critical)UnknownCritical-service delivered power record · Measured 0 of 60 minutes",
+            "Unserved energyUnknownNeeds demand or request evidence"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 1,
+          "prepared": true,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "Site-local hour 2026-10-12 12:00–13:00 (Africa/Nairobi)UTC 2026-10-12T09:00:00Z to 2026-10-12T10:00:00ZDay Hour 00:0001:0002:0003:0004:0005:0006:0007:0008:0009:0010:0011:0012:0013:0014:0015:0016:0017:0018:0019:0020:0021:0022:0023:00Apply",
+          "details": 2,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Service -> /sites/MG-W402-001/performance/service",
+          "Dispatch -> /sites/MG-W402-001/performance/dispatch",
+          "Fuel -> /sites/MG-W402-001/performance/fuel",
+          "Renewable -> /sites/MG-W402-001/performance/renewable",
+          "Backup -> /sites/MG-W402-001/performance/backup",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Evidence -> /sites/MG-W402-001/evidence"
+        ],
+        "cardsDom": [
+          {
+            "t": "Delivered load20 kWMeasured 60 of 60 minutes",
+            "h": 119
+          },
+          {
+            "t": "Interruptions seenUnknownNeeds delivered and requested power for every load",
+            "h": 119
+          },
+          {
+            "t": "Health clinic (critical)UnknownCritical-service delivered power record · Measure",
+            "h": 119
+          },
+          {
+            "t": "Unserved energyUnknownNeeds demand or request evidence",
+            "h": 119
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Service*",
+              "Dispatch",
+              "Fuel",
+              "Renewable",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "13px": 4,
+          "14px": 5
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1303
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Where the power went",
+          "Delivered power by addressed load",
+          "What is supported",
+          "What unlocks a service conclusion"
+        ],
+        "panels": [
+          {
+            "title": "Where the power went",
+            "x": 234,
+            "y": 547,
+            "w": 1161,
+            "h": 240,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Where the power wentDelivered is measured · needed is notResidential18 kWGrain mill8 kWClinic (critical)4 kWWhat was neededUnknownDelivered power per feeder, average of the selected hour. The hatched bar is the missing half of a service judgement.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Delivered power by addressed load",
+            "x": 234,
+            "y": 805,
+            "w": 1161,
+            "h": 262,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Load",
+              "Role",
+              "Observed power",
+              "Required-service evidence",
+              "Assessment"
+            ],
+            "chips": [
+              "Unknown",
+              "Unknown",
+              "Unknown"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Residential feeder",
+                "General service",
+                "18 kW",
+                "No supported demand baseline",
+                "Unknown"
+              ],
+              [
+                "Clinic",
+                "Critical service",
+                "4 kW",
+                "Instrumented request source not yet available",
+                "Unknown"
+              ],
+              [
+                "Grain mill",
+                "Productive use",
+                "8 kW",
+                "Schedule/request evidence required",
+                "Unknown"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Delivered power by addressed loadLoadRoleObserved powerRequired-service evidenceAssessmentResidential feederGeneral service18 kWNo supported demand baselineUnknownClinicCritical service4 kWInstrumented request source not yet availableUnknownGrain millProductive use8 kWSchedule/request evidence requiredUnknown",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "What is supported",
+            "x": 234,
+            "y": 1085,
+            "w": 735,
+            "h": 177,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What is supportedThe three meters report delivered power. These values describe supply to the loads during measured intervals; they do not independently establish what customers required.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "What unlocks a service conclusion",
+            "x": 987,
+            "y": 1085,
+            "w": 408,
+            "h": 177,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What unlocks a service conclusionFor controllable clinic loads, pair a reported requested-power record with delivered power. For passive loads, use evidenced service availability or a labelled demand model.See effect on verification →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1328,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "Service -> #/service",
+          "Dispatch -> #/dispatch",
+          "Fuel -> #/fuel",
+          "Renewable -> #/renewable",
+          "Backup -> #/backup",
+          "See effect on verification → -> #/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Service*",
+              "Dispatch",
+              "Fuel",
+              "Renewable",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "10px": 1,
+          "12px": 2,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1284
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "service",
+      "case": "gap-limited",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/MG-W402-001/performance/service?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
+      "mock_hash": "#/service",
+      "app_image": "service-gap-limited-390-app.png",
+      "mock_image": "service-gap-limited-390-mock.png",
+      "app": {
+        "titles": [
+          "Where the power went",
+          "Delivered power by addressed load",
+          "What is supported",
+          "What unlocks a service conclusion"
+        ],
+        "panels": [
+          {
+            "title": "Where the power went",
+            "x": 16,
+            "y": 855,
+            "w": 358,
+            "h": 263,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Where the power wentDelivered is measured · needed is notDelivered power by addressed loadClinic feeder delivered power4 kWGrain mill8 kWResidential feeder8 kWWhat was neededUnknownCoverageDelivered power per addressed load, average of the selected hour. Measured 60 of 60 minutes. The hatched bar is the missing half of a service judgement.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Delivered power by addressed load",
+            "x": 16,
+            "y": 1136,
+            "w": 358,
+            "h": 326,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Load",
+              "Role",
+              "Observed power",
+              "Required-service evidence",
+              "Assessment"
+            ],
+            "chips": [
+              "Unknown",
+              "Unknown",
+              "Unknown"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Clinic feeder delivered power · load-clinic",
+                "Critical service",
+                "4 kW · measured 60 of 60 minutes",
+                "No accepted requested-power record · 60 cited records · Evidence",
+                "Unknown"
+              ],
+              [
+                "Grain mill · load-mill",
+                "Unclassified load",
+                "8 kW · measured 60 of 60 minutes",
+                "No accepted requested-power record · 60 cited records · Evidence",
+                "Unknown"
+              ],
+              [
+                "Residential feeder · load-res",
+                "Unclassified load",
+                "8 kW · measured 60 of 60 minutes",
+                "No accepted requested-power record · 60 cited records · Evidence",
+                "Unknown"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ],
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ],
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ]
+            ],
+            "panelText": "Delivered power by addressed loadLoadRoleObserved powerRequired-service evidenceAssessmentClinic feeder delivered power · load-clinicCritical service4 kW · measured 60 of 60 minutesNo accepted requested-power record · 60 cited records · EvidenceUnknownGrain mill · load-millUnclassified load8 kW · measured 60 of 60 minutesNo accepted requested-power record · 60 cited records · EvidenceUnknownResidential feeder · load-resUnclassified load8 kW · measured 60 of 60 minutesNo accepted requested-power record · 60 cited records · EvidenceUnknown",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "What is supported",
+            "x": 16,
+            "y": 1480,
+            "w": 358,
+            "h": 149,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What is supportedThese readings show delivered power where measured. They do not establish what customers required.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "What unlocks a service conclusion",
+            "x": 16,
+            "y": 1645,
+            "w": 358,
+            "h": 201,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What unlocks a service conclusion3 pieces of evidence would unlock a conclusion:Health clinic (critical): an accepted requested-power record for the same hourGrain mill: an accepted requested-power record for the same hourResidential feeder: an accepted requested-power record for the same hourSee effect on verification · Not available yet",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1886,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Service assessment: UnknownCurrent selectionSelected sources: Prepared example data, not field readingsLimited by 2 conditionsDelivered power is observed; requested-service baseline is incompleteRequested-service baseline missing",
+          "cards": [
+            "Delivered load20 kWMeasured 60 of 60 minutes",
+            "Interruptions seenUnknownNeeds delivered and requested power for every load",
+            "Health clinic (critical)UnknownCritical-service delivered power record · Measured 0 of 60 minutes",
+            "Unserved energyUnknownNeeds demand or request evidence"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 1,
+          "prepared": true,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "Site-local hour 2026-10-12 12:00–13:00 (Africa/Nairobi)UTC 2026-10-12T09:00:00Z to 2026-10-12T10:00:00ZDay Hour 00:0001:0002:0003:0004:0005:0006:0007:0008:0009:0010:0011:0012:0013:0014:0015:0016:0017:0018:0019:0020:0021:0022:0023:00Apply",
+          "details": 2,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Service -> /sites/MG-W402-001/performance/service",
+          "Dispatch -> /sites/MG-W402-001/performance/dispatch",
+          "Fuel -> /sites/MG-W402-001/performance/fuel",
+          "Renewable -> /sites/MG-W402-001/performance/renewable",
+          "Backup -> /sites/MG-W402-001/performance/backup",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Evidence -> /sites/MG-W402-001/evidence"
+        ],
+        "cardsDom": [
+          {
+            "t": "Delivered load20 kWMeasured 60 of 60 minutes",
+            "h": 115
+          },
+          {
+            "t": "Interruptions seenUnknownNeeds delivered and requested power for every load",
+            "h": 115
+          },
+          {
+            "t": "Health clinic (critical)UnknownCritical-service delivered power record · Measure",
+            "h": 131
+          },
+          {
+            "t": "Unserved energyUnknownNeeds demand or request evidence",
+            "h": 131
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Service*",
+              "Dispatch",
+              "Fuel",
+              "Renewable",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 521,
+            "cw": 318,
+            "panel": "Delivered power by addressed load"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "13px": 4,
+          "14px": 5
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Where the power went",
+          "Delivered power by addressed load",
+          "What is supported",
+          "What unlocks a service conclusion"
+        ],
+        "panels": [
+          {
+            "title": "Where the power went",
+            "x": 15,
+            "y": 921,
+            "w": 360,
+            "h": 256,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Where the power wentDelivered is measured · needed is notResidential18 kWGrain mill8 kWClinic (critical)4 kWWhat was neededUnknownDelivered power per feeder, average of the selected hour. The hatched bar is the missing half of a service judgement.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Delivered power by addressed load",
+            "x": 15,
+            "y": 1195,
+            "w": 360,
+            "h": 296,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Load",
+              "Role",
+              "Observed power",
+              "Required-service evidence",
+              "Assessment"
+            ],
+            "chips": [
+              "Unknown",
+              "Unknown",
+              "Unknown"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Residential feeder",
+                "General service",
+                "18 kW",
+                "No supported demand baseline",
+                "Unknown"
+              ],
+              [
+                "Clinic",
+                "Critical service",
+                "4 kW",
+                "Instrumented request source not yet available",
+                "Unknown"
+              ],
+              [
+                "Grain mill",
+                "Productive use",
+                "8 kW",
+                "Schedule/request evidence required",
+                "Unknown"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Delivered power by addressed loadLoadRoleObserved powerRequired-service evidenceAssessmentResidential feederGeneral service18 kWNo supported demand baselineUnknownClinicCritical service4 kWInstrumented request source not yet availableUnknownGrain millProductive use8 kWSchedule/request evidence requiredUnknown",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "What is supported",
+            "x": 15,
+            "y": 1508,
+            "w": 360,
+            "h": 142,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What is supportedThe three meters report delivered power. These values describe supply to the loads during measured intervals; they do not independently establish what customers required.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "What unlocks a service conclusion",
+            "x": 15,
+            "y": 1668,
+            "w": 360,
+            "h": 177,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What unlocks a service conclusionFor controllable clinic loads, pair a reported requested-power record with delivered power. For passive loads, use evidenced service availability or a labelled demand model.See effect on verification →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1939,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "Service -> #/service",
+          "Dispatch -> #/dispatch",
+          "Fuel -> #/fuel",
+          "Renewable -> #/renewable",
+          "Backup -> #/backup",
+          "See effect on verification → -> #/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Service*",
+              "Dispatch",
+              "Fuel",
+              "Renewable",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 512,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 511,
+            "cw": 320,
+            "panel": "Delivered power by addressed load"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 1,
+          "12px": 2,
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "fuel",
+      "case": "gap-limited",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/MG-W402-001/performance/fuel?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
+      "mock_hash": "#/fuel",
+      "app_image": "fuel-gap-limited-1440-app.png",
+      "mock_image": "fuel-gap-limited-1440-mock.png",
+      "app": {
+        "titles": [
+          "Fuel balance at a glance",
+          "Balance bridge",
+          "Inspect existing generator fuel interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Fuel balance at a glance",
+            "x": 248,
+            "y": 482,
+            "w": 1145,
+            "h": 294,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Fuel balance at a glanceOpening + deliveries − use − closingFuel balance termsOpening tankUnknown+ DeliveriesUnknown− Modelled generator useUnknown− Closing tankUnknown= UnexplainedUnknownHatched bars are missing evidence. A residual is shown only when every term has a supported range.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Balance bridge",
+            "x": 248,
+            "y": 794,
+            "w": 1145,
+            "h": 353,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Term",
+              "Evidence basis",
+              "Treatment"
+            ],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Opening inventory · Unknown",
+                "Missing · 0 cited records",
+                "Missing"
+              ],
+              [
+                "Plus deliveries · Delivery completeness unconfirmed",
+                "No attested delivery record · 0 cited records",
+                "Delivery completeness unconfirmed"
+              ],
+              [
+                "Less generator consumption · Unknown",
+                "Missing · 20 cited records · Evidence",
+                "Missing"
+              ],
+              [
+                "Less closing inventory · Unknown",
+                "Missing · 0 cited records",
+                "Missing"
+              ],
+              [
+                "Unexplained residual · Cannot compute",
+                "Missing · 0 cited records",
+                "Needs every term with a supported range; never infers theft"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ],
+              [],
+              []
+            ],
+            "panelText": "Balance bridgeTermEvidence basisTreatmentOpening inventory · UnknownMissing · 0 cited recordsMissingPlus deliveries · Delivery completeness unconfirmedNo attested delivery record · 0 cited recordsDelivery completeness unconfirmedLess generator consumption · UnknownMissing · 20 cited records · EvidenceMissingLess closing inventory · UnknownMissing · 0 cited recordsMissingUnexplained residual · Cannot computeMissing · 0 cited recordsNeeds every term with a supported range; never infers theft",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Inspect existing generator fuel interpretation",
+            "x": 248,
+            "y": 1226,
+            "w": 1145,
+            "h": 134,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Inspect existing generator fuel interpretationDispatch may have a separate modelled fuel quantity for a selected Finding. It is not a complete inventory balance.No linked dispatch consequence Inspect fuel basis",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1409,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Fuel balance: evidence limitedSelected sources: Prepared example data, not field readingsCurrent selectionLimited by 4 conditionsA complete inventory balance needs deliveries and closing evidence.Incomplete hourDelivery completeness unconfirmedNo accepted closing tank reading",
+          "cards": [
+            "Opening evidenceUnknownAccepted tank opening or Unknown",
+            "Recorded deliveriesDelivery completeness unconfirmedComplete delivery record unavailable",
+            "Modelled expected useUnknownModelled quantity unavailable",
+            "ResidualCannot computeCannot compute without complete deliveries"
+          ],
+          "notice": [
+            "A fuel residual is unexplained inventory movement with uncertainty. It cannot establish theft or be added to dispatch fuel exposure."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": true,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "Site-local hour 2026-10-12 12:00–13:00 (Africa/Nairobi)UTC 2026-10-12T09:00:00Z to 2026-10-12T10:00:00ZDay Hour 00:0001:0002:0003:0004:0005:0006:0007:0008:0009:0010:0011:0012:0013:0014:0015:0016:0017:0018:0019:0020:0021:0022:0023:00Apply",
+          "details": 1,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Service -> /sites/MG-W402-001/performance/service",
+          "Dispatch -> /sites/MG-W402-001/performance/dispatch",
+          "Fuel -> /sites/MG-W402-001/performance/fuel",
+          "Renewable -> /sites/MG-W402-001/performance/renewable",
+          "Backup -> /sites/MG-W402-001/performance/backup",
+          "Evidence -> /sites/MG-W402-001/evidence"
+        ],
+        "cardsDom": [
+          {
+            "t": "Opening evidenceUnknownAccepted tank opening or Unknown",
+            "h": 114
+          },
+          {
+            "t": "Recorded deliveriesDelivery completeness unconfirmedComplete delivery record una",
+            "h": 114
+          },
+          {
+            "t": "Modelled expected useUnknownModelled quantity unavailable",
+            "h": 114
+          },
+          {
+            "t": "ResidualCannot computeCannot compute without complete deliveries",
+            "h": 114
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel*",
+              "Renewable",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "13px": 5,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1409
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Fuel balance at a glance",
+          "Balance bridge",
+          "Inspect existing generator fuel interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Fuel balance at a glance",
+            "x": 234,
+            "y": 563,
+            "w": 1161,
+            "h": 271,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Fuel balance at a glanceOpening + deliveries − use − closingOpening tank200 L+ DeliveriesUnknown− Generator use4.9–5.9 L− Closing tankUnknown= UnexplainedCannot computeHatched bars are missing evidence. A residual is shown only when every term has a supported range.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Balance bridge",
+            "x": 234,
+            "y": 852,
+            "w": 1161,
+            "h": 332,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Term",
+              "Evidence basis",
+              "Treatment"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Opening inventory",
+                "Tank level reading",
+                "Retain sensor uncertainty"
+              ],
+              [
+                "Plus deliveries",
+                "Delivery / operator records",
+                "Missing completeness blocks precise reconciliation"
+              ],
+              [
+                "Less generator consumption",
+                "Measured output × configured coefficient",
+                "Modelled range, not fuel-meter reading"
+              ],
+              [
+                "Less closing inventory",
+                "Tank reading / witnessed dip",
+                "Require a supported closing bound"
+              ],
+              [
+                "Unexplained residual",
+                "Opening + delivery − use − closing",
+                "Compare with combined uncertainty; never infer theft"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Balance bridgeTermEvidence basisTreatmentOpening inventoryTank level readingRetain sensor uncertaintyPlus deliveriesDelivery / operator recordsMissing completeness blocks precise reconciliationLess generator consumptionMeasured output × configured coefficientModelled range, not fuel-meter readingLess closing inventoryTank reading / witnessed dipRequire a supported closing boundUnexplained residualOpening + delivery − use − closingCompare with combined uncertainty; never infer theft",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Inspect existing generator fuel interpretation",
+            "x": 234,
+            "y": 1262,
+            "w": 1161,
+            "h": 149,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Inspect existing generator fuel interpretationThe dispatch Finding already has a bounded modelled fuel quantity for Candidate portions. This is a separate technical interpretation from a complete fuel-inventory balance.Open dispatch consequence Inspect fuel basis ↗",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1477,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "Service -> #/service",
+          "Dispatch -> #/dispatch",
+          "Fuel -> #/fuel",
+          "Renewable -> #/renewable",
+          "Backup -> #/backup",
+          "Open dispatch consequence -> #/financials"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel*",
+              "Renewable",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "10px": 1,
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1433
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "fuel",
+      "case": "gap-limited",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/MG-W402-001/performance/fuel?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
+      "mock_hash": "#/fuel",
+      "app_image": "fuel-gap-limited-390-app.png",
+      "mock_image": "fuel-gap-limited-390-mock.png",
+      "app": {
+        "titles": [
+          "Fuel balance at a glance",
+          "Balance bridge",
+          "Inspect existing generator fuel interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Fuel balance at a glance",
+            "x": 16,
+            "y": 851,
+            "w": 358,
+            "h": 310,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Fuel balance at a glanceOpening + deliveries − use − closingFuel balance termsOpening tankUnknown+ DeliveriesUnknown− Modelled generator useUnknown− Closing tankUnknown= UnexplainedUnknownHatched bars are missing evidence. A residual is shown only when every term has a supported range.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Balance bridge",
+            "x": 16,
+            "y": 1180,
+            "w": 358,
+            "h": 579,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Term",
+              "Evidence basis",
+              "Treatment"
+            ],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Opening inventory · Unknown",
+                "Missing · 0 cited records",
+                "Missing"
+              ],
+              [
+                "Plus deliveries · Delivery completeness unconfirmed",
+                "No attested delivery record · 0 cited records",
+                "Delivery completeness unconfirmed"
+              ],
+              [
+                "Less generator consumption · Unknown",
+                "Missing · 20 cited records · Evidence",
+                "Missing"
+              ],
+              [
+                "Less closing inventory · Unknown",
+                "Missing · 0 cited records",
+                "Missing"
+              ],
+              [
+                "Unexplained residual · Cannot compute",
+                "Missing · 0 cited records",
+                "Needs every term with a supported range; never infers theft"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [
+                "Evidence -> /sites/MG-W402-001/evidence"
+              ],
+              [],
+              []
+            ],
+            "panelText": "Balance bridgeTermEvidence basisTreatmentOpening inventory · UnknownMissing · 0 cited recordsMissingPlus deliveries · Delivery completeness unconfirmedNo attested delivery record · 0 cited recordsDelivery completeness unconfirmedLess generator consumption · UnknownMissing · 20 cited records · EvidenceMissingLess closing inventory · UnknownMissing · 0 cited recordsMissingUnexplained residual · Cannot computeMissing · 0 cited recordsNeeds every term with a supported range; never infers theft",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Inspect existing generator fuel interpretation",
+            "x": 16,
+            "y": 1875,
+            "w": 358,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Inspect existing generator fuel interpretationDispatch may have a separate modelled fuel quantity for a selected Finding. It is not a complete inventory balance.No linked dispatch consequence Inspect fuel basis",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2110,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Fuel balance: evidence limitedSelected sources: Prepared example data, not field readingsCurrent selectionLimited by 4 conditionsA complete inventory balance needs deliveries and closing evidence.Incomplete hourDelivery completeness unconfirmedNo accepted closing tank reading",
+          "cards": [
+            "Opening evidenceUnknownAccepted tank opening or Unknown",
+            "Recorded deliveriesDelivery completeness unconfirmedComplete delivery record unavailable",
+            "Modelled expected useUnknownModelled quantity unavailable",
+            "ResidualCannot computeCannot compute without complete deliveries"
+          ],
+          "notice": [
+            "A fuel residual is unexplained inventory movement with uncertainty. It cannot establish theft or be added to dispatch fuel exposure."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": true,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "Site-local hour 2026-10-12 12:00–13:00 (Africa/Nairobi)UTC 2026-10-12T09:00:00Z to 2026-10-12T10:00:00ZDay Hour 00:0001:0002:0003:0004:0005:0006:0007:0008:0009:0010:0011:0012:0013:0014:0015:0016:0017:0018:0019:0020:0021:0022:0023:00Apply",
+          "details": 1,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Service -> /sites/MG-W402-001/performance/service",
+          "Dispatch -> /sites/MG-W402-001/performance/dispatch",
+          "Fuel -> /sites/MG-W402-001/performance/fuel",
+          "Renewable -> /sites/MG-W402-001/performance/renewable",
+          "Backup -> /sites/MG-W402-001/performance/backup",
+          "Evidence -> /sites/MG-W402-001/evidence"
+        ],
+        "cardsDom": [
+          {
+            "t": "Opening evidenceUnknownAccepted tank opening or Unknown",
+            "h": 149
+          },
+          {
+            "t": "Recorded deliveriesDelivery completeness unconfirmedComplete delivery record una",
+            "h": 149
+          },
+          {
+            "t": "Modelled expected useUnknownModelled quantity unavailable",
+            "h": 110
+          },
+          {
+            "t": "ResidualCannot computeCannot compute without complete deliveries",
+            "h": 110
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel*",
+              "Renewable",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "13px": 5,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Fuel balance at a glance",
+          "Balance bridge",
+          "Inspect existing generator fuel interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Fuel balance at a glance",
+            "x": 15,
+            "y": 894,
+            "w": 360,
+            "h": 287,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Fuel balance at a glanceOpening + deliveries − use − closingOpening tank200 L+ DeliveriesUnknown− Generator use4.9–5.9 L− Closing tankUnknown= UnexplainedCannot computeHatched bars are missing evidence. A residual is shown only when every term has a supported range.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Balance bridge",
+            "x": 15,
+            "y": 1199,
+            "w": 360,
+            "h": 526,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Term",
+              "Evidence basis",
+              "Treatment"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Opening inventory",
+                "Tank level reading",
+                "Retain sensor uncertainty"
+              ],
+              [
+                "Plus deliveries",
+                "Delivery / operator records",
+                "Missing completeness blocks precise reconciliation"
+              ],
+              [
+                "Less generator consumption",
+                "Measured output × configured coefficient",
+                "Modelled range, not fuel-meter reading"
+              ],
+              [
+                "Less closing inventory",
+                "Tank reading / witnessed dip",
+                "Require a supported closing bound"
+              ],
+              [
+                "Unexplained residual",
+                "Opening + delivery − use − closing",
+                "Compare with combined uncertainty; never infer theft"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Balance bridgeTermEvidence basisTreatmentOpening inventoryTank level readingRetain sensor uncertaintyPlus deliveriesDelivery / operator recordsMissing completeness blocks precise reconciliationLess generator consumptionMeasured output × configured coefficientModelled range, not fuel-meter readingLess closing inventoryTank reading / witnessed dipRequire a supported closing boundUnexplained residualOpening + delivery − use − closingCompare with combined uncertainty; never infer theft",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Inspect existing generator fuel interpretation",
+            "x": 15,
+            "y": 1839,
+            "w": 360,
+            "h": 192,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Inspect existing generator fuel interpretationThe dispatch Finding already has a bounded modelled fuel quantity for Candidate portions. This is a separate technical interpretation from a complete fuel-inventory balance.Open dispatch consequence Inspect fuel basis ↗",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2125,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "Service -> #/service",
+          "Dispatch -> #/dispatch",
+          "Fuel -> #/fuel",
+          "Renewable -> #/renewable",
+          "Backup -> #/backup",
+          "Open dispatch consequence -> #/financials"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel*",
+              "Renewable",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 512,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 1,
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "backup",
+      "case": "gap-limited",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/MG-W402-001/performance/backup?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
+      "mock_hash": "#/backup",
+      "app_image": "backup-gap-limited-1440-app.png",
+      "mock_image": "backup-gap-limited-1440-mock.png",
+      "app": {
+        "titles": [
+          "Backup event chains",
+          "Backup readiness evidence",
+          "Operating evidence",
+          "Next evidence"
+        ],
+        "panels": [
+          {
+            "title": "Backup event chains",
+            "x": 248,
+            "y": 464,
+            "w": 1145,
+            "h": 188,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "When",
+              "Grid",
+              "Start requested",
+              "Generator",
+              "Power to load",
+              "Load response",
+              "Outcome for service",
+              "Result"
+            ],
+            "chips": [
+              "Incomplete"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "2026-10-12 12:05",
+                "Observed 12:05",
+                "Observed 12:05",
+                "Conflicting records 12:06",
+                "No accepted record",
+                "No accepted record",
+                "No accepted record · Unknown",
+                "Incomplete"
+              ]
+            ],
+            "rowLinks": [
+              []
+            ],
+            "panelText": "Backup event chainsGrid → start → generator → power → load → serviceWhenGridStart requestedGeneratorPower to loadLoad responseOutcome for serviceResult2026-10-12 12:05Observed 12:05Observed 12:05Conflicting records 12:06No accepted recordNo accepted recordNo accepted record · UnknownIncomplete",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Backup readiness evidence",
+            "x": 248,
+            "y": 669,
+            "w": 1145,
+            "h": 299,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Required step",
+              "Available evidence",
+              "Current claim (latest observed outage chain)"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [
+              [
+                "Supply interruption",
+                "1 cited record · Inspect IDseb4898f3-3ff3-467c-90ca-9f9a204af926",
+                "Observed · chain result Incomplete"
+              ],
+              [
+                "Start command and state",
+                "3 cited records · Inspect IDse2fd3f87-6b4c-41f8-9998-ccca77c198f120f87305-fcc7-4290-8bb2-32f6058cee06ca07cb16-48e9-4591-afc9-0fb99cf275fe",
+                "Conflicting records · chain result Incomplete"
+              ],
+              [
+                "Power restored to critical service",
+                "No accepted record",
+                "No accepted record · chain result Incomplete"
+              ],
+              [
+                "Witnessed outcome",
+                "No accepted record",
+                "Readiness remains unverified"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Backup readiness evidenceRequired stepAvailable evidenceCurrent claim (latest observed outage chain)Supply interruption1 cited record · Inspect IDseb4898f3-3ff3-467c-90ca-9f9a204af926Observed · chain result IncompleteStart command and state3 cited records · Inspect IDse2fd3f87-6b4c-41f8-9998-ccca77c198f120f87305-fcc7-4290-8bb2-32f6058cee06ca07cb16-48e9-4591-afc9-0fb99cf275feConflicting records · chain result IncompletePower restored to critical serviceNo accepted recordNo accepted record · chain result IncompleteWitnessed outcomeNo accepted recordReadiness remains unverified",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating evidence",
+            "x": 248,
+            "y": 986,
+            "w": 725,
+            "h": 163,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating evidenceGenerator operation supports runtime reconstruction. It does not establish automatic backup readiness.Open Dispatch →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next evidence",
+            "x": 991,
+            "y": 986,
+            "w": 403,
+            "h": 163,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next evidenceRecord a witnessed start-to-service test with command, state, power path and critical-service observations.Browse Actions →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1199,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Backup readiness: UnknownSelected sources: Prepared example data, not field readingsCurrent selectionOutage-chain assessment: evidence limitedGenerator operation alone is not a witnessed start-and-recovery testConflicting evidenceNo complete outage chain",
+          "cards": [
+            "Outages in windowUnknownSupply reports do not cover the whole hour",
+            "Start successUnknownNo witnessed start request and result",
+            "Last witnessed testNo recordNo accepted witnessed test record",
+            "Critical service recoveryUnknownNeeds requested and delivered critical-service power"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": true,
+          "enums": [],
+          "uuids": 0,
+          "utc": 4,
+          "periodBar": "Site-local hour 2026-10-12 12:00–13:00 (Africa/Nairobi)UTC 2026-10-12T09:00:00Z to 2026-10-12T10:00:00ZDay Hour 00:0001:0002:0003:0004:0005:0006:0007:0008:0009:0010:0011:0012:0013:0014:0015:0016:0017:0018:0019:0020:0021:0022:0023:00Apply",
+          "details": 3,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Service -> /sites/MG-W402-001/performance/service",
+          "Dispatch -> /sites/MG-W402-001/performance/dispatch",
+          "Fuel -> /sites/MG-W402-001/performance/fuel",
+          "Renewable -> /sites/MG-W402-001/performance/renewable",
+          "Backup -> /sites/MG-W402-001/performance/backup",
+          "Open Dispatch → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-12",
+          "Browse Actions → -> /actions"
+        ],
+        "cardsDom": [
+          {
+            "t": "Outages in windowUnknownSupply reports do not cover the whole hour",
+            "h": 94
+          },
+          {
+            "t": "Start successUnknownNo witnessed start request and result",
+            "h": 94
+          },
+          {
+            "t": "Last witnessed testNo recordNo accepted witnessed test record",
+            "h": 94
+          },
+          {
+            "t": "Critical service recoveryUnknownNeeds requested and delivered critical-service p",
+            "h": 94
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel",
+              "Renewable",
+              "Backup*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "mini-more__list mini-ids",
+            "sw": 257,
+            "cw": 251,
+            "panel": "Backup readiness evidence"
+          },
+          {
+            "cls": "mini-more__list mini-ids",
+            "sw": 257,
+            "cw": 251,
+            "panel": "Backup readiness evidence"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "14px": 4
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1199
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Backup event chains",
+          "Backup readiness evidence",
+          "Operating evidence",
+          "Next evidence"
+        ],
+        "panels": [
+          {
+            "title": "Backup event chains",
+            "x": 234,
+            "y": 547,
+            "w": 1161,
+            "h": 183,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "When",
+              "Grid",
+              "Start requested",
+              "Generator",
+              "Power to load",
+              "Load response",
+              "Outcome for service",
+              "Result"
+            ],
+            "chips": [
+              "No event"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "No outage in the selected hour",
+                "—",
+                "—",
+                "—",
+                "—",
+                "—",
+                "—",
+                "No event"
+              ]
+            ],
+            "rowLinks": [
+              []
+            ],
+            "panelText": "Backup event chainsSame chain as the cold-room Backup view: grid → start → generator → power → load → serviceWhenGridStart requestedGeneratorPower to loadLoad responseOutcome for serviceResultNo outage in the selected hour——————No event",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Backup readiness evidence",
+            "x": 234,
+            "y": 748,
+            "w": 1161,
+            "h": 287,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Required step",
+              "Available evidence",
+              "Current claim"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Supply interruption",
+                "No complete backup event in selected hour",
+                "No outage-chain assessment"
+              ],
+              [
+                "Start command and state",
+                "Historical generator state reports",
+                "Operation observed; test not established"
+              ],
+              [
+                "Power restored to critical service",
+                "Clinic delivered-power series",
+                "Requested-service baseline missing"
+              ],
+              [
+                "Witnessed outcome",
+                "No accepted test record",
+                "Readiness remains unverified"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Backup readiness evidenceRequired stepAvailable evidenceCurrent claimSupply interruptionNo complete backup event in selected hourNo outage-chain assessmentStart command and stateHistorical generator state reportsOperation observed; test not establishedPower restored to critical serviceClinic delivered-power seriesRequested-service baseline missingWitnessed outcomeNo accepted test recordReadiness remains unverified",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating evidence",
+            "x": 234,
+            "y": 1053,
+            "w": 735,
+            "h": 155,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating evidenceThe generator is observed running in the selected dispatch period. This supports runtime reconstruction, not a general claim that automatic backup will succeed on demand.Open Dispatch →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next evidence",
+            "x": 987,
+            "y": 1053,
+            "w": 408,
+            "h": 155,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next evidenceRun a witnessed start-to-service test and retain command, generator state, power-path and critical-service observations.Open Actions →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1274,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 1,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "Service -> #/service",
+          "Dispatch -> #/dispatch",
+          "Fuel -> #/fuel",
+          "Renewable -> #/renewable",
+          "Backup -> #/backup",
+          "Open Dispatch → -> #/dispatch",
+          "Open Actions → -> #/actions"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel",
+              "Renewable",
+              "Backup*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1230
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "backup",
+      "case": "gap-limited",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/MG-W402-001/performance/backup?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
+      "mock_hash": "#/backup",
+      "app_image": "backup-gap-limited-390-app.png",
+      "mock_image": "backup-gap-limited-390-mock.png",
+      "app": {
+        "titles": [
+          "Backup event chains",
+          "Backup readiness evidence",
+          "Operating evidence",
+          "Next evidence"
+        ],
+        "panels": [
+          {
+            "title": "Backup event chains",
+            "x": 16,
+            "y": 838,
+            "w": 358,
+            "h": 217,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "When",
+              "Grid",
+              "Start requested",
+              "Generator",
+              "Power to load",
+              "Load response",
+              "Outcome for service",
+              "Result"
+            ],
+            "chips": [
+              "Incomplete"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "2026-10-12 12:05",
+                "Observed 12:05",
+                "Observed 12:05",
+                "Conflicting records 12:06",
+                "No accepted record",
+                "No accepted record",
+                "No accepted record · Unknown",
+                "Incomplete"
+              ]
+            ],
+            "rowLinks": [
+              []
+            ],
+            "panelText": "Backup event chainsGrid → start → generator → power → load → serviceWhenGridStart requestedGeneratorPower to loadLoad responseOutcome for serviceResult2026-10-12 12:05Observed 12:05Observed 12:05Conflicting records 12:06No accepted recordNo accepted recordNo accepted record · UnknownIncomplete",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Backup readiness evidence",
+            "x": 16,
+            "y": 1073,
+            "w": 358,
+            "h": 380,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Required step",
+              "Available evidence",
+              "Current claim (latest observed outage chain)"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [
+              [
+                "Supply interruption",
+                "1 cited record · Inspect IDseb4898f3-3ff3-467c-90ca-9f9a204af926",
+                "Observed · chain result Incomplete"
+              ],
+              [
+                "Start command and state",
+                "3 cited records · Inspect IDse2fd3f87-6b4c-41f8-9998-ccca77c198f120f87305-fcc7-4290-8bb2-32f6058cee06ca07cb16-48e9-4591-afc9-0fb99cf275fe",
+                "Conflicting records · chain result Incomplete"
+              ],
+              [
+                "Power restored to critical service",
+                "No accepted record",
+                "No accepted record · chain result Incomplete"
+              ],
+              [
+                "Witnessed outcome",
+                "No accepted record",
+                "Readiness remains unverified"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Backup readiness evidenceRequired stepAvailable evidenceCurrent claim (latest observed outage chain)Supply interruption1 cited record · Inspect IDseb4898f3-3ff3-467c-90ca-9f9a204af926Observed · chain result IncompleteStart command and state3 cited records · Inspect IDse2fd3f87-6b4c-41f8-9998-ccca77c198f120f87305-fcc7-4290-8bb2-32f6058cee06ca07cb16-48e9-4591-afc9-0fb99cf275feConflicting records · chain result IncompletePower restored to critical serviceNo accepted recordNo accepted record · chain result IncompleteWitnessed outcomeNo accepted recordReadiness remains unverified",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating evidence",
+            "x": 16,
+            "y": 1471,
+            "w": 358,
+            "h": 186,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating evidenceGenerator operation supports runtime reconstruction. It does not establish automatic backup readiness.Open Dispatch →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next evidence",
+            "x": 16,
+            "y": 1673,
+            "w": 358,
+            "h": 186,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next evidenceRecord a witnessed start-to-service test with command, state, power path and critical-service observations.Browse Actions →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1899,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Backup readiness: UnknownSelected sources: Prepared example data, not field readingsCurrent selectionOutage-chain assessment: evidence limitedGenerator operation alone is not a witnessed start-and-recovery testConflicting evidenceNo complete outage chain",
+          "cards": [
+            "Outages in windowUnknownSupply reports do not cover the whole hour",
+            "Start successUnknownNo witnessed start request and result",
+            "Last witnessed testNo recordNo accepted witnessed test record",
+            "Critical service recoveryUnknownNeeds requested and delivered critical-service power"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": true,
+          "enums": [],
+          "uuids": 0,
+          "utc": 4,
+          "periodBar": "Site-local hour 2026-10-12 12:00–13:00 (Africa/Nairobi)UTC 2026-10-12T09:00:00Z to 2026-10-12T10:00:00ZDay Hour 00:0001:0002:0003:0004:0005:0006:0007:0008:0009:0010:0011:0012:0013:0014:0015:0016:0017:0018:0019:0020:0021:0022:0023:00Apply",
+          "details": 3,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Service -> /sites/MG-W402-001/performance/service",
+          "Dispatch -> /sites/MG-W402-001/performance/dispatch",
+          "Fuel -> /sites/MG-W402-001/performance/fuel",
+          "Renewable -> /sites/MG-W402-001/performance/renewable",
+          "Backup -> /sites/MG-W402-001/performance/backup",
+          "Open Dispatch → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-12",
+          "Browse Actions → -> /actions"
+        ],
+        "cardsDom": [
+          {
+            "t": "Outages in windowUnknownSupply reports do not cover the whole hour",
+            "h": 110
+          },
+          {
+            "t": "Start successUnknownNo witnessed start request and result",
+            "h": 110
+          },
+          {
+            "t": "Last witnessed testNo recordNo accepted witnessed test record",
+            "h": 110
+          },
+          {
+            "t": "Critical service recoveryUnknownNeeds requested and delivered critical-service p",
+            "h": 110
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel",
+              "Renewable",
+              "Backup*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 752,
+            "cw": 318,
+            "panel": "Backup event chains"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 542,
+            "cw": 318,
+            "panel": "Backup readiness evidence"
+          },
+          {
+            "cls": "mini-more__list mini-ids",
+            "sw": 257,
+            "cw": 143,
+            "panel": "Backup readiness evidence"
+          },
+          {
+            "cls": "mini-more__list mini-ids",
+            "sw": 257,
+            "cw": 143,
+            "panel": "Backup readiness evidence"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "14px": 4
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Backup event chains",
+          "Backup readiness evidence",
+          "Operating evidence",
+          "Next evidence"
+        ],
+        "panels": [
+          {
+            "title": "Backup event chains",
+            "x": 15,
+            "y": 889,
+            "w": 360,
+            "h": 265,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "When",
+              "Grid",
+              "Start requested",
+              "Generator",
+              "Power to load",
+              "Load response",
+              "Outcome for service",
+              "Result"
+            ],
+            "chips": [
+              "No event"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "No outage in the selected hour",
+                "—",
+                "—",
+                "—",
+                "—",
+                "—",
+                "—",
+                "No event"
+              ]
+            ],
+            "rowLinks": [
+              []
+            ],
+            "panelText": "Backup event chainsSame chain as the cold-room Backup view: grid → start → generator → power → load → serviceWhenGridStart requestedGeneratorPower to loadLoad responseOutcome for serviceResultNo outage in the selected hour——————No event",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Backup readiness evidence",
+            "x": 15,
+            "y": 1172,
+            "w": 360,
+            "h": 428,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Required step",
+              "Available evidence",
+              "Current claim"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Supply interruption",
+                "No complete backup event in selected hour",
+                "No outage-chain assessment"
+              ],
+              [
+                "Start command and state",
+                "Historical generator state reports",
+                "Operation observed; test not established"
+              ],
+              [
+                "Power restored to critical service",
+                "Clinic delivered-power series",
+                "Requested-service baseline missing"
+              ],
+              [
+                "Witnessed outcome",
+                "No accepted test record",
+                "Readiness remains unverified"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Backup readiness evidenceRequired stepAvailable evidenceCurrent claimSupply interruptionNo complete backup event in selected hourNo outage-chain assessmentStart command and stateHistorical generator state reportsOperation observed; test not establishedPower restored to critical serviceClinic delivered-power seriesRequested-service baseline missingWitnessed outcomeNo accepted test recordReadiness remains unverified",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating evidence",
+            "x": 15,
+            "y": 1618,
+            "w": 360,
+            "h": 177,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating evidenceThe generator is observed running in the selected dispatch period. This supports runtime reconstruction, not a general claim that automatic backup will succeed on demand.Open Dispatch →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next evidence",
+            "x": 15,
+            "y": 1813,
+            "w": 360,
+            "h": 177,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next evidenceRun a witnessed start-to-service test and retain command, generator state, power-path and critical-service observations.Open Actions →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2084,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 1,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "Service -> #/service",
+          "Dispatch -> #/dispatch",
+          "Fuel -> #/fuel",
+          "Renewable -> #/renewable",
+          "Backup -> #/backup",
+          "Open Dispatch → -> #/dispatch",
+          "Open Actions → -> #/actions"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel",
+              "Renewable",
+              "Backup*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 512,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 719,
+            "cw": 320,
+            "panel": "Backup event chains"
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 326,
+            "cw": 320,
+            "panel": "Backup readiness evidence"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

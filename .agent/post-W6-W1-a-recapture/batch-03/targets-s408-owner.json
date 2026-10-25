@@ -1,0 +1,17 @@
+[
+ {
+  "id": "finding",
+  "case": "priced",
+  "url": "http://localhost:5183/sites/KOBO-001/findings/40c9c8e5-5f80-41de-9ec7-f77c2797218d?revision_id=a8e856de-f560-43a3-8b90-49e07d1963f4"
+ },
+ {
+  "id": "finding-evidence",
+  "case": "labelled",
+  "url": "http://localhost:5183/sites/KOBO-001/findings/40c9c8e5-5f80-41de-9ec7-f77c2797218d/evidence?revision_id=a8e856de-f560-43a3-8b90-49e07d1963f4"
+ },
+ {
+  "id": "finding-history",
+  "case": "priced",
+  "url": "http://localhost:5183/sites/KOBO-001/findings/40c9c8e5-5f80-41de-9ec7-f77c2797218d/history?revision_id=a8e856de-f560-43a3-8b90-49e07d1963f4"
+ }
+]

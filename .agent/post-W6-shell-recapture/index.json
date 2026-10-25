@@ -5364,9 +5364,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w301cap_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv",
    "route": "/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
-   "sha": "321cfe56",
-   "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-cost-historical-1440-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-10/replacement/part-historical/evidence.json",
+   "app_image": "findings-cost-historical-1440-app.png",
    "titles": [
     "Cost lens"
    ],
@@ -5378,10 +5378,8 @@
     "Cost lens": 165
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 10,
@@ -5393,9 +5391,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w301cap_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv",
    "route": "/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
-   "sha": "321cfe56",
-   "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-cost-historical-390-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-10/replacement/part-historical/evidence.json",
+   "app_image": "findings-cost-historical-390-app.png",
    "titles": [
     "Cost lens"
    ],
@@ -5407,10 +5405,8 @@
     "Cost lens": 165
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 10,
@@ -5422,9 +5418,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w301cap_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv",
    "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
-   "sha": "321cfe56",
-   "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-historical-1440-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-10/replacement/part-historical/evidence.json",
+   "app_image": "findings-historical-1440-app.png",
    "titles": [
     "Findings across the estate"
    ],
@@ -5436,10 +5432,8 @@
     "Findings across the estate": 454
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 10,
@@ -5451,34 +5445,24 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w301cap_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv",
    "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
-   "sha": "321cfe56",
-   "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-historical-390-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-10/replacement/part-historical/evidence.json",
+   "app_image": "findings-historical-390-app.png",
    "titles": [
     "Findings across the estate"
    ],
    "titles_match": true,
    "overflowX": 0,
-   "clipped": [
-    {
-     "tag": "A",
-     "cls": "estate-cell__primary",
-     "text": "Generator support merits review: bounded candidate avoidable running",
-     "sw": 160,
-     "cw": 160,
-     "sh": 53,
-     "ch": 35
-    }
-   ],
+   "clipped": [],
    "console_errors": 0,
    "heights": {
-    "Findings across the estate": 456
+    "Findings across the estate": 555
    },
-   "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "flags": [
+    "grew Findings across the estate 456->555"
+   ],
+   "status": "flag",
+   "qualifying": true
   },
   {
    "batch": 10,
@@ -5490,9 +5474,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w301cap_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv",
    "route": "/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
-   "sha": "321cfe56",
-   "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-opportunities-historical-1440-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-10/replacement/part-historical/evidence.json",
+   "app_image": "findings-opportunities-historical-1440-app.png",
    "titles": [
     "Opportunities lens"
    ],
@@ -5504,10 +5488,8 @@
     "Opportunities lens": 165
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 10,
@@ -5519,9 +5501,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w301cap_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv",
    "route": "/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
-   "sha": "321cfe56",
-   "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-opportunities-historical-390-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-10/replacement/part-historical/evidence.json",
+   "app_image": "findings-opportunities-historical-390-app.png",
    "titles": [
     "Opportunities lens"
    ],
@@ -5533,10 +5515,8 @@
     "Opportunities lens": 165
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 10,
@@ -5548,9 +5528,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w301cap_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv",
    "route": "/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
-   "sha": "321cfe56",
-   "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-risks-historical-1440-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-10/replacement/part-historical/evidence.json",
+   "app_image": "findings-risks-historical-1440-app.png",
    "titles": [
     "Risks lens"
    ],
@@ -5562,10 +5542,8 @@
     "Risks lens": 165
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 10,
@@ -5577,9 +5555,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w301cap_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv",
    "route": "/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
-   "sha": "321cfe56",
-   "evidence": "batch-10/part-historical/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: findings-risks-historical-390-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-10/replacement/part-historical/evidence.json",
+   "app_image": "findings-risks-historical-390-app.png",
    "titles": [
     "Risks lens"
    ],
@@ -5591,10 +5569,8 @@
     "Risks lens": 165
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 10,
@@ -5606,9 +5582,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w301cap_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv",
    "route": "/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
-   "sha": "321cfe56",
-   "evidence": "batch-10/part-positive/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: actions-empty-day-1440-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-10/replacement/part-positive/evidence.json",
+   "app_image": "actions-empty-day-1440-app.png",
    "titles": [
     "Managed actions"
    ],
@@ -5620,10 +5596,8 @@
     "Managed actions": 134
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 10,
@@ -5635,9 +5609,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w301cap_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv",
    "route": "/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
-   "sha": "321cfe56",
-   "evidence": "batch-10/part-positive/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: actions-empty-day-390-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-10/replacement/part-positive/evidence.json",
+   "app_image": "actions-empty-day-390-app.png",
    "titles": [
     "Managed actions"
    ],
@@ -5649,10 +5623,8 @@
     "Managed actions": 152
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 11,
@@ -5664,9 +5636,9 @@
    ],
    "producer": "PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W3-02-evidence/serve.py (DB w302j_test and API 127.0.0.1",
    "route": "/evidence?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
-   "sha": "321cfe56",
-   "evidence": "batch-11/part-w302-partial-week/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: globalevidence-w302-partial-week-1440-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-11/replacement/part-w302-partial-week/evidence.json",
+   "app_image": "globalevidence-w302-partial-week-1440-app.png",
    "titles": [
     "Capability coverage across sites",
     "Recurring evidence gaps"
@@ -5680,10 +5652,8 @@
     "Recurring evidence gaps": 183
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 11,
@@ -5695,9 +5665,9 @@
    ],
    "producer": "PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W3-02-evidence/serve.py (DB w302j_test and API 127.0.0.1",
    "route": "/evidence?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
-   "sha": "321cfe56",
-   "evidence": "batch-11/part-w302-partial-week/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: globalevidence-w302-partial-week-390-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-11/replacement/part-w302-partial-week/evidence.json",
+   "app_image": "globalevidence-w302-partial-week-390-app.png",
    "titles": [
     "Capability coverage across sites",
     "Recurring evidence gaps"
@@ -5708,13 +5678,11 @@
    "console_errors": 0,
    "heights": {
     "Capability coverage across sites": 445,
-    "Recurring evidence gaps": 333
+    "Recurring evidence gaps": 312
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 11,
@@ -5726,9 +5694,9 @@
    ],
    "producer": "PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W3-02-evidence/serve.py (DB w302j_test and API 127.0.0.1",
    "route": "/financials?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
-   "sha": "321cfe56",
-   "evidence": "batch-11/part-w302-partial-week/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: globalfinancials-w302-partial-week-1440-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-11/replacement/part-w302-partial-week/evidence.json",
+   "app_image": "globalfinancials-w302-partial-week-1440-app.png",
    "titles": [
     "Consequence register",
     "Aggregation rule"
@@ -5738,14 +5706,12 @@
    "clipped": [],
    "console_errors": 0,
    "heights": {
-    "Consequence register": 218,
+    "Consequence register": 202,
     "Aggregation rule": 121
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 11,
@@ -5757,9 +5723,9 @@
    ],
    "producer": "PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W3-02-evidence/serve.py (DB w302j_test and API 127.0.0.1",
    "route": "/financials?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
-   "sha": "321cfe56",
-   "evidence": "batch-11/part-w302-partial-week/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: globalfinancials-w302-partial-week-390-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-11/replacement/part-w302-partial-week/evidence.json",
+   "app_image": "globalfinancials-w302-partial-week-390-app.png",
    "titles": [
     "Consequence register",
     "Aggregation rule"
@@ -5769,14 +5735,12 @@
    "clipped": [],
    "console_errors": 0,
    "heights": {
-    "Consequence register": 253,
+    "Consequence register": 238,
     "Aggregation rule": 186
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 11,
@@ -5788,9 +5752,9 @@
    ],
    "producer": "PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W3-02-evidence/serve.py (DB w302j_test and API 127.0.0.1",
    "route": "/portfolio?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
-   "sha": "321cfe56",
-   "evidence": "batch-11/part-w302-partial-week/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: portfolio-w302-partial-week-1440-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-11/replacement/part-w302-partial-week/evidence.json",
+   "app_image": "portfolio-w302-partial-week-1440-app.png",
    "titles": [],
    "titles_match": true,
    "overflowX": 0,
@@ -5798,10 +5762,8 @@
    "console_errors": 0,
    "heights": {},
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 11,
@@ -5813,9 +5775,9 @@
    ],
    "producer": "PYTHONPATH=backend;gateway;simulator;contracts;host .venv/Scripts/python.exe .agent/W3-02-evidence/serve.py (DB w302j_test and API 127.0.0.1",
    "route": "/portfolio?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
-   "sha": "321cfe56",
-   "evidence": "batch-11/part-w302-partial-week/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: portfolio-w302-partial-week-390-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-11/replacement/part-w302-partial-week/evidence.json",
+   "app_image": "portfolio-w302-partial-week-390-app.png",
    "titles": [],
    "titles_match": true,
    "overflowX": 0,
@@ -5823,10 +5785,8 @@
    "console_errors": 0,
    "heights": {},
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 12,
@@ -5838,9 +5798,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/backup?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
-   "sha": "06e019ba",
-   "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: backup-gap-limited-1440-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-12/replacement/part-main/evidence.json",
+   "app_image": "backup-gap-limited-1440-app.png",
    "titles": [
     "Backup event chains",
     "Backup readiness evidence",
@@ -5858,10 +5818,8 @@
     "Next evidence": 163
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 12,
@@ -5873,9 +5831,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/backup?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
-   "sha": "06e019ba",
-   "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: backup-gap-limited-390-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-12/replacement/part-main/evidence.json",
+   "app_image": "backup-gap-limited-390-app.png",
    "titles": [
     "Backup event chains",
     "Backup readiness evidence",
@@ -5893,10 +5851,8 @@
     "Next evidence": 186
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 12,
@@ -5908,9 +5864,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
-   "sha": "06e019ba",
-   "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: fuel-gap-limited-1440-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-12/replacement/part-main/evidence.json",
+   "app_image": "fuel-gap-limited-1440-app.png",
    "titles": [
     "Fuel balance at a glance",
     "Balance bridge",
@@ -5926,10 +5882,8 @@
     "Inspect existing generator fuel interpretation": 134
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 12,
@@ -5941,9 +5895,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
-   "sha": "06e019ba",
-   "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: fuel-gap-limited-390-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-12/replacement/part-main/evidence.json",
+   "app_image": "fuel-gap-limited-390-app.png",
    "titles": [
     "Fuel balance at a glance",
     "Balance bridge",
@@ -5959,10 +5913,8 @@
     "Inspect existing generator fuel interpretation": 193
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 12,
@@ -5974,9 +5926,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-07T21:00:00Z&to=2026-10-12T21:00:00Z",
-   "sha": "06e019ba",
-   "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: renewable-gap-limited-1440-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-12/replacement/part-main/evidence.json",
+   "app_image": "renewable-gap-limited-1440-app.png",
    "titles": [
     "From physical headroom to an opportunity",
     "Productive-use evaluation",
@@ -5992,10 +5944,8 @@
     "Eligible and excluded windows": 383
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 12,
@@ -6007,9 +5957,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-07T21:00:00Z&to=2026-10-12T21:00:00Z",
-   "sha": "06e019ba",
-   "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: renewable-gap-limited-390-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-12/replacement/part-main/evidence.json",
+   "app_image": "renewable-gap-limited-390-app.png",
    "titles": [
     "From physical headroom to an opportunity",
     "Productive-use evaluation",
@@ -6025,10 +5975,8 @@
     "Eligible and excluded windows": 482
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 12,
@@ -6040,9 +5988,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/service?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
-   "sha": "06e019ba",
-   "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: service-gap-limited-1440-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-12/replacement/part-main/evidence.json",
+   "app_image": "service-gap-limited-1440-app.png",
    "titles": [
     "Where the power went",
     "Delivered power by addressed load",
@@ -6060,10 +6008,8 @@
     "What unlocks a service conclusion": 201
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 12,
@@ -6075,9 +6021,9 @@
    ],
    "producer": "docker exec assetopsv1-postgres-1 createdb -U assetops w402r_test; PYTHONPATH=backend;backend/tests;gateway;simulator;contracts;host .venv/S",
    "route": "/sites/MG-W402-001/performance/service?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
-   "sha": "06e019ba",
-   "evidence": "batch-12/part-main/evidence.json",
-   "app_image": "DIAGNOSTIC ONLY, non-qualifying: service-gap-limited-390-app.png",
+   "sha": "d5349d6d",
+   "evidence": "batch-12/replacement/part-main/evidence.json",
+   "app_image": "service-gap-limited-390-app.png",
    "titles": [
     "Where the power went",
     "Delivered power by addressed load",
@@ -6095,10 +6041,8 @@
     "What unlocks a service conclusion": 201
    },
    "flags": [],
-   "status": "capture gap",
-   "diagnostic_status": "ok",
-   "qualifying": false,
-   "gap_reason": "renamed-producer wrapper"
+   "status": "ok",
+   "qualifying": true
   },
   {
    "batch": 13,

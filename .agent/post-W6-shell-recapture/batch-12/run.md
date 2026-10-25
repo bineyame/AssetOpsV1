@@ -16,3 +16,13 @@
 - Not attempted, for the same reason as batch 11 (refusals recorded in `batch-10/run.md`).
 - Pairs: 0 qualifying / 8 selected (renewable, service, fuel, backup gap-limited x 1440/390). **8 capture gaps.**
 - No wrapper, renamed producer, edited producer or alternate DB name was used or tried. No DB was created; nothing to drop. No server was started for this batch.
+
+## Unmodified-producer replacement capture (2026-10-25, SHA d5349d6d) — QUALIFYING
+
+- Authorization: `.agent/owner-test-db-authorization-2026-10-25.md`. Branch `task/post-W6-shell-gap-recapture` at current main (d5349d6d), AUDIT_REVISION=d5349d6d.
+- DB: `CREATE DATABASE w402r_test`, dropped `WITH (FORCE)` after capture.
+- Producer: `.venv/Scripts/python.exe .agent/W4-02-evidence/seed.py`, unmodified, run directly (exit 0). PYTHONPATH backend;backend/tests;gateway;simulator;contracts;host. Result: accepted positive 3321 / missing-conflicting 326, selections 123, jobs 123 (same as the diagnostic run). The seed rewrites tracked `replay.json`: copied to `replacement/replay-b12.json`, restored with `git checkout`.
+- API: `host/` `python -m uvicorn lab_app:app` 127.0.0.1:18101, DATABASE_URL=w402r_test (PID 14896). Vite 5181, ASSETOPS_API_PORT=18101; CDP 9521. Both stopped by PID.
+- Capture: frozen `.agent/post-W6-audit/batch-12/tools/capture-b12.mjs`, unchanged, same filtered `targets-main.json`. 48/48 claims, no console errors.
+- Output: `replacement/part-main/`.
+- Pairs: **8 qualifying / 8 selected**, titles = frozen, no index flags.

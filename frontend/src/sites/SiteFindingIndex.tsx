@@ -117,6 +117,7 @@ function LiveLens({ label, href }: { label: string; href: string }) {
   );
 }
 
+/** MOCK DEVIATION D5 (R394): Cost, Risks and Opportunities stay disabled until Site-scoped lenses exist (Q18/Q49). */
 function LensChips({ hrefs = {} }: { hrefs?: SiteLensHrefs }) {
   return (
     <ul className="v69-chips v69-chips--lenses" aria-label="Finding lenses" data-site-findings-lenses>
