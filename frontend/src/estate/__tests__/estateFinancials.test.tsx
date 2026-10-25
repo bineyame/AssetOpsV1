@@ -549,11 +549,12 @@ describe("W3-02 commit 4 measured Financials layout", () => {
       expect(t.client).toBeGreaterThan(0);
       expect(t.rows).toBeGreaterThan(0);
       expect(t.scroll).toBeGreaterThanOrEqual(t.client); // the table scrolls inside its own container
-      // Final review H1: the mock's three-row baseline is visible at 390 before any vertical internal scroll, and a
-      // register of up to three rows plus its notes stays within the 448 px cap.
-      const cap = parseFloat(t.maxH);
+      // Final review H1, as amended by post-W6 W3-estate Q12 / build ruling 3: the register has no vertical cap (every
+      // bounded row shows, horizontal scrolling stays), so the measured list never scrolls vertically and every row is
+      // rendered; a register of up to three rows plus its notes still stays within the 448 px allowance.
+      expect(t.maxH, `${state} register list has no vertical cap`).toBe("none");
+      expect(t.rowHs, `${state} every register row measured`).toHaveLength(t.rows);
       const threeRows = t.headH + 3 * Math.max(...t.rowHs);
-      expect(threeRows, `${state} header + 3 rows fit the list cap`).toBeLessThanOrEqual(cap);
       expect(t.scrollH, `${state} register list does not scroll vertically at ${t.rows} rows`).toBeLessThanOrEqual(t.clientH);
       expect(narrow!.pieces.register.h - t.clientH + threeRows, `${state} three-row register within 448`).toBeLessThanOrEqual(448);
       expect(t.client).toBeLessThanOrEqual(narrow!.docClientW);
