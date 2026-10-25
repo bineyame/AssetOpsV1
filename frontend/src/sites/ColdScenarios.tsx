@@ -2,7 +2,7 @@
  * W5-01b C5: the cold Site Financials > Scenarios body (v6.9 `cold-scenarios`), from the authored C4 list
  * (`.agent/W5-01-build-spec.md` C5 card, readiness pass 3, closure 2 and the C5 mock and UI closure P-C5-1..22).
  *
- * The mock panel is `Financial scenarios` (`Placeholder · to be designed with the owner`) with its evidence-icon
+ * The mock panel is `Financial scenarios` (its subtitle replaced under R25 D4, post-W6 R337) with its evidence-icon
  * empty block, then the blue closing notice. Authored definitions are labelled what-ifs: no observed outcome, no
  * measured comparison and no create control. The frame owns the Site-name heading, tabs and Financials row.
  */
@@ -21,7 +21,11 @@ export const SCENARIOS_UNREACHABLE = "The cold scenarios read could not be reach
 export const SCENARIOS_MALFORMED = "The cold scenarios read answered in an unexpected shape.";
 export const SCENARIOS_REFUSAL_HEADING = "Cold scenarios unavailable";
 export const SCENARIOS_PANEL = "Financial scenarios";
-export const SCENARIOS_PANEL_SUBTITLE = "Placeholder · to be designed with the owner";
+/**
+ * MOCK DEVIATION (D4) R25 (post-W6 W5-cold R337, B14-08): the mock's working-note subtitle is false copy on a built
+ * page; the subtitle states what the panel holds.
+ */
+export const SCENARIOS_PANEL_SUBTITLE = "Labelled what-ifs authored for this site; never measured results.";
 export const SCENARIOS_EMPTY_TITLE = "No scenario defined yet";
 export const SCENARIOS_EMPTY_BODY =
   "A scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.";
@@ -34,6 +38,20 @@ export const SCENARIOS_STATE_NOTICE: Record<Exclude<ColdScenariosState, "CURRENT
   STALE_SOURCE: "The selected source is stale for this window.",
   UNKNOWN: "No selected cold assessment covers this window yet.",
 };
+/**
+ * post-W6 W5-cold R337 (B14-08): the pending notice follows the selected scenario count: none, one, or two or more.
+ * The other states keep their sentence.
+ */
+export const SCENARIOS_PENDING_NONE = "Underlying evidence is being reassessed. No authored scenario exists for this window.";
+export const SCENARIOS_PENDING_MANY = "Underlying evidence is being reassessed; the authored scenarios remain separate.";
+
+export function scenariosStateNotice(state: Exclude<ColdScenariosState, "CURRENT">, read: Pick<ColdScenariosRead, "items" | "total_pages" | "next_cursor">, earlierPages: number): string {
+  if (state !== "PENDING_RECOMPUTE") return SCENARIOS_STATE_NOTICE[state];
+  if (read.items.length === 0 && earlierPages === 0 && read.total_pages === 0) return SCENARIOS_PENDING_NONE;
+  const many = read.items.length > 1 || read.total_pages > 1 || earlierPages > 0 || read.next_cursor !== null;
+  return many ? SCENARIOS_PENDING_MANY : SCENARIOS_STATE_NOTICE.PENDING_RECOMPUTE;
+}
+
 export const SCENARIO_STATE_PILL: Record<ColdScenarioItem["scenario_state"], string> = {
   DEFINED: "Defined",
   HISTORICAL: "Historical",
@@ -300,7 +318,7 @@ function ScenariosBody({
       <SelectedWindowBar read={read} />
       {/* MOCK DEVIATION — currentness notice (P-C5-1..5): the mock has only its blue closing notice; a pending, stale,
           historical or unknown selection adds this amber notice above the panel so an old basis stays visible. */}
-      {state === "CURRENT" ? null : <Notice data={{ "data-scenarios-state-notice": state }}>{SCENARIOS_STATE_NOTICE[state]}</Notice>}
+      {state === "CURRENT" ? null : <Notice data={{ "data-scenarios-state-notice": state }}>{scenariosStateNotice(state, read, cursors.length)}</Notice>}
       <Panel heading={SCENARIOS_PANEL} headingId={PANEL_HEADING_ID} description={SCENARIOS_PANEL_SUBTITLE} className="cold-scenarios-panel">
         {empty ? (
           <EmptyBlock />

@@ -301,7 +301,8 @@ describe("cold Scenarios page states", () => {
     for (const state of ["PENDING_RECOMPUTE", "HISTORICAL", "STALE_SOURCE", "UNKNOWN"] as const) {
       root = await renderBody(stub(() => loaded(body([], state))).client);
       const notice = root.querySelector("[data-scenarios-state-notice]") as HTMLElement;
-      expect(notice.textContent).toBe(SCENARIOS_STATE_NOTICE[state]);
+      // post-W6 R337: pending with zero scenarios says none exists for this window.
+      expect(notice.textContent).toBe(state === "PENDING_RECOMPUTE" ? "Underlying evidence is being reassessed. No authored scenario exists for this window." : SCENARIOS_STATE_NOTICE[state]);
       expect(notice.className).not.toContain("blue");
       const panel = root.querySelector("#cold-scenarios-heading")?.closest(".panel") as HTMLElement;
       expect(notice.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -547,7 +548,10 @@ describe("authored, pending and historical cold Scenarios", () => {
     expect(main.querySelector("[data-tab-unavailable]")).toBeNull();
     const panel = main.querySelector("#cold-scenarios-heading")?.closest(".panel") as HTMLElement;
     expect(panel.querySelector("#cold-scenarios-heading")?.textContent).toBe("Financial scenarios");
-    expect(panel.querySelector(".panel__description")?.textContent).toBe("Placeholder · to be designed with the owner");
+    // post-W6 R337 (R25 D4): the built page states what the panel holds; no working-note literal remains.
+    expect(panel.querySelector(".panel__description")?.textContent).toBe("Labelled what-ifs authored for this site; never measured results.");
+    expect(main.textContent).not.toContain("Placeholder");
+    expect(main.textContent).not.toContain("to be designed");
     const empty = panel.querySelector("[data-scenarios-empty]") as HTMLElement;
     expect(empty.querySelector("h3")?.textContent).toBe("No scenario defined yet");
     expect(empty.querySelector("p")?.textContent).toBe(SCENARIOS_EMPTY_BODY);
@@ -586,6 +590,12 @@ describe("authored, pending and historical cold Scenarios", () => {
     const pendingNotice = main.querySelector("[data-scenarios-state-notice]") as HTMLElement;
     expect(pendingNotice.textContent).toBe("Underlying evidence is being reassessed; the authored scenario remains separate.");
     expect(pendingNotice.className).not.toContain("blue");
+    cleanup();
+    // post-W6 R337: two or more authored scenarios (here a second page exists) pluralise the pending sentence.
+    main = await renderPage(stub(() => loaded(body([item()], "PENDING_RECOMPUTE", "c2", 2))).client);
+    expect(main.querySelector("[data-scenarios-state-notice]")?.textContent).toBe("Underlying evidence is being reassessed; the authored scenarios remain separate.");
+    cleanup();
+    main = await renderPage(stub(() => loaded(body([item()], "PENDING_RECOMPUTE"))).client);
     expect(main.querySelector(`[data-scenario-row="${SCENARIO}"] .badge, [data-scenario-row="${SCENARIO}"] [class*="badge"]`)?.textContent).toBe("Defined");
     const pendingScan = scanProductVocabulary(main, "cold-scenarios", { set: "w1", screen: "cold-scenarios" });
     expect(describeViolations(pendingScan.violations)).toBe("");
