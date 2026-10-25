@@ -114,6 +114,7 @@ import { GlobalPreventiveFrame } from "./work/GlobalPreventive";
 import { WorkRequestOverviewFrame } from "./work/WorkRequestOverview";
 import { WorkRequestHistoryFrame } from "./work/WorkRequestHistory";
 import { WorkRequestRecordFrame } from "./work/WorkRequestRecord";
+import { WorkRequestUnknownSectionFrame } from "./work/workRequestShared";
 import { OperationalRecordsFrame } from "./work/OperationalRecords";
 import {
   createEstateEvidenceMoneyClient,
@@ -512,6 +513,8 @@ export function App({
           <Route path={WORK_REQUEST_RECORD_ROUTE_PATH} element={<WorkRequestRecordFrame client={globalWork} />} />
           {/* W6-01d C4: the work request History (`WORK_REQUEST_HISTORY_ROUTE_PATH`, same query). */}
           <Route path={WORK_REQUEST_HISTORY_ROUTE_PATH} element={<WorkRequestHistoryFrame client={globalWork} />} />
+          {/* Post-W6 W6 Q13 (R371): any other request section is stated in the shell, never the bare catch-all. */}
+          <Route path="/maintenance/requests/:caseId/*" element={<WorkRequestUnknownSectionFrame />} />
           {/* W6-01e E2: the global Operational records root (`OPERATIONAL_RECORDS_PATH`). */}
           <Route path={OPERATIONAL_RECORDS_PATH} element={<OperationalRecordsFrame client={globalWork} />} />
           {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (

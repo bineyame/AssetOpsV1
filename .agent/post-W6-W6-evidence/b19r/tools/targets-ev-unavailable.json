@@ -1,0 +1,17 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "ev-api-stopped-503",
+  "url": "http://127.0.0.1:5393/maintenance/requests/19741315-9046-4370-b8a7-56c6ae0ecf79?site_id=EV-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-api-stopped-503",
+  "url": "http://127.0.0.1:5393/maintenance/requests/19741315-9046-4370-b8a7-56c6ae0ecf79/record?site_id=EV-LAB-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-api-stopped-503",
+  "url": "http://127.0.0.1:5393/maintenance/requests/19741315-9046-4370-b8a7-56c6ae0ecf79/history?site_id=EV-LAB-001"
+ }
+]

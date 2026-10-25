@@ -1,0 +1,1071 @@
+{
+  "revision": "6f54ad1b",
+  "captured_at": "2026-10-25T17:31:03.581Z",
+  "pairs": [
+    {
+      "screen": "link",
+      "case": "r360-historical-inc",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00.000000Z",
+      "mock_hash": "#/sitework-incidents",
+      "app_image": "link-r360-historical-inc-1440-app.png",
+      "mock_image": "link-r360-historical-inc-1440-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 248,
+            "y": 303,
+            "w": 1160,
+            "h": 368,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Occurred from to (included) Show incidents",
+              "Open",
+              "Open",
+              "In progress",
+              "Open"
+            ],
+            "links": 0,
+            "buttons": 1,
+            "details": 5,
+            "rowText": [
+              [
+                "INC-000002 · Inverter fault confirmed",
+                "19 Oct · from 12:00UTC and IDsOccurred2026-10-19 09:00 UTCRecorded2026-10-21 11:59 UTCCase ID809c0f58-d5a2-4cae-827b-9f7d04d86e5aVersion IDe5dfe55a-284b-4994-926e-bb98b9edaa69Source of cited recordsSource unverified",
+                "Corrected after review.",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "INC-000003 · Battery alarm acknowledged",
+                "19 Oct · from 12:00UTC and IDsOccurred2026-10-19 09:00 UTCRecorded2026-10-21 11:59 UTCCase ID96140f69-934e-4445-aa24-682aed2498d0Version ID93cbadc1-5dce-4cf6-8c1b-b6913fef47daSource of cited recordsSource unverified",
+                "Operator reported a stop; cause not established.",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "INC-000001 · Generator stopped",
+                "19 Oct · from 12:00UTC and IDsOccurred2026-10-19 09:00 UTCRecorded2026-10-21 11:59 UTCCase IDbdfd66d0-1f8d-4292-b942-a3833a50c800Version ID05743446-6bee-40df-8314-f21bf03eff86Source of cited recordsSource unverified",
+                "Operator reported a stop; cause not established.",
+                "No linked finding",
+                "In progress"
+              ],
+              [
+                "INC-000004 · Feeder breaker tripped",
+                "19 Oct · from 12:00UTC and IDsOccurred2026-10-19 09:00 UTCRecorded2026-10-21 11:59 UTCCase IDdae76a02-937f-499e-97ed-691eb071bb42Version IDa462077a-6518-4f8f-b708-1f2024f4f856Source of cited recordsSource unverified",
+                "Operator reported a stop; cause not established.",
+                "No linked finding",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themOccurred from to (included) Show incidentsCaseWindowWhat happenedLinked findingsStateINC-000002 · Inverter fault confirmed19 Oct · from 12:00UTC and IDsOccurred2026-10-19 09:00 UTCRecorded2026-10-21 11:59 UTCCase ID809c0f58-d5a2-4cae-827b-9f7d04d86e5aVersion IDe5dfe55a-284b-4994-926e-bb98b9edaa69Source of cited recordsSource unverifiedCorrected after review.No linked findingOpenINC-000003 · Battery alarm acknowledged19 Oct · from 12:00UTC and IDsOccurred2026-10-19 09:00 UTCRecorded2026-10-21 11:59 UTCCase ID96",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Kobo · 4 incidentsThese are work records at this site · Read as of 2026-10-21 12:00 UTCManage in Incidents",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 5,
+          "periodBar": "Occurred from to (included) Show incidents",
+          "details": 5,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 895,
+            "w": 493,
+            "h": 33,
+            "text": "Occurred from to (included) Show incidents",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesKobo mini-gridWork",
+          "subtitle": "Site-scoped work · incidents",
+          "headerButtons": [],
+          "strip": "Scoped to Kobo · 4 incidentsThese are work records at this site · Read as of 2026-10-21 12:00 UTCManage in Incidents",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [
+            "OPEN=Open",
+            "OPEN=Open",
+            "IN_PROGRESS=In progress",
+            "OPEN=Open"
+          ],
+          "bodyText": "Sites Kobo mini-grid Work Kobo mini-grid Demonstration data · KOBO-001 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (0) Incidents (4) Maintenance (0) Scoped to Kobo · 4 incidents These are work records at this site · Read as of 2026-10-21 12:00 UTC Manage in Incidents Incidents at this site A case links chronology, findings and work without copying them Occurred from to (included) Show incidents CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000002 · Inverter fault confirmed 19 Oct · from 12:00UTC and IDs Corrected after review. No linked finding Open INC-000003 · Battery alarm acknowledged 19 Oct · from 12:00UTC and IDs Operator reported a stop; cause not established. No linked finding Open INC-000001 · Generator stopped 19 Oct · from 12:00UTC and IDs Operator reported a stop; cause not established. No linked finding In progress INC-000004 · Feeder breaker tripped 19 Oct · from 12:00UTC and IDs Operator reported a stop; cause not established. No linked finding Open Showing 1–4 of 4 What this list is based on Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet."
+        },
+        "b18": {
+          "status": "Scoped to Kobo · 4 incidentsThese are work records at this site · Read as of 2026-10-21 12:00 UTCManage in Incidents",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-14",
+            "=2026-10-20"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "data · KOBO"
+          ],
+          "enums": [],
+          "utcHits": 5,
+          "bodyText": "Sites Kobo mini-grid Work Kobo mini-grid Demonstration data · KOBO-001 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (0) Incidents (4) Maintenance (0) Scoped to Kobo · 4 incidents These are work records at this site · Read as of 2026-10-21 12:00 UTC Manage in Incidents Incidents at this site A case links chronology, findings and work without copying them Occurred from to (included) Show incidents CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000002 · Inverter fault confirmed 19 Oct · from 12:00UTC and IDs Corrected after review. No linked finding Open INC-000003 · Battery alarm acknowledged 19 Oct · from 12:00UTC and IDs Operator reported a stop; cause not established. No linked finding Open INC-000001 · Generator stopped 19 Oct · from 12:00UTC and IDs Operator reported a stop; cause not established. No linked finding In progress INC-000004 · Feeder breaker tripped 19 Oct · from 12:00UTC and IDs Operator reported a stop; cause not established. No linked finding Open Showing 1–4 of 4 What this list is based on Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet."
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "Overview -> /sites/KOBO-001",
+          "Foundation -> /sites/KOBO-001/foundation",
+          "Health -> /sites/KOBO-001/health",
+          "Performance -> /sites/KOBO-001/performance",
+          "Findings -> /sites/KOBO-001/findings",
+          "Work -> /sites/KOBO-001/work",
+          "Financials -> /sites/KOBO-001/financials",
+          "Evidence -> /sites/KOBO-001/evidence",
+          "Actions (0) -> /sites/KOBO-001/work",
+          "Incidents (4) -> /sites/KOBO-001/work/incidents",
+          "Maintenance (0) -> /sites/KOBO-001/work/maintenance",
+          "Manage in Incidents -> /incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00.000000Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (0)",
+              "Incidents (4)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5392/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00.000000Z",
+          "title": "AssetOps",
+          "h1": "Kobo mini-grid",
+          "crumbs": "SitesKobo mini-gridWork",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 1120,
+            "cw": 1120,
+            "w": 1120,
+            "layout": "fixed",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 1120,
+            "wrapCw": 1120,
+            "cols": [
+              "Case:246",
+              "Window:179",
+              "What happened:325",
+              "Linked findings:213",
+              "State:157"
+            ],
+            "over": [
+              "DIV.disclosure__body ws=normal col=1 r=683 sw=165 cw=157 t=Occurred2026-10-19 09:00 UTCRe",
+              "DL.fact-list ws=normal col=1 r=683 sw=165 cw=157 t=Occurred2026-10-19 09:00 UTCRe",
+              "DIV.disclosure__body ws=normal col=1 r=683 sw=165 cw=157 t=Occurred2026-10-19 09:00 UTCRe",
+              "DL.fact-list ws=normal col=1 r=683 sw=165 cw=157 t=Occurred2026-10-19 09:00 UTCRe",
+              "DIV.disclosure__body ws=normal col=1 r=683 sw=165 cw=157 t=Occurred2026-10-19 09:00 UTCRe",
+              "DL.fact-list ws=normal col=1 r=683 sw=165 cw=157 t=Occurred2026-10-19 09:00 UTCRe",
+              "DIV.disclosure__body ws=normal col=1 r=683 sw=165 cw=157 t=Occurred2026-10-19 09:00 UTCRe",
+              "DL.fact-list ws=normal col=1 r=683 sw=165 cw=157 t=Occurred2026-10-19 09:00 UTCRe"
+            ],
+            "rowH": [
+              52,
+              52,
+              52,
+              52
+            ]
+          },
+          "historicalNotice": [],
+          "tabs": [
+            "Sites",
+            "Kobo mini-grid",
+            "Work",
+            "Overview",
+            "Foundation",
+            "Health",
+            "Performance",
+            "Findings",
+            "Work",
+            "Financials",
+            "Evidence",
+            "Actions (0)"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›Kobo Mini-grid›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 14:20–15:20 EAT ▾ BY Sites › Kobo Mini-grid › Work Kobo Mini-grid Simulated site · MG-DEMO-01 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (2) Incidents (0) Maintenance (0) Scoped to Kobo · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=mini"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · MG"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 14:20–15:20 EAT ▾ BY Sites › Kobo Mini-grid › Work Kobo Mini-grid Simulated site · MG-DEMO-01 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (2) Incidents (0) Maintenance (0) Scoped to Kobo · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "Actions (2) -> #/sitework",
+          "Incidents (0) -> #/sitework-incidents",
+          "Maintenance (0) -> #/sitework-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (2)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link",
+      "case": "r360-historical-inc",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00.000000Z",
+      "mock_hash": "#/sitework-incidents",
+      "app_image": "link-r360-historical-inc-390-app.png",
+      "mock_image": "link-r360-historical-inc-390-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 16,
+            "y": 443,
+            "w": 358,
+            "h": 385,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Occurred from to (included) Show incidents",
+              "Open",
+              "Open",
+              "In progress",
+              "Open"
+            ],
+            "links": 0,
+            "buttons": 1,
+            "details": 5,
+            "rowText": [
+              [
+                "INC-000002 · Inverter fault confirmed",
+                "19 Oct · from 12:00UTC and IDsOccurred2026-10-19 09:00 UTCRecorded2026-10-21 11:59 UTCCase ID809c0f58-d5a2-4cae-827b-9f7d04d86e5aVersion IDe5dfe55a-284b-4994-926e-bb98b9edaa69Source of cited recordsSource unverified",
+                "Corrected after review.",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "INC-000003 · Battery alarm acknowledged",
+                "19 Oct · from 12:00UTC and IDsOccurred2026-10-19 09:00 UTCRecorded2026-10-21 11:59 UTCCase ID96140f69-934e-4445-aa24-682aed2498d0Version ID93cbadc1-5dce-4cf6-8c1b-b6913fef47daSource of cited recordsSource unverified",
+                "Operator reported a stop; cause not established.",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "INC-000001 · Generator stopped",
+                "19 Oct · from 12:00UTC and IDsOccurred2026-10-19 09:00 UTCRecorded2026-10-21 11:59 UTCCase IDbdfd66d0-1f8d-4292-b942-a3833a50c800Version ID05743446-6bee-40df-8314-f21bf03eff86Source of cited recordsSource unverified",
+                "Operator reported a stop; cause not established.",
+                "No linked finding",
+                "In progress"
+              ],
+              [
+                "INC-000004 · Feeder breaker tripped",
+                "19 Oct · from 12:00UTC and IDsOccurred2026-10-19 09:00 UTCRecorded2026-10-21 11:59 UTCCase IDdae76a02-937f-499e-97ed-691eb071bb42Version IDa462077a-6518-4f8f-b708-1f2024f4f856Source of cited recordsSource unverified",
+                "Operator reported a stop; cause not established.",
+                "No linked finding",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themOccurred from to (included) Show incidentsCaseWindowWhat happenedLinked findingsStateINC-000002 · Inverter fault confirmed19 Oct · from 12:00UTC and IDsOccurred2026-10-19 09:00 UTCRecorded2026-10-21 11:59 UTCCase ID809c0f58-d5a2-4cae-827b-9f7d04d86e5aVersion IDe5dfe55a-284b-4994-926e-bb98b9edaa69Source of cited recordsSource unverifiedCorrected after review.No linked findingOpenINC-000003 · Battery alarm acknowledged19 Oct · from 12:00UTC and IDsOccurred2026-10-19 09:00 UTCRecorded2026-10-21 11:59 UTCCase ID96",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 969,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.4px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Kobo · 4 incidentsThese are work records at this site · Read as of 2026-10-21 12:00 UTCManage in Incidents",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 5,
+          "periodBar": "Occurred from to (included) Show incidents",
+          "details": 5,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 33,
+            "w": 324,
+            "h": 47,
+            "text": "Occurred from to (included) Show incidents",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesKobo mini-gridWork",
+          "subtitle": "Site-scoped work · incidents",
+          "headerButtons": [],
+          "strip": "Scoped to Kobo · 4 incidentsThese are work records at this site · Read as of 2026-10-21 12:00 UTCManage in Incidents",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [
+            "OPEN=Open",
+            "OPEN=Open",
+            "IN_PROGRESS=In progress",
+            "OPEN=Open"
+          ],
+          "bodyText": "Sites Kobo mini-grid Work Kobo mini-grid Demonstration data · KOBO-001 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (0) Incidents (4) Maintenance (0) Scoped to Kobo · 4 incidents These are work records at this site · Read as of 2026-10-21 12:00 UTC Manage in Incidents Incidents at this site A case links chronology, findings and work without copying them Occurred from to (included) Show incidents CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000002 · Inverter fault confirmed 19 Oct · from 12:00UTC and IDs Corrected after review. No linked finding Open INC-000003 · Battery alarm acknowledged 19 Oct · from 12:00UTC and IDs Operator reported a stop; cause not established. No linked finding Open INC-000001 · Generator stopped 19 Oct · from 12:00UTC and IDs Operator reported a stop; cause not established. No linked finding In progress INC-000004 · Feeder breaker tripped 19 Oct · from 12:00UTC and IDs Operator reported a stop; cause not established. No linked finding Open Showing 1–4 of 4 Scroll the table for more columns → What this list is based on Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet."
+        },
+        "b18": {
+          "status": "Scoped to Kobo · 4 incidentsThese are work records at this site · Read as of 2026-10-21 12:00 UTCManage in Incidents",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-14",
+            "=2026-10-20"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "data · KOBO"
+          ],
+          "enums": [],
+          "utcHits": 5,
+          "bodyText": "Sites Kobo mini-grid Work Kobo mini-grid Demonstration data · KOBO-001 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (0) Incidents (4) Maintenance (0) Scoped to Kobo · 4 incidents These are work records at this site · Read as of 2026-10-21 12:00 UTC Manage in Incidents Incidents at this site A case links chronology, findings and work without copying them Occurred from to (included) Show incidents CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000002 · Inverter fault confirmed 19 Oct · from 12:00UTC and IDs Corrected after review. No linked finding Open INC-000003 · Battery alarm acknowledged 19 Oct · from 12:00UTC and IDs Operator reported a stop; cause not established. No linked finding Open INC-000001 · Generator stopped 19 Oct · from 12:00UTC and IDs Operator reported a stop; cause not established. No linked finding In progress INC-000004 · Feeder breaker tripped 19 Oct · from 12:00UTC and IDs Operator reported a stop; cause not established. No linked finding Open Showing 1–4 of 4 Scroll the table for more columns → What this list is based on Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet."
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Kobo mini-grid -> /sites/KOBO-001",
+          "Overview -> /sites/KOBO-001",
+          "Foundation -> /sites/KOBO-001/foundation",
+          "Health -> /sites/KOBO-001/health",
+          "Performance -> /sites/KOBO-001/performance",
+          "Findings -> /sites/KOBO-001/findings",
+          "Work -> /sites/KOBO-001/work",
+          "Financials -> /sites/KOBO-001/financials",
+          "Evidence -> /sites/KOBO-001/evidence",
+          "Actions (0) -> /sites/KOBO-001/work",
+          "Incidents (4) -> /sites/KOBO-001/work/incidents",
+          "Maintenance (0) -> /sites/KOBO-001/work/maintenance",
+          "Manage in Incidents -> /incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00.000000Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (0)",
+              "Incidents (4)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 720,
+            "cw": 324,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5392/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00.000000Z",
+          "title": "AssetOps",
+          "h1": "Kobo mini-grid",
+          "crumbs": "SitesKobo mini-gridWork",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 720,
+            "cw": 720,
+            "w": 720,
+            "layout": "fixed",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 720,
+            "wrapCw": 324,
+            "cols": [
+              "Case:158",
+              "Window:115",
+              "What happened:209",
+              "Linked findings:137",
+              "State:101"
+            ],
+            "over": [
+              "DIV.disclosure__body ws=normal col=1 r=299 sw=152 cw=99 t=Occurred2026-10-19 09:00 UTCRe",
+              "DL.fact-list ws=normal col=1 r=299 sw=152 cw=99 t=Occurred2026-10-19 09:00 UTCRe",
+              "DIV.disclosure__body ws=normal col=1 r=299 sw=152 cw=99 t=Occurred2026-10-19 09:00 UTCRe",
+              "DL.fact-list ws=normal col=1 r=299 sw=152 cw=99 t=Occurred2026-10-19 09:00 UTCRe",
+              "DIV.disclosure__body ws=normal col=1 r=299 sw=152 cw=99 t=Occurred2026-10-19 09:00 UTCRe",
+              "DL.fact-list ws=normal col=1 r=299 sw=152 cw=99 t=Occurred2026-10-19 09:00 UTCRe",
+              "DIV.disclosure__body ws=normal col=1 r=299 sw=152 cw=99 t=Occurred2026-10-19 09:00 UTCRe",
+              "DL.fact-list ws=normal col=1 r=299 sw=152 cw=99 t=Occurred2026-10-19 09:00 UTCRe"
+            ],
+            "rowH": [
+              42,
+              42,
+              42,
+              41
+            ]
+          },
+          "historicalNotice": [],
+          "tabs": [
+            "Sites",
+            "Kobo mini-grid",
+            "Work",
+            "Overview",
+            "Foundation",
+            "Health",
+            "Performance",
+            "Findings",
+            "Work",
+            "Financials",
+            "Evidence",
+            "Actions (0)"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 15,
+            "y": 632,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1158,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›Kobo Mini-grid›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Kobo Mini-grid › Work Kobo Mini-grid Simulated site · MG-DEMO-01 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (2) Incidents (0) Maintenance (0) Scoped to Kobo · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=mini"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · MG"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Kobo Mini-grid › Work Kobo Mini-grid Simulated site · MG-DEMO-01 Site-scoped work · incidents Overview Foundation Health Performance Findings Work Financials Evidence Actions (2) Incidents (0) Maintenance (0) Scoped to Kobo · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "Actions (2) -> #/sitework",
+          "Incidents (0) -> #/sitework-incidents",
+          "Maintenance (0) -> #/sitework-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (2)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

@@ -23,7 +23,7 @@ import {
   type GlobalWorkDetailOperationalRecord,
   type WorkCaseDetailRecord,
 } from "./globalWorkClient";
-import { Clamp, SCROLL_TABLE } from "./globalWorkParts";
+import { Clamp, MockDeviation, SCROLL_TABLE } from "./globalWorkParts";
 import { WorkRequestFrame } from "./workRequestShared";
 
 export const RECORD_PANEL_HEADING = "Maintenance record · activity";
@@ -113,7 +113,8 @@ function TechnicianNotes({ group }: { group: RecordGroup }) {
   return (
     <>
       <LongText text={head.activity} hook="activity" />
-      <p className="work-record-outcome" data-work-record-outcome={head.outcome_note === null ? "none" : "recorded"}>
+      {/* Post-W6 W6 (R368): a block container, because the outcome holds the block-level clamp. */}
+      <div className="work-record-outcome" data-work-record-outcome={head.outcome_note === null ? "none" : "recorded"}>
         {head.outcome_note === null ? (
           `Outcome note: ${NO_OUTCOME_NOTE}`
         ) : (
@@ -124,7 +125,7 @@ function TechnicianNotes({ group }: { group: RecordGroup }) {
             </span>
           </>
         )}
-      </p>
+      </div>
       {earlier.length > 0 ? (
         <details className="global-work-details work-record-earlier" data-work-record-earlier>
           <summary>Earlier record versions</summary>
@@ -263,6 +264,8 @@ function RecordPanel({ body }: { body: GlobalWorkDetailBody | null }) {
           <RecordTable groups={groups} />
         </>
       )}
+      {/* MOCK DEVIATION D1 (R365): stated gaps replace mock facts in the summary and this panel. */}
+      {body !== null ? <MockDeviation category="D1" id="R365" /> : null}
     </Panel>
   );
 }

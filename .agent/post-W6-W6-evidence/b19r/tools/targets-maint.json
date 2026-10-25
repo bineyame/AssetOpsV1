@@ -1,0 +1,67 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "open-wr-000001",
+  "url": "http://127.0.0.1:5393/maintenance/requests/04115de9-9196-43cc-91b5-7bc87c9c53e6?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "open-wr-000001",
+  "url": "http://127.0.0.1:5393/maintenance/requests/04115de9-9196-43cc-91b5-7bc87c9c53e6/record?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "open-wr-000001",
+  "url": "http://127.0.0.1:5393/maintenance/requests/04115de9-9196-43cc-91b5-7bc87c9c53e6/history?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-overview",
+  "case": "cancelled-from-open-wr-000004",
+  "url": "http://127.0.0.1:5393/maintenance/requests/497a5cc8-56b4-4e83-b56f-9a25dd79c2ef?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "cancelled-from-open-wr-000004",
+  "url": "http://127.0.0.1:5393/maintenance/requests/497a5cc8-56b4-4e83-b56f-9a25dd79c2ef/record?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "cancelled-from-open-wr-000004",
+  "url": "http://127.0.0.1:5393/maintenance/requests/497a5cc8-56b4-4e83-b56f-9a25dd79c2ef/history?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-overview",
+  "case": "in-progress-assigned-wr-000005",
+  "url": "http://127.0.0.1:5393/maintenance/requests/7508afd7-8589-4af6-8395-56fceecd452c?site_id=KOBO-002"
+ },
+ {
+  "id": "wr-record",
+  "case": "in-progress-assigned-wr-000005",
+  "url": "http://127.0.0.1:5393/maintenance/requests/7508afd7-8589-4af6-8395-56fceecd452c/record?site_id=KOBO-002"
+ },
+ {
+  "id": "wr-history",
+  "case": "in-progress-assigned-wr-000005",
+  "url": "http://127.0.0.1:5393/maintenance/requests/7508afd7-8589-4af6-8395-56fceecd452c/history?site_id=KOBO-002"
+ },
+ {
+  "id": "wr-overview",
+  "case": "completed-wr-000006",
+  "url": "http://127.0.0.1:5393/maintenance/requests/4e6cdc1e-79f2-4667-b758-a17b1fb254ef?site_id=KOBO-002"
+ },
+ {
+  "id": "wr-record",
+  "case": "completed-wr-000006",
+  "url": "http://127.0.0.1:5393/maintenance/requests/4e6cdc1e-79f2-4667-b758-a17b1fb254ef/record?site_id=KOBO-002"
+ },
+ {
+  "id": "wr-history",
+  "case": "completed-wr-000006",
+  "url": "http://127.0.0.1:5393/maintenance/requests/4e6cdc1e-79f2-4667-b758-a17b1fb254ef/history?site_id=KOBO-002"
+ },
+ {
+  "id": "wr-overview",
+  "case": "other-tenant-wr8-404",
+  "url": "http://127.0.0.1:5393/maintenance/requests/4839e61e-be05-429b-be5a-8e2ab1419326?site_id=KOBO-001"
+ }
+]

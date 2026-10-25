@@ -1,0 +1,4 @@
+﻿incidents-cases-positive 1440 {"base":536,"panelH":647,"verified":true,"want":25,"got":25,"rows":[100,100,100,100,99],"clip":20,"vScroll":["533/468:468px"],"clipNoFull":0,"doc":0,"open":647,"openClipNoFull":0}
+incidents-cases-positive 390 {"base":730,"panelH":737,"verified":true,"want":25,"got":25,"rows":[120,120,120,120,119],"clip":25,"vScroll":["633/518:518px"],"clipNoFull":0,"doc":0,"open":737,"openClipNoFull":0}
+incidents-boundaries-positive 1440 {"base":103,"panelH":103,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":103,"openClipNoFull":0}
+incidents-boundaries-positive 390 {"base":126,"panelH":126,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":126,"openClipNoFull":0}

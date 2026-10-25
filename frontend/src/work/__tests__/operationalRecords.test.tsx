@@ -13,6 +13,7 @@ import { featureFlagsWith } from "../../config/featureFlags";
 import { OPERATIONAL_RECORDS_PATH } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { disclosureNames, stubCellOverflow } from "./cellDisclosureStub";
 import { OperationalRecordsFrame, operationalKindOf, readingLine } from "../OperationalRecords";
 import {
   createGlobalWorkClient,
@@ -38,6 +39,7 @@ function row(n: number, over: Partial<GlobalOperationalRow> = {}): GlobalOperati
     site_name: "Kobo",
     site_id: "00000000-0000-4000-8000-000000000002",
     site_code_key: "kobo-001",
+    site_domain: "MINIGRID",
     canonical_record_id: id,
     root_id: id,
     head_id: id,
@@ -258,15 +260,17 @@ describe("W6-01e E2: global Operational records", () => {
       "Feeds",
       "State",
     ]);
+    // Post-W6 W6 Q16 (R356) and caps ruling 3: fixed widths summing to 1085 px, inside the 1090 px client width at
+    // 1440 that the inner vertical scrollbar leaves.
     expect(Array.from(table.querySelectorAll("col")).map((c) => (c as HTMLElement).style.width)).toEqual([
-      "140px",
+      "90px",
       "110px",
+      "150px",
+      "130px",
+      "120px",
+      "270px",
       "125px",
-      "150px",
-      "150px",
-      "220px",
-      "150px",
-      "105px",
+      "90px",
     ]);
     const trs = Array.from(table.querySelectorAll("tbody tr"));
     expect(trs).toHaveLength(5);
@@ -313,7 +317,10 @@ describe("W6-01e E2: global Operational records", () => {
     expect(text(full.querySelector("summary"))).toBe("Full record text");
     expect(full.textContent).toContain(LONG.trim());
     expect(text(cell(trs[2], 3).querySelector("[data-global-work-period-end]"))).toBe("Until 18 Oct 2026, 10:30 UTC");
-    expect(cell(trs[2], 4).querySelector("[data-global-work-actor]")?.className).toBe("global-work-clamp");
+    // Caps ruling 4: the By value is a two-line preview inside the in-cell disclosure.
+    expect(cell(trs[2], 4).querySelector("[data-global-work-actor]")?.className).toBe(
+      "global-work-clamp global-work-clamp--two cell-disclosure__value",
+    );
     expect(text(cell(trs[2], 4))).toBe(ACTOR128);
     expect(text(cell(trs[2], 6))).toBe("None linked");
     expect(text(cell(trs[3], 0).querySelector("[data-global-work-source] summary"))).toBe("Prepared example data");
@@ -330,10 +337,13 @@ describe("W6-01e E2: global Operational records", () => {
       "Taken at",
     ]);
     const [site, reading] = Array.from(form.querySelectorAll("select"));
-    expect(Array.from(site.querySelectorAll("option")).map(text)).toEqual(["Kobo Mini-grid", "GreenHarvest Cold Room"]);
+    // Post-W6 W6 Q17 (R362): no mock Site; with no covered Site in the response, one empty placeholder.
+    expect(Array.from(site.querySelectorAll("option")).map(text)).toEqual(["No Site selected"]);
     expect(Array.from(reading.querySelectorAll("option")).map(text)).toEqual(["Fuel tank dip", "Stock in chamber", "Meter reading"]);
     expect((form.querySelectorAll("input")[0] as HTMLInputElement).placeholder).toBe("e.g. 192 L");
-    expect((form.querySelectorAll("input")[1] as HTMLInputElement).value).toBe("6 Oct 2026 · 16:00 EAT");
+    expect((form.querySelectorAll("input")[1] as HTMLInputElement).value).toBe("");
+    expect((form.querySelectorAll("input")[1] as HTMLInputElement).placeholder).toBe("Event time");
+    expect(text(form.querySelector('[data-mock-deviation="R362"]'))).toBe("MOCK DEVIATION D4 (R362)");
     for (const control of Array.from(form.querySelectorAll("select, input, button"))) {
       expect(control).toBeDisabled();
     }
@@ -460,7 +470,8 @@ describe("W6-01e E2: global Operational records", () => {
     const reads = client({ "page-one": loaded(body([row(1)], { status: "HISTORICAL", known_at: KNOWN })) });
     mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}`, reads);
     await settled();
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00 UTC");
+    // Post-W6 W6 Q14 (R372): seconds on the historical line.
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 UTC");
   });
 
   it("states a read failure, an invalid window and no accessible Sites, never a zero", async () => {
@@ -546,5 +557,113 @@ describe("W6-01e E2: the /operational-records route in the app shell", () => {
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
     expect(within(rail).getByRole("link", { name: "Operational records" })).toHaveAttribute("aria-current", "page");
     expect(reads.calls).toHaveLength(1);
+  });
+});
+
+describe("Post-W6 W6: Operational records corrections", () => {
+  afterEach(cleanup);
+
+  it("R362: the inert form offers only the response's covered Sites, named by a returned row", async () => {
+    const value = body([row(1)], {
+      coverage: {
+        state: "COMPLETE",
+        reason: null,
+        sites: [
+          { site_code: "KOBO-001", site_id: "00000000-0000-4000-8000-000000000002", state: "COVERED" },
+          { site_code: "COLD-LAB-001", site_id: "00000000-0000-4000-8000-000000000003", state: "COVERED" },
+        ],
+      },
+    });
+    mount(PAGE, client({ "page-one": loaded(value) }));
+    await settled();
+    const form = document.querySelector("[data-global-work-manual-form]") as HTMLElement;
+    const options = Array.from(form.querySelectorAll("[data-global-work-form-site] option"));
+    expect(options.map(text)).toEqual([`${row(1).site_name} · KOBO-001`, "COLD-LAB-001"]);
+    expect(form.textContent).not.toMatch(/Kobo Mini-grid|GreenHarvest|EAT/);
+    expect(form.querySelector("[data-global-work-form-time]")).toHaveValue("");
+    expect(form.querySelector("[data-rec-submit]")).toBeDisabled();
+  });
+
+  it("M1: Next from a URL-opened later page still states no numeric range (the offset stays unknown)", async () => {
+    mount(
+      `${PAGE}&cursor=CURSOR-2`,
+      client({
+        "CURSOR-2": loaded(body([row(6)], { total_count: 12, next_cursor: "CURSOR-3" })),
+        "CURSOR-3": loaded(body([row(7)], { total_count: 12 })),
+      }),
+    );
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 12");
+    fireEvent.click(document.querySelector("[data-global-work-next]") as HTMLElement);
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 12");
+    expect(document.querySelector("[data-global-work-showing]")?.textContent).not.toMatch(/\d+–\d+/);
+  });
+
+  it("Q7/R354/R361: membership line, URL-opened later page caption and the refusal alert", async () => {
+    mount(`${PAGE}&cursor=CURSOR-2`, client({ "CURSOR-2": loaded(body([row(6)], { total_count: 6 })) }));
+    await settled();
+    expect(text(document.querySelector("[data-global-work-membership]"))).toBe("Listed by the time each record's event happened.");
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 6");
+    cleanup();
+    mount(PAGE, client({ "page-one": { status: "refused", code: "WORK_STORE_UNAVAILABLE" } }));
+    await settled();
+    expect(within(screen.getByRole("main")).getByRole("alert")).toHaveAttribute("data-global-work-refusal", "WORK_STORE_UNAVAILABLE");
+  });
+});
+
+describe("Post-W6 W6 caps ruling 4: in-cell disclosure on Operational records", () => {
+  it("gives each listed clamped cell a Show full button only when its value overflows the two-line preview", async () => {
+    const restore = stubCellOverflow(0);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Operational records").querySelector("tbody tr") as HTMLElement;
+      expect(disclosureNames(tr)).toEqual([
+      "Show full Record for REC-000001",
+      "Show full Type for REC-000001",
+      "Show full Site for REC-000001",
+      "Show full By for REC-000001",
+      "Show full Feeds for REC-000001",
+      ]);
+      for (const button of Array.from(tr.querySelectorAll("button[data-cell-disclosure-toggle]"))) {
+        expect(button.textContent).toBe("Show full");
+        expect(button.closest("a")).toBeNull();
+      }
+      const first = tr.querySelector("button[data-cell-disclosure-toggle]") as HTMLButtonElement;
+      fireEvent.click(first);
+      expect(first.textContent).toBe("Show less");
+      expect(first.getAttribute("aria-label")).toBe("Show less Record for REC-000001");
+    } finally {
+      restore();
+    }
+  });
+
+  it("gives a correction line in the first column its own Show full disclosure", async () => {
+    const restore = stubCellOverflow(0);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1, { correction_reason: "Corrected after review" })])) }));
+      await settled();
+      const tr = document.querySelector("tbody tr") as HTMLElement;
+      expect(disclosureNames(tr)).toContain("Show full Record correction for REC-000001");
+      const correction = tr.querySelector("[data-global-work-correction]") as HTMLElement;
+      expect(correction.className).toContain("cell-disclosure__value");
+      expect(correction.textContent).toBe("Correction: Corrected after review");
+    } finally {
+      restore();
+    }
+  });
+
+  it("shows values that fit plainly, with no disclosure buttons", async () => {
+    const restore = stubCellOverflow(100000);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Operational records").querySelector("tbody tr") as HTMLElement;
+      expect(tr.querySelectorAll("[data-cell-disclosure]")).toHaveLength(5);
+      expect(disclosureNames(tr)).toEqual([]);
+    } finally {
+      restore();
+    }
   });
 });

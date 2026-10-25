@@ -1,0 +1,32 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "historical-120001-rev2",
+  "url": "http://127.0.0.1:5393/maintenance/requests/7c80f0ff-c61d-4f4d-af97-aa6b15732c24?site_id=KOBO-001&known_at=2026-10-20T12:00:01Z"
+ },
+ {
+  "id": "wr-overview",
+  "case": "historical-current-rev3",
+  "url": "http://127.0.0.1:5393/maintenance/requests/7c80f0ff-c61d-4f4d-af97-aa6b15732c24?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "historical-120001-rev2",
+  "url": "http://127.0.0.1:5393/maintenance/requests/7c80f0ff-c61d-4f4d-af97-aa6b15732c24/record?site_id=KOBO-001&known_at=2026-10-20T12:00:01Z"
+ },
+ {
+  "id": "wr-record",
+  "case": "historical-current-rev3",
+  "url": "http://127.0.0.1:5393/maintenance/requests/7c80f0ff-c61d-4f4d-af97-aa6b15732c24/record?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "historical-120001-rev2",
+  "url": "http://127.0.0.1:5393/maintenance/requests/7c80f0ff-c61d-4f4d-af97-aa6b15732c24/history?site_id=KOBO-001&known_at=2026-10-20T12:00:01Z"
+ },
+ {
+  "id": "wr-history",
+  "case": "historical-current-rev3",
+  "url": "http://127.0.0.1:5393/maintenance/requests/7c80f0ff-c61d-4f4d-af97-aa6b15732c24/history?site_id=KOBO-001"
+ }
+]

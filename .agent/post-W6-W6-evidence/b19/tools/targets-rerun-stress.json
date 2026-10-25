@@ -1,0 +1,8 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "worstcase-200char-wr7",
+  "url": "http://127.0.0.1:5389/maintenance/requests/c1bef1c9-c790-4ce8-99ee-af4232298c7a?site_id=KOBO-001",
+  "openAll": false
+ }
+]

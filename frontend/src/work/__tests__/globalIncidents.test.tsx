@@ -12,7 +12,8 @@ import { featureFlagsWith } from "../../config/featureFlags";
 import { INCIDENTS_PATH } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
-import { GlobalIncidentsFrame } from "../GlobalIncidents";
+import { disclosureNames, stubCellOverflow } from "./cellDisclosureStub";
+import { GlobalIncidentsFrame, INCIDENTS_MEMBERSHIP } from "../GlobalIncidents";
 import {
   createGlobalWorkClient,
   defaultGlobalWorkWindow,
@@ -38,6 +39,7 @@ function row(n: number, over: Partial<GlobalIncidentRow> = {}): GlobalIncidentRo
     site_name: "Kobo",
     site_id: "00000000-0000-4000-8000-000000000002",
     site_code_key: "kobo-001",
+    site_domain: "MINIGRID",
     case_id: `00000000-0000-4000-8000-${String(100 + n).padStart(12, "0")}`,
     code: `INC-${String(n).padStart(6, "0")}`,
     kind: "INCIDENT",
@@ -53,6 +55,7 @@ function row(n: number, over: Partial<GlobalIncidentRow> = {}): GlobalIncidentRo
     asset_label: null,
     incident_id: null,
     linked_request_codes: [],
+    linked_requests: [],
     finding_links: [],
     action_links: [],
     source_provenance: {
@@ -152,9 +155,16 @@ describe("W6-01a A2: global Incidents", () => {
         finding_links: [{ label: "Finding a1b2c3d4", href: "/sites/KOBO-001/findings/f1?revision_id=r1" }],
         action_links: [{ label: "Action e5f6a7b8", href: null }],
         linked_request_codes: ["WR-000007", "WR-000008"],
+        linked_requests: [
+          { label: "WR-000007", href: "/maintenance/requests/00000000-0000-4000-8000-000000000707?site_id=KOBO-001" },
+          { label: "WR-000008", href: null },
+        ],
         source_provenance: { ...row(2).source_provenance, classification: "AUTHORED_DEMONSTRATION" },
       }),
-      row(3, { linked_request_codes: ["WR-000009"] }),
+      row(3, {
+        linked_request_codes: ["WR-000009"],
+        linked_requests: [{ label: "WR-000009", href: "/maintenance/requests/00000000-0000-4000-8000-000000000909?site_id=KOBO-001" }],
+      }),
       row(4, { source_provenance: { ...row(4).source_provenance, classification: "REGISTERED_SIMULATION" } }),
       row(5, { source_provenance: { ...row(5).source_provenance, classification: "MIXED" } }),
     ];
@@ -250,11 +260,17 @@ describe("W6-01a A2: global Incidents", () => {
     expect(cell(second, 4).querySelector("[data-global-work-tone]")).toHaveAttribute("data-global-work-tone", "neutral");
     expect(text(cell(second, 5))).toBe("Not assigned");
     expect(text(cell(second, 6))).toBe("Finding a1b2c3d4 · Action e5f6a7b8 / WR-000007 · WR-000008");
+    // Post-W6 W6 Q4 (R359): a linked request code with a destination opens that request; one without stays text.
     expect(within(cell(second, 6)).getAllByRole("link").map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
       ["Finding a1b2c3d4", "/sites/KOBO-001/findings/f1?revision_id=r1"],
+      ["WR-000007", "/maintenance/requests/00000000-0000-4000-8000-000000000707?site_id=KOBO-001"],
     ]);
     expect(text(cell(second, 0).querySelector("[data-global-work-source] summary"))).toBe("Prepared example data");
     expect(text(cell(trs[2], 6))).toBe("WR-000009");
+    expect(within(cell(trs[2], 6)).getByRole("link", { name: "WR-000009" })).toHaveAttribute(
+      "href",
+      "/maintenance/requests/00000000-0000-4000-8000-000000000909?site_id=KOBO-001",
+    );
     expect(cell(trs[2], 4).querySelector("[data-global-work-tone]")).toHaveAttribute("data-global-work-tone", "red");
     expect(text(cell(trs[3], 0).querySelector("[data-global-work-source] summary"))).toBe("Generated test data");
     expect(text(cell(trs[4], 0).querySelector("[data-global-work-source] summary"))).toBe("Sources do not agree");
@@ -290,7 +306,8 @@ describe("W6-01a A2: global Incidents", () => {
     mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}&site_id=KOBO-001`, reads);
     await settled();
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: KNOWN, cursor: null }]);
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00 UTC");
+    // Post-W6 W6 Q14 (R372): the historical line names its cutoff to the second.
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 UTC");
     expect(cards()).not.toBeNull();
   });
 
@@ -453,5 +470,154 @@ describe("W6-01a A2: the /incidents route in the app shell", () => {
     expect(link).toHaveAttribute("href", "/incidents");
     expect(link).toHaveAttribute("aria-current", "page");
     expect(reads.calls).toHaveLength(1);
+  });
+});
+
+describe("Post-W6 W6: global Incidents corrections", () => {
+  afterEach(cleanup);
+
+  it("R352: a cold or EV Finding is plain text with no unavailable suffix; a mini-grid Finding keeps its link", async () => {
+    const finding = { label: "Finding a1b2c3d4", href: "/sites/X/findings/f1?revision_id=r1" };
+    const rows = [
+      row(1, { site_domain: "MINIGRID", finding_links: [finding] }),
+      row(2, { site_domain: "COLDCHAIN", site_code: "COLD-LAB-001", finding_links: [finding] }),
+      row(3, { site_domain: "EV_CHARGING", site_code: "EV-LAB-001", finding_links: [finding] }),
+    ];
+    mount(PAGE, client({ "page-one": loaded(body(rows)) }));
+    await settled();
+    const trs = Array.from(document.querySelectorAll("tbody tr"));
+    expect(within(cell(trs[0], 6)).getByRole("link", { name: "Finding a1b2c3d4" })).toHaveAttribute("href", finding.href);
+    for (const tr of [trs[1], trs[2]]) {
+      expect(text(cell(tr, 6))).toBe("Finding a1b2c3d4");
+      expect(within(cell(tr, 6)).queryByRole("link")).toBeNull();
+      expect(cell(tr, 6).textContent).not.toContain("unavailable");
+    }
+  });
+
+  it("R357: the page carries the one-level Incidents trail", async () => {
+    mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+    await settled();
+    const crumb = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(text(crumb)).toBe("Incidents");
+  });
+
+  it("R354: a later page opened from its URL states its row count without a range; Previous opens page one", async () => {
+    const reads = client({
+      "CURSOR-2": loaded(body([row(6)], { total_count: 6 })),
+      "page-one": loaded(body([row(1), row(2), row(3), row(4), row(5)], { total_count: 6, next_cursor: "CURSOR-2" })),
+    });
+    mount(`${PAGE}&cursor=CURSOR-2`, reads);
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 6");
+    expect(document.querySelector("[data-global-work-showing]")?.textContent).not.toMatch(/\d+–\d+/);
+    fireEvent.click(document.querySelector("[data-global-work-previous]") as HTMLElement);
+    await settled();
+    expect(screen.getByTestId("where").textContent).toBe(PAGE);
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Showing 1–5 of 6");
+  });
+
+  it("M1: Next from a URL-opened later page still states no numeric range (the offset stays unknown)", async () => {
+    mount(
+      `${PAGE}&cursor=CURSOR-2`,
+      client({
+        "CURSOR-2": loaded(body([row(6)], { total_count: 12, next_cursor: "CURSOR-3" })),
+        "CURSOR-3": loaded(body([row(7)], { total_count: 12 })),
+      }),
+    );
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 12");
+    fireEvent.click(document.querySelector("[data-global-work-next]") as HTMLElement);
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 12");
+    expect(document.querySelector("[data-global-work-showing]")?.textContent).not.toMatch(/\d+–\d+/);
+  });
+
+  it("Q7: the default window is seven UTC days including today, the membership line is stated, an explicit window is kept", async () => {
+    const now = Date.parse("2026-10-25T09:30:00Z");
+    expect(defaultGlobalWorkWindow(now)).toEqual({ from: "2026-10-19T00:00:00Z", to: "2026-10-26T00:00:00Z" });
+    expect(globalWorkPageQuery(new URLSearchParams(), now)).toEqual({
+      status: "valid",
+      query: { from: "2026-10-19T00:00:00Z", to: "2026-10-26T00:00:00Z", known_at: null, cursor: null },
+    });
+    // A row recorded today falls inside the default window's exclusive end.
+    const today = Date.parse("2026-10-25T08:00:00Z");
+    const window = defaultGlobalWorkWindow(now);
+    expect(Date.parse(window.from) <= today && today < Date.parse(window.to)).toBe(true);
+    expect(globalWorkPageQuery(new URLSearchParams({ from: FROM, to: TO }), now)).toEqual({
+      status: "valid",
+      query: { from: FROM, to: TO, known_at: null, cursor: null },
+    });
+    mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+    await settled();
+    expect(text(document.querySelector("[data-global-work-membership]"))).toBe("Listed by incident start time.");
+    expect(INCIDENTS_MEMBERSHIP).toBe("Listed by incident start time.");
+  });
+
+  it("R361: a refusal is an alert, loading and empty scope are status regions, never nested", async () => {
+    let release: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    mount(PAGE, client({ "page-one": { status: "refused", code: "WORK_STORE_UNAVAILABLE" } }, gate));
+    expect(within(screen.getByRole("main")).getByRole("status")).toHaveAttribute("data-global-work-loading");
+    release();
+    await settled();
+    const alert = within(screen.getByRole("main")).getByRole("alert");
+    expect(alert).toHaveAttribute("data-global-work-refusal", "WORK_STORE_UNAVAILABLE");
+    expect(alert.querySelector("[role]")).toBeNull();
+    expect(alert.parentElement?.closest("[role=alert], [role=status]")).toBeNull();
+    cleanup();
+    mount(PAGE, client({ "page-one": loaded(body([], { status: "EMPTY_SCOPE" })) }));
+    await settled();
+    expect(within(screen.getByRole("main")).getByRole("status")).toHaveAttribute("data-global-work-empty-scope");
+    expect(within(screen.getByRole("main")).queryByRole("alert")).toBeNull();
+  });
+
+  it("R73 and R358: the visible D1 labels sit in the Incident cases panel when rows are shown", async () => {
+    mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+    await settled();
+    const panel = panelTitled("Incident cases");
+    expect(text(panel.querySelector('[data-mock-deviation="R73"]'))).toBe("MOCK DEVIATION D1 (R73)");
+    expect(text(panel.querySelector('[data-mock-deviation="R358"]'))).toBe("MOCK DEVIATION D1 (R358)");
+  });
+});
+
+describe("Post-W6 W6 caps ruling 4: in-cell disclosure on Incident cases", () => {
+  it("gives each listed clamped cell a Show full button only when its value overflows the two-line preview", async () => {
+    const restore = stubCellOverflow(0);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Incident cases").querySelector("tbody tr") as HTMLElement;
+      expect(disclosureNames(tr)).toEqual([
+      "Show full Site for INC-000001",
+      "Show full Severity for INC-000001",
+      "Show full Owner for INC-000001",
+      "Show full Findings / work for INC-000001",
+      ]);
+      for (const button of Array.from(tr.querySelectorAll("button[data-cell-disclosure-toggle]"))) {
+        expect(button.textContent).toBe("Show full");
+        expect(button.closest("a")).toBeNull();
+      }
+      const first = tr.querySelector("button[data-cell-disclosure-toggle]") as HTMLButtonElement;
+      fireEvent.click(first);
+      expect(first.textContent).toBe("Show less");
+      expect(first.getAttribute("aria-label")).toBe("Show less Site for INC-000001");
+    } finally {
+      restore();
+    }
+  });
+
+  it("shows values that fit plainly, with no disclosure buttons", async () => {
+    const restore = stubCellOverflow(100000);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Incident cases").querySelector("tbody tr") as HTMLElement;
+      expect(tr.querySelectorAll("[data-cell-disclosure]")).toHaveLength(4);
+      expect(disclosureNames(tr)).toEqual([]);
+    } finally {
+      restore();
+    }
   });
 });

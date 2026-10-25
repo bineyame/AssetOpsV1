@@ -1,0 +1,45 @@
+﻿VITE inc api=18791 started=29580 listener=29580
+STOPPED_VITE 29580
+VITE maint api=18792 started=11380 listener=11380
+STOPPED_VITE 11380
+VITE prev api=18793 started=21760 listener=21760
+STOPPED_VITE 21760
+VITE op api=18794 started=26288 listener=26288
+STOPPED_VITE 26288
+VITE stress api=18795 started=10964 listener=10964
+VITE stressb api=18796 started=9124 listener=9124
+STOPPED_VITE 9124
+VITE detail api=18797 started=18044 listener=18044
+STOPPED_VITE 18044
+VITE dhist api=18798 started=18276 listener=18276
+STOPPED_VITE 18276
+VITE dlinked api=18799 started=16232 listener=16232
+STOPPED_VITE 16232
+VITE inc api=18791 started=868 listener=868
+STOPPED_VITE 868
+VITE maint api=18792 started=18276 listener=18276
+STOPPED_VITE 18276
+VITE prev api=18793 started=32084 listener=32084
+STOPPED_VITE 32084
+VITE op api=18794 started=24056 listener=24056
+STOPPED_VITE 24056
+VITE stress api=18795 started=19564 listener=19564
+STOPPED_VITE 19564
+VITE stressb api=18796 started=13148 listener=13148
+STOPPED_VITE 13148
+VITE detail api=18797 started=31276 listener=31276
+STOPPED_VITE 31276
+VITE dhist api=18798 started=20228 listener=20228
+STOPPED_VITE 20228
+VITE dlinked api=18799 started=21920 listener=21920
+STOPPED_VITE 21920
+VITE stress api=18795 started=30172 listener=30172
+STOPPED_VITE 30172
+VITE maint api=18792 started=29964 listener=29964
+STOPPED_VITE 29964
+VITE stress api=18795 started=30628 listener=30628
+STOPPED_VITE 30628
+VITE maint api=18792 started=23248 listener=23248
+STOPPED_VITE 23248
+VITE stress api=18795 started=5376 listener=5376
+STOPPED_VITE 5376

@@ -1,0 +1,108 @@
+{
+  "clock": "2026-10-20T12:00:00Z",
+  "commands": [
+    {
+      "case_id": "bc3c2a02-a551-4098-a1c6-9c60599df1e9",
+      "event": "ASSIGN",
+      "event_id": "d6c9abd3-1843-427c-9f41-4b16d87e5f73",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "bc3c2a02-a551-4098-a1c6-9c60599df1e9",
+      "event": "COMMENT",
+      "event_id": "d9872c42-7638-4246-8ad5-2095d51885bb",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "bc3c2a02-a551-4098-a1c6-9c60599df1e9",
+      "record_id": "e80f11a3-1103-47ac-a299-b6cfb2dfa203",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "bc3c2a02-a551-4098-a1c6-9c60599df1e9",
+      "event": "COMPLETE",
+      "event_id": "c6c3428b-7a46-46b3-9637-b7149fb1f29a",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "bc3c2a02-a551-4098-a1c6-9c60599df1e9",
+      "event": "REOPEN",
+      "event_id": "74733e4f-9a78-4684-82b1-234df4fada21",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "bc3c2a02-a551-4098-a1c6-9c60599df1e9",
+      "reason": "Inspection scope corrected",
+      "revision_id": "daf97752-6b23-45b6-a4e3-3f5c1a15b8a8",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "142158ba-0990-4e0b-af8d-f4842a252eb3",
+      "event": "CANCEL",
+      "event_id": "98ba0999-3087-402d-baf4-1ac87169c70a",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "canonical_record_id": "2d79b943-7fe0-49cc-b1c6-376c265da69e",
+      "case_id": "bc3c2a02-a551-4098-a1c6-9c60599df1e9",
+      "code": "REC-000003",
+      "operational_record_id": "2d79b943-7fe0-49cc-b1c6-376c265da69e",
+      "recorded_at": "2026-10-20T11:59:09.000000Z",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "bc3c2a02-a551-4098-a1c6-9c60599df1e9",
+      "reason": "Witnessed start test added to the scope",
+      "revision_id": "cbeb8b6b-4faf-43d3-8d67-5f62ff6a7156",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    }
+  ],
+  "fixture": "detail-history",
+  "sites": [
+    {
+      "site_code": "KOBO-001",
+      "site_id": "ac77e1ec-7256-445e-8b42-9beceb67ee28",
+      "tenant": "demo",
+      "tenant_id": "3f951186-0ea2-45e3-a715-e080ace4a999"
+    },
+    {
+      "site_code": "KOBO-002",
+      "site_id": "f77c05ea-cb63-4e94-a776-b5b97e5b901c",
+      "tenant": "demo",
+      "tenant_id": "3f951186-0ea2-45e3-a715-e080ace4a999"
+    },
+    {
+      "site_code": "KOBO-001",
+      "site_id": "7238ab9d-07f7-40a7-98bf-30e14190b783",
+      "tenant": "w601-other",
+      "tenant_id": "b5365d07-9199-43ea-8b64-25661b0cb202"
+    }
+  ],
+  "written": [
+    {
+      "case_id": "bc3c2a02-a551-4098-a1c6-9c60599df1e9",
+      "code": "WR-000001",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "142158ba-0990-4e0b-af8d-f4842a252eb3",
+      "code": "WR-000002",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    }
+  ]
+}

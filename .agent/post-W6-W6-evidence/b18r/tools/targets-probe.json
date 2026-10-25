@@ -1,0 +1,8 @@
+[
+ {
+  "id": "oprecords",
+  "case": "probe5",
+  "url": "http://127.0.0.1:5392/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "probe5": true
+ }
+]

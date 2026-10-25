@@ -27,7 +27,7 @@ import {
   type GlobalWorkDetailBody,
   type WorkCaseDetailEvent,
 } from "./globalWorkClient";
-import { Clamp, SCROLL_TABLE } from "./globalWorkParts";
+import { Clamp, MockDeviation, SCROLL_TABLE } from "./globalWorkParts";
 import { WorkRequestFrame } from "./workRequestShared";
 
 export const HISTORY_PANEL_HEADING = "History";
@@ -66,6 +66,30 @@ export interface HistoryRow {
   stored: boolean;
   /** The CREATED source incident link, when it has an authorized href. */
   sourceHref: string | null;
+  /** Post-W6 W6 Q10/Q12: a stored identifier kept out of the label, shown only in this disclosure. */
+  disclosure?: { summary: string; value: string };
+}
+
+/** Post-W6 W6 Q12 (R370): the label of an event kind no writer meaning is established for. */
+export const UNRECOGNISED_EVENT = "Unrecognised event · meaning not established";
+
+/**
+ * Post-W6 W6 Q10 (R366): the one-based position of a maintenance record in the selected `work_detail.records` root
+ * order (a correction version counts as its root), or null when the record is not in this read.
+ */
+export function recordPosition(body: GlobalWorkDetailBody, recordId: string): number | null {
+  const records = body.work_detail.records;
+  const byId = new Map(records.map((r) => [r.id, r] as const));
+  let current = byId.get(recordId);
+  const seen = new Set<string>();
+  while (current !== undefined && current.supersedes_record_id !== null && !seen.has(current.id)) {
+    seen.add(current.id);
+    current = byId.get(current.supersedes_record_id);
+  }
+  if (current === undefined) return null;
+  const roots = records.filter((r) => r.supersedes_record_id === null);
+  const index = roots.findIndex((r) => r.id === current?.id);
+  return index < 0 ? null : index + 1;
 }
 
 /** Exact string order: `recorded_at` as supplied, then lowercase `id`; never `Date.parse`. */
@@ -101,8 +125,22 @@ export function historyReadable(body: GlobalWorkDetailBody): boolean {
   );
 }
 
-function eventText(event: WorkCaseDetailEvent, body: GlobalWorkDetailBody): { text: string; stored: boolean; sourceHref: string | null } {
-  if (!isKnownWorkCaseEvent(event)) return { text: `Event ${event.kind} · meaning not established`, stored: false, sourceHref: null };
+type EventText = Pick<HistoryRow, "text" | "stored" | "sourceHref" | "disclosure">;
+
+function eventText(event: WorkCaseDetailEvent, body: GlobalWorkDetailBody): EventText {
+  if (!isKnownWorkCaseEvent(event)) {
+    // Post-W6 W6 Q12 (R370, superseding the W6-01 raw-event literal): OPEN_VERIFICATION has a fixed label; any other
+    // unknown kind is unrecognised, with its raw code only in the `Stored event code` disclosure.
+    if (event.kind === "OPEN_VERIFICATION") {
+      return { text: "Verification opened · outcome not established", stored: false, sourceHref: null };
+    }
+    return {
+      text: UNRECOGNISED_EVENT,
+      stored: false,
+      sourceHref: null,
+      disclosure: { summary: "Stored event code", value: event.kind },
+    };
+  }
   switch (event.kind) {
     case "CREATED": {
       const source = body.links.source_incident;
@@ -114,12 +152,18 @@ function eventText(event: WorkCaseDetailEvent, body: GlobalWorkDetailBody): { te
       return { text: `Assigned to ${event.payload.assignee}`, stored: true, sourceHref: null };
     case "COMMENT":
       return { text: `Commented: ${event.payload.text}`, stored: true, sourceHref: null };
-    case "COMPLETE":
+    case "COMPLETE": {
+      // Post-W6 W6 Q10 (R366): the record's position in this read, never its UUID; the UUID is disclosed.
+      const id = event.payload.maintenance_record_id;
+      const n = recordPosition(body, id);
+      const record = n === null ? "maintenance record not in this read" : `maintenance record ${n}`;
       return {
-        text: `Completed · outcome not established · maintenance record ${event.payload.maintenance_record_id}`,
+        text: `Completed · outcome not established · ${record} · ${historyUtc(event.occurred_at)}`,
         stored: false,
         sourceHref: null,
+        disclosure: { summary: "Stored record ID", value: id },
       };
+    }
     case "CLOSE":
       return { text: `Closed: ${event.payload.reason}`, stored: true, sourceHref: null };
     case "REOPEN":
@@ -168,7 +212,19 @@ function EventCell({ row }: { row: HistoryRow }) {
       </>
     );
   }
-  if (!row.stored) return <>{row.text}</>;
+  if (!row.stored) {
+    return (
+      <>
+        {row.text}
+        {row.disclosure ? (
+          <details className="global-work-details" data-history-stored-id={row.disclosure.summary}>
+            <summary>{row.disclosure.summary}</summary>
+            {row.disclosure.value}
+          </details>
+        ) : null}
+      </>
+    );
+  }
   return (
     <>
       <Clamp data={{ "data-history-clamp": row.kind }}>{row.text}</Clamp>
@@ -285,6 +341,8 @@ function HistoryPanel({ body }: { body: GlobalWorkDetailBody | null }) {
       {body === null ? null : (
         <HistoryTable key={`${body.selected.case_id}|${body.selected.known_at}`} body={body} />
       )}
+      {/* MOCK DEVIATION D2 (R369): UTC times with seconds, stored-actor and occurrence disclosures, stated gaps. */}
+      {body === null ? null : <MockDeviation category="D2" id="R369" />}
     </Panel>
   );
 }

@@ -1,0 +1,2160 @@
+{
+ "label": "SYNTHETIC LAYOUT PROBE - not product data",
+ "product": "f3da6e90",
+ "results": [
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "oprecords-records-positive",
+   "url": "http://127.0.0.1:5390/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Operational records",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Operational records",
+     "h": 631
+    },
+    {
+     "t": "Record a manual reading",
+     "h": 325
+    },
+    {
+     "t": "How records are used",
+     "h": 325
+    }
+   ],
+   "baselineOpTable": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1100,
+    "clientW": 1090,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1100,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      140
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     185,
+     82,
+     82,
+     82,
+     82
+    ]
+   },
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "intendedFields": 40,
+    "fields160": 40,
+    "fieldNames": [
+     "div[data-global-work-code]",
+     "div[data-global-work-correction]",
+     "div[data-global-work-kind]",
+     "a[data-global-work-site]",
+     "div[data-global-work-actor]",
+     "div[data-global-work-body]",
+     "a[data-global-work-case]",
+     "div[data-global-work-feeds]"
+    ],
+    "extraFields160": 2,
+    "rowsRef": 5,
+    "opTable": {
+     "scrollerClass": "data-table__scroll",
+     "scrollW": 1100,
+     "clientW": 1090,
+     "fits": false,
+     "overflowX": "auto",
+     "tableW": 1100,
+     "tableLayout": "fixed",
+     "cols": [
+      [
+       "Record",
+       90
+      ],
+      [
+       "Type",
+       110
+      ],
+      [
+       "Site",
+       150
+      ],
+      [
+       "When",
+       130
+      ],
+      [
+       "By",
+       120
+      ],
+      [
+       "What it says",
+       270
+      ],
+      [
+       "Feeds",
+       140
+      ],
+      [
+       "State",
+       90
+      ]
+     ],
+     "rowHs": [
+      221,
+      221,
+      221,
+      221,
+      220
+     ]
+    },
+    "panelsAfter": [
+     {
+      "t": "Operational records",
+      "h": 631
+     },
+     {
+      "t": "Record a manual reading",
+      "h": 325
+     },
+     {
+      "t": "How records are used",
+      "h": 325
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1137,
+      "ch": 485,
+      "maxH": "500px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "operational-records-table-heading"
+     }
+    ],
+    "panelH": 631,
+    "rowHs": [
+     221,
+     221,
+     221,
+     221,
+     220
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     }
+    ],
+    "clippedCount": 35,
+    "clippedWithoutFullText": 30,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1100,
+      "cw": 1090,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 2257,
+      "ch": 485,
+      "maxH": "500px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "operational-records-table-heading"
+     }
+    ],
+    "panelH": 631,
+    "clippedCount": 35,
+    "clippedWithoutFullText": 30,
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     }
+    ],
+    "docOverflowX": 0,
+    "details": 15
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "oprecords-records-positive",
+   "url": "http://127.0.0.1:5390/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Operational records",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Operational records",
+     "h": 702
+    },
+    {
+     "t": "Record a manual reading",
+     "h": 513
+    },
+    {
+     "t": "How records are used",
+     "h": 223
+    }
+   ],
+   "baselineOpTable": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1100,
+    "clientW": 318,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1100,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      140
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     185,
+     82,
+     82,
+     82,
+     82
+    ]
+   },
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "intendedFields": 40,
+    "fields160": 40,
+    "fieldNames": [
+     "div[data-global-work-code]",
+     "div[data-global-work-correction]",
+     "div[data-global-work-kind]",
+     "a[data-global-work-site]",
+     "div[data-global-work-actor]",
+     "div[data-global-work-body]",
+     "a[data-global-work-case]",
+     "div[data-global-work-feeds]"
+    ],
+    "extraFields160": 2,
+    "rowsRef": 5,
+    "opTable": {
+     "scrollerClass": "data-table__scroll",
+     "scrollW": 1100,
+     "clientW": 318,
+     "fits": false,
+     "overflowX": "auto",
+     "tableW": 1100,
+     "tableLayout": "fixed",
+     "cols": [
+      [
+       "Record",
+       90
+      ],
+      [
+       "Type",
+       110
+      ],
+      [
+       "Site",
+       150
+      ],
+      [
+       "When",
+       130
+      ],
+      [
+       "By",
+       120
+      ],
+      [
+       "What it says",
+       270
+      ],
+      [
+       "Feeds",
+       140
+      ],
+      [
+       "State",
+       90
+      ]
+     ],
+     "rowHs": [
+      221,
+      221,
+      221,
+      221,
+      220
+     ]
+    },
+    "panelsAfter": [
+     {
+      "t": "Operational records",
+      "h": 744
+     },
+     {
+      "t": "Record a manual reading",
+      "h": 513
+     },
+     {
+      "t": "How records are used",
+      "h": 223
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1137,
+      "ch": 590,
+      "maxH": "590px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "operational-records-table-heading"
+     }
+    ],
+    "panelH": 744,
+    "rowHs": [
+     221,
+     221,
+     221,
+     221,
+     220
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     }
+    ],
+    "clippedCount": 35,
+    "clippedWithoutFullText": 30,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1100,
+      "cw": 318,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 2257,
+      "ch": 590,
+      "maxH": "590px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "operational-records-table-heading"
+     }
+    ],
+    "panelH": 744,
+    "clippedCount": 35,
+    "clippedWithoutFullText": 30,
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 246,
+      "ch": 53
+     }
+    ],
+    "docOverflowX": 0,
+    "details": 15
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "oprecords-manual-positive",
+   "url": "http://127.0.0.1:5390/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "manualForm",
+   "panel": "Record a manual reading",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Operational records",
+     "h": 631
+    },
+    {
+     "t": "Record a manual reading",
+     "h": 325
+    },
+    {
+     "t": "How records are used",
+     "h": 325
+    }
+   ],
+   "baselineOpTable": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1100,
+    "clientW": 1090,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1100,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      140
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     185,
+     82,
+     82,
+     82,
+     82
+    ]
+   },
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "form: only the scope Site option names are variable (set to 160); other text is fixed copy",
+    "intendedFields": 2,
+    "fields160": 2,
+    "panelsAfter": [
+     {
+      "t": "Operational records",
+      "h": 631
+     },
+     {
+      "t": "Record a manual reading",
+      "h": 325
+     },
+     {
+      "t": "How records are used",
+      "h": 325
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 325,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 325,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "oprecords-manual-positive",
+   "url": "http://127.0.0.1:5390/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "manualForm",
+   "panel": "Record a manual reading",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Operational records",
+     "h": 702
+    },
+    {
+     "t": "Record a manual reading",
+     "h": 513
+    },
+    {
+     "t": "How records are used",
+     "h": 223
+    }
+   ],
+   "baselineOpTable": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1100,
+    "clientW": 318,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1100,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      140
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     185,
+     82,
+     82,
+     82,
+     82
+    ]
+   },
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "form: only the scope Site option names are variable (set to 160); other text is fixed copy",
+    "intendedFields": 2,
+    "fields160": 2,
+    "panelsAfter": [
+     {
+      "t": "Operational records",
+      "h": 702
+     },
+     {
+      "t": "Record a manual reading",
+      "h": 513
+     },
+     {
+      "t": "How records are used",
+      "h": 223
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 513,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 513,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "oprecords-used-positive",
+   "url": "http://127.0.0.1:5390/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "asIs",
+   "panel": "How records are used",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Operational records",
+     "h": 631
+    },
+    {
+     "t": "Record a manual reading",
+     "h": 325
+    },
+    {
+     "t": "How records are used",
+     "h": 325
+    }
+   ],
+   "baselineOpTable": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1100,
+    "clientW": 1090,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1100,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      140
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     185,
+     82,
+     82,
+     82,
+     82
+    ]
+   },
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Operational records",
+      "h": 631
+     },
+     {
+      "t": "Record a manual reading",
+      "h": 325
+     },
+     {
+      "t": "How records are used",
+      "h": 325
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 325,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 325,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "oprecords-used-positive",
+   "url": "http://127.0.0.1:5390/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "asIs",
+   "panel": "How records are used",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Operational records",
+     "h": 702
+    },
+    {
+     "t": "Record a manual reading",
+     "h": 513
+    },
+    {
+     "t": "How records are used",
+     "h": 223
+    }
+   ],
+   "baselineOpTable": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1100,
+    "clientW": 318,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1100,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      140
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     185,
+     82,
+     82,
+     82,
+     82
+    ]
+   },
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Operational records",
+      "h": 702
+     },
+     {
+      "t": "Record a manual reading",
+      "h": 513
+     },
+     {
+      "t": "How records are used",
+      "h": 223
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 223,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 223,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  }
+ ]
+}

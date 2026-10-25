@@ -1,0 +1,27 @@
+﻿chrome pid 11044
+PASS  loaded http://127.0.0.1:5388/maintenance/requests/ec2fd18c-428b-4813-854a-d5e175a9e9f8?site_id=KOBO-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-r359-incident-wr 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-r359-incident-wr 1440: mock rendered
+PASS  link-r359-incident-wr 1440: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  link-r359-incident-wr 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/maintenance/requests/ec2fd18c-428b-4813-854a-d5e175a9e9f8?site_id=KOBO-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-r359-incident-wr 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-r359-incident-wr 390: mock rendered
+PASS  link-r359-incident-wr 390: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  link-r359-incident-wr 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-r360-current-inc 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/sitework-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-r360-current-inc 1440: mock rendered
+PASS  link-r360-current-inc 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  link-r360-current-inc 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-r360-current-inc 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/sitework-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-r360-current-inc 390: mock rendered
+PASS  link-r360-current-inc 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  link-r360-current-inc 390: no app page overflow  {"overflowX":0}
+
+24/24 claims passed; evidence in ..\part-linkinc

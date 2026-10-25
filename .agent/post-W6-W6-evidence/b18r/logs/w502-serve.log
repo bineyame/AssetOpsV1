@@ -1,0 +1,7 @@
+  positive: pid 16080 http://127.0.0.1:8971 health=ok
+  worstcase: pid 10408 http://127.0.0.1:8972 health=ok
+  forbidden: pid 11508 http://127.0.0.1:8976 health=ok
+  unavailable: pid 31872 http://127.0.0.1:8977 health=ok
+Frontend dev server (PowerShell, repository root), one per API, e.g. positive:
+  cd frontend; $env:ASSETOPS_API_PORT="8971"; npm.cmd run dev -- --port 5471 --strictPort
+  Site Actions page: http://localhost:<web port>/sites/COLD-LAB-001/... with the manifest window query

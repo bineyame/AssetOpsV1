@@ -1,0 +1,1 @@
+(() => ({ loading: document.querySelector(".global-work-loading")?.textContent, res: performance.getEntriesByType("resource").filter((e) => e.name.includes("/api/")).map((e) => e.name.slice(21, 140) + " " + Math.round(e.duration) + " " + e.responseStatus) }))()

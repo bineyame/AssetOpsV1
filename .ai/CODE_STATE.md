@@ -5922,3 +5922,15 @@ Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `
 - Evidence "Portfolio evidence" / "Review cooling →"; Analysis Measured/Sent/Received in the Site zone via canonical `sites/siteTime.ts` (missing zone: `UTC; Site time zone unavailable`).
 - Tabs: `coldTabSearch(site, params)` feeds the W2-EV `OperatorSiteTabs` search override on cold Overview, Evidence, Performance, Findings, Finding, Financials, Health.
 - Open: Work/Scenarios tab window and depth copies (W5-cold-Work); register statuses R241-R261, R435-R437 after review; Not-determined 390 wrap not producible.
+
+## post-W6 W6-global-Work - global work list/WR D3 fixes and caps fix round (built, in_review)
+
+Branch `task/post-W6-W6-global` (from main `821ad6bf`). Rulings `.agent/post-W6-W6-rulings.md` (Q1-Q21) and `.agent/post-W6-W6-caps-rulings.md` (1-5). Packet `.agent/post-W6-W6-packet.md`; handoff `.agent/post-W6-W6-handoff.md`.
+
+- Backend (`fe52c862`): `site_domain` on global list rows and detail `selected`; `links.site` via `estate/evidence_money.site_home_href`; incident `linked_requests` [{label, href}] with IDs in the basis; Site incidents/maintenance fallbacks carry `known_at` only for an explicit cutoff; global Action labels use stored `ACT-` codes. Files `work/{global_index,global_detail,operational_index}.py`, `work/adapters/postgres_global_read.py`; tests `test_w601{a,b,c,e}`.
+- Frontend (`5685abad`): R352-R372 D3s across `frontend/src/work/*`, R371 route `/maintenance/requests/:caseId/*`, guard rule in `tools/checks/navigation-truthfulness.ps1`.
+- Caps fix round: `work/CellDisclosure.tsx` (two-line preview; visible "Show full"/"Show less" native button with `aria-expanded`/`aria-controls` and a "Show full {column} for {row}" name, overlaid at the end of line 2; shown only when the value overflows, re-measured by ResizeObserver and MutationObserver). Used for Incident Site/Severity/Owner/Findings, Corrective Work request links/Asset-site/Owner, Preventive Asset-site/Trigger/Last done/Next due/What it proves/correction, Operational Record/correction/Type/Site/By/Feeds. CSS `.cell-disclosure*`, `.global-work-clamp--two` in `work/globalWork.css`.
+- R356: Operational records Feeds 125 px (fixed sum 1085, fits the 1090 px client width beside the inner vertical scrollbar); 390 px inner table minimum 1085.
+- Tests: `work/__tests__/cellDisclosure.test.tsx`, `cellDisclosureStub.ts` (jsdom box-size and ResizeObserver stubs), page tests' "caps ruling 4" blocks.
+- Evidence: `.agent/post-W6-W6-evidence/q15b/` (cap probe at the final SHA), `b18r/`, `b19r/` (recaptures), earlier `b18/`, `b19/`, `q15/`.
+- Open: VERIFICATION_WINDOW has no writer (capture gap); cold/EV preventive and operational rows, one list with all three domains, and pending/stale global states have no producer; registry chain Q19 nodes remain open (see packet); the other 3-line title/body clamps keep their existing "Full ... text" disclosures (not changed by ruling 4).

@@ -1,0 +1,25 @@
+api-detail 28668 port 18913
+api-hist 5872 port 18914
+api-linked 23872 port 18915
+api-stress 628 port 18916
+api-maint 22032 port 18917
+api-forbidden 23296 port 18918
+api-unavailable 17644 port 18919
+vite-detail 10672
+vite-hist 7620
+vite-linked 17488
+vite-stress 11572
+vite-maint 20608
+vite-links 24964
+vite-forbidden 32600
+vite-unavailable 20808
+STOPPED api 28668 5872 23872 628 22032 23296 17644
+w502 serve (shared, started by b18r prod.sh) 16080 10408 11508 31872
+vite-cold-positive 29876
+vite-cold-worstcase 17976
+vite-cold-forbidden 13040
+w504 serve (shared, started by b18r prod.sh) 6544 12744 24436; 24888 stopped by attest; 4568 zero stopped early
+vite-ev-positive 8240
+vite-ev-worstcase 11652
+vite-ev-forbidden 16300
+vite-ev-unavailable 25296

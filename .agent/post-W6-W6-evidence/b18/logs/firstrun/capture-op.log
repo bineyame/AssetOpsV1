@@ -1,0 +1,183 @@
+﻿chrome pid 16884
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  oprecords-positive 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-positive 1440: mock rendered
+FAIL  oprecords-positive 1440: same panel count  {"app":[],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-positive 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-positive 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-positive 390: mock rendered
+PASS  oprecords-positive 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-positive 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-all-open 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-all-open 1440: mock rendered
+PASS  oprecords-all-open 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-all-open 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-all-open 390: mock rendered
+PASS  oprecords-all-open 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-all-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6MDZlZDM2YTJlMWUwZjBjMjJkODYyNzk1MzMzOWQzMTUzYTI2MDRlMGZhN2Y4YzllYWM1N2U1ZDEwMjgzNmZhMCIsImFmdGVyIjpbIjIwMjYtMTAtMjFUMTE6NTk6MDUuMDAwMDAwWiIsImtvYm8tMDAxIiwiZmMyMjE2YzktNjAwYy00OWExLTg0YzctMjRkNDUzMjFhZTJjIiwiNmE3MDNmNDEtYmFjOC00MTMwLTg5OTMtMzllMDM4YjRjMjA0Il0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiNzk5MTQ1YzUtNzg1MC00MzEyLTg1YWUtYWM2MjQ0YTdiNWNhIiwiZmMyMjE2YzktNjAwYy00OWExLTg0YzctMjRkNDUzMjFhZTJjIl0sImZpbHRlciI6ImFsbCIsImZyb20iOiIyMDI2LTEwLTE0VDAwOjAwOjAwLjAwMDAwMFoiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjVUMTI6MjM6MDAuMjI2NzkzWiIsIm1hYyI6IjNmZmU2YjZkZDU5ZmU0OGVmYjQ3NGM1ZjcyYzcwMzJmY2RjM2NiMDkyY2Y3NWQ0MWQwMjRiYmRhYzFhNzU4MGIiLCJwYWdlX29uZV9tb2RlIjoiY3VycmVudCIsInJvdXRlIjoib3BlcmF0aW9uYWwtcmVjb3JkcyIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1ZWI5MWY0MmIyYjhiOGQ3MmExYmEwZjE2OTgzYzFiNjQ3ZGNiMjM5NzRmMTViZmE4YjdhNWY4YWU3NTJjNjQ3IiwidGVuYW50X2lkIjoiMmZjN2Q3ZDgtNzRkOS00MTU4LWIwNzYtZDk1NDFiMzU0ZWEyIiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-page-two 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-page-two 1440: mock rendered
+PASS  oprecords-page-two 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-page-two 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6MDZlZDM2YTJlMWUwZjBjMjJkODYyNzk1MzMzOWQzMTUzYTI2MDRlMGZhN2Y4YzllYWM1N2U1ZDEwMjgzNmZhMCIsImFmdGVyIjpbIjIwMjYtMTAtMjFUMTE6NTk6MDUuMDAwMDAwWiIsImtvYm8tMDAxIiwiZmMyMjE2YzktNjAwYy00OWExLTg0YzctMjRkNDUzMjFhZTJjIiwiNmE3MDNmNDEtYmFjOC00MTMwLTg5OTMtMzllMDM4YjRjMjA0Il0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiNzk5MTQ1YzUtNzg1MC00MzEyLTg1YWUtYWM2MjQ0YTdiNWNhIiwiZmMyMjE2YzktNjAwYy00OWExLTg0YzctMjRkNDUzMjFhZTJjIl0sImZpbHRlciI6ImFsbCIsImZyb20iOiIyMDI2LTEwLTE0VDAwOjAwOjAwLjAwMDAwMFoiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjVUMTI6MjM6MDAuMjI2NzkzWiIsIm1hYyI6IjNmZmU2YjZkZDU5ZmU0OGVmYjQ3NGM1ZjcyYzcwMzJmY2RjM2NiMDkyY2Y3NWQ0MWQwMjRiYmRhYzFhNzU4MGIiLCJwYWdlX29uZV9tb2RlIjoiY3VycmVudCIsInJvdXRlIjoib3BlcmF0aW9uYWwtcmVjb3JkcyIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1ZWI5MWY0MmIyYjhiOGQ3MmExYmEwZjE2OTgzYzFiNjQ3ZGNiMjM5NzRmMTViZmE4YjdhNWY4YWU3NTJjNjQ3IiwidGVuYW50X2lkIjoiMmZjN2Q3ZDgtNzRkOS00MTU4LWIwNzYtZDk1NDFiMzU0ZWEyIiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-page-two 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-page-two 390: mock rendered
+PASS  oprecords-page-two 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-page-two 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=OPERATOR_LOG: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-kind-OPERATOR_LOG 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-kind-OPERATOR_LOG 1440: mock rendered
+PASS  oprecords-kind-OPERATOR_LOG 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-kind-OPERATOR_LOG 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=OPERATOR_LOG: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-kind-OPERATOR_LOG 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-kind-OPERATOR_LOG 390: mock rendered
+PASS  oprecords-kind-OPERATOR_LOG 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-kind-OPERATOR_LOG 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=MANUAL_READING: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-kind-MANUAL_READING 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-kind-MANUAL_READING 1440: mock rendered
+PASS  oprecords-kind-MANUAL_READING 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-kind-MANUAL_READING 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=MANUAL_READING: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-kind-MANUAL_READING 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-kind-MANUAL_READING 390: mock rendered
+PASS  oprecords-kind-MANUAL_READING 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-kind-MANUAL_READING 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SHIFT_NOTE: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-kind-SHIFT_NOTE 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-kind-SHIFT_NOTE 1440: mock rendered
+PASS  oprecords-kind-SHIFT_NOTE 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-kind-SHIFT_NOTE 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SHIFT_NOTE: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-kind-SHIFT_NOTE 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-kind-SHIFT_NOTE 390: mock rendered
+PASS  oprecords-kind-SHIFT_NOTE 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-kind-SHIFT_NOTE 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SITE_VISIT: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  oprecords-kind-SITE_VISIT 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-kind-SITE_VISIT 1440: mock rendered
+PASS  oprecords-kind-SITE_VISIT 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-kind-SITE_VISIT 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SITE_VISIT: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-kind-SITE_VISIT 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-kind-SITE_VISIT 390: mock rendered
+PASS  oprecords-kind-SITE_VISIT 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-kind-SITE_VISIT 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-historical 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-historical 1440: mock rendered
+PASS  oprecords-historical 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-historical 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-historical 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-historical 390: mock rendered
+PASS  oprecords-historical 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-historical 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=BOGUS: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  oprecords-invalid-kind 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-invalid-kind 1440: mock rendered
+PASS  oprecords-invalid-kind 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-invalid-kind 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=BOGUS: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-invalid-kind 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-invalid-kind 390: mock rendered
+PASS  oprecords-invalid-kind 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-invalid-kind 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  oprecords-refused-reversed 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-refused-reversed 1440: mock rendered
+PASS  oprecords-refused-reversed 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-refused-reversed 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-refused-reversed 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-refused-reversed 390: mock rendered
+PASS  oprecords-refused-reversed 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-refused-reversed 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  oprecords-refused-span-32d 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-refused-span-32d 1440: mock rendered
+PASS  oprecords-refused-span-32d 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-refused-span-32d 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-refused-span-32d 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-refused-span-32d 390: mock rendered
+PASS  oprecords-refused-span-32d 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-refused-span-32d 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  oprecords-refused-one-bound 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-refused-one-bound 1440: mock rendered
+PASS  oprecords-refused-one-bound 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-refused-one-bound 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-refused-one-bound 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-refused-one-bound 390: mock rendered
+PASS  oprecords-refused-one-bound 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-refused-one-bound 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  oprecords-refused-bad-known-at 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-refused-bad-known-at 1440: mock rendered
+PASS  oprecords-refused-bad-known-at 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-refused-bad-known-at 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-refused-bad-known-at 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-refused-bad-known-at 390: mock rendered
+PASS  oprecords-refused-bad-known-at 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-refused-bad-known-at 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  oprecords-no-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-no-window 1440: mock rendered
+PASS  oprecords-no-window 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/operational-records: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-no-window 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-no-window 390: mock rendered
+PASS  oprecords-no-window 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-no-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  incidents-one-row 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-one-row 1440: mock rendered
+PASS  incidents-one-row 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-one-row 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-one-row 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-one-row 390: mock rendered
+PASS  incidents-one-row 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-one-row 390: no app page overflow  {"overflowX":0}
+
+178/180 claims passed; evidence in ..\part-op

@@ -29,9 +29,11 @@ _IMPORTED_SITES = (
     "SELECT 1 FROM site_import i WHERE i.tenant_id = s.tenant_id AND i.site_id = s.id AND i.imported_at < :to) "
     "ORDER BY s.site_code_key, s.id")
 # A1Q Q7: scoped request codes whose stored `incident_id` is this case, at the cutoff, with no window filter.
+# Post-W6 W6 Q4 (R359): the same selection also yields each request's ID for its exact Overview destination.
 _LINKED_REQUEST_CODES = (
-    "SELECT c.public_code FROM maintenance_work_request r JOIN work_case c ON c.tenant_id = r.tenant_id "
-    "AND c.site_id = r.site_id AND c.id = r.id WHERE r.tenant_id = :t AND r.site_id = :s AND r.incident_id = :i "
+    "SELECT c.public_code, CAST(c.id AS text) FROM maintenance_work_request r JOIN work_case c "
+    "ON c.tenant_id = r.tenant_id AND c.site_id = r.site_id AND c.id = r.id "
+    "WHERE r.tenant_id = :t AND r.site_id = :s AND r.incident_id = :i "
     "AND c.kind = 'MAINTENANCE_REQUEST' AND c.created_at <= :k AND EXISTS (SELECT 1 FROM work_case_revision v "
     "WHERE v.tenant_id = c.tenant_id AND v.site_id = c.site_id AND v.case_id = c.id AND v.recorded_at <= :k) "
     "ORDER BY c.created_at, c.id")
@@ -74,6 +76,14 @@ _OPERATIONAL = (
     "ORDER BY p.recorded_at DESC, p.id DESC LIMIT 1) h ON true "
     "WHERE r.tenant_id = :t AND r.site_id = :s AND r.supersedes_record_id IS NULL AND r.canonical_record_id = r.id "
     "AND r.occurred_at >= :lo AND r.occurred_at < :hi AND r.recorded_at <= :k")
+# Post-W6 W6 Q10 (R366): the stored public `ACT-` code of each linked Action root, W1 `action` or domain
+# `domain_action` (one shared code namespace), scoped to this tenant and Site. Codes are immutable root values.
+_ACTION_CODES = (
+    "SELECT CAST(a.id AS text), a.action_code FROM action a WHERE a.tenant_id = :t AND a.site_id = :s "
+    "AND CAST(a.id AS text) = ANY(:ids) UNION ALL SELECT CAST(d.id AS text), d.action_code FROM domain_action d "
+    "WHERE d.tenant_id = :t AND d.site_id = :s AND CAST(d.id AS text) = ANY(:ids)")
+# Post-W6 W6 Q2/Q3 (R352/R353): the selected Site's stored `site_type`, for the detail domain and Site home.
+_SITE_TYPE = "SELECT site_type FROM site WHERE tenant_id = :t AND id = :s"
 # W6-01c C1: the scoped Asset code/type of a case's stored `asset_id` (the W4 `_ELIGIBLE` label inputs).
 _ASSET = "SELECT asset_code, asset_type FROM asset WHERE tenant_id = :t AND site_id = :s AND id = :a"
 
@@ -95,9 +105,25 @@ class GlobalReadTx:
     def site(self, tenant_id: UUID, site_id: UUID, site_code: str) -> _ReadTx:
         return _ReadTx(self._c, tenant_id, site_id, site_code, self.read_at, self._link_rows, self._ports)
 
+    def linked_requests(self, tenant_id: UUID, site_id: UUID, case_id: str,
+                        known_at: datetime) -> list[dict[str, str]]:
+        """A1Q Q7 order `(created_at, id)`: `{code, id}` of each scoped request linked to this incident at K."""
+        rows = self._c.execute(text(_LINKED_REQUEST_CODES), {"t": tenant_id, "s": site_id, "i": case_id, "k": known_at})
+        return [{"code": r[0], "id": str(r[1]).lower()} for r in rows]
+
     def linked_request_codes(self, tenant_id: UUID, site_id: UUID, case_id: str, known_at: datetime) -> list[str]:
-        return list(self._c.execute(text(_LINKED_REQUEST_CODES),
-                                    {"t": tenant_id, "s": site_id, "i": case_id, "k": known_at}).scalars())
+        return [r["code"] for r in self.linked_requests(tenant_id, site_id, case_id, known_at)]
+
+    def action_codes(self, tenant_id: UUID, site_id: UUID, action_ids: list[str]) -> dict[str, str]:
+        """Post-W6 W6 Q10: `{action_id: ACT-code}` for the stored Action roots among `action_ids` at this Site."""
+        if not action_ids:
+            return {}
+        rows = self._c.execute(text(_ACTION_CODES), {"t": tenant_id, "s": site_id,
+                                                     "ids": sorted({str(x).lower() for x in action_ids})})
+        return {str(r[0]).lower(): r[1] for r in rows}
+
+    def site_type(self, tenant_id: UUID, site_id: UUID) -> str | None:
+        return self._c.execute(text(_SITE_TYPE), {"t": tenant_id, "s": site_id}).scalar()
 
     def plans(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime,
               known_at: datetime) -> list[dict[str, Any]]:

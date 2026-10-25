@@ -1,0 +1,954 @@
+{
+ "label": "SYNTHETIC LAYOUT PROBE - not product data",
+ "product": "ffcf6e13",
+ "results": [
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "preventive-plan-positive",
+   "url": "http://127.0.0.1:5391/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Preventive plan",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Preventive plan",
+     "h": 489
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "intendedFields": 40,
+    "fields160": 40,
+    "fieldNames": [
+     "div[data-global-work-title]",
+     "div[data-cell-disclosure-expanded][data-global-work-asset-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-trigger]",
+     "div[data-cell-disclosure-expanded]",
+     "div[data-cell-disclosure-expanded][data-global-work-due]",
+     "div[data-cell-disclosure-expanded]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "live": {
+     "before": {
+      "values": 25,
+      "overflowing": 25,
+      "overflowingWithoutButton": 0,
+      "buttons": 25,
+      "names": [
+       "Show full Asset / site",
+       "Show full Trigger",
+       "Show full Last done",
+       "Show full Next due",
+       "Show full What it proves"
+      ]
+     },
+     "expanded": {
+      "count": 25,
+      "buttons": 25,
+      "clippedExpanded": 0,
+      "full160": 25,
+      "showLess": 25,
+      "inLink": 0,
+      "panelH": 599,
+      "docOverflowX": 0
+     },
+     "after": {
+      "values": 25,
+      "overflowing": 25,
+      "overflowingWithoutButton": 0,
+      "buttons": 25,
+      "names": [
+       "Show full Asset / site",
+       "Show full Trigger",
+       "Show full Last done",
+       "Show full Next due",
+       "Show full What it proves"
+      ]
+     },
+     "collapsedAgain": 25
+    },
+    "disclosures": {
+     "values": 25,
+     "overflowing": 25,
+     "overflowingWithoutButton": 0,
+     "buttons": 25,
+     "names": [
+      "Show full Asset / site",
+      "Show full Trigger",
+      "Show full Last done",
+      "Show full Next due",
+      "Show full What it proves"
+     ]
+    },
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "Preventive plan",
+      "h": 599
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 533,
+      "ch": 468,
+      "maxH": "468px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-preventive-plan-heading"
+     }
+    ],
+    "panelH": 599,
+    "rowHs": [
+     100,
+     100,
+     100,
+     100,
+     99
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     }
+    ],
+    "clippedCount": 30,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1090,
+      "cw": 1090,
+      "scrollable": false,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1763,
+      "ch": 468,
+      "maxH": "468px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-preventive-plan-heading"
+     }
+    ],
+    "panelH": 599,
+    "clippedCount": 5,
+    "clippedWithoutFullText": 0,
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     }
+    ],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "preventive-plan-positive",
+   "url": "http://127.0.0.1:5391/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Preventive plan",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Preventive plan",
+     "h": 690
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "intendedFields": 40,
+    "fields160": 40,
+    "fieldNames": [
+     "div[data-global-work-title]",
+     "div[data-cell-disclosure-expanded][data-global-work-asset-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-trigger]",
+     "div[data-cell-disclosure-expanded]",
+     "div[data-cell-disclosure-expanded][data-global-work-due]",
+     "div[data-cell-disclosure-expanded]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "live": {
+     "before": {
+      "values": 25,
+      "overflowing": 25,
+      "overflowingWithoutButton": 0,
+      "buttons": 25,
+      "names": [
+       "Show full Asset / site",
+       "Show full Trigger",
+       "Show full Last done",
+       "Show full Next due",
+       "Show full What it proves"
+      ]
+     },
+     "expanded": {
+      "count": 25,
+      "buttons": 25,
+      "clippedExpanded": 0,
+      "full160": 25,
+      "showLess": 25,
+      "inLink": 0,
+      "panelH": 690,
+      "docOverflowX": 0
+     },
+     "after": {
+      "values": 25,
+      "overflowing": 25,
+      "overflowingWithoutButton": 0,
+      "buttons": 25,
+      "names": [
+       "Show full Asset / site",
+       "Show full Trigger",
+       "Show full Last done",
+       "Show full Next due",
+       "Show full What it proves"
+      ]
+     },
+     "collapsedAgain": 25
+    },
+    "disclosures": {
+     "values": 25,
+     "overflowing": 25,
+     "overflowingWithoutButton": 0,
+     "buttons": 25,
+     "names": [
+      "Show full Asset / site",
+      "Show full Trigger",
+      "Show full Last done",
+      "Show full Next due",
+      "Show full What it proves"
+     ]
+    },
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "Preventive plan",
+      "h": 690
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 633,
+      "ch": 518,
+      "maxH": "518px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-preventive-plan-heading"
+     }
+    ],
+    "panelH": 690,
+    "rowHs": [
+     120,
+     120,
+     120,
+     120,
+     119
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 528,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 194,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 317,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 264,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 528,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 194,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 317,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 264,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 528,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 194,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 317,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 264,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 528,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 194,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 317,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 264,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 528,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 194,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 317,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 264,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     }
+    ],
+    "clippedCount": 30,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 720,
+      "cw": 318,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 2906,
+      "ch": 518,
+      "maxH": "518px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-preventive-plan-heading"
+     }
+    ],
+    "panelH": 690,
+    "clippedCount": 5,
+    "clippedWithoutFullText": 0,
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     }
+    ],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  }
+ ]
+}

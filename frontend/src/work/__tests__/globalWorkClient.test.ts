@@ -5,6 +5,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   GLOBAL_WORK_DETAIL_REFUSAL_COPY,
+  GLOBAL_WORK_REFUSAL_COPY,
+  globalWorkUtc,
+  globalWorkUtcSeconds,
+  readGlobalWork,
   readGlobalWorkDetail,
   type GlobalWorkDetailBody,
   type WorkCaseDetailEvent,
@@ -40,6 +44,7 @@ function detail(over: Partial<GlobalWorkDetailBody> = {}, state = "IN_PROGRESS")
       case_code: "WR-000001",
       case_kind: "MAINTENANCE_REQUEST",
       known_at: "2026-10-22T12:00:00.000000Z",
+      site_domain: "MINIGRID",
     },
     work_detail: {
       schema_version: "work-case-detail-1",
@@ -145,5 +150,52 @@ describe("readGlobalWorkDetail denied Site (R373 ruling Q5)", () => {
     expect(result).toEqual({ status: "refused", code: "SITE_SCOPE_FORBIDDEN" });
     expect(GLOBAL_WORK_DETAIL_REFUSAL_COPY.SITE_SCOPE_FORBIDDEN).toBe("No access to this Site's work.");
     expect(GLOBAL_WORK_DETAIL_REFUSAL_COPY.SITE_SCOPE_FORBIDDEN).not.toMatch(/request/i);
+  });
+});
+
+describe("Post-W6 W6: wire extensions and copy", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const respondRaw = (body: unknown) =>
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(body), { status: 200 })));
+
+  function envelope(rows: unknown[], counts: unknown = { OPEN: 0, IN_PROGRESS: 0, CLOSED: 0 }) {
+    return {
+      schema_version: "global-work-index-1",
+      rows,
+      total_count: rows.length,
+      known_at: "2026-10-22T12:00:00Z",
+      status: "CURRENT",
+      state_counts: counts,
+      window: { from: "2026-10-15T00:00:00Z", to: "2026-10-22T00:00:00Z", bounds: "[from, to)" },
+      next_cursor: null,
+    };
+  }
+
+  it("Q2/Q4: list rows name a stored Site domain; Incident rows carry linked request links", async () => {
+    const link = { label: "WR-000001", href: "/maintenance/requests/x?site_id=KOBO-001" };
+    respondRaw(envelope([{ site_domain: "EV_CHARGING", linked_requests: [link] }]));
+    expect((await readGlobalWork("/api/work/incidents", "incidents")).status).toBe("loaded");
+    for (const bad of [{ linked_requests: [] }, { site_domain: "SOLAR", linked_requests: [] }, { site_domain: "MINIGRID" }]) {
+      respondRaw(envelope([bad]));
+      expect(await readGlobalWork("/api/work/incidents", "incidents")).toEqual({ status: "refused", code: "WORK_STORE_UNAVAILABLE" });
+    }
+    respondRaw(envelope([{ site_domain: "COLDCHAIN" }], null));
+    expect((await readGlobalWork("/api/work/preventive", "preventive")).status).toBe("loaded");
+  });
+
+  it("Q2: the detail selected block must name a stored Site domain", async () => {
+    const base = detail();
+    respond(detail({ selected: { ...base.selected, site_domain: "COLDCHAIN" } }));
+    expect((await readGlobalWorkDetail("/api/work/requests/x")).status).toBe("loaded");
+    const { site_domain: _omit, ...without } = base.selected;
+    respondRaw({ ...base, selected: without });
+    expect(await readGlobalWorkDetail("/api/work/requests/x")).toEqual({ status: "refused", code: "WORK_STORE_UNAVAILABLE" });
+  });
+
+  it("Q11/Q14: the detail 503 sentence has no Reload word; historical instants carry seconds", () => {
+    expect(GLOBAL_WORK_DETAIL_REFUSAL_COPY.WORK_STORE_UNAVAILABLE).toBe("Work records could not be read.");
+    expect(GLOBAL_WORK_REFUSAL_COPY.WORK_STORE_UNAVAILABLE).toBe("Work records could not be read. Reload.");
+    expect(globalWorkUtcSeconds("2026-10-22T12:00:01.123456Z")).toBe("22 Oct 2026, 12:00:01 UTC");
+    expect(globalWorkUtc("2026-10-22T12:00:01Z")).toBe("22 Oct 2026, 12:00 UTC");
   });
 });

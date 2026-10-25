@@ -1,0 +1,32 @@
+api-detail 3900 port 18651
+api-hist 25676 port 18652
+api-linked 27880 port 18653
+api-stress 31748 port 18654
+api-maint 28804 port 18655
+api-forbidden 14036 port 18656
+api-unavailable 17560 port 18657
+vite-detail 29896
+vite-hist 1840
+vite-linked 26276
+vite-stress 21828
+vite-maint 32740
+vite-links 23968
+vite-forbidden 27120
+vite-unavailable 9600
+vite-rerun-hist 21560
+vite-rerun-linked 5632
+vite-rerun-stress 13300
+vite-rerun-maint 15108
+vite-rerun-unavailable 5864
+w504-serve (detached) 18536 18000 15740 21796 25896 - stop via w504 drop
+vite-ev-positive 30268
+vite-ev-worstcase 1192
+w504 zero tree 15740/13668 stopped early (spinning, not needed)
+vite-ev-forbidden 2424
+vite-ev-unavailable 14044
+vite-ev-positive 25204
+vite-ev-worstcase 1812
+w502 serve 5844 32664 27876 20176 4836 26744 4080 (ports 8971-8977)
+vite-cold-positive 31616
+vite-cold-worstcase 29116
+vite-cold-forbidden 16660

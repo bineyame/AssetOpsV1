@@ -1,0 +1,26 @@
+[
+ {
+  "name": "wr-overview-workdone-stress-wr7",
+  "url": "http://127.0.0.1:5391/maintenance/requests/9747e35b-9853-49b5-b60d-0334d26e20d9?site_id=KOBO-001",
+  "kind": "workDone",
+  "panel": "Work done"
+ },
+ {
+  "name": "wr-overview-lifecycle-stress-wr7",
+  "url": "http://127.0.0.1:5391/maintenance/requests/9747e35b-9853-49b5-b60d-0334d26e20d9?site_id=KOBO-001",
+  "kind": "asIs",
+  "panel": "Lifecycle"
+ },
+ {
+  "name": "wr-record-stress-wr7",
+  "url": "http://127.0.0.1:5391/maintenance/requests/9747e35b-9853-49b5-b60d-0334d26e20d9/record?site_id=KOBO-001",
+  "kind": "recordGroups5",
+  "panel": "Maintenance record \u00b7 activity"
+ },
+ {
+  "name": "wr-history-stress-wr7",
+  "url": "http://127.0.0.1:5391/maintenance/requests/9747e35b-9853-49b5-b60d-0334d26e20d9/history?site_id=KOBO-001",
+  "kind": "rows5",
+  "panel": "History"
+ }
+]

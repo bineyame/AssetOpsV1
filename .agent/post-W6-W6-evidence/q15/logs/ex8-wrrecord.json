@@ -1,0 +1,51 @@
+{
+ "tabs": [
+  "OL.site-tabs__list > LI.site-tabs__item > a.site-tabs__link class=site-tabs__link data-work-request-tab=overview «Overview»",
+  "OL.site-tabs__list > LI.site-tabs__item > a.site-tabs__link class=site-tabs__link data-work-request-tab=history «History»"
+ ],
+ "panels": [
+  {
+   "h": "Maintenance record · activity",
+   "H": 596,
+   "texts": [
+    "h2 class=panel__heading len=29 «Maintenance record · activity»",
+    "p class=panel__description len=75 «What was recorded on site; no outcome verification»",
+    "p class=global-work-scroll-hint data-global-work-scroll-hint=true len=25 «Scroll table horizontally»",
+    "th  len=4 «Item»",
+    "th  len=6 «Detail»",
+    "th  len=6 «Status»",
+    "th  len=5 «Basis»",
+    "th data-work-record-group-heading=true len=33 «Record 1 · 19 Oct 2026, 12:00 UTC»",
+    "th class=work-record-item len=16 «Technician notes»",
+    "div class=global-work-clamp data-work-record-clamp=activity len=4000 «Replaced starter relay and tested Replaced starter»",
+    "summary  len=18 «Full activity text»",
+    "[C] details class=global-work-details data-work-record-full=activity len=4000 «Replaced starter relay and tested Replaced starter»",
+    "div class=global-work-clamp data-work-record-clamp=outcome len=27 «Outcome note: Authored note»",
+    "span class=work-record-outcome__basis data-work-record-outcome-basis=true len=26 «Unverified · Authored note»",
+    "span class=work-record-badge work-record- data-work-record-status=Recorded len=8 «Recorded»",
+    "td  len=27 «Authored maintenance record»",
+    "th class=work-record-item len=5 «Parts»",
+    "td  len=12 «Not recorded»",
+    "span class=work-record-badge work-record- data-work-record-status=Not established len=15 «Not established»",
+    "td  len=15 «No stored field»",
+    "th class=work-record-item len=12 «Time on site»",
+    "td  len=22 «19 Oct 2026, 12:00 UTC»",
+    "span class=work-record-badge work-record- data-work-record-status=Recorded len=8 «Recorded»",
+    "td  len=13 «Authored time»",
+    "th class=work-record-item len=25 «Return-to-service reading»",
+    "td  len=12 «Not recorded»",
+    "span class=work-record-badge work-record- data-work-record-status=Not established len=15 «Not established»",
+    "td  len=15 «No stored field»",
+    "th class=work-record-item len=22 «Configuration readback»",
+    "td  len=12 «Not recorded»",
+    "span class=work-record-badge work-record- data-work-record-status=Not established len=15 «Not established»",
+    "td  len=15 «No stored field»",
+    "th class=work-record-item len=25 «Witnessed automatic start»",
+    "td  len=12 «Not recorded»",
+    "span class=work-record-badge work-record- data-work-record-status=Not established len=15 «Not established»",
+    "td  len=15 «No stored field»",
+    "p class=global-work-deviation data-mock-deviation=R365 len=24 «MOCK DEVIATION D1 (R365)»"
+   ]
+  }
+ ]
+}

@@ -21,7 +21,7 @@ import {
   type GlobalWorkDetailRevision,
   type WorkCaseDetailEvent,
 } from "../globalWorkClient";
-import { WorkRequestHistoryFrame, historyReadable, historyRows, historyUtc } from "../WorkRequestHistory";
+import { WorkRequestHistoryFrame, historyReadable, historyRows, historyUtc, recordPosition } from "../WorkRequestHistory";
 
 const CASE = "6f1c2d3e-4a5b-4c6d-8e7f-001122334455";
 const BASE = `/maintenance/requests/${CASE}`;
@@ -79,6 +79,7 @@ function detail(events: WorkCaseDetailEvent[] = DETAIL_EVENTS, revisions = [revi
       case_code: "WR-000001",
       case_kind: "MAINTENANCE_REQUEST",
       known_at: "2026-10-22T12:00:00.000000Z",
+      site_domain: "MINIGRID",
     },
     work_detail: {
       schema_version: "work-case-detail-1",
@@ -199,7 +200,7 @@ describe("W6-01d C4: history presentation", () => {
       "Created",
       "Assigned to Field team A",
       "Commented: Parts ordered",
-      "Completed · outcome not established · maintenance record 00000000-0000-4000-8000-000000000401",
+      "Completed · outcome not established · maintenance record not in this read · 19 Oct 2026, 08:00:03 UTC",
       "Closed: Work accepted",
       "Reopened: Fault returned",
       "Cancelled: Duplicate request",
@@ -259,7 +260,8 @@ describe("W6-01d C4: work request History page", () => {
       "Created",
       "Assigned to Field team A",
       "Commented: Parts ordered",
-      "Completed · outcome not established · maintenance record 00000000-0000-4000-8000-000000000401",
+      // Post-W6 W6 Q10: the stored record UUID is only in the closed disclosure that follows the label.
+      "Completed · outcome not established · maintenance record not in this read · 19 Oct 2026, 08:00:04 UTCStored record ID00000000-0000-4000-8000-000000000401",
       "Reopened: Fault returned",
     ]);
     expect(gapRows()).toEqual([]);
@@ -332,8 +334,9 @@ describe("W6-01d C4: work request History page", () => {
     mount(PAGE, client(loaded(detail([event(0, "CREATED"), event(1, "OPEN_VERIFICATION", { verdict: "pass" })], [revision(1, 0)]))));
     await settled();
     expect(kinds()).toEqual(["CREATED", "OPEN_VERIFICATION"]);
-    expect(events()[1]).toBe("Event OPEN_VERIFICATION · meaning not established");
-    expect(text(q(".global-work--history section"))).not.toMatch(/verified|pass/i);
+    // Post-W6 W6 Q12 (R370): OPEN_VERIFICATION has its fixed label; no outcome is inferred.
+    expect(events()[1]).toBe("Verification opened · outcome not established");
+    expect(text(q(".global-work--history section"))).not.toMatch(/\bverified\b|pass/i);
     expect(q("[data-global-work-pager]")).toBeNull();
     expect(gapRows()).toHaveLength(2);
   });
@@ -372,7 +375,8 @@ describe("W6-01d C4: work request History page", () => {
     mount(`${PAGE}${cut}`, reads);
     await settled();
     expect(reads.calls).toEqual([{ case_id: CASE, site_id: "KOBO-001", known_at: KNOWN }]);
-    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 11:59 UTC");
+    // Post-W6 W6 Q14 (R372): seconds on the historical date bar.
+    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 11:59:04 UTC");
     const tabs = screen.getByRole("navigation", { name: "Context tabs" });
     expect(within(tabs).getByRole("link", { name: "History" })).toHaveAttribute("href", `${PAGE}${cut}`);
     expect(within(tabs).getByRole("link", { name: "Overview" })).toHaveAttribute("href", `${OVERVIEW}${cut}`);
@@ -401,14 +405,18 @@ describe("W6-01d C4: work request History page", () => {
   it.each([
     ["SITE_SCOPE_FORBIDDEN", "No access to this Site's work."],
     ["WORK_CASE_NOT_FOUND", "No work case with this ID at this site."],
-    ["WORK_STORE_UNAVAILABLE", "Work records could not be read. Reload."],
-  ] as const)("states the %s refusal in the shared frame with the History panel slot", async (code, sentence) => {
+    ["WORK_STORE_UNAVAILABLE", "Work records could not be read."],
+  ] as const)("states the %s refusal in the shared frame with no History panel", async (code, sentence) => {
     mount(PAGE, client({ status: "refused", code }));
     await settled();
     expect(text(q(`[data-page-refusal="${code}"]`))).toBe(sentence);
     expect(text(screen.getByRole("navigation", { name: "Breadcrumb" }))).toBe("MaintenanceWork requestHistory");
     expect(q("[data-history-row]")).toBeNull();
-    expectV69Panels("wr-history");
+    // Post-W6 W6 Q11 (R367): no page panels on a refusal; Reload only for the 503.
+    expect(document.querySelectorAll("main .panel")).toHaveLength(0);
+    expect(within(screen.getByRole("main")).getByRole("alert")).toHaveAttribute("data-page-refusal", code);
+    if (code === "WORK_STORE_UNAVAILABLE") expect(screen.getByRole("button", { name: "Reload" })).toBeInTheDocument();
+    else expect(screen.queryByRole("button", { name: "Reload" })).toBeNull();
   });
 
   it("does not fetch without a site_id and states the 404 sentence", async () => {
@@ -416,18 +424,19 @@ describe("W6-01d C4: work request History page", () => {
     mount(`${BASE}/history`, reads);
     await settled();
     expect(reads.calls).toEqual([]);
-    expect(text(q('[data-page-refusal="NO_SITE"]'))).toBe("No work case with this ID at this site.");
+    expect(text(q('[data-page-refusal="NO_SITE"]'))).toBe("Choose a request at a site.");
+    expect(document.querySelectorAll("main .panel")).toHaveLength(0);
   });
 
   it("P-C4-12: a typed 200 without CREATED is the 503 sentence with no authored rows", async () => {
     mount(PAGE, client(loaded(detail(DETAIL_EVENTS.slice(1)))));
     await settled();
-    expect(text(q('[data-page-refusal="WORK_STORE_UNAVAILABLE"]'))).toBe("Work records could not be read. Reload.");
+    expect(text(q('[data-page-refusal="WORK_STORE_UNAVAILABLE"]'))).toBe("Work records could not be read.");
     expect(text(q("[data-work-request-unavailable]"))).toBe("Work request unavailable.");
     expect(q(".v69-mheader")).toBeNull();
     expect(q("[data-history-row]")).toBeNull();
     expect(q("[data-history-gap]")).toBeNull();
-    expectV69Panels("wr-history");
+    expect(document.querySelectorAll("main .panel")).toHaveLength(0);
   });
 
   it("P-C4-12: a fetched malformed 200 without CREATED is refused by the client parser as the 503 sentence", async () => {
@@ -435,7 +444,7 @@ describe("W6-01d C4: work request History page", () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(body), { status: 200 })));
     mount(PAGE, createGlobalWorkClient());
     await settled();
-    expect(text(q('[data-page-refusal="WORK_STORE_UNAVAILABLE"]'))).toBe("Work records could not be read. Reload.");
+    expect(text(q('[data-page-refusal="WORK_STORE_UNAVAILABLE"]'))).toBe("Work records could not be read.");
     expect(q("[data-history-row]")).toBeNull();
   });
 });
@@ -479,5 +488,49 @@ describe("W6-01d C4: the History route in the app shell", () => {
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
     expect(within(rail).getByRole("link", { name: "Maintenance" })).toHaveAttribute("aria-current", "page");
     expect(reads.calls).toHaveLength(1);
+  });
+});
+
+describe("Post-W6 W6: History labels", () => {
+  const rec = (n: number, supersedes: number | null = null) => ({
+    id: `00000000-0000-4000-8000-${String(400 + n).padStart(12, "0")}`,
+    activity: `Activity ${n}`,
+    outcome_note: null,
+    occurred_at: "2026-10-19T09:00:00Z",
+    recorded_at: `2026-10-19T09:00:0${n}Z`,
+    supersedes_record_id: supersedes === null ? null : `00000000-0000-4000-8000-${String(400 + supersedes).padStart(12, "0")}`,
+  });
+
+  it("R366: COMPLETE names the record's one-based root position and seconds, with the UUID only in a disclosure", async () => {
+    // Roots in read order: 402 (position 1), 401 (position 2); 403 corrects 401, so it counts as position 2.
+    const base = detail([event(0, "CREATED"), event(3, "COMPLETE", { maintenance_record_id: "00000000-0000-4000-8000-000000000403" })], [revision(1, 0)]);
+    const body = { ...base, work_detail: { ...base.work_detail, records: [rec(2), rec(1), rec(3, 1)] } };
+    expect(recordPosition(body, "00000000-0000-4000-8000-000000000402")).toBe(1);
+    expect(recordPosition(body, "00000000-0000-4000-8000-000000000401")).toBe(2);
+    expect(recordPosition(body, "00000000-0000-4000-8000-000000000403")).toBe(2);
+    expect(recordPosition(body, "00000000-0000-4000-8000-000000000499")).toBeNull();
+    mount(PAGE, client(loaded(body)));
+    await settled();
+    const cell = q('[data-history-row="COMPLETE"] [data-history-event]') as HTMLElement;
+    expect(cell.firstChild?.textContent).toBe("Completed · outcome not established · maintenance record 2 · 19 Oct 2026, 08:00:03 UTC");
+    const disclosure = cell.querySelector('[data-history-stored-id="Stored record ID"]') as HTMLDetailsElement;
+    expect(disclosure.open).toBe(false);
+    expect(text(disclosure)).toBe("Stored record ID00000000-0000-4000-8000-000000000403");
+    expect(cell.firstChild?.textContent).not.toContain("00000000-");
+  });
+
+  it("R370: another unknown kind is unrecognised, with its raw code only in a Stored event code disclosure", async () => {
+    mount(PAGE, client(loaded(detail([event(0, "CREATED"), event(1, "RESCHEDULE", { x: 1 })], [revision(1, 0)]))));
+    await settled();
+    const cell = q('[data-history-row="RESCHEDULE"] [data-history-event]') as HTMLElement;
+    expect(cell.firstChild?.textContent).toBe("Unrecognised event · meaning not established");
+    expect(text(cell.querySelector('[data-history-stored-id="Stored event code"]'))).toBe("Stored event codeRESCHEDULE");
+  });
+
+  it("R369: the visible D2 label sits in the History panel", async () => {
+    mount(PAGE, client(loaded(detail())));
+    await settled();
+    const panel = screen.getByRole("heading", { level: 2, name: "History" }).closest("section") as HTMLElement;
+    expect(text(panel.querySelector('[data-mock-deviation="R369"]'))).toBe("MOCK DEVIATION D2 (R369)");
   });
 });
