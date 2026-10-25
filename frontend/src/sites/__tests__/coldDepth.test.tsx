@@ -310,7 +310,8 @@ describe("cooling_state_copy", () => {
     ["PENDING_RECOMPUTE", "New evidence is waiting to be assessed. Earlier selected observations are shown, not a current conclusion."],
     ["HISTORICAL", "Read at an earlier evidence cutoff; newer committed evidence exists."],
     ["STALE_SOURCE", "The selected source is stale for this window."],
-    ["UNKNOWN", "No selected cold assessment covers this window yet."],
+    // post-W6 R336: this body has a selected point and Observed context rows.
+    ["UNKNOWN", "No selected cold assessment covers this window. The rows below are accepted records only, not an assessed conclusion."],
   ] as const)("selection %s: the matrix status stays and the amber notice sits directly below the status line", async (state, sentence) => {
     const body = coolingBody();
     renderCooling(COOLING_PATH, () => Promise.resolve(loaded({ ...body, selection: { ...body.selection, state } })));
@@ -323,6 +324,17 @@ describe("cooling_state_copy", () => {
       expect(notice()?.className).toBe("notice v69-notice");
       expect(statusLine().nextElementSibling).toBe(notice());
     }
+  });
+
+  it("post-W6 R336: UNKNOWN with no selected point and no Observed context keeps the plain ledger sentence", async () => {
+    const body = coolingBody({}, {
+      selected_points: [],
+      context: (coolingBody().cooling.context as { state: string }[]).map((row) => ({ ...row, state: "Unknown", evidence_ids: [], duration_seconds: null })),
+    });
+    renderCooling(COOLING_PATH, () => Promise.resolve(loaded({ ...body, selection: { ...body.selection, state: "UNKNOWN" } })));
+    await settledCooling();
+    expect(notice()?.textContent).toBe("No selected cold assessment covers this window yet.");
+    expect(main().textContent).not.toContain("accepted records only");
   });
 
   it("the backup-failed door pair is observed, so nothing says door context is missing", async () => {
