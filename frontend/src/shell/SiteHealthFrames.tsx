@@ -141,6 +141,8 @@ export function SiteAssetFrame({
   const { siteId, assetId } = useParams<{ siteId: string; assetId: string }>();
   const [header, setHeader] = useState<BatteryHeader | null>(null);
   const onHeader = useCallback((next: BatteryHeader) => setHeader(next), []);
+  // MOCK DEVIATION D4 (post-W6 shell Q3/Q17, register R380): a refused or unnamed battery keeps the generic "Battery"
+  // heading; the mock's illustrative asset name is never shown as a fact.
   const title = header?.name ?? "Battery";
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Battery" headingId={SITE_BATTERY_HEADING_ID}>

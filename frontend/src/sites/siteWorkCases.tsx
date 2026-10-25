@@ -127,8 +127,8 @@ interface KindCopy {
   kind: WorkKind;
   /** The panel title (v69 rendered panels). */
   title: string;
-  /** Plural noun in the status strip (`0 incidents`, `0 maintenance`). */
-  noun: string;
+  /** post-W6 shell R319 (Q20): the strip's count nouns, singular and plural (`1 incident`, `2 maintenance cases`). */
+  noun: { one: string; many: string };
   /** The global list the strip names as not available yet. */
   global: string;
   subcopy: string;
@@ -141,11 +141,16 @@ interface KindCopy {
   submit: string;
 }
 
+/** post-W6 shell R319 (Q20): `1 incident`, `0 incidents`, `3 maintenance cases`. */
+export function countWords(count: number, noun: { one: string; many: string }): string {
+  return `${count} ${count === 1 ? noun.one : noun.many}`;
+}
+
 export const WORK_KIND_COPY: Record<WorkKind, KindCopy> = {
   incidents: {
     kind: "incidents",
     title: "Incidents at this site",
-    noun: "incidents",
+    noun: { one: "incident", many: "incidents" },
     global: "Incidents",
     subcopy: "A case links chronology, findings and work without copying them",
     columns: ["Case", "Window", "What happened", "Linked findings", "State"],
@@ -160,7 +165,7 @@ export const WORK_KIND_COPY: Record<WorkKind, KindCopy> = {
   maintenance: {
     kind: "maintenance",
     title: "Maintenance at this site",
-    noun: "maintenance",
+    noun: { one: "maintenance case", many: "maintenance cases" },
     global: "Maintenance",
     subcopy: "Completed work is activity; the outcome is verified separately",
     columns: ["Work request", "Asset", "Activity", "Outcome", "Next evidence"],
@@ -370,7 +375,7 @@ function WorkStrip({
       <span className="status-strip__lead" data-work-scope>
         {loaded ? (
           <>
-            <strong>Scoped to {shortName(loaded.site_name)}</strong> · {loaded.total_count} {copy.noun}
+            <strong>Scoped to {shortName(loaded.site_name)}</strong> · {countWords(loaded.total_count, copy.noun)}
           </>
         ) : result === null ? (
           <>Reading work records</>

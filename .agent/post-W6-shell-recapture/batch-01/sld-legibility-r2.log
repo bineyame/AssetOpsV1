@@ -1,0 +1,6 @@
+now 390 {"s":0.3147,"min":3.46} false {"v":true,"fs":"12px","ifs":"12px","bfs":"12px","n":10,"b":10,"parts":10,"bus":1,"foc":true}
+battery 390 {"s":0.3147,"min":3.46} false {"v":true,"fs":"12px","ifs":"12px","bfs":"12px","n":10,"b":10,"parts":10,"bus":1,"foc":true}
+unknown-part 390 {"s":0.3147,"min":3.46} false {"v":true,"fs":"12px","ifs":"12px","bfs":"12px","n":10,"b":10,"parts":10,"bus":1,"foc":true}
+now 1440 {"s":1,"min":11} false {"v":false,"fs":"14px","ifs":"14px","bfs":"14px","n":10,"b":10,"parts":10,"bus":1,"foc":false}
+battery 1440 {"s":1,"min":11} false {"v":false,"fs":"14px","ifs":"14px","bfs":"14px","n":10,"b":10,"parts":10,"bus":1,"foc":false}
+unknown-part 1440 {"s":1,"min":11} false {"v":false,"fs":"14px","ifs":"14px","bfs":"14px","n":10,"b":10,"parts":10,"bus":1,"foc":false}

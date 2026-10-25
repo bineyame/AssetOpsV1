@@ -228,7 +228,8 @@ export function SiteBattery({
   if (read.status === "refused") {
     const { heading, text } = refusalText(read, "Battery", DETAIL_TEXTS);
     const gap = (
-      <p data-battery-gap="refused">Not shown: the battery could not be read. This is not an empty result.</p>
+      // post-W6 shell R149/R120 (Q7/Q17): refusal sentences at the mock `.prose` size (12 px).
+      <p className="v69-prose" data-battery-gap="refused">Not shown: the battery could not be read. This is not an empty result.</p>
     );
     return (
       <div className="site-battery" data-battery-refused={read.http ?? "none"}>
@@ -248,7 +249,7 @@ export function SiteBattery({
           <p className="page-refusal__title">
             <strong>{heading}</strong>
           </p>
-          <p>{text}</p>
+          <p className="v69-prose">{text}</p>
           <ExactReferences
             name="site-battery-refused-code"
             variant="tech"

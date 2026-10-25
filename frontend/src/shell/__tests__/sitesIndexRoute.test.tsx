@@ -488,3 +488,14 @@ describe("W1-F1: the Sites route keeps the v69 panel structure", () => {
     expect(panelTitled("In setup").querySelector('[data-gap-id="G-sites-setup-progress"]')).not.toBeNull();
   });
 });
+
+describe("post-W6 shell: Sites root crumb and empty-state prose", () => {
+  it("R127/R120: shows the root Sites crumb above the h1 and the empty sentences at the mock prose size", async () => {
+    renderSites(ENABLED);
+    await screen.findByText("No sites configured");
+    const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(crumbs.textContent).toBe("Sites");
+    expect(crumbs.compareDocumentPosition(screen.getByRole("heading", { level: 1 })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(document.querySelector('[data-sites-state="empty"]')?.className).toBe("v69-prose");
+  });
+});

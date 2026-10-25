@@ -1,0 +1,5 @@
+=== 1. Private work trees (git HEAD) with their own var/ ===
+  C:\Users\assef\AppData\Local\AssetOps\shellrc-b01r2-v01a\tree and C:\Users\assef\AppData\Local\AssetOps\shellrc-b01r2-v01a\tree-empty (code from 321cfe56)
+=== 2. Database assetops_shellrc_b01r2_walk_test as a copy of assetops_s4cases; assetops_shellrc_b01r2_empty_test empty ===
+  copied; empty database migrated
+Prepared. Next: links, then serve.

@@ -27,7 +27,7 @@ import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
-import { UI_GAP_CATALOGUE } from "../../ui";
+import { KeyValues, UI_GAP_CATALOGUE } from "../../ui";
 
 /**
  * S1-01: the persisted Foundation version on the Foundation route - period
@@ -2269,7 +2269,8 @@ describe("W1-F1: Foundation, Readiness and SLD keep the v69 panel structure in e
   it.each([
     ["foundation", "", {}, 3],
     ["readiness", "/readiness", { gateway: "No gateway selected" }, 4],
-    ["sld", "/sld", { site: ID }, 2],
+    // post-W6 shell R133 (Q12): the skeleton names the stored Site, not its code.
+    ["sld", "/sld", { site: SITE.display_name }, 2],
   ] as const)("no stored version for the selected time: %s keeps its slots with in-panel gaps", async (screenId, segment, values, slots) => {
     renderAt(`/sites/${ID}/foundation${segment}?at=2020-01-01T00:00:00Z`, stocked());
     await settledScreen();
@@ -2314,5 +2315,123 @@ describe("W1-F1: Foundation, Readiness and SLD keep the v69 panel structure in e
     renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(() => ({ status: "loaded", value: foundation(PAST, { gateways: [] }) })));
     await settledScreen();
     expectV69Panels("readiness", { gateway: "No gateway selected" });
+  });
+});
+
+describe("post-W6 shell: Foundation identity layout and the no-version heading", () => {
+  it("R130: all ten stored Identity rows render as right-aligned key-values with the exact site code unbroken", async () => {
+    renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    const identity = regionNamed("Identity and operating obligations");
+    const list = identity.querySelector("dl.v69-key-values") as HTMLElement;
+    expect(list).not.toBeNull();
+    expect(identity.querySelector(".fact-list")).toBeNull();
+    expect(Array.from(list.querySelectorAll("dt")).map((term) => term.textContent)).toEqual([
+      "Site identity",
+      "Archetype",
+      "Location",
+      "Timezone",
+      "Critical service order",
+      "Configured supplied users",
+      "Productive-use designation",
+      "Evidence mode",
+      "Lifecycle status",
+      "Configuration origin",
+    ]);
+    expect(list.querySelector('[data-key-value="site-identity"] dd code')?.textContent).toBe(ID);
+    // The Topology panel sits in the start-aligned pair, so it is not stretched to the Identity height.
+    expect(identity.closest(".panel-pair")?.className).toContain("panel-pair--top");
+  });
+
+  it("Q23: a long free-text Identity value takes its own full-width line; short values keep the two columns", async () => {
+    renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    const identity = regionNamed("Identity and operating obligations");
+    expect(identity.querySelector('[data-key-value="archetype"]')?.hasAttribute("data-key-value-wide")).toBe(false);
+    expect(identity.querySelector('[data-key-value="timezone"]')?.hasAttribute("data-key-value-wide")).toBe(false);
+    cleanup();
+    const long = "x".repeat(41);
+    render(<KeyValues label="kv" rows={[["Short", "Mini-grid", "short"], ["Long", long, "long", true], ["Plain", "v", "plain", false]]} />);
+    expect(document.querySelector('[data-key-value="long"]')?.hasAttribute("data-key-value-wide")).toBe(true);
+    expect(document.querySelector('[data-key-value="short"]')?.hasAttribute("data-key-value-wide")).toBe(false);
+    expect(document.querySelector('[data-key-value="plain"]')?.hasAttribute("data-key-value-wide")).toBe(false);
+    expect(document.querySelector('[data-key-value="long"] dd')?.textContent).toBe(long);
+  });
+
+  it("Q23 (capture review F1): a stored Identity location over 40 characters is wide on the route and shown in full", async () => {
+    const locality = "Kobo settlement north of the river crossing";
+    const longLocation = (): FoundationRead<FoundationReadModel> => ({
+      status: "loaded",
+      value: foundation(PAST, {
+        ...published([BATTERY_SOC, GENSET_POWER], []),
+        detail: { ...SITE, location: { ...SITE.location, locality } },
+      }),
+    });
+    renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(longLocation), healthOf(gatewayEntry()));
+    await settledScreen();
+    const identity = regionNamed("Identity and operating obligations");
+    const row = identity.querySelector('[data-key-value="location"]') as HTMLElement;
+    const expected = `${locality}, ${SITE.location.country}`;
+    expect(expected.length).toBeGreaterThan(40);
+    expect(row.hasAttribute("data-key-value-wide")).toBe(true);
+    expect(row.querySelector("dd")?.textContent).toBe(expected);
+    expect(identity.querySelector('[data-key-value="archetype"]')?.hasAttribute("data-key-value-wide")).toBe(false);
+  });
+
+  it("Q13: a readable key of every drawn part follows the drawing and chooses the same part", async () => {
+    renderAt(`/sites/${ID}/foundation/sld`, fakeFoundation(READY));
+    await settledScreen();
+    const key = document.querySelector("[data-sld-key]") as HTMLElement;
+    expect(key).not.toBeNull();
+    const drawn = Array.from(document.querySelectorAll("svg.sld [role='button']"));
+    const entries = Array.from(key.querySelectorAll("[data-sld-key-part]"));
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries.length).toBe(drawn.length);
+    const choice = entries[0].querySelector("button") as HTMLButtonElement;
+    expect(choice.getAttribute("aria-pressed")).toBe("false");
+    fireEvent.click(choice);
+    await settledScreen();
+    const part = entries[0].getAttribute("data-sld-key-part");
+    const again = document.querySelector(`[data-sld-key-part='${part}'] button`) as HTMLButtonElement;
+    expect(again.getAttribute("aria-pressed")).toBe("true");
+    expect(document.querySelectorAll("svg.sld [data-selected]")).toHaveLength(1);
+  });
+
+  it("closeout ruling 3: the phone part key carries a visible MOCK DEVIATION D2 (R382) label on the SLD view", async () => {
+    renderAt(`/sites/${ID}/foundation/sld`, fakeFoundation(READY));
+    await settledScreen();
+    expect(document.querySelectorAll("svg.sld")).toHaveLength(1);
+    const labels = document.querySelectorAll("[data-mock-deviation='R382']");
+    expect(labels).toHaveLength(1);
+    expect(labels[0].textContent?.trim()).toBe("MOCK DEVIATION D2 (R382)");
+    expect(labels[0].className).toBe("sld-key__deviation");
+    // The label sits with the key it describes, directly before it.
+    expect(labels[0].nextElementSibling?.hasAttribute("data-sld-key")).toBe(true);
+  });
+
+  it("R133: the no-version Foundation and Readiness headings name the stored Site, not its code", async () => {
+    for (const path of [`/sites/${ID}/foundation?at=2020-01-01T00:00:00Z`, `/sites/${ID}/foundation/readiness?at=2020-01-01T00:00:00Z`]) {
+      renderAt(path, fakeFoundation(byAt));
+      await settledScreen();
+      expect(document.querySelector('[data-page-refusal="no-version"]')).not.toBeNull();
+      expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(SITE.display_name);
+      expect(screen.getByRole("heading", { level: 1 }).textContent).not.toBe(ID);
+      cleanup();
+    }
+  });
+});
+
+describe("post-W6 shell: readiness and selected-part notices use the mock notice primitive", () => {
+  it("R119/R120: the readiness closing sentence is a blue boxed notice and the unknown-part notice is an amber notice", async () => {
+    renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY));
+    await settledScreen();
+    const note = document.querySelector("[data-readiness-scope]") as HTMLElement;
+    expect(note.className).toBe("notice v69-notice v69-notice--blue");
+    cleanup();
+    renderAt(`/sites/${ID}/foundation/sld?component=c-not-declared`, fakeFoundation(READY));
+    await settledScreen();
+    const missing = document.querySelector("[data-selected-part-missing]") as HTMLElement;
+    expect(missing.className).toBe("notice v69-notice");
+    expect(missing.getAttribute("role")).toBe("status");
   });
 });

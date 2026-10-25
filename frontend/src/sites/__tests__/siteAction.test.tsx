@@ -1089,3 +1089,38 @@ describe("W1 and EV domain Action IDs on one EV Site", () => {
     expect(s.unmatched).toEqual([]);
   });
 });
+
+describe("post-W6 shell R203: the W1 Action breadcrumb is Action-rooted", () => {
+  const sections = [
+    ["", "Overview"],
+    ["/plan", "Plan"],
+    ["/execution", "Application"],
+    ["/evidence", "Evidence"],
+    ["/history", "History"],
+    ["/verification", "Verification"],
+  ] as const;
+
+  it.each(sections)("reads Actions › code › section · site for %s", async (segment, label) => {
+    serve(actionReads(ov.applied_pending_newer_revision, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}${segment}`);
+    await settledScreen();
+    await waitFor(() => expect(q("[data-action-crumb-code]")).not.toBeNull());
+    const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
+    const items = Array.from(crumbs.querySelectorAll("li")).map((li) => li.textContent);
+    expect(items).toEqual(["Actions", ov.applied_pending_newer_revision.body.action.action_code, label]);
+    expect(crumbs.querySelector("li a")?.getAttribute("href")).toBe("/actions");
+    expect(crumbs.querySelector('[aria-current="page"]')?.textContent).toBe(label);
+    expect(crumbs.querySelector("[data-action-crumb-site]")?.textContent).toBe(`· site: ${HYBRID_MINI_GRID_SITE.display_name}`);
+    expect(crumbs.querySelector("[data-action-crumb-site] a")?.getAttribute("href")).toBe("/sites/KOBO-001");
+    expect(crumbs.textContent).not.toContain("Findings");
+  });
+
+  it("shows no code crumb while the Action read is pending", async () => {
+    vi.stubGlobal("fetch", () => new Promise<Response>(() => undefined));
+    mount(`/sites/KOBO-001/actions/${ACTION}/plan`);
+    await waitFor(() => expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toBeTruthy());
+    const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(q("[data-action-crumb-code]")).toBeNull();
+    expect(Array.from(crumbs.querySelectorAll("li")).map((li) => li.textContent)).toEqual(["Actions", "Plan"]);
+  });
+});

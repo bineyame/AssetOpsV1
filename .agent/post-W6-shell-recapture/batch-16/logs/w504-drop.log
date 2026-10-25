@@ -1,0 +1,9 @@
+stopped positive pid 28424
+stopped zero pid 17516
+stopped worstcase pid 13160
+stopped forbidden pid 21420
+dropped database w504a_positive_shellrc1617_test
+dropped database w504a_zero_shellrc1617_test
+dropped database w504a_worstcase_shellrc1617_test
+dropped database w504a_unknown_shellrc1617_test
+removed C:\Users\assef\Bineyame\AssetOpsV1-review3\var\w504a_shellrc1617

@@ -1,0 +1,12 @@
+[
+ {
+  "id": "ev-work-incidents",
+  "case": "store-unavailable-503",
+  "url": "http://localhost:5181/sites/EV-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "store-unavailable-503",
+  "url": "http://localhost:5181/sites/EV-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ }
+]

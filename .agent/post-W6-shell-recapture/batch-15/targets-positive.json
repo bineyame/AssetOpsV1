@@ -1,0 +1,90 @@
+[
+ {
+  "id": "cold-work-incidents",
+  "case": "current",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "cold-work-incidents",
+  "case": "positive-cutoff",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T00%3A51%3A01.615753Z"
+ },
+ {
+  "id": "cold-work-incidents",
+  "case": "historical",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T00%3A51%3A01.409595Z"
+ },
+ {
+  "id": "cold-work-incidents",
+  "case": "zero",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/incidents?from=2026-10-16T00%3A00%3A00Z&to=2026-10-23T00%3A00%3A00Z"
+ },
+ {
+  "id": "cold-work-incidents",
+  "case": "refused-reversed",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+ },
+ {
+  "id": "cold-work-incidents",
+  "case": "refused-span-32d",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/incidents?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+ },
+ {
+  "id": "cold-work-incidents",
+  "case": "no-window",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/incidents"
+ },
+ {
+  "id": "cold-work-incidents",
+  "case": "all-open",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "cold-work-maintenance",
+  "case": "current",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "cold-work-maintenance",
+  "case": "positive-cutoff",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T00%3A51%3A01.615753Z"
+ },
+ {
+  "id": "cold-work-maintenance",
+  "case": "historical",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T00%3A51%3A01.409595Z"
+ },
+ {
+  "id": "cold-work-maintenance",
+  "case": "zero",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/maintenance?from=2026-10-16T00%3A00%3A00Z&to=2026-10-23T00%3A00%3A00Z"
+ },
+ {
+  "id": "cold-work-maintenance",
+  "case": "refused-reversed",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+ },
+ {
+  "id": "cold-work-maintenance",
+  "case": "refused-span-32d",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/maintenance?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+ },
+ {
+  "id": "cold-work-maintenance",
+  "case": "no-window",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/maintenance"
+ },
+ {
+  "id": "cold-work-maintenance",
+  "case": "all-open",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "cold-action",
+  "case": "all-open",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/actions/894d62e1-cb4e-45f2-a309-531f2ce62f89/verification",
+  "openAll": true
+ }
+]

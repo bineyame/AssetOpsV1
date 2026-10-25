@@ -131,7 +131,7 @@ describe("W5-04 V3a: EV Site > Work > Incidents (v69 ev-work-incidents)", () => 
     const { main } = await mountCases("incidents", loaded(evCaseBody([evIncident(1)])));
     expectV69Panels("ev-work-incidents");
     // R111: the stored display name's short form; the mock's illustrative `Depot` never appears.
-    expect(text(strip(main))).toContain("Scoped to EV · 1 incidents");
+    expect(text(strip(main))).toMatch(/Scoped to EV · 1 incident(?!s)/);
     expect(main.textContent).not.toContain("Depot");
     expect(text(strip(main))).toContain(WORK_STRIP_DETAIL_DOMAIN.incidents);
     expect(text(strip(main))).not.toContain(WORK_STRIP_DETAIL);
@@ -238,7 +238,7 @@ describe("W5-04 V3a: EV Site > Work > Maintenance (v69 ev-work-maintenance)", ()
   it("renders the submitted WR: Overview href, asset label, Completed chip, R81/R82 disclosures and R84 gap", async () => {
     const { main } = await mountCases("maintenance", loaded(evCaseBody([evRequest(1)])));
     expectV69Panels("ev-work-maintenance");
-    expect(text(strip(main))).toContain("Scoped to EV · 1 maintenance");
+    expect(text(strip(main))).toMatch(/Scoped to EV · 1 maintenance case(?!s)/);
     expect(text(strip(main))).toContain(WORK_STRIP_DETAIL_DOMAIN.maintenance);
     const manage = main.querySelector("[data-work-manage-link]") as HTMLAnchorElement;
     expect(text(manage)).toBe("Manage in Maintenance →");
@@ -468,3 +468,18 @@ function CaseWhere() {
   const location = useLocation();
   return <output data-testid="case-where">{`${location.pathname}${location.search}`}</output>;
 }
+
+describe("post-W6 shell R319: EV Work count strip grammar", () => {
+  it.each([
+    ["incidents", 0, "0 incidents"],
+    ["incidents", 1, "1 incident"],
+    ["incidents", 4, "4 incidents"],
+    ["maintenance", 0, "0 maintenance cases"],
+    ["maintenance", 1, "1 maintenance case"],
+    ["maintenance", 2, "2 maintenance cases"],
+  ] as const)("%s with %i reads %s", async (kind, count, words) => {
+    const rows = count === 0 ? [] : [kind === "incidents" ? evIncident(1) : evRequest(1)];
+    const { main } = await mountCases(kind, loaded(evCaseBody(rows, { total_count: count })));
+    expect(text(strip(main))).toMatch(new RegExp(`Scoped to EV · ${words}(?![a-z])`));
+  });
+});

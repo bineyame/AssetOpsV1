@@ -1,0 +1,6 @@
+[rename] 'URL = "postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/w402r_test"' -> 'URL = "postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/assetops_shellrc_b12_test"'
+C:\Users\assef\Bineyame\AssetOpsV1-review3\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+Issued aog1.4bf1dd4e034ec3a4b3c5eba9223f0f1a.<redacted> for gateway 'edge-mg-w402-001'; revoked 0 earlier credential(s); enabled the gateway and 11 named source(s). The secret was written only to C:\Users\assef\AppData\Local\Temp\tmpv86ld9k4\cred.4bf1dd4e034ec3a4b3c5eba9223f0f1a, verified readable by the current user only. Set the gateway's upload_credential_file to that path before its next upload; the earlier credential file was left untouched and its credential no longer authenticates.
+Credential file: C:\Users\assef\AppData\Local\Temp\tmpv86ld9k4\cred.4bf1dd4e034ec3a4b3c5eba9223f0f1a
+site 7a8f1f04-8ed7-49eb-97ba-a1ac3a13f024 accepted {'positive': 3321, 'missing-conflicting': 326} selections 123 jobs 123

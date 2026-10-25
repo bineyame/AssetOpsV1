@@ -1,0 +1,1237 @@
+{
+ "kind": "DTO RENDER PROOF - not an app screenshot (post-W6 shell Q23/Q24)",
+ "results": [
+  {
+   "revision": "e9b1b8d9",
+   "proof": "mini-evidence-analysis",
+   "width": 1440,
+   "state": "closed, record 5 opened (all five rows shown)",
+   "panel_h": 1180,
+   "cap": 1200,
+   "pass": true,
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": {
+    "scrollHeight": 543,
+    "clientHeight": 416,
+    "h": 416,
+    "overflowY": "auto",
+    "maxHeight": "416px",
+    "overflowing": true,
+    "scrolls": true,
+    "tabindex": "0"
+   },
+   "url": "/sites/KLG-014/evidence?from=2026-09-22T00:00:00Z&to=2026-09-23T00:00:00Z&view=analysis&record=3f6b2a10-0000-4000-8000-000000000005",
+   "screenshot": "mini-closed-r5-1440.png",
+   "detail": {
+    "panel_h": 1180,
+    "overflowX": 0,
+    "pageH": 1916,
+    "pageScrollable": true,
+    "openDetails": 0,
+    "details": 7,
+    "visibleRecordRows": 5,
+    "recordDetail": true,
+    "clipped": [],
+    "innerScroll": [
+     {
+      "el": "div.evidence-record-view__body ReadingAc power 5 north feeder battery inverter st",
+      "sw": 1120,
+      "cw": 1120,
+      "sh": 543,
+      "ch": 416
+     }
+    ],
+    "parts": [
+     {
+      "part": "p.v69-chart-note 5 of 5 accepted readings in this period, earliest ",
+      "h": 33
+     },
+     {
+      "part": "div.data-table__scroll Source · readingValueMeasured (EAT)SentReceivedRec",
+      "h": 505
+     },
+     {
+      "part": "p.evidence-records__paging.v69-chart-note ",
+      "h": 0
+     },
+     {
+      "part": "div.evidence-record-view Reading detail Close readingReadingAc power 5 nort",
+      "h": 453
+     },
+     {
+      "part": "div.evidence-rejected Readings not accepted: 3 readings in this period w",
+      "h": 50
+     }
+    ],
+    "rows": [
+     {
+      "row": "Source · readingValueMeasured (EAT)SentR",
+      "h": 35
+     },
+     {
+      "row": "Ac power 1 north feeder battery inverter",
+      "h": 94
+     },
+     {
+      "row": "Ac power 2 north feeder battery inverter",
+      "h": 94
+     },
+     {
+      "row": "Ac power 3 north feeder battery inverter",
+      "h": 94
+     },
+     {
+      "row": "Ac power 4 north feeder battery inverter",
+      "h": 94
+     },
+     {
+      "row": "Ac power 5 north feeder battery inverter",
+      "h": 94
+     },
+     {
+      "row": "batch-0002 / 4: received 9 Oct 2026 09:1",
+      "h": 21
+     },
+     {
+      "row": "OutcomeCountBar",
+      "h": 35
+     },
+     {
+      "row": "Accepted288",
+      "h": 45
+     },
+     {
+      "row": "Arrived again, identical (kept once)3",
+      "h": 45
+     },
+     {
+      "row": "Not accepted2",
+      "h": 45
+     },
+     {
+      "row": "Arrived again with different contents1",
+      "h": 44
+     },
+     {
+      "row": "MessageWhat happenedReasonTakenOriginal ",
+      "h": 35
+     },
+     {
+      "row": "msg-0003Not acceptedsource_time is not a",
+      "h": 44
+     },
+     {
+      "row": "Identical repeat of msg-0001, received 9",
+      "h": 22
+     },
+     {
+      "row": "Taken: when the reading was taken, on th",
+      "h": 21
+     },
+     {
+      "row": "Sent: when the source sent the reading, ",
+      "h": 21
+     },
+     {
+      "row": "Received: when the server first received",
+      "h": 21
+     },
+     {
+      "row": "SourceGatewayAcceptedIdentical repeatsNo",
+      "h": 35
+     },
+     {
+      "row": "kobo-inverter-1-west-north-feeder-batter",
+      "h": 167
+     },
+     {
+      "row": "DeliveryProgressAcceptedIdentical repeat",
+      "h": 35
+     },
+     {
+      "row": "batch-0001Finished: 3 of 320109 Oct 2026",
+      "h": 44
+     },
+     {
+      "row": "Device and signalUnitReadingsGood qualit",
+      "h": 35
+     },
+     {
+      "row": "inv-1 / ac_powerkW288287None22 Sep 2026 ",
+      "h": 48
+     }
+    ],
+    "recordBody": {
+     "scrollHeight": 543,
+     "clientHeight": 416,
+     "h": 416,
+     "overflowY": "auto",
+     "maxHeight": "416px",
+     "overflowing": true,
+     "scrolls": true,
+     "tabindex": "0"
+    },
+    "wideRows": 0
+   }
+  },
+  {
+   "revision": "e9b1b8d9",
+   "proof": "mini-evidence-analysis",
+   "width": 390,
+   "state": "closed, record 5 opened (all five rows shown)",
+   "panel_h": 1687,
+   "cap": 1800,
+   "pass": true,
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": {
+    "scrollHeight": 933,
+    "clientHeight": 384,
+    "h": 384,
+    "overflowY": "auto",
+    "maxHeight": "384px",
+    "overflowing": true,
+    "scrolls": true,
+    "tabindex": "0"
+   },
+   "url": "/sites/KLG-014/evidence?from=2026-09-22T00:00:00Z&to=2026-09-23T00:00:00Z&view=analysis&record=3f6b2a10-0000-4000-8000-000000000005",
+   "screenshot": "mini-closed-r5-390.png",
+   "detail": {
+    "panel_h": 1687,
+    "overflowX": 0,
+    "pageH": 2914,
+    "pageScrollable": true,
+    "openDetails": 0,
+    "details": 7,
+    "visibleRecordRows": 5,
+    "recordDetail": true,
+    "clipped": [],
+    "innerScroll": [
+     {
+      "el": "div.data-table__scroll Source · readingValueMeasured (EAT)SentReceivedRec",
+      "sw": 598,
+      "cw": 318,
+      "sh": 929,
+      "ch": 929
+     },
+     {
+      "el": "div.evidence-record-view__body ReadingAc power 5 north feeder battery inverter st",
+      "sw": 318,
+      "cw": 318,
+      "sh": 933,
+      "ch": 384
+     },
+     {
+      "el": "div.data-table__scroll Readings that arrived for this period, by what hap",
+      "sw": 376,
+      "cw": 318,
+      "sh": 276,
+      "ch": 276
+     },
+     {
+      "el": "div.data-table__scroll MessageWhat happenedReasonTakenOriginal readingRec",
+      "sw": 907,
+      "cw": 318,
+      "sh": 132,
+      "ch": 132
+     },
+     {
+      "el": "div.data-table__scroll SourceGatewayAcceptedIdentical repeatsNot accepted",
+      "sw": 1113,
+      "cw": 278,
+      "sh": 149,
+      "ch": 149
+     },
+     {
+      "el": "div.data-table__scroll DeliveryProgressAcceptedIdentical repeatsNot accep",
+      "sw": 1028,
+      "cw": 278,
+      "sh": 97,
+      "ch": 97
+     },
+     {
+      "el": "div.data-table__scroll Device and signalUnitReadingsGood qualityEarlier c",
+      "sw": 857,
+      "cw": 278,
+      "sh": 114,
+      "ch": 114
+     }
+    ],
+    "parts": [
+     {
+      "part": "p.v69-chart-note 5 of 5 accepted readings in this period, earliest ",
+      "h": 83
+     },
+     {
+      "part": "div.data-table__scroll Source · readingValueMeasured (EAT)SentReceivedRec",
+      "h": 929
+     },
+     {
+      "part": "p.evidence-records__paging.v69-chart-note ",
+      "h": 0
+     },
+     {
+      "part": "div.evidence-record-view Reading detail Close readingReadingAc power 5 nort",
+      "h": 421
+     },
+     {
+      "part": "div.evidence-rejected Readings not accepted: 3 readings in this period w",
+      "h": 116
+     }
+    ],
+    "rows": [
+     {
+      "row": "Source · readingValueMeasured (EAT)SentR",
+      "h": 35
+     },
+     {
+      "row": "Ac power 1 north feeder battery inverter",
+      "h": 179
+     },
+     {
+      "row": "Ac power 2 north feeder battery inverter",
+      "h": 179
+     },
+     {
+      "row": "Ac power 3 north feeder battery inverter",
+      "h": 179
+     },
+     {
+      "row": "Ac power 4 north feeder battery inverter",
+      "h": 179
+     },
+     {
+      "row": "Ac power 5 north feeder battery inverter",
+      "h": 178
+     },
+     {
+      "row": "batch-0002 / 4: received 9 Oct 2026 09:1",
+      "h": 42
+     },
+     {
+      "row": "OutcomeCountBar",
+      "h": 35
+     },
+     {
+      "row": "Accepted288",
+      "h": 45
+     },
+     {
+      "row": "Arrived again, identical (kept once)3",
+      "h": 45
+     },
+     {
+      "row": "Not accepted2",
+      "h": 45
+     },
+     {
+      "row": "Arrived again with different contents1",
+      "h": 44
+     },
+     {
+      "row": "MessageWhat happenedReasonTakenOriginal ",
+      "h": 35
+     },
+     {
+      "row": "msg-0003Not acceptedsource_time is not a",
+      "h": 97
+     },
+     {
+      "row": "Identical repeat of msg-0001, received 9",
+      "h": 64
+     },
+     {
+      "row": "Taken: when the reading was taken, on th",
+      "h": 105
+     },
+     {
+      "row": "Sent: when the source sent the reading, ",
+      "h": 42
+     },
+     {
+      "row": "Received: when the server first received",
+      "h": 63
+     },
+     {
+      "row": "SourceGatewayAcceptedIdentical repeatsNo",
+      "h": 35
+     },
+     {
+      "row": "kobo-inverter-1-west-north-feeder-batter",
+      "h": 114
+     },
+     {
+      "row": "DeliveryProgressAcceptedIdentical repeat",
+      "h": 35
+     },
+     {
+      "row": "batch-0001Finished: 3 of 320109 Oct 2026",
+      "h": 62
+     },
+     {
+      "row": "Device and signalUnitReadingsGood qualit",
+      "h": 35
+     },
+     {
+      "row": "inv-1 / ac_powerkW288287None22 Sep 2026 ",
+      "h": 79
+     }
+    ],
+    "recordBody": {
+     "scrollHeight": 933,
+     "clientHeight": 384,
+     "h": 384,
+     "overflowY": "auto",
+     "maxHeight": "384px",
+     "overflowing": true,
+     "scrolls": true,
+     "tabindex": "0"
+    },
+    "wideRows": 0
+   }
+  },
+  {
+   "revision": "e9b1b8d9",
+   "proof": "mini-evidence-analysis",
+   "width": 1440,
+   "state": "closed, record 1 opened (3-row preview)",
+   "panel_h": 1019,
+   "cap": 1200,
+   "pass": true,
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": {
+    "scrollHeight": 543,
+    "clientHeight": 416,
+    "h": 416,
+    "overflowY": "auto",
+    "maxHeight": "416px",
+    "overflowing": true,
+    "scrolls": true,
+    "tabindex": "0"
+   },
+   "url": "/sites/KLG-014/evidence?from=2026-09-22T00:00:00Z&to=2026-09-23T00:00:00Z&view=analysis&record=3f6b2a10-0000-4000-8000-000000000001",
+   "screenshot": "mini-closed-r1-1440.png",
+   "detail": {
+    "panel_h": 1019,
+    "overflowX": 0,
+    "pageH": 1755,
+    "pageScrollable": true,
+    "openDetails": 0,
+    "details": 7,
+    "visibleRecordRows": 3,
+    "recordDetail": true,
+    "clipped": [],
+    "innerScroll": [
+     {
+      "el": "div.evidence-record-view__body ReadingAc power 1 north feeder battery inverter st",
+      "sw": 1120,
+      "cw": 1120,
+      "sh": 543,
+      "ch": 416
+     }
+    ],
+    "parts": [
+     {
+      "part": "p.v69-chart-note 5 of 5 accepted readings in this period, earliest ",
+      "h": 33
+     },
+     {
+      "part": "div.data-table__scroll Source · readingValueMeasured (EAT)SentReceivedRec",
+      "h": 318
+     },
+     {
+      "part": "p.evidence-records__paging.v69-chart-note Show all 5 readings",
+      "h": 17
+     },
+     {
+      "part": "div.evidence-record-view Reading detail Close readingReadingAc power 1 nort",
+      "h": 453
+     },
+     {
+      "part": "div.evidence-rejected Readings not accepted: 3 readings in this period w",
+      "h": 50
+     }
+    ],
+    "rows": [
+     {
+      "row": "Source · readingValueMeasured (EAT)SentR",
+      "h": 35
+     },
+     {
+      "row": "Ac power 1 north feeder battery inverter",
+      "h": 94
+     },
+     {
+      "row": "Ac power 2 north feeder battery inverter",
+      "h": 94
+     },
+     {
+      "row": "Ac power 3 north feeder battery inverter",
+      "h": 94
+     },
+     {
+      "row": "batch-0002 / 4: received 9 Oct 2026 09:1",
+      "h": 21
+     },
+     {
+      "row": "OutcomeCountBar",
+      "h": 35
+     },
+     {
+      "row": "Accepted288",
+      "h": 45
+     },
+     {
+      "row": "Arrived again, identical (kept once)3",
+      "h": 45
+     },
+     {
+      "row": "Not accepted2",
+      "h": 45
+     },
+     {
+      "row": "Arrived again with different contents1",
+      "h": 44
+     },
+     {
+      "row": "MessageWhat happenedReasonTakenOriginal ",
+      "h": 35
+     },
+     {
+      "row": "msg-0003Not acceptedsource_time is not a",
+      "h": 44
+     },
+     {
+      "row": "Identical repeat of msg-0001, received 9",
+      "h": 22
+     },
+     {
+      "row": "Taken: when the reading was taken, on th",
+      "h": 21
+     },
+     {
+      "row": "Sent: when the source sent the reading, ",
+      "h": 21
+     },
+     {
+      "row": "Received: when the server first received",
+      "h": 21
+     },
+     {
+      "row": "SourceGatewayAcceptedIdentical repeatsNo",
+      "h": 35
+     },
+     {
+      "row": "kobo-inverter-1-west-north-feeder-batter",
+      "h": 167
+     },
+     {
+      "row": "DeliveryProgressAcceptedIdentical repeat",
+      "h": 35
+     },
+     {
+      "row": "batch-0001Finished: 3 of 320109 Oct 2026",
+      "h": 44
+     },
+     {
+      "row": "Device and signalUnitReadingsGood qualit",
+      "h": 35
+     },
+     {
+      "row": "inv-1 / ac_powerkW288287None22 Sep 2026 ",
+      "h": 48
+     }
+    ],
+    "recordBody": {
+     "scrollHeight": 543,
+     "clientHeight": 416,
+     "h": 416,
+     "overflowY": "auto",
+     "maxHeight": "416px",
+     "overflowing": true,
+     "scrolls": true,
+     "tabindex": "0"
+    },
+    "wideRows": 0
+   }
+  },
+  {
+   "revision": "e9b1b8d9",
+   "proof": "mini-evidence-analysis",
+   "width": 390,
+   "state": "closed, record 1 opened (3-row preview)",
+   "panel_h": 1357,
+   "cap": 1800,
+   "pass": true,
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": {
+    "scrollHeight": 933,
+    "clientHeight": 384,
+    "h": 384,
+    "overflowY": "auto",
+    "maxHeight": "384px",
+    "overflowing": true,
+    "scrolls": true,
+    "tabindex": "0"
+   },
+   "url": "/sites/KLG-014/evidence?from=2026-09-22T00:00:00Z&to=2026-09-23T00:00:00Z&view=analysis&record=3f6b2a10-0000-4000-8000-000000000001",
+   "screenshot": "mini-closed-r1-390.png",
+   "detail": {
+    "panel_h": 1357,
+    "overflowX": 0,
+    "pageH": 2583,
+    "pageScrollable": true,
+    "openDetails": 0,
+    "details": 7,
+    "visibleRecordRows": 3,
+    "recordDetail": true,
+    "clipped": [],
+    "innerScroll": [
+     {
+      "el": "div.data-table__scroll Source · readingValueMeasured (EAT)SentReceivedRec",
+      "sw": 598,
+      "cw": 318,
+      "sh": 572,
+      "ch": 572
+     },
+     {
+      "el": "div.evidence-record-view__body ReadingAc power 1 north feeder battery inverter st",
+      "sw": 318,
+      "cw": 318,
+      "sh": 933,
+      "ch": 384
+     },
+     {
+      "el": "div.data-table__scroll Readings that arrived for this period, by what hap",
+      "sw": 376,
+      "cw": 318,
+      "sh": 276,
+      "ch": 276
+     },
+     {
+      "el": "div.data-table__scroll MessageWhat happenedReasonTakenOriginal readingRec",
+      "sw": 907,
+      "cw": 318,
+      "sh": 132,
+      "ch": 132
+     },
+     {
+      "el": "div.data-table__scroll SourceGatewayAcceptedIdentical repeatsNot accepted",
+      "sw": 1113,
+      "cw": 278,
+      "sh": 149,
+      "ch": 149
+     },
+     {
+      "el": "div.data-table__scroll DeliveryProgressAcceptedIdentical repeatsNot accep",
+      "sw": 1028,
+      "cw": 278,
+      "sh": 97,
+      "ch": 97
+     },
+     {
+      "el": "div.data-table__scroll Device and signalUnitReadingsGood qualityEarlier c",
+      "sw": 857,
+      "cw": 278,
+      "sh": 114,
+      "ch": 114
+     }
+    ],
+    "parts": [
+     {
+      "part": "p.v69-chart-note 5 of 5 accepted readings in this period, earliest ",
+      "h": 83
+     },
+     {
+      "part": "div.data-table__scroll Source · readingValueMeasured (EAT)SentReceivedRec",
+      "h": 572
+     },
+     {
+      "part": "p.evidence-records__paging.v69-chart-note Show all 5 readings",
+      "h": 17
+     },
+     {
+      "part": "div.evidence-record-view Reading detail Close readingReadingAc power 1 nort",
+      "h": 421
+     },
+     {
+      "part": "div.evidence-rejected Readings not accepted: 3 readings in this period w",
+      "h": 116
+     }
+    ],
+    "rows": [
+     {
+      "row": "Source · readingValueMeasured (EAT)SentR",
+      "h": 35
+     },
+     {
+      "row": "Ac power 1 north feeder battery inverter",
+      "h": 179
+     },
+     {
+      "row": "Ac power 2 north feeder battery inverter",
+      "h": 179
+     },
+     {
+      "row": "Ac power 3 north feeder battery inverter",
+      "h": 179
+     },
+     {
+      "row": "batch-0002 / 4: received 9 Oct 2026 09:1",
+      "h": 42
+     },
+     {
+      "row": "OutcomeCountBar",
+      "h": 35
+     },
+     {
+      "row": "Accepted288",
+      "h": 45
+     },
+     {
+      "row": "Arrived again, identical (kept once)3",
+      "h": 45
+     },
+     {
+      "row": "Not accepted2",
+      "h": 45
+     },
+     {
+      "row": "Arrived again with different contents1",
+      "h": 44
+     },
+     {
+      "row": "MessageWhat happenedReasonTakenOriginal ",
+      "h": 35
+     },
+     {
+      "row": "msg-0003Not acceptedsource_time is not a",
+      "h": 97
+     },
+     {
+      "row": "Identical repeat of msg-0001, received 9",
+      "h": 64
+     },
+     {
+      "row": "Taken: when the reading was taken, on th",
+      "h": 105
+     },
+     {
+      "row": "Sent: when the source sent the reading, ",
+      "h": 42
+     },
+     {
+      "row": "Received: when the server first received",
+      "h": 63
+     },
+     {
+      "row": "SourceGatewayAcceptedIdentical repeatsNo",
+      "h": 35
+     },
+     {
+      "row": "kobo-inverter-1-west-north-feeder-batter",
+      "h": 114
+     },
+     {
+      "row": "DeliveryProgressAcceptedIdentical repeat",
+      "h": 35
+     },
+     {
+      "row": "batch-0001Finished: 3 of 320109 Oct 2026",
+      "h": 62
+     },
+     {
+      "row": "Device and signalUnitReadingsGood qualit",
+      "h": 35
+     },
+     {
+      "row": "inv-1 / ac_powerkW288287None22 Sep 2026 ",
+      "h": 79
+     }
+    ],
+    "recordBody": {
+     "scrollHeight": 933,
+     "clientHeight": 384,
+     "h": 384,
+     "overflowY": "auto",
+     "maxHeight": "384px",
+     "overflowing": true,
+     "scrolls": true,
+     "tabindex": "0"
+    },
+    "wideRows": 0
+   }
+  },
+  {
+   "revision": "e9b1b8d9",
+   "proof": "mini-evidence-analysis",
+   "width": 1440,
+   "state": "all disclosures open + show all, record 5 opened (cap-exempt)",
+   "panel_h": 2617,
+   "cap": null,
+   "pass": true,
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": {
+    "scrollHeight": 1239,
+    "clientHeight": 416,
+    "h": 416,
+    "overflowY": "auto",
+    "maxHeight": "416px",
+    "overflowing": true,
+    "scrolls": true,
+    "tabindex": "0"
+   },
+   "url": "/sites/KLG-014/evidence?from=2026-09-22T00:00:00Z&to=2026-09-23T00:00:00Z&view=analysis&record=3f6b2a10-0000-4000-8000-000000000005",
+   "screenshot": "mini-allopen-r5-1440.png",
+   "detail": {
+    "panel_h": 2617,
+    "overflowX": 0,
+    "pageH": 3354,
+    "pageScrollable": true,
+    "openDetails": 7,
+    "details": 7,
+    "visibleRecordRows": 5,
+    "recordDetail": true,
+    "clipped": [],
+    "innerScroll": [
+     {
+      "el": "div.evidence-record-view__body ReadingAc power 5 north feeder battery inverter st",
+      "sw": 1120,
+      "cw": 1120,
+      "sh": 1239,
+      "ch": 416
+     }
+    ],
+    "parts": [
+     {
+      "part": "p.v69-chart-note 5 of 5 accepted readings in this period, earliest ",
+      "h": 33
+     },
+     {
+      "part": "div.data-table__scroll Source · readingValueMeasured (EAT)SentReceivedRec",
+      "h": 505
+     },
+     {
+      "part": "p.evidence-records__paging.v69-chart-note ",
+      "h": 0
+     },
+     {
+      "part": "div.evidence-record-view Reading detail Close readingReadingAc power 5 nort",
+      "h": 453
+     },
+     {
+      "part": "div.evidence-rejected Readings not accepted: 3 readings in this period w",
+      "h": 1481
+     }
+    ],
+    "rows": [
+     {
+      "row": "Source · readingValueMeasured (EAT)SentR",
+      "h": 35
+     },
+     {
+      "row": "Ac power 1 north feeder battery inverter",
+      "h": 94
+     },
+     {
+      "row": "Ac power 2 north feeder battery inverter",
+      "h": 94
+     },
+     {
+      "row": "Ac power 3 north feeder battery inverter",
+      "h": 94
+     },
+     {
+      "row": "Ac power 4 north feeder battery inverter",
+      "h": 94
+     },
+     {
+      "row": "Ac power 5 north feeder battery inverter",
+      "h": 94
+     },
+     {
+      "row": "batch-0002 / 4: received 9 Oct 2026 09:1",
+      "h": 21
+     },
+     {
+      "row": "OutcomeCountBar",
+      "h": 35
+     },
+     {
+      "row": "Accepted288",
+      "h": 45
+     },
+     {
+      "row": "Arrived again, identical (kept once)3",
+      "h": 45
+     },
+     {
+      "row": "Not accepted2",
+      "h": 45
+     },
+     {
+      "row": "Arrived again with different contents1",
+      "h": 44
+     },
+     {
+      "row": "MessageWhat happenedReasonTakenOriginal ",
+      "h": 35
+     },
+     {
+      "row": "msg-0003Not acceptedsource_time is not a",
+      "h": 44
+     },
+     {
+      "row": "Identical repeat of msg-0001, received 9",
+      "h": 22
+     },
+     {
+      "row": "Taken: when the reading was taken, on th",
+      "h": 21
+     },
+     {
+      "row": "Sent: when the source sent the reading, ",
+      "h": 21
+     },
+     {
+      "row": "Received: when the server first received",
+      "h": 21
+     },
+     {
+      "row": "SourceGatewayAcceptedIdentical repeatsNo",
+      "h": 35
+     },
+     {
+      "row": "kobo-inverter-1-west-north-feeder-batter",
+      "h": 167
+     },
+     {
+      "row": "DeliveryProgressAcceptedIdentical repeat",
+      "h": 35
+     },
+     {
+      "row": "batch-0001Finished: 3 of 320109 Oct 2026",
+      "h": 44
+     },
+     {
+      "row": "Device and signalUnitReadingsGood qualit",
+      "h": 35
+     },
+     {
+      "row": "inv-1 / ac_powerkW288287None22 Sep 2026 ",
+      "h": 48
+     }
+    ],
+    "recordBody": {
+     "scrollHeight": 1239,
+     "clientHeight": 416,
+     "h": 416,
+     "overflowY": "auto",
+     "maxHeight": "416px",
+     "overflowing": true,
+     "scrolls": true,
+     "tabindex": "0"
+    },
+    "wideRows": 0
+   }
+  },
+  {
+   "revision": "e9b1b8d9",
+   "proof": "mini-evidence-analysis",
+   "width": 390,
+   "state": "all disclosures open + show all, record 5 opened (cap-exempt)",
+   "panel_h": 3519,
+   "cap": null,
+   "pass": true,
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": {
+    "scrollHeight": 3124,
+    "clientHeight": 384,
+    "h": 384,
+    "overflowY": "auto",
+    "maxHeight": "384px",
+    "overflowing": true,
+    "scrolls": true,
+    "tabindex": "0"
+   },
+   "url": "/sites/KLG-014/evidence?from=2026-09-22T00:00:00Z&to=2026-09-23T00:00:00Z&view=analysis&record=3f6b2a10-0000-4000-8000-000000000005",
+   "screenshot": "mini-allopen-r5-390.png",
+   "detail": {
+    "panel_h": 3519,
+    "overflowX": 0,
+    "pageH": 4746,
+    "pageScrollable": true,
+    "openDetails": 7,
+    "details": 7,
+    "visibleRecordRows": 5,
+    "recordDetail": true,
+    "clipped": [],
+    "innerScroll": [
+     {
+      "el": "div.data-table__scroll Source · readingValueMeasured (EAT)SentReceivedRec",
+      "sw": 598,
+      "cw": 318,
+      "sh": 929,
+      "ch": 929
+     },
+     {
+      "el": "div.evidence-record-view__body ReadingAc power 5 north feeder battery inverter st",
+      "sw": 318,
+      "cw": 318,
+      "sh": 3124,
+      "ch": 384
+     },
+     {
+      "el": "div.data-table__scroll Readings that arrived for this period, by what hap",
+      "sw": 376,
+      "cw": 318,
+      "sh": 276,
+      "ch": 276
+     },
+     {
+      "el": "div.data-table__scroll MessageWhat happenedReasonTakenOriginal readingRec",
+      "sw": 907,
+      "cw": 318,
+      "sh": 132,
+      "ch": 132
+     },
+     {
+      "el": "div.data-table__scroll SourceGatewayAcceptedIdentical repeatsNot accepted",
+      "sw": 1113,
+      "cw": 278,
+      "sh": 149,
+      "ch": 149
+     },
+     {
+      "el": "div.data-table__scroll DeliveryProgressAcceptedIdentical repeatsNot accep",
+      "sw": 1028,
+      "cw": 278,
+      "sh": 97,
+      "ch": 97
+     },
+     {
+      "el": "div.data-table__scroll Device and signalUnitReadingsGood qualityEarlier c",
+      "sw": 857,
+      "cw": 278,
+      "sh": 114,
+      "ch": 114
+     }
+    ],
+    "parts": [
+     {
+      "part": "p.v69-chart-note 5 of 5 accepted readings in this period, earliest ",
+      "h": 83
+     },
+     {
+      "part": "div.data-table__scroll Source · readingValueMeasured (EAT)SentReceivedRec",
+      "h": 929
+     },
+     {
+      "part": "p.evidence-records__paging.v69-chart-note ",
+      "h": 0
+     },
+     {
+      "part": "div.evidence-record-view Reading detail Close readingReadingAc power 5 nort",
+      "h": 421
+     },
+     {
+      "part": "div.evidence-rejected Readings not accepted: 3 readings in this period w",
+      "h": 1942
+     }
+    ],
+    "rows": [
+     {
+      "row": "Source · readingValueMeasured (EAT)SentR",
+      "h": 35
+     },
+     {
+      "row": "Ac power 1 north feeder battery inverter",
+      "h": 179
+     },
+     {
+      "row": "Ac power 2 north feeder battery inverter",
+      "h": 179
+     },
+     {
+      "row": "Ac power 3 north feeder battery inverter",
+      "h": 179
+     },
+     {
+      "row": "Ac power 4 north feeder battery inverter",
+      "h": 179
+     },
+     {
+      "row": "Ac power 5 north feeder battery inverter",
+      "h": 178
+     },
+     {
+      "row": "batch-0002 / 4: received 9 Oct 2026 09:1",
+      "h": 42
+     },
+     {
+      "row": "OutcomeCountBar",
+      "h": 35
+     },
+     {
+      "row": "Accepted288",
+      "h": 45
+     },
+     {
+      "row": "Arrived again, identical (kept once)3",
+      "h": 45
+     },
+     {
+      "row": "Not accepted2",
+      "h": 45
+     },
+     {
+      "row": "Arrived again with different contents1",
+      "h": 44
+     },
+     {
+      "row": "MessageWhat happenedReasonTakenOriginal ",
+      "h": 35
+     },
+     {
+      "row": "msg-0003Not acceptedsource_time is not a",
+      "h": 97
+     },
+     {
+      "row": "Identical repeat of msg-0001, received 9",
+      "h": 64
+     },
+     {
+      "row": "Taken: when the reading was taken, on th",
+      "h": 105
+     },
+     {
+      "row": "Sent: when the source sent the reading, ",
+      "h": 42
+     },
+     {
+      "row": "Received: when the server first received",
+      "h": 63
+     },
+     {
+      "row": "SourceGatewayAcceptedIdentical repeatsNo",
+      "h": 35
+     },
+     {
+      "row": "kobo-inverter-1-west-north-feeder-batter",
+      "h": 114
+     },
+     {
+      "row": "DeliveryProgressAcceptedIdentical repeat",
+      "h": 35
+     },
+     {
+      "row": "batch-0001Finished: 3 of 320109 Oct 2026",
+      "h": 62
+     },
+     {
+      "row": "Device and signalUnitReadingsGood qualit",
+      "h": 35
+     },
+     {
+      "row": "inv-1 / ac_powerkW288287None22 Sep 2026 ",
+      "h": 79
+     }
+    ],
+    "recordBody": {
+     "scrollHeight": 3124,
+     "clientHeight": 384,
+     "h": 384,
+     "overflowY": "auto",
+     "maxHeight": "384px",
+     "overflowing": true,
+     "scrolls": true,
+     "tabindex": "0"
+    },
+    "wideRows": 0
+   }
+  },
+  {
+   "revision": "e9b1b8d9",
+   "proof": "foundation-identity",
+   "width": 1440,
+   "state": "closed (ten rows, five 160-char values)",
+   "panel_h": 843,
+   "cap": 850,
+   "pass": true,
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": null,
+   "url": "/sites/KLG-014/foundation",
+   "screenshot": "foundation-closed-1440.png",
+   "detail": {
+    "panel_h": 843,
+    "overflowX": 0,
+    "pageH": 2054,
+    "pageScrollable": true,
+    "openDetails": 0,
+    "details": 0,
+    "visibleRecordRows": 0,
+    "recordDetail": false,
+    "clipped": [],
+    "innerScroll": [],
+    "parts": [
+     {
+      "part": "dl.v69-key-values Site identityKalangala north feeder battery invert",
+      "h": 687
+     },
+     {
+      "part": "p.not-available-yet Financial assumptions not available here. Physical",
+      "h": 64
+     }
+    ],
+    "rows": [],
+    "recordBody": null,
+    "wideRows": 5
+   }
+  },
+  {
+   "revision": "e9b1b8d9",
+   "proof": "foundation-identity",
+   "width": 390,
+   "state": "closed (ten rows, five 160-char values)",
+   "panel_h": 860,
+   "cap": 1050,
+   "pass": true,
+   "overflowX": 0,
+   "clipped": [],
+   "inner_scroll": null,
+   "url": "/sites/KLG-014/foundation",
+   "screenshot": "foundation-closed-390.png",
+   "detail": {
+    "panel_h": 860,
+    "overflowX": 0,
+    "pageH": 3488,
+    "pageScrollable": true,
+    "openDetails": 0,
+    "details": 0,
+    "visibleRecordRows": 0,
+    "recordDetail": false,
+    "clipped": [],
+    "innerScroll": [],
+    "parts": [
+     {
+      "part": "dl.v69-key-values Site identityKalangala north feeder battery invert",
+      "h": 703
+     },
+     {
+      "part": "p.not-available-yet Financial assumptions not available here. Physical",
+      "h": 64
+     }
+    ],
+    "rows": [],
+    "recordBody": null,
+    "wideRows": 5
+   }
+  }
+ ]
+}

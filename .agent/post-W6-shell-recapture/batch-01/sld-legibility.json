@@ -1,0 +1,607 @@
+{
+  "revision": "710b0de5",
+  "captured_at": "2026-10-24T22:49:28.497Z",
+  "rule": "Q13: effective label px under ~8 at 390 is illegible",
+  "results": [
+    {
+      "url": "http://localhost:5181/sites/KOBO-001/foundation/sld",
+      "overflowX": 0,
+      "svg": {
+        "renderedWidth": 292,
+        "renderedHeight": 210.8,
+        "viewBoxWidth": 928,
+        "scale": 0.3147,
+        "svgFontSizes": {
+          "11": 20,
+          "13": 20
+        },
+        "minEffectiveLabelPx": 3.46,
+        "minLabelText": "60 kW",
+        "textNodes": 40,
+        "focusable": {
+          "tabindex": 10,
+          "a": 0,
+          "button": 0,
+          "container": {
+            "tabindex": 10,
+            "a": 0,
+            "button": 0
+          }
+        }
+      },
+      "scroll": {
+        "scrollWidth": 316,
+        "clientWidth": 316,
+        "scrolls": false,
+        "overflowXStyle": "auto"
+      },
+      "selectedPanel": null,
+      "sldClasses": [
+        "sld-status",
+        "sld__scroll",
+        "sld",
+        "sld-run",
+        "sld-run--dc",
+        "sld-run--ac",
+        "sld-run--fuel",
+        "sld-node",
+        "sld-node__halo",
+        "sld-node__box",
+        "sld-node__name",
+        "sld-node__rating",
+        "sld-node__slot",
+        "sld-node--bus",
+        "sld-node__name--bus",
+        "sld-node__bar",
+        "sld-legend",
+        "sld-legend__item",
+        "sld-legend__run",
+        "sld-legend__run--dc",
+        "sld-legend__run--ac",
+        "sld-legend__run--fuel",
+        "sld-questions",
+        "sld-questions__lede",
+        "sld-questions__list",
+        "sld-questions__item",
+        "sld-questions__witness"
+      ],
+      "legend": {
+        "text": "DCACFuel",
+        "fontSize": "11px"
+      },
+      "selectedMarkers": [
+        {
+          "tag": "SPAN",
+          "cls": "breadcrumbs__current",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Foundation"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Single line diagram"
+        }
+      ],
+      "status": {
+        "text": "Configured, not liveReadings are not assessed in this view.",
+        "fontSize": "13px"
+      },
+      "case": "now",
+      "width": 390,
+      "ready": true,
+      "image": "sld-now-390-legibility.png",
+      "q13_illegible": true
+    },
+    {
+      "url": "http://localhost:5181/sites/KOBO-001/foundation/sld?component=battery",
+      "overflowX": 0,
+      "svg": {
+        "renderedWidth": 292,
+        "renderedHeight": 210.8,
+        "viewBoxWidth": 928,
+        "scale": 0.3147,
+        "svgFontSizes": {
+          "11": 20,
+          "13": 20
+        },
+        "minEffectiveLabelPx": 3.46,
+        "minLabelText": "60 kW",
+        "textNodes": 40,
+        "focusable": {
+          "tabindex": 10,
+          "a": 0,
+          "button": 0,
+          "container": {
+            "tabindex": 10,
+            "a": 0,
+            "button": 0
+          }
+        }
+      },
+      "scroll": {
+        "scrollWidth": 316,
+        "clientWidth": 316,
+        "scrolls": false,
+        "overflowXStyle": "auto"
+      },
+      "selectedPanel": null,
+      "sldClasses": [
+        "sld-status",
+        "sld__scroll",
+        "sld",
+        "sld-run",
+        "sld-run--dc",
+        "sld-run--ac",
+        "sld-run--fuel",
+        "sld-node",
+        "sld-node__halo",
+        "sld-node__box",
+        "sld-node__name",
+        "sld-node__rating",
+        "sld-node__slot",
+        "sld-node--bus",
+        "sld-node__name--bus",
+        "sld-node__bar",
+        "sld-legend",
+        "sld-legend__item",
+        "sld-legend__run",
+        "sld-legend__run--dc",
+        "sld-legend__run--ac",
+        "sld-legend__run--fuel",
+        "sld-questions",
+        "sld-questions__lede",
+        "sld-questions__list",
+        "sld-questions__item",
+        "sld-questions__witness"
+      ],
+      "legend": {
+        "text": "DCACFuel",
+        "fontSize": "11px"
+      },
+      "selectedMarkers": [
+        {
+          "tag": "SPAN",
+          "cls": "breadcrumbs__current",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Foundation"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "g",
+          "cls": "sld-node",
+          "aria": "true",
+          "text": "Battery energystorage200 kWhReadings not assessed here"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "part-choice",
+          "aria": "true",
+          "text": "Battery energy storage"
+        }
+      ],
+      "status": {
+        "text": "Configured, not liveReadings are not assessed in this view.",
+        "fontSize": "13px"
+      },
+      "case": "battery",
+      "width": 390,
+      "ready": true,
+      "image": "sld-battery-390-legibility.png",
+      "q13_illegible": true
+    },
+    {
+      "url": "http://localhost:5181/sites/KOBO-001/foundation/sld",
+      "overflowX": 0,
+      "svg": {
+        "renderedWidth": 292,
+        "renderedHeight": 210.8,
+        "viewBoxWidth": 928,
+        "scale": 0.3147,
+        "svgFontSizes": {
+          "11": 20,
+          "13": 20
+        },
+        "minEffectiveLabelPx": 3.46,
+        "minLabelText": "60 kW",
+        "textNodes": 40,
+        "focusable": {
+          "tabindex": 10,
+          "a": 0,
+          "button": 0,
+          "container": {
+            "tabindex": 10,
+            "a": 0,
+            "button": 0
+          }
+        }
+      },
+      "scroll": {
+        "scrollWidth": 316,
+        "clientWidth": 316,
+        "scrolls": false,
+        "overflowXStyle": "auto"
+      },
+      "selectedPanel": null,
+      "sldClasses": [
+        "sld-status",
+        "sld__scroll",
+        "sld",
+        "sld-run",
+        "sld-run--dc",
+        "sld-run--ac",
+        "sld-run--fuel",
+        "sld-node",
+        "sld-node__halo",
+        "sld-node__box",
+        "sld-node__name",
+        "sld-node__rating",
+        "sld-node__slot",
+        "sld-node--bus",
+        "sld-node__name--bus",
+        "sld-node__bar",
+        "sld-legend",
+        "sld-legend__item",
+        "sld-legend__run",
+        "sld-legend__run--dc",
+        "sld-legend__run--ac",
+        "sld-legend__run--fuel",
+        "sld-questions",
+        "sld-questions__lede",
+        "sld-questions__list",
+        "sld-questions__item",
+        "sld-questions__witness"
+      ],
+      "legend": {
+        "text": "DCACFuel",
+        "fontSize": "11px"
+      },
+      "selectedMarkers": [
+        {
+          "tag": "SPAN",
+          "cls": "breadcrumbs__current",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Foundation"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Single line diagram"
+        }
+      ],
+      "status": {
+        "text": "Configured, not liveReadings are not assessed in this view.",
+        "fontSize": "13px"
+      },
+      "case": "unknown-part",
+      "width": 390,
+      "ready": true,
+      "image": "sld-unknown-part-390-legibility.png",
+      "q13_illegible": true
+    },
+    {
+      "url": "http://localhost:5181/sites/KOBO-001/foundation/sld",
+      "overflowX": 0,
+      "svg": {
+        "renderedWidth": 928,
+        "renderedHeight": 670,
+        "viewBoxWidth": 928,
+        "scale": 1,
+        "svgFontSizes": {
+          "11": 20,
+          "13": 20
+        },
+        "minEffectiveLabelPx": 11,
+        "minLabelText": "60 kW",
+        "textNodes": 40,
+        "focusable": {
+          "tabindex": 10,
+          "a": 0,
+          "button": 0,
+          "container": {
+            "tabindex": 10,
+            "a": 0,
+            "button": 0
+          }
+        }
+      },
+      "scroll": {
+        "scrollWidth": 1103,
+        "clientWidth": 1103,
+        "scrolls": false,
+        "overflowXStyle": "auto"
+      },
+      "selectedPanel": null,
+      "sldClasses": [
+        "sld-status",
+        "sld__scroll",
+        "sld",
+        "sld-run",
+        "sld-run--dc",
+        "sld-run--ac",
+        "sld-run--fuel",
+        "sld-node",
+        "sld-node__halo",
+        "sld-node__box",
+        "sld-node__name",
+        "sld-node__rating",
+        "sld-node__slot",
+        "sld-node--bus",
+        "sld-node__name--bus",
+        "sld-node__bar",
+        "sld-legend",
+        "sld-legend__item",
+        "sld-legend__run",
+        "sld-legend__run--dc",
+        "sld-legend__run--ac",
+        "sld-legend__run--fuel",
+        "sld-questions",
+        "sld-questions__lede",
+        "sld-questions__list",
+        "sld-questions__item",
+        "sld-questions__witness"
+      ],
+      "legend": {
+        "text": "DCACFuel",
+        "fontSize": "11px"
+      },
+      "selectedMarkers": [
+        {
+          "tag": "SPAN",
+          "cls": "breadcrumbs__current",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Foundation"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Single line diagram"
+        }
+      ],
+      "status": {
+        "text": "Configured, not liveReadings are not assessed in this view.",
+        "fontSize": "13px"
+      },
+      "case": "now",
+      "width": 1440,
+      "ready": true,
+      "image": "sld-now-1440-legibility.png",
+      "q13_illegible": null
+    },
+    {
+      "url": "http://localhost:5181/sites/KOBO-001/foundation/sld?component=battery",
+      "overflowX": 0,
+      "svg": {
+        "renderedWidth": 928,
+        "renderedHeight": 670,
+        "viewBoxWidth": 928,
+        "scale": 1,
+        "svgFontSizes": {
+          "11": 20,
+          "13": 20
+        },
+        "minEffectiveLabelPx": 11,
+        "minLabelText": "60 kW",
+        "textNodes": 40,
+        "focusable": {
+          "tabindex": 10,
+          "a": 0,
+          "button": 0,
+          "container": {
+            "tabindex": 10,
+            "a": 0,
+            "button": 0
+          }
+        }
+      },
+      "scroll": {
+        "scrollWidth": 1103,
+        "clientWidth": 1103,
+        "scrolls": false,
+        "overflowXStyle": "auto"
+      },
+      "selectedPanel": null,
+      "sldClasses": [
+        "sld-status",
+        "sld__scroll",
+        "sld",
+        "sld-run",
+        "sld-run--dc",
+        "sld-run--ac",
+        "sld-run--fuel",
+        "sld-node",
+        "sld-node__halo",
+        "sld-node__box",
+        "sld-node__name",
+        "sld-node__rating",
+        "sld-node__slot",
+        "sld-node--bus",
+        "sld-node__name--bus",
+        "sld-node__bar",
+        "sld-legend",
+        "sld-legend__item",
+        "sld-legend__run",
+        "sld-legend__run--dc",
+        "sld-legend__run--ac",
+        "sld-legend__run--fuel",
+        "sld-questions",
+        "sld-questions__lede",
+        "sld-questions__list",
+        "sld-questions__item",
+        "sld-questions__witness"
+      ],
+      "legend": {
+        "text": "DCACFuel",
+        "fontSize": "11px"
+      },
+      "selectedMarkers": [
+        {
+          "tag": "SPAN",
+          "cls": "breadcrumbs__current",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Foundation"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "g",
+          "cls": "sld-node",
+          "aria": "true",
+          "text": "Battery energystorage200 kWhReadings not assessed here"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "part-choice",
+          "aria": "true",
+          "text": "Battery energy storage"
+        }
+      ],
+      "status": {
+        "text": "Configured, not liveReadings are not assessed in this view.",
+        "fontSize": "13px"
+      },
+      "case": "battery",
+      "width": 1440,
+      "ready": true,
+      "image": "sld-battery-1440-legibility.png",
+      "q13_illegible": null
+    },
+    {
+      "url": "http://localhost:5181/sites/KOBO-001/foundation/sld",
+      "overflowX": 0,
+      "svg": {
+        "renderedWidth": 928,
+        "renderedHeight": 670,
+        "viewBoxWidth": 928,
+        "scale": 1,
+        "svgFontSizes": {
+          "11": 20,
+          "13": 20
+        },
+        "minEffectiveLabelPx": 11,
+        "minLabelText": "60 kW",
+        "textNodes": 40,
+        "focusable": {
+          "tabindex": 10,
+          "a": 0,
+          "button": 0,
+          "container": {
+            "tabindex": 10,
+            "a": 0,
+            "button": 0
+          }
+        }
+      },
+      "scroll": {
+        "scrollWidth": 1103,
+        "clientWidth": 1103,
+        "scrolls": false,
+        "overflowXStyle": "auto"
+      },
+      "selectedPanel": null,
+      "sldClasses": [
+        "sld-status",
+        "sld__scroll",
+        "sld",
+        "sld-run",
+        "sld-run--dc",
+        "sld-run--ac",
+        "sld-run--fuel",
+        "sld-node",
+        "sld-node__halo",
+        "sld-node__box",
+        "sld-node__name",
+        "sld-node__rating",
+        "sld-node__slot",
+        "sld-node--bus",
+        "sld-node__name--bus",
+        "sld-node__bar",
+        "sld-legend",
+        "sld-legend__item",
+        "sld-legend__run",
+        "sld-legend__run--dc",
+        "sld-legend__run--ac",
+        "sld-legend__run--fuel",
+        "sld-questions",
+        "sld-questions__lede",
+        "sld-questions__list",
+        "sld-questions__item",
+        "sld-questions__witness"
+      ],
+      "legend": {
+        "text": "DCACFuel",
+        "fontSize": "11px"
+      },
+      "selectedMarkers": [
+        {
+          "tag": "SPAN",
+          "cls": "breadcrumbs__current",
+          "aria": "page",
+          "text": "Single line diagram"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Foundation"
+        },
+        {
+          "tag": "A",
+          "cls": "site-tabs__link",
+          "aria": "page",
+          "text": "Single line diagram"
+        }
+      ],
+      "status": {
+        "text": "Configured, not liveReadings are not assessed in this view.",
+        "fontSize": "13px"
+      },
+      "case": "unknown-part",
+      "width": 1440,
+      "ready": true,
+      "image": "sld-unknown-part-1440-legibility.png",
+      "q13_illegible": null
+    }
+  ]
+}
