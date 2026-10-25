@@ -435,6 +435,21 @@ describe("Post-W6 W6 caps ruling 4: in-cell disclosure on Preventive plan", () =
     }
   });
 
+  it("gives a correction line in the first column its own Show full disclosure", async () => {
+    const restore = stubCellOverflow(0);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1, { correction_reason: "Corrected after review" })])) }));
+      await settled();
+      const tr = document.querySelector("tbody tr") as HTMLElement;
+      expect(disclosureNames(tr)).toContain("Show full Plan item correction for PM-000001");
+      const correction = tr.querySelector("[data-global-work-correction]") as HTMLElement;
+      expect(correction.className).toContain("cell-disclosure__value");
+      expect(correction.textContent).toBe("Correction: Corrected after review");
+    } finally {
+      restore();
+    }
+  });
+
   it("shows values that fit plainly, with no disclosure buttons", async () => {
     const restore = stubCellOverflow(100000);
     try {

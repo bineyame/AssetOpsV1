@@ -109,7 +109,9 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
         </CellDisclosure>
         {row.correction_reason !== null ? (
           <>
-            <Clamp data={{ "data-global-work-correction": "" }}>{`Correction: ${row.correction_reason}`}</Clamp>
+            <CellDisclosure column="Record correction" row={row.code} data={{ "data-global-work-correction": "" }}>
+              {`Correction: ${row.correction_reason}`}
+            </CellDisclosure>
             {row.supersedes_record_id !== null ? (
               <details className="global-work-details" data-global-work-supersedes>
                 <summary>Earlier record version</summary>

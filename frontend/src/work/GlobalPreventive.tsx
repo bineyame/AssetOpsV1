@@ -82,7 +82,9 @@ function PlanRow({ row }: { row: GlobalPreventiveRow }) {
         </details>
         {row.correction_reason !== null ? (
           <>
-            <Clamp data={{ "data-global-work-correction": "" }}>{`Correction: ${row.correction_reason}`}</Clamp>
+            <CellDisclosure column="Plan item correction" row={row.code} data={{ "data-global-work-correction": "" }}>
+              {`Correction: ${row.correction_reason}`}
+            </CellDisclosure>
             {row.supersedes_plan_id !== null ? (
               <details className="global-work-details" data-global-work-supersedes>
                 <summary>Earlier plan version</summary>
