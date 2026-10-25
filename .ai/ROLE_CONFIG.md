@@ -581,6 +581,12 @@ The owner asked to "adopt best practices and learning for waves 5 and 6 for qual
 12. **Captures are part of the unit that builds the page,** not a separate late unit, so cap and state failures surface while the code is fresh.
 13. **Builders stop every process they start** (gateway/dev servers, capture browsers) and drop their `*_test` DBs before reporting; worktrees are created after `.gitattributes` changes or re-checked out (`git ls-files --eol`), and every new byte-pinned fixture gets an `eol=lf` entry. The coordinator checks for orphaned `assetops_gateway serve` processes after each slice (2026-10-22: 214 orphans held about 2 GB).
 
+## Modern UI/UX Guidance For UI Decisions (owner, 2026-10-25)
+
+Owner: "for UI/UX related question, it is important to take inspiration from modern UI guidelines and techniques, this is for the architect as well as the implementer".
+
+The Architect (UI rulings, cap fallbacks, copy) and Implementers (pre-flight defaults, choices where rulings are silent) ground UI answers in current guidance and practice (WCAG 2.2, Material 3, Apple HIG, GOV.UK/USWDS, Carbon, NN/g heuristics, responsive data-table patterns) and name the pattern relied on. Broadened the same day: "not just when there are questions but state of the art UI/UX should be used(within bounds of demo speed)". It is a standing quality bar for all UI work (Architect specs, Implementer builds, Reviewer checks): hierarchy, readable type, strong 390 px behaviour, WCAG 2.2 AA focus/keyboard, purposeful loading/empty/error states, scroll affordances, plain copy. Bounded by demo speed: prefer cheap local improvements; batch larger ideas as proposals. The v6.9 mock remains the layout spec; layout/content changes it would imply are proposed as labelled D2 departures. Detail: `.agent/owner-ui-ux-guidance-2026-10-25.md`.
+
 ## Updating Bindings
 
 Change bindings here when the team wants a different tool to own a role. Record
