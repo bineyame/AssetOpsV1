@@ -5,7 +5,7 @@
  * back/forward keep exact version IDs; an omitted ID is labelled "latest at
  * read time").
  */
-import { fireEvent, render, screen, cleanup } from "@testing-library/react";
+import { fireEvent, render, screen, cleanup, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -256,7 +256,8 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     expect(q("[data-history-pin]")).toHaveAttribute("href", `${HISTORY}?revision_id=${rid(205)}`);
     expect(q("[data-finding-section='history']")).toHaveAttribute("aria-current", "page");
     // W1-F5b carry 10: the heading is the selected version's Finding name, not a generic "Finding history".
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator support/);
+    // post-W6 W1-a Q16: the heading is "Finding" until the read settles, then set from the frame's title effect.
+    await waitFor(() => expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator support/));
     expect(screen.getByRole("heading", { level: 1 })).not.toHaveTextContent(/history/i);
     const { violations } = scanProductVocabulary(container, "finding history");
     expect(violations, describeViolations(violations)).toEqual([]);
