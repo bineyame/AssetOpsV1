@@ -846,7 +846,9 @@ describe("W2-cold unit 1: temperature and backup", () => {
   ])("r261_refusal_copy %s", async (code, sentence) => {
     renderCold(ROUTES[0][1], { ...STOCKED, temperature: refused(code), backup: refused(code), findings: refused(code) });
     await settledScreen();
-    expect(body()).toContain(sentence);
+    // Cross-card ruling 5: the sentence exactly once, in panel 1; later panels say Not assessed.
+    expect(body().split(sentence).length - 1).toBe(1);
+    expect(panelTitled("Excursion context").textContent).toContain("Not assessed");
     expect(document.querySelector("[data-cold-refused-strip]")?.textContent).toContain("Window cannot be read");
     // Invalid window: no echoed window line, four Not assessed tiles, no page banner, no duration callout.
     expect(document.querySelector("[data-cold-date-bar]")).toBeNull();

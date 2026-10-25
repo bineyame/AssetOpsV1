@@ -193,6 +193,9 @@ function RefusalReferences({ read, window }: { read: Exclude<ColdRead<unknown>, 
  * R244 (Q4): a refused temperature or backup read keeps the requested-window line, the state strip (its chip names the
  * refusal) and the four tiles as `Not assessed`; panel 1 carries the sentence and the technical disclosure.
  */
+/** Cross-card ruling 5 / Q4: the refusal sentence sits once, in panel 1; every later refused panel says only this. */
+const REPEATED_GAP = "Not assessed";
+
 function PerformanceRefusal({
   read,
   window,
@@ -437,7 +440,7 @@ function TemperaturePanels({
         </Panel>
         <Panel heading="Excursion context" headingId="cold-excursion-heading">
           {read === null ? (
-            <Gap id="cold-excursion-heading">{gap}</Gap>
+            <Gap id="cold-excursion-heading">{REPEATED_GAP}</Gap>
           ) : (
             <>
               <KeyValues
@@ -507,7 +510,7 @@ function TemperaturePanels({
       )}
       <Panel heading="Claim boundary" headingId="cold-claim-boundary-heading">
         {read === null ? (
-          <Gap id="cold-claim-boundary-heading">{gap}</Gap>
+          <Gap id="cold-claim-boundary-heading">{REPEATED_GAP}</Gap>
         ) : (
           <>
             <p className="prose">
@@ -706,7 +709,7 @@ function BackupPanels({
       )}
       <Panel heading="Reconstructed event chain" headingId="cold-chain-steps-heading">
         {read === null ? (
-          <Gap id="cold-chain-steps-heading">{gap}</Gap>
+          <Gap id="cold-chain-steps-heading">{REPEATED_GAP}</Gap>
         ) : chain === undefined ? (
           <Gap id="cold-chain-steps-heading">No grid outage in this window, so there is no chain to reconstruct.</Gap>
         ) : (
@@ -715,7 +718,7 @@ function BackupPanels({
       </Panel>
       <Panel heading="Backup event chains" headingId="cold-chain-table-heading" description="Each outage in the selected window">
         {read === null ? (
-          <Gap id="cold-chain-table-heading">{gap}</Gap>
+          <Gap id="cold-chain-table-heading">{REPEATED_GAP}</Gap>
         ) : (
           <DataTable labelledBy="cold-chain-table-heading">
             <thead>
@@ -767,7 +770,7 @@ function BackupPanels({
       </Panel>
       <Panel heading="Evidence by causal step" headingId="cold-chain-evidence-heading">
         {read === null ? (
-          <Gap id="cold-chain-evidence-heading">{gap}</Gap>
+          <Gap id="cold-chain-evidence-heading">{REPEATED_GAP}</Gap>
         ) : chain === undefined ? (
           <Gap id="cold-chain-evidence-heading">No chain step has accepted evidence in this window.</Gap>
         ) : (
