@@ -534,8 +534,14 @@ function RenewableStatus({ read }: { read: RenewableRead }) {
         </span>
       </span>
       <span className="status-strip__item">
-        {/* The lens is the fixed identity of this page (mock green), not an assessment of the read. */}
-        <Badge tone="neutral" className={toneClass("green")}>Lens: Opportunity</Badge>
+        {/* post-W6 W4 build ruling 3 / D1 R454: the lens is the fixed identity of this page, not an assessment, so it
+            is neutral (the mock shows it green). */}
+        <Badge tone="neutral" className={toneClass("neutral")} data-mini-lens="">
+          Lens: Opportunity
+        </Badge>
+        <span className="mock-deviation-line mini-inline-deviation" data-mock-deviation="R454">
+          MOCK DEVIATION D1 (R454)
+        </span>
       </span>
       {provenanceChips(read).map((chip) => (
         <span className="status-strip__item" key={chip} data-mini-provenance>

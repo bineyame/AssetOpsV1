@@ -353,14 +353,17 @@ describe("post-W6 W4 R309/R310/R312/R313: renewable tones, confidence, recurrenc
   const five = ["2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10"];
   const badge = (text: string) => screen.getAllByText(text).find((el) => el.classList.contains("badge")) as HTMLElement;
 
-  it("R309: chips take tones from stored enums only (Watch amber, Lens green, Eligible green, Limited amber, Excluded neutral) and series fills keep their identity", async () => {
+  it("R309: chips take tones from stored enums only (Watch amber, Lens neutral, Eligible green, Limited amber, Excluded neutral) and series fills keep their identity", async () => {
     const rows = [row("2026-10-06"), row("2026-10-07", { decision: "EXCLUDED", opportunity_kwh: null }), row("2026-10-08", { decision: "LIMITED", opportunity_kwh: null })];
     const windows = [hour("2026-10-06", true, 1), hour("2026-10-07", true, 2), hour("2026-10-08", true, 3)];
     renderRenewable([ok(read({ rows, currentness: { state: "CURRENT", job_state: "SETTLED", windows } }))], `/sites/${CODE}/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-08T21:00:00Z`);
     await settledScreen();
     await screen.findByText("Watch");
     expect(badge("Watch").className).toContain("status-tone--amber");
-    expect(badge("Lens: Opportunity").className).toContain("status-tone--green");
+    // build ruling 3 / D1 R454: the fixed page lens is neutral, never green, with its visible deviation label
+    expect(badge("Lens: Opportunity").className).toContain("status-tone--neutral");
+    expect(badge("Lens: Opportunity").className).not.toContain("status-tone--green");
+    expect(badge("Lens: Opportunity").parentElement?.querySelector("[data-mock-deviation='R454']")?.textContent?.trim()).toBe("MOCK DEVIATION D1 (R454)");
     expect(badge("Eligible").className).toContain("status-tone--green");
     expect(badge("Excluded").className).toContain("status-tone--neutral");
     expect(badge("Limited").className).toContain("status-tone--amber");

@@ -1788,16 +1788,30 @@ describe("post-W6 W4 Q5/R325/R450: Scenarios refusals, rows and the Site-time Wi
     const form = await screen.findByRole("form", { name: "Window" });
     const from = form.querySelector("[data-scenarios-window-from]") as HTMLInputElement;
     const to = form.querySelector("[data-scenarios-window-to]") as HTMLInputElement;
-    // Africa/Nairobi (EAT, UTC+3): 21:00Z is the next local midnight.
-    expect([from.value, to.value]).toEqual(["2026-10-14", "2026-10-21"]);
+    // Africa/Nairobi (EAT, UTC+3): 21:00Z is the next local midnight. Build ruling 7: the end day is included, so the
+    // exclusive bound 2026-10-20T21:00Z shows its preceding Site-local date.
+    expect([from.value, to.value]).toEqual(["2026-10-14", "2026-10-20"]);
     expect(form.textContent).toContain("From (EAT)");
+    expect(form.textContent).toContain("To (EAT, included)");
+    expect(form.textContent).not.toContain("exclusive");
     expect(document.querySelector("[data-mock-deviation='R450']")?.textContent?.trim()).toBe("MOCK DEVIATION D2 (R450)");
     fireEvent.change(from, { target: { value: "2026-10-01" } });
     fireEvent.change(to, { target: { value: "2026-10-03" } });
     fireEvent.click(screen.getByRole("button", { name: "Apply" }));
     await waitFor(() => expect(location()).toContain("from=2026-09-30T21%3A00%3A00Z"));
-    expect(location()).toContain("to=2026-10-02T21%3A00%3A00Z");
-    await waitFor(() => expect(vi.mocked(client.getScenarios).mock.calls.at(-1)?.[1]).toEqual({ from: "2026-09-30T21:00:00Z", to: "2026-10-02T21:00:00Z", known_at: KNOWN, cursor: null }));
+    expect(location()).toContain("to=2026-10-03T21%3A00%3A00Z");
+    await waitFor(() => expect(vi.mocked(client.getScenarios).mock.calls.at(-1)?.[1]).toEqual({ from: "2026-09-30T21:00:00Z", to: "2026-10-03T21:00:00Z", known_at: KNOWN, cursor: null }));
+  });
+
+  it("build ruling 7: a single included day and a month-end day give the next Site-local midnight", async () => {
+    const client = renderAt(`/sites/${CODE}/financials/scenarios?from=2026-10-13T21:00:00Z&to=2026-10-20T21:00:00Z&known_at=${KNOWN}`, [ok(list([row()]))]);
+    await settledScreen();
+    const form = await screen.findByRole("form", { name: "Window" });
+    fireEvent.change(form.querySelector("[data-scenarios-window-from]") as HTMLInputElement, { target: { value: "2026-10-31" } });
+    fireEvent.change(form.querySelector("[data-scenarios-window-to]") as HTMLInputElement, { target: { value: "2026-10-31" } });
+    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+    await waitFor(() => expect(vi.mocked(client.getScenarios).mock.calls.at(-1)?.[1]).toEqual({ from: "2026-10-30T21:00:00Z", to: "2026-10-31T21:00:00Z", known_at: KNOWN, cursor: null }));
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 
   it("R450: a reversed Window stays on the page with its reason and makes no new read", async () => {

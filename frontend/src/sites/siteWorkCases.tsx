@@ -28,7 +28,7 @@ import { Link } from "react-router-dom";
 import { DataTable, Disclosure, Fact, FactList, Notice, Panel, ProductStatus, RailIcon, type ProductWords } from "../ui";
 import { globalWorkRequestHref } from "../work/globalWorkClient";
 import { READ_FULL_TEXT, coldCurrentnessNotice, coldCurrentnessTone, isLongText } from "./coldWorkPresentation";
-import { siteDateTimeText, siteLocalDate, siteLocalMidnightUtc, siteLocalParts, siteZoneLabel } from "./siteTime";
+import { siteDateTimeText, siteLocalDate, siteLocalEndUtc, siteLocalLastDay, siteLocalMidnightUtc, siteLocalParts, siteZoneLabel } from "./siteTime";
 import type { DomainStatus } from "./domainActionClient";
 import { EV_ACTION_LINK_LIVE, EV_SOURCE_FINDING_UNAVAILABLE, evActionHref } from "./evWorkPresentation";
 import type { DecisionRead, MiniDecisionsClient, WorkContextsBody, WorkDecisionContext } from "./miniDecisionsClient";
@@ -301,12 +301,7 @@ export const shortName = (name: string) => name.trim().split(/\s+/)[0] ?? name;
 
 /** post-W6 W4 R320 (Q8): the window's Site-local first and last (included) days; the URL keeps UTC bounds. */
 const firstDay = (instant: string, timeZone: string | null) => siteLocalDate(instant, timeZone);
-const lastDay = (to: string, timeZone: string | null) => siteLocalDate(new Date(new Date(to).getTime() - 1).toISOString(), timeZone);
-const nextDay = (isoDate: string) => {
-  const d = new Date(`${isoDate}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + 1);
-  return d.toISOString().slice(0, 10);
-};
+const lastDay = (to: string, timeZone: string | null) => siteLocalLastDay(to, timeZone);
 
 function WindowForm({
   copy,
@@ -333,7 +328,7 @@ function WindowForm({
     event.preventDefault();
     if (!first || !last) return;
     // A new window clears the cutoff, the cursor and the earlier pages; Site-local midnights, sent as UTC.
-    onScope({ from: siteLocalMidnightUtc(first, timeZone), to: siteLocalMidnightUtc(nextDay(last), timeZone), knownAt: null, cursor: null }, []);
+    onScope({ from: siteLocalMidnightUtc(first, timeZone), to: siteLocalEndUtc(last, timeZone), knownAt: null, cursor: null }, []);
   };
   return (
     <form onSubmit={submit} className="v69-chips w1f4-work-window" data-work-window aria-label={`${copy.global} window`}>
@@ -342,7 +337,8 @@ function WindowForm({
         <input className="v69-chip-control" type="date" value={first} onChange={(event) => setFirst(event.target.value)} />
       </label>
       <label className="w1f4-work-window__field">
-        {"to (included) "}
+        {/* post-W6 W4 build ruling 7: both fields carry the Site zone; the end day is included. */}
+        {`to (${zone}, included) `}
         <input className="v69-chip-control" type="date" value={last} onChange={(event) => setLast(event.target.value)} />
       </label>
       <button className="button" type="submit">

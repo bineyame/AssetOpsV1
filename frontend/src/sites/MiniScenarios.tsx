@@ -20,7 +20,7 @@ import {
   type ScenarioRow,
   type ScenarioScope,
 } from "./miniDecisionsClient";
-import { siteLocalDate, siteLocalMidnightUtc, siteZoneLabel } from "./siteTime";
+import { siteLocalDate, siteLocalEndUtc, siteLocalLastDay, siteLocalMidnightUtc, siteZoneLabel } from "./siteTime";
 import "../ui/mock-deviation.css";
 import "./w4-mini-decisions.css";
 
@@ -263,18 +263,19 @@ export function ScenariosWindow({
   onApply: (next: ScenarioScope) => void;
 }) {
   const [first, setFirst] = useState(siteLocalDate(scope.from, timeZone));
-  const [last, setLast] = useState(siteLocalDate(scope.to, timeZone));
+  const [last, setLast] = useState(siteLocalLastDay(scope.to, timeZone));
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     setFirst(siteLocalDate(scope.from, timeZone));
-    setLast(siteLocalDate(scope.to, timeZone));
+    setLast(siteLocalLastDay(scope.to, timeZone));
     setError(null);
   }, [scope.from, scope.to, timeZone]);
   const zone = siteZoneLabel(timeZone, scope.from);
   const submit = (event: FormEvent) => {
     event.preventDefault();
     const from = first ? siteLocalMidnightUtc(first, timeZone) : "";
-    const to = last ? siteLocalMidnightUtc(last, timeZone) : "";
+    // build ruling 7: the chosen end day is included; the half-open URL bound is the next Site-local midnight.
+    const to = last ? siteLocalEndUtc(last, timeZone) : "";
     if (from === "" || to === "") {
       setError("Choose both dates.");
       return;
@@ -295,7 +296,7 @@ export function ScenariosWindow({
           <input className="v69-chip-control" type="date" value={first} onChange={(e) => setFirst(e.target.value)} data-scenarios-window-from />
         </label>
         <label className="mini-scenarios-window__field">
-          {`To (${zone}, exclusive) `}
+          {`To (${zone}, included) `}
           <input className="v69-chip-control" type="date" value={last} onChange={(e) => setLast(e.target.value)} data-scenarios-window-to />
         </label>
         <button className="button" type="submit" data-scenarios-window-apply>

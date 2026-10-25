@@ -657,9 +657,10 @@ export const ANALYSIS_HELPER_ALTERNATIVES =
   "Analysis unavailable for this authored alternative; use the Finding overview and evidence.";
 /** u6 ruling 1: the W1 detail supplies no public Finding code. */
 /**
- * post-W6 W4 R328 (Q15): the crumb slot between `Findings` and the section. No public mini Finding code exists on the
- * selected wire (the code stays D1, R65/R74/R389), so the slot reads `Finding` in every state; it never says the code
- * is unavailable.
+ * post-W6 W4 R328 (Q15, build ruling 1): the crumb slot between `Findings` and the section. The selected mini Finding
+ * read carries no public Finding code yet, so the slot reads `Finding` in every state and never says the code is
+ * unavailable. R328 stays open: a backend slice must expose a stable Site-scoped public code first; never synthesize
+ * one from a UUID, title or display order.
  */
 export const FINDING_CRUMB = "Finding";
 /** u6 ruling 3: a cold or EV Finding child address. */

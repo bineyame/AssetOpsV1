@@ -150,3 +150,28 @@ export function siteDateTimeText(value: string | null | undefined, timeZone: str
   if (p === null) return null;
   return `${p.y}-${String(p.m).padStart(2, "0")}-${String(p.day).padStart(2, "0")} ${p.hh}:${p.mm} ${p.zone}`;
 }
+
+/**
+ * post-W6 W4 build ruling 7: inclusive end dates. The Site-local date before an exclusive `to` bound (the last day a
+ * `[from,to)` window includes), or "" when it does not parse.
+ */
+export function siteLocalLastDay(to: string | null | undefined, timeZone: string | null | undefined): string {
+  const d = parse(to);
+  if (d === null) return "";
+  return siteLocalDate(new Date(d.getTime() - 1).toISOString(), timeZone);
+}
+
+/** The calendar day after `YYYY-MM-DD` (pure date arithmetic), or "" for a bad date. */
+export function nextIsoDate(isoDate: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return "";
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return "";
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+/** The exclusive UTC bound for an included last Site-local day: the next Site-local midnight; "" for a bad date. */
+export function siteLocalEndUtc(lastDay: string, timeZone: string | null | undefined): string {
+  const next = nextIsoDate(lastDay);
+  return next === "" ? "" : siteLocalMidnightUtc(next, timeZone);
+}

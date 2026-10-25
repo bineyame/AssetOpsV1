@@ -826,6 +826,8 @@ describe("post-W6 W4 R320/R322/R324: mini Work in Site time, plain refusals and 
     // Local midnight boundary: [06 Oct 00:00 EAT, 07 Oct 00:00 EAT) is the one local day 6 Oct.
     await vi.waitFor(() => expect([inputs[0].value, inputs[1].value]).toEqual(["2026-10-06", "2026-10-06"]));
     expect(text(document.querySelector("[data-work-window]"))).toContain("(EAT)");
+    // build ruling 7: the end field carries the zone and says the day is included.
+    expect(text(document.querySelector("[data-work-window]"))).toContain("to (EAT, included)");
     // 21:00Z is the next local day at 00:00 EAT.
     expect(text(document.querySelector("main tbody tr [data-work-window]"))).toBe("7 Oct · from 00:00 EAT");
     expect(text(strip())).not.toContain("UTC+3");
