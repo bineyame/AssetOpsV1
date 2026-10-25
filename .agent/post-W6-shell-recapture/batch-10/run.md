@@ -16,3 +16,13 @@
 - Fallback (pure selected-DTO render proof): the next step, listing `.agent/post-W6-shell-recapture/dto-proof/` to reuse its harness, was **refused** too: "Permission for this action was denied by the Claude Code auto mode classifier. Reason: [Auto-Mode Bypass]." Work on this ruling stopped there; no DTO proof was produced.
 - Pairs: 0 qualifying / 10 selected (historical 8: findings, findings-cost, findings-risks, findings-opportunities x 1440/390; positive 2: actions empty-day x 1440/390). **10 capture gaps.**
 - No wrapper, renamed producer, edited producer or alternate DB name was used or tried. No DB was created; nothing to drop. No server was started for this batch.
+
+## Unmodified-producer replacement capture (2026-10-25, SHA d5349d6d) — QUALIFYING
+
+- Authorization: `.agent/owner-test-db-authorization-2026-10-25.md` (owner: "yes, allow creating those three test databases"). Branch `task/post-W6-shell-gap-recapture` at current main (d5349d6d), AUDIT_REVISION=d5349d6d.
+- DB: `CREATE DATABASE w301cap_test` in assetopsv1-postgres-1 (allowed this time), then `DROP DATABASE w301cap_test WITH (FORCE)` after capture.
+- Producer: `.venv/Scripts/python.exe .agent/W3-01-evidence/serve.py`, unmodified, run directly (no wrapper, no renames). PYTHONPATH backend;backend/tests;gateway;simulator;contracts;host. Hard-coded API 127.0.0.1:9741 (checked free). PID 26164, stopped by PID. Log `replacement/serve.log`.
+- Vite: this worktree's `frontend/`, `npx vite --port 5181 --strictPort`, ASSETOPS_API_PORT=9741; stopped by PID tree. CDP 9521.
+- Capture: frozen `.agent/post-W6-audit/batch-10/tools/capture-b10.mjs`, unchanged, with the same filtered `targets-positive.json` / `targets-historical.json`. positive first (12/12 claims); historical after polling `/__capture/clock` until the pinned present passed known_at 11:08:27 (48/48 claims). No control POSTs. No console errors.
+- Output: `replacement/part-positive/`, `replacement/part-historical/` (+ evidence.json, capture-*.log).
+- Pairs: **10 qualifying / 10 selected**, titles = frozen for all. One index flag: findings historical 390 "grew Findings across the estate 456->555" — same data as the diagnostic run (4 findings); the growth comes from current-main table rendering (all finding titles now wrap as links, narrower columns), not from the producer. Reported, not hidden.

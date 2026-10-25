@@ -1,0 +1,3 @@
+Issued aog1.02c022e719b7c645bcba6dce36a89165.<redacted> for gateway 'edge-mg-w402-001'; revoked 0 earlier credential(s); enabled the gateway and 11 named source(s). The secret was written only to C:\Users\assef\AppData\Local\Temp\tmpdu55u0cw\cred.02c022e719b7c645bcba6dce36a89165, verified readable by the current user only. Set the gateway's upload_credential_file to that path before its next upload; the earlier credential file was left untouched and its credential no longer authenticates.
+Credential file: C:\Users\assef\AppData\Local\Temp\tmpdu55u0cw\cred.02c022e719b7c645bcba6dce36a89165
+site e89618ef-fbf2-49dc-8bb8-54e18519bd32 accepted {'positive': 3321, 'missing-conflicting': 326} selections 123 jobs 123

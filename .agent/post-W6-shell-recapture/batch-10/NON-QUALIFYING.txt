@@ -1,3 +1,4 @@
 DIAGNOSTIC ONLY - NOT AUDIT EVIDENCE.
-Every image in this folder was captured through the forbidden name-rewriting run_renamed_producer.py.
-Per .agent/post-W6-shell-closeout-rulings.md ruling 4, each pair is a capture gap for the Q24/current-SHA verdict. See run.md.
+Every image in this batch's part-* folders was captured through the forbidden name-rewriting run_renamed_producer.py.
+Per .agent/post-W6-shell-closeout-rulings.md ruling 4 they are non-qualifying. The qualifying captures for this batch are in
+replacement/ (unmodified producer, owner DB authorization 2026-10-25). See run.md "Unmodified-producer replacement capture".
