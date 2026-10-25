@@ -1,4 +1,6 @@
-# post-W6 W1-mini-Action-b: build handoff (code + focused tests done; capture and closeout pending)
+# post-W6 W1-mini-Action-b: build handoff (built, captured, closed out; in_review)
+
+**Update 2026-10-25:** main (W1-a 3b4979d0) merged (d960eeee); 142/142 pairs captured; Q23 cap fallback e6af4ff0; full vitest, build, check-all run; packet `.agent/post-W6-W1-b-packet.md`. Open: Evidence requirements and Action history Q37 caps exceeded in synthetic probes with no ruled fallback (Architect). The "Remaining" list below is historical.
 
 Branch `task/post-W6-W1-b`, worktree `AssetOpsV1-review7`, base W1-a head `ec9bfbe9` (W1-a not merged yet). Rulings: `.agent/post-W6-W1-rulings.md` (cross-card 1-5, W1-b 30-47, 48-63) amended by `.agent/post-W6-W1-b-preflight-rulings.md` (copied from main, commit `48210ee6`).
 
