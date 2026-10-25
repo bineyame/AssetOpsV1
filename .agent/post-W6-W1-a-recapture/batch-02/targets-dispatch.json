@@ -1,0 +1,37 @@
+[
+ {
+  "id": "dispatch",
+  "case": "supported",
+  "url": "http://localhost:5183/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1"
+ },
+ {
+  "id": "dispatch",
+  "case": "limited",
+  "url": "http://localhost:5183/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1"
+ },
+ {
+  "id": "dispatch",
+  "case": "limited-no-selection",
+  "url": "http://localhost:5183/sites/KOBO-001/performance/dispatch?day=2026-10-09"
+ },
+ {
+  "id": "dispatch",
+  "case": "refused-failed",
+  "url": "http://localhost:5183/sites/KOBO-001/performance/dispatch?day=2026-10-07"
+ },
+ {
+  "id": "dispatch",
+  "case": "stale-pending",
+  "url": "http://localhost:5183/sites/KOBO-001/performance/dispatch?day=2026-10-05"
+ },
+ {
+  "id": "dispatch",
+  "case": "default-no-day",
+  "url": "http://localhost:5183/sites/KOBO-001/performance/dispatch"
+ },
+ {
+  "id": "dispatch",
+  "case": "window-id-as-revision",
+  "url": "http://localhost:5183/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=56a36c3f-cbbe-4c57-9dda-1a13e1376eea&block=1"
+ }
+]

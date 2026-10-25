@@ -1,0 +1,183 @@
+chrome pid 24724
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/da87d497-4796-47a7-a806-57ce369028a8: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-open 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-open 1440: mock rendered
+PASS  finding-open 1440: same panel count  {"app":["What happened","What limits this conclusion","What to do next","Where to look next"],"mock":["What happened","What limits this conclusion","What to do next","Where to look next"]}
+PASS  finding-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/da87d497-4796-47a7-a806-57ce369028a8: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-open 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-open 390: mock rendered
+PASS  finding-open 390: same panel count  {"app":["What happened","What limits this conclusion","What to do next","Where to look next"],"mock":["What happened","What limits this conclusion","What to do next","Where to look next"]}
+PASS  finding-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/da87d497-4796-47a7-a806-57ce369028a8?revision_id=6b141888-b73d-4d6c-9912-25c3c2a7756b: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-version1 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-version1 1440: mock rendered
+PASS  finding-version1 1440: same panel count  {"app":["What happened","What limits this conclusion","What to do next","Where to look next"],"mock":["What happened","What limits this conclusion","What to do next","Where to look next"]}
+PASS  finding-version1 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/da87d497-4796-47a7-a806-57ce369028a8?revision_id=6b141888-b73d-4d6c-9912-25c3c2a7756b: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-version1 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-version1 390: mock rendered
+PASS  finding-version1 390: same panel count  {"app":["What happened","What limits this conclusion","What to do next","Where to look next"],"mock":["What happened","What limits this conclusion","What to do next","Where to look next"]}
+PASS  finding-version1 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  finding-notfound 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-notfound 1440: mock rendered
+PASS  finding-notfound 1440: same panel count  {"app":["What happened","What limits this conclusion","What to do next","Where to look next"],"mock":["What happened","What limits this conclusion","What to do next","Where to look next"]}
+PASS  finding-notfound 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-notfound 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-notfound 390: mock rendered
+PASS  finding-notfound 390: same panel count  {"app":["What happened","What limits this conclusion","What to do next","Where to look next"],"mock":["What happened","What limits this conclusion","What to do next","Where to look next"]}
+PASS  finding-notfound 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/da87d497-4796-47a7-a806-57ce369028a8/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  finding-evidence-latest 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding-evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-evidence-latest 1440: mock rendered
+PASS  finding-evidence-latest 1440: same panel count  {"app":["Evidence bundle · Generator support merits review","Inspect source lineage"],"mock":["Evidence bundle · F-104","Inspect source lineage"]}
+PASS  finding-evidence-latest 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/da87d497-4796-47a7-a806-57ce369028a8/evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-evidence-latest 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding-evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-evidence-latest 390: mock rendered
+PASS  finding-evidence-latest 390: same panel count  {"app":["Evidence bundle · Generator support merits review","Inspect source lineage"],"mock":["Evidence bundle · F-104","Inspect source lineage"]}
+PASS  finding-evidence-latest 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  finding-evidence-notfound 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding-evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-evidence-notfound 1440: mock rendered
+PASS  finding-evidence-notfound 1440: same panel count  {"app":["Evidence bundle · Selected Finding","Inspect source lineage"],"mock":["Evidence bundle · F-104","Inspect source lineage"]}
+PASS  finding-evidence-notfound 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-evidence-notfound 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding-evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-evidence-notfound 390: mock rendered
+PASS  finding-evidence-notfound 390: same panel count  {"app":["Evidence bundle · Selected Finding","Inspect source lineage"],"mock":["Evidence bundle · F-104","Inspect source lineage"]}
+PASS  finding-evidence-notfound 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/da87d497-4796-47a7-a806-57ce369028a8/history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  finding-history-latest 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-history-latest 1440: mock rendered
+PASS  finding-history-latest 1440: same panel count  {"app":["Revision history"],"mock":["Revision history"]}
+PASS  finding-history-latest 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/da87d497-4796-47a7-a806-57ce369028a8/history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-history-latest 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-history-latest 390: mock rendered
+PASS  finding-history-latest 390: same panel count  {"app":["Revision history"],"mock":["Revision history"]}
+PASS  finding-history-latest 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/da87d497-4796-47a7-a806-57ce369028a8/history?revision_id=6b141888-b73d-4d6c-9912-25c3c2a7756b: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  finding-history-version1 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-history-version1 1440: mock rendered
+PASS  finding-history-version1 1440: same panel count  {"app":["Revision history"],"mock":["Revision history"]}
+PASS  finding-history-version1 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/da87d497-4796-47a7-a806-57ce369028a8/history?revision_id=6b141888-b73d-4d6c-9912-25c3c2a7756b: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-history-version1 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-history-version1 390: mock rendered
+PASS  finding-history-version1 390: same panel count  {"app":["Revision history"],"mock":["Revision history"]}
+PASS  finding-history-version1 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  finding-history-notfound 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-history-notfound 1440: mock rendered
+PASS  finding-history-notfound 1440: same panel count  {"app":["Revision history"],"mock":["Revision history"]}
+PASS  finding-history-notfound 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-history-notfound 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-history-notfound 390: mock rendered
+PASS  finding-history-notfound 390: same panel count  {"app":["Revision history"],"mock":["Revision history"]}
+PASS  finding-history-notfound 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitefindings-stocked 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitefindings-stocked 1440: mock rendered
+PASS  sitefindings-stocked 1440: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-stocked 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-stocked 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-stocked 390: mock rendered
+PASS  sitefindings-stocked 390: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-stocked 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitefindings-page2 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitefindings-page2 1440: mock rendered
+PASS  sitefindings-page2 1440: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-page2 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-page2 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-page2 390: mock rendered
+PASS  sitefindings-page2 390: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-page2 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitefindings-empty 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitefindings-empty 1440: mock rendered
+PASS  sitefindings-empty 1440: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-empty 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-empty 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-empty 390: mock rendered
+PASS  sitefindings-empty 390: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-empty 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitefindings-stale 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitefindings-stale 1440: mock rendered
+PASS  sitefindings-stale 1440: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-stale 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-stale 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-stale 390: mock rendered
+PASS  sitefindings-stale 390: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-stale 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitefindings-failed 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitefindings-failed 1440: mock rendered
+PASS  sitefindings-failed 1440: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-failed 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-failed 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-failed 390: mock rendered
+PASS  sitefindings-failed 390: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-failed 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitefindings-unassessed 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitefindings-unassessed 1440: mock rendered
+PASS  sitefindings-unassessed 1440: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-unassessed 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-unassessed 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-unassessed 390: mock rendered
+PASS  sitefindings-unassessed 390: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-unassessed 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitefindings-nowindow 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitefindings-nowindow 1440: mock rendered
+PASS  sitefindings-nowindow 1440: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-nowindow 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-nowindow 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/sitefindings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-nowindow 390: mock rendered
+PASS  sitefindings-nowindow 390: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  sitefindings-nowindow 390: no app page overflow  {"overflowX":0}
+
+180/180 claims passed; evidence in .agent/post-W6-W1-a-recapture/batch-03/part-s404

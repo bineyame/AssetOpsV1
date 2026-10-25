@@ -124,12 +124,37 @@ Every ruling, with file anchors, is in `.agent/post-W6-W1-a-handoff.md` "What la
 **Other checks**
 - Production build (`npm run build`) at 56d36bf2: passed. The only warning is the existing chunk-size warning.
 - `tsc --noEmit`: clean.
-- `check-all.ps1` at de2da2fc: all 11 guards passed. To re-run at the final SHA.
+- `check-all.ps1` at de2da2fc: all 11 guards passed. Final-SHA rerun: see the closeout commit.
 - Backend suite: not run, because this is a frontend-only slice (coordinator).
 
 ## Captures
 
-CAPTURE_SECTION
+Recapture: `.agent/post-W6-W1-a-recapture/index.md`. Per-batch `run.md` files give the producers, DBs and ports.
+
+**Coverage**
+- 98 of 98 pairs captured at 56d36bf2, at 1440 and 390: the 88 indexed W1-a pairs and 10 Q40 representatives.
+- Later commits change only comments and register text, so the captures match the final SHA.
+
+**Results**
+- No capture gaps.
+- overflowX is 0 on every pair.
+- 96 of 98 pairs match the frozen panel titles. The two that differ are dispatch `window-id-as-revision`, where the frozen run was a blank page and this run shows the R178 refusal: "This assessment cannot be shown as 15-minute blocks", with "Open this day".
+
+**Closed caps: all pass.** Each value is the highest among the cases that are not exempt.
+
+| Screen | Panel | 1440 (cap) | 390 (cap) |
+|---|---|---|---|
+| finding | What happened | no cap at 1440 | 562 (600) |
+| finding | What limits this conclusion | 343 (450) | 493 (800) |
+| finding | Where to look next | 613 (650) | 716 (1000) |
+| finding-history | Revision history | 635 (850) | 1188 (2000) |
+| dispatch | Selected block | not measured | 640 (750); refusal 126 |
+| evidence-analysis | How each limit is set | 311 (400) | 542 (800) |
+| evidence-analysis | Accepted records behind the conclusions | 919 (1200) | 1097 (1800) |
+
+**Q11 and Q15 fallbacks:** not applied, because the measurements do not require them.
+
+**Five-long-row case (Q38, Q42):** a capture gap. The producers cannot make five 160-character related-Finding or limit rows, because the rows are fixed words. Unit tests confirm every related and limit row renders. Height cannot be measured in jsdom.
 
 ## Known deviations
 

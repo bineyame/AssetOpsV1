@@ -1,0 +1,1294 @@
+{
+  "revision": "56d36bf2",
+  "captured_at": "2026-10-25T04:42:31.748Z",
+  "pairs": [
+    {
+      "screen": "opportunity-finding",
+      "case": "supported-current",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5183/sites/MG-W402-001/opportunities/9c2f231c-93a5-4a29-a953-9301277cf1fc",
+      "mock_hash": "#/opportunity-finding",
+      "app_image": "opportunity-finding-supported-current-1440-app.png",
+      "mock_image": "opportunity-finding-supported-current-1440-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Mini-grid depth demonstration",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Open site",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/opportunities/9c2f231c-93a5-4a29-a953-9301277cf1fc",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000000Z&to=2026-10-10T21%3A00%3A00.000000Z&known_at=2026-10-25T04%3A42%3A40.876713Z",
+            "text": "Open renewable evaluation",
+            "panel": "Next decision"
+          }
+        ],
+        "titles": [
+          "Bounded opportunity",
+          "Next decision",
+          "Consequence basis"
+        ],
+        "panels": [
+          {
+            "title": "Bounded opportunity",
+            "x": 248,
+            "y": 355,
+            "w": 1160,
+            "h": 216,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next decision",
+            "x": 248,
+            "y": 589,
+            "w": 734,
+            "h": 267,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Consequence basis",
+            "x": 1000,
+            "y": 589,
+            "w": 408,
+            "h": 267,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Productive-use headroom at Mini-grid depth demonstration",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "19px": 1,
+          "14px": 4,
+          "11px": 5
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Global Findings unavailable; this opportunity is reached from Renewable evaluation.OPP-000001Overview· site: Mini-grid depth demonstration Productive-use headroom at Mini-grid depth demonstration Five-day renewable headroom and an explicitly authored scenario, with evidence and demand limits. Open site Overview OPP-000001 · Opportunity Confidence: Not assessed Current selection Recommendation · demand unverified Usable headroom 18–20 kW After the selected retained margin Eligible days 4 / 5 Separate five-day study Proposed load 10 kW Linked scenario (name unavailable) Gross sales scenario $2.50 Before costs; collections unverified Bounded opportunity Renewable capacity appears available for a one-hour productive load in 4 adequately observed windows. Electrical feasibility does not establish customer demand, collections or a realised financial benefit. Inspect opportunity evidence Next decision Validate local demand, schedule any proposed load, and check critical service and storage guardrails before a trial. Open renewable evaluation Consequence basis Technical quantity 18–20 kW usable headroom Scenario energy Unavailable in this read Tariff Unavailable in this read Gross sales $2.50 · scenario Managed Action Not yet accepted"
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Open site",
+            "panel": ""
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "#/renewable",
+            "text": "Open renewable evaluation",
+            "panel": "Next decision"
+          }
+        ],
+        "titles": [
+          "Bounded opportunity",
+          "Next decision",
+          "Consequence basis"
+        ],
+        "panels": [
+          {
+            "title": "Bounded opportunity",
+            "x": 234,
+            "y": 498,
+            "w": 1161,
+            "h": 208,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next decision",
+            "x": 234,
+            "y": 723,
+            "w": 735,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Consequence basis",
+            "x": 987,
+            "y": 723,
+            "w": 408,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1057,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Productive-use headroom at Kobo",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "19px": 1,
+          "12px": 2,
+          "14px": 2,
+          "11px": 5
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1013
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "opportunity-finding",
+      "case": "supported-current",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5183/sites/MG-W402-001/opportunities/9c2f231c-93a5-4a29-a953-9301277cf1fc",
+      "mock_hash": "#/opportunity-finding",
+      "app_image": "opportunity-finding-supported-current-390-app.png",
+      "mock_image": "opportunity-finding-supported-current-390-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Mini-grid depth demonstration",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Open site",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/opportunities/9c2f231c-93a5-4a29-a953-9301277cf1fc",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000000Z&to=2026-10-10T21%3A00%3A00.000000Z&known_at=2026-10-25T04%3A42%3A47.231906Z",
+            "text": "Open renewable evaluation",
+            "panel": "Next decision"
+          }
+        ],
+        "titles": [
+          "Bounded opportunity",
+          "Next decision",
+          "Consequence basis"
+        ],
+        "panels": [
+          {
+            "title": "Bounded opportunity",
+            "x": 16,
+            "y": 714,
+            "w": 358,
+            "h": 302,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next decision",
+            "x": 16,
+            "y": 1034,
+            "w": 358,
+            "h": 199,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Consequence basis",
+            "x": 16,
+            "y": 1249,
+            "w": 358,
+            "h": 267,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1556,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Productive-use headroom at Mini-grid depth demonstration",
+          "top": 170,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "19px": 1,
+          "14px": 4,
+          "11px": 5
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "mainText": "Global Findings unavailable; this opportunity is reached from Renewable evaluation.OPP-000001Overview· site: Mini-grid depth demonstration Productive-use headroom at Mini-grid depth demonstration Five-day renewable headroom and an explicitly authored scenario, with evidence and demand limits. Open site Overview OPP-000001 · Opportunity Confidence: Not assessed Current selection Recommendation · demand unverified Usable headroom 18–20 kW After the selected retained margin Eligible days 4 / 5 Separate five-day study Proposed load 10 kW Linked scenario (name unavailable) Gross sales scenario $2.50 Before costs; collections unverified Bounded opportunity Renewable capacity appears available for a one-hour productive load in 4 adequately observed windows. Electrical feasibility does not establish customer demand, collections or a realised financial benefit. Inspect opportunity evidence Next decision Validate local demand, schedule any proposed load, and check critical service and storage guardrails before a trial. Open renewable evaluation Consequence basis Technical quantity 18–20 kW usable headroom Scenario energy Unavailable in this read Tariff Unavailable in this read Gross sales $2.50 · scenario Managed Action Not yet accepted"
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Open site",
+            "panel": ""
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "#/renewable",
+            "text": "Open renewable evaluation",
+            "panel": "Next decision"
+          }
+        ],
+        "titles": [
+          "Bounded opportunity",
+          "Next decision",
+          "Consequence basis"
+        ],
+        "panels": [
+          {
+            "title": "Bounded opportunity",
+            "x": 15,
+            "y": 864,
+            "w": 360,
+            "h": 308,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next decision",
+            "x": 15,
+            "y": 1189,
+            "w": 360,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Consequence basis",
+            "x": 15,
+            "y": 1400,
+            "w": 360,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1762,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Productive-use headroom at Kobo",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "19px": 1,
+          "12px": 2,
+          "14px": 2,
+          "11px": 5
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "alternatives",
+      "case": "db-time-409",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5183/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555/alternatives?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78",
+      "mock_hash": "#/alternatives",
+      "app_image": "alternatives-db-time-409-1440-app.png",
+      "mock_image": "alternatives-db-time-409-1440-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Open site",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78&view=analysis",
+            "text": "Analysis",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555/evidence?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555/alternatives?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78",
+            "text": "Alternatives",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555/recommendation?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78",
+            "text": "Recommendation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555/history?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78",
+            "text": "History",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Alternatives to investigate"
+        ],
+        "panels": [
+          {
+            "title": "Alternatives to investigate",
+            "x": 248,
+            "y": 205,
+            "w": 1160,
+            "h": 99,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Generator support merits review: bounded candidate avoidable running",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs finding-sections",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence",
+              "Alternatives*",
+              "Recommendation",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "FindingsFinding code unavailableAlternatives· site: Kobo mini-grid Generator support merits review: bounded candidate avoidable running Kobo mini-grid · generator support finding Open site Overview Analysis Evidence Alternatives Recommendation History Analysis unavailable for this authored alternative; use the Finding overview and evidence. Alternatives to investigate The evidence changed. Reload this page. Candidate runtime is not proof that stopping the generator would have preserved service."
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Open site",
+            "panel": ""
+          },
+          {
+            "href": "#/finding",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "#/analysis",
+            "text": "Analysis",
+            "panel": ""
+          },
+          {
+            "href": "#/finding-evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "#/alternatives",
+            "text": "Alternatives",
+            "panel": ""
+          },
+          {
+            "href": "#/recommendation",
+            "text": "Recommendation",
+            "panel": ""
+          },
+          {
+            "href": "#/finding-history",
+            "text": "History",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Alternatives to investigate"
+        ],
+        "panels": [
+          {
+            "title": "Alternatives to investigate",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Explanation",
+              "Evidence",
+              "Disposition"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Generator support review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence",
+              "Alternatives*",
+              "Recommendation",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "alternatives",
+      "case": "db-time-409",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5183/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555/alternatives?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78",
+      "mock_hash": "#/alternatives",
+      "app_image": "alternatives-db-time-409-390-app.png",
+      "mock_image": "alternatives-db-time-409-390-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Open site",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78&view=analysis",
+            "text": "Analysis",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555/evidence?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555/alternatives?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78",
+            "text": "Alternatives",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555/recommendation?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78",
+            "text": "Recommendation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555/history?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78",
+            "text": "History",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Alternatives to investigate"
+        ],
+        "panels": [
+          {
+            "title": "Alternatives to investigate",
+            "x": 16,
+            "y": 417,
+            "w": 358,
+            "h": 99,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Generator support merits review: bounded candidate avoidable running",
+          "top": 149,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs finding-sections",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence",
+              "Alternatives*",
+              "Recommendation",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 405,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "mainText": "FindingsFinding code unavailableAlternatives· site: Kobo mini-grid Generator support merits review: bounded candidate avoidable running Kobo mini-grid · generator support finding Open site Overview Analysis Evidence Alternatives Recommendation History Analysis unavailable for this authored alternative; use the Finding overview and evidence. Alternatives to investigate The evidence changed. Reload this page. Candidate runtime is not proof that stopping the generator would have preserved service."
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Open site",
+            "panel": ""
+          },
+          {
+            "href": "#/finding",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "#/analysis",
+            "text": "Analysis",
+            "panel": ""
+          },
+          {
+            "href": "#/finding-evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "#/alternatives",
+            "text": "Alternatives",
+            "panel": ""
+          },
+          {
+            "href": "#/recommendation",
+            "text": "Recommendation",
+            "panel": ""
+          },
+          {
+            "href": "#/finding-history",
+            "text": "History",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Alternatives to investigate"
+        ],
+        "panels": [
+          {
+            "title": "Alternatives to investigate",
+            "x": 15,
+            "y": 432,
+            "w": 360,
+            "h": 331,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Explanation",
+              "Evidence",
+              "Disposition"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1015,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Generator support review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence",
+              "Alternatives*",
+              "Recommendation",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 427,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

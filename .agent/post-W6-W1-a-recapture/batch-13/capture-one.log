@@ -1,0 +1,27 @@
+chrome pid 1436
+PASS  loaded http://localhost:5183/sites/MG-W402-001/opportunities/9c2f231c-93a5-4a29-a953-9301277cf1fc: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  opportunity-finding-supported-current 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/opportunity-finding: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  opportunity-finding-supported-current 1440: mock rendered
+PASS  opportunity-finding-supported-current 1440: same panel count  {"app":["Bounded opportunity","Next decision","Consequence basis"],"mock":["Bounded opportunity","Next decision","Consequence basis"]}
+PASS  opportunity-finding-supported-current 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/MG-W402-001/opportunities/9c2f231c-93a5-4a29-a953-9301277cf1fc: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  opportunity-finding-supported-current 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/opportunity-finding: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  opportunity-finding-supported-current 390: mock rendered
+PASS  opportunity-finding-supported-current 390: same panel count  {"app":["Bounded opportunity","Next decision","Consequence basis"],"mock":["Bounded opportunity","Next decision","Consequence basis"]}
+PASS  opportunity-finding-supported-current 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555/alternatives?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  alternatives-db-time-409 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/alternatives: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  alternatives-db-time-409 1440: mock rendered
+PASS  alternatives-db-time-409 1440: same panel count  {"app":["Alternatives to investigate"],"mock":["Alternatives to investigate"]}
+PASS  alternatives-db-time-409 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555/alternatives?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  alternatives-db-time-409 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/alternatives: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  alternatives-db-time-409 390: mock rendered
+PASS  alternatives-db-time-409 390: same panel count  {"app":["Alternatives to investigate"],"mock":["Alternatives to investigate"]}
+PASS  alternatives-db-time-409 390: no app page overflow  {"overflowX":0}
+
+24/24 claims passed; evidence in .agent/post-W6-W1-a-recapture/batch-13/part-one
