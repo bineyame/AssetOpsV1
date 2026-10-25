@@ -145,3 +145,32 @@ chars), 0 clipped closed and all-open, 0 document overflow; 390 tables keep thei
 - EV depth refused pages (B16-01) still show raw codes until W5-EV-Work.
 - Frontend only; no backend change, so no backend suite is required for this card.
 - USER_REVIEW: owner sees it in the post-W6 walkthrough; merge on independent review ACCEPT.
+
+## Fix round (review f70b7026: M1, M2, L1-L3)
+
+Code commit `4cb4ecc3`. Each change has a focused test and a single-file revert proof (file mutated, test run, `git checkout`):
+M1 labels (R420 in `EvAssessmentViews.tsx` -> 1 failed; R421 in `EvSiteViews.tsx` -> 1 failed); M2 (`EvFindingIndex` search -> 2 failed);
+L1 (`role` -> 15 failed in the refusal matrix); L2 (`siteZoneAvailable` -> 1 failed); L3 (cursor guard -> 1 failed). Tree clean after each.
+
+- M1: `mock-deviation-line` `data-mock-deviation="R420"` beside the Q4 outside-outcomes line (only when the line shows) and `"R421"`
+  beside every billing chip (Financials Assumptions-in-use panel and Assumptions table). Text `MOCK DEVIATION D4 (R420)` / `(R421)`.
+  One assertion per label; absent when the Q4 line is absent.
+- M2: `EvFindingIndex` takes `findingBase`/`sessionsBase` and appends `selectedWindowSearch(body)` (the read's from, to, known_at).
+  Test now expects `known_at` on both hrefs; new no-window `inventory-check` case expects the read's window and cutoff.
+- L1: `RefusedGap` sentence has `role="alert"`; `expectOneRefusal` now asserts exactly one `[role=alert]` (the sentence) and no `.notice`.
+  The EV Findings refusal test asserts one alert.
+- L2: Analysis headers with a missing/invalid Site zone read `Measured (UTC; Site time zone unavailable)` (same for Sent/Received);
+  `siteZoneAvailable` added to `siteTime.ts`. Test updated at the old `Measured (UTC)` assertion.
+- L3: the cursor line shows only when items exist. An empty list with a cursor shows just the empty sentence. Items plus cursor keep
+  "Showing the first N Findings; paging is not available on this page." (cursor paging not added: `listFindings` takes no cursor and
+  no ruling covers it; open for the Architect if a 50-Finding EV Site matters).
+
+Choices made: (a) L2 header uses `UTC; Site time zone unavailable` inside the existing parentheses rather than a nested `UTC (Site
+time zone unavailable)`, guide section 4 "equivalent explicit suffix"; cells stay bare clock values. (b) The R421 label is a span
+directly after the chip (guide section 5: visible and adjacent); no new CSS. (c) Cursor line hidden for an empty list, guide section 3.
+
+Checks at `4cb4ecc3`: `tsc --noEmit` exit 0; `tools/check-all.ps1 -Python <main .venv>` all 11 guards passed; full vitest 133 files passed.
+Recapture `.agent/post-W6-W2-EV-recapture/r3/` (producer `W2-F-evidence/seed.py` unmodified, `*_w2evrc_{i,m}_test` DBs dropped, API 18478
+and Vite 5197 stopped by PID, no listeners left): interrupted sessions 4 cases, ev-findings 2, ev-financials 4, ev-assumptions 4 at
+1440/390 (72/72 and 96/96 claims) and missing-meter sessions 2 cases (24/24). The 390 missing-meter Sessions and 1440 Assumptions
+captures show `MOCK DEVIATION D4 (R420)` / `(R421)`. r3 supersedes the same-named r2 pairs for these cases.
