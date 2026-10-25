@@ -1,0 +1,5 @@
+
+=== 1. Isolated work directory, database and TLS material ===
+Work directory: C:\Users\assef\Bineyame\AssetOpsV1-review5\var\s404_owner_w2evrc (code from git HEAD 93e6d9bb; own var/)
+Database: assetops_s404_owner_w2evrc_audit (dropped and recreated; the developer database is not touched)
+Imported KOBO-001: Imported KOBO-001 site=cc96b641-29ff-4d1d-836d-54d25780d4a6 revision=7816ceec-aa8a-4c39-8381-32d2778beff7 v1 assets=10 sources=8 sha256=459e0b70a0ba461a59d80525
