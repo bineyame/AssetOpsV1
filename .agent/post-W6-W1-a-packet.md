@@ -5,7 +5,7 @@
 **Branch:** `task/post-W6-W1-a`. Main (shell 4fc39160, W3-estate d9a73b80) is merged in.
 **Reviewer diff:** `git diff main...HEAD -- ':!.agent'`.
 **Product commits:** 575fc2ab, b09a5c07, cf4266f0, 2afb0fcf, de2da2fc, 56d36bf2.
-**User review:** none of its own. Per the owner-absent / W1 rules it merges on independent review ACCEPT; the owner sees it in the post-W6 walkthrough. The D2 rows R387, R390 and R393 wait for owner approval there.
+**User review:** none of its own. Per the owner-absent / W1 rules it merges on independent review ACCEPT; the owner sees it in the post-W6 walkthrough. The D2 rows R389, R392 and R395 wait for owner approval there.
 
 ## Outcome delivered
 
@@ -78,7 +78,7 @@ Every ruling, with file anchors, is in `.agent/post-W6-W1-a-handoff.md` "What la
 
 **Register:** `.agent/mock-departure-register.md`
 - R21 is narrowed.
-- New rows R384-R393. R383 is left for W1-b.
+- New rows R386-R395. R383-R385 belong to W1-b.
 
 ## Acceptance criteria (rulings), status
 
@@ -101,9 +101,9 @@ Every ruling, with file anchors, is in `.agent/post-W6-W1-a-handoff.md` "What la
 | Q16 R193 | done | `siteFindingEvidence`, `siteFindingHistory`, `miniDecisions`, `w1f4RecommendationStructure` |
 | Q17 R195 | done; cap see Captures | `siteFindingHistory` Q17 (EAT, UTC fallback); `findingTime` boundary day |
 | Q18 R196 | done | `s404SiteFindingIndex` (lenses above strip, disabled, Manage URL) |
-| G1/Q46 splits | done | R385-R392 rows, plus `MOCK DEVIATION` source labels |
-| Q47 | done | R384 backlog row (global error boundary) |
-| Q52 | done | R393 row, plus source label |
+| G1/Q46 splits | done | R387-R394 rows, plus `MOCK DEVIATION` source labels |
+| Q47 | done | R386 backlog row (global error boundary) |
+| Q52 | done | R395 row, plus source label |
 | Cross-card 1 | done | `measuredTime.test.ts` (shell's tests plus the delegation case), `siteAction.test.tsx` title contract |
 
 **Mutation proofs:** every new test fails with its fix reverted.

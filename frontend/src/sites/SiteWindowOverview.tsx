@@ -676,7 +676,7 @@ function ObjectiveCards({
         }}
       />
       {/* Q48: Battery links to its mounted Asset page; it keeps its no-condition value and no status tone.
-          MOCK DEVIATION D1 (R385): the cards' values stay the stored words ("Assessed", "Not available"), not the
+          MOCK DEVIATION D1 (R387): the cards' values stay the stored words ("Assessed", "Not available"), not the
           mock's numbers; only the footer link and the Dispatch border were the D3 fix (R157). */}
       <MetricCard
         label="Battery"
@@ -877,7 +877,7 @@ function Timeline({ summary }: { summary: SiteWindowSummary }) {
   );
 }
 
-/** MOCK DEVIATION D1 (R386): the mock's operating-context lanes stay as the W1-F5b-ruled timeline/context rows. */
+/** MOCK DEVIATION D1 (R388): the mock's operating-context lanes stay as the W1-F5b-ruled timeline/context rows. */
 function Context({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
   const c = summary.context;
   if (c.series === null || c.coverage === null) {

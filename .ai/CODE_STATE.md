@@ -5880,5 +5880,5 @@ Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `
 - `SiteFindingHistory` `timeZone`: `Time ({zone})`, local `D Mon · HH:MM`.
 - `SiteFindingIndex`: `LensRow`/`ManageHref` contexts, `LensChips({hrefs})` (literal unbuilt chips), `FindingIndexLinks.manage`.
 - Guards: navigation inventory has Alternatives (not Analysis); panelStructure admits the Q16 line.
-- Register: R21 narrowed; R384 (error-boundary backlog), R385-R392 G1 split-offs, R393 (Q52 Finding Site tabs).
+- Register: R21 narrowed; R386 (error-boundary backlog), R387-R394 G1 split-offs, R395 (Q52 Finding Site tabs).
 - Open: Q11/Q15 cap fallbacks depend on the capture caps table; W2-EV/W2-cold rebase over the mini Finding hunks.

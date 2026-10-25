@@ -549,7 +549,7 @@ function FindingStatusBar({ body, timeZone }: { body: FindingDetailBody; timeZon
   return (
     <StatusBar items label="Finding status" data={{ "data-finding-statusbar": "" }}>
       {/* W1-F3 review H2: the mock's Priority and Confidence chips; no read assesses either yet. */}
-      {/* MOCK DEVIATION D1 (R388): the mock's Priority, Confidence, Claim and Lens chips have no stored read. */}
+      {/* MOCK DEVIATION D1 (R390): the mock's Priority, Confidence, Claim and Lens chips have no stored read. */}
       <span className="badge badge--not-assessed" data-chip="priority" data-not-assessed>
         Priority: not assessed
       </span>
@@ -915,7 +915,7 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
           </li>
         ) : null}
       </ul>
-      {/* MOCK DEVIATION D2 (R390): the closed "Access and review context" disclosure is extra, truthful context. */}
+      {/* MOCK DEVIATION D2 (R392): the closed "Access and review context" disclosure is extra, truthful context. */}
       <ShowAll name="finding-limits-context" summary="Access and review context">
         <ul className="site-finding__limits v69-prose" data-finding-limits-context>
           <li>Shown under the pilot&apos;s development access; sign-in and per-person access are not installed yet.</li>
@@ -943,7 +943,7 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
 }
 
 /** finding:3 "What to do next". */
-/** MOCK DEVIATION D1 (R389): no stored next-step heading or policy text; the rule's own words stand in. */
+/** MOCK DEVIATION D1 (R391): no stored next-step heading or policy text; the rule's own words stand in. */
 function WhatNext({ body, links }: { body: FindingDetailBody; links: SiteFindingLinks }) {
   return (
     <Panel heading="What to do next" headingId="site-finding-next-heading">
@@ -1045,7 +1045,7 @@ function WhereToLook({ body, links, params }: { body: FindingDetailBody; links: 
         </ul>
       ),
     },
-    // MOCK DEVIATION D1 (R391): no stored linked Action for the mock's "Linked action" item; Related Findings stand.
+    // MOCK DEVIATION D1 (R393): no stored linked Action for the mock's "Linked action" item; Related Findings stand.
     {
       key: "related",
       title: "Related Findings",
