@@ -167,3 +167,23 @@
   color: #8e580c;
   border-color: #c9a24a;
 }
+
+/* post-W6 W2-cold cap fallback (wrapping/column width): at desktop width the cold Findings title column takes the
+   width the typed one-word columns do not need, so a long title wraps in fewer lines; rows keep the mini index's
+   8px cell padding (the shared table padding otherwise wins on this table) and the episode line sits on its own
+   14px line. */
+table.data-table[aria-labelledby="cold-findings-heading"] .finding-index-row td {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+table.data-table[aria-labelledby="cold-findings-heading"] .finding-index-row td:first-child small {
+  display: block;
+  line-height: 14px;
+}
+
+@media (min-width: 900px) {
+  table[aria-labelledby="cold-findings-heading"] .finding-index-row td:first-child {
+    min-width: 34rem;
+  }
+}

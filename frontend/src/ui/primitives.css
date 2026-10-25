@@ -4853,6 +4853,11 @@ ul.evidence-notes li { font-size: inherit; }
   box-shadow: 0 0 0 1px #c15d5d;
 }
 
+.v69-timeline__event--ok::before {
+  background: #2f8f6f;
+  box-shadow: 0 0 0 1px #2f8f6f;
+}
+
 .v69-timeline__event--gap::before {
   background: #c9d2de;
   box-shadow: 0 0 0 1px #9aa8ba;

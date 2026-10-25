@@ -1,0 +1,223 @@
+
+=== 1. Isolated work directory, database and TLS material ===
+Work directory: C:\Users\assef\Bineyame\AssetOpsV1-ops04\var\s404_owner_w2coldrc (code from git HEAD 8d1c0d59; own var/)
+Database: assetops_s404_owner_w2coldrc_audit (dropped and recreated; the developer database is not touched)
+Imported KOBO-001: Imported KOBO-001 site=b39a60af-f380-4c2b-8898-f769c12ec0b7 revision=164280a9-cd5c-4b89-a376-9e408d6c3201 v1 assets=10 sources=8 sha256=459e0b70a0ba461a59d80525
+Published bindings: Foundation revisions inserted: v2; superseded: 1.
+New TLS certificate C:\Users\assef\Bineyame\AssetOpsV1-ops04\var\s404_owner_w2coldrc\tls\server.crt (sha256 Fingerprint=50:D8:27:5B:DE:A6:79:01:FC:6B:94:B9:9F:61:E0:F5:05:BB:CF:C9:3D:B3:BB:2A:77:AE:6D:A5:3C:B1:1F:F7); key restricted to the current user
+
+=== 2. TLS product server, registered gateway credential, demo configuration (roles-2) ===
+  Issued aog1.9cf6398b83fe579824ca30316c1b826a.<redacted> for gateway 'edge-kobo-001'; revoked 0 earlier credential(s); enabled the gateway and 8 named source(s). The secret was written only to C:\Users
+  Credential file: upload.credential.9cf6398b83fe579824ca30316c1b826a (in C:\Users\assef\Bineyame\AssetOpsV1-ops04\var\s404_owner_w2coldrc\credentials)
+  SIMULATED DEMO CONFIGURATION s3-dispatch-demo-config-v1 from `backend/conversions/kobo-001-s3-dispatch-demo-config.json` (sha256 0cc67a9e60909d5a0536cf4dfd3023d575978f7eb138158e892b58350f0400f6).
+  sealing basis: binding set v5 (6d74f0b4-6216-4418-89e8-4d8b1f12e5c5), Foundation v6, snapshot a64206942980385d..
+
+=== 3. Setup controls (labelled fixture controls) ===
+  setup: reserve = 20 from 2026-10-03T00:00:00Z (Foundation revision 84b3d3f5-3d43-4237-9f66-53e5acccb30c)
+  setup: runtime = 0 from 2026-10-03T00:00:00Z (Foundation revision a34a1e1e-87f1-4188-947f-de6ed782ecf7)
+
+=== 4. F01 candidate-open (2026-10-06) ===
+  F01 deliver (s4-fixture-epoch-1): 93 readings in 6 batches; held []
+  F01 assess: 1 job(s), 1 run(s)
+  F01 match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+
+=== 5. F02 overlap-adjacent-cross-day (2026-10-08) ===
+  F02 deliver (s4-fixture-epoch-1): 94 readings in 6 batches; held []
+  F02 assess: 1 job(s), 2 run(s)
+  F02 match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  F02 deliver (s4-fixture-epoch-1): 36 readings in 6 batches; held []
+  F02 assess: 1 job(s), 2 run(s)
+  F02 match: planned 1, new Findings 0, new revisions 1, expected 1 OK
+
+=== 6. F03 recurrence (2026-10-11) ===
+  F03 deliver (s4-fixture-epoch-1): 102 readings in 6 batches; held []
+  F03 assess: 1 job(s), 1 run(s)
+  F03 match: planned 2, new Findings 2, new revisions 2, expected 2 OK
+
+=== 7. F04 late-earlier-acceptance (2026-10-13) ===
+  F04 deliver (s4-fixture-epoch-1): 50 readings in 6 batches; held ['earlier']
+  F04 assess: 1 job(s), 1 run(s)
+  F04 match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  F04 release earlier: 6 batches (earlier-sequenced reports held at the gateway, accepted late)
+  F04 assess: 1 job(s), 1 run(s)
+  F04 match: planned 1, new Findings 0, new revisions 1, expected 1 OK
+
+=== 8. F06 split-and-bridge (2026-10-15) ===
+  F06 deliver (s4-fixture-epoch-1): 228 readings in 6 batches; held ['bridge', 'contradiction']
+  F06 assess: 1 job(s), 1 run(s)
+  F06 match: planned 3, new Findings 3, new revisions 3, expected 3 OK
+  F06 release contradiction: 1 batches (second PV report at the same instants (REPORTS_OVERLAP), accepted late)
+  F06 assess: 1 job(s), 1 run(s)
+  F06 match: planned 4, new Findings 1, new revisions 4, expected 4 OK
+  F06 release bridge: 6 batches (reports filling the unobserved gap, accepted late)
+  F06 assess: 1 job(s), 1 run(s)
+  F06 match: planned 4, new Findings 0, new revisions 4, expected 4 OK
+
+=== 9. F08 retry-and-absent-basis (2026-10-19) ===
+  F08 match: planned 0, new Findings 0, new revisions 0, expected 0 OK
+  F08 deliver (s4-fixture-epoch-1): 51 readings in 6 batches; held []
+  F08 match: planned 0, new Findings 0, new revisions 0, expected 0 OK
+  F08 deliver (s4-fixture-epoch-2): 1 readings in 1 batches; held []
+  F08 assess: 1 job(s), 1 run(s)
+  F08 match: planned 0, new Findings 0, new revisions 0, expected 0 OK
+
+=== 10. F05 limitation-and-closure (2026-10-21) ===
+  F05 deliver (s4-fixture-epoch-1): 93 readings in 6 batches; held []
+  F05 assess: 1 job(s), 1 run(s)
+  F05 match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  F05: runtime = 120 from 2026-10-21T00:00:00Z (Foundation revision e5e11205-cbb9-4ed3-8d00-86068811149b)
+  F05 assess: 7 job(s), 8 run(s)
+  F05 match: planned 9, new Findings 0, new revisions 9, expected 1 + collateral OK
+  F05: runtime = 0 from 2026-10-21T00:00:00Z (Foundation revision 592de072-a021-4483-9c2f-f12e7bd9cb9a)
+  F05: reserve = 45 from 2026-10-21T00:00:00Z (Foundation revision a97bab25-4c72-4a1c-a910-e1a65e6b5e8e)
+  F05 assess: 1 job(s), 1 run(s)
+  F05 match: planned 1, new Findings 0, new revisions 1, expected 1 + collateral OK
+  F05 match: planned 0, new Findings 0, new revisions 0, expected 0 OK
+
+=== EMPTY 2026-10-25: one non-candidate block, assessed and matched (assessed zero rows) ===
+  E1 deliver (s4-fixture-epoch-1): 51 readings in 6 batches; held []
+  E1 assess: 1 job(s), 1 run(s)
+  E1 match: planned 0, new Findings 0, new revisions 0, expected 0 + collateral OK
+
+=== DIRTY 2026-10-27: assessed and matched, then late evidence left unassessed ===
+  D1 deliver (s4-fixture-epoch-1): 51 readings in 6 batches; held []
+  D1 assess: 1 job(s), 1 run(s)
+  D1 match: planned 0, new Findings 0, new revisions 0, expected 0 + collateral OK
+
+=== FAILED 2026-11-05: delivered, then a scoped failing assessment (walkthrough-only model) ===
+  X1 deliver (s4-fixture-epoch-1): 51 readings in 6 batches; held []
+  staged: FAILED 2026-11-05
+  D2 deliver (s4-fixture-epoch-1): 51 readings in 6 batches; held []
+UNASSESSED 2026-10-30: nothing delivered
+
+=== Stopping every process this script started ===
+
+=== Performance comparison (source gate) ===
+  Performance comparison (source gate): exit 0 -> OPEN
+
+=== Verify every window through the served index ===
+{
+ "positive": {
+  "http": 200,
+  "status": "CURRENT",
+  "total_count": 3,
+  "rows": [
+   [
+    "6001c6c3-7e9b-4274-8fa4-e5b9b9384a2c",
+    "5a33159a-d6ed-4b59-a4fe-79da9c1b15d7",
+    "2026-10-15T12:00:00Z"
+   ],
+   [
+    "1b8ec32f-3d59-4376-b178-f51e764ea0a7",
+    "053df633-fc3d-477b-b1f0-2ed53077eae0",
+    "2026-10-15T09:15:00Z"
+   ],
+   [
+    "626c4a23-e972-4c7f-babf-f0355a430601",
+    "725132a4-ff41-4204-ba87-abd46433f407",
+    "2026-10-15T08:00:00Z"
+   ]
+  ],
+  "next_cursor": false,
+  "selection_token": "sfi1-d4cbb8bb53a0f8e139be8f2d5700a5e80ae74c56234676f383480ac3d47a9dba",
+  "days": [
+   "2026-10-15"
+  ],
+  "reasons": []
+ },
+ "empty": {
+  "http": 200,
+  "status": "CURRENT",
+  "total_count": 0,
+  "rows": [],
+  "next_cursor": false,
+  "selection_token": "sfi1-12b12f7c248e4f7e254eec1d2e36241c5cb151b8b7e55c14729eaca50affb91f",
+  "days": [
+   "2026-10-25"
+  ],
+  "reasons": []
+ },
+ "dirty": {
+  "http": 200,
+  "status": "STALE_PROJECTION",
+  "total_count": null,
+  "rows": [],
+  "next_cursor": false,
+  "selection_token": "sfi1-e442c6d7cece9400becc027194338b18e62726637b9aa30d4c240d8474d3421c",
+  "days": [
+   "2026-10-27"
+  ],
+  "reasons": [
+   "2026-10-27: RECOMPUTE_OUTSTANDING: job 892d7118-b0f1-46b9-a1b0-7d41fc465a03 PENDING",
+   "2026-10-27: INPUT_BASIS_CHANGED: the current accepted basis gives another input hash"
+  ]
+ },
+ "failed": {
+  "http": 200,
+  "status": "FAILED",
+  "total_count": null,
+  "rows": [],
+  "next_cursor": false,
+  "selection_token": "sfi1-40c4a40ad7890d11b911e32e753c2cd9625d64b56112b1c481f55a99c6d1da38",
+  "days": [
+   "2026-11-05"
+  ],
+  "reasons": [
+   "2026-11-05: RECOMPUTE_FAILED: job 8b41be8f-f992-4f3a-bc23-a9659a368341: RuntimeError: walkthrough staged failure: the assessment could not be computed"
+  ]
+ },
+ "unassessed": {
+  "http": 200,
+  "status": "UNASSESSED",
+  "total_count": null,
+  "rows": [],
+  "next_cursor": false,
+  "selection_token": "sfi1-d5125631a009f8affc7ddbc968aef0fb9e4682dadb67d0843ec4aecd53dc78fc",
+  "days": [
+   "2026-10-30"
+  ],
+  "reasons": []
+ },
+ "paged_page1": {
+  "http": 200,
+  "status": "CURRENT",
+  "total_count": 3,
+  "rows": [
+   [
+    "6001c6c3-7e9b-4274-8fa4-e5b9b9384a2c",
+    "5a33159a-d6ed-4b59-a4fe-79da9c1b15d7",
+    "2026-10-15T12:00:00Z"
+   ],
+   [
+    "1b8ec32f-3d59-4376-b178-f51e764ea0a7",
+    "053df633-fc3d-477b-b1f0-2ed53077eae0",
+    "2026-10-15T09:15:00Z"
+   ]
+  ],
+  "next_cursor": true,
+  "selection_token": "sfi1-d4cbb8bb53a0f8e139be8f2d5700a5e80ae74c56234676f383480ac3d47a9dba",
+  "days": [
+   "2026-10-15"
+  ],
+  "reasons": []
+ },
+ "paged_page2": {
+  "http": 200,
+  "status": "CURRENT",
+  "total_count": 3,
+  "rows": [
+   [
+    "626c4a23-e972-4c7f-babf-f0355a430601",
+    "725132a4-ff41-4204-ba87-abd46433f407",
+    "2026-10-15T08:00:00Z"
+   ]
+  ],
+  "next_cursor": false,
+  "selection_token": "sfi1-d4cbb8bb53a0f8e139be8f2d5700a5e80ae74c56234676f383480ac3d47a9dba",
+  "days": [
+   "2026-10-15"
+  ],
+  "reasons": []
+ }
+}
+Prepared in 248 s; 0 failed check(s)

@@ -1,0 +1,24 @@
+chrome pid 23312
+OK   cold-findings-stocked-1440 h1="Cold replay lab" overflowX=0 panels=1 console=0
+  Findings at this site title160 1440: real=296 synthetic=496 verified=true fields=5/5 clipped=0 open=496 openClipped=0 doc=0
+  Findings at this site title160-gap 1440: real=296 synthetic=539 verified=true fields=5/5 clipped=0 open=539 openClipped=0 doc=0
+  Findings at this site title-episode160 1440: real=296 synthetic=511 verified=true fields=10/10 clipped=0 open=511 openClipped=0 doc=0
+  Findings at this site title-episode160-gap 1440: real=296 synthetic=554 verified=true fields=10/10 clipped=0 open=554 openClipped=0 doc=0
+OK   cold-findings-stocked-390 h1="Cold replay lab" overflowX=0 panels=1 console=0
+  Findings at this site title160 390: real=313 synthetic=694 verified=true fields=5/5 clipped=0 open=694 openClipped=0 doc=0
+  Findings at this site title160-gap 390: real=313 synthetic=786 verified=true fields=5/5 clipped=0 open=786 openClipped=0 doc=0
+  Findings at this site title-episode160 390: real=313 synthetic=514 verified=true fields=10/10 clipped=0 open=514 openClipped=0 doc=0
+  Findings at this site title-episode160-gap 390: real=313 synthetic=606 verified=true fields=10/10 clipped=0 open=606 openClipped=0 doc=0
+OK   cold-findings-refused-1440 h1="Cold replay lab" overflowX=0 panels=1 console=0
+OK   cold-findings-refused-390 h1="Cold replay lab" overflowX=0 panels=1 console=0
+OK   cold-findings-one-sided-from-1440 h1="Cold replay lab" overflowX=0 panels=1 console=0
+OK   cold-findings-one-sided-from-390 h1="Cold replay lab" overflowX=0 panels=1 console=0
+OK   cold-findings-long-32d-1440 h1="Cold replay lab" overflowX=0 panels=1 console=0
+OK   cold-findings-long-32d-390 h1="Cold replay lab" overflowX=0 panels=1 console=0
+OK   cold-evidence-analysis-stocked-1440 h1="Cold replay lab" overflowX=0 panels=2 console=0
+OK   cold-evidence-analysis-stocked-390 h1="Cold replay lab" overflowX=0 panels=2 console=0
+OK   cold-stocked-1440 h1="Cold replay lab" overflowX=0 panels=5 console=0
+OK   cold-stocked-390 h1="Cold replay lab" overflowX=0 panels=5 console=0
+OK   cold-no-selection-1440 h1="Cold replay lab" overflowX=0 panels=5 console=0
+OK   cold-no-selection-390 h1="Cold replay lab" overflowX=0 panels=5 console=0
+done 14 records

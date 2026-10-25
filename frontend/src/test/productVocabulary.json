@@ -84,6 +84,10 @@
       "why": "W2-F q1: exact v6.9 cold Temperature panel 3 heading (frontend/mockups/v69/screens.js); only this heading is allowed, while other uses of claim remain guarded."
     },
     {
+      "text": "Inspect temperature claim",
+      "why": "post-W6 W2-cold ruling Q7 (R241): exact v6.9 cold Temperature status-strip link (frontend/mockups/v69/index.html line 546, claim('Inspect temperature claim','temperature')); only this link text is allowed, while other uses of claim remain guarded."
+    },
+    {
       "text": "solar power (PV)",
       "why": "Section 4: Analysis may add the abbreviation after its plain meaning."
     },

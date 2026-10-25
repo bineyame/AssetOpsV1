@@ -5912,6 +5912,17 @@ Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `
 - EV Findings index (`sites/EvFindingIndex.tsx`, `SiteFindingsFrame` EV branch, `App.tsx` `evAssessment`): 7 columns, `finding-index-row` column treatment, strip `Scoped to {site} · {n} open · window · global-list note`.
 - Captures `.agent/post-W6-W2-EV-recapture/r2/` (122 app captures at dab4d15e; probes in `r2/probe/`).
 - Open: cap reading for EV Findings / Accepted records (variable-cell reading passes; Accepted records Source+Value 1344 at 1440 vs 700 if Value is counted) for the Architect; EV depth refused pages raw codes (B16-01) belong to W5-EV-Work; register R420/R421 statuses update after review.
+
+## post-W6 W2-cold - cold Site screens D3 fixes (built, in_review)
+
+- Rulings `.agent/post-W6-W2-cold-rulings.md` (cross-card ownership 1-8, Q0-Q15); packet `.agent/post-W6-W2-cold-packet.md`; recapture `.agent/post-W6-W2-cold-recapture/`.
+- Refusals (cross-card ruling 5): `refusalText` classifies `COLD_TIME_INVALID`/`COLD_WINDOW_INVALID`/`COLD_WINDOW_TOO_LONG` before the generic 422; refused Temperature/Backup use `PerformanceRefusal` (strip, `Not assessed` tiles, no banner); every cold page carries the sentence once in panel 1 and later panels say `Not assessed` (`RefusedGap repeat` in `coldSiteViews.tsx`, `REPEATED_GAP` in `ColdAssessmentViews.tsx`). Window refusals show no requested-window line.
+- Cold Findings index: `ColdFindingIndex` (`ColdAssessmentViews.tsx`), COLDCHAIN branch first in `SiteFindingsFrame` (then EV, then mini), `App.tsx` `coldAssessment`; shared `LensChips`; `finding-index-row` treatment; D1 R435/R436 visible labels.
+- Overview: five "View detail →" cards (Maintenance D1 R437 label in the card), strip outcomes joined from `getBackupChain` by `evidence_id`, SLD link, deduplicated limitations. `ColdSiteRoutes` gains `sld`, `workMaintenance`, `portfolioEvidence`.
+- Evidence "Portfolio evidence" / "Review cooling →"; Analysis Measured/Sent/Received in the Site zone via canonical `sites/siteTime.ts` (missing zone: `UTC; Site time zone unavailable`).
+- Tabs: `coldTabSearch(site, params)` feeds the W2-EV `OperatorSiteTabs` search override on cold Overview, Evidence, Performance, Findings, Finding, Financials, Health.
+- Open: Work/Scenarios tab window and depth copies (W5-cold-Work); register statuses R241-R261, R435-R437 after review; Not-determined 390 wrap not producible.
+
 ## post-W6 W6-global-Work - global work list/WR D3 fixes and caps fix round (built, in_review)
 
 Branch `task/post-W6-W6-global` (from main `821ad6bf`). Rulings `.agent/post-W6-W6-rulings.md` (Q1-Q21) and `.agent/post-W6-W6-caps-rulings.md` (1-5). Packet `.agent/post-W6-W6-packet.md`; handoff `.agent/post-W6-W6-handoff.md`.

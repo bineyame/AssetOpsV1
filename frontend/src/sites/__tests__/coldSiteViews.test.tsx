@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
-import type { ColdAssessmentClient, ColdEnvelope, ColdRead, ColdTemperatureRead } from "../coldAssessmentClient";
+import type { ColdAssessmentClient, ColdBackupRead, ColdEnvelope, ColdRead, ColdTemperatureRead } from "../coldAssessmentClient";
 import type {
   ColdAnalysisRead,
   ColdAssumptionsRead,
@@ -249,6 +249,10 @@ interface Reads {
   temperature: ColdRead<ColdTemperatureRead>;
   /** W2-F N9: overrides the Findings list read, which otherwise follows the Financials read. */
   findings?: ColdRead<never>;
+  /** post-W6 W2-cold Q9: the Overview's backup-chain read (default: unavailable, so no step is joined). */
+  backup?: ColdRead<ColdBackupRead>;
+  /** post-W6 W2-cold R259: a Site detail override (its timezone). */
+  site?: SiteDetailReadModel;
 }
 const STOCKED: Reads = {
   overview: ok(STOCKED_OVERVIEW),
@@ -293,7 +297,7 @@ function renderCold(path: string, reads: Reads) {
   };
   const coldAssessment: ColdAssessmentClient = {
     getTemperature: vi.fn(() => Promise.resolve(reads.temperature)),
-    getBackupChain: vi.fn(() => Promise.resolve(DOWN)),
+    getBackupChain: vi.fn(() => Promise.resolve(reads.backup ?? DOWN)),
     listFindings: vi.fn(() =>
       Promise.resolve(
         reads.findings !== undefined
@@ -314,7 +318,7 @@ function renderCold(path: string, reads: Reads) {
   };
   render(
     <MemoryRouter initialEntries={[path]}>
-      <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} coldSite={coldSite} coldAssessment={coldAssessment} />
+      <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={reads.site === undefined ? detail : { getSite: () => Promise.resolve({ status: "loaded", site: reads.site! }) }} siteAnalytics={EMPTY_ANALYTICS_CLIENT} coldSite={coldSite} coldAssessment={coldAssessment} />
     </MemoryRouter>,
   );
   return { coldSite, coldAssessment };
@@ -355,6 +359,25 @@ const LEDGER_CLAIM = new RegExp(
 );
 const main = () => document.querySelector("main") as HTMLElement;
 const text = (el: Element) => (el.textContent ?? "").replace(/\s+/g, " ");
+
+// Cross-card ruling 5 (post-W6 W2-cold): the sentence once, in the first panel; every later refused panel says Not assessed.
+const expectSentenceOnce = (panels: readonly string[], sentence: string) => {
+  expect(text(panelTitled(panels[0]))).toContain(sentence);
+  for (const t of panels.slice(1)) {
+    expect(text(panelTitled(t))).toContain("Not assessed");
+    expect(text(panelTitled(t))).not.toContain(sentence);
+  }
+  expect(text(main()).split(sentence).length - 1).toBe(1);
+};
+
+// Review M1 (ruling 5): the first panel's technical disclosure shows the refusal code and the exact requested bounds.
+const expectDisclosure = (firstPanel: string, code: string) => {
+  const d = panelTitled(firstPanel).querySelector('[data-disclosure="cold-refusal-references"]') as HTMLElement;
+  expect(d).not.toBeNull();
+  expect(text(d)).toContain(code);
+  expect(text(d)).toContain(new URLSearchParams(Q).get("from")!);
+  expect(text(d)).toContain(new URLSearchParams(Q).get("to")!);
+};
 
 describe("W2-04: cold Site routes keep the v69 panel structure", () => {
   it.each(ROUTES)("stocked: %s", async (screenId, path) => {
@@ -410,20 +433,22 @@ describe("W2-04: cold Site routes keep the v69 panel structure", () => {
     expect(body).not.toMatch(/\bUSD\b|\$|Healthy|Online/);
   });
 
-  it.each(ROUTES)("refused source disclosure (403): %s keeps every panel with the statement and no IDs", async (screenId, path) => {
+  it.each(ROUTES)("refused source disclosure (403): %s keeps every panel, the statement once and no IDs", async (screenId, path) => {
     renderCold(path, all(FORBIDDEN as never));
     await settledScreen();
     expectV69Panels(screenId);
     const affected = screenId === "cold-financials" ? ["What happened → what it means in money", "Assumptions in use", "Not included"] : PANELS[screenId];
-    for (const t of affected) expect(text(panelTitled(t))).toContain(SOURCE_FORBIDDEN);
+    expectSentenceOnce(affected, SOURCE_FORBIDDEN);
+    expectDisclosure(affected[0], "COLD_SOURCE_DISCLOSURE_FORBIDDEN");
     expect(text(main())).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-/);
   });
 
-  it.each(ROUTES)("unavailable (503): %s keeps every panel with the statement and one retry", async (screenId, path) => {
+  it.each(ROUTES)("unavailable (503): %s keeps every panel, the statement once and one retry", async (screenId, path) => {
     const { coldSite } = renderCold(path, all(DOWN as never));
     await settledScreen();
     expectV69Panels(screenId);
-    for (const t of PANELS[screenId]) expect(text(panelTitled(t))).toContain(COLD_SITE_UNAVAILABLE);
+    expectSentenceOnce(PANELS[screenId], COLD_SITE_UNAVAILABLE);
+    expectDisclosure(PANELS[screenId][0], "COLD_READ_UNAVAILABLE");
     const retries = screen.getAllByRole("button", { name: "Retry" });
     expect(retries.length).toBeGreaterThanOrEqual(1);
     const calls = Object.values(coldSite).reduce((n, f) => n + (f as ReturnType<typeof vi.fn>).mock.calls.length, 0);
@@ -502,7 +527,11 @@ describe("W2-04: cold Overview", () => {
     ]);
     expect(text(document.querySelector('[data-cold-card="cooling"]')!)).toContain("Recovery comparison not assessed");
     expect(text(document.querySelector('[data-cold-card="cooling"]')!)).not.toContain("Not available yet");
-    expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).toContain("Not recorded");
+    // Q8: no false maintenance summary from the overview DTO; the cases are under Work.
+    expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).toContain("Not summarised here");
+    expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).toContain("Maintenance cases are listed under Work");
+    expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).not.toContain("No maintenance work record");
+    expect(text(document.querySelector('[data-mock-deviation="R437"]')!)).toBe("MOCK DEVIATION D1 (R437)");
     const happened = panelTitled(PANELS.cold[0]);
     expect(happened.querySelectorAll("[data-timeline-event]")).toHaveLength(3);
     expect(text(happened)).toContain("No accepted transfer to backup report for this chain");
@@ -571,7 +600,9 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     await settledScreen();
     expect(text(document.querySelector(".status-strip")!)).toContain("Evidence limited");
     expect(text(document.querySelector(".status-strip")!)).toContain("4 capabilities · 1 full · 2 limited · 1 none · no single score");
-    expect(screen.getByRole("link", { name: "Configuration at window end" }).getAttribute("href")).toBe(`/sites/COLD-001/foundation?at=${encodeURIComponent(TO)}`);
+    // R258: the strip links to portfolio Evidence, not the Configuration tab.
+    expect(screen.getByRole("link", { name: "Portfolio evidence" }).getAttribute("href")).toBe("/evidence");
+    expect(screen.queryByRole("link", { name: "Configuration at window end" })).toBeNull();
     const rows = Array.from(panelTitled("What we can conclude now").querySelectorAll("[data-capability-row]"));
     expect(rows.map((r) => r.querySelector("th")?.textContent)).toEqual(["Temperature compliance", "Backup response", "Cooling recovery", "Product exposure"]);
     expect(text(rows[0])).toContain("Full");
@@ -686,12 +717,13 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     const records = panelTitled("Accepted records behind the conclusions");
     const visible = () => Array.from(records.querySelectorAll<HTMLElement>("[data-accepted-record]")).filter((r) => !r.hidden);
     expect(visible()).toHaveLength(3);
-    // Run-7 time copy: Sent (UTC) and Received (UTC) headers over bare clock values; only Measured (EAT) is East Africa Time.
+    // R259 (Q11): Measured, Sent and Received in the Site timezone (Addis, EAT) with seconds; exact UTC in `title`.
     const cells = visible()[0].querySelectorAll("td");
     expect(cells[1].textContent).toBe(eatTime("2026-10-06T16:19:00Z"));
-    expect(cells[2].textContent).toBe("16:19:01");
-    expect(cells[3].textContent).toBe("16:19:02");
-    expect(Array.from(records.querySelectorAll("thead th")).map((h) => h.textContent)).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (UTC)", "Received (UTC)", "Record"]);
+    expect(cells[2].textContent).toBe("19:19:01");
+    expect(cells[2].getAttribute("title")).toContain("2026-10-06T16:19:01");
+    expect(cells[3].textContent).toBe("19:19:02");
+    expect(Array.from(records.querySelectorAll("thead th")).map((h) => h.textContent)).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (EAT)", "Received (EAT)", "Record"]);
     expect(records.querySelector("[data-cold-more]")).toBeNull();
     const details = records.querySelectorAll("details");
     expect(details).toHaveLength(1);
@@ -903,7 +935,7 @@ describe("W2-F 1b: one honest cooling and product rule across the cold screens",
       "Limited",
       "Selected records support only part of this claim.",
       `Compressor state · ${COOLING_LIMITATION}`,
-      "Review evidence",
+      "Review cooling →",
     ]);
     expect(cells("exposure")).toEqual([
       "Product exposure",
@@ -962,11 +994,13 @@ describe("W2-F 1b: one honest cooling and product rule across the cold screens",
     renderCold(ROUTES[1][1], { ...STOCKED, evidence: ok(noGaps(true)) });
     await settledScreen();
     expect(text(panelTitled("Most useful next evidence"))).toContain("Declare stock identity and value");
-    expect(text(panelTitled("Most useful next evidence"))).not.toContain("Next evidence not identified");
+    expect(text(panelTitled("Most useful next evidence"))).not.toContain("No missing record blocks");
     cleanup();
     renderCold(ROUTES[1][1], { ...STOCKED, evidence: ok(noGaps(false)) });
     await settledScreen();
-    expect(text(panelTitled("Most useful next evidence"))).toContain("Next evidence not identified");
+    // Q10: the normal case names the basis still needed; the stock prompt still follows only a selected excursion.
+    expect(text(panelTitled("Most useful next evidence"))).toContain("No missing record blocks this window's claims. Pricing a future exposure still needs the required basis stated above.");
+    expect(text(panelTitled("Most useful next evidence"))).not.toContain("Declare stock identity");
   });
 
   // S7/S8: Financials names the thermal claim and its consequence basis; Evidence keeps Product exposure at None.
@@ -1026,8 +1060,18 @@ describe("W2-F 1b: one honest cooling and product rule across the cold screens",
     }
     renderCold(ROUTES[3][1], { ...STOCKED, assumptions: DOWN as ColdRead<ColdAssumptionsRead> });
     await settledScreen();
-    expect(panelTitled("Assumptions in use").querySelectorAll("dt")).toHaveLength(0);
+    expect(panelTitled("Assumptions in use").querySelectorAll("[data-key-value] dt")).toHaveLength(0);
     expect(panelTitled("Assumptions in use").querySelector("[data-panel-gap]")).not.toBeNull();
+    cleanup();
+    // Review L1: financials refused for a different reason than assumptions -> the assumptions reason is shown, not hidden.
+    renderCold(ROUTES[3][1], { ...STOCKED, financials: FORBIDDEN as never, assumptions: DOWN as ColdRead<ColdAssumptionsRead> });
+    await settledScreen();
+    expect(text(panelTitled("Assumptions in use"))).toContain(COLD_SITE_UNAVAILABLE);
+    cleanup();
+    // Same reason on both -> the sentence appears once and the panel says Not assessed.
+    renderCold(ROUTES[3][1], { ...STOCKED, financials: DOWN as never, assumptions: DOWN as ColdRead<ColdAssumptionsRead> });
+    await settledScreen();
+    expect(text(panelTitled("Assumptions in use"))).toBe("Assumptions in useNot assessed");
   });
 });
 
@@ -1051,7 +1095,9 @@ describe("W2-F 2: cold frame on refusal, consequence counts and record IDs", () 
       expect(text(bar)).toContain("Selected window 6 Oct 2026 16:00–17:05 UTC");
       expect(text(bar)).toContain("Selected evidence through 6 Oct 17:06 UTC");
       expect(document.querySelectorAll(".status-strip")).toHaveLength(1);
-      expect(text(strip())).toContain("Window cannot be read");
+      // Cross-card ruling 5: a 503 is never called a window error; the strip names it by its own title.
+      expect(text(strip())).toContain("Assessment unavailable");
+      expect(text(strip())).not.toContain("Window cannot be read");
       expect(tiles().map((t) => t.getAttribute("data-cold-refused-card"))).toEqual(cards);
       for (const t of tiles()) expect(text(t.querySelector(".v69-metric__value")!)).toBe("Not assessed");
       if (screenId === "cold-evidence") expect(document.querySelector(".v69-cards")).toBeNull();
@@ -1059,13 +1105,16 @@ describe("W2-F 2: cold frame on refusal, consequence counts and record IDs", () 
         expect(text(strip())).toContain("Not assessed");
         expect(text(strip())).not.toMatch(/consequence line/);
       }
-      for (const t of PANELS[screenId]) expect(text(panelTitled(t))).toContain(COLD_SITE_UNAVAILABLE);
+      expectSentenceOnce(PANELS[screenId], COLD_SITE_UNAVAILABLE);
       cleanup();
       // Invalid window: the malformed dates are not echoed; the strip and the panel gaps remain.
       renderCold(path.replace(encodeURIComponent(FROM), "not-a-date"), all(INVALID as never));
       await settledScreen();
       expect(document.querySelector("[data-cold-date-bar]")).toBeNull();
-      expect(text(main())).not.toContain("not-a-date");
+      // Only the technical disclosure carries the exact requested bounds (ruling 5); no date line or sentence echoes them.
+      const echoed = main().cloneNode(true) as HTMLElement;
+      echoed.querySelectorAll('[data-disclosure="cold-refusal-references"]').forEach((d) => d.remove());
+      expect(text(echoed)).not.toContain("not-a-date");
       expect(text(strip())).toContain("Window cannot be read");
       expect(tiles().map((t) => t.getAttribute("data-cold-refused-card"))).toEqual(cards);
       for (const t of PANELS[screenId]) expect(panelTitled(t).querySelector("[data-panel-gap]")).not.toBeNull();
@@ -1155,7 +1204,7 @@ describe("W2-F 2: cold frame on refusal, consequence counts and record IDs", () 
     renderCold(ROUTES[2][1], { ...STOCKED, analysis: ok(analysis as unknown as ColdAnalysisRead) });
     await settledScreen();
     const records = panelTitled("Accepted records behind the conclusions");
-    expect(Array.from(records.querySelectorAll("thead th")).map((h) => h.textContent)).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (UTC)", "Received (UTC)", "Record"]);
+    expect(Array.from(records.querySelectorAll("thead th")).map((h) => h.textContent)).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (EAT)", "Received (EAT)", "Record"]);
     expect(Array.from(records.querySelectorAll<HTMLElement>("[data-accepted-record]")).map((r) => r.getAttribute("data-accepted-record"))).toEqual([a, b, id(13)]);
     const codes = Array.from(records.querySelectorAll<HTMLElement>("table code[data-record-id]"));
     expect(codes.map((c) => text(c))).toEqual([`REC ${a}`, `REC ${b}`, `REC ${id(13)}`]);
@@ -1186,5 +1235,133 @@ describe("W2-F 2: cold frame on refusal, consequence counts and record IDs", () 
     expect(rule).toContain("overflow-wrap: anywhere");
     expect(rule).not.toMatch(/max-width|text-overflow|nowrap/);
     expect(css).not.toContain(".cold-site-clip");
+  });
+});
+
+// post-W6 W2-cold unit 2: Overview cards, causal-strip outcomes, SLD link and limitation dedupe (R254-R256).
+describe("W2-cold unit 2: cold Overview", () => {
+  const step = (kind: string, outcome: string | null, evidence: string | null, state = "OBSERVED") => ({ kind, at: "2026-10-06T16:11:00Z", outcome, evidence_id: evidence, state, limitation: null });
+  const chain = (steps: ReturnType<typeof step>[]) =>
+    ok({
+      ...envelope(),
+      state: "OBSERVED_FAILURE",
+      claim_level: "OBSERVED",
+      chains: [{ correlation_id: "corr-1", episode_id: id(80), revision_id: id(81), result: "OBSERVED_FAILURE", steps, missing_steps: ["TRANSFER"], claim_level: "OBSERVED", start_timeout_min: "2", limitation: null }],
+      contradictions: [],
+    } as ColdBackupRead);
+
+  it("r254_five_view_detail_links_at_the_window", async () => {
+    renderCold(ROUTES[0][1], STOCKED);
+    await settledScreen();
+    const links = Array.from(document.querySelectorAll("[data-cold-card-link]"));
+    expect(links.map((a) => a.getAttribute("data-cold-card-link"))).toEqual(["temperature", "backup", "cooling", "maintenance", "evidence"]);
+    for (const a of links) expect(a.textContent).toBe("View detail →");
+    const href = (k: string) => document.querySelector(`[data-cold-card-link="${k}"]`)!.getAttribute("href");
+    expect(href("cooling")).toBe(`/sites/COLD-001/performance/cooling${Q}`);
+    expect(href("maintenance")).toBe(`/sites/COLD-001/work/maintenance${Q}`);
+    // Labels are plain text; the link is the card's own `View detail →`.
+    for (const card of Array.from(document.querySelectorAll("[data-cold-card]"))) expect(card.querySelectorAll("a")).toHaveLength(1);
+  });
+
+  it("r255_steps_join_outcomes_by_record_in_order", async () => {
+    renderCold(ROUTES[0][1], { ...STOCKED, backup: chain([step("GRID", "LOST", id(11)), step("START_RESULT", "START_FAILED", id(12))]) });
+    await settledScreen();
+    const happened = panelTitled(PANELS.cold[0]);
+    const events = Array.from(happened.querySelectorAll("[data-timeline-event]"));
+    expect(events.map((e) => e.getAttribute("data-timeline-event"))).toEqual(["GRID", "START_RESULT", "TRANSFER"]);
+    expect(text(events[0].querySelector("strong")!)).toBe("Grid supply · Lost");
+    expect(events[0].className).toContain("--danger");
+    expect(text(events[1].querySelector("strong")!)).toMatch(/· Start failed$/);
+    expect(events[2].className).toContain("--gap");
+    expect(text(happened)).toContain("The steps above are based on the selected accepted records. Missing steps remain unobserved.");
+    expect(text(happened)).not.toContain("steps below");
+  });
+
+  it("r255_running_outcome_is_ok_and_unmatched_step_keeps_its_label", async () => {
+    renderCold(ROUTES[0][1], { ...STOCKED, backup: chain([step("GRID", "RUNNING", id(11)), step("START_RESULT", "START_FAILED", id(99))]) });
+    await settledScreen();
+    const events = Array.from(panelTitled(PANELS.cold[0]).querySelectorAll("[data-timeline-event]"));
+    expect(events[0].className).toContain("--ok");
+    expect(text(events[1].querySelector("strong")!)).toMatch(/· Observed$/);
+    expect(events[1].className).not.toMatch(/--(ok|danger)/);
+  });
+
+  it("r256_sld_link_and_limitation_shown_once", async () => {
+    const shared = "Not observed: TRANSFER.";
+    const o: ColdOverviewRead = { ...STOCKED_OVERVIEW, needs_attention: STOCKED_OVERVIEW.needs_attention.map((n) => ({ ...n, limitation: shared })) };
+    renderCold(ROUTES[0][1], { ...STOCKED, overview: ok(o) });
+    await settledScreen();
+    const sld = panelTitled("Chamber temperature").querySelector("[data-cold-sld-link]")!;
+    expect(sld.textContent).toBe("Single line diagram →");
+    expect(sld.getAttribute("href")).toBe("/sites/COLD-001/foundation/sld");
+    const bodies = Array.from(panelTitled("Needs attention").querySelectorAll("[data-attention-item]")).map((i) => text(i));
+    expect(bodies).toHaveLength(2);
+    expect(bodies[0]).toMatch(/Not observed: transfer to backup/i);
+    expect(bodies[1]).not.toMatch(/Not observed:/);
+  });
+});
+
+// post-W6 W2-cold unit 3: Evidence links, normal next-evidence copy and Site-timezone record times (R258, R259, Q10).
+describe("W2-cold unit 3: cold Evidence and Analysis", () => {
+  const recordsFor = (row: Partial<ColdAnalysisRead["accepted_records"]["items"][number]>, site?: SiteDetailReadModel) => {
+    const base = STOCKED_ANALYSIS.accepted_records.items[0];
+    const analysis = { ...STOCKED_ANALYSIS, accepted_records: { items: [{ ...base, ...row }], next_cursor: null, total_count: 1 } };
+    renderCold(ROUTES[2][1], { ...STOCKED, analysis: ok(analysis as ColdAnalysisRead), site });
+  };
+  const records = () => panelTitled("Accepted records behind the conclusions");
+  const cell = (name: string) => records().querySelector(`[data-cold-time="${name}"]`) as HTMLElement;
+  const heads = () => Array.from(records().querySelectorAll("thead th")).map((h) => h.textContent);
+
+  it("r259_addis_dates_received_on_a_later_local_day", async () => {
+    // Measured 20:59:58 UTC = 23:59:58 EAT; received 21:00:03 UTC = 00:00:03 EAT on 7 Oct.
+    recordsFor({ source_time: "2026-10-06T20:59:58Z", sent_at: "2026-10-06T20:59:59Z", received_at: "2026-10-06T21:00:03Z" });
+    await settledScreen();
+    expect(cell("measured").textContent).toBe("23:59:58");
+    expect(cell("sent").textContent).toBe("23:59:59");
+    expect(cell("received").textContent).toBe("7 Oct 00:00:03");
+    expect(cell("received").getAttribute("title")).toContain("2026-10-06T21:00:03");
+    expect(heads().slice(2, 5)).toEqual(["Measured (EAT)", "Sent (EAT)", "Received (EAT)"]);
+  });
+
+  it("r259_utc_site_and_midnight_crossing", async () => {
+    recordsFor({ source_time: "2026-10-06T23:59:58Z", sent_at: "2026-10-06T23:59:59Z", received_at: "2026-10-07T00:00:02Z" }, { ...SITE, timezone: "UTC" } as SiteDetailReadModel);
+    await settledScreen();
+    expect(cell("measured").textContent).toBe("23:59:58");
+    expect(cell("sent").textContent).toBe("23:59:59");
+    expect(cell("received").textContent).toBe("7 Oct 00:00:02");
+    expect(heads().slice(2, 5)).toEqual(["Measured (UTC)", "Sent (UTC)", "Received (UTC)"]);
+  });
+
+  it("r259_missing_timezone_falls_back_to_utc", async () => {
+    recordsFor({ source_time: "2026-10-06T16:19:00Z", sent_at: "2026-10-06T16:19:01Z", received_at: "2026-10-06T16:19:02Z" }, { ...SITE, timezone: null } as unknown as SiteDetailReadModel);
+    await settledScreen();
+    expect(cell("measured").textContent).toBe("16:19:00");
+    expect(cell("received").textContent).toBe("16:19:02");
+    expect(heads().slice(2, 5)).toEqual(["Measured (UTC; Site time zone unavailable)", "Sent (UTC; Site time zone unavailable)", "Received (UTC; Site time zone unavailable)"]);
+  });
+
+  it("r258_cooling_links_at_the_window", async () => {
+    renderCold(ROUTES[1][1], STOCKED);
+    await settledScreen();
+    const rowLink = panelTitled("What we can conclude now").querySelector('[data-capability-row="cooling"] a')!;
+    expect(rowLink.textContent).toBe("Review cooling →");
+    expect(rowLink.getAttribute("href")).toBe(`/sites/COLD-001/performance/cooling${Q}`);
+    const next = Array.from(panelTitled("Most useful next evidence").querySelectorAll("[data-cold-review-cooling]"));
+    expect(next.length).toBeGreaterThan(0);
+    for (const a of next) {
+      expect(a.textContent).toBe("Review cooling →");
+      expect(a.getAttribute("href")).toBe(`/sites/COLD-001/performance/cooling${Q}`);
+    }
+  });
+});
+
+// post-W6 W2-cold (ruling 3, B14-10): the cold main tabs keep the selected window through W2-EV's tab `search`.
+describe("W2-cold: cold main tabs keep the window", () => {
+  it.each([ROUTES[0], ROUTES[1], ROUTES[3]])("b14_10_main_tabs_carry_from_to_known_at: %s", async (_screen, path) => {
+    renderCold(path, STOCKED);
+    await settledScreen();
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("nav.site-tabs:not(.site-subtabs) a.site-tabs__link"));
+    expect(links.length).toBeGreaterThan(4);
+    for (const a of links) expect(a.getAttribute("href")?.endsWith(Q), a.getAttribute("href") ?? "").toBe(true);
   });
 });

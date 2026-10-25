@@ -40,7 +40,7 @@ import {
   type FindingIndexClient,
   type FindingIndexScope,
 } from "../sites/findingIndexClient";
-import { SiteFindingIndex } from "../sites/SiteFindingIndex";
+import { LensChips, SiteFindingIndex } from "../sites/SiteFindingIndex";
 import { createFindingClient, type FindingClient } from "../sites/findingClient";
 import { ACTION_VIEWS, ACTION_VIEW_LABELS, SiteAction, type ActionSelector, type ActionView } from "../sites/SiteAction";
 import { ChangesWorkPageHeader, NoChangeSelected, SiteFoundationChange, type SiteFoundationChangeLinks } from "../sites/SiteFoundationChange";
@@ -72,7 +72,7 @@ import {
   serviceWindowFromParams,
   type MiniDepthClient,
 } from "../sites/miniDepthClient";
-import { ColdFindingFrame, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
+import { ColdFindingFrame, ColdFindingIndex, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
 import { coldWindowFromParams, coldWindowSearch, type ColdAssessmentClient, type ColdWindowQuery } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
 import { EvFindingFrame, EvSessionsFrame, type EvPerformanceView, evFindingHref } from "../sites/EvAssessmentViews";
@@ -82,7 +82,7 @@ import { type EvDepthClient, createEvDepthClient } from "../sites/evDepthClient"
 import { EV_SITE_TAB_HREFS, evSiteRoutes } from "./evSiteRoutes";
 import type { EvAssessmentClient } from "../sites/evAssessmentClient";
 import { EvFindingIndex } from "../sites/EvFindingIndex";
-import { coldSiteRoutes, coldSiteScreen } from "./coldSiteRoutes";
+import { coldSiteRoutes, coldSiteScreen, coldTabSearch } from "./coldSiteRoutes";
 import { createColdDepthClient, type ColdDepthClient } from "../sites/ColdDepthClient";
 import { presentationProfileFor } from "../sites/presentationProfile";
 import type { SiteAnalyticsClient } from "../sites/siteAnalyticsClient";
@@ -289,7 +289,7 @@ export function SitePerformanceFrame({
               window={window}
               client={coldAssessment}
               links={coldLinks(site.site_id, window)}
-              tabs={<OperatorSiteTabs siteId={siteId} current="Performance" />}
+              tabs={<OperatorSiteTabs siteId={siteId} current="Performance" search={coldWindowSearch(window)} />}
               parentTrail={[
                 { label: "Sites", to: sitesPath },
                 { label: site.display_name, to: siteDetailHref(site.site_id) },
@@ -458,12 +458,15 @@ export function SiteFindingsFrame({
   analytics,
   sitesPath,
   findingIndex = DEFAULT_FINDING_INDEX,
+  coldAssessment,
   evAssessment,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   sitesPath: string;
   findingIndex?: FindingIndexClient;
+  /** post-W6 W2-cold R253: a COLDCHAIN Site's index reads its selected cold Findings, not the mini index. */
+  coldAssessment?: ColdAssessmentClient;
   evAssessment?: EvAssessmentClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
@@ -494,7 +497,19 @@ export function SiteFindingsFrame({
             description={SITE_SCREEN_DESCRIPTIONS.sitefindings}
             headingId={SITE_FINDINGS_HEADING_ID}
           />
-          {site.site_type === "EV_CHARGING" && evAssessment !== undefined ? (
+          {site.site_type === "COLDCHAIN" && coldAssessment !== undefined ? (
+            <>
+            <OperatorSiteTabs siteId={siteId} current="Findings" search={coldTabSearch(site, params)} />
+            <ColdFindingIndex
+              siteId={site.site_id}
+              siteName={site.display_name}
+              window={coldWindowFromParams(params)}
+              client={coldAssessment}
+              routes={coldSiteRoutes(site.site_id)}
+              lenses={<LensChips />}
+            />
+            </>
+          ) : site.site_type === "EV_CHARGING" && evAssessment !== undefined ? (
             <EvFindingIndex
               siteId={site.site_id}
               siteName={site.display_name}
@@ -716,7 +731,7 @@ export function SiteFindingFrame({
               window={window}
               client={coldAssessment}
               links={coldLinks(site.site_id, window)}
-              tabs={<OperatorSiteTabs siteId={siteId} current="Findings" />}
+              tabs={<OperatorSiteTabs siteId={siteId} current="Findings" search={coldWindowSearch(window)} />}
               parentTrail={[
                 { label: "Sites", to: sitesPath },
                 { label: site.display_name, to: siteDetailHref(site.site_id) },
@@ -1342,7 +1357,7 @@ export function SiteFinancialsFrame({
             ),
             coldSite,
             coldAssessment,
-            tabs: <OperatorSiteTabs siteId={siteId} current="Financials" />,
+            tabs: <OperatorSiteTabs siteId={siteId} current="Financials" search={coldTabSearch(site, params)} />,
             sitesPath,
           });
         }
