@@ -167,6 +167,8 @@ describe("W2-cold unit 4: cold Site Findings index", () => {
   it("r253_cursor_note", async () => {
     renderIndex(ok({ ...STOCKED, next_cursor: "c1" }));
     await settledScreen();
+    // Review L2 (guide s3): the count is qualified beside the number when more pages exist.
+    expect(text(strip())).toContain("2 open in the first 3 ·");
     expect(document.querySelector("[data-cold-findings-cursor]")?.textContent).toBe("Showing the first 3 Findings; paging is not available on this page.");
   });
 

@@ -1276,7 +1276,7 @@ export function ColdFindingIndex(props: ColdFindingIndexProps) {
       {props.lenses}
       <StatusBar label="Findings state" action={<UnavailableInline label="Manage in Findings" />} data={{ "data-cold-findings-status": "" }}>
         <strong>Scoped to {props.siteName}</strong>
-        {` · ${open} open · ${[windowText(r.window.from, r.window.to), currentnessWord(r.currentness.state), COLD_FINDINGS_NOT_GLOBAL].join(" · ")}`}
+        {` · ${open} open${r.next_cursor === null ? "" : ` in the first ${r.items.length}`} · ${[windowText(r.window.from, r.window.to), currentnessWord(r.currentness.state), COLD_FINDINGS_NOT_GLOBAL].join(" · ")}`}
         {/* MOCK DEVIATION D1 (R436): the mock strip says these are the same records as the global Findings list and
             links Manage; cold Findings are not in the global list, so the strip says so and Manage is unavailable. */}{" "}
         <span className="mock-deviation-line" data-mock-deviation="R436">
