@@ -635,7 +635,7 @@
    ],
    "frozen_titles": [
     "Readiness and commissioning evidence",
-    "Gateway status \u00c2\u00b7 No gateway selected",
+    "Gateway status \u00b7 No gateway selected",
     "Connected sources",
     "Effect on readiness and confidence"
    ],
@@ -657,7 +657,7 @@
    ],
    "frozen_titles": [
     "Readiness and commissioning evidence",
-    "Gateway status \u00c2\u00b7 No gateway selected",
+    "Gateway status \u00b7 No gateway selected",
     "Connected sources",
     "Effect on readiness and confidence"
    ],
@@ -680,7 +680,7 @@
    ],
    "frozen_titles": [
     "Readiness and commissioning evidence",
-    "Gateway status \u00c2\u00b7 edge-kobo-001",
+    "Gateway status \u00b7 edge-kobo-001",
     "Connected sources",
     "Effect on readiness and confidence"
    ],
@@ -703,7 +703,7 @@
    ],
    "frozen_titles": [
     "Readiness and commissioning evidence",
-    "Gateway status \u00c2\u00b7 edge-kobo-001",
+    "Gateway status \u00b7 edge-kobo-001",
     "Connected sources",
     "Effect on readiness and confidence"
    ],
@@ -1141,7 +1141,7 @@
    ],
    "frozen_titles": [
     "Sources and 15-minute blocks",
-    "Selected block \u00c2\u00b7 No block selected",
+    "Selected block \u00b7 No block selected",
     "Accepted sample coverage"
    ],
    "frozen_heights": [
@@ -1163,7 +1163,7 @@
    ],
    "frozen_titles": [
     "Sources and 15-minute blocks",
-    "Selected block \u00c2\u00b7 No block selected",
+    "Selected block \u00b7 No block selected",
     "Accepted sample coverage"
    ],
    "frozen_heights": [
@@ -1507,7 +1507,7 @@
    ],
    "frozen_titles": [
     "What we can conclude now",
-    "Data sources \u00c2\u00b7 data quality, not equipment condition",
+    "Data sources \u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "frozen_heights": [
@@ -1529,7 +1529,7 @@
    ],
    "frozen_titles": [
     "What we can conclude now",
-    "Data sources \u00c2\u00b7 data quality, not equipment condition",
+    "Data sources \u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "frozen_heights": [
@@ -1551,7 +1551,7 @@
    ],
    "frozen_titles": [
     "Physical asset condition",
-    "Data sources \u00c2\u00b7 data quality, not equipment condition"
+    "Data sources \u00b7 data quality, not equipment condition"
    ],
    "frozen_heights": [
     253,
@@ -1571,7 +1571,7 @@
    ],
    "frozen_titles": [
     "Physical asset condition",
-    "Data sources \u00c2\u00b7 data quality, not equipment condition"
+    "Data sources \u00b7 data quality, not equipment condition"
    ],
    "frozen_heights": [
     342,
@@ -1722,7 +1722,7 @@
     "rep"
    ],
    "frozen_titles": [
-    "What happened \u00e2\u2020\u2019 what it means in money",
+    "What happened \u2192 what it means in money",
     "Assumptions in use",
     "Trade-offs and exclusions"
    ],
@@ -1744,7 +1744,7 @@
     "rep"
    ],
    "frozen_titles": [
-    "What happened \u00e2\u2020\u2019 what it means in money",
+    "What happened \u2192 what it means in money",
     "Assumptions in use",
     "Trade-offs and exclusions"
    ],
@@ -1766,7 +1766,7 @@
     "rep"
    ],
    "frozen_titles": [
-    "Evidence bundle \u00c2\u00b7 Generator support merits review",
+    "Evidence bundle \u00b7 Generator support merits review",
     "Inspect source lineage"
    ],
    "frozen_heights": [
@@ -1786,7 +1786,7 @@
     "rep"
    ],
    "frozen_titles": [
-    "Evidence bundle \u00c2\u00b7 Generator support merits review",
+    "Evidence bundle \u00b7 Generator support merits review",
     "Inspect source lineage"
    ],
    "frozen_heights": [
@@ -2829,7 +2829,7 @@
    ],
    "frozen_titles": [
     "Readiness and commissioning evidence",
-    "Gateway status \u00c2\u00b7 edge-cold-lab-001",
+    "Gateway status \u00b7 edge-cold-lab-001",
     "Connected sources",
     "Effect on readiness and confidence"
    ],
@@ -2851,7 +2851,7 @@
    ],
    "frozen_titles": [
     "Readiness and commissioning evidence",
-    "Gateway status \u00c2\u00b7 edge-cold-lab-001",
+    "Gateway status \u00b7 edge-cold-lab-001",
     "Connected sources",
     "Effect on readiness and confidence"
    ],
@@ -3081,7 +3081,7 @@
    ],
    "frozen_titles": [
     "What we can conclude now",
-    "Data sources \u00c2\u00b7 data quality, not equipment condition",
+    "Data sources \u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "frozen_heights": [
@@ -3103,7 +3103,7 @@
    ],
    "frozen_titles": [
     "What we can conclude now",
-    "Data sources \u00c2\u00b7 data quality, not equipment condition",
+    "Data sources \u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "frozen_heights": [
@@ -3124,7 +3124,7 @@
     "rep"
    ],
    "frozen_titles": [
-    "What happened \u00e2\u2020\u2019 what it means in money",
+    "What happened \u2192 what it means in money",
     "Assumptions in use",
     "Not included"
    ],
@@ -3146,7 +3146,7 @@
     "rep"
    ],
    "frozen_titles": [
-    "What happened \u00e2\u2020\u2019 what it means in money",
+    "What happened \u2192 what it means in money",
     "Assumptions in use",
     "Not included"
    ],
@@ -3204,7 +3204,7 @@
     "rep"
    ],
    "frozen_titles": [
-    "What happened \u00c2\u00b7 power \u00e2\u2020\u2019 cooling \u00e2\u2020\u2019 product conditions",
+    "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
     "Chamber temperature",
     "Needs attention",
     "Bounded money consequence",
@@ -3230,7 +3230,7 @@
     "rep"
    ],
    "frozen_titles": [
-    "What happened \u00c2\u00b7 power \u00e2\u2020\u2019 cooling \u00e2\u2020\u2019 product conditions",
+    "What happened \u00b7 power \u2192 cooling \u2192 product conditions",
     "Chamber temperature",
     "Needs attention",
     "Bounded money consequence",
@@ -3341,7 +3341,7 @@
    ],
    "frozen_titles": [
     "Readiness and commissioning evidence",
-    "Gateway status \u00c2\u00b7 edge-ev-lab-001",
+    "Gateway status \u00b7 edge-ev-lab-001",
     "Connected sources",
     "Effect on readiness and confidence"
    ],
@@ -3363,7 +3363,7 @@
    ],
    "frozen_titles": [
     "Readiness and commissioning evidence",
-    "Gateway status \u00c2\u00b7 edge-ev-lab-001",
+    "Gateway status \u00b7 edge-ev-lab-001",
     "Connected sources",
     "Effect on readiness and confidence"
    ],
@@ -3633,7 +3633,7 @@
    ],
    "frozen_titles": [
     "What we can conclude now",
-    "Data sources \u00c2\u00b7 data quality, not equipment condition",
+    "Data sources \u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "frozen_heights": [
@@ -3655,7 +3655,7 @@
    ],
    "frozen_titles": [
     "What we can conclude now",
-    "Data sources \u00c2\u00b7 data quality, not equipment condition",
+    "Data sources \u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "frozen_heights": [
@@ -3676,7 +3676,7 @@
     "rep"
    ],
    "frozen_titles": [
-    "What happened \u00e2\u2020\u2019 what it means in money",
+    "What happened \u2192 what it means in money",
     "Assumptions in use",
     "Not included"
    ],
@@ -3698,7 +3698,7 @@
     "rep"
    ],
    "frozen_titles": [
-    "What happened \u00e2\u2020\u2019 what it means in money",
+    "What happened \u2192 what it means in money",
     "Assumptions in use",
     "Not included"
    ],
@@ -7388,7 +7388,7 @@
     "rep"
    ],
    "frozen_titles": [
-    "Maintenance record \u00c2\u00b7 activity"
+    "Maintenance record \u00b7 activity"
    ],
    "frozen_heights": [
     558
@@ -7406,7 +7406,7 @@
     "rep"
    ],
    "frozen_titles": [
-    "Maintenance record \u00c2\u00b7 activity"
+    "Maintenance record \u00b7 activity"
    ],
    "frozen_heights": [
     599

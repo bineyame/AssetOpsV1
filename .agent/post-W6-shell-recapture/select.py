@@ -2,7 +2,7 @@
 case of the 18 directly changed screens. Writes selection.json grouped by batch/part."""
 import json, collections, pathlib
 here = pathlib.Path(__file__).parent
-d = json.load(open(here.parent / "post-W6-audit/audit-index.json"))
+d = json.load(open(here.parent / "post-W6-audit/audit-index.json", encoding="utf-8"))
 pairs = d["pairs"]
 for p in pairs: p["width"] = str(p["width"])
 CHANGED = {"sites","foundation","readiness","sld","changes","asset","evidence-analysis","sitework-incidents",

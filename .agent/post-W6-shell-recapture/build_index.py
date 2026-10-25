@@ -7,7 +7,7 @@ index.json and index.md.
 """
 import json, pathlib, re, collections
 HERE = pathlib.Path(__file__).parent
-sel = json.load(open(HERE / "selection.json"))["pairs"]
+sel = json.load(open(HERE / "selection.json", encoding="utf-8"))["pairs"]
 CAPS = {  # Q23: (screen, panel title) -> {width: cap}
     ("evidence-analysis", "Accepted records behind the conclusions"): {"1440": 1200, "390": 1800},
     ("foundation", "Identity and operating obligations"): {"1440": 850, "390": 1050},
@@ -38,13 +38,13 @@ for s in sel:
     titles = a.get("titles") or []
     heights = {x.get("title"): round(x.get("h") or 0) for x in a.get("panels") or []}
     r.update(sha=rev, evidence=src, app_image=p.get("app_image"), titles=titles,
-             titles_match=titles == s["frozen_titles"], overflowX=a.get("overflowX"),
+             titles_match=titles == (s["frozen_titles"] or []), overflowX=a.get("overflowX"),
              clipped=a.get("clipped") or [], console_errors=len(a.get("consoleErrors") or []), heights=heights)
     flags = []
     if (a.get("overflowX") or 0) > 0: flags.append(f"overflowX {a.get('overflowX')}")
     if r["console_errors"]: flags.append(f"{r['console_errors']} console errors")
     is_open = bool(OPEN_CASE.search(s["case"]))
-    frozen = dict(zip(s["frozen_titles"], s["frozen_heights"]))
+    frozen = dict(zip(s["frozen_titles"] or [], s["frozen_heights"] or []))
     for t, h in heights.items():
         cap = CAPS.get((s["screen"], t), {}).get(s["width"])
         if cap is not None and s["screen"] == "evidence-analysis" and s["batch"] != 2:
