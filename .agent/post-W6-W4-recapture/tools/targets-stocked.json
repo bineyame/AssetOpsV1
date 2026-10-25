@@ -1,0 +1,12 @@
+[
+ {
+  "id": "sitework-incidents",
+  "case": "stocked",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "stocked",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ }
+]

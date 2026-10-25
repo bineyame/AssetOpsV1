@@ -1,0 +1,177 @@
+[
+ {
+  "id": "scenarios",
+  "case": "populated",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios",
+  "caps": [
+   {
+    "panel": "Financial scenarios",
+    "kind": "fields",
+    "fields": [
+     "[data-scenario-name]",
+     "[data-scenario-declared]"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "scenarios",
+  "case": "empty-window",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+  "caps": [
+   {
+    "panel": "Financial scenarios",
+    "kind": "fields",
+    "fields": [
+     "[data-scenario-name]",
+     "[data-scenario-declared]"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "scenarios",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+  "caps": [
+   {
+    "panel": "Financial scenarios",
+    "kind": "fields",
+    "fields": [
+     "[data-scenario-name]",
+     "[data-scenario-declared]"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "scenarios",
+  "case": "kobo-no-scenarios",
+  "url": "http://127.0.0.1:5452/sites/KOBO-001/financials/scenarios",
+  "caps": [
+   {
+    "panel": "Financial scenarios",
+    "kind": "fields",
+    "fields": [
+     "[data-scenario-name]",
+     "[data-scenario-declared]"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "alternatives",
+  "case": "db-time-409-late",
+  "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/5aa95380-c069-44ae-8a25-9ae8c0067cd5/alternatives?revision_id=e4547d5f-15bc-4f59-926f-28a13a6493b0",
+  "caps": []
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "late-settled-current",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c",
+  "caps": [
+   {
+    "panel": "Bounded opportunity",
+    "kind": "none"
+   },
+   {
+    "panel": "Next decision",
+    "kind": "none"
+   },
+   {
+    "panel": "Consequence basis",
+    "kind": "none"
+   }
+  ]
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "stale-k-before-late",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c?known_at=2026-10-25T21%3A32%3A08.222282Z",
+  "caps": [
+   {
+    "panel": "Bounded opportunity",
+    "kind": "none"
+   },
+   {
+    "panel": "Next decision",
+    "kind": "none"
+   },
+   {
+    "panel": "Consequence basis",
+    "kind": "none"
+   }
+  ]
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "refused-bad-known-at",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02394e82-cbaf-4fad-9d94-cc4b68a1bb4c?known_at=not-a-time",
+  "caps": [
+   {
+    "panel": "Bounded opportunity",
+    "kind": "none"
+   },
+   {
+    "panel": "Next decision",
+    "kind": "none"
+   },
+   {
+    "panel": "Consequence basis",
+    "kind": "none"
+   }
+  ]
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "late-stocked",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "caps": [
+   {
+    "panel": "Incidents at this site",
+    "kind": "fields",
+    "fields": [
+     "[data-work-case-title]",
+     "[data-work-mini-long^='work-mini-narrative']"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "late-stocked",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "caps": [
+   {
+    "panel": "Maintenance at this site",
+    "kind": "fields",
+    "fields": [
+     "[data-work-case-title]",
+     "[data-work-asset]",
+     "[data-work-activity]",
+     "[data-work-outcome-note]",
+     "[data-work-mini-long^='work-mini-next']"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "missing-day-limited",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/2e59f006-604f-4798-9fd2-f73fb494c303",
+  "caps": [
+   {
+    "panel": "Bounded opportunity",
+    "kind": "none"
+   },
+   {
+    "panel": "Next decision",
+    "kind": "none"
+   },
+   {
+    "panel": "Consequence basis",
+    "kind": "none"
+   }
+  ]
+ }
+]

@@ -1,0 +1,71 @@
+chrome pid 22768
+OK   sitework-incidents-one-incident-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 1440: real=291 synthetic=455 verified=true fields=10/10 clipped=10 open=788 openClipped=10 doc=0
+  Incidents at this site fields160-gap 1440: real=291 synthetic=488 verified=true fields=10/10 clipped=10 open=821 openClipped=10 doc=0
+OK   sitework-incidents-one-incident-390 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 390: real=354 synthetic=412 verified=true fields=10/10 clipped=10 open=1053 openClipped=10 doc=0
+  Incidents at this site fields160-gap 390: real=354 synthetic=494 verified=true fields=10/10 clipped=10 open=1136 openClipped=10 doc=0
+OK   sitework-maintenance-one-request-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Maintenance at this site fields160 1440: real=212 synthetic=832 verified=false fields=20/25 clipped=0 open=undefined openClipped=undefined doc=0
+  Maintenance at this site fields160-gap 1440: real=212 synthetic=865 verified=false fields=20/25 clipped=0 open=undefined openClipped=undefined doc=0
+OK   sitework-maintenance-one-request-390 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Maintenance at this site fields160 390: real=260 synthetic=1123 verified=false fields=20/25 clipped=0 open=undefined openClipped=undefined doc=0
+  Maintenance at this site fields160-gap 390: real=260 synthetic=1205 verified=false fields=20/25 clipped=0 open=undefined openClipped=undefined doc=0
+OK   sitework-incidents-empty-kobo-1440 h1="Kobo mini-grid" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 1440: real=337 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Incidents at this site fields160-gap 1440: real=337 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   sitework-incidents-empty-kobo-390 h1="Kobo mini-grid" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 390: real=403 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Incidents at this site fields160-gap 390: real=403 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   sitework-maintenance-empty-kobo-1440 h1="Kobo mini-grid" overflowX=0 panels=1 console=0
+  Maintenance at this site fields160 1440: real=317 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Maintenance at this site fields160-gap 1440: real=317 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   sitework-maintenance-empty-kobo-390 h1="Kobo mini-grid" overflowX=0 panels=1 console=0
+  Maintenance at this site fields160 390: real=383 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Maintenance at this site fields160-gap 390: real=383 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   sitework-incidents-empty-past-window-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 1440: real=337 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Incidents at this site fields160-gap 1440: real=337 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   sitework-incidents-empty-past-window-390 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 390: real=403 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Incidents at this site fields160-gap 390: real=403 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   sitework-incidents-refused-reversed-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 1440: real=145 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Incidents at this site fields160-gap 1440: real=145 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   sitework-incidents-refused-reversed-390 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 390: real=212 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Incidents at this site fields160-gap 390: real=212 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   sitework-maintenance-refused-reversed-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Maintenance at this site fields160 1440: real=145 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Maintenance at this site fields160-gap 1440: real=145 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   sitework-maintenance-refused-reversed-390 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Maintenance at this site fields160 390: real=233 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Maintenance at this site fields160-gap 390: real=233 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   sitework-incidents-refused-long-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 1440: real=145 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Incidents at this site fields160-gap 1440: real=145 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   sitework-incidents-refused-long-390 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 390: real=233 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Incidents at this site fields160-gap 390: real=233 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   sitework-incidents-no-window-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 1440: real=337 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Incidents at this site fields160-gap 1440: real=337 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   sitework-incidents-no-window-390 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 390: real=403 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Incidents at this site fields160-gap 390: real=403 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   opportunity-finding-supported-current-1440 h1="Productive-use headroom at Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   opportunity-finding-supported-current-390 h1="Productive-use headroom at Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   opportunity-finding-supported-historical-1440 h1="Productive-use headroom at Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   opportunity-finding-supported-historical-390 h1="Productive-use headroom at Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   scenarios-positive-default-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Financial scenarios fields160 1440: real=381 synthetic=977 verified=true fields=10/10 clipped=0 open=977 openClipped=0 doc=0
+  Financial scenarios fields160-gap 1440: real=381 synthetic=1014 verified=true fields=10/10 clipped=0 open=1014 openClipped=0 doc=0
+OK   scenarios-positive-default-390 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Financial scenarios fields160 390: real=473 synthetic=1337 verified=true fields=10/10 clipped=0 open=1337 openClipped=0 doc=0
+  Financial scenarios fields160-gap 390: real=473 synthetic=1424 verified=true fields=10/10 clipped=0 open=1424 openClipped=0 doc=0
+OK   alternatives-db-time-409-1440 h1="Generator support merits review: bounded candidate avoidable running" overflowX=0 panels=1 console=0
+OK   alternatives-db-time-409-390 h1="Generator support merits review: bounded candidate avoidable running" overflowX=0 panels=1 console=0
+OK   alternatives-no-revision-1440 h1="Generator support merits review: bounded candidate avoidable running" overflowX=0 panels=1 console=0
+OK   alternatives-no-revision-390 h1="Generator support merits review: bounded candidate avoidable running" overflowX=0 panels=1 console=0
+done 28 records
+exit 0

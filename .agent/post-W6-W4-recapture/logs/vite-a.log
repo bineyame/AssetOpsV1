@@ -1,0 +1,37 @@
+Re-optimizing dependencies because vite config has changed
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m504[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5451[22m/[39m
+[2m11:40:09 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/MiniPerformance.tsx[22m
+[2m11:40:09 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/sites/MiniPerformance.tsx[22m Could not Fast Refresh ("BUILT_MINI_PAGES" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m11:40:09 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/shell/SiteAnalyticsFrames.tsx, /src/sites/SitePerformance.tsx[22m
+[2m11:40:09 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/shell/SiteAnalyticsFrames.tsx[22m Could not Fast Refresh ("findingIndexScopeQuery" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m11:40:09 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/shell/SiteDetailFrame.tsx, /src/shell/SiteHealthFrames.tsx, /src/shell/evSiteRoutes.tsx[22m
+[2m11:40:09 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/sites/SitePerformance.tsx[22m Could not Fast Refresh ("useResolvedAlternativesHref" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m11:40:09 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/shell/SiteAnalyticsFrames.tsx[22m
+[2m11:41:07 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/MiniPerformance.tsx[22m
+[2m11:41:08 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/sites/MiniPerformance.tsx[22m Could not Fast Refresh ("BUILT_MINI_PAGES" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m11:41:08 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/shell/SiteAnalyticsFrames.tsx, /src/sites/SitePerformance.tsx[22m
+[2m11:41:08 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/shell/SiteAnalyticsFrames.tsx[22m Could not Fast Refresh ("findingIndexScopeQuery" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m11:41:08 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/shell/SiteDetailFrame.tsx, /src/shell/SiteHealthFrames.tsx, /src/shell/evSiteRoutes.tsx[22m
+[2m11:41:08 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/sites/SitePerformance.tsx[22m Could not Fast Refresh ("useResolvedAlternativesHref" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m11:41:08 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/shell/SiteAnalyticsFrames.tsx[22m
+[2m11:41:23 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/MiniPerformance.tsx[22m
+[2m11:41:24 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/sites/MiniPerformance.tsx[22m Could not Fast Refresh ("BUILT_MINI_PAGES" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m11:41:24 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/shell/SiteAnalyticsFrames.tsx, /src/sites/SitePerformance.tsx[22m
+[2m11:41:24 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/shell/SiteAnalyticsFrames.tsx[22m Could not Fast Refresh ("findingIndexScopeQuery" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m11:41:24 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/shell/SiteDetailFrame.tsx, /src/shell/SiteHealthFrames.tsx, /src/shell/evSiteRoutes.tsx[22m
+[2m11:41:24 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/sites/SitePerformance.tsx[22m Could not Fast Refresh ("useResolvedAlternativesHref" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m11:41:24 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/shell/SiteAnalyticsFrames.tsx[22m
+[2m11:50:46 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/MiniPerformance.tsx[22m
+[2m11:51:45 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/MiniPerformance.tsx[22m
+[2m11:51:54 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/MiniPerformance.tsx[22m
+[2m12:18:27 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/siteWorkCases.tsx[22m
+[2m12:18:27 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/w4-work-cases.css[22m
+[2m12:21:06 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/w4-work-cases.css[22m
+[2m12:21:06 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/siteWorkCases.tsx[22m
+[2m12:21:27 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/siteWorkCases.tsx[22m
+[2m12:21:27 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/w4-work-cases.css[22m
+[2m12:21:28 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/w4-work-cases.css[22m
+[2m12:21:46 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/sites/w4-work-cases.css[22m

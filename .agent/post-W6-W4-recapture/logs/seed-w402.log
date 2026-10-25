@@ -1,0 +1,6 @@
+C:\Users\assef\Bineyame\AssetOpsV1\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+Issued aog1.b9418207d1f798ef8b777ee9e3790741.<redacted> for gateway 'edge-mg-w402-001'; revoked 0 earlier credential(s); enabled the gateway and 11 named source(s). The secret was written only to C:\Users\assef\AppData\Local\Temp\tmp9qns7043\cred.b9418207d1f798ef8b777ee9e3790741, verified readable by the current user only. Set the gateway's upload_credential_file to that path before its next upload; the earlier credential file was left untouched and its credential no longer authenticates.
+Credential file: C:\Users\assef\AppData\Local\Temp\tmp9qns7043\cred.b9418207d1f798ef8b777ee9e3790741
+site 0630d4b1-d127-45bf-923f-6b919fb44e9d accepted {'positive': 3321, 'missing-conflicting': 326} selections 123 jobs 123
+exit 0
