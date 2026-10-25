@@ -160,6 +160,7 @@ const MEASURE = String.raw`(() => {
     header: hr ? { cls: String(header.className).slice(0, 60), h: Math.round(hr.height), bg: getComputedStyle(header).backgroundColor } : null,
     h1: h1 ? { text: txt(h1).slice(0, 120), top: Math.round(h1r.top + scrollY), ...font(h1) } : null,
     fonts: { body: font(document.body), prose: font(prose), proseSizes: [...new Set(proseAll)], h2: font(h2), td: font(td), th: font(th) },
+    objectivesFootnote: document.querySelector("[data-portfolio-panel='objectives'] .chart-note")?.textContent ?? null,
     tableCols: [...root.querySelectorAll("table.data-table")].map((t) => { const sc = t.closest(".data-table__scroll"); const sr = sc.getBoundingClientRect();
       const ths = [...t.querySelectorAll("thead th")].map((h) => { const r = h.getBoundingClientRect(); return { th: h.textContent.trim(), w: Math.round(r.width), visibleW: Math.round(Math.max(0, Math.min(r.right, sr.right) - Math.max(r.left, sr.left))) }; });
       return { tableW: Math.round(t.getBoundingClientRect().width), scrollerClientW: sc.clientWidth, ths }; }),

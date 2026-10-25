@@ -158,3 +158,26 @@ The owner walkthrough comes after W6, per the standing rule. Merge waits on the 
 
 - `tsc --noEmit`: exit 0.
 - Full vitest: **126/126 files, 2983/2983 tests passed**.
+
+## Fix round (review M1, closeout rulings 1-3)
+
+Evidence: `.agent/post-W6-W3-estate-recapture/fix-round/` (parts `part-b10-positive`, `part-b10-partial`, `part-w302-fin`, `part-w303-positive`, `part-w303-partial`; `cap-table.txt`; logs). Producers unmodified (W3-01 `serve.py`, W3-02 `serve.py`, W3-03 `test_serve_portfolio.py` with `W303_ROUTER=capture`), one at a time; the `*_test` DBs I created were dropped and every server stopped by PID.
+
+**M1.** Root cause: the other columns' percent widths sum to 77% of a 900 px table, so the first column received the remainder (about 205 px); `col:first-child` and `max-width` had no effect. Fix: the Findings `<col>` elements carry `estate-findings-col`, and at 640 px and below the table is `table-layout: fixed` at 672 px with pixel widths 152/80/64/90/84/126/76 (`estate.css`, `findingIndex.tsx`). Measured at 390 (partial and positive, `tableCols` in evidence.json): Finding 152 px, Site 80, Priority 64, Confidence 22 of 90 visible (scroller 318 px), table 672 px, document overflow 0. The lens pages share the table but have no rows to render (Q20), so only the structural test covers them. Test `M1: the Findings index table renders a colgroup...` (estateRoots.test.tsx) renders the Findings and cost-lens routes, asserts 7 `col.estate-findings-col` equal to the th count, and the CSS pixel set (152 first, sum 672). Proof: removing `className` from `findingIndex.tsx` (single file, reverted by checkout) fails that test; with it, estateRoots 12/12.
+
+**Ruling 3.** `OBJECTIVES_FOOTNOTE` set verbatim; the Portfolio test asserts it exactly and that "Site detail is unavailable for these cells." is absent. Captured footnote text at 1440 and 390 (`objectivesFootnote` in evidence.json) is the ruled sentence.
+
+**Ruling 1 and 2 probe.** `tools/probe.js` now sets every intended variable field of all five clones to exactly 160 characters and asserts it (`verified`, `fields160/intendedFields`). Typed columns (Value, Priority, Confidence, State, Lens) keep real text. Register: Site, Category, Window/quantity, Basis/limit (cell, with the Limits disclosure text) and Source, all five changed (`changedColumns`). Objectives (five fixed rows) is padded to five Sites, with every Site name and cell label/note set to 160 characters. Outputs are labelled `synthetic: true`.
+
+| Panel | Cap 1440/390 | Synthetic 1440/390 | Result |
+| --- | --- | --- | --- |
+| Consequence register | 1050/1800 | 974/1575 (w303), 974/1407 (w302) | within; doc overflow 0, clipped 0, table scroller 800/318 at 390 |
+| Objectives across the estate | 600/800 | 336/321 | within; five fixed rows stay one line in the matrix's own scroller (3872/275-328), 0 clipped |
+| Where management should act first | 900/1200 | 784/854 | within; 0 clipped |
+| Findings across the estate | 1000/1500 | 1686/3549 (rows 304/671 px) | EXCEEDS under the all-field reading |
+| Managed actions | 750/1100 | 1655/2225 (rows 304/414 px) | EXCEEDS |
+| Evidence panels (no cap ruled) | none | Recurring gaps 287/549; Capability coverage unchanged | informational |
+
+The old probe changed only the first text, or only the Limit; its Findings 774/976 and Actions 624/730 figures were not all-field. Findings and Actions are over their caps under the strict reading, and ruling 2's improve-widths fallback was ruled for the register only. They are returned for an Architect ruling (cap, or whether ruling 1 means all fields for these tables). At 390 the M1 fixed 672 px layout makes the Findings case taller than the old 205 px layout would (3549 vs 2575). Document overflow and clipped text are 0 everywhere.
+
+Targeted checks: estate vitest folder, `tsc --noEmit` (clean), `check-all.ps1` (see report). No full suites, no build.
