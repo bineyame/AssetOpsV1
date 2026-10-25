@@ -1,0 +1,10 @@
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m1289[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5199[22m/[39m
+[2m7:30:31 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/sites/EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18441
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
+[2m7:30:35 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/sites/EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18441
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)

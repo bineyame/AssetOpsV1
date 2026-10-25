@@ -1,0 +1,27 @@
+﻿chrome pid 28184
+PASS  loaded http://127.0.0.1:5392/sites/EV-LAB-001/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-r353-evwc-site-from-incidents 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-r353-evwc-site-from-incidents 1440: mock rendered
+PASS  link-r353-evwc-site-from-incidents 1440: same panel count  {"app":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"],"mock":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"]}
+PASS  link-r353-evwc-site-from-incidents 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/sites/EV-LAB-001/ev: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-r353-evwc-site-from-incidents 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/ev: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-r353-evwc-site-from-incidents 390: mock rendered
+PASS  link-r353-evwc-site-from-incidents 390: same panel count  {"app":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"],"mock":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"]}
+PASS  link-r353-evwc-site-from-incidents 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/sites/EV-LAB-001/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-r353-evwc-site-from-maintenance 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-r353-evwc-site-from-maintenance 1440: mock rendered
+PASS  link-r353-evwc-site-from-maintenance 1440: same panel count  {"app":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"],"mock":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"]}
+PASS  link-r353-evwc-site-from-maintenance 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/sites/EV-LAB-001/ev: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-r353-evwc-site-from-maintenance 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/ev: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-r353-evwc-site-from-maintenance 390: mock rendered
+PASS  link-r353-evwc-site-from-maintenance 390: same panel count  {"app":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"],"mock":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"]}
+PASS  link-r353-evwc-site-from-maintenance 390: no app page overflow  {"overflowX":0}
+
+24/24 claims passed; evidence in ..\part-linkevwc

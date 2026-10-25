@@ -1,0 +1,38 @@
+[
+ {
+  "id": "link",
+  "case": "linkev-site-incidents",
+  "url": "http://127.0.0.1:5388/sites/EV-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "mock": "ev-work-incidents"
+ },
+ {
+  "id": "link",
+  "case": "linkev-site-overview",
+  "url": "http://127.0.0.1:5388/sites/EV-LAB-001/ev",
+  "mock": "ev"
+ },
+ {
+  "id": "link",
+  "case": "linkev-action",
+  "url": "http://127.0.0.1:5388/sites/EV-LAB-001/actions/842de2dc-231e-47ef-ab7d-84cbc57a9cfb/verification",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link",
+  "case": "linkev-request",
+  "url": "http://127.0.0.1:5388/maintenance/requests/737e90de-f711-4bc8-b600-6257d721474c?site_id=EV-LAB-001",
+  "mock": "wr-overview"
+ },
+ {
+  "id": "link",
+  "case": "r353-ev-site-from-incidents",
+  "url": "http://127.0.0.1:5388/sites/EV-LAB-001/ev",
+  "mock": "ev"
+ },
+ {
+  "id": "link",
+  "case": "r353-ev-site-from-maintenance",
+  "url": "http://127.0.0.1:5388/sites/EV-LAB-001/ev",
+  "mock": "ev"
+ }
+]

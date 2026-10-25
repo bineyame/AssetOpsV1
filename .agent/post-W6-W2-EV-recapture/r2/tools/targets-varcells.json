@@ -1,0 +1,31 @@
+[
+ {
+  "id": "ev-findings",
+  "case": "inventory-check-window",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+  "caps": [
+   {
+    "panel": "Findings at this site",
+    "kind": "rows",
+    "varCells": [
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "ev-evidence-analysis",
+  "case": "interrupted",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+  "caps": [
+   {
+    "panel": "Accepted records behind the conclusions",
+    "kind": "rows",
+    "varCells": [
+     0,
+     1
+    ]
+   }
+  ]
+ }
+]

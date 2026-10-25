@@ -1,0 +1,21 @@
+[
+ {
+  "h": "Preventive plan",
+  "H": 265,
+  "trs": 1,
+  "det": 2,
+  "ths": [
+   "Plan item:269",
+   "Asset / site:179",
+   "Trigger:157",
+   "Last done:112",
+   "Next due:134",
+   "State:90",
+   "What it proves:179"
+  ],
+  "rowHs": [
+   99
+  ],
+  "rowTall": "<tr data-global-work-row=\"ee0c2db2-2e23-4e57-abfb-88019ee91705\"><td><div class=\"global-work-clamp\" data-global-work-title=\"\">PM-000008 · QuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterl</div><details class=\"global-work-details\" data-global-work-full-title=\"true\"><summary>Full title text</summary>QuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterl</details><details class=\"global-work-details\" data-global-work-source=\"UNKNOWN\"><summary>Source unverified</summary>The origin of this authored work record is not established. No work outcome is verified.</details></td><td><div class=\"global-work-clamp\" data-global-work-asset-site=\"\">No asset recorded · <a data-global-work-site=\"KOBO-001\" href=\"/sites/KOBO-001\">Kobo mini-grid</a></div></td><td><div class=\"global-work-clamp\" data-global-work-trigger=\"\">Calendar</div></td><td><div class=\"global-work-clamp\">Not linked</div></td><td><div class=\"global-work-clamp\" data-global-work-due=\"\">Not set</div></td><td><span class=\"w1f4-action-badge\" data-global-work-state=\"DRAFT\" data-global-work-tone=\"neutral\">Draft</span></td><td><div class=\"global-work-clamp\">Nothing verified by this plan</div></td></tr>"
+ }
+]

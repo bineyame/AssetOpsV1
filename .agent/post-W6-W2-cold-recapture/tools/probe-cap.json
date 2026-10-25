@@ -1,0 +1,13 @@
+[
+ {
+  "id": "cold-findings",
+  "case": "stocked",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "caps": [
+   {
+    "panel": "Findings at this site",
+    "kind": "coldrows"
+   }
+  ]
+ }
+]

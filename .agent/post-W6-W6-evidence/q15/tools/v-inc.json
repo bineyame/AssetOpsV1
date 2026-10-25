@@ -1,0 +1,14 @@
+[
+ {
+  "name": "incidents-cases-positive",
+  "url": "http://127.0.0.1:5390/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "kind": "rows5",
+  "panel": "Incident cases"
+ },
+ {
+  "name": "incidents-boundaries-positive",
+  "url": "http://127.0.0.1:5390/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "kind": "asIs",
+  "panel": "Case boundaries"
+ }
+]

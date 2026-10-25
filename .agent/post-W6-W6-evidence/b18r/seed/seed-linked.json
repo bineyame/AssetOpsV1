@@ -1,0 +1,71 @@
+{
+  "action_event_id": "f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+  "action_id": "307a0960-e590-451f-8642-eaf6d12c45d3",
+  "clock": "2026-10-20T12:00:00Z",
+  "commands": [],
+  "finding_id": "81bdbc13-c421-4f01-b676-766512f0a275",
+  "finding_revision_id": "dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+  "fixture": "linked",
+  "hrefs": {
+    "incidents": {
+      "action": {
+        "href": "/sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+        "label": "ACT-000001"
+      },
+      "code": "INC-000001",
+      "finding": {
+        "href": "/sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+        "label": "Finding 81bdbc13"
+      },
+      "known_at": "2026-10-25T16:17:34Z"
+    },
+    "maintenance": {
+      "action": {
+        "href": "/sites/KOBO-001/actions/307a0960-e590-451f-8642-eaf6d12c45d3?event_id=f57d9d17-0122-4305-8f17-6ecbda21f4bb",
+        "label": "ACT-000001"
+      },
+      "code": "WR-000002",
+      "finding": {
+        "href": "/sites/KOBO-001/findings/81bdbc13-c421-4f01-b676-766512f0a275?revision_id=dd1e24cb-2bf1-4821-8157-0c440d8784b6",
+        "label": "Finding 81bdbc13"
+      },
+      "known_at": "2026-10-25T16:17:35Z"
+    }
+  },
+  "site_id": "65d67201-e433-40d7-9df5-236c290a24b4",
+  "sites": [
+    {
+      "site_code": "KOBO-001",
+      "site_id": "65d67201-e433-40d7-9df5-236c290a24b4",
+      "tenant": "demo",
+      "tenant_id": "23a2e355-3ecb-4624-bb6f-ba44e00a9203"
+    }
+  ],
+  "tenant_id": "23a2e355-3ecb-4624-bb6f-ba44e00a9203",
+  "written": [
+    {
+      "case_id": "4d24a3c4-30e3-47ef-97b8-4457974ec241",
+      "code": "INC-000001",
+      "kind": "INCIDENT",
+      "revision_id": "004ad12f-75c1-46be-92d8-984b4eb4b072",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "5bf4e4f1-8039-48e8-9932-3209201ebba1",
+      "code": "WR-000002",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "dea5450d-7b67-418a-8203-33b6510ad98b",
+      "code": "WR-000003",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+[
+ {"id": "sitefindings", "case": "stocked", "url": "http://127.0.0.1:5196/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch", "index_batch": "rep"}
+]

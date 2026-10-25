@@ -18,7 +18,7 @@ import { HealthLinksContext, SiteHealth, type HealthLinks } from "../sites/SiteH
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { siteSourceModeLabel } from "../sites/siteViewModel";
 import { Breadcrumbs, PageHeader, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
-import { coldSiteRoutes } from "./coldSiteRoutes";
+import { coldSiteRoutes, coldTabSearch } from "./coldSiteRoutes";
 import { siteAssetHref, siteAssetsHref, siteDetailHref, siteHealthHref, sitePerformanceHref } from "./operatorSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { SiteScoped } from "./SiteAnalyticsFrames";
@@ -68,7 +68,7 @@ export function SiteHealthFrame({
             description={SITE_SCREEN_DESCRIPTIONS.health}
             headingId={SITE_HEALTH_HEADING_ID}
           />
-          <OperatorSiteTabs siteId={site.site_id} current="Health" />
+          <OperatorSiteTabs siteId={site.site_id} current="Health" search={coldTabSearch(site, params)} />
           <HealthLinksContext.Provider value={LINKS}>
             {site.site_type === "COLDCHAIN" ? (
               /* W5-F1 F1-1 (R22): v69 cold-health ends at Condition and evidence; no Data sources panel. */

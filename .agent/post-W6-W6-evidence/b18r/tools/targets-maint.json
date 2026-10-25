@@ -1,0 +1,43 @@
+[
+ {
+  "id": "maintenance",
+  "case": "positive",
+  "url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "all-open",
+  "url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "maintenance",
+  "case": "page-two",
+  "url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6OGEwNTI3ZDQ2M2I1YjgyOGIwNjM4ZjYwMWM0Mzk5ZjAxYjI3YmRmMTBmN2EzNDQ3YTgxODJkY2JkYmY5OWZlMCIsImFmdGVyIjpbIjIwMjYtMTAtMjBUMTE6NTk6MDIuMDAwMDAwWiIsImtvYm8tMDAxIiwiZjdiYzAwYTgtNTcyZS00N2I1LTg4YjEtYjdjZmMwMGFmY2FkIiwiMDY1NWJkOGItYThjYS00MGZiLThiZTAtNWYxMGJhNTdhODIzIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMDFjMzExOTYtY2YwMC00Yjk4LWI1YzAtNTRmZDI1MzkyYTNlIiwiZjdiYzAwYTgtNTcyZS00N2I1LTg4YjEtYjdjZmMwMGFmY2FkIl0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yNVQxNzoxNTo0OC40MzA4OTlaIiwibWFjIjoiNTRkN2RkNTYwNDc0MDVlMjA4Yjg4MTcwNzY0NjQ3MGIzZjgxNTNhMjU5ZDhkYTA3NzAzMGY4OTIxMDUzM2RiNiIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJtYWludGVuYW5jZSIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo3NGRiMmY4M2UwYjJiMzdlYWFhZmIzNjllNTJkZTc1MmQ4Y2M5YWY5N2I3ZDA1MzAyODcyZDRiMmY4YzU3MDQwIiwidGVuYW50X2lkIjoiNzhmYzQ4YzktZTJhZS00MzM4LTgzODktMzY1ODk5MWJmZjA0IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ"
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5392/maintenance?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-span-32d",
+  "url": "http://127.0.0.1:5392/maintenance?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-one-bound",
+  "url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-bad-known-at",
+  "url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time"
+ },
+ {
+  "id": "maintenance",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5392/maintenance"
+ }
+]

@@ -1,0 +1,12 @@
+chrome pid 24788
+OK   cold-findings-stocked-1440 h1="Cold replay lab" overflowX=0 panels=1 console=0
+  Findings at this site title160 1440: real=300 synthetic=516 verified=true fields=5/5 clipped=0 open=516 openClipped=0 doc=0
+  Findings at this site title160-gap 1440: real=300 synthetic=559 verified=true fields=5/5 clipped=0 open=559 openClipped=0 doc=0
+  Findings at this site title-episode160 1440: real=300 synthetic=531 verified=true fields=10/10 clipped=0 open=531 openClipped=0 doc=0
+  Findings at this site title-episode160-gap 1440: real=300 synthetic=574 verified=true fields=10/10 clipped=0 open=574 openClipped=0 doc=0
+OK   cold-findings-stocked-390 h1="Cold replay lab" overflowX=0 panels=1 console=0
+  Findings at this site title160 390: real=321 synthetic=714 verified=true fields=5/5 clipped=0 open=714 openClipped=0 doc=0
+  Findings at this site title160-gap 390: real=321 synthetic=806 verified=true fields=5/5 clipped=0 open=806 openClipped=0 doc=0
+  Findings at this site title-episode160 390: real=321 synthetic=534 verified=true fields=10/10 clipped=0 open=534 openClipped=0 doc=0
+  Findings at this site title-episode160-gap 390: real=321 synthetic=626 verified=true fields=10/10 clipped=0 open=626 openClipped=0 doc=0
+done 2 records

@@ -13,6 +13,7 @@ import { featureFlagsWith } from "../../config/featureFlags";
 import { MAINTENANCE_PATH } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { disclosureNames, stubCellOverflow } from "./cellDisclosureStub";
 import { GlobalMaintenanceFrame } from "../GlobalMaintenance";
 import {
   createGlobalWorkClient,
@@ -38,6 +39,7 @@ function row(n: number, over: Partial<GlobalMaintenanceRow> = {}): GlobalMainten
     site_name: "Kobo",
     site_id: "00000000-0000-4000-8000-000000000002",
     site_code_key: "kobo-001",
+    site_domain: "MINIGRID",
     case_id: `00000000-0000-4000-8000-${String(100 + n).padStart(12, "0")}`,
     code: `WR-${String(n).padStart(6, "0")}`,
     kind: "MAINTENANCE_REQUEST",
@@ -348,7 +350,8 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}&site_id=KOBO-001`, reads);
     await settled();
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: KNOWN, cursor: null }]);
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00 UTC");
+    // Post-W6 W6 Q14 (R372): seconds on the historical line.
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 UTC");
     expect(cards()).not.toBeNull();
   });
 
@@ -477,5 +480,115 @@ describe("W6-01b B2: the /maintenance route in the app shell", () => {
     expect(link).toHaveAttribute("href", "/maintenance");
     expect(link).toHaveAttribute("aria-current", "page");
     expect(reads.calls).toHaveLength(1);
+  });
+});
+
+describe("Post-W6 W6: global Maintenance corrections", () => {
+  afterEach(cleanup);
+
+  it("R352: cold and EV Findings are plain text; a mini-grid Finding keeps its link", async () => {
+    const finding = { label: "Finding a1b2c3d4", href: "/sites/X/findings/f1?revision_id=r1" };
+    const rows = [
+      row(1, { site_domain: "MINIGRID", finding_links: [finding] }),
+      row(2, { site_domain: "COLDCHAIN", finding_links: [finding] }),
+      row(3, { site_domain: "EV_CHARGING", finding_links: [finding] }),
+    ];
+    mount(PAGE, client({ "page-one": loaded(body(rows)) }));
+    await settled();
+    const lineage = Array.from(document.querySelectorAll('[data-global-work-lineage="linked"]'));
+    expect(lineage).toHaveLength(3);
+    expect(within(lineage[0] as HTMLElement).getByRole("link", { name: "Finding a1b2c3d4" })).toHaveAttribute("href", finding.href);
+    for (const cell of lineage.slice(1)) {
+      expect(text(cell)).toBe("Finding a1b2c3d4");
+      expect(within(cell as HTMLElement).queryByRole("link")).toBeNull();
+    }
+  });
+
+  it("Q18: one open request is singular; asset labels read as plain words", async () => {
+    const rows = [
+      row(1, { state: "OPEN", asset_label: "c1 · EV_CONNECTOR" }),
+      row(2, { state: "COMPLETED", asset_label: "generator-1 · GENERATOR" }),
+    ];
+    mount(PAGE, client({ "page-one": loaded(body(rows, { state_counts: { OPEN: 1, IN_PROGRESS: 0, COMPLETED: 1, CANCELLED: 0 } })) }));
+    await settled();
+    expect(text(document.querySelector('[data-global-work-card="open"]'))).toContain("1 request in progress or open");
+    const assets = Array.from(document.querySelectorAll("[data-global-work-asset-site]")).map(text);
+    expect(assets[0]).toMatch(/^EV connector c1 · /);
+    expect(assets[1]).toMatch(/^Backup generator · generator-1 · /);
+    expect(document.body.textContent).not.toMatch(/EV_CONNECTOR|· GENERATOR/);
+  });
+
+  it("R354: a later page opened from its URL states its count without a range", async () => {
+    mount(`${PAGE}&cursor=CURSOR-2`, client({ "CURSOR-2": loaded(body([row(6)], { total_count: 6 })) }));
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 6");
+  });
+
+  it("M1: Next from a URL-opened later page still states no numeric range (the offset stays unknown)", async () => {
+    mount(
+      `${PAGE}&cursor=CURSOR-2`,
+      client({
+        "CURSOR-2": loaded(body([row(6)], { total_count: 12, next_cursor: "CURSOR-3" })),
+        "CURSOR-3": loaded(body([row(7)], { total_count: 12 })),
+      }),
+    );
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 12");
+    fireEvent.click(document.querySelector("[data-global-work-next]") as HTMLElement);
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 12");
+    expect(document.querySelector("[data-global-work-showing]")?.textContent).not.toMatch(/\d+–\d+/);
+  });
+
+  it("Q7/Q8/Q17: membership line, alert refusal and the R355/R358 labels", async () => {
+    mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+    await settled();
+    expect(text(document.querySelector("[data-global-work-membership]"))).toBe("Listed by the time each request was opened.");
+    const panel = panelTitled("Corrective work requests");
+    expect(text(panel.querySelector('[data-mock-deviation="R355"]'))).toBe("MOCK DEVIATION D1 (R355)");
+    expect(text(panel.querySelector('[data-mock-deviation="R358"]'))).toBe("MOCK DEVIATION D1 (R358)");
+    cleanup();
+    mount(PAGE, client({ "page-one": { status: "refused", code: "UNAUTHENTICATED" } }));
+    await settled();
+    expect(within(screen.getByRole("main")).getByRole("alert")).toHaveAttribute("data-global-work-refusal", "UNAUTHENTICATED");
+  });
+});
+
+describe("Post-W6 W6 caps ruling 4: in-cell disclosure on Corrective work requests", () => {
+  it("gives each listed clamped cell a Show full button only when its value overflows the two-line preview", async () => {
+    const restore = stubCellOverflow(0);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Corrective work requests").querySelector("tbody tr") as HTMLElement;
+      expect(disclosureNames(tr)).toEqual([
+      "Show full Work request links for WR-000001",
+      "Show full Asset / site for WR-000001",
+      "Show full Owner for WR-000001",
+      ]);
+      for (const button of Array.from(tr.querySelectorAll("button[data-cell-disclosure-toggle]"))) {
+        expect(button.textContent).toBe("Show full");
+        expect(button.closest("a")).toBeNull();
+      }
+      const first = tr.querySelector("button[data-cell-disclosure-toggle]") as HTMLButtonElement;
+      fireEvent.click(first);
+      expect(first.textContent).toBe("Show less");
+      expect(first.getAttribute("aria-label")).toBe("Show less Work request links for WR-000001");
+    } finally {
+      restore();
+    }
+  });
+
+  it("shows values that fit plainly, with no disclosure buttons", async () => {
+    const restore = stubCellOverflow(100000);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Corrective work requests").querySelector("tbody tr") as HTMLElement;
+      expect(tr.querySelectorAll("[data-cell-disclosure]")).toHaveLength(3);
+      expect(disclosureNames(tr)).toEqual([]);
+    } finally {
+      restore();
+    }
   });
 });

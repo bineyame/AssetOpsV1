@@ -1,0 +1,12 @@
+﻿DONE inc 96/96 claims passed; evidence in ..\part-inc
+DONE maint 96/96 claims passed; evidence in ..\part-maint
+DONE prev 84/84 claims passed; evidence in ..\part-prev
+DONE op 180/180 claims passed; evidence in ..\part-op
+DONE zero 48/48 claims passed; evidence in ..\part-zero
+DONE hist 48/48 claims passed; evidence in ..\part-hist
+DONE stress 96/96 claims passed; evidence in ..\part-stress
+DONE linked 35/36 claims passed; evidence in ..\part-linked
+DONE absent 48/48 claims passed; evidence in ..\part-absent
+DONE scope 48/48 claims passed; evidence in ..\part-scope
+DONE probe 12/12 claims passed; evidence in ..\part-probe
+ALL_DONE

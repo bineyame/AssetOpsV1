@@ -11,6 +11,9 @@ const ZONE_ABBREVIATION: Record<string, string> = {
   "Africa/Nairobi": "EAT",
   "Africa/Dar_es_Salaam": "EAT",
   "Africa/Kampala": "EAT",
+  "Africa/Asmara": "EAT",
+  "Africa/Djibouti": "EAT",
+  "Africa/Mogadishu": "EAT",
   "Etc/UTC": "UTC",
   UTC: "UTC",
   "Etc/GMT": "UTC",
@@ -58,6 +61,11 @@ function parts(d: Date, timeZone: string): { y: number; m: number; day: number; 
   });
   const get = (type: string) => f.formatToParts(d).find((p) => p.type === type)?.value ?? "";
   return { y: Number(get("year")), m: Number(get("month")), day: Number(get("day")), hh: get("hour"), mm: get("minute"), ss: get("second") };
+}
+
+/** True when the Site timezone is present and a valid IANA zone (UI guide section 4). */
+export function siteZoneAvailable(timeZone: string | null | undefined): boolean {
+  return validZone(timeZone) !== null;
 }
 
 /** The header label for a Site timezone (`EAT`, `UTC`, or Intl's short name); `UTC` when missing or invalid. */

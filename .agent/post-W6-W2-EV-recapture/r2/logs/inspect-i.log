@@ -1,0 +1,110 @@
+chrome pid 29748
+OK   ev-readiness-stocked-1440 h1="EV charging lab" overflowX=0 panels=2 console=0
+  Gateway status rows160 1440: real=688 synthetic=736 verified=true fields=5/5 clipped=0 open=1524 openClipped=0 doc=0
+  Gateway status rows160-gap 1440: real=688 synthetic=753 verified=true fields=5/5 clipped=0 open=1541 openClipped=0 doc=0
+  Gateway status allrows160 1440: real=688 synthetic=1297 verified=true fields=16/16 clipped=0 open=2085 openClipped=0 doc=0
+OK   ev-readiness-stocked-390 h1="EV charging lab" overflowX=0 panels=2 console=0
+  Gateway status rows160 390: real=1669 synthetic=1500 verified=true fields=5/5 clipped=0 open=2933 openClipped=0 doc=0
+  Gateway status rows160-gap 390: real=1669 synthetic=1533 verified=true fields=5/5 clipped=0 open=2966 openClipped=0 doc=0
+  Gateway status allrows160 390: real=1669 synthetic=2239 verified=true fields=16/16 clipped=0 open=3672 openClipped=0 doc=0
+OK   ev-readiness-no-version-1440 h1="EV charging lab" overflowX=0 panels=2 console=0
+OK   ev-readiness-no-version-390 h1="EV charging lab" overflowX=0 panels=2 console=0
+OK   sessions-interrupted-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+  Session service records rows160 1440: real=206 synthetic=765 verified=true fields=30/30 clipped=0 open=943 openClipped=0 doc=0
+  Session service records rows160-gap 1440: real=206 synthetic=798 verified=true fields=30/30 clipped=0 open=976 openClipped=0 doc=0
+  Session service records firstcell160 1440: real=206 synthetic=490 verified=true fields=5/5 clipped=0 open=668 openClipped=0 doc=0
+OK   sessions-interrupted-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+  Session service records rows160 390: real=240 synthetic=1258 verified=true fields=30/30 clipped=0 open=1587 openClipped=0 doc=0
+  Session service records rows160-gap 390: real=240 synthetic=1340 verified=true fields=30/30 clipped=0 open=1669 openClipped=0 doc=0
+  Session service records firstcell160 390: real=240 synthetic=777 verified=true fields=5/5 clipped=0 open=1106 openClipped=0 doc=0
+OK   sessions-default-window-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   sessions-default-window-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   sessions-no-selection-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   sessions-no-selection-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   sessions-refused-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   sessions-refused-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-finding-interrupted-1440 h1="Observed EV charging interruption" overflowX=0 panels=3 console=0
+  Bounded conclusion rows160 1440: real=279 synthetic=279 verified=true fields=5/5 clipped=0 open=620 openClipped=0 doc=0
+  Bounded conclusion rows160-gap 1440: real=279 synthetic=331 verified=true fields=5/5 clipped=0 open=672 openClipped=0 doc=0
+OK   ev-finding-interrupted-390 h1="Observed EV charging interruption" overflowX=0 panels=3 console=0
+  Bounded conclusion rows160 390: real=401 synthetic=625 verified=true fields=5/5 clipped=0 open=1289 openClipped=0 doc=0
+  Bounded conclusion rows160-gap 390: real=401 synthetic=793 verified=true fields=5/5 clipped=0 open=1457 openClipped=0 doc=0
+OK   ev-finding-no-window-1440 h1="Observed EV charging interruption" overflowX=0 panels=3 console=0
+OK   ev-finding-no-window-390 h1="Observed EV charging interruption" overflowX=0 panels=3 console=0
+OK   ev-finding-refused-1440 h1="Finding" overflowX=0 panels=3 console=0
+OK   ev-finding-refused-390 h1="Finding" overflowX=0 panels=3 console=0
+OK   ev-finding-unknown-id-1440 h1="Finding" overflowX=0 panels=3 console=0
+OK   ev-finding-unknown-id-390 h1="Finding" overflowX=0 panels=3 console=0
+OK   ev-finding-recommendation-address-1440 h1="Observed EV charging interruption" overflowX=0 panels=3 console=0
+OK   ev-finding-recommendation-address-390 h1="Observed EV charging interruption" overflowX=0 panels=3 console=0
+OK   ev-finding-evidence-child-1440 h1="Finding" overflowX=0 panels=1 console=0
+OK   ev-finding-evidence-child-390 h1="Finding" overflowX=0 panels=1 console=0
+OK   ev-findings-inventory-check-1440 h1="EV charging lab" overflowX=0 panels=1 console=0
+OK   ev-findings-inventory-check-390 h1="EV charging lab" overflowX=0 panels=1 console=0
+OK   ev-findings-inventory-check-window-1440 h1="EV charging lab" overflowX=0 panels=1 console=0
+  Findings at this site rows160 1440: real=159 synthetic=1059 verified=true fields=35/35 clipped=0 open=1059 openClipped=0 doc=0
+  Findings at this site rows160-gap 1440: real=159 synthetic=1092 verified=true fields=35/35 clipped=0 open=1092 openClipped=0 doc=0
+  Findings at this site firstcell160 1440: real=159 synthetic=429 verified=true fields=5/5 clipped=0 open=429 openClipped=0 doc=0
+OK   ev-findings-inventory-check-window-390 h1="EV charging lab" overflowX=0 panels=1 console=0
+  Findings at this site rows160 390: real=159 synthetic=699 verified=true fields=35/35 clipped=0 open=699 openClipped=0 doc=0
+  Findings at this site rows160-gap 390: real=159 synthetic=781 verified=true fields=35/35 clipped=0 open=781 openClipped=0 doc=0
+  Findings at this site firstcell160 390: real=159 synthetic=699 verified=true fields=5/5 clipped=0 open=699 openClipped=0 doc=0
+OK   ev-interrupted-1440 h1="EV charging lab" overflowX=0 panels=5 console=0
+OK   ev-interrupted-390 h1="EV charging lab" overflowX=0 panels=5 console=0
+OK   ev-no-selection-1440 h1="EV charging lab" overflowX=0 panels=5 console=0
+OK   ev-no-selection-390 h1="EV charging lab" overflowX=0 panels=5 console=0
+OK   ev-refused-1440 h1="EV charging lab" overflowX=0 panels=5 console=0
+OK   ev-refused-390 h1="EV charging lab" overflowX=0 panels=5 console=0
+OK   ev-no-window-1440 h1="EV charging lab" overflowX=0 panels=5 console=0
+OK   ev-no-window-390 h1="EV charging lab" overflowX=0 panels=5 console=0
+OK   ev-evidence-interrupted-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-evidence-interrupted-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-evidence-no-selection-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-evidence-no-selection-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-evidence-refused-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-evidence-refused-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-evidence-no-window-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-evidence-no-window-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-evidence-analysis-interrupted-1440 h1="EV charging lab" overflowX=0 panels=2 console=0
+  Accepted records behind the conclusions rows160 1440: real=399 synthetic=1344 verified=true fields=30/30 clipped=0 open=5905 openClipped=0 doc=0
+  Accepted records behind the conclusions rows160-gap 1440: real=399 synthetic=1377 verified=true fields=30/30 clipped=0 open=5938 openClipped=0 doc=0
+  Accepted records behind the conclusions firstcell160 1440: real=399 synthetic=562 verified=true fields=5/5 clipped=0 open=5124 openClipped=0 doc=0
+OK   ev-evidence-analysis-interrupted-390 h1="EV charging lab" overflowX=0 panels=2 console=0
+  Accepted records behind the conclusions rows160 390: real=357 synthetic=1032 verified=true fields=30/30 clipped=0 open=10365 openClipped=0 doc=0
+  Accepted records behind the conclusions rows160-gap 390: real=357 synthetic=1115 verified=true fields=30/30 clipped=0 open=10447 openClipped=0 doc=0
+  Accepted records behind the conclusions firstcell160 390: real=357 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=panel not found
+OK   ev-evidence-analysis-no-selection-1440 h1="EV charging lab" overflowX=0 panels=2 console=0
+OK   ev-evidence-analysis-no-selection-390 h1="EV charging lab" overflowX=0 panels=2 console=0
+OK   ev-evidence-analysis-refused-1440 h1="EV charging lab" overflowX=0 panels=2 console=0
+OK   ev-evidence-analysis-refused-390 h1="EV charging lab" overflowX=0 panels=2 console=0
+OK   ev-evidence-analysis-no-window-1440 h1="EV charging lab" overflowX=0 panels=2 console=0
+OK   ev-evidence-analysis-no-window-390 h1="EV charging lab" overflowX=0 panels=2 console=0
+OK   ev-financials-interrupted-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-financials-interrupted-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-financials-no-selection-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-financials-no-selection-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-financials-refused-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-financials-refused-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-financials-no-window-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-financials-no-window-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   ev-assumptions-interrupted-1440 h1="EV charging lab" overflowX=0 panels=1 console=0
+OK   ev-assumptions-interrupted-390 h1="EV charging lab" overflowX=0 panels=1 console=0
+OK   ev-assumptions-no-selection-1440 h1="EV charging lab" overflowX=0 panels=1 console=0
+OK   ev-assumptions-no-selection-390 h1="EV charging lab" overflowX=0 panels=1 console=0
+OK   ev-assumptions-refused-1440 h1="EV charging lab" overflowX=0 panels=1 console=0
+OK   ev-assumptions-refused-390 h1="EV charging lab" overflowX=0 panels=1 console=0
+OK   ev-assumptions-no-window-1440 h1="EV charging lab" overflowX=0 panels=1 console=0
+OK   ev-assumptions-no-window-390 h1="EV charging lab" overflowX=0 panels=1 console=0
+OK   ev-foundation-stocked-1440 h1="EV charging lab" overflowX=0 panels=2 console=0
+OK   ev-foundation-stocked-390 h1="EV charging lab" overflowX=0 panels=2 console=0
+OK   ev-sld-stocked-1440 h1="EV charging lab" overflowX=0 panels=2 console=0
+OK   ev-sld-stocked-390 h1="EV charging lab" overflowX=0 panels=2 console=0
+OK   ev-one-sided-from-1440 h1="EV charging lab" overflowX=0 panels=5 console=0
+OK   ev-one-sided-from-390 h1="EV charging lab" overflowX=0 panels=5 console=0
+OK   ev-long-32d-1440 h1="EV charging lab" overflowX=0 panels=5 console=0
+OK   ev-long-32d-390 h1="EV charging lab" overflowX=0 panels=5 console=0
+OK   sessions-one-sided-from-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   sessions-one-sided-from-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   sessions-long-32d-1440 h1="EV charging lab" overflowX=0 panels=3 console=0
+OK   sessions-long-32d-390 h1="EV charging lab" overflowX=0 panels=3 console=0
+done 80 records

@@ -1,0 +1,32 @@
+[
+ {
+  "id": "temperature",
+  "case": "backup-failed",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "index_batch": 6
+ },
+ {
+  "id": "coldbackup",
+  "case": "backup-failed",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "index_batch": 6
+ },
+ {
+  "id": "coldbackup",
+  "case": "default-window",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/backup",
+  "index_batch": 6
+ },
+ {
+  "id": "cold-finding",
+  "case": "start-backup-failed",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c",
+  "index_batch": 6
+ },
+ {
+  "id": "cold-finding",
+  "case": "start-refused-window",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "index_batch": 6
+ }
+]

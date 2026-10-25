@@ -12,6 +12,7 @@ import { featureFlagsWith } from "../../config/featureFlags";
 import { MAINTENANCE_PREVENTIVE_PATH } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { disclosureNames, stubCellOverflow } from "./cellDisclosureStub";
 import { GlobalPreventiveFrame } from "../GlobalPreventive";
 import {
   createGlobalWorkClient,
@@ -37,6 +38,7 @@ function row(n: number, over: Partial<GlobalPreventiveRow> = {}): GlobalPreventi
     site_name: "Kobo",
     site_id: "00000000-0000-4000-8000-000000000002",
     site_code_key: "kobo-001",
+    site_domain: "MINIGRID",
     canonical_plan_id: id,
     root_id: id,
     head_id: id,
@@ -284,7 +286,8 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
     mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}`, reads);
     await settled();
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: KNOWN, cursor: null }]);
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 20 Oct 2026, 12:00 UTC");
+    // Post-W6 W6 Q14 (R372): seconds on the historical line.
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 20 Oct 2026, 12:00:03 UTC");
     expect(within(screen.getByRole("navigation", { name: "Maintenance views" })).getByRole("link", { name: "Corrective" })).toHaveAttribute(
       "href",
       `${CORRECTIVE}&known_at=${encodeURIComponent(KNOWN)}`,
@@ -387,5 +390,92 @@ describe("W6-01b B3: the /maintenance/preventive route in the app shell", () => 
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
     expect(within(rail).getByRole("link", { name: "Maintenance" })).toHaveAttribute("aria-current", "page");
     expect(reads.calls).toHaveLength(1);
+  });
+});
+
+describe("Post-W6 W6: global Preventive corrections", () => {
+  afterEach(cleanup);
+
+  it("M1: Next from a URL-opened later page still states no numeric range (the offset stays unknown)", async () => {
+    mount(
+      `${PAGE}&cursor=CURSOR-2`,
+      client({
+        "CURSOR-2": loaded(body([row(6)], { total_count: 12, next_cursor: "CURSOR-3" })),
+        "CURSOR-3": loaded(body([row(7)], { total_count: 12 })),
+      }),
+    );
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 12");
+    fireEvent.click(document.querySelector("[data-global-work-next]") as HTMLElement);
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 12");
+    expect(document.querySelector("[data-global-work-showing]")?.textContent).not.toMatch(/\d+–\d+/);
+  });
+
+  it("Q7/R354/R361: membership line, URL-opened later page caption and the refusal alert", async () => {
+    mount(`${PAGE}&cursor=CURSOR-2`, client({ "CURSOR-2": loaded(body([row(6)], { total_count: 6 })) }));
+    await settled();
+    expect(text(document.querySelector("[data-global-work-membership]"))).toBe("Listed by the time each plan was first recorded.");
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 6");
+    cleanup();
+    mount(PAGE, client({ "page-one": { status: "refused", code: "WORK_STORE_UNAVAILABLE" } }));
+    await settled();
+    expect(within(screen.getByRole("main")).getByRole("alert")).toHaveAttribute("data-global-work-refusal", "WORK_STORE_UNAVAILABLE");
+  });
+});
+
+describe("Post-W6 W6 caps ruling 4: in-cell disclosure on Preventive plan", () => {
+  it("gives each listed clamped cell a Show full button only when its value overflows the two-line preview", async () => {
+    const restore = stubCellOverflow(0);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Preventive plan").querySelector("tbody tr") as HTMLElement;
+      expect(disclosureNames(tr)).toEqual([
+      "Show full Asset / site for PM-000001",
+      "Show full Trigger for PM-000001",
+      "Show full Last done for PM-000001",
+      "Show full Next due for PM-000001",
+      "Show full What it proves for PM-000001",
+      ]);
+      for (const button of Array.from(tr.querySelectorAll("button[data-cell-disclosure-toggle]"))) {
+        expect(button.textContent).toBe("Show full");
+        expect(button.closest("a")).toBeNull();
+      }
+      const first = tr.querySelector("button[data-cell-disclosure-toggle]") as HTMLButtonElement;
+      fireEvent.click(first);
+      expect(first.textContent).toBe("Show less");
+      expect(first.getAttribute("aria-label")).toBe("Show less Asset / site for PM-000001");
+    } finally {
+      restore();
+    }
+  });
+
+  it("gives a correction line in the first column its own Show full disclosure", async () => {
+    const restore = stubCellOverflow(0);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1, { correction_reason: "Corrected after review" })])) }));
+      await settled();
+      const tr = document.querySelector("tbody tr") as HTMLElement;
+      expect(disclosureNames(tr)).toContain("Show full Plan item correction for PM-000001");
+      const correction = tr.querySelector("[data-global-work-correction]") as HTMLElement;
+      expect(correction.className).toContain("cell-disclosure__value");
+      expect(correction.textContent).toBe("Correction: Corrected after review");
+    } finally {
+      restore();
+    }
+  });
+
+  it("shows values that fit plainly, with no disclosure buttons", async () => {
+    const restore = stubCellOverflow(100000);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Preventive plan").querySelector("tbody tr") as HTMLElement;
+      expect(tr.querySelectorAll("[data-cell-disclosure]")).toHaveLength(5);
+      expect(disclosureNames(tr)).toEqual([]);
+    } finally {
+      restore();
+    }
   });
 });

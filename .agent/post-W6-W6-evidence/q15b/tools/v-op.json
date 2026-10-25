@@ -1,0 +1,20 @@
+[
+ {
+  "name": "oprecords-records-positive",
+  "url": "http://127.0.0.1:5391/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "kind": "rows5",
+  "panel": "Operational records"
+ },
+ {
+  "name": "oprecords-manual-positive",
+  "url": "http://127.0.0.1:5391/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "kind": "manualForm",
+  "panel": "Record a manual reading"
+ },
+ {
+  "name": "oprecords-used-positive",
+  "url": "http://127.0.0.1:5391/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "kind": "asIs",
+  "panel": "How records are used"
+ }
+]

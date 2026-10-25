@@ -1,0 +1,26 @@
+[
+ {
+  "id": "link",
+  "case": "linkcold-site-incidents",
+  "url": "http://127.0.0.1:5388/sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "mock": "cold-work-incidents"
+ },
+ {
+  "id": "link",
+  "case": "linkcold-site-overview",
+  "url": "http://127.0.0.1:5388/sites/COLD-LAB-001",
+  "mock": "cold"
+ },
+ {
+  "id": "link",
+  "case": "linkcold-action",
+  "url": "http://127.0.0.1:5388/sites/COLD-LAB-001/actions/fffc0a5e-5b65-4c84-8973-16396546ea91/verification",
+  "mock": "cold-action"
+ },
+ {
+  "id": "link",
+  "case": "linkcold-request",
+  "url": "http://127.0.0.1:5388/maintenance/requests/62a9366e-6b17-4133-8dbb-f92ae74e0c12?site_id=COLD-LAB-001",
+  "mock": "wr-overview"
+ }
+]

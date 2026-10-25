@@ -1,0 +1,8 @@
+﻿wr-overview-workdone-stress-wr7 1440 {"base":442,"panelH":503,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":559,"openClipNoFull":0}
+wr-overview-workdone-stress-wr7 390 {"base":442,"panelH":690,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":776,"openClipNoFull":0}
+wr-overview-lifecycle-stress-wr7 1440 {"base":442,"panelH":442,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":442,"openClipNoFull":0}
+wr-overview-lifecycle-stress-wr7 390 {"base":167,"panelH":167,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":167,"openClipNoFull":0}
+wr-record-stress-wr7 1440 {"base":596,"panelH":622,"verified":true,"want":70,"got":70,"rows":[686,686,686,686,686],"clip":0,"vScroll":["3465/500:500px"],"clipNoFull":0,"doc":0,"open":622,"openClipNoFull":0}
+wr-record-stress-wr7 390 {"base":636,"panelH":763,"verified":true,"want":70,"got":70,"rows":[774,774,774,774,774],"clip":0,"vScroll":["3904/600:600px"],"clipNoFull":0,"doc":0,"open":763,"openClipNoFull":0}
+wr-history-stress-wr7 1440 {"base":487,"panelH":529,"verified":true,"want":10,"got":10,"rows":[100,100,100,100,99],"clip":0,"vScroll":["533/430:430px"],"clipNoFull":0,"doc":0,"open":529,"openClipNoFull":0}
+wr-history-stress-wr7 390 {"base":510,"panelH":602,"verified":true,"want":10,"got":10,"rows":[135,135,135,135,134],"clip":0,"vScroll":["709/480:480px"],"clipNoFull":0,"doc":0,"open":602,"openClipNoFull":0}

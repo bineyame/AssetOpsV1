@@ -7,8 +7,8 @@ import type { EvSiteClient } from "../sites/evSiteClient";
 import type { EvScenariosClient } from "../sites/evScenariosClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { deriveSiteView } from "../sites/siteViewModel";
-import { siteDetailHref, siteEvHref, siteFindingHref, siteFoundationViewHref, sitePerformanceHref } from "./operatorSiteRoutes";
-import { OperatorSiteTabs } from "./operatorSiteTabs";
+import { EVIDENCE_PATH, siteDetailHref, siteEvHref, siteHealthHref, siteWorkHref, siteFindingHref, siteFoundationViewHref, sitePerformanceHref } from "./operatorSiteRoutes";
+import { OperatorSiteTabs, type OperatorSiteTabHrefs } from "./operatorSiteTabs";
 import { SiteScoped } from "./SiteAnalyticsFrames";
 
 /** W2-07: the UI route bases (no query) the five EV Site screens link to. */
@@ -23,11 +23,24 @@ export function evSiteRoutes(siteId: string): EvSiteRoutes {
     sessions: sitePerformanceHref(siteId, "sessions"),
     availability: sitePerformanceHref(siteId, "availability"),
     energy: sitePerformanceHref(siteId, "energy"),
+    health: siteHealthHref(siteId),
+    work: siteWorkHref(siteId),
+    portfolioEvidence: EVIDENCE_PATH,
     finding: (findingId) => siteFindingHref(siteId, findingId),
     // W2-F B2/M8: the Foundation SLD takes only `at`; the Overview passes the window end (cutoff is not carried).
     sld: (at) => siteFoundationViewHref(siteId, "sld", at),
   };
 }
+
+/**
+ * post-W6 W2-EV (R347 common mechanism, ruling Q14): an EV_CHARGING Site's main tabs open its built EV pages, never
+ * the mini Overview, Evidence or Financials. W5-EV-Work reuses this on its depth/work mounts.
+ */
+export const EV_SITE_TAB_HREFS: OperatorSiteTabHrefs = {
+  Overview: (siteId) => siteEvHref(siteId),
+  Evidence: (siteId) => siteEvHref(siteId, "evidence"),
+  Financials: (siteId) => siteEvHref(siteId, "financials"),
+};
 
 const CURRENT_TAB: Record<EvSiteView, string> = {
   overview: "Overview",
@@ -73,10 +86,11 @@ export function SiteEvFrame({
             mode={deriveSiteView(site).sourceMode}
             window={coldWindowFromParams(params)}
             scenarioAt={params.get("scenario_at")}
+            timeZone={site.timezone}
             scenarios={evScenarios}
             client={evSite}
             routes={evSiteRoutes(site.site_id)}
-            tabs={<OperatorSiteTabs siteId={site.site_id} current={CURRENT_TAB[view]} />}
+            tabs={(search) => <OperatorSiteTabs siteId={site.site_id} current={CURRENT_TAB[view]} hrefs={EV_SITE_TAB_HREFS} search={search} />}
             parentTrail={[
               { label: "Sites", to: sitesPath },
               view === "overview" ? { label: site.display_name } : { label: site.display_name, to: siteDetailHref(site.site_id) },

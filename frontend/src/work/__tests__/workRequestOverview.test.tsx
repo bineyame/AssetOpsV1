@@ -10,7 +10,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import { WORK_REQUEST_ROUTE_PATH } from "../../shell/operatorSiteRoutes";
-import { expectV69Panels } from "../../test/panelStructure";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import {
   createGlobalWorkClient,
@@ -54,6 +54,7 @@ function detail(over: Partial<GlobalWorkDetailBody> = {}, state = "IN_PROGRESS")
       case_code: "WR-000001",
       case_kind: "MAINTENANCE_REQUEST",
       known_at: "2026-10-22T12:00:00.000000Z",
+      site_domain: "MINIGRID",
     },
     work_detail: {
       schema_version: "work-case-detail-1",
@@ -278,7 +279,8 @@ describe("W6-01c C2: work request Overview", () => {
     expect(text(crumbs)).toBe("MaintenanceWork requestOverview");
     expect(q("[data-work-request-breadcrumb-site]")).toBeNull();
     expect(screen.queryByRole("link", { name: "Open site" })).toBeNull();
-    expect(text(q('[data-work-request-open-site="text"]'))).toBe("Open site");
+    // Post-W6 W6 Q11 (R367): no Open site control without a Site href.
+    expect(q("[data-work-request-open-site]")).toBeNull();
     // The Overview anchor is built from validated inputs before the response (C4: so is History).
     const tabs = screen.getByRole("navigation", { name: "Context tabs" });
     expect(within(tabs).getByRole("link", { name: "Overview" })).toHaveAttribute("href", OVERVIEW);
@@ -296,7 +298,7 @@ describe("W6-01c C2: work request Overview", () => {
     ["SITE_NOT_FOUND", "No imported Site found for this request."],
     ["WORK_CASE_NOT_FOUND", "No work case with this ID at this site."],
     ["INVALID_KNOWN_AT", "Choose a valid cutoff time."],
-    ["WORK_STORE_UNAVAILABLE", "Work records could not be read. Reload."],
+    ["WORK_STORE_UNAVAILABLE", "Work records could not be read."],
   ] as const)("states the %s refusal with the ruled heading and copy", async (code, sentence) => {
     const reads = client({ status: "refused", code });
     mount(PAGE, reads);
@@ -305,24 +307,32 @@ describe("W6-01c C2: work request Overview", () => {
     expect(subtitle()).toBe("Request details could not be shown.");
     expect(text(q(`[data-page-refusal="${code}"]`))).toBe(sentence);
     expect(text(q("[data-work-request-unavailable]"))).toBe("Work request unavailable.");
-    expect(text(q('[data-work-request-open-site="text"]'))).toBe("Open site");
+    expect(q("[data-work-request-open-site]")).toBeNull();
     expect(q(".v69-mheader")).toBeNull();
-    // The tab row still renders with the validated Overview anchor; the panels keep their slots.
+    // The tab row still renders with the validated Overview anchor.
     expect(within(screen.getByRole("navigation", { name: "Context tabs" })).getByRole("link", { name: "Overview" })).toHaveAttribute(
       "href",
       OVERVIEW,
     );
-    expectV69Panels("wr-overview");
-    // Reload repeats the same query.
-    fireEvent.click(screen.getByRole("button", { name: "Reload" }));
-    await settled();
-    expect(reads.calls).toHaveLength(2);
-    expect(reads.calls[1]).toEqual(reads.calls[0]);
+    // Post-W6 W6 Q11 (R367): one refusal, announced as an alert, and no page panels or claim-bearing notes.
+    expect(within(screen.getByRole("main")).getByRole("alert")).toHaveAttribute("data-page-refusal", code);
+    expect(document.querySelectorAll("main .panel")).toHaveLength(0);
+    expect(document.body.textContent).not.toMatch(/Work done|Lifecycle|Completed is not Verified/);
+    if (code === "WORK_STORE_UNAVAILABLE") {
+      // Reload repeats the same query, for a 503 only.
+      fireEvent.click(screen.getByRole("button", { name: "Reload" }));
+      await settled();
+      expect(reads.calls).toHaveLength(2);
+      expect(reads.calls[1]).toEqual(reads.calls[0]);
+    } else {
+      expect(screen.queryByRole("button", { name: "Reload" })).toBeNull();
+    }
   });
 
   it.each([
-    ["absent site_id", `/maintenance/requests/${CASE}`, "NO_SITE", "Choose a request at a site.", "No work case with this ID at this site.", false],
-    ["empty site_id", `/maintenance/requests/${CASE}?site_id=`, "NO_SITE", "Choose a request at a site.", "No work case with this ID at this site.", false],
+    // Post-W6 W6 Q11 (R367): no-site states the refusal subtitle and its own sentence.
+    ["absent site_id", `/maintenance/requests/${CASE}`, "NO_SITE", "Request details could not be shown.", "Choose a request at a site.", false],
+    ["empty site_id", `/maintenance/requests/${CASE}?site_id=`, "NO_SITE", "Request details could not be shown.", "Choose a request at a site.", false],
     [
       "repeated site_id",
       `/maintenance/requests/${CASE}?site_id=KOBO-001&site_id=KOBO-002`,
@@ -364,6 +374,8 @@ describe("W6-01c C2: work request Overview", () => {
     expect(subtitle()).toBe(sub);
     expect(text(q(`[data-page-refusal="${hook}"]`))).toBe(sentence);
     expect(screen.queryByRole("button", { name: "Reload" })).toBeNull();
+    expect(document.querySelectorAll("main .panel")).toHaveLength(0);
+    expect(q("[data-work-request-open-site]")).toBeNull();
     const tabs = screen.getByRole("navigation", { name: "Context tabs" });
     if (overviewLive) expect(within(tabs).getByRole("link", { name: "Overview" })).toHaveAttribute("href", OVERVIEW);
     else expect(within(tabs).queryByRole("link")).toBeNull();
@@ -396,7 +408,7 @@ describe("W6-01c C2: work request Overview", () => {
     mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}`, reads);
     await settled();
     expect(reads.calls).toEqual([{ case_id: CASE, site_id: "KOBO-001", known_at: KNOWN }]);
-    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 12:00 UTC");
+    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 12:00:01 UTC");
     expect(within(screen.getByRole("navigation", { name: "Context tabs" })).getByRole("link", { name: "Overview" })).toHaveAttribute(
       "href",
       href,
@@ -484,7 +496,7 @@ describe("W6-01c C2: work request Overview", () => {
   it("reads a client without the optional detail method as a store refusal, never a throw", async () => {
     mount(PAGE, { incidents: async () => ({ status: "refused", code: "WORK_STORE_UNAVAILABLE" }) });
     await settled();
-    expect(text(q('[data-page-refusal="WORK_STORE_UNAVAILABLE"]'))).toBe("Work records could not be read. Reload.");
+    expect(text(q('[data-page-refusal="WORK_STORE_UNAVAILABLE"]'))).toBe("Work records could not be read.");
   });
 });
 
@@ -571,5 +583,101 @@ describe("W6-01c C2: the request route in the app shell", () => {
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
     expect(within(rail).getByRole("link", { name: "Maintenance" })).toHaveAttribute("aria-current", "page");
     expect(reads.calls).toHaveLength(1);
+  });
+});
+
+describe("Post-W6 W6: work request Overview corrections", () => {
+  const FINDING = { label: "Finding a1b2c3d4", href: "/sites/X/findings/f1?revision_id=r1" };
+
+  it.each([
+    ["MINIGRID", true],
+    ["COLDCHAIN", false],
+    ["EV_CHARGING", false],
+  ] as const)("R352: a %s Source Finding is a link only on a mini-grid Site", async (domain, linked) => {
+    const base = detail();
+    mount(PAGE, client(loaded({ ...base, selected: { ...base.selected, site_domain: domain }, links: { ...base.links, findings: [FINDING] } })));
+    await settled();
+    const source = q('[data-work-request-preview="source"]') as HTMLElement;
+    if (linked) {
+      expect(within(source).getByRole("link", { name: "Finding a1b2c3d4" })).toHaveAttribute("href", FINDING.href);
+    } else {
+      expect(within(source).queryByRole("link", { name: "Finding a1b2c3d4" })).toBeNull();
+      expect(text(source)).toContain("Finding a1b2c3d4");
+      expect(text(source)).not.toContain("Link unavailable at this cutoff");
+      expect(text(q('[data-work-request-full="source"]'))).not.toContain("Link unavailable at this cutoff");
+    }
+  });
+
+  it("R366/Q18: an Action reads by its stored code; an uncoded Action discloses its stored ID; assets read as words", async () => {
+    const base = detail();
+    const ACTION = "00000000-0000-4000-8000-000000000501";
+    const OTHER = "00000000-0000-4000-8000-000000000601";
+    mount(
+      PAGE,
+      client(
+        loaded({
+          ...base,
+          work_asset: { code: "c1", type: "EV_CONNECTOR" },
+          work_detail: {
+            ...base.work_detail,
+            action_links: [
+              { action_id: ACTION, action_event_id: null },
+              { action_id: OTHER, action_event_id: null },
+            ],
+          },
+          links: { ...base.links, actions: [{ label: "ACT-000001", href: "/sites/KOBO-001/actions/a" }, { label: "Action 00000000", href: null }] },
+        }),
+      ),
+    );
+    await settled();
+    expect(kv("asset")).toBe("EV connector c1");
+    const cell = q('[data-key-value="linked_action"] dd') as HTMLElement;
+    expect(within(cell).getByRole("link", { name: "ACT-000001" })).toBeInTheDocument();
+    const disclosures = Array.from(cell.querySelectorAll("[data-work-request-action-id]"));
+    expect(disclosures).toHaveLength(1);
+    expect(text(disclosures[0])).toBe(`Stored Action ID${OTHER}`);
+  });
+
+  it("R370/R396/R363/R365: verification-open state copy and the visible labels", async () => {
+    mount(PAGE, client(loaded(detail({}, "VERIFICATION_WINDOW"))));
+    await settled();
+    expect(cellText("state")).toBe("Verification open · outcome not established");
+    const tabs = screen.getByRole("navigation", { name: "Context tabs" });
+    expect(text(tabs.querySelector('[data-mock-deviation="R396"]'))).toBe("MOCK DEVIATION D1 (R396)");
+    expect(text(q('[data-global-work-bar] [data-mock-deviation="R363"]'))).toBe("MOCK DEVIATION D2 (R363)");
+    expect(text(panelTitled("Work done").querySelector('[data-mock-deviation="R365"]'))).toBe("MOCK DEVIATION D1 (R365)");
+    expect(within(screen.getByRole("main")).getByRole("link", { name: "Open site" })).toBeInTheDocument();
+  });
+
+  it.each(["overview", "evidence", "execution", "records"])(
+    "R371: an unknown /%s section is stated in the operator shell with a link to the request's Overview, no read",
+    async (section) => {
+      const reads = client(loaded(detail()));
+      render(
+        <MemoryRouter initialEntries={[`/maintenance/requests/${CASE}/${section}?site_id=KOBO-001&known_at=${KNOWN}`]}>
+          <App flags={featureFlagsWith(false)} globalWork={reads} />
+        </MemoryRouter>,
+      );
+      await settledScreen();
+      const main = screen.getByRole("main", { name: "Page not available" });
+      expect(within(main).getByRole("heading", { level: 2, name: "This address is not served" })).toBeInTheDocument();
+      expect(within(main).getByRole("link", { name: "Open this request's overview" })).toHaveAttribute(
+        "href",
+        `/maintenance/requests/${CASE}?site_id=KOBO-001&known_at=${encodeURIComponent(KNOWN)}`,
+      );
+      expect(screen.getByRole("navigation", { name: "Operator routes" })).toBeInTheDocument();
+      expect(reads.calls).toHaveLength(0);
+    },
+  );
+
+  it("R371: without a valid Site the unknown section offers no Overview link", async () => {
+    render(
+      <MemoryRouter initialEntries={[`/maintenance/requests/${CASE}/evidence`]}>
+        <App flags={featureFlagsWith(false)} globalWork={client(loaded(detail()))} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    const main = screen.getByRole("main", { name: "Page not available" });
+    expect(within(main).queryByRole("link")).toBeNull();
   });
 });

@@ -1,6 +1,7 @@
-import { useParams, useSearchParams } from "react-router-dom";
+import { Navigate, useParams, useSearchParams } from "react-router-dom";
 
 import type { FeatureFlags } from "../config/featureFlags";
+import { PageHeader } from "../ui";
 import {
   SITE_DETAIL_HEADING_ID,
   SiteDetails,
@@ -16,9 +17,10 @@ import { OperatorSiteTabs } from "./operatorSiteTabs";
 import type { ColdAssessmentClient } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
 import { useSiteRecord } from "../sites/useSiteRecord";
-import { coldSiteScreen } from "./coldSiteRoutes";
+import { coldSiteScreen, coldTabSearch } from "./coldSiteRoutes";
 import {
   findingHref,
+  siteEvHref,
   siteEvidenceAcceptedRecordHref,
   siteEvidenceHref,
   siteEvidenceRecordHref,
@@ -128,9 +130,24 @@ export function SiteDetailFrame({
       params,
       coldSite,
       coldAssessment,
-      tabs: <OperatorSiteTabs siteId={siteId} current="Overview" />,
+      tabs: <OperatorSiteTabs siteId={siteId} current="Overview" search={coldTabSearch(record.site, params)} />,
       sitesPath,
     });
+  }
+
+  // post-W6 W2-EV (Q14): an EV_CHARGING Site's home is its built EV Overview; the address query is kept. While the
+  // type is unread, the mini loading state shows, so an EV Site never flashes the mini Overview.
+  if (coldSite !== undefined && record === null) {
+    return (
+      <main aria-labelledby={SITE_DETAIL_HEADING_ID}>
+        <PageHeader title="Site" headingId={SITE_DETAIL_HEADING_ID} />
+        <p>Loading the configured site.</p>
+      </main>
+    );
+  }
+  if (record?.status === "loaded" && record.site.site_type === "EV_CHARGING") {
+    const query = params.toString();
+    return <Navigate replace to={`${siteEvHref(record.site.site_id)}${query === "" ? "" : `?${query}`}`} />;
   }
 
   return (

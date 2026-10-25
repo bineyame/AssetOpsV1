@@ -1,0 +1,98 @@
+[
+ {
+  "id": "temperature",
+  "case": "refused",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "index_batch": 6
+ },
+ {
+  "id": "coldbackup",
+  "case": "refused",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/backup?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "index_batch": 6
+ },
+ {
+  "id": "cold-findings",
+  "case": "refused",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "index_batch": 7
+ },
+ {
+  "id": "cold",
+  "case": "refused",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "index_batch": 7
+ },
+ {
+  "id": "cold-evidence",
+  "case": "refused",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "index_batch": 7
+ },
+ {
+  "id": "cold-evidence-analysis",
+  "case": "refused",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "index_batch": 7
+ },
+ {
+  "id": "cold-financials",
+  "case": "refused",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/financials?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "index_batch": 7
+ },
+ {
+  "id": "cold-assumptions",
+  "case": "refused",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "index_batch": 7
+ },
+ {
+  "id": "cold",
+  "case": "one-sided-from",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z",
+  "index_batch": "new"
+ },
+ {
+  "id": "cold",
+  "case": "long-32d",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+  "index_batch": "new"
+ },
+ {
+  "id": "temperature",
+  "case": "one-sided-from",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z",
+  "index_batch": "new"
+ },
+ {
+  "id": "temperature",
+  "case": "long-32d",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/temperature?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+  "index_batch": "new"
+ },
+ {
+  "id": "coldbackup",
+  "case": "one-sided-from",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z",
+  "index_batch": "new"
+ },
+ {
+  "id": "coldbackup",
+  "case": "long-32d",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/performance/backup?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+  "index_batch": "new"
+ },
+ {
+  "id": "cold-findings",
+  "case": "one-sided-from",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z",
+  "index_batch": "new"
+ },
+ {
+  "id": "cold-findings",
+  "case": "long-32d",
+  "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+  "index_batch": "new"
+ }
+]

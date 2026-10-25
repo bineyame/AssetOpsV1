@@ -149,7 +149,8 @@ def test_site_parity(store) -> None:  # noqa: F811
     body = detail(info, info["requests"][0])
     assert body["selected"] == {"site_code": "KOBO-001", "site_id": str(info["scopes"][("demo", "KOBO-001")][2]),
                                 "case_id": info["requests"][0], "case_code": body["work_detail"]["case"]["code"],
-                                "case_kind": "MAINTENANCE_REQUEST", "known_at": iso(READ_NOW)}
+                                "case_kind": "MAINTENANCE_REQUEST", "known_at": iso(READ_NOW),
+                                "site_domain": "MINIGRID"}
     assert body["schema_version"] == "global-work-detail-1" and body["work_asset"] is None
 
 
@@ -334,7 +335,15 @@ def test_source_incident_link(store) -> None:  # noqa: F811
     assert body["links"]["findings"] == [{"label": f"Finding {fid[:8]}",
                                           "href": f"/sites/KOBO-001/findings/{fid}?revision_id={frev}"}]
     [action] = body["links"]["actions"]
-    assert action["label"] == f"Action {info['action_id'][:8]}" and action["href"]
+    # Post-W6 W6 Q10 (R366): the stored public Action code, never `Action {id8}` when a code is stored.
+    engine_ = create_engine(URL)
+    try:
+        with engine_.connect() as c:
+            code = c.execute(text("SELECT action_code FROM action WHERE id = :a"),
+                             {"a": info["action_id"]}).scalar_one()
+    finally:
+        engine_.dispose()
+    assert code.startswith("ACT-") and action["label"] == code and action["href"]
     assert info["action_event_id"] in action["href"]
     assert info["detail_links"]["source_incident"] == body["links"]["source_incident"]
     plain = [w["case_id"] for w in info["written"] if w["kind"] == "MAINTENANCE_REQUEST"][0]
@@ -533,7 +542,10 @@ def test_domain_action_link_matches_w4(cold) -> None:  # noqa: F811
     w4 = rows_by_id(site_index(cold, "maintenance", b.window, [micro_iso(b.after)]))[b.request]["action_links"]
     domain = expected_link(cold, b.aid)
     assert w4 == [domain]
-    assert body["links"]["actions"] == [{"label": domain["label"], "href": domain["href"]}]
+    with cold.engine.connect() as c:  # Post-W6 W6 Q10: the global label is the stored domain Action code
+        code = c.execute(text("SELECT action_code FROM domain_action WHERE id = :a"), {"a": b.aid}).scalar_one()
+    assert body["links"]["actions"] == [{"label": code, "href": domain["href"]}]
+    assert body["selected"]["site_domain"] == "COLDCHAIN" and body["links"]["site"]["href"] == f"/sites/{cold.code}"
     assert body["links"]["actions"][0]["href"] == f"/sites/{cold.code}/actions/{b.aid}/verification"
     raw = body["work_detail"]["action_links"]
     assert raw == [{k: domain[k] for k in ("kind", "action_id", "action_event_id", "finding_revision_id")}]
@@ -542,3 +554,99 @@ def test_domain_action_link_matches_w4(cold) -> None:  # noqa: F811
     # Absent pin (no selection) or a pin without lineage (another Site's selection never keys this link): null.
     assert _action_link(cold.code, raw[0], None)["href"] is None
     assert _action_link(cold.code, raw[0], {"lineage": False})["href"] is None
+
+
+def test_action_without_a_stored_code_keeps_its_honest_label() -> None:
+    """Post-W6 W6 Q10: an Action with no stored code keeps `Action {id8}`; no ACT code is invented. Only read codes
+    enter the basis pairs."""
+    from assetops_backend.work.global_index import coded_actions
+
+    class Reads:
+        def action_codes(self, tenant_id, site_id, ids):
+            return {"00000000-0000-4000-8000-0000000000a1": "ACT-000007"}
+
+    links = [{"action_id": "00000000-0000-4000-8000-0000000000a1", "label": "Action 00000000", "href": "/x"},
+             {"action_id": "00000000-0000-4000-8000-0000000000b2", "label": "Action 00000000", "href": None}]
+    out, pairs = coded_actions(Reads(), None, None, links)
+    assert [x["label"] for x in out] == ["ACT-000007", "Action 00000000"]
+    assert [x["href"] for x in out] == ["/x", None]
+    assert pairs == [["00000000-0000-4000-8000-0000000000a1", "ACT-000007"]]
+
+
+# ---- Post-W6 W6 Q2/Q3/Q4/Q10: an EV Site on every global root and the detail ----------------------------------
+# The EV replay chain recreates the database on teardown, so this test stays last in the module.
+
+if URL:
+    from test_r373_request_access import ev  # noqa: F401
+    from test_w401_work_service_postgres import PRINCIPAL
+    from test_w502_domain_intent_postgres import head_event, link_body
+    from test_w504_ev_intent_postgres import _now, ev_action, ev_service
+
+    from assetops_backend.work.global_index import CURSOR_KEY_ENV, GlobalWorkIndexService
+
+
+def test_ev_site_rows_open_the_ev_home(ev, monkeypatch) -> None:  # noqa: F811
+    """R352/R353/R359/R366 on an EV Site the current walkthrough producers cannot populate on every root: each global
+    row and the detail carry `site_domain` EV_CHARGING and a Site link to `/sites/{code}/ev`; Site Work tab links stay
+    on the base route; the linked request opens its Overview; the EV domain Action is labelled by its stored code."""
+    monkeypatch.setenv(CURSOR_KEY_ENV, "c3" * 32)
+    start = _now(ev) - timedelta(minutes=5)
+    site = ("ev", ev.code)
+    write = seedmod.Writer(URL, seedmod.WriteClock(start), {site: {"tenant": ev.t, "site": ev.s, "site_code": ev.code}},
+                           start)
+    try:
+        inc = write.incident(site, "EV connector stopped")
+        req = write.request(site, inc["id"], "Inspect connector c1")
+        write.plan(site, "Connector quarterly inspection", "CALENDAR", due_at=start + timedelta(days=30))
+        write.post_operational_record(site, req["id"], "Connector c1 checked on site.")
+    finally:
+        write.close()
+    svc = ev_service(ev)
+    try:
+        status, action = svc.create_action(ev.t, ev.s, ev.code, ev_action(ev, "w6-ev-action"), PRINCIPAL)
+        assert status == 201, action
+        status, _ = svc.post_case_link(ev.t, ev.s, ev.code, action["id"],
+                                       link_body(req["id"], req["revision"]["id"], head_event(ev, req["id"]),
+                                                 key="w6-ev-link"), PRINCIPAL)
+        assert status == 201
+    finally:
+        svc._store.dispose()
+    with ev.engine.connect() as c:
+        code = c.execute(text("SELECT action_code FROM domain_action WHERE id = :a"), {"a": action["id"]}).scalar_one()
+    lo = (start - timedelta(days=3)).replace(hour=0, minute=0, second=0, microsecond=0)
+    window = {"from": lo.strftime("%Y-%m-%dT%H:%M:%SZ"), "to": (lo + timedelta(days=5)).strftime("%Y-%m-%dT%H:%M:%SZ")}
+    read = PostgresGlobalWorkRead(URL, link_rows=build_link_rows_reader(), ports=_link_read_ports())
+    app = FastAPI()
+    app.include_router(build_global_work_router(
+        GlobalWorkIndexService(read), lambda: ev.t, access=lambda request, c: None,
+        unavailable=(SiteStoreUnavailable,), scope=lambda c: (ev.code, ev.t, ev.s) if c == ev.code else None,
+        details=GlobalWorkDetailService(read)))
+    client = TestClient(app)
+    home = f"/sites/{quote(ev.code, safe='')}/ev"
+    try:
+        bodies = {}
+        for root in ("incidents", "maintenance", "preventive", "operational-records"):
+            response = client.get(f"/api/work/{root}", params=window)
+            assert response.status_code == 200, response.text
+            bodies[root] = response.json()["rows"]
+            assert bodies[root], root
+            for row in bodies[root]:
+                assert row["site_domain"] == "EV_CHARGING"
+                assert row["links"]["site"] == {"label": row["site_name"], "href": home}
+        [inc_row] = [r for r in bodies["incidents"] if r["case_id"] == inc["id"]]
+        assert inc_row["links"]["site_incidents"]["href"].startswith(f"/sites/{quote(ev.code, safe='')}/work/incidents?")
+        assert inc_row["linked_requests"] == [{"label": req["code"], "href": (
+            f"/maintenance/requests/{req['id']}?site_id={quote(ev.code, safe='')}")}]
+        [req_row] = [r for r in bodies["maintenance"] if r["case_id"] == req["id"]]
+        assert [x["label"] for x in req_row["action_links"]] == [code]
+        assert req_row["links"]["site_maintenance"]["href"].startswith(
+            f"/sites/{quote(ev.code, safe='')}/work/maintenance?")
+        response = client.get(f"/api/work/requests/{req['id']}", params={"site_id": ev.code})
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["selected"]["site_domain"] == "EV_CHARGING"
+        assert body["links"]["site"]["href"] == home
+        assert body["links"]["source_incident"]["href"].startswith(f"/sites/{quote(ev.code, safe='')}/work/incidents?")
+        assert [x["label"] for x in body["links"]["actions"]] == [code]
+    finally:
+        read.dispose()

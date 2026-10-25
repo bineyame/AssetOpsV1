@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
+import { siteTime, siteZoneAvailable, siteZoneLabel } from "./siteTime";
+
 import {
   AttentionList,
   Badge,
@@ -9,6 +11,7 @@ import {
   CausalTimeline,
   DataTable,
   Disclosure,
+  ExactReferences,
   KeyValues,
   MetricCard,
   MetricCards,
@@ -19,7 +22,16 @@ import {
   StatusBar,
   type TimelineEvent,
 } from "../ui";
-import { type ColdAssessmentClient, type ColdRead, type ColdTemperatureRead, type ColdWindowQuery, type ColdFindingsRead, coldWindowSearch } from "./coldAssessmentClient";
+import {
+  type ColdAssessmentClient,
+  type ColdBackupRead,
+  type ColdRead,
+  type ColdStepRead,
+  type ColdTemperatureRead,
+  type ColdWindowQuery,
+  type ColdFindingsRead,
+  coldWindowSearch,
+} from "./coldAssessmentClient";
 import type {
   ColdAnalysisRead,
   ColdAssumptionsRead,
@@ -29,13 +41,14 @@ import type {
   ColdSiteClient,
   ColdSource,
 } from "./coldSiteClient";
-import { COLD_ASSESSMENT_LOADING, refusalText } from "./ColdAssessmentViews";
+import { ADVERSE, COLD_ASSESSMENT_LOADING, RUNNING, outcomeText, refusalText } from "./ColdAssessmentViews";
 import { ColdTemperatureChart } from "./assessmentGraphics";
 import { selectedClassification } from "./sourceProvenance";
 import { claimWord, classificationWord, plainCode, plainLimitation, reasonWord, STEP_LABELS } from "./coldAssessmentWords";
 import { roleLabel } from "./ColdFoundationViews";
 import { NOT_ASSESSED, NOT_RECORDED, date, dayHm, decimal, degreeMinutes, hm, windowText } from "./coldFormat";
 import "./w2-cold-site.css";
+import "../ui/mock-deviation.css";
 
 /*
  * W2-04 commit 4: the five cold Site screens of a COLDCHAIN Site in their exact v69 panel slots
@@ -74,6 +87,12 @@ export interface ColdSiteRoutes {
   findings: string;
   finding: (findingId: string) => string;
   foundation: string;
+  /** post-W6 W2-cold R256: the Foundation single line diagram view. */
+  sld: string;
+  /** post-W6 W2-cold R254 (Q8): cold Work › Maintenance. */
+  workMaintenance: string;
+  /** post-W6 W2-cold R258: the portfolio Evidence page. */
+  portfolioEvidence: string;
 }
 
 /* ---------- words ---------- */
@@ -164,12 +183,13 @@ const OTHER_SOURCE_NAME: Record<string, string> = {
 const PRODUCT_REQUIRED_BASIS = "Product identity; stock quantity and unit value; currency; reviewed product response rule";
 
 const pad = (n: number) => String(n).padStart(2, "0");
-/** The mock's `Measured (EAT)` time: East Africa Time (UTC+3, no daylight saving), while data stays UTC. */
-export function eatTime(value: string | null | undefined): string | null {
-  const d = date(value);
-  if (d === null) return null;
-  const e = new Date(d.getTime() + 3 * 3600 * 1000);
-  return `${pad(e.getUTCHours())}:${pad(e.getUTCMinutes())}:${pad(e.getUTCSeconds())}`;
+/**
+ * The Site-local `Measured` time (`HH:MM:SS`), while data stays UTC. post-W6 W2-EV: takes the Site timezone (shared
+ * signature; `siteTime` in `./siteTime` gives the zone label, exact UTC and a cross-day date). The default keeps the
+ * earlier East Africa Time behaviour for callers not yet passing a zone.
+ */
+export function eatTime(value: string | null | undefined, timeZone: string | null = "Africa/Addis_Ababa", reference?: string | null): string | null {
+  return siteTime(value, timeZone, reference)?.text ?? null;
 }
 const utc = (value: string | null | undefined) => (date(value) === null ? NOT_RECORDED : `${dayHm(value)} UTC`);
 const limitText = (value: string | null | undefined) => (value ? plainLimitation(value) : null);
@@ -210,7 +230,7 @@ export function coldUiHref(api: string | null | undefined, routes: ColdSiteRoute
 }
 
 /** A route of this Site at the read's resolved selection. */
-function selected(base: string, window: ColdWindowQuery, view?: "analysis"): string {
+export function selected(base: string, window: ColdWindowQuery, view?: "analysis"): string {
   const params = new URLSearchParams(coldWindowSearch(window).slice(1));
   if (view !== undefined) params.set("view", view);
   return withQuery(base, params);
@@ -251,16 +271,24 @@ const isSelected = (read: { currentness: { watermark?: { assessment_revision_ids
   (read.currentness.watermark?.assessment_revision_ids?.length ?? 0) > 0;
 
 /** The in-panel statement for a read that did not load, or null when it loaded. */
-interface Refusal {
+export interface Refusal {
   sentence: string;
   retry: boolean;
   key: string;
+  /** Ruling 5: the strip chip names the refusal (a 403/404/503 is never called a window error). */
+  title?: string;
+  /** Ruling 5: the technical disclosure's code and server message (null when the read gave none). */
+  code?: string | null;
+  message?: string | null;
 }
 function refusalOf(read: ColdRead<unknown> | null): Refusal | null {
   if (read === null || read.status === "loaded") return null;
-  if (read.status === "refused" && read.httpStatus === 403) return { sentence: SOURCE_FORBIDDEN, retry: false, key: "forbidden" };
-  if (read.status === "unavailable" || read.httpStatus === 503) return { sentence: COLD_SITE_UNAVAILABLE, retry: true, key: "unavailable" };
-  return { sentence: refusalText(read).body, retry: false, key: refusalText(read).key };
+  const title = refusalText(read).title;
+  const code = read.status === "refused" ? read.code : null;
+  const message = read.message;
+  if (read.status === "refused" && read.httpStatus === 403) return { sentence: SOURCE_FORBIDDEN, retry: false, key: "forbidden", title, code, message };
+  if (read.status === "unavailable" || read.httpStatus === 503) return { sentence: COLD_SITE_UNAVAILABLE, retry: true, key: "unavailable", title, code, message };
+  return { sentence: refusalText(read).body, retry: false, key: refusalText(read).key, title, code, message };
 }
 
 function Gap({ id, children }: { id: string; children: ReactNode }) {
@@ -271,10 +299,40 @@ function Gap({ id, children }: { id: string; children: ReactNode }) {
   );
 }
 
-function RefusedGap({ id, refusal, onRetry }: { id: string; refusal: Refusal; onRetry?: () => void }) {
+/**
+ * Cross-card ruling 5: a refused page carries its refusal sentence once, in its first panel; every later panel refused
+ * by the same read (`repeat`) says only `Not assessed`, as the EV pages do.
+ */
+function RefusedGap({
+  id,
+  refusal,
+  onRetry,
+  repeat = false,
+  window,
+}: {
+  id: string;
+  refusal: Refusal;
+  onRetry?: () => void;
+  repeat?: boolean;
+  /** The requested window, for the technical disclosure after the first-panel sentence. */
+  window?: ColdWindowQuery;
+}) {
+  if (repeat) return <Gap id={id}>Not assessed</Gap>;
   return (
     <>
       <Gap id={id}>{refusal.sentence}</Gap>
+      {window === undefined ? null : (
+        <ExactReferences
+          name="cold-refusal-references"
+          variant="tech"
+          references={[
+            { label: "Refusal code", value: refusal.code ?? null },
+            { label: "Server message", value: refusal.message ?? null },
+            { label: "Selected window start (exact)", value: window.from },
+            { label: "Selected window end (exact)", value: window.to },
+          ]}
+        />
+      )}
       {refusal.retry && onRetry !== undefined ? (
         <p className="cold-panel-link">
           <button type="button" className="button" onClick={onRetry} data-cold-retry>
@@ -328,6 +386,8 @@ export interface ColdSiteFrameProps {
   /** The Financials subtab row for `financials` / `assumptions`, from the shell. */
   sections?: ReactNode;
   parentTrail: Crumb[];
+  /** post-W6 W2-cold R259 (Q11): the Site's IANA timezone; missing or invalid falls back to UTC, stated in the headers. */
+  timeZone?: string | null;
 }
 
 const DESCRIPTION: Record<ColdSiteView, string> = {
@@ -404,8 +464,11 @@ export function RequestedWindowBar({ window, refusal }: { window: ColdWindowQuer
   );
 }
 export const WINDOW_CANNOT_BE_READ = "Window cannot be read";
-/** W2-F M3: the refused-window status strip; `chip` fills the strip's own chip slot where the screen has one. */
-function RefusedStrip({ label, chip }: { label: string; chip?: string }) {
+/**
+ * W2-F M3: the refused-window status strip; `chip` fills the strip's own chip slot where the screen has one.
+ * Ruling 5: `title` names a non-window refusal (403/404/503) by its own title; the default is the window title.
+ */
+export function RefusedStrip({ label, chip, title }: { label: string; chip?: string; title?: string }) {
   return (
     <StatusBar label={label} data={{ "data-cold-refused-strip": "" }}>
       {chip === undefined ? null : (
@@ -413,12 +476,12 @@ function RefusedStrip({ label, chip }: { label: string; chip?: string }) {
           <Badge tone="neutral">{chip}</Badge>{" "}
         </>
       )}
-      <Badge tone="neutral">{WINDOW_CANNOT_BE_READ}</Badge>
+      <Badge tone="neutral">{title ?? WINDOW_CANNOT_BE_READ}</Badge>
     </StatusBar>
   );
 }
 /** W2-F M3: the screen's tile slots, each `Not assessed`, so a refusal is never read as a zero. */
-function RefusedTiles({ label, cards, columns }: { label: string; cards: string[]; columns?: 5 }) {
+export function RefusedTiles({ label, cards, columns }: { label: string; cards: string[]; columns?: 5 }) {
   return (
     <MetricCards columns={columns} label={label}>
       {cards.map((c) => (
@@ -496,11 +559,17 @@ function OverviewCards({ o, evidence, routes }: { o: ColdOverviewRead; evidence:
   const caps = evidence?.capabilities ?? [];
   // The same row-based rule as the Evidence status chip (Run-7), so Overview and Evidence agree.
   const evidenceChip = evidenceState(caps);
-  const card = (label: string, href: string | null) => (href === null ? label : <Link to={href}>{label}</Link>);
+  // R254: plain labels; each card's own `View detail →` link (mock 539), at the read's selected window.
+  const detail = (key: string, href: string | null) =>
+    href === null ? undefined : (
+      <Link to={href} data-cold-card-link={key}>
+        View detail →
+      </Link>
+    );
   return (
     <MetricCards columns={5} label="Cold room conditions">
-      <MetricCard label={card("Temperature", coldUiHref(o.links.temperature, routes))} value={tempChip} note={tempNote} tone={proved ? "amber" : "muted"} assessment data={{ "data-cold-card": "temperature" }} />
-      <MetricCard label={card("Backup", coldUiHref(o.links.backup, routes))} value={backupChip} note={backupNote} tone={b.observed_failure > 0 ? "red" : "muted"} assessment data={{ "data-cold-card": "backup" }} />
+      <MetricCard label="Temperature" value={tempChip} note={tempNote} tone={proved ? "amber" : "muted"} assessment data={{ "data-cold-card": "temperature" }} link={detail("temperature", coldUiHref(o.links.temperature, routes))} />
+      <MetricCard label="Backup" value={backupChip} note={backupNote} tone={b.observed_failure > 0 ? "red" : "muted"} assessment data={{ "data-cold-card": "backup" }} link={detail("backup", coldUiHref(o.links.backup, routes))} />
       <MetricCard
         label="Cooling"
         value={coolingChip}
@@ -508,10 +577,31 @@ function OverviewCards({ o, evidence, routes }: { o: ColdOverviewRead; evidence:
         tone="muted"
         assessment
         data={{ "data-cold-card": "cooling" }}
+        link={detail("cooling", selected(routes.cooling, o.window))}
       />
-      <MetricCard label="Maintenance" value="Not recorded" note={`${o.maintenance.text} · Work record not available`} tone="muted" assessment data={{ "data-cold-card": "maintenance" }} />
+      {/* Q8: the overview read carries no maintenance summary; the cases are listed under Work. */}
       <MetricCard
-        label={card("Evidence", coldUiHref(o.links.evidence, routes))}
+        label="Maintenance"
+        value="Not summarised here"
+        note={
+          // MOCK DEVIATION D1 (R437): the mock card shows a status and an inspection outcome; the overview read has
+          // no maintenance summary, so the card points to the cases under Work. Labelled visibly inside the card.
+          <>
+            Maintenance cases are listed under Work
+            <br />
+            <span className="mock-deviation-line" data-mock-deviation="R437">
+              MOCK DEVIATION D1 (R437)
+            </span>
+          </>
+        }
+        tone="muted"
+        assessment
+        data={{ "data-cold-card": "maintenance" }}
+        link={detail("maintenance", selected(routes.workMaintenance, o.window))}
+      />
+      <MetricCard
+        label="Evidence"
+        link={detail("evidence", coldUiHref(o.links.evidence, routes))}
         value={evidenceChip}
         note={caps.length === 0 ? "Evidence coverage not assessed" : countSentence(caps)}
         tone="muted"
@@ -522,17 +612,36 @@ function OverviewCards({ o, evidence, routes }: { o: ColdOverviewRead; evidence:
   );
 }
 
-function stripEvents(o: ColdOverviewRead): TimelineEvent[] {
+/**
+ * R255 (Q9): the overview strip omits each step's outcome, so an observed step is joined to the selected backup-chain
+ * step with the same accepted record (`evidence_id`): `{stepLabel} · {outcomeText}`, danger on an adverse outcome and
+ * ok on a running one. An unmatched step keeps its state label and neutral tone.
+ */
+function stripEvents(o: ColdOverviewRead, backup: ColdBackupRead | null): TimelineEvent[] {
   const steps = [...o.causal_strip].sort((a, b) => STEP_ORDER.indexOf(a.step) - STEP_ORDER.indexOf(b.step));
+  const byEvidence = new Map<string, ColdStepRead>();
+  for (const chain of backup?.chains ?? []) for (const step of chain.steps) if (step.evidence_id !== null && !byEvidence.has(step.evidence_id)) byEvidence.set(step.evidence_id, step);
   return steps.map((s) => {
     const name = STEP_LABELS[s.step] ?? plainCode(s.step);
+    const match = s.state === "OBSERVED" && s.evidence_id !== null ? byEvidence.get(s.evidence_id) : undefined;
+    const outcome = match === undefined ? null : outcomeText(match);
+    const known = match?.outcome ?? null;
     return {
       key: s.step,
-      // UTC like the chamber chart beside it; only the Analysis `Measured (EAT)` column is East Africa Time.
+      // UTC like the chamber chart beside it; only the Analysis `Measured` column is in the Site timezone.
       time: s.at === null ? "—" : `${hm(s.at)} UTC`,
-      title: `${name} · ${STEP_CHIP[s.state] ?? plainCode(s.state)}`,
+      title: outcome !== null ? `${name} · ${outcome}` : `${name} · ${STEP_CHIP[s.state] ?? plainCode(s.state)}`,
       detail: s.state === "MISSING" ? `No accepted ${name.toLowerCase()} report for this chain` : (limitText(s.limitation) ?? undefined),
-      tone: s.state === "OBSERVED" ? undefined : s.state === "CONTRADICTORY" ? "danger" : "gap",
+      tone:
+        s.state === "OBSERVED"
+          ? known !== null && ADVERSE.test(known)
+            ? "danger"
+            : known !== null && RUNNING.test(known)
+              ? "ok"
+              : undefined
+          : s.state === "CONTRADICTORY"
+            ? "danger"
+            : "gap",
     };
   });
 }
@@ -541,7 +650,8 @@ function OverviewScreen(p: ScreenProps) {
   const overview = useColdRead(() => p.client.getOverview(p.siteId, p.window), keyOf(p, "o"));
   const evidence = useColdRead(() => p.client.getEvidence(p.siteId, p.window), keyOf(p, "e"));
   const temperature = useColdRead(() => p.assessment.getTemperature(p.siteId, p.window), keyOf(p, "t"));
-  if (overview === null || evidence === null || temperature === null) return <p>{COLD_ASSESSMENT_LOADING}</p>;
+  const backupChain = useColdRead(() => p.assessment.getBackupChain(p.siteId, p.window), keyOf(p, "b"));
+  if (overview === null || evidence === null || temperature === null || backupChain === null) return <p>{COLD_ASSESSMENT_LOADING}</p>;
   const o = value(overview);
   const refused = refusalOf(overview);
   const none = o !== null && !isSelected(o);
@@ -563,7 +673,7 @@ function OverviewScreen(p: ScreenProps) {
         refused === null ? null : (
           <>
             <RequestedWindowBar window={p.window} refusal={refused} />
-            <RefusedStrip label="Cold room state" />
+            <RefusedStrip label="Cold room state" title={refused.title} />
             <RefusedTiles label="Cold room conditions" columns={5} cards={["Temperature", "Backup", "Cooling", "Maintenance", "Evidence"]} />
           </>
         )
@@ -589,22 +699,31 @@ function OverviewScreen(p: ScreenProps) {
         actions={firstFinding === null ? undefined : <ToLink href={coldUiHref(firstFinding.link, p.routes)}>Open Finding →</ToLink>}
       >
         {refused !== null ? (
-          <RefusedGap id="cold-site-what-happened" refusal={refused} onRetry={p.retry} />
+          <RefusedGap id="cold-site-what-happened" refusal={refused} onRetry={p.retry} window={p.window} />
         ) : none ? (
           <Gap id="cold-site-what-happened">{NO_COLD_ASSESSMENT}</Gap>
         ) : o!.causal_strip.length === 0 ? (
           <p className="prose">The power-to-cooling sequence is not established for this window.</p>
         ) : (
           <>
-            <CausalTimeline events={stripEvents(o!)} label="Power to cooling sequence" />
-            <p className="prose">The steps below are based on the selected accepted records. Missing steps remain unobserved.</p>
+            <CausalTimeline events={stripEvents(o!, value(backupChain))} label="Power to cooling sequence" />
+            <p className="prose">The steps above are based on the selected accepted records. Missing steps remain unobserved.</p>
           </>
         )}
       </Panel>
       <div className="panel-pair">
-        <Panel heading="Chamber temperature" headingId="cold-site-temperature-heading" description="Operating conditions, not an inventory-loss model">
+        <Panel
+          heading="Chamber temperature"
+          headingId="cold-site-temperature-heading"
+          description="Operating conditions, not an inventory-loss model"
+          actions={
+            <Link to={p.routes.sld} data-cold-sld-link>
+              Single line diagram →
+            </Link>
+          }
+        >
           {refused !== null ? (
-            <RefusedGap id="cold-site-temperature" refusal={refused} />
+            <RefusedGap id="cold-site-temperature" refusal={refused} repeat />
           ) : none ? (
             <Gap id="cold-site-temperature">{NO_COLD_ASSESSMENT}</Gap>
           ) : tempRefused !== null ? (
@@ -620,7 +739,7 @@ function OverviewScreen(p: ScreenProps) {
         </Panel>
         <Panel heading="Needs attention" headingId="cold-site-attention-heading">
           {refused !== null ? (
-            <RefusedGap id="cold-site-attention" refusal={refused} />
+            <RefusedGap id="cold-site-attention" refusal={refused} repeat />
           ) : none ? (
             <Gap id="cold-site-attention">{NO_COLD_ASSESSMENT}</Gap>
           ) : o!.needs_attention.length === 0 ? (
@@ -628,10 +747,11 @@ function OverviewScreen(p: ScreenProps) {
           ) : (
             <AttentionList
               label="Needs attention"
-              items={o!.needs_attention.map((n) => ({
+              items={o!.needs_attention.map((n, i, all) => ({
                 key: n.code,
                 title: n.text,
-                body: limitText(n.limitation) ?? "",
+                // R256: a limitation shared by several items is shown once, on the first item that carries it.
+                body: all.slice(0, i).some((m) => limitText(m.limitation) === limitText(n.limitation)) ? "" : (limitText(n.limitation) ?? ""),
                 // Run-7: a null destination shows noninteractive "No linked page for this item".
                 action: (
                   <p className="cold-panel-link">
@@ -648,7 +768,7 @@ function OverviewScreen(p: ScreenProps) {
       <div className="panel-pair">
         <Panel heading="Bounded money consequence" headingId="cold-site-money-heading">
           {refused !== null ? (
-            <RefusedGap id="cold-site-money" refusal={refused} />
+            <RefusedGap id="cold-site-money" refusal={refused} repeat />
           ) : money!.state === "WITHHELD" ? (
             <>
               <div className="metric-value v69-metric__value" data-cold-money="withheld">
@@ -675,7 +795,7 @@ function OverviewScreen(p: ScreenProps) {
         </Panel>
         <Panel heading="Next step" headingId="cold-site-next-heading">
           {refused !== null ? (
-            <RefusedGap id="cold-site-next" refusal={refused} />
+            <RefusedGap id="cold-site-next" refusal={refused} repeat />
           ) : next === null ? (
             <Gap id="cold-site-next">No recorded next step</Gap>
           ) : (
@@ -794,9 +914,10 @@ function EvidenceScreen(p: ScreenProps) {
   const caps = e?.capabilities ?? [];
   const analysis = e === null ? null : coldUiHref(e.links.analysis, p.routes);
   const financials = e === null ? null : selected(p.routes.financials, e.window);
-  const foundation = e === null ? null : coldUiHref(e.links.foundation, p.routes);
-  const missing: { role: string; label: string }[] = [];
-  for (const row of CAP_ROWS) for (const role of rowMissing(caps, row.claims)) if (!missing.some((m) => m.role === role)) missing.push({ role, label: row.label });
+  // R258: cooling items go to Performance › Cooling at the read's window.
+  const cooling = e === null ? null : selected(p.routes.cooling, e.window);
+  const missing: { role: string; label: string; key: string }[] = [];
+  for (const row of CAP_ROWS) for (const role of rowMissing(caps, row.claims)) if (!missing.some((m) => m.role === role)) missing.push({ role, label: row.label, key: row.key });
   // W2-F S5: the stock prompt follows a selected excursion (basis presence), never the product capability chip.
   const excursionPresent = e?.selected_excursion_present === true;
   const channels = e?.sources ?? [];
@@ -807,13 +928,18 @@ function EvidenceScreen(p: ScreenProps) {
         refused === null ? null : (
           <>
             <RequestedWindowBar window={p.window} refusal={refused} />
-            <RefusedStrip label="Evidence state" />
+            <RefusedStrip label="Evidence state" title={refused.title} />
           </>
         )
       ) : (
         <StatusBar
           label="Evidence state"
-          action={foundation === null ? <span>Configuration link not available</span> : <Link to={foundation}>Configuration at window end</Link>}
+          action={
+            // R258: the strip links to portfolio Evidence (mock); Configuration stays one tab away.
+            <Link to={p.routes.portfolioEvidence} data-cold-portfolio-evidence>
+              Portfolio evidence
+            </Link>
+          }
         >
           <Badge tone="neutral" className={toneClass(evidenceChip(caps))}>{evidenceChip(caps)}</Badge> {countSentence(caps)}
           {stateSentence(e) === null ? null : ` · ${stateSentence(e)}`}
@@ -821,7 +947,7 @@ function EvidenceScreen(p: ScreenProps) {
       )}
       <Panel heading="What we can conclude now" headingId="cold-site-conclude-heading" description="Evidence readiness is not equipment condition">
         {refused !== null ? (
-          <RefusedGap id="cold-site-conclude" refusal={refused} onRetry={p.retry} />
+          <RefusedGap id="cold-site-conclude" refusal={refused} onRetry={p.retry} window={p.window} />
         ) : none ? (
           <Gap id="cold-site-conclude">{NO_COLD_ASSESSMENT}</Gap>
         ) : (
@@ -855,7 +981,13 @@ function EvidenceScreen(p: ScreenProps) {
                     <td>{row.key === "exposure" ? `${SAY[chip]} Thermal exposure does not prove product loss.` : SAY[chip]}</td>
                     <td>{row.key === "exposure" ? `${missText} · Required basis: ${PRODUCT_REQUIRED_BASIS}` : missText}</td>
                     <td>
-                      {row.next === "financials" ? <ToLink href={financials}>Review financials</ToLink> : <ToLink href={analysis}>Review evidence</ToLink>}
+                      {row.next === "financials" ? (
+                        <ToLink href={financials}>Review financials</ToLink>
+                      ) : row.key === "cooling" ? (
+                        <ToLink href={cooling} data={{ "data-cold-review-cooling": "" }}>Review cooling →</ToLink>
+                      ) : (
+                        <ToLink href={analysis}>Review evidence</ToLink>
+                      )}
                     </td>
                   </tr>
                 );
@@ -871,7 +1003,7 @@ function EvidenceScreen(p: ScreenProps) {
           description="Source contact and accepted facts are separate; neither establishes equipment condition."
         >
           {refused !== null ? (
-            <RefusedGap id="cold-site-sources" refusal={refused} />
+            <RefusedGap id="cold-site-sources" refusal={refused} repeat />
           ) : none ? (
             <Gap id="cold-site-sources">{NO_COLD_ASSESSMENT}</Gap>
           ) : (
@@ -990,11 +1122,12 @@ function EvidenceScreen(p: ScreenProps) {
         </Panel>
         <Panel heading="Most useful next evidence" headingId="cold-site-next-evidence-heading">
           {refused !== null ? (
-            <RefusedGap id="cold-site-next-evidence" refusal={refused} />
+            <RefusedGap id="cold-site-next-evidence" refusal={refused} repeat />
           ) : none ? (
             <Gap id="cold-site-next-evidence">{NO_COLD_ASSESSMENT}</Gap>
           ) : missing.length === 0 && !excursionPresent ? (
-            <Gap id="cold-site-next-evidence">Next evidence not identified</Gap>
+            // Q10 (W2-F S5 kept): the normal case names the basis still needed to price a future exposure.
+            <Gap id="cold-site-next-evidence">No missing record blocks this window's claims. Pricing a future exposure still needs the required basis stated above.</Gap>
           ) : (
             <AttentionList
               label="Most useful next evidence"
@@ -1005,7 +1138,11 @@ function EvidenceScreen(p: ScreenProps) {
                   body: `Needed to assess ${m.label}`,
                   action: (
                     <p className="cold-panel-link">
-                      <ToLink href={analysis}>Review evidence</ToLink>
+                      {m.key === "cooling" ? (
+                        <ToLink href={cooling} data={{ "data-cold-review-cooling": m.role }}>Review cooling →</ToLink>
+                      ) : (
+                        <ToLink href={analysis}>Review evidence</ToLink>
+                      )}
                     </p>
                   ),
                 })),
@@ -1063,6 +1200,22 @@ export function utcClock(value: string | null | undefined): string {
   return d === null ? NOT_RECORDED : `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
 }
 
+/**
+ * R259 (Q11, shell Q18): one record time in the Site timezone with seconds; the local date is shown when its local day
+ * differs from the record's Measured time; the exact UTC instant is the cell's `title`. A missing or invalid Site
+ * timezone shows UTC, and the column headers say `(UTC)`.
+ */
+function ColdTimeCell({ value, timeZone, reference, cell }: { value: string | null; timeZone: string | null | undefined; reference?: string | null; cell: string }) {
+  const t = siteTime(value, timeZone, reference);
+  return t === null ? (
+    <td data-cold-time={cell}>{NOT_RECORDED}</td>
+  ) : (
+    <td data-cold-time={cell} title={`${t.utc} (exact UTC)`}>
+      {t.text}
+    </td>
+  );
+}
+
 /** Shortest truthful first-cell label; the bound source name and kind stay in Record details. */
 const RECORD_LABEL: Record<string, string> = {
   chamber_temperature: "Chamber temperature",
@@ -1085,6 +1238,9 @@ function AnalysisScreen(p: ScreenProps) {
   const refused = refusalOf(first);
   const none = a !== null && !isSelected(a);
   const key = keyOf(p, "a");
+  // R259: the column headers name the zone the cells use (`EAT` for Addis; `UTC` when the Site zone is missing).
+  // UI guide section 4: a missing or invalid Site zone is stated, never implied Site-local (same suffix as EV Analysis).
+  const zone = siteZoneAvailable(p.timeZone) ? siteZoneLabel(p.timeZone, a?.window.to ?? null) : "UTC; Site time zone unavailable";
   const pages = more.key === key ? more.pages : [];
   const rows = a === null ? [] : [a, ...pages].flatMap((x) => x.accepted_records.items);
   const cursor = a === null ? null : (pages.length > 0 ? pages[pages.length - 1] : a).accepted_records.next_cursor;
@@ -1107,13 +1263,13 @@ function AnalysisScreen(p: ScreenProps) {
       )}
       <Panel heading="Accepted records behind the conclusions" headingId="cold-site-records-heading" description="Measured time is kept even when a report arrives late">
         {refused !== null ? (
-          <RefusedGap id="cold-site-records" refusal={refused} onRetry={p.retry} />
+          <RefusedGap id="cold-site-records" refusal={refused} onRetry={p.retry} window={p.window} />
         ) : (
           <>
             <DataTable labelledBy="cold-site-records-heading">
               <thead>
                 <tr>
-                  {["Source · reading", "Value", "Measured (EAT)", "Sent (UTC)", "Received (UTC)", "Record"].map((h) => (
+                  {["Source · reading", "Value", `Measured (${zone})`, `Sent (${zone})`, `Received (${zone})`, "Record"].map((h) => (
                     <th key={h} scope="col">
                       {h}
                     </th>
@@ -1132,9 +1288,9 @@ function AnalysisScreen(p: ScreenProps) {
                     <tr key={r.evidence_id} data-accepted-record={r.evidence_id} hidden={!expanded && index >= RECORDS_SHOWN}>
                       <th scope="row">{r.role === null ? NOT_RECORDED : recordLabel(r.role)}</th>
                       <td>{r.value_display === null ? NOT_RECORDED : `${recordValue(r.value_display)}${r.unit === null ? "" : ` ${r.unit}`}`}</td>
-                      <td>{eatTime(r.source_time) ?? NOT_RECORDED}</td>
-                      <td>{utcClock(r.sent_at)}</td>
-                      <td>{utcClock(r.received_at)}</td>
+                      <ColdTimeCell value={r.source_time} timeZone={p.timeZone} cell="measured" />
+                      <ColdTimeCell value={r.sent_at} timeZone={p.timeZone} reference={r.source_time} cell="sent" />
+                      <ColdTimeCell value={r.received_at} timeZone={p.timeZone} reference={r.source_time} cell="received" />
                       <td>
                         {/* W5-F1 F1-3 (R38): a labelled reference to the selected accepted record, never an anchor.
                             No exact record route is integrated; a wire link, even PROVED, is not a record destination. */}
@@ -1192,7 +1348,7 @@ function AnalysisScreen(p: ScreenProps) {
       </Panel>
       <Panel heading="How a claim limit is set" headingId="cold-site-limit-heading">
         {refused !== null ? (
-          <RefusedGap id="cold-site-limit" refusal={refused} />
+          <RefusedGap id="cold-site-limit" refusal={refused} repeat />
         ) : none || a!.claim_rules.length === 0 ? (
           <Gap id="cold-site-limit">Claim limit not assessed</Gap>
         ) : (
@@ -1260,7 +1416,7 @@ function FinancialsScreen(p: ScreenProps) {
         refused === null ? null : (
           <>
             <RequestedWindowBar window={p.window} refusal={refused} />
-            <RefusedStrip label="Financial consequence" chip={NOT_ASSESSED} />
+            <RefusedStrip label="Financial consequence" chip={NOT_ASSESSED} title={refused.title} />
             <RefusedTiles label="Money consequence" cards={["Chamber thermal exposure", "Confirmed loss", "Repair and call-out", "Verified savings"]} />
           </>
         )
@@ -1300,7 +1456,7 @@ function FinancialsScreen(p: ScreenProps) {
         description={refused === null && anyLink ? "Select a source to return to its Finding" : undefined}
       >
         {refused !== null ? (
-          <RefusedGap id="cold-site-bridge" refusal={refused} onRetry={p.retry} />
+          <RefusedGap id="cold-site-bridge" refusal={refused} onRetry={p.retry} window={p.window} />
         ) : (
           <>
             <DataTable labelledBy="cold-site-bridge-heading">
@@ -1410,7 +1566,7 @@ function FinancialsScreen(p: ScreenProps) {
       <div className="panel-pair">
         <Panel heading="Assumptions in use" headingId="cold-site-in-use-heading">
           {sRefused !== null ? (
-            <RefusedGap id="cold-site-in-use" refusal={sRefused} />
+            <RefusedGap id="cold-site-in-use" refusal={sRefused} repeat={refused !== null && refused.sentence === sRefused.sentence} window={p.window} />
           ) : (
             <>
               <AssumptionValues read={s!} />
@@ -1422,7 +1578,7 @@ function FinancialsScreen(p: ScreenProps) {
         </Panel>
         <Panel heading="Not included" headingId="cold-site-not-included-heading">
           {refused !== null ? (
-            <RefusedGap id="cold-site-not-included" refusal={refused} />
+            <RefusedGap id="cold-site-not-included" refusal={refused} repeat />
           ) : f!.not_included.length === 0 ? (
             <Gap id="cold-site-not-included">No exclusion reason recorded</Gap>
           ) : (
@@ -1502,7 +1658,7 @@ function AssumptionsScreen(p: ScreenProps) {
       <SelectedWindowBar read={s} extra={stateSentence(s)} />
       <Panel heading="Financial assumptions" headingId="cold-site-assumptions-heading" description="Site-scoped business context · no cold assumption publication is available in W2">
         {refused !== null ? (
-          <RefusedGap id="cold-site-assumptions" refusal={refused} onRetry={p.retry} />
+          <RefusedGap id="cold-site-assumptions" refusal={refused} onRetry={p.retry} window={p.window} />
         ) : (
           <>
           <DataTable labelledBy="cold-site-assumptions-heading">

@@ -1,0 +1,75 @@
+﻿chrome pid 22552
+PASS  loaded http://127.0.0.1:5388/sites/EV-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-linkev-site-incidents 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/ev-work-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-linkev-site-incidents 1440: mock rendered
+PASS  link-linkev-site-incidents 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  link-linkev-site-incidents 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/EV-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkev-site-incidents 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/ev-work-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkev-site-incidents 390: mock rendered
+PASS  link-linkev-site-incidents 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  link-linkev-site-incidents 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/EV-LAB-001/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-linkev-site-overview 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-linkev-site-overview 1440: mock rendered
+PASS  link-linkev-site-overview 1440: same panel count  {"app":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"],"mock":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"]}
+PASS  link-linkev-site-overview 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/EV-LAB-001/ev: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkev-site-overview 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/ev: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkev-site-overview 390: mock rendered
+PASS  link-linkev-site-overview 390: same panel count  {"app":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"],"mock":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"]}
+PASS  link-linkev-site-overview 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/EV-LAB-001/actions/842de2dc-231e-47ef-ab7d-84cbc57a9cfb/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-linkev-action 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/ev-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-linkev-action 1440: mock rendered
+PASS  link-linkev-action 1440: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-linkev-action 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/EV-LAB-001/actions/842de2dc-231e-47ef-ab7d-84cbc57a9cfb/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkev-action 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/ev-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkev-action 390: mock rendered
+PASS  link-linkev-action 390: same panel count  {"app":["Declared verification plan"],"mock":["Declared verification plan"]}
+PASS  link-linkev-action 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/maintenance/requests/737e90de-f711-4bc8-b600-6257d721474c?site_id=EV-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-linkev-request 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-linkev-request 1440: mock rendered
+PASS  link-linkev-request 1440: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  link-linkev-request 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/maintenance/requests/737e90de-f711-4bc8-b600-6257d721474c?site_id=EV-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkev-request 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-linkev-request 390: mock rendered
+PASS  link-linkev-request 390: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  link-linkev-request 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/EV-LAB-001/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-r353-ev-site-from-incidents 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-r353-ev-site-from-incidents 1440: mock rendered
+PASS  link-r353-ev-site-from-incidents 1440: same panel count  {"app":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"],"mock":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"]}
+PASS  link-r353-ev-site-from-incidents 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/EV-LAB-001/ev: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-r353-ev-site-from-incidents 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/ev: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-r353-ev-site-from-incidents 390: mock rendered
+PASS  link-r353-ev-site-from-incidents 390: same panel count  {"app":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"],"mock":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"]}
+PASS  link-r353-ev-site-from-incidents 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/EV-LAB-001/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-r353-ev-site-from-maintenance 1440: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-r353-ev-site-from-maintenance 1440: mock rendered
+PASS  link-r353-ev-site-from-maintenance 1440: same panel count  {"app":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"],"mock":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"]}
+PASS  link-r353-ev-site-from-maintenance 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5388/sites/EV-LAB-001/ev: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-r353-ev-site-from-maintenance 390: app rendered
+PASS  loaded http://127.0.0.1:5388/mockups/v69/index.html#/ev: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-r353-ev-site-from-maintenance 390: mock rendered
+PASS  link-r353-ev-site-from-maintenance 390: same panel count  {"app":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"],"mock":["What happened on the service day","Charging activity and site power","Needs attention","Bounded money consequence","Next step"]}
+PASS  link-r353-ev-site-from-maintenance 390: no app page overflow  {"overflowX":0}
+
+72/72 claims passed; evidence in ..\part-linkev

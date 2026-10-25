@@ -11,7 +11,7 @@
  */
 import { KeyValues, Panel } from "../ui";
 import type { GlobalWorkClient, GlobalWorkDetailBody } from "./globalWorkClient";
-import { LinkOrText, joined } from "./globalWorkParts";
+import { LinkOrText, MockDeviation, assetWords, joined } from "./globalWorkParts";
 import { WorkRequestFrame, recordHeads } from "./workRequestShared";
 
 export const NO_MAINTENANCE_ACTIVITY = "No maintenance activity recorded";
@@ -45,10 +45,39 @@ function latestActivity(body: GlobalWorkDetailBody): string | null {
   return heads.length > 0 ? heads[heads.length - 1].activity : null;
 }
 
+/**
+ * Post-W6 W6 Q10 (R366): each linked Action by its stored public `ACT-` code. An Action with no stored code keeps the
+ * honest `Action {id8}` label and discloses its stored ID; no code is invented.
+ */
+function LinkedActions({ body }: { body: GlobalWorkDetailBody }) {
+  const actions = body.links.actions;
+  if (actions.length === 0) return <>{NO_LINKED_ACTION}</>;
+  return (
+    <>
+      {joined(
+        actions.map((link, index) => {
+          const stored = body.work_detail.action_links[index]?.action_id;
+          return (
+            <span key={`${link.label}-${index}`}>
+              <LinkOrText link={link} data={{ "data-work-request-action": "" }} />
+              {!link.label.startsWith("ACT-") && stored ? (
+                <details className="global-work-details" data-work-request-action-id>
+                  <summary>Stored Action ID</summary>
+                  {stored}
+                </details>
+              ) : null}
+            </span>
+          );
+        }),
+        " · ",
+      )}
+    </>
+  );
+}
+
 function WorkDone({ body }: { body: GlobalWorkDetailBody }) {
   const activity = latestActivity(body);
   const asset = body.work_asset;
-  const actions = body.links.actions;
   return (
     <>
       <Long text={body.work_detail.selected_revision.narrative} name="narrative" hook="narrative" />
@@ -61,20 +90,10 @@ function WorkDone({ body }: { body: GlobalWorkDetailBody }) {
         label="Work request facts"
         rows={[
           ["Type", CASE_KIND_LABEL[body.selected.case_kind] ?? body.selected.case_kind, "type"],
-          ["Asset", asset === null ? NO_ASSET_RECORDED : `${asset.code} · ${asset.type}`, "asset"],
+          // Post-W6 W6 Q18: plain asset words from the stored code and type (`EV connector c1`).
+          ["Asset", asset === null ? NO_ASSET_RECORDED : assetWords(asset.code, asset.type), "asset"],
           ["Warranty", WARRANTY_NOT_RECORDED, "warranty"],
-          [
-            "Linked action",
-            actions.length === 0
-              ? NO_LINKED_ACTION
-              : joined(
-                  actions.map((link, index) => (
-                    <LinkOrText key={`${link.label}-${index}`} link={link} data={{ "data-work-request-action": "" }} />
-                  )),
-                  " · ",
-                ),
-            "linked_action",
-          ],
+          ["Linked action", <LinkedActions body={body} />, "linked_action"],
         ]}
       />
     </>
@@ -124,6 +143,8 @@ function OverviewPanels({ body }: { body: GlobalWorkDetailBody | null }) {
     <div className="panel-pair" data-work-request-pair>
       <Panel heading="Work done" headingId="work-request-work-done">
         {body !== null ? <WorkDone body={body} /> : null}
+        {/* MOCK DEVIATION D1 (R365): stated gaps (Due / SLA, Source, Success criterion, Warranty) replace mock facts. */}
+        {body !== null ? <MockDeviation category="D1" id="R365" /> : null}
       </Panel>
       <Panel heading="Lifecycle" headingId="work-request-lifecycle">
         {body !== null ? <Lifecycle body={body} /> : null}

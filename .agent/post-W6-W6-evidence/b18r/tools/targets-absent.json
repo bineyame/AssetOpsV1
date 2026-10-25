@@ -1,0 +1,22 @@
+[
+ {
+  "id": "incidents",
+  "case": "unavailable-503",
+  "url": "http://127.0.0.1:5392/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "unavailable-503",
+  "url": "http://127.0.0.1:5392/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "unavailable-503",
+  "url": "http://127.0.0.1:5392/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "oprecords",
+  "case": "unavailable-503",
+  "url": "http://127.0.0.1:5392/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ }
+]

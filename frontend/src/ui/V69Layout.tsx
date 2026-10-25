@@ -232,7 +232,8 @@ export interface TimelineEvent {
   time: ReactNode;
   title: ReactNode;
   detail?: ReactNode;
-  tone?: "danger" | "gap";
+  /** `ok` is the mock's green `.timeline-event.ok` (post-W6 W2-cold Q9: a known running outcome). */
+  tone?: "danger" | "gap" | "ok";
 }
 
 /** The mock's causal `.timeline` strip: time, event, source in sequence. */

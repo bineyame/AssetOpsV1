@@ -1,0 +1,50 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "cold-worstcase-wr-000002",
+  "url": "http://127.0.0.1:5393/maintenance/requests/81021773-de3b-4d34-abfa-6f81434206df?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-worstcase-wr-000002",
+  "url": "http://127.0.0.1:5393/maintenance/requests/81021773-de3b-4d34-abfa-6f81434206df/record?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "cold-worstcase-wr-000002",
+  "url": "http://127.0.0.1:5393/maintenance/requests/81021773-de3b-4d34-abfa-6f81434206df/history?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-overview",
+  "case": "cold-worstcase-wr-000004",
+  "url": "http://127.0.0.1:5393/maintenance/requests/df1cc916-4205-4c93-96c1-731299ff2c7e?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-worstcase-wr-000004",
+  "url": "http://127.0.0.1:5393/maintenance/requests/df1cc916-4205-4c93-96c1-731299ff2c7e/record?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "cold-worstcase-wr-000004",
+  "url": "http://127.0.0.1:5393/maintenance/requests/df1cc916-4205-4c93-96c1-731299ff2c7e/history?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-overview",
+  "case": "cold-worstcase-all-open-wr-000004",
+  "url": "http://127.0.0.1:5393/maintenance/requests/df1cc916-4205-4c93-96c1-731299ff2c7e?site_id=COLD-LAB-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-worstcase-all-open-wr-000004",
+  "url": "http://127.0.0.1:5393/maintenance/requests/df1cc916-4205-4c93-96c1-731299ff2c7e/record?site_id=COLD-LAB-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-history",
+  "case": "cold-worstcase-all-open-wr-000004",
+  "url": "http://127.0.0.1:5393/maintenance/requests/df1cc916-4205-4c93-96c1-731299ff2c7e/history?site_id=COLD-LAB-001",
+  "openAll": true
+ }
+]

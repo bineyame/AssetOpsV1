@@ -1,0 +1,87 @@
+﻿chrome pid 9280
+PASS  loaded http://127.0.0.1:5392/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  incidents-cold 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-cold 1440: mock rendered
+PASS  incidents-cold 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-cold 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-cold 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-cold 390: mock rendered
+PASS  incidents-cold 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-cold 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  maintenance-cold 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  maintenance-cold 1440: mock rendered
+PASS  maintenance-cold 1440: same panel count  {"app":["Corrective work requests"],"mock":["Corrective work requests"]}
+PASS  maintenance-cold 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  maintenance-cold 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  maintenance-cold 390: mock rendered
+PASS  maintenance-cold 390: same panel count  {"app":["Corrective work requests"],"mock":["Corrective work requests"]}
+PASS  maintenance-cold 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/maintenance/preventive?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  maintenance-preventive-cold 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/maintenance-preventive: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  maintenance-preventive-cold 1440: mock rendered
+PASS  maintenance-preventive-cold 1440: same panel count  {"app":["Preventive plan"],"mock":["Preventive plan"]}
+PASS  maintenance-preventive-cold 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/maintenance/preventive?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  maintenance-preventive-cold 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/maintenance-preventive: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  maintenance-preventive-cold 390: mock rendered
+PASS  maintenance-preventive-cold 390: same panel count  {"app":["Preventive plan"],"mock":["Preventive plan"]}
+PASS  maintenance-preventive-cold 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/operational-records?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  oprecords-cold 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-cold 1440: mock rendered
+PASS  oprecords-cold 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-cold 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/operational-records?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-cold 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-cold 390: mock rendered
+PASS  oprecords-cold 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-cold 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  incidents-cold-all-open 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-cold-all-open 1440: mock rendered
+PASS  incidents-cold-all-open 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-cold-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-cold-all-open 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-cold-all-open 390: mock rendered
+PASS  incidents-cold-all-open 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-cold-all-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  maintenance-cold-all-open 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  maintenance-cold-all-open 1440: mock rendered
+PASS  maintenance-cold-all-open 1440: same panel count  {"app":["Corrective work requests"],"mock":["Corrective work requests"]}
+PASS  maintenance-cold-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  maintenance-cold-all-open 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  maintenance-cold-all-open 390: mock rendered
+PASS  maintenance-cold-all-open 390: same panel count  {"app":["Corrective work requests"],"mock":["Corrective work requests"]}
+PASS  maintenance-cold-all-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  incidents-cold-default-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-cold-default-window 1440: mock rendered
+PASS  incidents-cold-default-window 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-cold-default-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5392/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-cold-default-window 390: app rendered
+PASS  loaded http://127.0.0.1:5392/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-cold-default-window 390: mock rendered
+PASS  incidents-cold-default-window 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-cold-default-window 390: no app page overflow  {"overflowX":0}
+
+84/84 claims passed; evidence in ..\part-cold

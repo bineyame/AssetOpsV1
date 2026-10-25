@@ -1,0 +1,7 @@
+stopped positive pid 22260
+stopped worstcase pid 4816
+stopped forbidden pid 6260
+stopped unavailable pid 27364
+dropped database w502b_positive_w6r18_test
+dropped database w502b_worstcase_w6r18_test
+removed C:\Users\assef\Bineyame\AssetOpsV1-review8\var\w502b_w6r18

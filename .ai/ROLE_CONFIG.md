@@ -585,6 +585,8 @@ The owner asked to "adopt best practices and learning for waves 5 and 6 for qual
 
 Owner: "for UI/UX related question, it is important to take inspiration from modern UI guidelines and techniques, this is for the architect as well as the implementer".
 
+Architects, Implementers and Reviewers use [the UI/UX decision guide](../frontend/docs/architecture/ui-ux-decision-guide.md) for standing screen defaults, long-content and cap proofs, state and copy patterns, mock-deviation handling, and the builder's decide-versus-escalate boundary. Builders make covered choices without a decision request, cite the guide section under **Choices made** in their packet, and escalate only the exceptions named there; specific active rulings and the v6.9 mock still govern their named screens.
+
 The Architect (UI rulings, cap fallbacks, copy) and Implementers (pre-flight defaults, choices where rulings are silent) ground UI answers in current guidance and practice (WCAG 2.2, Material 3, Apple HIG, GOV.UK/USWDS, Carbon, NN/g heuristics, responsive data-table patterns) and name the pattern relied on. Broadened the same day: "not just when there are questions but state of the art UI/UX should be used(within bounds of demo speed)". It is a standing quality bar for all UI work (Architect specs, Implementer builds, Reviewer checks): hierarchy, readable type, strong 390 px behaviour, WCAG 2.2 AA focus/keyboard, purposeful loading/empty/error states, scroll affordances, plain copy. Bounded by demo speed: prefer cheap local improvements; batch larger ideas as proposals. The v6.9 mock remains the layout spec; layout/content changes it would imply are proposed as labelled D2 departures. Detail: `.agent/owner-ui-ux-guidance-2026-10-25.md`.
 
 ## Updating Bindings

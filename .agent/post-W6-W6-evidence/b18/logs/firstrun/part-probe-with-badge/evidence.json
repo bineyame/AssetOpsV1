@@ -1,0 +1,1787 @@
+{
+  "revision": "f3da6e90",
+  "captured_at": "2026-10-25T13:49:30.089Z",
+  "pairs": [
+    {
+      "screen": "oprecords",
+      "case": "probe5",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/oprecords",
+      "app_image": "oprecords-probe5-1440-app.png",
+      "mock_image": "oprecords-probe5-1440-mock.png",
+      "app": {
+        "titles": [
+          "Operational records",
+          "Record a manual reading",
+          "How records are used"
+        ],
+        "panels": [
+          {
+            "title": "Operational records",
+            "x": 248,
+            "y": 419,
+            "w": 1145,
+            "h": 631,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Record",
+              "Type",
+              "Site",
+              "When",
+              "By",
+              "What it says",
+              "Feeds",
+              "State"
+            ],
+            "chips": [
+              "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+              "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+              "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+              "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+              "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe"
+            ],
+            "links": 6,
+            "buttons": 1,
+            "details": 11,
+            "rowText": [
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Earlier record version5c9741e4-9a40-4b6e-bf49-22fcb3c51142Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record textShift note at KOBO-001: generator stop handed over to the next shift.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe →",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record textShift note at KOBO-002: chamber door closed at handover.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record textManual reading at KOBO-002: Stock in chamber: 42 kg",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record textOperator log at KOBO-002: pump started on schedule.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record textShift note at KOBO-001: handover completed with no open alarms.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-20T00%3A00%3A00Z"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001"
+              ]
+            ],
+            "panelText": "Operational recordsWhat people on site recorded, and the evidence each one feedsScroll table horizontallyRecordTypeSiteWhenByWhat it saysFeedsStateProbe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Earlier record version5c9741e4-9a40-4b6e-bf49-22fcb3c51142Source unverifiedThe origin of this authored work record is not established",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Record a manual reading",
+            "x": 248,
+            "y": 1068,
+            "w": 725,
+            "h": 325,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Record a manual readingManual readings cannot be submitted from this page.MOCK DEVIATION D4 (R362)SiteKobo mini-grid · KOBO-001Kobo mini-grid · KOBO-002ReadingFuel tank dipStock in chamberMeter readingValueTaken atSubmit for review · Not available yetRecording requires an authorized work service.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How records are used",
+            "x": 991,
+            "y": 1068,
+            "w": 403,
+            "h": 325,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "How records are usedAuthored records are kept apart from measured readings. This page shows them as Operator record; none is accepted equipment evidence.A reading that has not been taken remains a visible gap; this page has no request list to count it.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1444,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Operational records",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [
+            "Records in window7Logs, readings, notes and visits",
+            "Feeding evidenceNot establishedNo accepted-evidence publication link",
+            "In reviewNo review workflowAll stored records are Submitted",
+            "Requested, not yet doneNot recordedNo request list recorded"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 1,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "From (UTC) To (UTC, exclusive) Show recordsReload",
+          "details": 11,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Records in window7Logs, readings, notes and visits | ",
+            "Feeding evidenceNot establishedNo accepted-evidence publication link | ",
+            "In reviewNo review workflowAll stored records are Submitted | ",
+            "Requested, not yet doneNot recordedNo request list recorded | "
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Operational records",
+          "subtitle": "Operator logs, manual readings, shift notes and site visits",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Operational records Operational records Operator logs, manual readings, shift notes and site visits From (UTC) To (UTC, exclusive) Show records Reload Listed by the time each record's event happened. As known at 25 Oct 2026, 13:49 UTC Records in window 7 Logs, readings, notes and visits Feeding evidence Not established No accepted-evidence publication link In review No review workflow All stored records are Submitted Requested, not yet done Not recorded No request list recorded All Operator log Manual reading Shift note Site visit Operational records What people on site recorded, and the evidence each one feeds RECORD TYPE SITE WHEN BY WHAT IT SAYS FEEDS STATE Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Earlier record version Source unverified Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe → Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Source unverified Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text"
+        },
+        "b18": {
+          "status": "As known at 25 Oct 2026, 13:49 UTC",
+          "showing": "Showing 1–5 of 7",
+          "pager": [
+            "Next"
+          ],
+          "siteLinks": [
+            "KOBO-001 -> /sites/KOBO-001",
+            "KOBO-002 -> /sites/KOBO-002",
+            "KOBO-002 -> /sites/KOBO-002",
+            "KOBO-002 -> /sites/KOBO-002",
+            "KOBO-001 -> /sites/KOBO-001"
+          ],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-14",
+            "=2026-10-21",
+            "=KOBO-001",
+            "=Fuel tank dip"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "grid · KOBO"
+          ],
+          "enums": [],
+          "utcHits": 3,
+          "bodyText": "Operational records Operational records Operator logs, manual readings, shift notes and site visits From (UTC) To (UTC, exclusive) Show records Reload Listed by the time each record's event happened. As known at 25 Oct 2026, 13:49 UTC Records in window 7 Logs, readings, notes and visits Feeding evidence Not established No accepted-evidence publication link In review No review workflow All stored records are Submitted Requested, not yet done Not recorded No request list recorded All Operator log Manual reading Shift note Site visit Operational records What people on site recorded, and the evidence each one feeds RECORD TYPE SITE WHEN BY WHAT IT SAYS FEEDS STATE Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Earlier record version Source unverified Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe → Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Source unverified Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Pr"
+        },
+        "mainLinks": [
+          "Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001",
+          "Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-20T00%3A00%3A00Z",
+          "Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002",
+          "Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002",
+          "Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002",
+          "Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001"
+        ],
+        "cardsDom": [
+          {
+            "t": "Records in window7Logs, readings, notes and visits",
+            "h": 115
+          },
+          {
+            "t": "Feeding evidenceNot establishedNo accepted-evidence publication link",
+            "h": 115
+          },
+          {
+            "t": "In reviewNo review workflowAll stored records are Submitted",
+            "h": 115
+          },
+          {
+            "t": "Requested, not yet doneNot recordedNo request list recorded",
+            "h": 115
+          }
+        ],
+        "tabRows": [],
+        "clipped": [
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 68,
+            "cw": 68,
+            "sh": 264,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 68,
+            "cw": 68,
+            "sh": 264,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 88,
+            "cw": 88,
+            "sh": 176,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 128,
+            "cw": 128,
+            "sh": 141,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 108,
+            "cw": 108,
+            "sh": 141,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 98,
+            "cw": 98,
+            "sh": 176,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 248,
+            "cw": 248,
+            "sh": 70,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 118,
+            "cw": 118,
+            "sh": 141,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 68,
+            "cw": 68,
+            "sh": 264,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 88,
+            "cw": 88,
+            "sh": 176,
+            "ch": 53
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 1758,
+            "cw": 1090,
+            "panel": "Operational records"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "12px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1444
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Operational records",
+          "crumbs": "Operational records",
+          "status": [
+            "As known at 25 Oct 2026, 13:49 UTC"
+          ],
+          "membership": [
+            "Listed by the time each record's event happened."
+          ],
+          "deviations": [
+            "R362|MOCK DEVIATION D4 (R362)|12px"
+          ],
+          "showing": "Showing 1–5 of 7",
+          "findings": [
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors="
+          ],
+          "requestLinks": [],
+          "rowLinks": [
+            "Probe text Probe text Probe text Probe text Probe  -> /sites/KOBO-001",
+            "Probe text Probe text Probe text Probe text Probe  -> /sites/KOBO-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-20T00%3A00%3A00Z",
+            "Probe text Probe text Probe text Probe text Probe  -> /sites/KOBO-002",
+            "Probe text Probe text Probe text Probe text Probe  -> /sites/KOBO-002",
+            "Probe text Probe text Probe text Probe text Probe  -> /sites/KOBO-002",
+            "Probe text Probe text Probe text Probe text Probe  -> /sites/KOBO-001"
+          ],
+          "siteLinks": [
+            "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001",
+            "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002",
+            "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002",
+            "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002",
+            "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001"
+          ],
+          "form": {
+            "siteOptions": [
+              "KOBO-001=Kobo mini-grid · KOBO-001",
+              "KOBO-002=Kobo mini-grid · KOBO-002"
+            ],
+            "timeValue": "",
+            "timePlaceholder": "Event time",
+            "formText": "MOCK DEVIATION D4 (R362)SiteKobo mini-grid · KOBO-001Kobo mini-grid · KOBO-002ReadingFuel tank dipStock in chamberMeter readingValueTaken atSubmit for review · Not available yetRecording requires an authorized work service."
+          },
+          "table": {
+            "tag": "TABLE",
+            "sw": 1758,
+            "cw": 1100,
+            "w": 1100,
+            "layout": "fixed",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 1758,
+            "wrapCw": 1090,
+            "cols": [
+              "Record:90",
+              "Type:110",
+              "Site:150",
+              "When:130",
+              "By:120",
+              "What it says:270",
+              "Feeds:140",
+              "State:90"
+            ],
+            "over": [
+              "TD. ws=normal col=7 r=1368 sw=748 cw=90 t=Probe text Probe text Probe te",
+              "SPAN.w1f4-action-badge w1f4-action-badge--blu ws=nowrap col=7 r=2026 sw=737 cw=737 t=Probe text Probe text Probe te",
+              "TD. ws=normal col=7 r=1368 sw=748 cw=90 t=Probe text Probe text Probe te",
+              "SPAN.w1f4-action-badge w1f4-action-badge--blu ws=nowrap col=7 r=2026 sw=737 cw=737 t=Probe text Probe text Probe te",
+              "TD. ws=normal col=7 r=1368 sw=748 cw=90 t=Probe text Probe text Probe te",
+              "SPAN.w1f4-action-badge w1f4-action-badge--blu ws=nowrap col=7 r=2026 sw=737 cw=737 t=Probe text Probe text Probe te",
+              "TD. ws=normal col=7 r=1368 sw=748 cw=90 t=Probe text Probe text Probe te",
+              "SPAN.w1f4-action-badge w1f4-action-badge--blu ws=nowrap col=7 r=2026 sw=737 cw=737 t=Probe text Probe text Probe te"
+            ],
+            "rowH": [
+              221,
+              116,
+              116,
+              116,
+              115
+            ]
+          },
+          "historicalNotice": [],
+          "tabs": [
+            "Operational records",
+            "Showing 1–5 of 7"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Operational records",
+          "Record a manual reading",
+          "How records are used"
+        ],
+        "panels": [
+          {
+            "title": "Operational records",
+            "x": 234,
+            "y": 422,
+            "w": 1161,
+            "h": 540,
+            "tables": 1,
+            "rows": 8,
+            "columns": [
+              "Record",
+              "Type",
+              "Site",
+              "When",
+              "By",
+              "What it says",
+              "Feeds",
+              "State"
+            ],
+            "chips": [
+              "Accepted",
+              "Accepted",
+              "Requested",
+              "Accepted",
+              "Accepted",
+              "Requested",
+              "Accepted",
+              "In review"
+            ],
+            "links": 8,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "REC-305",
+                "Manual reading",
+                "Kobo",
+                "6 Oct 14:15",
+                "Site operator",
+                "Fuel tank dip: 198 L (sensor read 200 L)",
+                "Fuel balance · opening →",
+                "Accepted"
+              ],
+              [
+                "REC-306",
+                "Shift note",
+                "Kobo",
+                "6 Oct 15:30",
+                "Shift supervisor",
+                "Generator left running to charge the battery; stop setting 90% unchanged",
+                "F-104 context →",
+                "Accepted"
+              ],
+              [
+                "REC-307",
+                "Manual reading",
+                "Kobo",
+                "Requested",
+                "—",
+                "Closing fuel tank dip not yet taken",
+                "Fuel balance · closing →",
+                "Requested"
+              ],
+              [
+                "REC-311",
+                "Operator log",
+                "GreenHarvest",
+                "6 Oct 19:14",
+                "Night operator",
+                "Generator started by hand after no automatic start",
+                "INC-203 timeline →",
+                "Accepted"
+              ],
+              [
+                "REC-312",
+                "Site visit",
+                "GreenHarvest",
+                "6 Oct 21:40",
+                "Technician",
+                "Starter and control circuit inspected; connection re-made",
+                "WR-019 record →",
+                "Accepted"
+              ],
+              [
+                "REC-313",
+                "Manual reading",
+                "GreenHarvest",
+                "Requested",
+                "—",
+                "Stock in chamber not recorded",
+                "Product exposure →",
+                "Requested"
+              ],
+              [
+                "REC-320",
+                "Shift note",
+                "Depot",
+                "6 Oct 14:20",
+                "Depot attendant",
+                "Driver reported connector 2 stopped mid-charge; vehicle moved to connector 1",
+                "F-130 context →",
+                "Accepted"
+              ],
+              [
+                "REC-321",
+                "Site visit",
+                "Depot",
+                "6 Oct 16:30",
+                "Charging technician",
+                "Connector 2 checked visually; no damage; diagnostics not exported",
+                "ACT-061 →",
+                "In review"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "→ -> #/fuel"
+              ],
+              [
+                "→ -> #/alternatives"
+              ],
+              [
+                "→ -> #/fuel"
+              ],
+              [
+                "→ -> #/incident"
+              ],
+              [
+                "→ -> #/wr-record"
+              ],
+              [
+                "→ -> #/cold-financials"
+              ],
+              [
+                "→ -> #/ev-finding"
+              ],
+              [
+                "→ -> #/ev-action"
+              ]
+            ],
+            "panelText": "Operational recordsWhat people on site recorded, and the evidence each one feedsRecordTypeSiteWhenByWhat it saysFeedsStateREC-305Manual readingKobo6 Oct 14:15Site operatorFuel tank dip: 198 L (sensor read 200 L)Fuel balance · opening →AcceptedREC-306Shift noteKobo6 Oct 15:30Shift supervisorGenerator left running to charge the battery; stop setting 90% unchangedF-104 context →AcceptedREC-307Manual readingKoboRequested—Closing fuel tank dip not yet takenFuel balance · closing →RequestedREC-311Operator logGreenHarvest6 Oct 19:14Night operatorGenerator started by hand after no automatic startINC-2",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Record a manual reading",
+            "x": 234,
+            "y": 980,
+            "w": 735,
+            "h": 289,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Record a manual readingFills REC-307 when submittedSiteKobo Mini-gridGreenHarvest Cold RoomDepot Charging HubReadingFuel tank dipStock in chamberMeter readingValueTaken atSubmit for review",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How records are used",
+            "x": 987,
+            "y": 980,
+            "w": 408,
+            "h": 289,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "How records are usedRecords are kept apart from measured readings and are labelled Operator record wherever they support a conclusion.A requested record that is never taken stays a visible gap; it is not filled in.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1335,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Operational records",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Operational records",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · each site’s event window▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · each site’s event window ▾ BY Operational records Operational records Operator logs, manual readings, shift notes and site visits Records in window 6 Logs, readings, notes and visits Feeding evidence 6 Labelled Operator record where used In review 1 REC-321 Requested, not yet done 2 Closing fuel dip · stock in chamber All Operator log Manual reading Shift note Site visit Operational records What people on site recorded, and the evidence each one feeds RECORD TYPE SITE WHEN BY WHAT IT SAYS FEEDS STATE REC-305 Manual reading Kobo 6 Oct 14:15 Site operator Fuel tank dip: 198 L (sensor read 200 L) Fuel balance · opening → Accepted REC-306 Shift note Kobo 6 Oct 15:30 Shift supervisor Generator left running to charge the battery; stop setting 90% unchanged F-104 context → Accepted REC-307 Manual reading Kobo Requested — Closing fuel tank dip not yet taken Fuel balance · closing → Requested REC-311 Operator log GreenHarvest 6 Oct 19:14 Night operator Generator started by hand after no automatic start INC-203 timeline → Accepted REC-312 Site visit GreenHarvest 6 Oct 21:40 Technician Starter and control circuit inspected; connection re-made WR-019 record → Accepted REC-313 Manual reading GreenHarvest Requested — Stock in chamber not recorded Product exposure → Requested REC-320 Shift note Depot 6 Oct 14:20 Depot attendant Driver reported connector 2 stopped mid-charge; vehicle moved to connector 1 F-130 context → Accepted REC-321 Site visit Depot 6 Oct 16:30 Charging technician Connector 2 checked visually; no damage; diagnostics not exported ACT-061 → In review Record a manual reading Fills REC-307 when submitted Site Kobo Mini-grid GreenHarvest Cold Room Depot Charging Hub Reading Fuel tank dip Stock in chamber Meter reading Value Taken at Submit for review How records are used Records are kept apart from measured readings and are labelled Operator record wherever they support a conclusion. A requested record that is never taken stays a visible gap; it is not filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [
+            "All",
+            "Operator log",
+            "Manual reading",
+            "Shift note",
+            "Site visit"
+          ],
+          "windowInputs": [
+            "=Kobo Mini-grid",
+            "=Fuel tank dip"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · each site’s event window ▾ BY Operational records Operational records Operator logs, manual readings, shift notes and site visits Records in window 6 Logs, readings, notes and visits Feeding evidence 6 Labelled Operator record where used In review 1 REC-321 Requested, not yet done 2 Closing fuel dip · stock in chamber All Operator log Manual reading Shift note Site visit Operational records What people on site recorded, and the evidence each one feeds RECORD TYPE SITE WHEN BY WHAT IT SAYS FEEDS STATE REC-305 Manual reading Kobo 6 Oct 14:15 Site operator Fuel tank dip: 198 L (sensor read 200 L) Fuel balance · opening → Accepted REC-306 Shift note Kobo 6 Oct 15:30 Shift supervisor Generator left running to charge the battery; stop setting 90% unchanged F-104 context → Accepted REC-307 Manual reading Kobo Requested — Closing fuel tank dip not yet taken Fuel balance · closing → Requested REC-311 Operator log GreenHarvest 6 Oct 19:14 Night operator Generator started by hand after no automatic start INC-203 timeline → Accepted REC-312 Site visit GreenHarvest 6 Oct 21:40 Technician Starter and control circuit inspected; connection re-made WR-019 record → Accepted REC-313 Manual reading GreenHarvest Requested — Stock in chamber not recorded Product exposure → Requested REC-320 Shift note Depot 6 Oct 14:20 Depot attendant Driver reported connector 2 stopped mid-charge; vehicle moved to connector 1 F-130 context → Accepted REC-321 Site visit Depot 6 Oct 16:30 Charging technician Connector 2 checked visually; no damage; diagnostics not exported ACT-061 → In review Record a manual reading Fills REC-307 when submitted Site Kobo Mini-grid GreenHarvest Cold Room Depot Charging Hub Reading Fuel tank dip Stock in chamber Meter reading Value Taken at Submit for review How records are used Records are kept apart from measured readings and are labelled Operator record wherever they support a conclusion. A requested record that is never taken stays a visible gap; it is not filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Operational records -> #/oprecords",
+          "→ -> #/fuel",
+          "→ -> #/alternatives",
+          "→ -> #/fuel",
+          "→ -> #/incident",
+          "→ -> #/wr-record",
+          "→ -> #/cold-financials",
+          "→ -> #/ev-finding",
+          "→ -> #/ev-action"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1291
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "oprecords",
+      "case": "probe5",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "mock_hash": "#/oprecords",
+      "app_image": "oprecords-probe5-390-app.png",
+      "mock_image": "oprecords-probe5-390-mock.png",
+      "app": {
+        "titles": [
+          "Operational records",
+          "Record a manual reading",
+          "How records are used"
+        ],
+        "panels": [
+          {
+            "title": "Operational records",
+            "x": 16,
+            "y": 834,
+            "w": 358,
+            "h": 744,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Record",
+              "Type",
+              "Site",
+              "When",
+              "By",
+              "What it says",
+              "Feeds",
+              "State"
+            ],
+            "chips": [
+              "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+              "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+              "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+              "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+              "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe"
+            ],
+            "links": 6,
+            "buttons": 1,
+            "details": 11,
+            "rowText": [
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Earlier record version5c9741e4-9a40-4b6e-bf49-22fcb3c51142Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record textShift note at KOBO-001: generator stop handed over to the next shift.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe →",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record textShift note at KOBO-002: chamber door closed at handover.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record textManual reading at KOBO-002: Stock in chamber: 42 kg",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record textOperator log at KOBO-002: pump started on schedule.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Source unverifiedThe origin of this authored work record is not established. No work outcome is verified.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record textShift note at KOBO-001: handover completed with no open alarms.",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001",
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-20T00%3A00%3A00Z"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002"
+              ],
+              [
+                "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001"
+              ]
+            ],
+            "panelText": "Operational recordsWhat people on site recorded, and the evidence each one feedsScroll table horizontallyRecordTypeSiteWhenByWhat it saysFeedsStateProbe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Earlier record version5c9741e4-9a40-4b6e-bf49-22fcb3c51142Source unverifiedThe origin of this authored work record is not established",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Record a manual reading",
+            "x": 16,
+            "y": 1596,
+            "w": 358,
+            "h": 513,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Record a manual readingManual readings cannot be submitted from this page.MOCK DEVIATION D4 (R362)SiteKobo mini-grid · KOBO-001Kobo mini-grid · KOBO-002ReadingFuel tank dipStock in chamberMeter readingValueTaken atSubmit for review · Not available yetRecording requires an authorized work service.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How records are used",
+            "x": 16,
+            "y": 2125,
+            "w": 358,
+            "h": 223,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "How records are usedAuthored records are kept apart from measured readings. This page shows them as Operator record; none is accepted equipment evidence.A reading that has not been taken remains a visible gap; this page has no request list to count it.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2388,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Operational records",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [
+            "Records in window7Logs, readings, notes and visits",
+            "Feeding evidenceNot establishedNo accepted-evidence publication link",
+            "In reviewNo review workflowAll stored records are Submitted",
+            "Requested, not yet doneNot recordedNo request list recorded"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 1,
+          "notAvailableYet": 1,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "From (UTC) To (UTC, exclusive) Show recordsReload",
+          "details": 11,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Records in window7Logs, readings, notes and visits | ",
+            "Feeding evidenceNot establishedNo accepted-evidence publication link | ",
+            "In reviewNo review workflowAll stored records are Submitted | ",
+            "Requested, not yet doneNot recordedNo request list recorded | "
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Operational records",
+          "subtitle": "Operator logs, manual readings, shift notes and site visits",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Operational records Operational records Operator logs, manual readings, shift notes and site visits From (UTC) To (UTC, exclusive) Show records Reload Listed by the time each record's event happened. As known at 25 Oct 2026, 13:49 UTC Records in window 7 Logs, readings, notes and visits Feeding evidence Not established No accepted-evidence publication link In review No review workflow All stored records are Submitted Requested, not yet done Not recorded No request list recorded All Operator log Manual reading Shift note Site visit Operational records What people on site recorded, and the evidence each one feeds Scroll table horizontally RECORD TYPE SITE WHEN BY WHAT IT SAYS FEEDS STATE Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Earlier record version Source unverified Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe → Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Source unverified Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe "
+        },
+        "b18": {
+          "status": "As known at 25 Oct 2026, 13:49 UTC",
+          "showing": "Showing 1–5 of 7",
+          "pager": [
+            "Next"
+          ],
+          "siteLinks": [
+            "KOBO-001 -> /sites/KOBO-001",
+            "KOBO-002 -> /sites/KOBO-002",
+            "KOBO-002 -> /sites/KOBO-002",
+            "KOBO-002 -> /sites/KOBO-002",
+            "KOBO-001 -> /sites/KOBO-001"
+          ],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-14",
+            "=2026-10-21",
+            "=KOBO-001",
+            "=Fuel tank dip"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "grid · KOBO"
+          ],
+          "enums": [],
+          "utcHits": 3,
+          "bodyText": "Operational records Operational records Operator logs, manual readings, shift notes and site visits From (UTC) To (UTC, exclusive) Show records Reload Listed by the time each record's event happened. As known at 25 Oct 2026, 13:49 UTC Records in window 7 Logs, readings, notes and visits Feeding evidence Not established No accepted-evidence publication link In review No review workflow All stored records are Submitted Requested, not yet done Not recorded No request list recorded All Operator log Manual reading Shift note Site visit Operational records What people on site recorded, and the evidence each one feeds Scroll table horizontally RECORD TYPE SITE WHEN BY WHAT IT SAYS FEEDS STATE Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Earlier record version Source unverified Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Full record text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe → Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Source unverified Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Prob"
+        },
+        "mainLinks": [
+          "Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001",
+          "Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-20T00%3A00%3A00Z",
+          "Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002",
+          "Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002",
+          "Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002",
+          "Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001"
+        ],
+        "cardsDom": [
+          {
+            "t": "Records in window7Logs, readings, notes and visits",
+            "h": 124
+          },
+          {
+            "t": "Feeding evidenceNot establishedNo accepted-evidence publication link",
+            "h": 124
+          },
+          {
+            "t": "In reviewNo review workflowAll stored records are Submitted",
+            "h": 144
+          },
+          {
+            "t": "Requested, not yet doneNot recordedNo request list recorded",
+            "h": 144
+          }
+        ],
+        "tabRows": [],
+        "clipped": [
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 68,
+            "cw": 68,
+            "sh": 264,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 68,
+            "cw": 68,
+            "sh": 264,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 88,
+            "cw": 88,
+            "sh": 176,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 128,
+            "cw": 128,
+            "sh": 141,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 108,
+            "cw": 108,
+            "sh": 141,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 98,
+            "cw": 98,
+            "sh": 176,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 248,
+            "cw": 248,
+            "sh": 70,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 118,
+            "cw": 118,
+            "sh": 141,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 68,
+            "cw": 68,
+            "sh": 264,
+            "ch": 53
+          },
+          {
+            "tag": "DIV",
+            "cls": "global-work-clamp",
+            "text": "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Pro",
+            "sw": 88,
+            "cw": 88,
+            "sh": 176,
+            "ch": 53
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 1758,
+            "cw": 318,
+            "panel": "Operational records"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "10px": 1,
+          "12px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5388/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Operational records",
+          "crumbs": "Operational records",
+          "status": [
+            "As known at 25 Oct 2026, 13:49 UTC"
+          ],
+          "membership": [
+            "Listed by the time each record's event happened."
+          ],
+          "deviations": [
+            "R362|MOCK DEVIATION D4 (R362)|12px"
+          ],
+          "showing": "Showing 1–5 of 7",
+          "findings": [
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors=",
+            "Source unverifiedThe origin of this authored work record is not established. No work outcome is verified. | anchors="
+          ],
+          "requestLinks": [],
+          "rowLinks": [
+            "Probe text Probe text Probe text Probe text Probe  -> /sites/KOBO-001",
+            "Probe text Probe text Probe text Probe text Probe  -> /sites/KOBO-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-20T00%3A00%3A00Z",
+            "Probe text Probe text Probe text Probe text Probe  -> /sites/KOBO-002",
+            "Probe text Probe text Probe text Probe text Probe  -> /sites/KOBO-002",
+            "Probe text Probe text Probe text Probe text Probe  -> /sites/KOBO-002",
+            "Probe text Probe text Probe text Probe text Probe  -> /sites/KOBO-001"
+          ],
+          "siteLinks": [
+            "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001",
+            "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002",
+            "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002",
+            "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-002",
+            "Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe text Probe -> /sites/KOBO-001"
+          ],
+          "form": {
+            "siteOptions": [
+              "KOBO-001=Kobo mini-grid · KOBO-001",
+              "KOBO-002=Kobo mini-grid · KOBO-002"
+            ],
+            "timeValue": "",
+            "timePlaceholder": "Event time",
+            "formText": "MOCK DEVIATION D4 (R362)SiteKobo mini-grid · KOBO-001Kobo mini-grid · KOBO-002ReadingFuel tank dipStock in chamberMeter readingValueTaken atSubmit for review · Not available yetRecording requires an authorized work service."
+          },
+          "table": {
+            "tag": "TABLE",
+            "sw": 1758,
+            "cw": 1100,
+            "w": 1100,
+            "layout": "fixed",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 1758,
+            "wrapCw": 318,
+            "cols": [
+              "Record:90",
+              "Type:110",
+              "Site:150",
+              "When:130",
+              "By:120",
+              "What it says:270",
+              "Feeds:140",
+              "State:90"
+            ],
+            "over": [
+              "TD. ws=normal col=7 r=1136 sw=748 cw=90 t=Probe text Probe text Probe te",
+              "SPAN.w1f4-action-badge w1f4-action-badge--blu ws=nowrap col=7 r=1794 sw=737 cw=737 t=Probe text Probe text Probe te",
+              "TD. ws=normal col=7 r=1136 sw=748 cw=90 t=Probe text Probe text Probe te",
+              "SPAN.w1f4-action-badge w1f4-action-badge--blu ws=nowrap col=7 r=1794 sw=737 cw=737 t=Probe text Probe text Probe te",
+              "TD. ws=normal col=7 r=1136 sw=748 cw=90 t=Probe text Probe text Probe te",
+              "SPAN.w1f4-action-badge w1f4-action-badge--blu ws=nowrap col=7 r=1794 sw=737 cw=737 t=Probe text Probe text Probe te",
+              "TD. ws=normal col=7 r=1136 sw=748 cw=90 t=Probe text Probe text Probe te",
+              "SPAN.w1f4-action-badge w1f4-action-badge--blu ws=nowrap col=7 r=1794 sw=737 cw=737 t=Probe text Probe text Probe te"
+            ],
+            "rowH": [
+              221,
+              116,
+              116,
+              116,
+              115
+            ]
+          },
+          "historicalNotice": [],
+          "tabs": [
+            "Operational records",
+            "Showing 1–5 of 7"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Operational records",
+          "Record a manual reading",
+          "How records are used"
+        ],
+        "panels": [
+          {
+            "title": "Operational records",
+            "x": 15,
+            "y": 739,
+            "w": 360,
+            "h": 1069,
+            "tables": 1,
+            "rows": 8,
+            "columns": [
+              "Record",
+              "Type",
+              "Site",
+              "When",
+              "By",
+              "What it says",
+              "Feeds",
+              "State"
+            ],
+            "chips": [
+              "Accepted",
+              "Accepted",
+              "Requested",
+              "Accepted",
+              "Accepted",
+              "Requested",
+              "Accepted",
+              "In review"
+            ],
+            "links": 8,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "REC-305",
+                "Manual reading",
+                "Kobo",
+                "6 Oct 14:15",
+                "Site operator",
+                "Fuel tank dip: 198 L (sensor read 200 L)",
+                "Fuel balance · opening →",
+                "Accepted"
+              ],
+              [
+                "REC-306",
+                "Shift note",
+                "Kobo",
+                "6 Oct 15:30",
+                "Shift supervisor",
+                "Generator left running to charge the battery; stop setting 90% unchanged",
+                "F-104 context →",
+                "Accepted"
+              ],
+              [
+                "REC-307",
+                "Manual reading",
+                "Kobo",
+                "Requested",
+                "—",
+                "Closing fuel tank dip not yet taken",
+                "Fuel balance · closing →",
+                "Requested"
+              ],
+              [
+                "REC-311",
+                "Operator log",
+                "GreenHarvest",
+                "6 Oct 19:14",
+                "Night operator",
+                "Generator started by hand after no automatic start",
+                "INC-203 timeline →",
+                "Accepted"
+              ],
+              [
+                "REC-312",
+                "Site visit",
+                "GreenHarvest",
+                "6 Oct 21:40",
+                "Technician",
+                "Starter and control circuit inspected; connection re-made",
+                "WR-019 record →",
+                "Accepted"
+              ],
+              [
+                "REC-313",
+                "Manual reading",
+                "GreenHarvest",
+                "Requested",
+                "—",
+                "Stock in chamber not recorded",
+                "Product exposure →",
+                "Requested"
+              ],
+              [
+                "REC-320",
+                "Shift note",
+                "Depot",
+                "6 Oct 14:20",
+                "Depot attendant",
+                "Driver reported connector 2 stopped mid-charge; vehicle moved to connector 1",
+                "F-130 context →",
+                "Accepted"
+              ],
+              [
+                "REC-321",
+                "Site visit",
+                "Depot",
+                "6 Oct 16:30",
+                "Charging technician",
+                "Connector 2 checked visually; no damage; diagnostics not exported",
+                "ACT-061 →",
+                "In review"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "→ -> #/fuel"
+              ],
+              [
+                "→ -> #/alternatives"
+              ],
+              [
+                "→ -> #/fuel"
+              ],
+              [
+                "→ -> #/incident"
+              ],
+              [
+                "→ -> #/wr-record"
+              ],
+              [
+                "→ -> #/cold-financials"
+              ],
+              [
+                "→ -> #/ev-finding"
+              ],
+              [
+                "→ -> #/ev-action"
+              ]
+            ],
+            "panelText": "Operational recordsWhat people on site recorded, and the evidence each one feedsRecordTypeSiteWhenByWhat it saysFeedsStateREC-305Manual readingKobo6 Oct 14:15Site operatorFuel tank dip: 198 L (sensor read 200 L)Fuel balance · opening →AcceptedREC-306Shift noteKobo6 Oct 15:30Shift supervisorGenerator left running to charge the battery; stop setting 90% unchangedF-104 context →AcceptedREC-307Manual readingKoboRequested—Closing fuel tank dip not yet takenFuel balance · closing →RequestedREC-311Operator logGreenHarvest6 Oct 19:14Night operatorGenerator started by hand after no automatic startINC-2",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Record a manual reading",
+            "x": 15,
+            "y": 1826,
+            "w": 360,
+            "h": 443,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Record a manual readingFills REC-307 when submittedSiteKobo Mini-gridGreenHarvest Cold RoomDepot Charging HubReadingFuel tank dipStock in chamberMeter readingValueTaken atSubmit for review",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How records are used",
+            "x": 15,
+            "y": 2287,
+            "w": 360,
+            "h": 188,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "How records are usedRecords are kept apart from measured readings and are labelled Operator record wherever they support a conclusion.A requested record that is never taken stays a visible gap; it is not filled in.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2569,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Operational records",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Operational records",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · each site’s event window▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Operational records Operational records Operator logs, manual readings, shift notes and site visits Records in window 6 Logs, readings, notes and visits Feeding evidence 6 Labelled Operator record where used In review 1 REC-321 Requested, not yet done 2 Closing fuel dip · stock in chamber All Operator log Manual reading Shift note Site visit Operational records What people on site recorded, and the evidence each one feeds RECORD TYPE SITE WHEN BY WHAT IT SAYS FEEDS STATE REC-305 Manual reading Kobo 6 Oct 14:15 Site operator Fuel tank dip: 198 L (sensor read 200 L) Fuel balance · opening → Accepted REC-306 Shift note Kobo 6 Oct 15:30 Shift supervisor Generator left running to charge the battery; stop setting 90% unchanged F-104 context → Accepted REC-307 Manual reading Kobo Requested — Closing fuel tank dip not yet taken Fuel balance · closing → Requested REC-311 Operator log GreenHarvest 6 Oct 19:14 Night operator Generator started by hand after no automatic start INC-203 timeline → Accepted REC-312 Site visit GreenHarvest 6 Oct 21:40 Technician Starter and control circuit inspected; connection re-made WR-019 record → Accepted REC-313 Manual reading GreenHarvest Requested — Stock in chamber not recorded Product exposure → Requested REC-320 Shift note Depot 6 Oct 14:20 Depot attendant Driver reported connector 2 stopped mid-charge; vehicle moved to connector 1 F-130 context → Accepted REC-321 Site visit Depot 6 Oct 16:30 Charging technician Connector 2 checked visually; no damage; diagnostics not exported ACT-061 → In review Record a manual reading Fills REC-307 when submitted Site Kobo Mini-grid GreenHarvest Cold Room Depot Charging Hub Reading Fuel tank dip Stock in chamber Meter reading Value Taken at Submit for review How records are used Records are kept apart from measured readings and are labelled Operator record wherever they support a conclusion. A requested record that is never taken stays a visible gap; it is not filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [
+            "All",
+            "Operator log",
+            "Manual reading",
+            "Shift note",
+            "Site visit"
+          ],
+          "windowInputs": [
+            "=Kobo Mini-grid",
+            "=Fuel tank dip"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Operational records Operational records Operator logs, manual readings, shift notes and site visits Records in window 6 Logs, readings, notes and visits Feeding evidence 6 Labelled Operator record where used In review 1 REC-321 Requested, not yet done 2 Closing fuel dip · stock in chamber All Operator log Manual reading Shift note Site visit Operational records What people on site recorded, and the evidence each one feeds RECORD TYPE SITE WHEN BY WHAT IT SAYS FEEDS STATE REC-305 Manual reading Kobo 6 Oct 14:15 Site operator Fuel tank dip: 198 L (sensor read 200 L) Fuel balance · opening → Accepted REC-306 Shift note Kobo 6 Oct 15:30 Shift supervisor Generator left running to charge the battery; stop setting 90% unchanged F-104 context → Accepted REC-307 Manual reading Kobo Requested — Closing fuel tank dip not yet taken Fuel balance · closing → Requested REC-311 Operator log GreenHarvest 6 Oct 19:14 Night operator Generator started by hand after no automatic start INC-203 timeline → Accepted REC-312 Site visit GreenHarvest 6 Oct 21:40 Technician Starter and control circuit inspected; connection re-made WR-019 record → Accepted REC-313 Manual reading GreenHarvest Requested — Stock in chamber not recorded Product exposure → Requested REC-320 Shift note Depot 6 Oct 14:20 Depot attendant Driver reported connector 2 stopped mid-charge; vehicle moved to connector 1 F-130 context → Accepted REC-321 Site visit Depot 6 Oct 16:30 Charging technician Connector 2 checked visually; no damage; diagnostics not exported ACT-061 → In review Record a manual reading Fills REC-307 when submitted Site Kobo Mini-grid GreenHarvest Cold Room Depot Charging Hub Reading Fuel tank dip Stock in chamber Meter reading Value Taken at Submit for review How records are used Records are kept apart from measured readings and are labelled Operator record wherever they support a conclusion. A requested record that is never taken stays a visible gap; it is not filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Operational records -> #/oprecords",
+          "→ -> #/fuel",
+          "→ -> #/alternatives",
+          "→ -> #/fuel",
+          "→ -> #/incident",
+          "→ -> #/wr-record",
+          "→ -> #/cold-financials",
+          "→ -> #/ev-finding",
+          "→ -> #/ev-action"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 601,
+            "cw": 320,
+            "panel": "Operational records"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "12px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+[2m4:49:00 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/work/requests/de35eb30-83a3-4c92-ac81-bac23c4dd7d4?site_id=EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18677
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
+[2m4:49:01 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/work/requests/de35eb30-83a3-4c92-ac81-bac23c4dd7d4?site_id=EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18677
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
+[2m4:49:07 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/work/requests/de35eb30-83a3-4c92-ac81-bac23c4dd7d4?site_id=EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18677
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
+[2m4:49:07 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/work/requests/de35eb30-83a3-4c92-ac81-bac23c4dd7d4?site_id=EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18677
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
+[2m4:49:11 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/work/requests/de35eb30-83a3-4c92-ac81-bac23c4dd7d4?site_id=EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18677
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
+[2m4:49:11 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/work/requests/de35eb30-83a3-4c92-ac81-bac23c4dd7d4?site_id=EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18677
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
+[2m4:49:19 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/work/requests/de35eb30-83a3-4c92-ac81-bac23c4dd7d4?site_id=EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18677
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
+[2m4:49:19 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/work/requests/de35eb30-83a3-4c92-ac81-bac23c4dd7d4?site_id=EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18677
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
+[2m4:49:27 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/work/requests/de35eb30-83a3-4c92-ac81-bac23c4dd7d4?site_id=EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18677
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
+[2m4:49:28 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/work/requests/de35eb30-83a3-4c92-ac81-bac23c4dd7d4?site_id=EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18677
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
+[2m4:49:34 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/work/requests/de35eb30-83a3-4c92-ac81-bac23c4dd7d4?site_id=EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18677
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
+[2m4:49:34 PM[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/work/requests/de35eb30-83a3-4c92-ac81-bac23c4dd7d4?site_id=EV-LAB-001[39m
+Error: connect ECONNREFUSED 127.0.0.1:18677
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)

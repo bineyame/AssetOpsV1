@@ -914,6 +914,20 @@ describe("post-W6 W1-a: Finding overview time, links and the exact-version cost 
     ]);
   });
 
+  // post-W6 W2-EV (W1-a closeout ruling 5): Asmara, Djibouti and Mogadishu read EAT from the canonical table, with
+  // the exact UTC instants in the closed detail.
+  it.each(["Africa/Asmara", "Africa/Djibouti", "Africa/Mogadishu"])("Q10: a %s Site reads EAT with exact UTC detail", async (timeZone) => {
+    mount(loaded(), "", F, true, { timeZone });
+    await settledScreen();
+    const period = document.querySelector("[data-finding-statusbar] [data-chip='period']") as HTMLElement;
+    expect(period.querySelector("[data-period-local]")?.textContent).toBe("2026-10-06 11:00–12:00 EAT");
+    const utc = period.querySelector("details[data-period-utc]") as HTMLDetailsElement;
+    expect(Array.from(utc.querySelectorAll("time")).map((t) => t.getAttribute("dateTime"))).toEqual([
+      "2026-10-06T08:00:00.000Z",
+      "2026-10-06T09:00:00.000Z",
+    ]);
+  });
+
   it("Q10: a UTC Site reads UTC, and a local-midnight crossing names both local days", async () => {
     const crossing = body([summary(1, "OPENED")]);
     crossing.revision = { ...crossing.revision, episode: { start: "2026-10-06T20:30:00+00:00", end: "2026-10-06T22:00:00+00:00" } };

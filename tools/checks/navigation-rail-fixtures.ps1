@@ -95,6 +95,11 @@ function Invoke-NavigationRailFixturesCheck {
                App = (Remove-Line $app 'path=\{OPERATIONAL_RECORDS_PATH\}') },
             @{ Name = "W6-01e: Operational records demoted back to unavailable"; Expect = "the W1 rail is exactly";
                Rail = (Edit-Lines $rail 'kind: "live", to: "/operational-records", label: "Operational records", end: false' 'kind: "unavailable", label: "Operational records"') },
+            # Post-W6 W6 Q13 (R371): the unknown request-section route is shelled and renders its own panel.
+            @{ Name = "post-W6 W6: unknown request-section route removed"; Expect = "registers no operator route 'path=""/maintenance/requests/:caseId/*""'";
+               App = (Remove-Line $app 'path="/maintenance/requests/:caseId/\*"') },
+            @{ Name = "post-W6 W6: unknown request-section route renders the bare catch-all"; Expect = "registers no operator route 'path=""/maintenance/requests/:caseId/*""'";
+               App = (Edit-Lines $app 'element=\{<WorkRequestUnknownSectionFrame />\}' 'element={<RouteNotAvailableFrame />}') },
             @{ Name = "unknown root appended"; Expect = "the W1 rail is exactly";
                Rail = (Insert-After $rail 'label: "Settings", group: "ADMIN"' '  { kind: "unavailable", label: "Reports", group: "ADMIN", icon: "log" },') },
             @{ Name = "label typo"; Expect = "the W1 rail is exactly";

@@ -1,0 +1,39 @@
+[
+ {
+  "id": "incidents",
+  "case": "cold",
+  "url": "http://127.0.0.1:5388/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "cold",
+  "url": "http://127.0.0.1:5388/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "cold",
+  "url": "http://127.0.0.1:5388/maintenance/preventive?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "oprecords",
+  "case": "cold",
+  "url": "http://127.0.0.1:5388/operational-records?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "incidents",
+  "case": "cold-all-open",
+  "url": "http://127.0.0.1:5388/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "maintenance",
+  "case": "cold-all-open",
+  "url": "http://127.0.0.1:5388/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "incidents",
+  "case": "cold-default-window",
+  "url": "http://127.0.0.1:5388/incidents"
+ }
+]

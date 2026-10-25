@@ -1,0 +1,2580 @@
+{
+  "revision": "6f54ad1b",
+  "captured_at": "2026-10-25T17:32:31.963Z",
+  "pairs": [
+    {
+      "screen": "link",
+      "case": "linkcold-site-incidents",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+      "mock_hash": "#/cold-work-incidents",
+      "app_image": "link-linkcold-site-incidents-1440-app.png",
+      "mock_image": "link-linkcold-site-incidents-1440-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 248,
+            "y": 348,
+            "w": 1160,
+            "h": 212,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "INC-000001 · Backup response failure",
+                "24 Oct · from 19:11UTC and IDsOccurred2026-10-24 16:11 UTCRecorded2026-10-25 16:16 UTCCase IDdf390d8d-2f82-4a2e-b6ab-f68f92b714e6Version IDb2045d03-c528-46e7-b7fc-8e65fcaef14dLinked actionsAction 87ed2c54Source of cited recordsGenerated test data",
+                "Grid lost, automatic start failed, chamber above policy",
+                "Finding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4 · Finding 29308facFinding versiond7533a0d-57b9-4182-9e34-23d12c9d5dc1",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Action 87ed2c54 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-000001 · Backup response failure24 Oct · from 19:11UTC and IDsOccurred2026-10-24 16:11 UTCRecorded2026-10-25 16:16 UTCCase IDdf390d8d-2f82-4a2e-b6ab-f68f92b714e6Version IDb2045d03-c528-46e7-b7fc-8e65fcaef14dLinked actionsAction 87ed2c54Source of cited recordsGenerated test dataGrid lost, automatic start failed, chamber above policyFinding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4 · Finding 29308facFinding versiond7533a0d-57b9-4182-9e34-23d12c9d5d",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 33,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesCold replay labWork",
+          "subtitle": "Cold-room operations at this site.",
+          "headerButtons": [],
+          "strip": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [
+            "OPEN=Open"
+          ],
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Window From (UTC) To (UTC, exclusive) Apply Scoped to Cold · 1 incident Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Backup response failure 24 Oct · from 19:11UTC and IDs Grid lost, automatic start failed, chamber above policy Finding 1350fd2aFinding version· Finding 29308facFinding version Open Showing 1–1 of 1 What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "b18": {
+          "status": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-19",
+            "=2026-10-26"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "data · COLD"
+          ],
+          "enums": [],
+          "utcHits": 3,
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Window From (UTC) To (UTC, exclusive) Apply Scoped to Cold · 1 incident Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Backup response failure 24 Oct · from 19:11UTC and IDs Grid lost, automatic start failed, chamber above policy Finding 1350fd2aFinding version· Finding 29308facFinding version Open Showing 1–1 of 1 What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Actions (1) -> /sites/COLD-LAB-001/work?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "Incidents (1) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "Maintenance (1) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T17%3A32%3A51.230781Z",
+          "Action 87ed2c54 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 191,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 191,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5392/sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Cold replay lab",
+          "crumbs": "SitesCold replay labWork",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [
+            "Action 87ed2c54 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+          ],
+          "siteLinks": [],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 1120,
+            "cw": 1120,
+            "w": 1120,
+            "layout": "fixed",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 1120,
+            "wrapCw": 1120,
+            "cols": [
+              "Case:246",
+              "Window:179",
+              "What happened:325",
+              "Linked findings:213",
+              "State:157"
+            ],
+            "over": [
+              "DD.fact-list__value ws=normal col=1 r=683 sw=218 cw=157 t=df390d8d-2f82-4a2e-b6ab-f68f92",
+              "DD.fact-list__value ws=normal col=1 r=683 sw=218 cw=157 t=b2045d03-c528-46e7-b7fc-8e65fc",
+              "DIV.disclosure__body ws=normal col=3 r=1220 sw=218 cw=191 t=c9f41242-f2de-4d03-bc62-0bfcdc",
+              "DIV.disclosure__body ws=normal col=3 r=1220 sw=218 cw=191 t=d7533a0d-57b9-4182-9e34-23d12c"
+            ],
+            "rowH": [
+              52
+            ]
+          },
+          "historicalNotice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "tabs": [
+            "Sites",
+            "Cold replay lab",
+            "Work",
+            "Overview",
+            "Foundation",
+            "Health",
+            "Performance",
+            "Findings",
+            "Work",
+            "Financials",
+            "Evidence",
+            "Actions (1)"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 183,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "INC-203 · Backup response failure",
+                "6 Oct · from 19:11",
+                "Grid lost, automatic start failed, chamber above policy",
+                "F-118 · F-119",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "INC-203 · Backup response failure -> #/incident",
+                "F-118 -> #/cold-finding",
+                "F-119 -> #/cold-finding-excursion"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-203 · Backup response failure6 Oct · from 19:11Grid lost, automatic start failed, chamber above policyF-118 · F-119Open",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›GreenHarvest Cold Room›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-203 · Backup response failure 6 Oct · from 19:11 Grid lost, automatic start failed, chamber above policy F-118 · F-119 Open Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=cold"
+          ],
+          "alerts": [],
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · CR",
+            "118 · F"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-203 · Backup response failure 6 Oct · from 19:11 Grid lost, automatic start failed, chamber above policy F-118 · F-119 Open Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Incidents → -> #/incidents",
+          "INC-203 · Backup response failure -> #/incident",
+          "F-118 -> #/cold-finding",
+          "F-119 -> #/cold-finding-excursion"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-site-incidents",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+      "mock_hash": "#/cold-work-incidents",
+      "app_image": "link-linkcold-site-incidents-390-app.png",
+      "mock_image": "link-linkcold-site-incidents-390-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 16,
+            "y": 575,
+            "w": 358,
+            "h": 247,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "INC-000001 · Backup response failure",
+                "24 Oct · from 19:11UTC and IDsOccurred2026-10-24 16:11 UTCRecorded2026-10-25 16:16 UTCCase IDdf390d8d-2f82-4a2e-b6ab-f68f92b714e6Version IDb2045d03-c528-46e7-b7fc-8e65fcaef14dLinked actionsAction 87ed2c54Source of cited recordsGenerated test data",
+                "Grid lost, automatic start failed, chamber above policy",
+                "Finding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4 · Finding 29308facFinding versiond7533a0d-57b9-4182-9e34-23d12c9d5dc1",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Action 87ed2c54 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-000001 · Backup response failure24 Oct · from 19:11UTC and IDsOccurred2026-10-24 16:11 UTCRecorded2026-10-25 16:16 UTCCase IDdf390d8d-2f82-4a2e-b6ab-f68f92b714e6Version IDb2045d03-c528-46e7-b7fc-8e65fcaef14dLinked actionsAction 87ed2c54Source of cited recordsGenerated test dataGrid lost, automatic start failed, chamber above policyFinding 1350fd2aFinding versionc9f41242-f2de-4d03-bc62-0bfcdcf794e4 · Finding 29308facFinding versiond7533a0d-57b9-4182-9e34-23d12c9d5d",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 942,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.4px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 136,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesCold replay labWork",
+          "subtitle": "Cold-room operations at this site.",
+          "headerButtons": [],
+          "strip": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [
+            "OPEN=Open"
+          ],
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Window From (UTC) To (UTC, exclusive) Apply Scoped to Cold · 1 incident Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Backup response failure 24 Oct · from 19:11UTC and IDs Grid lost, automatic start failed, chamber above policy Finding 1350fd2aFinding version· Finding 29308facFinding version Open Showing 1–1 of 1 Scroll the table for more columns → What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "b18": {
+          "status": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=2026-10-19",
+            "=2026-10-26"
+          ],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [
+            "data · COLD"
+          ],
+          "enums": [],
+          "utcHits": 3,
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Window From (UTC) To (UTC, exclusive) Apply Scoped to Cold · 1 incident Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Backup response failure 24 Oct · from 19:11UTC and IDs Grid lost, automatic start failed, chamber above policy Finding 1350fd2aFinding version· Finding 29308facFinding version Open Showing 1–1 of 1 Scroll the table for more columns → What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Actions (1) -> /sites/COLD-LAB-001/work?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "Incidents (1) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "Maintenance (1) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&known_at=2026-10-25T17%3A32%3A57.895761Z",
+          "Action 87ed2c54 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 720,
+            "cw": 324,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "w6": {
+          "url": "http://127.0.0.1:5392/sites/COLD-LAB-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+          "title": "AssetOps",
+          "h1": "Cold replay lab",
+          "crumbs": "SitesCold replay labWork",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [
+            "Action 87ed2c54 -> /sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification"
+          ],
+          "siteLinks": [],
+          "form": null,
+          "table": {
+            "tag": "TABLE",
+            "sw": 720,
+            "cw": 720,
+            "w": 720,
+            "layout": "fixed",
+            "wrapCls": "data-table__scroll",
+            "wrapSw": 720,
+            "wrapCw": 324,
+            "cols": [
+              "Case:158",
+              "Window:115",
+              "What happened:209",
+              "Linked findings:137",
+              "State:101"
+            ],
+            "over": [
+              "DD.fact-list__value ws=normal col=1 r=299 sw=218 cw=99 t=df390d8d-2f82-4a2e-b6ab-f68f92",
+              "DD.fact-list__value ws=normal col=1 r=299 sw=218 cw=99 t=b2045d03-c528-46e7-b7fc-8e65fc",
+              "DIV.disclosure__body ws=normal col=3 r=644 sw=218 cw=121 t=c9f41242-f2de-4d03-bc62-0bfcdc",
+              "DIV.disclosure__body ws=normal col=3 r=644 sw=218 cw=121 t=d7533a0d-57b9-4182-9e34-23d12c"
+            ],
+            "rowH": [
+              87
+            ]
+          },
+          "historicalNotice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "tabs": [
+            "Sites",
+            "Cold replay lab",
+            "Work",
+            "Overview",
+            "Foundation",
+            "Health",
+            "Performance",
+            "Findings",
+            "Work",
+            "Financials",
+            "Evidence",
+            "Actions (1)"
+          ]
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 15,
+            "y": 708,
+            "w": 360,
+            "h": 230,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "INC-203 · Backup response failure",
+                "6 Oct · from 19:11",
+                "Grid lost, automatic start failed, chamber above policy",
+                "F-118 · F-119",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "INC-203 · Backup response failure -> #/incident",
+                "F-118 -> #/cold-finding",
+                "F-119 -> #/cold-finding-excursion"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-203 · Backup response failure6 Oct · from 19:11Grid lost, automatic start failed, chamber above policyF-118 · F-119Open",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1128,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›GreenHarvest Cold Room›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-203 · Backup response failure 6 Oct · from 19:11 Grid lost, automatic start failed, chamber above policy F-118 · F-119 Open Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [
+            "=cold"
+          ],
+          "alerts": [],
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "assetLabels": [
+            "site · CR",
+            "118 · F"
+          ],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-203 · Backup response failure 6 Oct · from 19:11 Grid lost, automatic start failed, chamber above policy F-118 · F-119 Open Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Incidents → -> #/incidents",
+          "INC-203 · Backup response failure -> #/incident",
+          "F-118 -> #/cold-finding",
+          "F-119 -> #/cold-finding-excursion"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 411,
+            "cw": 320,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-site-overview",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/sites/COLD-LAB-001",
+      "mock_hash": "#/cold",
+      "app_image": "link-linkcold-site-overview-1440-app.png",
+      "mock_image": "link-linkcold-site-overview-1440-mock.png",
+      "app": {
+        "titles": [
+          "Site unavailable"
+        ],
+        "panels": [
+          {
+            "title": "Site unavailable",
+            "x": 248,
+            "y": 76,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Site unavailableThe site store could not be read, so this site cannot be shown. This is a statement about the store: nothing is known about whether the site is configured.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Site",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Site Site unavailable The site store could not be read, so this site cannot be shown. This is a statement about the store: nothing is known about whether the site is configured."
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [],
+          "utcHits": 0,
+          "bodyText": "Site Site unavailable The site store could not be read, so this site cannot be shown. This is a statement about the store: nothing is known about whether the site is configured."
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "w6": {
+          "url": "http://127.0.0.1:5392/sites/COLD-LAB-001",
+          "title": "AssetOps",
+          "h1": "Site",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": [
+          "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+          "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+        ]
+      },
+      "mock": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 258,
+          "family": "Segoe UI",
+          "size": "24px",
+          "weight": "400",
+          "lineHeight": "30px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 140,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-site-overview",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/sites/COLD-LAB-001",
+      "mock_hash": "#/cold",
+      "app_image": "link-linkcold-site-overview-390-app.png",
+      "mock_image": "link-linkcold-site-overview-390-mock.png",
+      "app": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 219,
+          "family": "Segoe UI",
+          "size": "22.5px",
+          "weight": "400",
+          "lineHeight": "28.125px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 90,
+        "viewportH": 900,
+        "w6": {
+          "url": "chrome-error://chromewebdata/",
+          "title": "127.0.0.1",
+          "h1": "This site can’t be reached",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": []
+      },
+      "mock": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 219,
+          "family": "Segoe UI",
+          "size": "22.5px",
+          "weight": "400",
+          "lineHeight": "28.125px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 90,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-action",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification",
+      "mock_hash": "#/cold-action",
+      "app_image": "link-linkcold-action-1440-app.png",
+      "mock_image": "link-linkcold-action-1440-mock.png",
+      "app": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 258,
+          "family": "Segoe UI",
+          "size": "24px",
+          "weight": "400",
+          "lineHeight": "30px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 140,
+        "viewportH": 1000,
+        "w6": {
+          "url": "chrome-error://chromewebdata/",
+          "title": "127.0.0.1",
+          "h1": "This site can’t be reached",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": []
+      },
+      "mock": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 258,
+          "family": "Segoe UI",
+          "size": "24px",
+          "weight": "400",
+          "lineHeight": "30px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 140,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-action",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/sites/COLD-LAB-001/actions/87ed2c54-9af2-4b3c-8efa-5c049b8f3a08/verification",
+      "mock_hash": "#/cold-action",
+      "app_image": "link-linkcold-action-390-app.png",
+      "mock_image": "link-linkcold-action-390-mock.png",
+      "app": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 219,
+          "family": "Segoe UI",
+          "size": "22.5px",
+          "weight": "400",
+          "lineHeight": "28.125px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 90,
+        "viewportH": 900,
+        "w6": {
+          "url": "chrome-error://chromewebdata/",
+          "title": "127.0.0.1",
+          "h1": "This site can’t be reached",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": []
+      },
+      "mock": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 219,
+          "family": "Segoe UI",
+          "size": "22.5px",
+          "weight": "400",
+          "lineHeight": "28.125px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 90,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-request",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5392/maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7?site_id=COLD-LAB-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-linkcold-request-1440-app.png",
+      "mock_image": "link-linkcold-request-1440-mock.png",
+      "app": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 258,
+          "family": "Segoe UI",
+          "size": "24px",
+          "weight": "400",
+          "lineHeight": "30px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 140,
+        "viewportH": 1000,
+        "w6": {
+          "url": "chrome-error://chromewebdata/",
+          "title": "127.0.0.1",
+          "h1": "This site can’t be reached",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": []
+      },
+      "mock": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 258,
+          "family": "Segoe UI",
+          "size": "24px",
+          "weight": "400",
+          "lineHeight": "30px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 140,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link",
+      "case": "linkcold-request",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5392/maintenance/requests/b53c1bd4-b419-4bcc-91cb-3bcabc28b9d7?site_id=COLD-LAB-001",
+      "mock_hash": "#/wr-overview",
+      "app_image": "link-linkcold-request-390-app.png",
+      "mock_image": "link-linkcold-request-390-mock.png",
+      "app": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 219,
+          "family": "Segoe UI",
+          "size": "22.5px",
+          "weight": "400",
+          "lineHeight": "28.125px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 90,
+        "viewportH": 900,
+        "w6": {
+          "url": "chrome-error://chromewebdata/",
+          "title": "127.0.0.1",
+          "h1": "This site can’t be reached",
+          "crumbs": "",
+          "status": [],
+          "membership": [],
+          "deviations": [],
+          "showing": "",
+          "findings": [],
+          "requestLinks": [],
+          "rowLinks": [],
+          "siteLinks": [],
+          "form": null,
+          "table": null,
+          "historicalNotice": [],
+          "tabs": []
+        },
+        "consoleErrors": [],
+        "consoleWarnings": []
+      },
+      "mock": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": null,
+        "h1": {
+          "text": "This site can’t be reached",
+          "top": 219,
+          "family": "Segoe UI",
+          "size": "22.5px",
+          "weight": "400",
+          "lineHeight": "28.125px",
+          "color": "rgb(32, 33, 36)"
+        },
+        "fonts": {
+          "body": {
+            "family": "Segoe UI",
+            "size": "15px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(95, 99, 104)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "",
+          "subtitle": "",
+          "headerButtons": [],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "b18": {
+          "status": "",
+          "showing": "",
+          "pager": [],
+          "siteLinks": [],
+          "workLinks": [],
+          "chipsTop": [],
+          "windowInputs": [],
+          "alerts": [],
+          "plural1": [],
+          "evConnector": 0,
+          "assetLabels": [],
+          "enums": [
+            "ERR_CONNECTION_REFUSED"
+          ],
+          "utcHits": 0,
+          "bodyText": "This site can’t be reached 127.0.0.1 refused to connect. Try: Checking the connection Checking the proxy and the firewall ERR_CONNECTION_REFUSED Reload Details"
+        },
+        "mainLinks": [
+          "Checking the proxy and the firewall -> #buttons"
+        ],
+        "cardsDom": [],
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 90,
+        "viewportH": 900
+      }
+    }
+  ]
+}
