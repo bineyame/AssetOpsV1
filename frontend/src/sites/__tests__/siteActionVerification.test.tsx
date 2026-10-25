@@ -39,8 +39,6 @@ import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 import { COLD_SITE, DOMAIN_ID, SITE as COLD_CODE, detailBody, indexBody } from "./coldWorkFixtures";
 import { EV_SITE } from "./evWorkFixtures";
 import type { DomainActionClient, DomainDetailResult } from "../domainActionClient";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { requirementTone, sourcePair } from "../SiteActionVerification";
 
 type Body = any;
@@ -897,7 +895,7 @@ describe("post-W6 W1-b: verification tones, sources, plan row headings and confl
     }
     expect(requirementTone(true)).toBe("info");
     // The blue chip is defined in the scoped verification stylesheet (ui/primitives.css is unchanged).
-    expect(readFileSync(resolve(__dirname, "../w1f4-verification.css"), "utf8")).toMatch(/\.verify-chip--info \{[^}]*background: #e9f0fd;[^}]*color: #275ba8;/);
+    expect(await readVerificationCss()).toMatch(/\.verify-chip--info \{[^}]*background: #e9f0fd;[^}]*color: #275ba8;/);
     expect(requirementTone(false)).toBe("fail");
     expect(requirementTone(null)).toBe("unknown");
     // Q46 (W1 ruling 57): one visible R385 label immediately below the Evidence requirements table.
@@ -924,7 +922,14 @@ describe("post-W6 W1-b: verification tones, sources, plan row headings and confl
     expect(r384[0].previousElementSibling?.querySelector("[data-verification-rule='target']")).not.toBeNull();
     const rowHeads = panel.querySelectorAll("tbody th[scope='row']");
     expect(rowHeads.length).toBeGreaterThan(0);
-    const css = readFileSync(resolve(__dirname, "../w1f4-verification.css"), "utf8");
+    const css = await readVerificationCss();
     expect(css).toMatch(/\.w1f4-verification-plan \.data-table tbody th\[scope="row"\] \{\s*font-weight: normal;\s*line-height: inherit;\s*\}/);
   });
 });
+
+/** The scoped verification stylesheet from disk (the estate tests' readDisk pattern; jsdom has no layout). */
+async function readVerificationCss(): Promise<string> {
+  const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+  const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+  return fs.readFileSync(`${cwd}/src/sites/w1f4-verification.css`, "utf8");
+}
