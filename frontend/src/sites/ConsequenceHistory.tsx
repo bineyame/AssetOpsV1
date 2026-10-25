@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { DataTable, Disclosure, ExactReferences, Panel, ProductStatus, readResultWords, type ProductWords } from "../ui";
@@ -76,6 +76,49 @@ function emptyWords(pricesOnly: boolean): ProductWords {
     code: "HISTORICAL",
     unrecognised: false,
   };
+}
+
+/**
+ * post-W6 W1-b Q23 cap fallback (pre-flight ruling 7: "improve wrap, paging or internal scroll"): the version table
+ * sits in one labelled, keyboard-focusable vertical scroll region so the closed Interpretation history stays inside
+ * 800 px at 1440 and 1400 px at 390 even when stored price and amount words are long. Nothing is hidden or truncated;
+ * the cue shows only when the rows overflow the region. Same pattern as the Finding Revision history (caps2 ruling 3).
+ */
+function VersionsScroll({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (el === null) return;
+    const measure = () => setOverflows(el.scrollHeight > el.clientHeight + 1);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    for (const child of Array.from(el.children)) observer.observe(child);
+    el.addEventListener("toggle", measure, true);
+    return () => {
+      observer.disconnect();
+      el.removeEventListener("toggle", measure, true);
+    };
+  }, []);
+  return (
+    <>
+      <p className="consequence-history__scroll-cue" data-consequence-history-scroll-cue hidden={!overflows}>
+        Scroll versions to see every row
+      </p>
+      <div
+        ref={ref}
+        className="consequence-history__versions"
+        role="region"
+        aria-label="Fuel cost versions"
+        tabIndex={0}
+        data-consequence-history-scroll
+      >
+        {children}
+      </div>
+    </>
+  );
 }
 
 function Row({ row, links, pinnedCutoff }: { row: ConsequenceHistoryRow; links: FinancialsLinks; pinnedCutoff?: string }) {
@@ -233,6 +276,7 @@ export function ConsequenceHistoryPanel({
         {body.rows.length === 0 ? (
           null
         ) : (
+          <VersionsScroll>
           <DataTable>
             <thead>
               <tr>
@@ -254,6 +298,7 @@ export function ConsequenceHistoryPanel({
             ))}
             </tbody>
           </DataTable>
+          </VersionsScroll>
         )}
         {body.rows.length === 0 ? null : (
           <p className="v69-chart-note" data-history-kept-note>

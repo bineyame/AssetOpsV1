@@ -1787,6 +1787,26 @@ describe("post-W6 W1-b: Site Financials links and Interpretation history paging"
   const base = `/sites/KOBO-001/financials/assumptions`;
   const cut = encodeURIComponent(CUT);
 
+  it("Q23 cap fallback: the version table sits in one labelled, focusable scroll region with a hidden cue; the stylesheet caps it", async () => {
+    const client = fake({ seriesFor: echoSeries, history: pagedHistory });
+    mount(client, base);
+    await settledScreen();
+    const region = screen.getByRole("region", { name: "Fuel cost versions" });
+    expect(region.getAttribute("tabindex")).toBe("0");
+    expect(region.hasAttribute("data-consequence-history-scroll")).toBe(true);
+    expect(within(region).getByRole("table")).toBeTruthy();
+    expect(Array.from(region.querySelectorAll("[data-history-row]")).map((r) => r.getAttribute("data-history-row"))).toEqual(SEVEN.slice(0, 3));
+    // jsdom has no layout, so nothing overflows: the cue stays hidden and every row is in the document.
+    const cue = document.querySelector("[data-consequence-history-scroll-cue]") as HTMLElement;
+    expect(cue.hidden).toBe(true);
+    expect(cue.textContent).toBe("Scroll versions to see every row");
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/sites/w1ux02-money.css`, "utf8");
+    expect(css).toMatch(/\.consequence-history__versions \{\s*max-height: 480px;\s*overflow-y: auto;/);
+    expect(css).toMatch(/@media \(max-width: 640px\) \{\s*\.consequence-history__versions \{\s*max-height: 900px;/);
+  });
+
   it("Q23: pages seven versions three at a time, older and back newer, keeping cutoff, limit and the prior-cursor stack", async () => {
     const client = fake({ seriesFor: echoSeries, history: pagedHistory });
     mount(client, base);
