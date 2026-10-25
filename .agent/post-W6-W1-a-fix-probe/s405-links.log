@@ -1,0 +1,26 @@
+
+[owner] run `serve --case owner` first (database assetops_s405_owner_audit)
+  p01 (2026-10-23): Site Overview http://localhost:5435/sites/KOBO-001?date=2026-10-23
+    expected: AUTHORED_DEMONSTRATION / money PRICED / amount {'low': '0.00', 'high': '15.82'}
+    Finding:    http://localhost:5435/sites/KOBO-001/findings/c38b56e6-dd9d-45be-b1b5-acb45f6435d1?revision_id=0bc0fe59-ff5b-430b-91fe-f65e4f29cc73
+    Evidence:   http://localhost:5435/sites/KOBO-001/findings/c38b56e6-dd9d-45be-b1b5-acb45f6435d1/evidence?revision_id=0bc0fe59-ff5b-430b-91fe-f65e4f29cc73
+    Financials: http://localhost:5435/sites/KOBO-001/financials?finding_id=c38b56e6-dd9d-45be-b1b5-acb45f6435d1&revision_id=0bc0fe59-ff5b-430b-91fe-f65e4f29cc73
+    fuel cost version 1 (PRICED, current head): http://localhost:5435/sites/KOBO-001/financials?finding_id=c38b56e6-dd9d-45be-b1b5-acb45f6435d1&revision_id=0bc0fe59-ff5b-430b-91fe-f65e4f29cc73&consequence_revision_id=5d280859-e260-4c02-908c-a8fddb933c82
+  p02 (2026-10-24): Site Overview http://localhost:5435/sites/KOBO-001?date=2026-10-24
+    expected: AUTHORED_DEMONSTRATION / money WITHHELD_GENERATOR_SERIES / amount None
+    Finding:    http://localhost:5435/sites/KOBO-001/findings/c7c81aca-5894-486d-85d2-93e0e6bbad40?revision_id=38d28722-5509-492f-851b-a7520ff77e4b
+    Evidence:   http://localhost:5435/sites/KOBO-001/findings/c7c81aca-5894-486d-85d2-93e0e6bbad40/evidence?revision_id=38d28722-5509-492f-851b-a7520ff77e4b
+    Financials: http://localhost:5435/sites/KOBO-001/financials?finding_id=c7c81aca-5894-486d-85d2-93e0e6bbad40&revision_id=38d28722-5509-492f-851b-a7520ff77e4b
+    fuel cost version 1 (QUANTITY_UNAVAILABLE, history, audit only): http://localhost:5435/sites/KOBO-001/financials?finding_id=c7c81aca-5894-486d-85d2-93e0e6bbad40&revision_id=3cea617a-2aaf-41fa-b083-7cbec0fcde7e&consequence_revision_id=f2c8dc37-ee09-4616-bf09-df0f9e646b9b
+    fuel cost version 1 (PRICED, recorded for this version, not shown as current: WITHHELD_GENERATOR_SERIES): http://localhost:5435/sites/KOBO-001/financials?finding_id=c7c81aca-5894-486d-85d2-93e0e6bbad40&revision_id=38d28722-5509-492f-851b-a7520ff77e4b&consequence_revision_id=a4ecd7fb-df80-45d6-bbc7-a9440717e654
+    earlier Finding version 1 (history): http://localhost:5435/sites/KOBO-001/findings/c7c81aca-5894-486d-85d2-93e0e6bbad40?revision_id=3cea617a-2aaf-41fa-b083-7cbec0fcde7e
+  ordinary (2026-10-02): Site Overview http://localhost:5435/sites/KOBO-001?date=2026-10-02
+    expected: REGISTERED_SIMULATION / money QUANTITY_UNAVAILABLE / amount None
+    Finding:    http://localhost:5435/sites/KOBO-001/findings/4dad7eee-2536-4447-a961-69b8ba7145a0?revision_id=6b5dca40-be70-4029-ae2f-45e91cb0c157
+    Evidence:   http://localhost:5435/sites/KOBO-001/findings/4dad7eee-2536-4447-a961-69b8ba7145a0/evidence?revision_id=6b5dca40-be70-4029-ae2f-45e91cb0c157
+    Financials: http://localhost:5435/sites/KOBO-001/financials?finding_id=4dad7eee-2536-4447-a961-69b8ba7145a0&revision_id=6b5dca40-be70-4029-ae2f-45e91cb0c157
+    fuel cost version 1 (QUANTITY_UNAVAILABLE, current head): http://localhost:5435/sites/KOBO-001/financials?finding_id=4dad7eee-2536-4447-a961-69b8ba7145a0&revision_id=6b5dca40-be70-4029-ae2f-45e91cb0c157&consequence_revision_id=3381fbd9-2fef-4662-a2d7-57c3733e6537
+
+[old] not prepared (C:\Users\assef\Bineyame\AssetOpsV1-review4\var\s405_old_audit\s405-state.json missing)
+
+[mixed] not prepared (C:\Users\assef\Bineyame\AssetOpsV1-review4\var\s405_mixed_audit\s405-state.json missing)

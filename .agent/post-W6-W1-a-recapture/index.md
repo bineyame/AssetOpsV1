@@ -107,7 +107,7 @@ Heights are the closed `section.panel` heights from each part's evidence.json (d
 
 ## Closed caps (1440 / 390)
 
-Max measured over all non-exempt selected cases per panel and width (n = pairs checked). Exempt: cases named open/expanded.
+Max measured over all non-exempt selected cases per panel and width (n = pairs checked). Exempt: cases named expanded (the finding `open` case is a normal closed Finding state and is checked against the caps).
 
 | screen | panel | w | cap | n | max measured (case) | result |
 |---|---|---|---|---|---|---|
@@ -125,14 +125,29 @@ Max measured over all non-exempt selected cases per panel and width (n = pairs c
 | finding | Where to look next | 390 | 1000 | 5 | 716 (late-stale) | pass |
 
 - dispatch `window-id-as-revision` 390 Selected-block: 126 vs cap 750 (pass). The page now shows the refusal "This assessment cannot be shown as 15-minute blocks" with an "Open this day" link, and every panel states "Not shown: this assessment cannot be shown as 15-minute blocks" (frozen: blank page, no titles).
-- Exempt (finding `open`): What limits this conclusion 1440 = 308, Where to look next 1440 = 613, What happened 390 = 492, What limits this conclusion 390 = 414, Where to look next 390 = 716.
+- finding `open` is a normal closed state and its caps apply: What limits this conclusion 1440 = 308 (450), Where to look next 1440 = 613 (650), What happened 390 = 492 (600), What limits this conclusion 390 = 414 (800), Where to look next 390 = 716 (1000). All pass; it was listed as exempt in error, and the maxima above are unchanged.
 - finding "What happened" at 1440 has no known cap; measured values are in the pair table.
 
 ## Summary
 
 - Caps exceeded: none.
-- Capture gaps: none.
+- Capture gaps: none for producible states. Five long related, limit, history or role rows cannot be produced by any reviewed producer (the labels are fixed words): see `post-W6-W1-a-fix-probe/` for the labelled synthetic layout probe that stands in for them (Q38, W3 closeout ruling 1), and the 'Fix round' section below.
+- Q1 shared SiteDetails crumb: one non-mini pair (EV charging lab, shared SiteDetails) was captured in the fix round; the 12 `mini` pairs are not the only reach.
 - Overflow failures (overflowX > 0): none.
 - Title mismatches vs frozen: 2:
   - 2 dispatch window-id-as-revision 1440: app ['Sources and 15-minute blocks', 'Selected block · No block selected', 'Accepted sample coverage'] vs frozen None
   - 2 dispatch window-id-as-revision 390: app ['Sources and 15-minute blocks', 'Selected block · No block selected', 'Accepted sample coverage'] vs frozen None
+
+## Fix round (post-review M1, L4; SHA 7cefaca5, then docs only)
+
+Captures in `.agent/post-W6-W1-a-fix-probe/recap/` (frozen capture tools unchanged; same producers, torn down by their own drop modes). Finding overview pairs that show the period or the cost card, recaptured after the Site-time prose, zone-fallback and cost-reason changes (all overflowX 0). Heights are panel closed heights, 1440 / 390:
+
+| case | What happened | What limits | Where to look next |
+|---|---|---|---|
+| open | 318 / 492 | 286 / 412 | 613 / 716 |
+| version1 | 337 / 500 | 266 / 351 | 613 / 716 |
+| late-stale | 338 / 562 | 286 / 412 | 613 / 716 |
+| priced (s408) | 318 / 493 | 343 / 493 | 590 / 658 |
+| priced-current (s405) | 318 / 493 | 250 / 313 | 590 / 658 |
+
+Caps: What happened 390 = 600 (max 562); What limits 450/800; Where to look next 650/1000. All pass. Shared SiteDetails crumb pair (non-mini): `recap/shared-crumb/` (`Sites > EV charging lab > Overview`, overflowX 0 at 1440 and 390).
