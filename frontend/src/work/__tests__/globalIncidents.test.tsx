@@ -12,6 +12,7 @@ import { featureFlagsWith } from "../../config/featureFlags";
 import { INCIDENTS_PATH } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { disclosureNames, stubCellOverflow } from "./cellDisclosureStub";
 import { GlobalIncidentsFrame, INCIDENTS_MEMBERSHIP } from "../GlobalIncidents";
 import {
   createGlobalWorkClient,
@@ -562,5 +563,45 @@ describe("Post-W6 W6: global Incidents corrections", () => {
     const panel = panelTitled("Incident cases");
     expect(text(panel.querySelector('[data-mock-deviation="R73"]'))).toBe("MOCK DEVIATION D1 (R73)");
     expect(text(panel.querySelector('[data-mock-deviation="R358"]'))).toBe("MOCK DEVIATION D1 (R358)");
+  });
+});
+
+describe("Post-W6 W6 caps ruling 4: in-cell disclosure on Incident cases", () => {
+  it("gives each listed clamped cell a Show full button only when its value overflows the two-line preview", async () => {
+    const restore = stubCellOverflow(0);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Incident cases").querySelector("tbody tr") as HTMLElement;
+      expect(disclosureNames(tr)).toEqual([
+      "Show full Site for INC-000001",
+      "Show full Severity for INC-000001",
+      "Show full Owner for INC-000001",
+      "Show full Findings / work for INC-000001",
+      ]);
+      for (const button of Array.from(tr.querySelectorAll("button[data-cell-disclosure-toggle]"))) {
+        expect(button.textContent).toBe("Show full");
+        expect(button.closest("a")).toBeNull();
+      }
+      const first = tr.querySelector("button[data-cell-disclosure-toggle]") as HTMLButtonElement;
+      fireEvent.click(first);
+      expect(first.textContent).toBe("Show less");
+      expect(first.getAttribute("aria-label")).toBe("Show less Site for INC-000001");
+    } finally {
+      restore();
+    }
+  });
+
+  it("shows values that fit plainly, with no disclosure buttons", async () => {
+    const restore = stubCellOverflow(100000);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Incident cases").querySelector("tbody tr") as HTMLElement;
+      expect(tr.querySelectorAll("[data-cell-disclosure]")).toHaveLength(4);
+      expect(disclosureNames(tr)).toEqual([]);
+    } finally {
+      restore();
+    }
   });
 });

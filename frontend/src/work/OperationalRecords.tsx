@@ -17,6 +17,7 @@
 import { useNavigate } from "react-router-dom";
 import { Breadcrumbs, DataTable, MetricCard, MetricCards, PageHeader, Panel } from "../ui";
 import { UnavailableInline } from "../ui/UnavailableEntry";
+import { CellDisclosure } from "./CellDisclosure";
 import {
   GLOBAL_OPERATIONAL_KINDS,
   globalWorkHref,
@@ -103,7 +104,9 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
   return (
     <tr data-global-work-row={row.root_id} data-global-work-head={row.head_id}>
       <td>
-        <Clamp data={{ "data-global-work-code": "" }}>{row.code}</Clamp>
+        <CellDisclosure column="Record" row={row.code} data={{ "data-global-work-code": "" }}>
+          {row.code}
+        </CellDisclosure>
         {row.correction_reason !== null ? (
           <>
             <Clamp data={{ "data-global-work-correction": "" }}>{`Correction: ${row.correction_reason}`}</Clamp>
@@ -118,12 +121,14 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
         <WorkSourceLine provenance={row.source_provenance} />
       </td>
       <td>
-        <Clamp data={{ "data-global-work-kind": row.kind }}>{recKindLabel(row.kind)}</Clamp>
+        <CellDisclosure column="Type" row={row.code} data={{ "data-global-work-kind": row.kind }}>
+          {recKindLabel(row.kind)}
+        </CellDisclosure>
       </td>
       <td>
-        <Clamp>
+        <CellDisclosure column="Site" row={row.code}>
           <LinkOrText link={row.links.site} data={{ "data-global-work-site": row.site_code }} />
-        </Clamp>
+        </CellDisclosure>
       </td>
       <td>
         <Clamp data={{ "data-global-work-when": "" }}>{globalWorkUtc(row.occurred_at)}</Clamp>
@@ -132,7 +137,9 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
         ) : null}
       </td>
       <td>
-        <Clamp data={{ "data-global-work-actor": "" }}>{row.actor_id}</Clamp>
+        <CellDisclosure column="By" row={row.code} data={{ "data-global-work-actor": "" }}>
+          {row.actor_id}
+        </CellDisclosure>
       </td>
       <td>
         <Clamp data={{ "data-global-work-body": "" }}>{row.body}</Clamp>
@@ -143,7 +150,11 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
         </details>
       </td>
       <td>
-        <Clamp data={{ "data-global-work-feeds": row.links.case === null ? "none" : "case" }}>
+        <CellDisclosure
+          column="Feeds"
+          row={row.code}
+          data={{ "data-global-work-feeds": row.links.case === null ? "none" : "case" }}
+        >
           {row.links.case === null ? (
             "None linked"
           ) : (
@@ -152,7 +163,7 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
               {" →"}
             </>
           )}
-        </Clamp>
+        </CellDisclosure>
       </td>
       <td>
         <span className="w1f4-action-badge w1f4-action-badge--blue" data-global-work-state={row.state} data-global-work-tone="blue">
@@ -165,10 +176,11 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
 
 const COLUMNS = ["Record", "Type", "Site", "When", "By", "What it says", "Feeds", "State"];
 /**
- * Post-W6 W6 Q16 (R356, superseding P-E2-8's 1150 px minimum): fixed column widths (px, total 1100) that fit the
+ * Post-W6 W6 Q16 (R356, superseding P-E2-8's 1150 px minimum): fixed column widths (px, total 1085 after the
+ * caps ruling 3 Feeds retune 140 -> 125) that fit the
  * 1105 px table client width at 1440, with wrapping cells; below 761 px the table keeps its inner horizontal scroll.
  */
-const MIN_WIDTHS = [90, 110, 150, 130, 120, 270, 140, 90];
+const MIN_WIDTHS = [90, 110, 150, 130, 120, 270, 125, 90];
 
 function RecordTable({ body }: { body: GlobalOperationalBody }) {
   return (

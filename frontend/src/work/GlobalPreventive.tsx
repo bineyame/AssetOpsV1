@@ -13,6 +13,7 @@
  */
 import { Breadcrumbs, DataTable, MetricCard, MetricCards, Notice, PageHeader, Panel, StatusBar } from "../ui";
 import { UnavailableInline } from "../ui/UnavailableEntry";
+import { CellDisclosure } from "./CellDisclosure";
 import { MaintenanceViews } from "./GlobalMaintenance";
 import {
   globalWorkHref,
@@ -93,20 +94,26 @@ function PlanRow({ row }: { row: GlobalPreventiveRow }) {
         <WorkSourceLine provenance={row.source_provenance} />
       </td>
       <td>
-        <Clamp data={{ "data-global-work-asset-site": "" }}>
+        <CellDisclosure column="Asset / site" row={row.code} data={{ "data-global-work-asset-site": "" }}>
           {assetLabelWords(row.asset_label) ?? "No asset recorded"}
           {" · "}
           <LinkOrText link={row.links.site} data={{ "data-global-work-site": row.site_code }} />
-        </Clamp>
+        </CellDisclosure>
       </td>
       <td>
-        <Clamp data={{ "data-global-work-trigger": "" }}>{trigger(row)}</Clamp>
+        <CellDisclosure column="Trigger" row={row.code} data={{ "data-global-work-trigger": "" }}>
+          {trigger(row)}
+        </CellDisclosure>
       </td>
       <td>
-        <Clamp>Not linked</Clamp>
+        <CellDisclosure column="Last done" row={row.code}>
+          Not linked
+        </CellDisclosure>
       </td>
       <td>
-        <Clamp data={{ "data-global-work-due": "" }}>{nextDue(row)}</Clamp>
+        <CellDisclosure column="Next due" row={row.code} data={{ "data-global-work-due": "" }}>
+          {nextDue(row)}
+        </CellDisclosure>
       </td>
       <td>
         <span className="w1f4-action-badge" data-global-work-state={row.state} data-global-work-tone="neutral">
@@ -114,7 +121,9 @@ function PlanRow({ row }: { row: GlobalPreventiveRow }) {
         </span>
       </td>
       <td>
-        <Clamp>Nothing verified by this plan</Clamp>
+        <CellDisclosure column="What it proves" row={row.code}>
+          Nothing verified by this plan
+        </CellDisclosure>
       </td>
     </tr>
   );

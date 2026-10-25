@@ -409,8 +409,8 @@
   }
 }
 
-/* Post-W6 W6 Q16 (R356, superseding P-E2-8's 1150 px minimum): at 1440 the eight fixed columns (1100 px) fit the
-   1105 px table client width and every cell wraps; at 760 px and below the table keeps its inner horizontal scroll. */
+/* Post-W6 W6 Q16 (R356, superseding P-E2-8's 1150 px minimum) and caps ruling 3 (Feeds 140 -> 125): at 1440 the eight
+   fixed columns (1085 px) fit the 1090 px table client width left beside the inner vertical scrollbar, and every cell wraps; at 760 px and below the table keeps its inner horizontal scroll. */
 .global-work--oprecords .data-table {
   table-layout: fixed;
   width: 100%;
@@ -424,7 +424,7 @@
 
 @media screen and (max-width: 760px) {
   .global-work--oprecords .data-table {
-    min-width: 1100px;
+    min-width: 1085px;
   }
 }
 
@@ -460,4 +460,59 @@
   color: var(--muted, #6b7a90);
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+/* Post-W6 W6 caps ruling 4: in-cell progressive disclosure (`CellDisclosure`). A two-line preview; when the value
+   overflows it, the visible "Show full" button sits inside the two-line box over the end of the second line (a fade
+   leads into it, so it never adds a line), and expanding unclamps the value inline with "Show less" after it. */
+.global-work-clamp--two {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.cell-disclosure {
+  position: relative;
+}
+
+.cell-disclosure__value[data-cell-disclosure-expanded="true"] {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: none;
+  overflow: visible;
+}
+
+.cell-disclosure__toggle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0 0 0 18px;
+  border: 0;
+  background: linear-gradient(to right, transparent, var(--surface-raised, #fff) 16px);
+  color: var(--accent, #1f5fbf);
+  font: inherit;
+  font-weight: 600;
+  line-height: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.data-table tbody tr:hover .cell-disclosure__toggle {
+  background: linear-gradient(to right, transparent, var(--surface-hover, #eef2f8) 16px);
+}
+
+.cell-disclosure__toggle:focus-visible {
+  outline: 2px solid var(--accent, #1f5fbf);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+.cell-disclosure[data-cell-disclosure-state="expanded"] .cell-disclosure__toggle {
+  position: static;
+  display: inline-block;
+  margin-top: 2px;
+  padding: 0;
+  background: none;
 }

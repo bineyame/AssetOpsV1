@@ -10,6 +10,7 @@
  * recorded on work cases. No mock case or ID is rendered.
  */
 import { Link } from "react-router-dom";
+import { CellDisclosure } from "./CellDisclosure";
 import { stateTone } from "../sites/siteWorkCases";
 import { Breadcrumbs, DataTable, MetricCard, MetricCards, PageHeader, Panel } from "../ui";
 import {
@@ -60,7 +61,13 @@ const STATE_LABEL: Readonly<Record<GlobalIncidentState, string>> = {
 
 function FindingsWork({ row }: { row: GlobalIncidentRow }) {
   const links = [...findingLinks(row.finding_links, row.site_domain), ...row.action_links];
-  if (links.length === 0 && row.linked_requests.length === 0) return <Clamp>None linked</Clamp>;
+  if (links.length === 0 && row.linked_requests.length === 0) {
+    return (
+      <CellDisclosure column="Findings / work" row={row.code}>
+        None linked
+      </CellDisclosure>
+    );
+  }
   const linkParts = links.map((link, index) => (
     <LinkOrText key={`${link.label}-${index}`} link={link} data={{ "data-global-work-link": "" }} />
   ));
@@ -69,7 +76,7 @@ function FindingsWork({ row }: { row: GlobalIncidentRow }) {
     <LinkOrText key={`${link.label}-${index}`} link={link} data={{ "data-global-work-request-link": "" }} />
   ));
   return (
-    <Clamp data={{ "data-global-work-findings": "" }}>
+    <CellDisclosure column="Findings / work" row={row.code} data={{ "data-global-work-findings": "" }}>
       {joined(linkParts, " · ")}
       {requestParts.length > 0 ? (
         <>
@@ -77,7 +84,7 @@ function FindingsWork({ row }: { row: GlobalIncidentRow }) {
           <span data-global-work-request-codes>{joined(requestParts, " · ")}</span>
         </>
       ) : null}
-    </Clamp>
+    </CellDisclosure>
   );
 }
 
@@ -110,21 +117,25 @@ function IncidentRow({ row }: { row: GlobalIncidentRow }) {
         <WorkSourceLine provenance={row.source_provenance} />
       </td>
       <td>
-        <Clamp>
+        <CellDisclosure column="Site" row={row.code}>
           <LinkOrText link={row.links.site} data={{ "data-global-work-site": row.site_code }} />
-        </Clamp>
+        </CellDisclosure>
       </td>
       <td>
         <Clamp>{globalWorkUtc(row.occurred_at)}</Clamp>
       </td>
       <td>
-        <Clamp>Not recorded</Clamp>
+        <CellDisclosure column="Severity" row={row.code}>
+          Not recorded
+        </CellDisclosure>
       </td>
       <td>
         <StateChip state={row.state} />
       </td>
       <td>
-        <Clamp data={{ "data-global-work-owner": "" }}>{row.owner ?? "Not assigned"}</Clamp>
+        <CellDisclosure column="Owner" row={row.code} data={{ "data-global-work-owner": "" }}>
+          {row.owner ?? "Not assigned"}
+        </CellDisclosure>
       </td>
       <td>
         <FindingsWork row={row} />

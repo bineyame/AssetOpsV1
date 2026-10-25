@@ -13,6 +13,7 @@ import { featureFlagsWith } from "../../config/featureFlags";
 import { OPERATIONAL_RECORDS_PATH } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { disclosureNames, stubCellOverflow } from "./cellDisclosureStub";
 import { OperationalRecordsFrame, operationalKindOf, readingLine } from "../OperationalRecords";
 import {
   createGlobalWorkClient,
@@ -259,7 +260,8 @@ describe("W6-01e E2: global Operational records", () => {
       "Feeds",
       "State",
     ]);
-    // Post-W6 W6 Q16 (R356): fixed widths summing to 1100 px, inside the 1105 px table client width at 1440.
+    // Post-W6 W6 Q16 (R356) and caps ruling 3: fixed widths summing to 1085 px, inside the 1090 px client width at
+    // 1440 that the inner vertical scrollbar leaves.
     expect(Array.from(table.querySelectorAll("col")).map((c) => (c as HTMLElement).style.width)).toEqual([
       "90px",
       "110px",
@@ -267,7 +269,7 @@ describe("W6-01e E2: global Operational records", () => {
       "130px",
       "120px",
       "270px",
-      "140px",
+      "125px",
       "90px",
     ]);
     const trs = Array.from(table.querySelectorAll("tbody tr"));
@@ -315,7 +317,10 @@ describe("W6-01e E2: global Operational records", () => {
     expect(text(full.querySelector("summary"))).toBe("Full record text");
     expect(full.textContent).toContain(LONG.trim());
     expect(text(cell(trs[2], 3).querySelector("[data-global-work-period-end]"))).toBe("Until 18 Oct 2026, 10:30 UTC");
-    expect(cell(trs[2], 4).querySelector("[data-global-work-actor]")?.className).toBe("global-work-clamp");
+    // Caps ruling 4: the By value is a two-line preview inside the in-cell disclosure.
+    expect(cell(trs[2], 4).querySelector("[data-global-work-actor]")?.className).toBe(
+      "global-work-clamp global-work-clamp--two cell-disclosure__value",
+    );
     expect(text(cell(trs[2], 4))).toBe(ACTOR128);
     expect(text(cell(trs[2], 6))).toBe("None linked");
     expect(text(cell(trs[3], 0).querySelector("[data-global-work-source] summary"))).toBe("Prepared example data");
@@ -588,5 +593,46 @@ describe("Post-W6 W6: Operational records corrections", () => {
     mount(PAGE, client({ "page-one": { status: "refused", code: "WORK_STORE_UNAVAILABLE" } }));
     await settled();
     expect(within(screen.getByRole("main")).getByRole("alert")).toHaveAttribute("data-global-work-refusal", "WORK_STORE_UNAVAILABLE");
+  });
+});
+
+describe("Post-W6 W6 caps ruling 4: in-cell disclosure on Operational records", () => {
+  it("gives each listed clamped cell a Show full button only when its value overflows the two-line preview", async () => {
+    const restore = stubCellOverflow(0);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Operational records").querySelector("tbody tr") as HTMLElement;
+      expect(disclosureNames(tr)).toEqual([
+      "Show full Record for REC-000001",
+      "Show full Type for REC-000001",
+      "Show full Site for REC-000001",
+      "Show full By for REC-000001",
+      "Show full Feeds for REC-000001",
+      ]);
+      for (const button of Array.from(tr.querySelectorAll("button[data-cell-disclosure-toggle]"))) {
+        expect(button.textContent).toBe("Show full");
+        expect(button.closest("a")).toBeNull();
+      }
+      const first = tr.querySelector("button[data-cell-disclosure-toggle]") as HTMLButtonElement;
+      fireEvent.click(first);
+      expect(first.textContent).toBe("Show less");
+      expect(first.getAttribute("aria-label")).toBe("Show less Record for REC-000001");
+    } finally {
+      restore();
+    }
+  });
+
+  it("shows values that fit plainly, with no disclosure buttons", async () => {
+    const restore = stubCellOverflow(100000);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Operational records").querySelector("tbody tr") as HTMLElement;
+      expect(tr.querySelectorAll("[data-cell-disclosure]")).toHaveLength(5);
+      expect(disclosureNames(tr)).toEqual([]);
+    } finally {
+      restore();
+    }
   });
 });

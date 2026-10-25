@@ -13,6 +13,7 @@ import { featureFlagsWith } from "../../config/featureFlags";
 import { MAINTENANCE_PATH } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { disclosureNames, stubCellOverflow } from "./cellDisclosureStub";
 import { GlobalMaintenanceFrame } from "../GlobalMaintenance";
 import {
   createGlobalWorkClient,
@@ -534,5 +535,43 @@ describe("Post-W6 W6: global Maintenance corrections", () => {
     mount(PAGE, client({ "page-one": { status: "refused", code: "UNAUTHENTICATED" } }));
     await settled();
     expect(within(screen.getByRole("main")).getByRole("alert")).toHaveAttribute("data-global-work-refusal", "UNAUTHENTICATED");
+  });
+});
+
+describe("Post-W6 W6 caps ruling 4: in-cell disclosure on Corrective work requests", () => {
+  it("gives each listed clamped cell a Show full button only when its value overflows the two-line preview", async () => {
+    const restore = stubCellOverflow(0);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Corrective work requests").querySelector("tbody tr") as HTMLElement;
+      expect(disclosureNames(tr)).toEqual([
+      "Show full Asset / site for WR-000001",
+      "Show full Owner for WR-000001",
+      ]);
+      for (const button of Array.from(tr.querySelectorAll("button[data-cell-disclosure-toggle]"))) {
+        expect(button.textContent).toBe("Show full");
+        expect(button.closest("a")).toBeNull();
+      }
+      const first = tr.querySelector("button[data-cell-disclosure-toggle]") as HTMLButtonElement;
+      fireEvent.click(first);
+      expect(first.textContent).toBe("Show less");
+      expect(first.getAttribute("aria-label")).toBe("Show less Asset / site for WR-000001");
+    } finally {
+      restore();
+    }
+  });
+
+  it("shows values that fit plainly, with no disclosure buttons", async () => {
+    const restore = stubCellOverflow(100000);
+    try {
+      mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+      await settled();
+      const tr = panelTitled("Corrective work requests").querySelector("tbody tr") as HTMLElement;
+      expect(tr.querySelectorAll("[data-cell-disclosure]")).toHaveLength(2);
+      expect(disclosureNames(tr)).toEqual([]);
+    } finally {
+      restore();
+    }
   });
 });

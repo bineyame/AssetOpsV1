@@ -11,6 +11,7 @@
  * `View detail →` link live, both to `/maintenance/preventive` with the effective window and cutoff, never a cursor. A refusal, a read failure, an empty scope or a changed list is stated, never zero.
  */
 import { Link } from "react-router-dom";
+import { CellDisclosure } from "./CellDisclosure";
 import { stateTone } from "../sites/siteWorkCases";
 import { Breadcrumbs, DataTable, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import {
@@ -148,14 +149,16 @@ function RequestRow({ row }: { row: GlobalMaintenanceRow }) {
         <WorkRequestCell row={row} />
       </td>
       <td>
-        <Clamp data={{ "data-global-work-asset-site": "" }}>
+        <CellDisclosure column="Asset / site" row={row.code} data={{ "data-global-work-asset-site": "" }}>
           {assetLabelWords(row.asset_label) ?? "No asset recorded"}
           {" · "}
           <LinkOrText link={row.links.site} data={{ "data-global-work-site": row.site_code }} />
-        </Clamp>
+        </CellDisclosure>
       </td>
       <td>
-        <Clamp data={{ "data-global-work-owner": "" }}>{row.owner ?? "Not assigned"}</Clamp>
+        <CellDisclosure column="Owner" row={row.code} data={{ "data-global-work-owner": "" }}>
+          {row.owner ?? "Not assigned"}
+        </CellDisclosure>
       </td>
       <td>
         <Badge tone={stateTone("maintenance", row.state)} data={{ "data-global-work-state": row.state }}>
