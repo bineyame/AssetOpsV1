@@ -306,6 +306,24 @@ describe("cooling_state_copy", () => {
   });
 
   it.each([
+    ["LIMITED", "amber", "amber"],
+    ["CONTRADICTORY", "amber", "neutral"],
+    ["UNKNOWN", "neutral", "neutral"],
+  ] as const)("post-W6 B14-04: %s recovery is %s and its confidence %s, from the stored enum, beside the word", async (state, recovery, confidence) => {
+    renderCooling(COOLING_PATH, () => Promise.resolve(loaded(coolingBody({}, { recovery_state: state }))));
+    await settledCooling();
+    const tones = Array.from(statusLine().querySelectorAll(".badge"), (el) => /status-tone--(\w+)/.exec(el.className)?.[1]);
+    expect(tones).toEqual([recovery, confidence]);
+    // Every context Match cell reads `Not established` in amber; the word stays.
+    const matches = Array.from(main().querySelectorAll("[data-cooling-context] .badge"));
+    expect(matches.length).toBe(5);
+    for (const badge of matches) {
+      expect(badge.textContent).toBe("Not established");
+      expect(badge.className).toContain("status-tone--amber");
+    }
+  });
+
+  it.each([
     ["CURRENT", null],
     ["PENDING_RECOMPUTE", "New evidence is waiting to be assessed. Earlier selected observations are shown, not a current conclusion."],
     ["HISTORICAL", "Read at an earlier evidence cutoff; newer committed evidence exists."],

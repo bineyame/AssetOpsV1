@@ -78,6 +78,15 @@ export function doorDuration(seconds: number): string {
   return r === 0 ? `${m} min` : `${m} min ${r} s`;
 }
 
+/**
+ * post-W6 W5-cold B14-04 (closes the cold instance of R309; W4 Q1/Q2 shared `status-tone--*` classes): tones from the
+ * stored enums only, always beside the word. Recovery LIMITED/CONTRADICTORY and Confidence Low are amber; UNKNOWN and
+ * Confidence Unknown are neutral; the context Match `Not established` is amber, as the mock's Limited/Not excluded.
+ */
+export const COOLING_RECOVERY_TONE: Record<CoolingRecoveryState, "amber" | "neutral"> = { LIMITED: "amber", CONTRADICTORY: "amber", UNKNOWN: "neutral" };
+export const coolingConfidenceTone = (confidence: string): "amber" | "neutral" => (confidence === "Low" ? "amber" : "neutral");
+export const COOLING_MATCH_TONE = "amber" as const;
+
 /** R336: cooling shows selected rows when it has selected points or an Observed context row. */
 export function coolingHasRows(cooling: { selected_points: readonly unknown[]; context: readonly CoolingContextRow[] }): boolean {
   return cooling.selected_points.length > 0 || cooling.context.some((row) => row.state === "Observed");
@@ -170,7 +179,8 @@ function CoolingBody({ read, routes }: { read: ColdCoolingRead; routes: ColdSite
           </LinkOrText>
         }
       >
-        <Badge tone="neutral">{copy.status}</Badge> <Badge tone="neutral">{`Confidence: ${copy.confidence}`}</Badge> {copy.subtitle}
+        <Badge tone="neutral" className={`status-tone--${COOLING_RECOVERY_TONE[cooling.recovery_state]}`}>{copy.status}</Badge>{" "}
+        <Badge tone="neutral" className={`status-tone--${coolingConfidenceTone(copy.confidence)}`}>{`Confidence: ${copy.confidence}`}</Badge> {copy.subtitle}
       </StatusBar>
       {state === "CURRENT" ? null : <Notice data={{ "data-cooling-state-notice": state }}>{coldDepthStateNotice(state, coolingHasRows(cooling))}</Notice>}
       <MetricCards label="Cooling comparison">
@@ -225,7 +235,7 @@ function CoolingBody({ read, routes }: { read: ColdCoolingRead; routes: ColdSite
                   <td>{contextEvidence(row)}</td>
                   <td>
                     {/* Codex retrospective Q-C2-2: no comparator is supported (CONTEXT_MISSING), so no factor is matched. */}
-                    <Badge tone="neutral">{COOLING_MATCH_NOT_ESTABLISHED}</Badge>
+                    <Badge tone="neutral" className={`status-tone--${COOLING_MATCH_TONE}`}>{COOLING_MATCH_NOT_ESTABLISHED}</Badge>
                   </td>
                 </tr>
               ))}
