@@ -22,7 +22,7 @@ and capture targets. You capture only the batches assigned to you in your dispat
 - Capped panels (closed, disclosures closed) and ruled caps:
   - `assumptions` (and anywhere it appears) "Interpretation history": <= 800 at 1440, <= 1400 at 390.
   - `financials` "Trade-offs and exclusions": <= 450 at 390 (record 1440 too).
-  - `action-evidence` / `verification` "Evidence requirements": <= 450 at 1440, <= 800 at 390.
+  - `action-evidence` / `verification` "Evidence requirements": <= 500 at 1440, <= 1050 at 390 (caps ruling 1; was 450/800).
   - `action-history` "Action history": <= 800 at 390 (record 1440 too).
   - Also record (no cap, Q37): Finding page header height on the `finding` representative.
 - Also check and record per pair: on `recommendation` and every Action page, no Site tab row; on `finding`,

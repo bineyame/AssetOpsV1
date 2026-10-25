@@ -939,7 +939,7 @@ export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallba
       <PanelControls.Provider
         value={
           <div className="site-findings-controls" data-site-findings-controls>
-            {/* The opportunity helper stays in the panel, the noninteractive line it was before the lenses moved. */}
+            {/* The opportunity helper stays in the panel beside the window form; since Q20 its line carries a link. */}
             <OpportunityHelper shown={opportunityHelper} renewable={links.renewable} />
             <WindowForm scope={scope} onScope={onScope} />
           </div>

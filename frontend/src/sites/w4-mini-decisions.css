@@ -231,12 +231,3 @@ nav.mini-finding-crumbs .breadcrumbs__item::before {
 .mini-opportunity-crumbs__root {
   color: var(--text-secondary);
 }
-
-
-/* post-W6 W1-b Q26/Q52: the visible MOCK DEVIATION D2 (R383) line immediately below a retained Site tab row. */
-.mock-deviation-line {
-  margin: 4px 0 0;
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--text-muted);
-}

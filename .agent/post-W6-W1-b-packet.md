@@ -106,7 +106,7 @@ records are in `probe/probe-A.md` and `probe/probe-B.md`.
 |---|---|---|---|---|
 | Interpretation history | 800 / 1400 | 681 / 1068 | before the fix: 729/1713 (3 rows), 1028/2572 (5 rows); after the fix: 749/1312 (3 and 5 rows) | **pass after the ruled fallback** (pre-flight 7: internal scroll) |
 | Trade-offs and exclusions | – / 450 | 393 / 413 | 410 / 446 | pass (4 px margin) |
-| Evidence requirements | 450 / 800 | 396 / 605 | 458 / 956 | **exceeded; no ruled fallback; stopped** |
+| Evidence requirements | 500 / 1050 (caps ruling 1; was 450 / 800) | 396 / 605 | 458 / 956 | within the ruled cap on the probe record; recheck on the fix revision pending |
 | Action history (Q37) | – / 800 | 362 / 501 (expanded: 506/572; withdrawn 428/700) | five 160-char meanings: 558/963 | **exceeded at 390; no ruled fallback; stopped** |
 
 **Intended fields:**

@@ -25,7 +25,7 @@
  * (`div.page-refusal`), never a panel; an unread Action keeps the selected
  * view's panel slots with the gap inside.
  */
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -1191,7 +1191,7 @@ function EventTable({
   const isSelected = (event: ActionEvent) => selection.kind === "EVENT_ID" && selection.event_id === event.id;
   // An earlier selection's events read is already cut to that selection, so its events always stay shown.
   const shown = shownHistoryRows(rows, selection, showAll, log);
-  return (
+  const table = (
     <DataTable labelledBy={`site-action-events-caption-${mode}`}>
       <caption id={`site-action-events-caption-${mode}`} className="w1f4-action-caption">
         {log ? "Activity log" : "Action history"}
@@ -1309,6 +1309,46 @@ function EventTable({
         })}
       </tbody>
     </DataTable>
+  );
+  return log ? table : <HistoryEntriesScroll>{table}</HistoryEntriesScroll>;
+}
+
+/**
+ * post-W6 W1-b caps ruling 2 (Q37): the Action history table (header and every event row) sits in one labelled,
+ * keyboard-focusable region with a vertical scroll, so the closed panel stays inside its 800 px cap at 390. The
+ * count sentence and the Show all toggle stay outside. Nothing is hidden or truncated; the cue shows only when the
+ * rows overflow the region. Same pattern as Interpretation history and the Finding Revision history.
+ */
+function HistoryEntriesScroll({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (el === null) return;
+    const measure = () => setOverflows(el.scrollHeight > el.clientHeight + 1);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    for (const child of Array.from(el.children)) observer.observe(child);
+    return () => observer.disconnect();
+  }, [children]);
+  return (
+    <>
+      <p className="w1f4-action-history-cue" data-action-history-scroll-cue hidden={!overflows}>
+        Scroll history to see every entry
+      </p>
+      <div
+        ref={ref}
+        className="w1f4-action-history-entries"
+        role="region"
+        aria-label="Action history entries"
+        tabIndex={0}
+        data-action-history-entries
+      >
+        {children}
+      </div>
+    </>
   );
 }
 

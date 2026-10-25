@@ -28,6 +28,7 @@ import {
 import { COLD_ACTION_PRESENTATION } from "../sites/coldWorkPresentation";
 import { EV_ACTION_PRESENTATION } from "../sites/evWorkPresentation";
 import { shortName } from "../sites/siteWorkCases";
+import "../ui/mock-deviation.css";
 import { DomainActionVerification, type DomainActionPresentation } from "../sites/DomainActionVerification";
 import { SiteWorkIncidents } from "../sites/SiteWorkIncidents";
 import { SiteWorkMaintenance } from "../sites/SiteWorkMaintenance";

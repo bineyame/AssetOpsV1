@@ -64,3 +64,5 @@ CHK (17, 'ev-action', 'all-open', '390') tabs 0 r383 0 False rail ['Actions'] hd
 |financials|quantity-unavailable|390|Trade-offs and exclusions|341|450|pass|
 |financials|unpriced|1440|Trade-offs and exclusions|321|-|pass|
 |financials|unpriced|390|Trade-offs and exclusions|341|450|pass|
+
+NOTE (fix round 2026-10-25): the two MISSING lines for batch 15 (cold-action all-open, 1440/390) and the "15: [0, 2]" summary are stale. This log was produced before batch-15 was captured. batch-15 later captured both pairs (batch-15/part-positive: 4 PNGs, evidence.json, measure.json; batch-15/run.md: 2 of 2 pairs, claims 12/12). The correct summary for batch 15 is [2, 2], so all 142 pairs are captured.

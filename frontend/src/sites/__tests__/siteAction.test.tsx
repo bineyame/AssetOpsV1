@@ -30,7 +30,7 @@
  * and prove the same structure (no command control, a read-only reason) at
  * both; rendered layout at both widths is phase-2 browser evidence.
  */
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -1296,24 +1296,76 @@ describe("post-W6 W1-b: Action history resolution rows and counts", () => {
     expect(document.body.textContent).not.toMatch(/Latest at read time: \d+ of \d+ events/);
   });
 
-  it("with four de-duplicated entries it states the truncation, offers Show all, and Show the latest 3 when expanded", async () => {
+  it("with exactly four de-duplicated entries it states the truncation, offers Show all, and Show the latest 3 when expanded", async () => {
     serve(
       reads(
         [ev("e-1", "OBSERVED", at(1)), ev("e-2", "OBSERVED", at(2)), ev("e-3", "OBSERVED", at(3)), ev("r-1", "RESOLVED", at(4))],
-        [res("r-1", "RESOLVED", at(4)), res("r-2", "RESOLUTION_WITHDRAWN", at(5))],
+        [res("r-1", "RESOLVED", at(4))],
       ),
     );
     mount(`/sites/KOBO-001/actions/${ACTION}/history`);
     await settledScreen();
     await waitFor(() => expect(q("[data-action-history-show-all]")).not.toBeNull());
     expect(q("[data-action-history-truncated]")?.textContent?.trim()).toBe(
-      "Showing the latest 3 of 5 recorded entries; show all to see every entry.",
+      "Showing the latest 3 of 4 recorded entries; show all to see every entry.",
     );
-    expect(q("[data-action-history-show-all]")?.textContent).toBe("Show all 5 entries");
+    expect(q("[data-action-history-show-all]")?.textContent).toBe("Show all 4 entries");
     expect(rows()).toHaveLength(3);
     showAllHistory();
-    expect(rows()).toHaveLength(5);
+    expect(rows()).toHaveLength(4);
     expect(q("[data-action-history-show-all]")?.textContent).toBe("Show the latest 3");
     expect(q("[data-action-history-truncated]")).toBeNull();
+  });
+
+  describe("Action history entries scroll region (caps ruling 2)", () => {
+    const stubSizes = (scrollHeight: number, clientHeight: number) => {
+      Object.defineProperty(HTMLElement.prototype, "scrollHeight", { configurable: true, get: () => scrollHeight });
+      Object.defineProperty(HTMLElement.prototype, "clientHeight", { configurable: true, get: () => clientHeight });
+    };
+    afterEach(() => {
+      delete (HTMLElement.prototype as unknown as Record<string, unknown>).scrollHeight;
+      delete (HTMLElement.prototype as unknown as Record<string, unknown>).clientHeight;
+      vi.unstubAllGlobals();
+    });
+
+    it("holds the header and every row in one focusable region; the toggle and count stay outside; the cue is hidden when it fits", async () => {
+      serve(reads([ev("e-1", "OBSERVED", at(1)), ev("e-2", "OBSERVED", at(2)), ev("e-3", "OBSERVED", at(3)), ev("e-4", "OBSERVED", at(4))], []));
+      mount(`/sites/KOBO-001/actions/${ACTION}/history`);
+      await settledScreen();
+      const region = screen.getByRole("region", { name: "Action history entries" });
+      expect(region.getAttribute("tabindex")).toBe("0");
+      expect(region.querySelector("thead")).not.toBeNull();
+      expect(region.querySelectorAll("tbody tr").length).toBe(3);
+      expect(region.contains(q("[data-action-history-show-all]"))).toBe(false);
+      expect(region.contains(q("[data-action-history-truncated]"))).toBe(false);
+      expect(q("[data-action-history-scroll-cue]")?.hasAttribute("hidden")).toBe(true);
+      showAllHistory();
+      expect(region.querySelectorAll("tbody tr").length).toBe(4);
+    });
+
+    it("shows the cue only when the region overflows, re-measured by the ResizeObserver", async () => {
+      const callbacks: Array<() => void> = [];
+      class FakeObserver {
+        constructor(cb: () => void) {
+          callbacks.push(cb);
+        }
+        observe() {}
+        disconnect() {}
+      }
+      vi.stubGlobal("ResizeObserver", FakeObserver);
+      stubSizes(300, 300);
+      serve(reads([ev("e-1", "OBSERVED", at(1)), ev("e-2", "OBSERVED", at(2))], []));
+      mount(`/sites/KOBO-001/actions/${ACTION}/history`);
+      await settledScreen();
+      const cue = () => q("[data-action-history-scroll-cue]");
+      expect(cue()?.hasAttribute("hidden")).toBe(true);
+      stubSizes(900, 500);
+      act(() => callbacks.forEach((cb) => cb()));
+      expect(cue()?.hasAttribute("hidden")).toBe(false);
+      expect(cue()?.textContent).toBe("Scroll history to see every entry");
+      stubSizes(300, 300);
+      act(() => callbacks.forEach((cb) => cb()));
+      expect(cue()?.hasAttribute("hidden")).toBe(true);
+    });
   });
 });

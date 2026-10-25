@@ -82,6 +82,7 @@ import {
   type Tone,
   cellWord,
 } from "./verificationWords";
+import "../ui/mock-deviation.css";
 import "./w1f4-verification.css";
 
 export const VERIFICATION_VIEWS = ["plan", "evidence", "verification"] as const;
