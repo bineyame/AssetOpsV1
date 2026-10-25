@@ -5897,3 +5897,18 @@ Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `
 - Register: R383 (Finding Site tabs, supersedes W1-a's R395), R384 (B4-21), R385 (B4-22); `test/panelStructure.ts` admits the R383 line.
 - Captures `.agent/post-W6-W1-b-recapture/` (142/142; RESOLUTION_WITHDRAWN produced by s602b `withdrawn`).
 - Open: Evidence requirements (458/956 vs 450/800) and Action history Q37 (963 vs 800 at 390) exceed caps in synthetic probes with no ruled fallback (Architect); R395 marked superseded by R383; R197-R230 D3 dispositions after review.
+
+## post-W6 W2-EV - EV Site screens D3 fixes (built, in_review)
+
+- Rulings `.agent/post-W6-W2-EV-rulings.md` (cross-card ownership 1-8, Q1-Q31) and `.agent/post-W6-W1-rulings.md` cross-card contract; packet `.agent/post-W6-W2-EV-packet.md`; build history `.agent/post-W6-W2-EV-phase-1-handoff.md`.
+- Tabs: `shell/operatorSiteTabs.tsx` optional `hrefs`/`search` override and `operatorSiteTabHref()` (R347 common mechanism; W2-cold and W5-EV-Work consume it); `evSiteRoutes.tsx` `EV_SITE_TAB_HREFS`; `sites/evSelectedWindow.ts` `selectedWindowSearch(read)`, `EvTabs` = ReactNode | (search) => ReactNode. Tabs carry the loaded read's `from`/`to`/`known_at`, never the raw URL; refused/no-window reads carry none; depth pages pass "" (W5-EV-Work).
+- Bare `/sites/:id` redirects an `EV_CHARGING` Site to `/ev` (`SiteDetailFrame.tsx`), keeping the query.
+- Readiness Financials/Assumptions links (`/ev/financials`, `/ev/financial-assumptions`); unique ExactReferences labels.
+- Sessions: lineage link to EV Analysis at the read window; outside-outcomes line (D4 R420); Outcome column CSS; `plural()` exported from `EvAssessmentViews.tsx`.
+- Finding: strip joins claim, Site, window; Bounded conclusion "Inspect claim evidence" link at the Finding's window; `FINDING_SECTION_UNAVAILABLE` common copy (cold and EV).
+- Refusals (cross-card ruling 5): `RefusedHead`/`RefusedGap`/`NOT_ASSESSED` live in `EvAssessmentViews.tsx`, shared by EV Overview, Evidence, Analysis, Financials, Assumptions, Sessions, Finding and the EV Findings index: strip title "Window cannot be read" for 422, tile labels with `Not assessed`, exactly one in-panel sentence plus technical disclosure, no banner.
+- EV Site views: chronology renders all accepted events (no padding); Overview cards plain labels + "View detail →"; Evidence strip "Portfolio evidence", "Review energy →", no padded rows; Analysis times in the Site zone via `sites/siteTime.ts` (exact UTC in `title`); Financials "Energy ↗" only when estimated; billing chips (D4 R421).
+- `sites/siteTime.ts` canonical EAT zones incl. Asmara/Djibouti/Mogadishu; `LedgerSiteEvidence.EXTRA_EAT_ZONES` removed (W1-a closeout ruling 5).
+- EV Findings index (`sites/EvFindingIndex.tsx`, `SiteFindingsFrame` EV branch, `App.tsx` `evAssessment`): 7 columns, `finding-index-row` column treatment, strip `Scoped to {site} · {n} open · window · global-list note`.
+- Captures `.agent/post-W6-W2-EV-recapture/r2/` (122 app captures at dab4d15e; probes in `r2/probe/`).
+- Open: cap reading for EV Findings / Accepted records (variable-cell reading passes; Accepted records Source+Value 1344 at 1440 vs 700 if Value is counted) for the Architect; EV depth refused pages raw codes (B16-01) belong to W5-EV-Work; register R420/R421 statuses update after review.

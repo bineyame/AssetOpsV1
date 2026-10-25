@@ -305,6 +305,19 @@ function EvViews(props: ViewProps) {
   return <EvReadinessView {...props} />;
 }
 
+/** post-W6 W2-EV R267 (Q2): each reference label is unique; a repeat gains its device and signal. */
+function uniqueLabels(refs: { label: string; value: string }[]): { label: string; value: string }[] {
+  const counts = new Map<string, number>();
+  for (const r of refs) counts.set(r.label, (counts.get(r.label) ?? 0) + 1);
+  const seen = new Map<string, number>();
+  return refs.map((r) => {
+    if ((counts.get(r.label) ?? 0) < 2) return r;
+    const n = (seen.get(r.label) ?? 0) + 1;
+    seen.set(r.label, n);
+    return { ...r, label: `${r.label} · ${n}` };
+  });
+}
+
 /** asset_id -> the declared part name (the topology's display name). */
 function partNames(read: EvFoundationReadModel): Map<string, string> {
   const names = new Map<string, string>();
@@ -621,7 +634,7 @@ function EvReadinessView(props: ViewProps) {
               </td>
               <td>Payment records feed</td>
               <td>
-                <UnavailableLinkEntry label="Financials" />
+                <Link to={props.financialsHref}>Financials →</Link>
               </td>
             </tr>
             <tr data-ev-readiness-row="tariff">
@@ -632,7 +645,7 @@ function EvReadinessView(props: ViewProps) {
               </td>
               <td>Confirmed tariff</td>
               <td>
-                <UnavailableLinkEntry label="Assumptions" />
+                <Link to={props.assumptionsHref}>Assumptions →</Link>
               </td>
             </tr>
           </tbody>
@@ -721,7 +734,7 @@ function EvReadinessView(props: ViewProps) {
             <ExactReferences
               name="ev-source-references"
               variant="tech"
-              references={read.bindings.map((b) => ({ label: `${evRoleLabel(b.role)} source`, value: `${b.device_id} · ${b.signal_id} · ${cadence(b)} · ${b.source_id}` }))}
+              references={uniqueLabels(read.bindings.map((b) => ({ label: `${evRoleLabel(b.role)} source · ${(b.asset_id === null ? undefined : names.get(b.asset_id)) ?? b.device_id}`, value: `${b.device_id} · ${b.signal_id} · ${cadence(b)} · ${b.source_id}` })))}
             />
           </Panel>
           <Panel heading="Effect on readiness and confidence" headingId="ev-effect-heading">

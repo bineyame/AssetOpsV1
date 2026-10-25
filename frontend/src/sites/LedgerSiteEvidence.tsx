@@ -89,10 +89,9 @@ function when(value: string | null | undefined): string {
  * post-W6 shell R170 (Q18): the records table's measured time in the selected Site's timezone (the mock's
  * `Measured (EAT)`, `HH:MM:SS`). The stored instant stays UTC and is exposed on the cell's title.
  * post-W6 W1-a (Architect W1 rulings, cross-card 1 / G3 / Q50): these shell helpers keep their names and contracts
- * but delegate to the canonical `siteTime.ts`; no second timezone algorithm remains here. The three EAT zones that
- * `siteTime.ts`'s table does not name keep their shell label until W2-EV folds them into the canonical table.
+ * but delegate to the canonical `siteTime.ts`; no second timezone algorithm remains here. post-W6 W2-EV (W1-a
+ * closeout ruling 5): Asmara, Djibouti and Mogadishu are in the canonical EAT table, so no local zone list remains.
  */
-const EXTRA_EAT_ZONES = new Set(["Africa/Asmara", "Africa/Djibouti", "Africa/Mogadishu"]);
 
 /** The usable IANA zone, or null when it is missing or this browser cannot resolve it (the UTC fallback). */
 export function usableZone(timezone: string | null | undefined): string | null {
@@ -104,8 +103,6 @@ export function usableZone(timezone: string | null | undefined): string | null {
  * than for 1 January 1970. Without an instant it uses the current time.
  */
 export function zoneAbbreviation(timezone: string | null | undefined, at?: string | Date | null): string {
-  const zone = usableZone(timezone);
-  if (zone !== null && EXTRA_EAT_ZONES.has(zone)) return "EAT";
   const instant = at instanceof Date ? (Number.isNaN(at.getTime()) ? null : at.toISOString()) : at;
   return siteZoneLabel(timezone, instant);
 }

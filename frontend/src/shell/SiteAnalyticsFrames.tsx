@@ -79,8 +79,9 @@ import { EvFindingFrame, EvSessionsFrame, type EvPerformanceView, evFindingHref 
 import { EvAvailability } from "../sites/EvAvailability";
 import { EvEnergy } from "../sites/EvEnergy";
 import { type EvDepthClient, createEvDepthClient } from "../sites/evDepthClient";
-import { evSiteRoutes } from "./evSiteRoutes";
+import { EV_SITE_TAB_HREFS, evSiteRoutes } from "./evSiteRoutes";
 import type { EvAssessmentClient } from "../sites/evAssessmentClient";
+import { EvFindingIndex } from "../sites/EvFindingIndex";
 import { coldSiteRoutes, coldSiteScreen } from "./coldSiteRoutes";
 import { createColdDepthClient, type ColdDepthClient } from "../sites/ColdDepthClient";
 import { presentationProfileFor } from "../sites/presentationProfile";
@@ -266,13 +267,14 @@ export function SitePerformanceFrame({
               mode={deriveSiteView(site).sourceMode}
               window={window}
               client={evAssessment}
-              tabs={<OperatorSiteTabs siteId={siteId} current="Performance" />}
+              tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Performance" hrefs={EV_SITE_TAB_HREFS} search={search} />}
               parentTrail={[
                 { label: "Sites", to: sitesPath },
                 { label: site.display_name, to: siteDetailHref(site.site_id) },
               ]}
               sessionsHref={`${sitePerformanceHref(site.site_id, "sessions")}${coldWindowSearch(window)}`}
               findingHref={evFindingHref((id) => siteFindingHref(site.site_id, id), window)}
+              analysisHref={(search) => `${evRoutes.analysis}${search}`}
             />
           );
         }
@@ -456,11 +458,13 @@ export function SiteFindingsFrame({
   analytics,
   sitesPath,
   findingIndex = DEFAULT_FINDING_INDEX,
+  evAssessment,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   sitesPath: string;
   findingIndex?: FindingIndexClient;
+  evAssessment?: EvAssessmentClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -490,6 +494,18 @@ export function SiteFindingsFrame({
             description={SITE_SCREEN_DESCRIPTIONS.sitefindings}
             headingId={SITE_FINDINGS_HEADING_ID}
           />
+          {site.site_type === "EV_CHARGING" && evAssessment !== undefined ? (
+            <EvFindingIndex
+              siteId={site.site_id}
+              siteName={site.display_name}
+              window={coldWindowFromParams(params)}
+              client={evAssessment}
+              findingBase={(id) => siteFindingHref(site.site_id, id)}
+              sessionsBase={sitePerformanceHref(site.site_id, "sessions")}
+              tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={EV_SITE_TAB_HREFS} search={search} />}
+            />
+          ) : (
+          <>
           <OperatorSiteTabs siteId={siteId} current="Findings" />
           <SiteFindingIndex
             siteId={site.site_id}
@@ -521,6 +537,8 @@ export function SiteFindingsFrame({
               />
             }
           />
+          </>
+          )}
         </main>
       )}
     </SiteScoped>
@@ -625,7 +643,7 @@ export const ANALYSIS_HELPER_ALTERNATIVES =
 /** u6 ruling 1: the W1 detail supplies no public Finding code. */
 export const FINDING_CODE_UNAVAILABLE = "Finding code unavailable";
 /** u6 ruling 3: a cold or EV Finding child address. */
-export const FINDING_SECTION_UNAVAILABLE = "Finding section unavailable for this site.";
+export const FINDING_SECTION_UNAVAILABLE = "This Finding section is not available for this kind of Finding.";
 /** u6b ruling 13: a cold/EV Finding root whose domain read is not composed; never the generic W1 read. */
 export const FINDING_DOMAIN_UNAVAILABLE = "This site's Finding view is unavailable.";
 
@@ -678,7 +696,8 @@ export function SiteFindingFrame({
               findingId={id}
               window={coldWindowFromParams(params)}
               client={evAssessment}
-              tabs={<OperatorSiteTabs siteId={siteId} current="Findings" />}
+              analysisHref={(search) => `${evSiteRoutes(site.site_id).analysis}${search}`}
+              tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={EV_SITE_TAB_HREFS} search={search} />}
               parentTrail={[
                 { label: "Sites", to: sitesPath },
                 { label: site.display_name, to: siteDetailHref(site.site_id) },
@@ -737,7 +756,8 @@ export function SiteFindingFrame({
               ]}
             />
             <PageHeader title={title} headingId={SITE_FINDING_HEADING_ID} subtitle={`${site.display_name} · finding`} />
-            <OperatorSiteTabs siteId={siteId} current="Findings" />
+            {/* post-W6 W2-EV (Q14): an EV child address's main tabs open the EV pages (no read, so no window). */}
+            <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={site.site_type === "EV_CHARGING" ? EV_SITE_TAB_HREFS : undefined} />
             {domainSite && domainRoot ? (
               <Panel heading="Finding" headingId="site-finding-domain-unavailable-heading">
                 <p data-finding-domain-unavailable>{FINDING_DOMAIN_UNAVAILABLE}</p>

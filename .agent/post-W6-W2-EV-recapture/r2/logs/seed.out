@@ -1,0 +1,6 @@
+ev interrupted db=assetops_w2evrc_i_test exit=0 secs=103
+ev complete db=assetops_w2evrc_c_test exit=0 secs=44
+ev missing-meter db=assetops_w2evrc_m_test exit=0 secs=57
+ev fault db=assetops_w2evrc_f_test exit=0 secs=57
+ev contradictory db=assetops_w2evrc_x_test exit=0 secs=51
+cold excursion db=assetops_w2evrc_k_test exit=0 secs=41

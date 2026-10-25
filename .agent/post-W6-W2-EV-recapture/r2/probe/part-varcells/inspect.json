@@ -1,0 +1,1426 @@
+{
+ "revision": "dab4d15e",
+ "label": "Probe sections (rows160*) are SYNTHETIC LAYOUT EVIDENCE, NOT PRODUCT DATA",
+ "results": [
+  {
+   "screen": "ev-findings",
+   "case": "inventory-check-window",
+   "width": 1440,
+   "url": "http://127.0.0.1:5197/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "ready": true,
+   "revision": "dab4d15e",
+   "h1": "EV charging lab",
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "h": 159,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/EV-LAB-001/foundation?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/EV-LAB-001/health?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/EV-LAB-001/performance?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/EV-LAB-001/findings?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/EV-LAB-001/work?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [
+    "Scoped to EV charging lab · 1 open"
+   ],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 2,
+   "banners": [],
+   "statusBars": [
+    "Scoped to EV charging lab · 1 open · 6 Oct 2026 08:00–09:05 UTC · EV charging Findings are not in the global Findings listManage in Findings · Not available yet",
+    "Scoped to EV charging lab · 1 open · 6 Oct 2026 08:00–09:05 UTC · EV charging Findings are not in the global Findings list",
+    "Manage in Findings · Not available yet"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Findings at this site",
+     "kind": "rows",
+     "real": {
+      "closed": {
+       "panelH": 159,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 159,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "rows160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 1,
+      "cellsPerRow": 7,
+      "intendedFields": 35,
+      "fieldsChanged": 35,
+      "panelH": 1059,
+      "panelW": 1145,
+      "rowHs": [
+       189,
+       189,
+       189,
+       189,
+       189
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1105,
+        "cw": 1105,
+        "scrolls": false
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 1059,
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "rows160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 1,
+      "cellsPerRow": 7,
+      "intendedFields": 35,
+      "fieldsChanged": 35,
+      "panelH": 1092,
+      "panelW": 1145,
+      "rowHs": [
+       189,
+       189,
+       189,
+       189,
+       189
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1105,
+        "cw": 1105,
+        "scrolls": false
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 1092,
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "varcells160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 1,
+      "cellsPerRow": 7,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "panelH": 429,
+      "panelW": 1160,
+      "rowHs": [
+       63,
+       63,
+       63,
+       63,
+       63
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1120,
+        "cw": 1120,
+        "scrolls": false
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 429,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "varcells160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 1,
+      "cellsPerRow": 7,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "panelH": 462,
+      "panelW": 1160,
+      "rowHs": [
+       63,
+       63,
+       63,
+       63,
+       63
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1120,
+        "cw": 1120,
+        "scrolls": false
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 462,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "firstcell160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 1,
+      "cellsPerRow": 7,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "panelH": 429,
+      "panelW": 1160,
+      "rowHs": [
+       63,
+       63,
+       63,
+       63,
+       63
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1120,
+        "cw": 1120,
+        "scrolls": false
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 429,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "ev-findings",
+   "case": "inventory-check-window",
+   "width": 390,
+   "url": "http://127.0.0.1:5197/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "ready": true,
+   "revision": "dab4d15e",
+   "h1": "EV charging lab",
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "h": 159,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/EV-LAB-001/foundation?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/EV-LAB-001/health?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/EV-LAB-001/performance?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/EV-LAB-001/findings?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/EV-LAB-001/work?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [
+    "Scoped to EV charging lab · 1 open"
+   ],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 2,
+   "banners": [],
+   "statusBars": [
+    "Scoped to EV charging lab · 1 open · 6 Oct 2026 08:00–09:05 UTC · EV charging Findings are not in the global Findings listManage in Findings · Not available yet",
+    "Scoped to EV charging lab · 1 open · 6 Oct 2026 08:00–09:05 UTC · EV charging Findings are not in the global Findings list",
+    "Manage in Findings · Not available yet"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Findings at this site",
+     "kind": "rows",
+     "real": {
+      "closed": {
+       "panelH": 159,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 750,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 159,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 750,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "rows160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 1,
+      "cellsPerRow": 7,
+      "intendedFields": 35,
+      "fieldsChanged": 35,
+      "panelH": 699,
+      "panelW": 358,
+      "rowHs": [
+       117,
+       117,
+       117,
+       117,
+       117
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 5409,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 699,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 5409,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "rows160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 1,
+      "cellsPerRow": 7,
+      "intendedFields": 35,
+      "fieldsChanged": 35,
+      "panelH": 781,
+      "panelW": 358,
+      "rowHs": [
+       117,
+       117,
+       117,
+       117,
+       117
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 5409,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 781,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 5409,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "varcells160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 1,
+      "cellsPerRow": 7,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "panelH": 699,
+      "panelW": 358,
+      "rowHs": [
+       117,
+       117,
+       117,
+       117,
+       117
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 750,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 699,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 750,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "varcells160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 1,
+      "cellsPerRow": 7,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "panelH": 781,
+      "panelW": 358,
+      "rowHs": [
+       117,
+       117,
+       117,
+       117,
+       117
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 750,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 781,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 750,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "firstcell160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 1,
+      "cellsPerRow": 7,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "panelH": 699,
+      "panelW": 358,
+      "rowHs": [
+       117,
+       117,
+       117,
+       117,
+       117
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 750,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 699,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 750,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "ev-evidence-analysis",
+   "case": "interrupted",
+   "width": 1440,
+   "url": "http://127.0.0.1:5197/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+   "ready": true,
+   "revision": "dab4d15e",
+   "h1": "EV charging lab",
+   "panels": [
+    {
+     "title": "Accepted records behind the conclusions",
+     "h": 399,
+     "details": 1,
+     "detailsOpen": 0
+    },
+    {
+     "title": "How a claim limit is set",
+     "h": 170,
+     "details": 1,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/EV-LAB-001/foundation?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/EV-LAB-001/health?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/EV-LAB-001/performance?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/EV-LAB-001/findings?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/EV-LAB-001/work?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     }
+    ],
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Analysis",
+      "href": "/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Evidence · Analysis 221 accepted records · timing and how each limit is set Generated test dataRegistered test reports; not physical charger observations.",
+    "Evidence · Analysis 221 accepted records · timing and how each limit is set Generated test dataRegistered test reports; not physical charger observations.",
+    "Registered test reports; not physical charger observations."
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Accepted records behind the conclusions",
+     "kind": "rows",
+     "real": {
+      "closed": {
+       "panelH": 399,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 4960,
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     },
+     "rows160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "cellsPerRow": 6,
+      "intendedFields": 30,
+      "fieldsChanged": 30,
+      "panelH": 1344,
+      "panelW": 1145,
+      "rowHs": [
+       238,
+       238,
+       238,
+       238,
+       238
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1105,
+        "cw": 1105,
+        "scrolls": false
+       }
+      ],
+      "details": 1,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 5905,
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     },
+     "rows160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "cellsPerRow": 6,
+      "intendedFields": 30,
+      "fieldsChanged": 30,
+      "panelH": 1377,
+      "panelW": 1145,
+      "rowHs": [
+       238,
+       238,
+       238,
+       238,
+       238
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1105,
+        "cw": 1105,
+        "scrolls": false
+       }
+      ],
+      "details": 1,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 5938,
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     },
+     "varcells160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "cellsPerRow": 6,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "panelH": 1344,
+      "panelW": 1145,
+      "rowHs": [
+       238,
+       238,
+       238,
+       238,
+       238
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1105,
+        "cw": 1105,
+        "scrolls": false
+       }
+      ],
+      "details": 1,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 5905,
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     },
+     "varcells160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "cellsPerRow": 6,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "panelH": 1377,
+      "panelW": 1145,
+      "rowHs": [
+       238,
+       238,
+       238,
+       238,
+       238
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1105,
+        "cw": 1105,
+        "scrolls": false
+       }
+      ],
+      "details": 1,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 5938,
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     },
+     "firstcell160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "cellsPerRow": 6,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "panelH": 562,
+      "panelW": 1145,
+      "rowHs": [
+       82,
+       82,
+       82,
+       82,
+       81
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1105,
+        "cw": 1105,
+        "scrolls": false
+       }
+      ],
+      "details": 1,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 5124,
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "ev-evidence-analysis",
+   "case": "interrupted",
+   "width": 390,
+   "url": "http://127.0.0.1:5197/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+   "ready": true,
+   "revision": "dab4d15e",
+   "h1": "EV charging lab",
+   "panels": [
+    {
+     "title": "Accepted records behind the conclusions",
+     "h": 357,
+     "details": 1,
+     "detailsOpen": 0
+    },
+    {
+     "title": "How a claim limit is set",
+     "h": 216,
+     "details": 1,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/EV-LAB-001/foundation?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/EV-LAB-001/health?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/EV-LAB-001/performance?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/EV-LAB-001/findings?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/EV-LAB-001/work?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     }
+    ],
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     },
+     {
+      "text": "Analysis",
+      "href": "/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Evidence · Analysis 221 accepted records · timing and how each limit is set Generated test dataRegistered test reports; not physical charger observations.",
+    "Evidence · Analysis 221 accepted records · timing and how each limit is set Generated test dataRegistered test reports; not physical charger observations.",
+    "Registered test reports; not physical charger observations."
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Accepted records behind the conclusions",
+     "kind": "rows",
+     "real": {
+      "closed": {
+       "panelH": 357,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 900,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 9690,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 900,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     },
+     "rows160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "cellsPerRow": 6,
+      "intendedFields": 30,
+      "fieldsChanged": 30,
+      "panelH": 1032,
+      "panelW": 358,
+      "rowHs": [
+       176,
+       176,
+       176,
+       176,
+       175
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 900,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 1,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 10365,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 900,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     },
+     "rows160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "cellsPerRow": 6,
+      "intendedFields": 30,
+      "fieldsChanged": 30,
+      "panelH": 1115,
+      "panelW": 358,
+      "rowHs": [
+       176,
+       176,
+       176,
+       176,
+       175
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 900,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 1,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 10447,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 900,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     },
+     "varcells160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "cellsPerRow": 6,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "panelH": 655,
+      "panelW": 358,
+      "rowHs": [
+       97,
+       97,
+       97,
+       97,
+       97
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 900,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 1,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 9987,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 900,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     },
+     "varcells160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "cellsPerRow": 6,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "panelH": 737,
+      "panelW": 358,
+      "rowHs": [
+       97,
+       97,
+       97,
+       97,
+       97
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 900,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 1,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 10070,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 900,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     },
+     "firstcell160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "cellsPerRow": 6,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "panelH": 577,
+      "panelW": 358,
+      "rowHs": [
+       82,
+       82,
+       82,
+       82,
+       81
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 900,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 1,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 9909,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 900,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

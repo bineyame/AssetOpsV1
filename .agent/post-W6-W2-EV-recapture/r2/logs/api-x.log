@@ -1,0 +1,21 @@
+INFO:     Started server process [17932]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:18478 (Press CTRL+C to quit)
+INFO:     127.0.0.1:58782 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60329 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55212 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55223 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57852 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58875 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52347 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50246 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63808 - "GET /api/sites/EV-LAB-001/ev/sessions?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61185 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58224 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50537 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60963 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63529 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54702 - "GET /api/sites/EV-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54713 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54714 - "GET /api/sites/EV-LAB-001/ev/sessions HTTP/1.1" 200 OK

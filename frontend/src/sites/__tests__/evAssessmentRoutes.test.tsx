@@ -20,6 +20,7 @@ import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { plural } from "../EvAssessmentViews";
 
 /*
  * W2-06 commit 5 (`.agent/W2-06-build-spec.md` "Commit 5", r5 state copy, r6 commit-5 dry-read): an EV_CHARGING
@@ -237,6 +238,20 @@ const FINDING_PATH = `/sites/${CODE}/findings/${FINDING}?from=${FROM}&to=${TO}&k
 const main = () => document.querySelector("main") as HTMLElement;
 const strip = () => (document.querySelector(".status-strip") as HTMLElement).textContent ?? "";
 const cardValues = () => Array.from(document.querySelectorAll("[data-ev-card] .v69-metric__value")).map((x) => x.textContent);
+const refusedCards = () => Array.from(document.querySelectorAll("[data-ev-refused-card]")).map((x) => [x.querySelector(".v69-metric__label")?.textContent, x.querySelector(".v69-metric__value")?.textContent]);
+const count = (text: string) => (main().textContent ?? "").split(text).length - 1;
+/** post-W6 W2-EV R284 (cross-card ruling 5): strip title, then exactly one in-panel sentence with a technical disclosure. */
+function expectOneRefusal(status: number, copy: string, gapId: string) {
+  expect(strip()).toContain(status === 422 ? "Window cannot be read" : "Unknown");
+  expect(strip()).not.toContain(copy);
+  expect(count(copy)).toBe(1);
+  const gap = document.querySelector(`[data-panel-gap="${gapId}"]`) as HTMLElement;
+  expect(gap.textContent).toBe(copy);
+  expect(document.querySelector('[data-disclosure="ev-refusal-detail"]')).not.toBeNull();
+  // UI guide section 3: no banner, and exactly one role=alert per area: the in-panel sentence itself.
+  expect(document.querySelector(".notice")).toBeNull();
+  expect(Array.from(document.querySelectorAll("[role=alert]"))).toEqual([gap]);
+}
 const rowCells = (n = 0) => Array.from(document.querySelectorAll("tbody tr")[n].querySelectorAll("td")).map((td) => td.textContent);
 const subtabs = (label: string) =>
   Array.from(document.querySelectorAll(`nav[aria-label="${label}"] li`)).map((li) => [
@@ -276,7 +291,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     ]);
     expect(outcomeBadge().className).toContain("ev-tone--green");
     const denominator = panelTitled("How to read the denominator").textContent ?? "";
-    expect(denominator).toContain("1 accepted starts · 1 completed · 0 observed aborts · 0 incomplete · 0 contradictory");
+    expect(denominator).toContain("1 accepted start · 1 completed · 0 observed aborts · 0 incomplete · 0 contradictory");
     expect(denominator).toContain("Orphan end records: 0");
     expect(denominator).toContain("Unknown is separate from failure.");
     const cause = panelTitled("Cause remains bounded").textContent ?? "";
@@ -573,14 +588,21 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     [403, "SITE_SCOPE_FORBIDDEN", "You do not have access to this EV evidence."],
     [404, "SITE_NOT_FOUND", "This EV Site or record was not found."],
     [409, "EV_CURSOR_BASIS_CHANGED", "Selection changed. Reload this view."],
-    [422, "EV_PARAMETER_UNKNOWN", "Choose a valid UTC start and end, up to 31 days."],
+    [422, "EV_PARAMETER_UNKNOWN", "The selected window is invalid."],
+    [422, "EV_WINDOW_INVALID", "The selected window needs both a start and an end, with the start before the end."],
+    [422, "EV_WINDOW_TOO_LONG", "The selected window is longer than 31 days."],
     [503, "EV_READ_UNAVAILABLE", "EV evidence is temporarily unavailable. Retry."],
-  ] as const)("refused %s keeps every panel shell", async (status, code, copy) => {
+  ] as const)("refused %s %s keeps every panel shell", async (status, code, copy) => {
     renderEv(SESSIONS, refused(status, code));
     await settledScreen();
     expectV69Panels("sessions");
-    expect(strip()).toContain(copy);
-    expect(cardValues()).toEqual(["Unknown", "Unknown", "Unknown", "Unknown"]);
+    expectOneRefusal(status, copy, "ev-records");
+    expect(refusedCards()).toEqual([
+      ["Attempts", "Not assessed"],
+      ["Confirmed delivery", "Not assessed"],
+      ["Fault-aborted", "Not assessed"],
+      ["Incomplete", "Not assessed"],
+    ]);
     expect(document.querySelectorAll("[data-panel-gap]")).toHaveLength(3);
     expect(main().textContent).not.toContain("No charging sessions were observed in this window.");
   });
@@ -589,7 +611,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     renderEv(SESSIONS, { status: "unavailable", message: null });
     await settledScreen();
     expectV69Panels("sessions");
-    expect(strip()).toContain("EV evidence is temporarily unavailable. Retry.");
+    expectOneRefusal(503, "EV evidence is temporarily unavailable. Retry.", "ev-records");
   });
 });
 
@@ -778,7 +800,7 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     renderEv(FINDING_PATH, ok(STATES.complete), refused(status, code));
     await settledScreen();
     expectV69Panels("ev-finding");
-    expect(strip()).toContain(copy);
+    expectOneRefusal(status, copy, "ev-conclusion");
     expect(document.querySelectorAll("[data-panel-gap]")).toHaveLength(3);
   });
 });
@@ -818,5 +840,172 @@ describe("W3-01 r1 M1/M2: selected versus pending source copy", () => {
     expect(strip()).not.toContain("Generated test data");
     expect(document.querySelector("[data-ev-provenance-note]")).toBeNull();
     expect(strip()).toContain("Current accepted evidence source: Mixed sources");
+  });
+});
+
+describe("post-W6 W2-EV (Q14/Q23): EV Sessions and Finding main tabs carry the selected read's window", () => {
+  const SEL = `?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
+  const tabHrefs = () =>
+    Object.fromEntries(Array.from(document.querySelectorAll('nav[aria-label="Site sections"] a')).map((a) => [a.textContent ?? "", a.getAttribute("href")]));
+
+  it("sessions: EV destinations with the selected window; the raw address extras never ride along", async () => {
+    renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}&gateway=GW-1`, ok(STATES.complete));
+    await settledScreen();
+    const tabs = tabHrefs();
+    expect(tabs.Overview).toBe(`/sites/${CODE}/ev${SEL}`);
+    expect(tabs.Evidence).toBe(`/sites/${CODE}/ev/evidence${SEL}`);
+    expect(tabs.Financials).toBe(`/sites/${CODE}/ev/financials${SEL}`);
+    expect(tabs.Findings).toBe(`/sites/${CODE}/findings${SEL}`);
+    expect(Object.values(tabs).some((h) => (h ?? "").includes("gateway"))).toBe(false);
+  });
+
+  it("sessions refused and finding refused: tabs carry no window", async () => {
+    renderEv(`${SESSIONS}?from=${FROM}&to=${TO}`, refused(503, "EV_READ_UNAVAILABLE"));
+    await settledScreen();
+    expect(tabHrefs().Overview).toBe(`/sites/${CODE}/ev`);
+    expect(Object.values(tabHrefs()).some((h) => (h ?? "").includes("?"))).toBe(false);
+    cleanup();
+    renderEv(FINDING_PATH, ok(STATES.complete), refused(404, "EV_FINDING_NOT_FOUND"));
+    await settledScreen();
+    expect(tabHrefs().Overview).toBe(`/sites/${CODE}/ev`);
+    expect(tabHrefs().Findings).toBe(`/sites/${CODE}/findings`);
+  });
+
+  it("finding: EV destinations at the Finding read's selected window", async () => {
+    renderEv(FINDING_PATH, ok(STATES.complete));
+    await settledScreen();
+    const tabs = tabHrefs();
+    expect(tabs.Overview).toBe(`/sites/${CODE}/ev${SEL}`);
+    expect(tabs.Evidence).toBe(`/sites/${CODE}/ev/evidence${SEL}`);
+    expect(tabs.Financials).toBe(`/sites/${CODE}/ev/financials${SEL}`);
+  });
+});
+
+describe("post-W6 W2-EV U2: Sessions and Finding links, denominator, plurals and section copy", () => {
+  const SEL = `?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
+  const ANALYSIS = `/sites/${CODE}/ev/evidence/analysis`;
+
+  it("R268 (Q3): Inspect session lineage opens EV Analysis at the selected window; hidden on a refused read", async () => {
+    renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}`, ok(STATES.complete));
+    await settledScreen();
+    const link = document.querySelector("[data-ev-session-lineage]") as HTMLElement;
+    expect(link.textContent).toBe("Inspect session lineage ↗");
+    expect(link.getAttribute("href")).toBe(`${ANALYSIS}${SEL}`);
+    expect(document.querySelector('[data-link-unavailable="Inspect session lineage"]')).toBeNull();
+    cleanup();
+    renderEv(SESSIONS, refused(503, "EV_READ_UNAVAILABLE"));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-session-lineage]")).toBeNull();
+    expect(main().textContent).not.toContain("Inspect session lineage");
+  });
+
+  it("R270 fix, D4 R420 (Q4): attempts outside the three outcomes are stated only when the difference is positive", async () => {
+    renderEv(SESSIONS, ok(STATES.complete));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-outside-outcomes]")).toBeNull();
+    expect(document.querySelector('[data-mock-deviation="R420"]')).toBeNull();
+    cleanup();
+    renderEv(SESSIONS, ok(sessions("CURRENT", "OBSERVED_SESSIONS", [session(10)], { started: 5, confirmed_delivery: 2, fault_aborted: 1, incomplete: 0 })));
+    await settledScreen();
+    expect(cardValues()).toEqual(["5", "2", "1", "0"]);
+    expect(document.querySelector("[data-ev-outside-outcomes]")?.textContent).toBe(
+      "2 of 5 attempts are outside these three outcomes; see How to read the denominator.",
+    );
+    expectV69Panels("sessions");
+    cleanup();
+    renderEv(SESSIONS, ok(STATES.missingMeter));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-outside-outcomes]")?.textContent).toBe(
+      "1 of 1 attempt is outside these three outcomes; see How to read the denominator.",
+    );
+    expect(document.querySelectorAll('[data-mock-deviation="R420"]')).toHaveLength(1);
+    expect(document.querySelector('[data-mock-deviation="R420"]')?.textContent?.trim()).toBe("MOCK DEVIATION D4 (R420)");
+    cleanup();
+    renderEv(SESSIONS, ok(sessions("UNKNOWN", "UNKNOWN", [], { started: 5, confirmed_delivery: 0 })));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-outside-outcomes]")).toBeNull();
+  });
+
+  it("R281 (Q9): one plural rule for zero, one and many", () => {
+    expect(plural(0, "accepted start", "accepted starts")).toBe("0 accepted starts");
+    expect(plural(1, "accepted start", "accepted starts")).toBe("1 accepted start");
+    expect(plural(2, "observed abort", "observed aborts")).toBe("2 observed aborts");
+    expect(plural(null, "attempt", "attempts")).toBe("Unknown attempts");
+  });
+
+  it("R271 (Q5): Outcome chips wrap inside a widened Outcome column; the table keeps its 640 px scroll minimum", async () => {
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/sites/w2-ev-assessment.css`, "utf8");
+    const rule = (selector: string) => {
+      const start = css.indexOf(`${selector} {`);
+      expect(start, selector).toBeGreaterThan(-1);
+      return css.slice(start, css.indexOf("}", start));
+    };
+    expect(rule('[data-ev-view] col[data-ev-col="Outcome"]')).toContain("width: 17%");
+    expect(rule('[data-ev-view] col[data-ev-col="Evidence completeness"]')).toContain("width: 18%");
+    const chip = rule("[data-ev-view] .data-table td .ev-chip");
+    expect(chip).toContain("white-space: normal");
+    expect(chip).toContain("max-width: 100%");
+    expect(rule("[data-ev-view] .data-table")).toContain("min-width: 640px");
+    const widths = Array.from(css.matchAll(/col\[data-ev-col="[^"]+"\] \{ width: (\d+)%; \}/g), (m) => Number(m[1]));
+    expect(widths.reduce((a, b) => a + b, 0)).toBe(100);
+  });
+
+  it("R275 (Q6): the Finding strip joins claim, Site and the Finding's window; no window says so", async () => {
+    renderEv(FINDING_PATH, ok(STATES.interrupted));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-finding-scope]")?.textContent).toBe("Observed interruption · EV lab depot · 6 Oct 2026 08:00–09:00 UTC");
+    cleanup();
+    renderEv(FINDING_PATH, ok(STATES.interrupted), ok({ ...FINDING_DETAIL, window: { from: null, to: null, known_at: null } }));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-finding-scope]")?.textContent).toBe("Observed interruption · EV lab depot · No window selected");
+  });
+
+  it("R280 (Q8): EV child and unknown child addresses use the common section copy and EV main tabs", async () => {
+    for (const child of ["evidence", "history", "not-a-section"]) {
+      renderEv(`/sites/${CODE}/findings/${FINDING}/${child}?from=${FROM}&to=${TO}`, ok(STATES.complete));
+      await settledScreen();
+      const gap = document.querySelector("[data-finding-section-unavailable]") as HTMLElement;
+      expect(gap.textContent, child).toBe("This Finding section is not available for this kind of Finding. Open Finding overview");
+      expect(screen.getByRole("link", { name: "Open Finding overview" }).getAttribute("href")).toBe(
+        `/sites/${CODE}/findings/${FINDING}?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`,
+      );
+      const tabs = document.querySelector('nav[aria-label="Site sections"]') as HTMLElement;
+      expect(tabs.querySelector('a[href="/sites/EV-LAB-001/ev/evidence"]'), child).not.toBeNull();
+      expect(tabs.querySelector('a[href="/sites/EV-LAB-001/evidence"]'), child).toBeNull();
+      cleanup();
+    }
+  });
+
+  it("R276 (Q7): Inspect claim evidence opens EV Analysis at the Finding's own window; the REC line stays unlinked", async () => {
+    const own = { from: "2026-10-05T10:00:00.000000Z", to: "2026-10-05T11:00:00.000000Z", known_at: "2026-10-05T11:00:00.000000Z" };
+    renderEv(FINDING_PATH, ok(STATES.interrupted), ok({ ...FINDING_DETAIL, window: own }));
+    await settledScreen();
+    const conclusion = panelTitled("Bounded conclusion");
+    const link = conclusion.querySelector("[data-ev-claim-evidence] a") as HTMLElement;
+    expect(link.textContent).toBe("Inspect claim evidence ↗");
+    expect(link.getAttribute("href")).toBe(
+      `${ANALYSIS}?from=${encodeURIComponent(own.from)}&to=${encodeURIComponent(own.to)}&known_at=${encodeURIComponent(own.known_at)}`,
+    );
+    expect(conclusion.querySelector("[data-ev-record]")?.textContent).toBe(`REC ${id(150)} · No analysis link`);
+    cleanup();
+    renderEv(FINDING_PATH, ok(STATES.interrupted), refused(404, "EV_FINDING_NOT_FOUND"));
+    await settledScreen();
+    expect(document.querySelector("[data-ev-claim-evidence]")).toBeNull();
+    expect(main().textContent).not.toContain("Inspect claim evidence");
+  });
+});
+
+describe("post-W6 W2-EV R284: the Finding inherits the common window refusal copy", () => {
+  it.each([
+    ["EV_WINDOW_INVALID", "The selected window needs both a start and an end, with the start before the end."],
+    ["EV_WINDOW_TOO_LONG", "The selected window is longer than 31 days."],
+    ["EV_OTHER", "The selected window is invalid."],
+  ] as const)("finding refused 422 %s", async (code, copy) => {
+    renderEv(FINDING_PATH, ok(STATES.complete), refused(422, code));
+    await settledScreen();
+    expectOneRefusal(422, copy, "ev-conclusion");
+    expect(strip()).not.toContain("Confidence");
   });
 });

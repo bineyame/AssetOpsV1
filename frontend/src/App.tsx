@@ -437,6 +437,7 @@ export function App({
                 analytics={siteAnalytics}
                 findingIndex={siteFindingIndex}
                 sitesPath={SITES_PATH}
+                evAssessment={evAssessment}
               />
             }
           />
