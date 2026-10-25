@@ -1,0 +1,11 @@
+chrome pid 29980
+FAIL ev-findings-inventory-check-window-1440 h1="This site can’t be reached" overflowX=0 panels=0 console=0
+  Findings at this site rows160 1440: real=n/a synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=panel not found
+  Findings at this site rows160-gap 1440: real=n/a synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=panel not found
+  Findings at this site varcells160 1440: real=n/a synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=panel not found
+  Findings at this site varcells160-gap 1440: real=n/a synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=panel not found
+  Findings at this site firstcell160 1440: real=n/a synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=panel not found
+FAIL ev-findings-inventory-check-window-390 h1="This site can’t be reached" overflowX=0 panels=0 console=0
+  Findings at this site rows160 390: real=n/a synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=panel not found
+  Findings at this site rows160-gap 390: real=n/a synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=panel not found
+  Findings at this site varcells160 390: real=n/a synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=panel not found
