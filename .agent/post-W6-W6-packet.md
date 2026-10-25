@@ -162,3 +162,20 @@ Backlog carry `.ai/MILESTONE_REVIEW_BACKLOG.md:2428` asks for one owning unit fo
 - The "Show full" affordance at 1440 and 390: `q15b/part-*/*-SYNTHETIC-closed.png` and `-allopen.png`.
 - Operational records at 1440 with the vertical scrollbar.
 - Whether the three extra disclosed lines (two correction lines and the Finding/Action line) are wanted.
+
+## Review fix round (M1, M2, L2, L3)
+- M1: `Pager` treats the offset as unknown when `cursor !== null && (trail.length === 0 || trail[0] !== null)`. Each of
+  the four list tests opens a later page from its URL, clicks Next and still expects `Later page · 1 of 12` (no
+  numeric range). Revert proof: restoring `trail.length === 0` fails all four.
+- M2: `test_action_codes_enter_the_basis` (`backend/tests/test_w601a_global_incidents.py`, cold-chain fixture with a
+  bound coded Action) changes every stored ACT code via monkeypatched `GlobalReadTx.action_codes` and expects a new
+  `selection_token`, same rows. Revert proof: `global_index.py:352` set to `if False:` fails it; restored. Ran against
+  `assetops_test` (2 passed with the adjacent linked-ids test).
+- L2 (Choices made): the six undefined `var(--muted, #6b7a90)` uses in `globalWork.css` (10 to 12 px lines) now use
+  `var(--text-secondary)` (#617087): 5.03:1 on `--surface-raised`, 4.69:1 on `--surface-page`, 4.56:1 on
+  `--surface-sunken` (the old fallback was 4.36/4.07/3.96). `--text-muted` was rejected (4.24:1 on the page surface).
+  Colour-only change, no recapture.
+- L3: `CellDisclosure` takes focusables whose `offsetTop >= clientHeight` out of the tab order (`tabindex=-1`) while
+  collapsed and clipped, restoring the prior value on expand or fit. Test mocks `offsetTop` (jsdom has no layout); the
+  real-browser clip geometry is unmeasured. Revert proof: replacing the condition with `false` fails the test.
+- L1: untouched, logged by the coordinator as a backend-basis follow-up.
