@@ -602,3 +602,23 @@ def test_domain_action_link_matches_w4(cold, key) -> None:  # noqa: F811
     Site row (href, label, null event, selected IDs/citations, basis); earlier cutoff and unlinked rows unchanged."""
     b = bind(cold)
     assert_global_domain_parity(cold, b, Api, "incidents", b.incident)
+
+
+def test_action_codes_enter_the_basis(cold, key, monkeypatch) -> None:  # noqa: F811
+    """Post-W6 W6 Q10: a changed stored ACT code behind an unchanged Action link changes the selection token."""
+    from assetops_backend.work.adapters import postgres_global_read as reader
+
+    b = bind(cold)
+    window = {"from": b.window[0], "to": b.window[1], "known_at": b.after.strftime("%Y-%m-%dT%H:%M:%S.%fZ")}
+    api = Api(str(cold.t), None)
+    try:
+        real = reader.GlobalReadTx.action_codes
+        before = api.ok(**window)
+        monkeypatch.setattr(reader.GlobalReadTx, "action_codes", lambda self, t, s, ids: {
+            k: v + "9" for k, v in real(self, t, s, ids).items()})
+        after = api.ok(**window)
+    finally:
+        api.close()
+    assert any(r["action_links"] for r in before["rows"])  # non-vacuous: a coded Action link is selected
+    assert [r["case_id"] for r in after["rows"]] == [r["case_id"] for r in before["rows"]]
+    assert after["selection_token"] != before["selection_token"]
