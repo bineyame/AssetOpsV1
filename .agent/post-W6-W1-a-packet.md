@@ -4,7 +4,7 @@
 `.agent/post-W6-W1-rulings.md` (cross-card 1-5, 6-29, and closeout points 48-63).
 **Branch:** `task/post-W6-W1-a`. Main (shell 4fc39160, W3-estate d9a73b80) is merged in.
 **Reviewer diff:** `git diff main...HEAD -- ':!.agent'`.
-**Product commits:** 575fc2ab, b09a5c07, cf4266f0, 2afb0fcf, de2da2fc, 56d36bf2.
+**Product commits:** 575fc2ab, b09a5c07, cf4266f0, 2afb0fcf, de2da2fc, 56d36bf2, 22a1dd70 (comments only), a054e1ae (test only).
 **User review:** none of its own. Per the owner-absent / W1 rules it merges on independent review ACCEPT; the owner sees it in the post-W6 walkthrough. The D2 rows R389, R392 and R395 wait for owner approval there.
 
 ## Outcome delivered
@@ -116,15 +116,17 @@ Every ruling, with file anchors, is in `.agent/post-W6-W1-a-handoff.md` "What la
 
 ## Checks run
 
-**Full vitest at ec9bfbe9:** 3067 passed, 1 failed (3068 tests), wall time 4 m 47 s.
-- The failure was `siteDetailRoute` "offers the Site tab destinations": its pinned link list did not include the new linked Site crumb.
-- Fixed in 56d36bf2; that file now passes (19/19).
-- The other changes in 56d36bf2 are comments and register text.
+**Full vitest**
+- Final run at a054e1ae: 3068 of 3068 passed, wall time 3 m 13 s.
+- Earlier run at ec9bfbe9: 1 failure. `siteDetailRoute`'s pinned link list did not include the new linked Site crumb. Fixed in 56d36bf2.
+- Run between those (22a1dd70, while another agent was capturing): 2 failures under load, both passing in isolation.
+  - `evEnergy` "store read has not settled": not this slice's code.
+  - The 205-version History heading assertion: it now waits for the frame's title effect (a054e1ae).
 
 **Other checks**
 - Production build (`npm run build`) at 56d36bf2: passed. The only warning is the existing chunk-size warning.
 - `tsc --noEmit`: clean.
-- `check-all.ps1` at de2da2fc: all 11 guards passed. Final-SHA rerun: see the closeout commit.
+- `check-all.ps1` at a054e1ae: all 11 guards passed.
 - Backend suite: not run, because this is a frontend-only slice (coordinator).
 
 ## Captures
