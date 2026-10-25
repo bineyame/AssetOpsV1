@@ -310,7 +310,10 @@ function MiniRefusal({ read, onRetry }: { read: Exclude<MiniRead<unknown>, { sta
 
 export type MiniScreen = "renewable" | "service" | "fuel" | "backup";
 
-/** The screen's strip label, tile slots and named panels, kept in page order so a refusal keeps the page's shape. */
+/**
+ * The screen's strip label, tile slots and every v69 panel of the screen, kept in page order so a refusal keeps the
+ * page's shape (post-W6 W4 unit-5 capture: the mock's full panel set, Q7 `preserve panel landmarks`).
+ */
 const REFUSED_FRAME: Record<MiniScreen, { strip: string; tiles: string[]; panels: Array<[string, string]> }> = {
   renewable: {
     strip: "Renewable assessment",
@@ -328,6 +331,7 @@ const REFUSED_FRAME: Record<MiniScreen, { strip: string; tiles: string[]; panels
       ["Where the power went", "mini-service-power-heading"],
       ["Delivered power by addressed load", "mini-service-loads-heading"],
       ["What is supported", "mini-service-supported-heading"],
+      ["What unlocks a service conclusion", "mini-service-unlock-heading"],
     ],
   },
   fuel: {
@@ -336,6 +340,7 @@ const REFUSED_FRAME: Record<MiniScreen, { strip: string; tiles: string[]; panels
     panels: [
       ["Fuel balance at a glance", "mini-fuel-glance-heading"],
       ["Balance bridge", "mini-fuel-bridge-heading"],
+      ["Inspect existing generator fuel interpretation", "mini-fuel-interpretation-heading"],
     ],
   },
   backup: {
@@ -344,6 +349,8 @@ const REFUSED_FRAME: Record<MiniScreen, { strip: string; tiles: string[]; panels
     panels: [
       ["Backup event chains", "mini-backup-chains-heading"],
       ["Backup readiness evidence", "mini-backup-readiness-heading"],
+      ["Operating evidence", "mini-backup-operating-heading"],
+      ["Next evidence", "mini-backup-next-heading"],
     ],
   },
 };

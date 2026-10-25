@@ -344,7 +344,8 @@ describe("post-W6 W4 R309/R313: backup result tones and refused frame", () => {
     ["a reversed range", "from=2026-10-06T10:00:00Z&to=2026-10-06T09:00:00Z", "The end must be after the start."],
     ["an unprovable cause", "from=2026-10-06T09:30:00Z&to=2026-10-06T10:30:00Z", "Choose a valid Site-local window."],
   ];
-  const REFUSED_PANELS = ["Backup event chains", "Backup readiness evidence"];
+  // unit-5 capture: the refused frame keeps every v69 panel of the screen, in page order.
+  const REFUSED_PANELS = ["Backup event chains", "Backup readiness evidence", "Operating evidence", "Next evidence"];
 
   it.each(CASES)("R313: a refused window (%s) keeps strip, muted tiles and the named panels with one client reason", async (_name, query, reason) => {
     const message = "SERVER MESSAGE `INVALID_WINDOW` must not show";
@@ -358,6 +359,7 @@ describe("post-W6 W4 R309/R313: backup result tones and refused frame", () => {
     expect(cardValues()).toEqual(["Not assessed", "Not assessed", "Not assessed", "Not assessed"]);
     expect(panelTitled(REFUSED_PANELS[0]).textContent).toContain(reason);
     for (const title of REFUSED_PANELS.slice(1)) expect(panelTitled(title).textContent).toContain("Not assessed");
+    expect(Array.from(document.querySelectorAll("main section.panel h2"), (h) => h.textContent?.trim())).toEqual(REFUSED_PANELS);
     expect(screen.getAllByText(reason)).toHaveLength(1);
   });
 });
