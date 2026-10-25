@@ -159,3 +159,22 @@ The product code is identical from `e9b1b8d9` onward. The `710b0de5` pairs are s
 - **The SLD key is ruled by Q13, with no mock equivalent.** It is not registered as a deviation. The Architect may want a D-row.
 - **Flakes.** Two load-sensitive tests failed once each: `siteFindingEvidence` and `evEnergy`. Both are outside this slice, and both pass in isolation.
 - **USER_REVIEW:** UI slice. Per the owner-absent rule, merge waits for the owner walkthrough after W6. The capture review comes next.
+
+## Closeout fix round (2026-10-25; rulings `.agent/post-W6-shell-closeout-rulings.md`)
+
+Commits: `69c701eb` (merge main; register conflict resolved to main's R373/R374 plus R375-R381), `ac2e9b4f` (F1, F2, ruling 1, ruling 3), `05d5a294` (ruling 4 ledgers, R382 sld recapture), `9f26b01c` (digit-scan exemption for the R382 label).
+
+- **F1:** route test `siteFoundationRevision.test.tsx` "Q23 (capture review F1)": a 43-character stored locality makes `[data-key-value="location"]` carry `data-key-value-wide` with the full `dd` text. Proof: `StoredFoundationViews.tsx` alone reverted to `7605b824` -> 1 failed ("expected false to be true"); restored.
+- **F2:** `planFigures` uses `Math.floor(((den - num) * 100) / den)`. `[4,5]` -> "≥20% lower" and `[9,10]` -> "≥10% lower" added; `[1,3]` "≥66% lower" and `[1,1]` "No increase" kept. Proof: the float line restored alone -> "expected '≥19% lower' to be '≥20% lower'"; restored.
+- **Ruling 1:** `G-changes-plan-figures`: `source_status` "existing", `missing_kind` "decision", owner/role and `review_trigger` exactly as ruled. `missing-claim-scan.mjs` and `check-all.ps1` "Dependency registry" pass.
+- **Ruling 3:** register row **R382** (D2, exact ruled content, status "open pending owner decision"). `SldDrawing` renders `<p class="sld-key__deviation" data-mock-deviation="R382">MOCK DEVIATION D2 (R382)</p>` directly before the key; CSS hides it at desktop and shows it at ≤640 px (12 px), so it shows on every phone view that draws `SldDrawing` (sld, Lab Site model, Lab history inspector). Tests: sld route, Lab `SiteConfiguration`, CSS contract. Proofs: `SiteSingleLineDiagram.tsx` alone reverted -> both label tests fail; `primitives.css` alone reverted -> CSS test fails; restored. No rows for the other three fallbacks.
+- **Ruling 4:** all 24 batch 10-12 pairs are marked non-qualifying diagnostic evidence (`index.md/json` status "capture gap", image named "DIAGNOSTIC ONLY", `NON-QUALIFYING.txt` per folder, replacement ledger in each `run.md`). Replacement capture was **refused**: creating the W3-01 producer's own hard-coded `w301cap_test` was denied by the permission classifier, and the DTO-proof fallback (listing the `dto-proof/` harness) was denied as "[Auto-Mode Bypass]". None of the three producers has an `_audit` mode. Batches 11 and 12 were not attempted after that refusal. No workaround was used.
+- **R382 recapture:** sld battery/now/unknown-part at `ac2e9b4f` through the unmodified v01a producer (`assetops_shellrc_b01r3_*_test`, dropped by its `drop` mode): 6/6 pairs, 36/36 claims, overflowX 0. `sld-legibility-r3.json`: label visible at 390 in 3/3, `display:none` at 1440 in 3/3. Lab screens are not in the Q24 selection (unit test only).
+- **Index totals:** 370 selected; **346 qualifying, 24 capture gaps**; the recapture is not complete. 6 pre-existing flags unchanged.
+
+**Checks (final revision 9f26b01c):** full vitest 128 files / 3021 tests passed (180 s; the first run at 05d5a294 failed 1: `foundationScreen` "puts no digit on the screen the drawn record does not supply", caused by the label's digits, fixed in `9f26b01c`); `tsc --noEmit` exit 0; `check-all.ps1` 11/11; `npm run build` ok. No backend suite (shared machine).
+
+**Known deviations / for review:**
+- The digit-scan test now leaves out exactly one `[data-mock-deviation='R382']` element, after asserting it is the only such element and its text. That is a narrowing of a guard, done because the ruled visible label contains digits.
+- A visible "MOCK DEVIATION D2 (R382)" on a phone screen is register vocabulary in the UI, which B1-53 (raw codes on screen) would otherwise flag. It was built as ruled; the owner decision on R382 removes it either way.
+- The register's category count table was not updated for R375-R382.
