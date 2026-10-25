@@ -12,3 +12,8 @@
 - Claims: populated 166/168 (asset unknown-site panel-count FAIL at 1440 and 390, identical to the frozen run: refusal vs mock panels); others all pass.
 - Extra (coordinator request, Q13): `sld-legibility.json` + `sld-*-legibility.png` (capture-only CDP measurement of the SLD at 390/1440, default, battery, unknown part).
 - All DBs dropped by producer drop modes; all spawned PIDs stopped by PID.
+
+## r2 recapture at 321cfe56 (populated foundation + sld; Q13 re-measure)
+- `tools/v01a_foundation_walkthrough.py --db assetops_shellrc_b01r2_walk_test --empty-db assetops_shellrc_b01r2_empty_test --work-name shellrc-b01r2-v01a prepare` (tree from 321cfe56); API via frozen `serve-one.py --which populated --port 18101`; Vite 5181 (ASSETOPS_API_PORT=18101); `drop` (both DBs, work tree removed).
+- `capture-b1.mjs` unchanged, args foundation:{imported-period,no-version,now}, sld:{battery,now,unknown-part}. `populated-r2/`: 12 captured / 12 selected, 72/72 claims, no console errors.
+- Q13 r2: `sld-legibility-r2.mjs` (earlier measure + `ul[data-sld-key]` reads) -> `sld-legibility-r2.json`, `sld-*-legibility-r2.png`. 390: SVG scale 0.3147, min label 3.46 px (unchanged); key visible (flex 318x148), 12px, 10 items/10 buttons vs 10 drawn `.sld-node` (incl. 1 bus; panel text says "9 parts are drawn"), 10/10 buttons focusable; battery case marks "Battery energy storage · 200 kWh" pressed. 1440: scale 1, min 11 px; key display:none (not visible, not focusable).

@@ -1,0 +1,7 @@
+[
+ {
+  "id": "actions",
+  "case": "empty-day",
+  "url": "http://localhost:5181/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z"
+ }
+]
