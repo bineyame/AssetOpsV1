@@ -1,0 +1,9 @@
+[
+ {"id": "cold-findings", "case": "stocked", "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z", "caps": [{"panel": "Findings at this site", "kind": "coldrows"}]},
+ {"id": "cold-findings", "case": "refused", "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z", "caps": [{"panel": "Findings at this site", "kind": "none"}]},
+ {"id": "cold-findings", "case": "one-sided-from", "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z"},
+ {"id": "cold-findings", "case": "long-32d", "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z"},
+ {"id": "cold-evidence-analysis", "case": "stocked", "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z"},
+ {"id": "cold", "case": "stocked", "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z"},
+ {"id": "cold", "case": "no-selection", "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"}
+]
