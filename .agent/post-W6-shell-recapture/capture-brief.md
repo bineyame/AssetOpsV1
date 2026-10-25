@@ -37,3 +37,10 @@ frozen_app, tags`). Capture ONLY your group's batches, and only the selected `(s
 - Do not run full vitest, `vite build` or backend suites.
 - Do not commit. The coordinator commits.
 - Be token-efficient: bounded reads, and trimmed logs written to files.
+
+## Added after batches 6-11
+- If the permission system blocks a step (such as creating a DB), do not work around it by renaming or wrapping.
+  Use the producer's own documented `_test` or `_audit` names under the owner authorization. If those are blocked
+  too, stop that part and record it as a capture gap in `run.md`, with the exact refusal.
+- A hard-coded producer port that is busy, or that belongs to another agent (189xx, 5189, 8971-8977), means wait.
+  Never stop the other agent's process.
