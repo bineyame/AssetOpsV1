@@ -289,15 +289,12 @@ describe("W2-03: cold assessment routes keep the v69 panel structure", () => {
   ] as const)("refused: %s keeps every slot with an in-panel gap", async (screenId, path, slots) => {
     renderCold(path, REFUSED);
     await settledScreen();
-    // R244 (Q4): temperature and backup drop the page banner for the strip-and-tiles form; the Finding keeps its banner.
-    if (screenId === "cold-finding") expect(document.querySelector("[data-page-refusal]")).not.toBeNull();
-    else {
-      expect(document.querySelector("[data-page-refusal]")).toBeNull();
-      expect(document.querySelector("[data-cold-refused-strip]")?.textContent).toContain("Source permission refused");
-      expect(document.querySelector("[data-cold-refused-strip]")?.textContent).not.toContain("Window cannot be read");
-      expect(document.querySelectorAll("[data-cold-refused-card]")).toHaveLength(4);
-      expect(document.querySelector('[data-disclosure="cold-refusal-references"]')).not.toBeNull();
-    }
+    // R244 (Q4) and the refusal ruling: no page banner on any refused cold assessment page; the strip names the refusal.
+    expect(document.querySelector("[data-page-refusal]")).toBeNull();
+    expect(document.querySelector("[data-cold-refused-strip]")?.textContent).toContain(screenId === "cold-finding" ? "Not found" : "Source permission refused");
+    expect(document.querySelector("[data-cold-refused-strip]")?.textContent).not.toContain("Window cannot be read");
+    expect(document.querySelectorAll("[data-cold-refused-card]")).toHaveLength(screenId === "cold-finding" ? 0 : 4);
+    expect(document.querySelector('[data-disclosure="cold-refusal-references"]')).not.toBeNull();
     expectV69Panels(screenId);
     expect(gaps()).toHaveLength(slots);
   });
@@ -789,29 +786,36 @@ describe("W2-F 1b: cold truth on the assessment screens", () => {
     expect(strip().textContent).toContain("Confidence: Bounded");
     expect(strip().textContent).toContain("Newer readings waiting to be assessed");
     cleanup();
-    // W5-01b C5 (W2-F L1, P-C5-17/18/21): a refused Finding keeps its state strip, Unknown state and confidence,
-    // directly above the refusal; an invalid period shows no window line, and nothing loaded is invented.
+    // Refusal ruling 1-4: a refused Finding keeps its header, strip and three panels; the one sentence is the only alert,
+    // the technical disclosure carries the code and exact bounds, later panels say Not assessed, and there is no banner.
     const invalid = { status: "refused", httpStatus: 422, code: "COLD_WINDOW_INVALID", message: "'from' must be before 'to'." } as const;
+    const SENTENCE = "The selected window needs both a start and an end, with the start before the end.";
     renderCold(`${ROUTES[2][1]}?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z`, { ...STOCKED, finding: () => invalid });
     await settledScreen();
-    const refusal = main().querySelector("[data-page-refusal]") as HTMLElement;
-    expect(refusal).not.toBeNull();
-    expect(strip().nextElementSibling).toBe(refusal);
-    expect(strip().querySelector(".badge, [class*='badge']")?.textContent).toBe("Unknown");
-    // R249: the same order and separator as the loaded Finding strip.
-    expect(strip().textContent).toBe("Unknown Kobo vaccine cold store · Confidence: Unknown");
-    expect(strip().textContent).not.toMatch(/Open|Bounded|Observed|Selected source|Newer readings/);
+    expect(main().querySelector("[data-page-refusal]")).toBeNull();
+    expect(strip().textContent).toBe("Window cannot be read");
+    expect(main().textContent?.split(SENTENCE).length).toBe(2);
+    expect(main().querySelectorAll('[role="alert"]')).toHaveLength(1);
+    expect(main().querySelector('[role="alert"]')?.textContent).toBe(SENTENCE);
+    expect(main().querySelector('[data-panel-gap="cold-conclusion-heading"]')?.getAttribute("role")).toBe("alert");
+    expect(main().querySelector('[data-panel-gap="cold-operational-heading"]')?.textContent).toBe("Not assessed");
+    expect(main().querySelector('[data-panel-gap="cold-next-step-heading"]')?.textContent).toBe("Not assessed");
+    const disclosure = main().querySelector('[data-disclosure="cold-refusal-references"]') as HTMLElement;
+    expect(disclosure.textContent).toContain("COLD_WINDOW_INVALID");
+    expect(disclosure.textContent).toContain("2026-10-06T20:05:00Z");
+    expect(disclosure.textContent).toContain("2026-10-06T19:00:00Z");
     expect(main().querySelector("[data-cold-date-bar]")).toBeNull();
     expect(main().querySelectorAll('[aria-label="Finding state"]')).toHaveLength(1);
     cleanup();
-    // A valid requested period keeps its window line above the strip.
+    // A non-window refusal keeps its own title in the strip, the requested-window line, and the same single alert.
     renderCold(`${ROUTES[2][1]}?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z`, { ...STOCKED, finding: () => DOWN });
     await settledScreen();
     const bar = main().querySelector("[data-cold-date-bar-requested]") as HTMLElement;
     expect(bar).not.toBeNull();
     expect(bar.nextElementSibling).toBe(strip());
-    expect(strip().nextElementSibling).toBe(main().querySelector("[data-page-refusal]"));
-    expect(strip().textContent).toContain("Confidence: Unknown");
+    expect(strip().textContent).toBe("Assessment unavailable");
+    expect(main().querySelectorAll('[role="alert"]')).toHaveLength(1);
+    expect(main().querySelector("[data-page-refusal]")).toBeNull();
   });
 
   // H1/S2: Backup keeps the selected chain's `Not recorded` when the compressor is reported off with no running record.

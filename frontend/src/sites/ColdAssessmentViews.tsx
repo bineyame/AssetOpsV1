@@ -135,9 +135,9 @@ function windowKey(window: ColdWindowQuery): string {
 
 /* ---------- shared pieces ---------- */
 
-function Gap({ id, children }: { id: string; children: ReactNode }) {
+function Gap({ id, children, alert = false }: { id: string; children: ReactNode; alert?: boolean }) {
   return (
-    <p className="not-available-yet v69-chart-note" data-panel-gap={id}>
+    <p className="not-available-yet v69-chart-note" data-panel-gap={id} role={alert ? "alert" : undefined}>
       {children}
     </p>
   );
@@ -216,28 +216,6 @@ function PerformanceRefusal({
       <RefusedStrip label={strip} title={text.title} />
       <RefusedTiles label={tiles} cards={cards} />
     </>
-  );
-}
-
-function PageRefusal({ read, window }: { read: Exclude<ColdRead<unknown>, { status: "loaded" }>; window: ColdWindowQuery }) {
-  const text = refusalText(read);
-  return (
-    <div className="page-refusal" role="status" data-page-refusal={text.key}>
-      <p className="page-refusal__title">
-        <strong>{text.title}</strong>
-      </p>
-      <p>{text.body}</p>
-      <ExactReferences
-        name="cold-refusal-references"
-        variant="tech"
-        references={[
-          { label: "Refusal code", value: read.status === "refused" ? read.code : null },
-          { label: "Server message", value: read.message },
-          { label: "Selected window start (exact)", value: window.from },
-          { label: "Selected window end (exact)", value: window.to },
-        ]}
-      />
-    </div>
   );
 }
 
@@ -1147,18 +1125,20 @@ function ExcursionFindingPanels({
   );
 }
 
-function FindingSkeleton({ gap }: { gap: string }) {
+/** Refusal ruling 1-4: the sentence once, as the only alert, in Bounded conclusion with the technical disclosure; later panels say `Not assessed`. */
+function FindingSkeleton({ read, window }: { read: Exclude<ColdRead<unknown>, { status: "loaded" }>; window: ColdWindowQuery }) {
   return (
     <>
       <Panel heading="Bounded conclusion" headingId="cold-conclusion-heading">
-        <Gap id="cold-conclusion-heading">{gap}</Gap>
+        <Gap id="cold-conclusion-heading" alert>{refusalText(read).body}</Gap>
+        <RefusalReferences read={read} window={window} />
       </Panel>
       <div className="panel-pair">
         <Panel heading="Operational context" headingId="cold-operational-heading">
-          <Gap id="cold-operational-heading">{gap}</Gap>
+          <Gap id="cold-operational-heading">{REPEATED_GAP}</Gap>
         </Panel>
         <Panel heading="Recommended next step" headingId="cold-next-step-heading">
-          <Gap id="cold-next-step-heading">{NO_RECORDED_NEXT_STEP}.</Gap>
+          <Gap id="cold-next-step-heading">{REPEATED_GAP}</Gap>
         </Panel>
       </div>
     </>
@@ -1208,9 +1188,8 @@ export function ColdFindingFrame(props: ColdFindingFrameProps) {
           {/* W5-01b C5 (W2-F L1, P-C5-17/18/21): the requested-window line (none for an invalid period), then the
               Finding state strip with Unknown state and confidence, directly above the refusal. */}
           <RequestedWindowBar window={window} refusal={{ sentence: refusalText(finding).title, retry: false, key: refusalText(finding).key }} />
-          <StatusBar label="Finding state"><Badge tone="neutral">Unknown</Badge>{" "}<span>{[props.siteName, "Confidence: Unknown"].join(" · ")}</span></StatusBar>
-          <PageRefusal read={finding} window={window} />
-          <FindingSkeleton gap={refusalText(finding).body} />
+          <RefusedStrip label="Finding state" title={refusalText(finding).title} />
+          <FindingSkeleton read={finding} window={window} />
         </>
       ) : (
         <>
