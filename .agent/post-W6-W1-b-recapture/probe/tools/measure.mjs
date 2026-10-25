@@ -13,7 +13,9 @@ const EXPR = `(() => {
   const r383AfterTabs = r383.length === 1 && siteTabs.length === 1 && siteTabs[0].nextElementSibling === r383[0];
   const rail = [...document.querySelectorAll(".nav-rail__link.active, .nav-rail [aria-current=page]")].map((a) => (a.querySelector(".nav-rail__label")?.textContent ?? a.textContent).trim());
   const hdr = document.querySelector("header.page-header");
-  return { h1: document.querySelector("h1")?.textContent?.trim() ?? null, titles: panels.map((p) => p.t), panels, overflowX: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  const cs = document.querySelector("[data-consequence-history-scroll]"); const cue = document.querySelector("[data-consequence-history-scroll-cue]");
+  const historyScroll = cs ? { clientH: cs.clientHeight, scrollH: cs.scrollHeight, cueHidden: cue ? cue.hidden : null, focusable: cs.tabIndex === 0, rows: cs.querySelectorAll("tr[data-history-row]").length } : null;
+  return { historyScroll, h1: document.querySelector("h1")?.textContent?.trim() ?? null, titles: panels.map((p) => p.t), panels, overflowX: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     siteTabRows: siteTabs.length, r383Count: r383.length, r383AfterTabs, railActive: [...new Set(rail)], headerH: hdr ? Math.round(hdr.getBoundingClientRect().height) : null, url: location.href };
 })()`;
 const s = await session();
@@ -23,7 +25,7 @@ try {
     let r = null;
     for (let a = 0; a < 3 && !r; a += 1) { try { await s.open(t.url, w, h); r = await s.js(EXPR); } catch (e) { console.log("retry", t.id, t.case, w, String(e).slice(0, 120)); } }
     out.push({ screen: t.id, case: t.case, width: String(w), ...(r ?? { error: "measure failed" }) });
-    console.log(t.id, t.case, w, r ? JSON.stringify({ ox: r.overflowX, tabs: r.siteTabRows, r383: r.r383Count, after: r.r383AfterTabs, rail: r.railActive, p: r.panels.map((p) => p.t.slice(0, 18) + "=" + p.h).join("; ") }) : "FAILED");
+    console.log(t.id, t.case, w, r ? JSON.stringify({ ox: r.overflowX, tabs: r.siteTabRows, r383: r.r383Count, after: r.r383AfterTabs, rail: r.railActive, hs: r.historyScroll, p: r.panels.map((p) => p.t.slice(0, 18) + "=" + p.h).join("; ") }) : "FAILED");
   }
 } finally { await s.close(); }
 writeFileSync(OUT, JSON.stringify(out, null, 1));

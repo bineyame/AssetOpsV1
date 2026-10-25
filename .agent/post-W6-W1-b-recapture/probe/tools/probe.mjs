@@ -18,7 +18,9 @@ const measure = (title, clones) => { const p = panelOf(title); const r = p.getBo
   const innerScrollX = [...p.querySelectorAll("*")].filter((e) => { const s = getComputedStyle(e); return (s.overflowX === "auto" || s.overflowX === "scroll") && e.clientWidth > 0 && e.scrollWidth > e.clientWidth + 1; }).map((e) => String(e.className).slice(0, 30) + ":" + e.scrollWidth + "/" + e.clientWidth);
   const vs = p.querySelector("[data-history-versions-scroll]"); const cue = p.querySelector("[data-history-scroll-cue]");
   const versionScroll = vs ? { clientH: vs.clientHeight, scrollH: vs.scrollHeight, overflowY: getComputedStyle(vs).overflowY, maxH: getComputedStyle(vs).maxHeight, cueHidden: cue ? cue.hidden : null, focusable: vs.tabIndex === 0 } : null;
-  return { title, versionScroll, panelH: Math.round(r.height), rowHs: clones.map((c) => Math.round(c.getBoundingClientRect().height)), clipped, innerScrollX, docOverflowX: document.documentElement.scrollWidth - document.documentElement.clientWidth }; };
+  const cs = p.querySelector("[data-consequence-history-scroll]"); const ccue = p.querySelector("[data-consequence-history-scroll-cue]");
+  const consequenceScroll = cs ? { clientH: cs.clientHeight, scrollH: cs.scrollHeight, overflowY: getComputedStyle(cs).overflowY, maxH: getComputedStyle(cs).maxHeight, cueHidden: ccue ? ccue.hidden : null, focusable: cs.tabIndex === 0, role: cs.getAttribute("role"), label: cs.getAttribute("aria-label") } : null;
+  return { title, versionScroll, consequenceScroll, panelH: Math.round(r.height), rowHs: clones.map((c) => Math.round(c.getBoundingClientRect().height)), clipped, innerScrollX, docOverflowX: document.documentElement.scrollWidth - document.documentElement.clientWidth }; };
 
 const interpCorr = (five) => { const p = panelOf("Interpretation history"); const tbody = p.querySelector("tr[data-history-row]").parentElement; const real = [...tbody.querySelectorAll(":scope > tr")];
   const leaves = (el) => { const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); const a = []; while (w.nextNode()) { if (w.currentNode.textContent.trim()) a.push(w.currentNode); } return a; };
@@ -28,7 +30,10 @@ const interpCorr = (five) => { const p = panelOf("Interpretation history"); cons
     for (const k of [1, 2]) { want += 1; const ls = leaves(tds[k]); if (!ls.length) tds[k].textContent = L(160); else ls.forEach((n, j) => { n.textContent = j === 0 ? L(160) : ""; }); const after = leaves(tds[k]); if (after.length === 1 && after[0].textContent.length === 160) got += 1; } }
   const badges = rows.map((r) => (r.querySelector("[data-history-badge]")?.textContent ?? "").trim());
   const n = five ? 5 : real.length; const verified = rows.length === n && tbody.querySelectorAll(":scope > tr").length === n && want === 2 * n && got === want && rows.every((r) => [...r.querySelectorAll("details")].every((d) => !d.open));
-  return { synthetic: true, verified, rows: n, intendedFields: want, fields160: got, realBadges: badges, ...measure("Interpretation history", rows) }; };
+  return new Promise((res) => setTimeout(() => { const closed = measure("Interpretation history", rows);
+    p.querySelectorAll("details").forEach((d) => { d.open = true; });
+    setTimeout(() => { const o = measure("Interpretation history", rows); p.querySelectorAll("details").forEach((d) => { d.open = false; });
+      res({ synthetic: true, verified, rows: n, intendedFields: want, fields160: got, realBadges: badges, ...closed, openedAll: { panelH: o.panelH, rowHs: o.rowHs, consequenceScroll: o.consequenceScroll, clipped: o.clipped, innerScrollX: o.innerScrollX, docOverflowX: o.docOverflowX } }); }, 700); }, 700)); };
 const allPanels = () => [...document.querySelectorAll("section.panel")].map((p) => ({ t: (p.querySelector("h2")?.textContent ?? "").trim(), h: Math.round(p.getBoundingClientRect().height) }));
 `;
 const BODIES = {

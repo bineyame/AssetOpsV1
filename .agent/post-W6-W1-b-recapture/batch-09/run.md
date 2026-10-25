@@ -4,3 +4,4 @@
 - Capture: frozen `post-W6-audit/batch-09/tools/capture-b9.mjs` unchanged; `targets-complete.json` (ev-financials and ev-assumptions, complete). Fixed UUIDs.
 - Pairs: 4 captured / 4 selected. Claims 24/24. No console errors, no gap. measure.json added.
 - DB dropped; API stopped by PID.
+- Post-fix (SHA e6af4ff0): the assumptions rep was recaptured into `part-*-fix` from a fresh seed (assetops_w1brc_b09_test, API 18131, dropped). Claims 12/12. It has no Interpretation history panel (Financial assumptions only), so no region and no cue. Heights are unchanged, overflowX is 0, titles = frozen.

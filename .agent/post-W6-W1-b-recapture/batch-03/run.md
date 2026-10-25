@@ -11,3 +11,4 @@
 - measure.json caveat: for s408 financials priced/unpriced/quantity-unavailable, measure.mjs read some panels before the consequence read finished (heights lower than evidence.json). Reports use evidence.json heights. Tab/R383/rail values are unaffected.
 - Viewer clicks: ../viewer-clicks-A.md. Synthetic probes: ../probe/probe-A.md.
 - All DBs dropped by producer drop modes (s404; s405 owner/old/mixed; s408 owner/mixed). Spawned PIDs stopped by PID.
+- Post-fix (SHA e6af4ff0, AUDIT_REVISION=e6af4ff0): fresh s408 prepare (0 failed) and s405 prepare --only owner (0 failed), same ports. All 12 assumptions pairs recaptured into `part-s405-fix`, `part-s408-owner-fix` (T1/T3/page-2 cutoffs from `fix-s408-links.log`) and `part-s408-mixed-fix`. Claims 12/12, 48/48, 12/12. Interpretation history heights are unchanged (681/1068, 681/1045, 470/837, 354/609). The scroll region never overflows on real data (cue hidden, focusable). Titles = frozen, overflowX 0. DBs dropped.

@@ -18,3 +18,15 @@ Columns: start rows/Interpretation history height -> after each click (rows/heig
 
 Every height after a click is within the cap (<= 800 at 1440, <= 1400 at 390). Overflow X was 0 in every state.
 On T3-page2 the start page has no back stack, so it offers "Back to newest" (R200). The sequence logged was Previous versions, then the offered newer link, then "Back to newest" where it was offered again.
+
+## Post-fix (SHA e6af4ff0)
+Fresh s408 owner run. Data in `viewer-clicks/s408-owner-postfix/`.
+
+| case | w | start | Previous versions | Next versions | Back to newest |
+|---|---|---|---|---|---|
+| default | 1440 | 3r/681 | 3r/681 | 3r/681 | not offered |
+| default | 390 | 3r/1045 | 3r/1068 | 3r/1045 | not offered |
+| T3-page2 | 1440 | 2r/470 | 2r/547 | 2r/470 | 2r/547 |
+| T3-page2 | 390 | 2r/837 | 2r/861 | 2r/837 | 2r/837 |
+
+Heights are identical to the pre-fix run. All states are within cap and overflowX is 0. Real data never overflows the region; the cue stays hidden (see the batch-03 `*-fix` measure.json).

@@ -34,3 +34,16 @@ Fresh s408 run (`s408-prepare-corr.log`, 427 s, 0 failed; serve 18131; dropped a
 - Gap (s408 notfound): 1440 panel 315; 390 panel 335 (cap 450), pass. Gap line 59 px. Clipped 0, doc overflow 0.
 - Method (s408 priced, method block present): 1440 panel 410; 390 panel 446 (cap 450), pass, with 4 px margin. Allowance line 33 / 50 px. Clipped 0, doc overflow 0.
 - Baselines: notfound 295 / 315; priced 393 / 413.
+
+## Post-fix (SHA e6af4ff0, Q23 internal-scroll fallback), SYNTHETIC
+Fresh s408 run (prepare 0 failed; served on 18131, dropped afterwards). `tools/probe.mjs` now also records `[data-consequence-history-scroll]` region and cue state, plus an "all details opened" pass. Rows were cloned or set inside the region's tbody. Output is in `out-postfix/`. Fields: Fuel price and Recorded amount set to 160 chars (3 rows: 6/6; 5 rows: 10/10). Real badges kept; "Show this version" closed. verified=true on every run.
+
+| variant | w | closed panel | cap | region client/scroll | cue hidden | focusable | rows | clipped | doc ox | table scroller (390) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 3 rows | 1440 | 749 | 800 pass | 480/484 | false (shown) | yes (tabIndex 0, role=region "Fuel cost versions") | 150/150/149 | 0 | 0 | - |
+| 3 rows | 390 | 1312 | 1400 pass | 900/1324 | false | yes | 430/430/429 | 0 | 0 | 416/318 |
+| 5 rows | 1440 | 749 | 800 pass | 480/783 | false | yes | 150 x4, 149 | 0 | 0 | - |
+| 5 rows | 390 | 1312 | 1400 pass | 900/2184 | false | yes | 430 x4, 429 | 0 | 0 | 416/318 |
+
+- All disclosures opened (exempt from the cap): panel 1636 at 1440 and 2531 at 390. The region stays 480 / 900 high and scrolls (scrollH 11113-32658). Clipped 0, doc overflow 0. At 390 the table scroller is 437/318. Everything stays reachable through the focusable scroll region.
+- Opening every disclosure in the panel also opens those outside the region (Price versions recorded, How this was worked out), which accounts for the growth above the closed height.

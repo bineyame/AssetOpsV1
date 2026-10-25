@@ -1,0 +1,15 @@
+chrome pid 22032
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-assumptions-no-selection 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-assumptions-no-selection 1440: mock rendered
+PASS  cold-assumptions-no-selection 1440: same panel count  {"app":["Financial assumptions"],"mock":["Financial assumptions"]}
+PASS  cold-assumptions-no-selection 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-assumptions-no-selection 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-assumptions-no-selection 390: mock rendered
+PASS  cold-assumptions-no-selection 390: same panel count  {"app":["Financial assumptions"],"mock":["Financial assumptions"]}
+PASS  cold-assumptions-no-selection 390: no app page overflow  {"overflowX":0}
+
+12/12 claims passed; evidence in batch-07/part-excursion-fix
