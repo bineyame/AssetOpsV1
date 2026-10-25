@@ -510,6 +510,7 @@ describe("W2-04: cold Overview", () => {
     expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).toContain("Not summarised here");
     expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).toContain("Maintenance cases are listed under Work");
     expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).not.toContain("No maintenance work record");
+    expect(text(document.querySelector('[data-mock-deviation="R437"]')!)).toBe("MOCK DEVIATION D1 (R437)");
     const happened = panelTitled(PANELS.cold[0]);
     expect(happened.querySelectorAll("[data-timeline-event]")).toHaveLength(3);
     expect(text(happened)).toContain("No accepted transfer to backup report for this chain");

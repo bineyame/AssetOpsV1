@@ -137,6 +137,9 @@ describe("W2-cold unit 4: cold Site Findings index", () => {
     expect(rows[0].querySelector("small")?.textContent).toMatch(/^Began /);
     expect(text(document.querySelector("main"))).not.toMatch(/not released/i);
     expect(document.querySelector("[data-cold-findings-cursor]")).toBeNull();
+    // Registered D1 departures carry visible labels (R435 Priority/Lens, R436 global-list strip).
+    expect(text(document.querySelector('[data-mock-deviation="R435"]'))).toBe("MOCK DEVIATION D1 (R435)");
+    expect(text(document.querySelector('[data-mock-deviation="R436"]'))).toBe("MOCK DEVIATION D1 (R436)");
     expectV69Panels("sitefindings");
     // Ruling 3 (B14-10): the main tabs keep the selected window.
     const tabs = Array.from(document.querySelectorAll("nav.site-tabs:not(.site-subtabs) a.site-tabs__link"));

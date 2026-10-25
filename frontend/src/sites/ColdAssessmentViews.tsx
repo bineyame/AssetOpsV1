@@ -58,6 +58,7 @@ import { ColdCooling } from "./ColdCooling";
 import type { ColdDepthClient } from "./ColdDepthClient";
 import { NO_COLD_ASSESSMENT, RefusedStrip, RefusedTiles, RequestedWindowBar, selected, type ColdSiteRoutes } from "./coldSiteViews";
 import "./w2-cold-assessment.css";
+import "../ui/mock-deviation.css";
 
 /*
  * W2-03 commit 5: the four cold assessment screens of a COLDCHAIN Site in their exact v69 panel slots
@@ -1293,6 +1294,11 @@ export function ColdFindingIndex(props: ColdFindingIndexProps) {
       <StatusBar label="Findings state" action={<UnavailableInline label="Manage in Findings" />} data={{ "data-cold-findings-status": "" }}>
         <strong>Scoped to {props.siteName}</strong>
         {` · ${open} open · ${[windowText(r.window.from, r.window.to), currentnessWord(r.currentness.state), COLD_FINDINGS_NOT_GLOBAL].join(" · ")}`}
+        {/* MOCK DEVIATION D1 (R436): the mock strip says these are the same records as the global Findings list and
+            links Manage; cold Findings are not in the global list, so the strip says so and Manage is unavailable. */}{" "}
+        <span className="mock-deviation-line" data-mock-deviation="R436">
+          MOCK DEVIATION D1 (R436)
+        </span>
       </StatusBar>
       <Panel heading="Findings at this site" headingId={COLD_FINDINGS_HEADING_ID} description="Domain links back to the Performance view that produced the finding">
         {!selection ? (
@@ -1349,6 +1355,10 @@ export function ColdFindingIndex(props: ColdFindingIndexProps) {
                 ))}
               </tbody>
             </DataTable>
+            {/* MOCK DEVIATION D1 (R435): the cold Findings read carries no priority or lens, so both columns say Not assessed. */}
+            <p className="mock-deviation-line" data-mock-deviation="R435">
+              MOCK DEVIATION D1 (R435)
+            </p>
             {r.next_cursor === null ? null : (
               <p className="v69-chart-note" data-cold-findings-cursor>
                 {coldFindingsCursorNote(r.items.length)}

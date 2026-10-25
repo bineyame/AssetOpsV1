@@ -47,6 +47,7 @@ import { claimWord, classificationWord, plainCode, plainLimitation, reasonWord, 
 import { roleLabel } from "./ColdFoundationViews";
 import { NOT_ASSESSED, NOT_RECORDED, date, dayHm, decimal, degreeMinutes, hm, windowText } from "./coldFormat";
 import "./w2-cold-site.css";
+import "../ui/mock-deviation.css";
 
 /*
  * W2-04 commit 4: the five cold Site screens of a COLDCHAIN Site in their exact v69 panel slots
@@ -546,7 +547,17 @@ function OverviewCards({ o, evidence, routes }: { o: ColdOverviewRead; evidence:
       <MetricCard
         label="Maintenance"
         value="Not summarised here"
-        note="Maintenance cases are listed under Work"
+        note={
+          // MOCK DEVIATION D1 (R437): the mock card shows a status and an inspection outcome; the overview read has
+          // no maintenance summary, so the card points to the cases under Work. Labelled visibly inside the card.
+          <>
+            Maintenance cases are listed under Work
+            <br />
+            <span className="mock-deviation-line" data-mock-deviation="R437">
+              MOCK DEVIATION D1 (R437)
+            </span>
+          </>
+        }
         tone="muted"
         assessment
         data={{ "data-cold-card": "maintenance" }}
