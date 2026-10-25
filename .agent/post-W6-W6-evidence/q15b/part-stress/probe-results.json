@@ -1,0 +1,5438 @@
+{
+ "label": "SYNTHETIC LAYOUT PROBE - not product data",
+ "product": "6f54ad1b",
+ "results": [
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "incidents-cases-stress",
+   "url": "http://127.0.0.1:5391/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Incident cases",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Incident cases",
+     "h": 571
+    },
+    {
+     "t": "Case boundaries",
+     "h": 103
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     5,
+     5,
+     5,
+     5,
+     5
+    ],
+    "intendedFields": 25,
+    "fields160": 25,
+    "fieldNames": [
+     "a",
+     "a[data-global-work-site]",
+     "div[data-cell-disclosure-expanded]",
+     "div[data-cell-disclosure-expanded][data-global-work-owner]",
+     "div[data-cell-disclosure-expanded]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "live": {
+     "before": {
+      "values": 20,
+      "overflowing": 20,
+      "overflowingWithoutButton": 0,
+      "buttons": 20,
+      "names": [
+       "Show full Site",
+       "Show full Severity",
+       "Show full Owner",
+       "Show full Findings / work"
+      ]
+     },
+     "expanded": {
+      "count": 20,
+      "buttons": 20,
+      "clippedExpanded": 0,
+      "full160": 20,
+      "showLess": 20,
+      "inLink": 0,
+      "panelH": 647,
+      "docOverflowX": 0
+     },
+     "after": {
+      "values": 20,
+      "overflowing": 20,
+      "overflowingWithoutButton": 0,
+      "buttons": 20,
+      "names": [
+       "Show full Site",
+       "Show full Severity",
+       "Show full Owner",
+       "Show full Findings / work"
+      ]
+     },
+     "collapsedAgain": 20
+    },
+    "disclosures": {
+     "values": 20,
+     "overflowing": 20,
+     "overflowingWithoutButton": 0,
+     "buttons": 20,
+     "names": [
+      "Show full Site",
+      "Show full Severity",
+      "Show full Owner",
+      "Show full Findings / work"
+     ]
+    },
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "Incident cases",
+      "h": 647
+     },
+     {
+      "t": "Case boundaries",
+      "h": 103
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 533,
+      "ch": 468,
+      "maxH": "468px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-incidents-cases-heading"
+     }
+    ],
+    "panelH": 647,
+    "rowHs": [
+     100,
+     100,
+     100,
+     100,
+     99
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     }
+    ],
+    "clippedCount": 20,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1090,
+      "cw": 1090,
+      "scrollable": false,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1147,
+      "ch": 468,
+      "maxH": "468px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-incidents-cases-heading"
+     }
+    ],
+    "panelH": 647,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "incidents-cases-stress",
+   "url": "http://127.0.0.1:5391/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Incident cases",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Incident cases",
+     "h": 712
+    },
+    {
+     "t": "Case boundaries",
+     "h": 126
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     5,
+     5,
+     5,
+     5,
+     5
+    ],
+    "intendedFields": 25,
+    "fields160": 25,
+    "fieldNames": [
+     "a",
+     "a[data-global-work-site]",
+     "div[data-cell-disclosure-expanded]",
+     "div[data-cell-disclosure-expanded][data-global-work-owner]",
+     "div[data-cell-disclosure-expanded]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "live": {
+     "before": {
+      "values": 20,
+      "overflowing": 20,
+      "overflowingWithoutButton": 0,
+      "buttons": 20,
+      "names": [
+       "Show full Site",
+       "Show full Severity",
+       "Show full Owner",
+       "Show full Findings / work"
+      ]
+     },
+     "expanded": {
+      "count": 20,
+      "buttons": 20,
+      "clippedExpanded": 0,
+      "full160": 20,
+      "showLess": 20,
+      "inLink": 0,
+      "panelH": 737,
+      "docOverflowX": 0
+     },
+     "after": {
+      "values": 20,
+      "overflowing": 20,
+      "overflowingWithoutButton": 0,
+      "buttons": 20,
+      "names": [
+       "Show full Site",
+       "Show full Severity",
+       "Show full Owner",
+       "Show full Findings / work"
+      ]
+     },
+     "collapsedAgain": 20
+    },
+    "disclosures": {
+     "values": 20,
+     "overflowing": 20,
+     "overflowingWithoutButton": 0,
+     "buttons": 20,
+     "names": [
+      "Show full Site",
+      "Show full Severity",
+      "Show full Owner",
+      "Show full Findings / work"
+     ]
+    },
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "Incident cases",
+      "h": 737
+     },
+     {
+      "t": "Case boundaries",
+      "h": 126
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 633,
+      "ch": 518,
+      "maxH": "518px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-incidents-cases-heading"
+     }
+    ],
+    "panelH": 737,
+    "rowHs": [
+     120,
+     120,
+     120,
+     120,
+     119
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 369,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 369,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 369,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 369,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 369,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     }
+    ],
+    "clippedCount": 25,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 720,
+      "cw": 318,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 2115,
+      "ch": 518,
+      "maxH": "518px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-incidents-cases-heading"
+     }
+    ],
+    "panelH": 737,
+    "clippedCount": 5,
+    "clippedWithoutFullText": 0,
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     }
+    ],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "incidents-boundaries-stress",
+   "url": "http://127.0.0.1:5391/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "asIs",
+   "panel": "Case boundaries",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Incident cases",
+     "h": 571
+    },
+    {
+     "t": "Case boundaries",
+     "h": 103
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Incident cases",
+      "h": 571
+     },
+     {
+      "t": "Case boundaries",
+      "h": 103
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 103,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 103,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "incidents-boundaries-stress",
+   "url": "http://127.0.0.1:5391/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "asIs",
+   "panel": "Case boundaries",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Incident cases",
+     "h": 712
+    },
+    {
+     "t": "Case boundaries",
+     "h": 126
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Incident cases",
+      "h": 712
+     },
+     {
+      "t": "Case boundaries",
+      "h": 126
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 126,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 126,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "maintenance-cwr-stress",
+   "url": "http://127.0.0.1:5391/maintenance?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Corrective work requests",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Corrective work requests",
+     "h": 351
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     6,
+     6,
+     6,
+     6,
+     6
+    ],
+    "intendedFields": 30,
+    "fields160": 30,
+    "fieldNames": [
+     "a",
+     "div[data-cell-disclosure-expanded][data-global-work-lineage]",
+     "div[data-cell-disclosure-expanded][data-global-work-asset-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-owner]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "live": {
+     "before": {
+      "values": 3,
+      "overflowing": 3,
+      "overflowingWithoutButton": 0,
+      "buttons": 3,
+      "names": [
+       "Show full Work request links",
+       "Show full Asset / site",
+       "Show full Owner"
+      ]
+     },
+     "expanded": {
+      "count": 3,
+      "buttons": 3,
+      "clippedExpanded": 0,
+      "full160": 3,
+      "showLess": 3,
+      "inLink": 0,
+      "panelH": 471,
+      "docOverflowX": 0
+     },
+     "after": {
+      "values": 3,
+      "overflowing": 3,
+      "overflowingWithoutButton": 0,
+      "buttons": 3,
+      "names": [
+       "Show full Work request links",
+       "Show full Asset / site",
+       "Show full Owner"
+      ]
+     },
+     "collapsedAgain": 3
+    },
+    "disclosures": {
+     "values": 15,
+     "overflowing": 15,
+     "overflowingWithoutButton": 0,
+     "buttons": 15,
+     "names": [
+      "Show full Work request links",
+      "Show full Asset / site",
+      "Show full Owner"
+     ]
+    },
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "Corrective work requests",
+      "h": 657
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 809,
+      "ch": 478,
+      "maxH": "478px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-maintenance-requests-heading"
+     }
+    ],
+    "panelH": 657,
+    "rowHs": [
+     155,
+     155,
+     155,
+     155,
+     154
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 211,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 211,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 211,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 211,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 211,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     }
+    ],
+    "clippedCount": 20,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1090,
+      "cw": 1090,
+      "scrollable": false,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1563,
+      "ch": 478,
+      "maxH": "478px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-maintenance-requests-heading"
+     }
+    ],
+    "panelH": 657,
+    "clippedCount": 5,
+    "clippedWithoutFullText": 0,
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     }
+    ],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "maintenance-cwr-stress",
+   "url": "http://127.0.0.1:5391/maintenance?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Corrective work requests",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Corrective work requests",
+     "h": 391
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     6,
+     6,
+     6,
+     6,
+     6
+    ],
+    "intendedFields": 30,
+    "fields160": 30,
+    "fieldNames": [
+     "a",
+     "div[data-cell-disclosure-expanded][data-global-work-lineage]",
+     "div[data-cell-disclosure-expanded][data-global-work-asset-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-owner]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "live": {
+     "before": {
+      "values": 3,
+      "overflowing": 3,
+      "overflowingWithoutButton": 0,
+      "buttons": 3,
+      "names": [
+       "Show full Work request links",
+       "Show full Asset / site",
+       "Show full Owner"
+      ]
+     },
+     "expanded": {
+      "count": 3,
+      "buttons": 3,
+      "clippedExpanded": 0,
+      "full160": 3,
+      "showLess": 3,
+      "inLink": 0,
+      "panelH": 529,
+      "docOverflowX": 0
+     },
+     "after": {
+      "values": 3,
+      "overflowing": 3,
+      "overflowingWithoutButton": 0,
+      "buttons": 3,
+      "names": [
+       "Show full Work request links",
+       "Show full Asset / site",
+       "Show full Owner"
+      ]
+     },
+     "collapsedAgain": 3
+    },
+    "disclosures": {
+     "values": 15,
+     "overflowing": 15,
+     "overflowingWithoutButton": 0,
+     "buttons": 15,
+     "names": [
+      "Show full Work request links",
+      "Show full Asset / site",
+      "Show full Owner"
+     ]
+    },
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "Corrective work requests",
+      "h": 737
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 809,
+      "ch": 518,
+      "maxH": "518px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-maintenance-requests-heading"
+     }
+    ],
+    "panelH": 737,
+    "rowHs": [
+     155,
+     155,
+     155,
+     155,
+     154
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 229,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 229,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 229,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 229,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 229,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     }
+    ],
+    "clippedCount": 20,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1030,
+      "cw": 318,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1643,
+      "ch": 518,
+      "maxH": "518px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-maintenance-requests-heading"
+     }
+    ],
+    "panelH": 737,
+    "clippedCount": 5,
+    "clippedWithoutFullText": 0,
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Work request",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     }
+    ],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "preventive-plan-stress",
+   "url": "http://127.0.0.1:5391/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Preventive plan",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Preventive plan",
+     "h": 265
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "intendedFields": 40,
+    "fields160": 40,
+    "fieldNames": [
+     "div[data-global-work-title]",
+     "div[data-cell-disclosure-expanded][data-global-work-asset-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-trigger]",
+     "div[data-cell-disclosure-expanded]",
+     "div[data-cell-disclosure-expanded][data-global-work-due]",
+     "div[data-cell-disclosure-expanded]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "live": {
+     "before": {
+      "values": 5,
+      "overflowing": 5,
+      "overflowingWithoutButton": 0,
+      "buttons": 5,
+      "names": [
+       "Show full Asset / site",
+       "Show full Trigger",
+       "Show full Last done",
+       "Show full Next due",
+       "Show full What it proves"
+      ]
+     },
+     "expanded": {
+      "count": 5,
+      "buttons": 5,
+      "clippedExpanded": 0,
+      "full160": 5,
+      "showLess": 5,
+      "inLink": 0,
+      "panelH": 494,
+      "docOverflowX": 0
+     },
+     "after": {
+      "values": 5,
+      "overflowing": 5,
+      "overflowingWithoutButton": 0,
+      "buttons": 5,
+      "names": [
+       "Show full Asset / site",
+       "Show full Trigger",
+       "Show full Last done",
+       "Show full Next due",
+       "Show full What it proves"
+      ]
+     },
+     "collapsedAgain": 5
+    },
+    "disclosures": {
+     "values": 25,
+     "overflowing": 25,
+     "overflowingWithoutButton": 0,
+     "buttons": 25,
+     "names": [
+      "Show full Asset / site",
+      "Show full Trigger",
+      "Show full Last done",
+      "Show full Next due",
+      "Show full What it proves"
+     ]
+    },
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "Preventive plan",
+      "h": 599
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 533,
+      "ch": 468,
+      "maxH": "468px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-preventive-plan-heading"
+     }
+    ],
+    "panelH": 599,
+    "rowHs": [
+     100,
+     100,
+     100,
+     100,
+     99
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 299,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 141,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 35
+     }
+    ],
+    "clippedCount": 30,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1090,
+      "cw": 1090,
+      "scrollable": false,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1763,
+      "ch": 468,
+      "maxH": "468px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-preventive-plan-heading"
+     }
+    ],
+    "panelH": 599,
+    "clippedCount": 5,
+    "clippedWithoutFullText": 0,
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     }
+    ],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "preventive-plan-stress",
+   "url": "http://127.0.0.1:5391/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Preventive plan",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Preventive plan",
+     "h": 326
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "intendedFields": 40,
+    "fields160": 40,
+    "fieldNames": [
+     "div[data-global-work-title]",
+     "div[data-cell-disclosure-expanded][data-global-work-asset-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-trigger]",
+     "div[data-cell-disclosure-expanded]",
+     "div[data-cell-disclosure-expanded][data-global-work-due]",
+     "div[data-cell-disclosure-expanded]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "live": {
+     "before": {
+      "values": 5,
+      "overflowing": 5,
+      "overflowingWithoutButton": 0,
+      "buttons": 5,
+      "names": [
+       "Show full Asset / site",
+       "Show full Trigger",
+       "Show full Last done",
+       "Show full Next due",
+       "Show full What it proves"
+      ]
+     },
+     "expanded": {
+      "count": 5,
+      "buttons": 5,
+      "clippedExpanded": 0,
+      "full160": 5,
+      "showLess": 5,
+      "inLink": 0,
+      "panelH": 690,
+      "docOverflowX": 0
+     },
+     "after": {
+      "values": 5,
+      "overflowing": 5,
+      "overflowingWithoutButton": 0,
+      "buttons": 5,
+      "names": [
+       "Show full Asset / site",
+       "Show full Trigger",
+       "Show full Last done",
+       "Show full Next due",
+       "Show full What it proves"
+      ]
+     },
+     "collapsedAgain": 5
+    },
+    "disclosures": {
+     "values": 25,
+     "overflowing": 25,
+     "overflowingWithoutButton": 0,
+     "buttons": 25,
+     "names": [
+      "Show full Asset / site",
+      "Show full Trigger",
+      "Show full Last done",
+      "Show full Next due",
+      "Show full What it proves"
+     ]
+    },
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "Preventive plan",
+      "h": 690
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 633,
+      "ch": 518,
+      "maxH": "518px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-preventive-plan-heading"
+     }
+    ],
+    "panelH": 690,
+    "rowHs": [
+     120,
+     120,
+     120,
+     120,
+     119
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 528,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 194,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 317,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 264,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 528,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 194,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 317,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 264,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 528,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 194,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 317,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 264,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 528,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 194,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 317,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 264,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Asset / site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 528,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Trigger",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 194,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Last done",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 317,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Next due",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 264,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "What it proves",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     }
+    ],
+    "clippedCount": 30,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 720,
+      "cw": 318,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 2906,
+      "ch": 518,
+      "maxH": "518px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-preventive-plan-heading"
+     }
+    ],
+    "panelH": 690,
+    "clippedCount": 5,
+    "clippedWithoutFullText": 0,
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Plan item",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 106,
+      "ch": 53
+     }
+    ],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "oprecords-records-stress",
+   "url": "http://127.0.0.1:5391/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Operational records",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Operational records",
+     "h": 265
+    },
+    {
+     "t": "Record a manual reading",
+     "h": 325
+    },
+    {
+     "t": "How records are used",
+     "h": 325
+    }
+   ],
+   "baselineOpTable": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1105,
+    "clientW": 1105,
+    "fits": true,
+    "overflowX": "auto",
+    "tableW": 1105,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      92
+     ],
+     [
+      "Type",
+      112
+     ],
+     [
+      "Site",
+      153
+     ],
+     [
+      "When",
+      132
+     ],
+     [
+      "By",
+      122
+     ],
+     [
+      "What it says",
+      275
+     ],
+     [
+      "Feeds",
+      127
+     ],
+     [
+      "State",
+      92
+     ]
+    ],
+    "rowHs": [
+     99
+    ]
+   },
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     6,
+     6,
+     6,
+     6,
+     6
+    ],
+    "intendedFields": 30,
+    "fields160": 30,
+    "fieldNames": [
+     "div[data-cell-disclosure-expanded][data-global-work-code]",
+     "div[data-cell-disclosure-expanded][data-global-work-kind]",
+     "a[data-global-work-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-actor]",
+     "div[data-global-work-body]",
+     "div[data-cell-disclosure-expanded][data-global-work-feeds]"
+    ],
+    "extraFields160": 2,
+    "rowsRef": 5,
+    "live": {
+     "before": {
+      "values": 5,
+      "overflowing": 5,
+      "overflowingWithoutButton": 0,
+      "buttons": 5,
+      "names": [
+       "Show full Record",
+       "Show full Type",
+       "Show full Site",
+       "Show full By",
+       "Show full Feeds"
+      ]
+     },
+     "expanded": {
+      "count": 5,
+      "buttons": 5,
+      "clippedExpanded": 0,
+      "full160": 5,
+      "showLess": 5,
+      "inLink": 0,
+      "panelH": 494,
+      "docOverflowX": 0
+     },
+     "after": {
+      "values": 5,
+      "overflowing": 5,
+      "overflowingWithoutButton": 0,
+      "buttons": 5,
+      "names": [
+       "Show full Record",
+       "Show full Type",
+       "Show full Site",
+       "Show full By",
+       "Show full Feeds"
+      ]
+     },
+     "collapsedAgain": 5
+    },
+    "disclosures": {
+     "values": 25,
+     "overflowing": 25,
+     "overflowingWithoutButton": 0,
+     "buttons": 25,
+     "names": [
+      "Show full Record",
+      "Show full Type",
+      "Show full Site",
+      "Show full By",
+      "Show full Feeds"
+     ]
+    },
+    "opTable": {
+     "scrollerClass": "data-table__scroll",
+     "scrollW": 1090,
+     "clientW": 1090,
+     "fits": true,
+     "overflowX": "auto",
+     "tableW": 1090,
+     "tableLayout": "fixed",
+     "cols": [
+      [
+       "Record",
+       90
+      ],
+      [
+       "Type",
+       111
+      ],
+      [
+       "Site",
+       151
+      ],
+      [
+       "When",
+       131
+      ],
+      [
+       "By",
+       121
+      ],
+      [
+       "What it says",
+       271
+      ],
+      [
+       "Feeds",
+       126
+      ],
+      [
+       "State",
+       90
+      ]
+     ],
+     "rowHs": [
+      100,
+      100,
+      100,
+      100,
+      99
+     ]
+    },
+    "panelsAfter": [
+     {
+      "t": "Operational records",
+      "h": 631
+     },
+     {
+      "t": "Record a manual reading",
+      "h": 325
+     },
+     {
+      "t": "How records are used",
+      "h": 325
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 533,
+      "ch": 500,
+      "maxH": "500px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "operational-records-table-heading"
+     }
+    ],
+    "panelH": 631,
+    "rowHs": [
+     100,
+     100,
+     100,
+     100,
+     99
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     }
+    ],
+    "clippedCount": 30,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1090,
+      "cw": 1090,
+      "scrollable": false,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 2399,
+      "ch": 500,
+      "maxH": "500px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "operational-records-table-heading"
+     }
+    ],
+    "panelH": 631,
+    "clippedCount": 5,
+    "clippedWithoutFullText": 0,
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     }
+    ],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "oprecords-records-stress",
+   "url": "http://127.0.0.1:5391/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Operational records",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Operational records",
+     "h": 288
+    },
+    {
+     "t": "Record a manual reading",
+     "h": 513
+    },
+    {
+     "t": "How records are used",
+     "h": 223
+    }
+   ],
+   "baselineOpTable": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1085,
+    "clientW": 318,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1085,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      125
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     99
+    ]
+   },
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     6,
+     6,
+     6,
+     6,
+     6
+    ],
+    "intendedFields": 30,
+    "fields160": 30,
+    "fieldNames": [
+     "div[data-cell-disclosure-expanded][data-global-work-code]",
+     "div[data-cell-disclosure-expanded][data-global-work-kind]",
+     "a[data-global-work-site]",
+     "div[data-cell-disclosure-expanded][data-global-work-actor]",
+     "div[data-global-work-body]",
+     "div[data-cell-disclosure-expanded][data-global-work-feeds]"
+    ],
+    "extraFields160": 2,
+    "rowsRef": 5,
+    "live": {
+     "before": {
+      "values": 5,
+      "overflowing": 5,
+      "overflowingWithoutButton": 0,
+      "buttons": 5,
+      "names": [
+       "Show full Record",
+       "Show full Type",
+       "Show full Site",
+       "Show full By",
+       "Show full Feeds"
+      ]
+     },
+     "expanded": {
+      "count": 5,
+      "buttons": 5,
+      "clippedExpanded": 0,
+      "full160": 5,
+      "showLess": 5,
+      "inLink": 0,
+      "panelH": 517,
+      "docOverflowX": 0
+     },
+     "after": {
+      "values": 5,
+      "overflowing": 5,
+      "overflowingWithoutButton": 0,
+      "buttons": 5,
+      "names": [
+       "Show full Record",
+       "Show full Type",
+       "Show full Site",
+       "Show full By",
+       "Show full Feeds"
+      ]
+     },
+     "collapsedAgain": 5
+    },
+    "disclosures": {
+     "values": 25,
+     "overflowing": 25,
+     "overflowingWithoutButton": 0,
+     "buttons": 25,
+     "names": [
+      "Show full Record",
+      "Show full Type",
+      "Show full Site",
+      "Show full By",
+      "Show full Feeds"
+     ]
+    },
+    "opTable": {
+     "scrollerClass": "data-table__scroll",
+     "scrollW": 1085,
+     "clientW": 318,
+     "fits": false,
+     "overflowX": "auto",
+     "tableW": 1085,
+     "tableLayout": "fixed",
+     "cols": [
+      [
+       "Record",
+       90
+      ],
+      [
+       "Type",
+       110
+      ],
+      [
+       "Site",
+       150
+      ],
+      [
+       "When",
+       130
+      ],
+      [
+       "By",
+       120
+      ],
+      [
+       "What it says",
+       270
+      ],
+      [
+       "Feeds",
+       125
+      ],
+      [
+       "State",
+       90
+      ]
+     ],
+     "rowHs": [
+      100,
+      100,
+      100,
+      100,
+      99
+     ]
+    },
+    "panelsAfter": [
+     {
+      "t": "Operational records",
+      "h": 687
+     },
+     {
+      "t": "Record a manual reading",
+      "h": 513
+     },
+     {
+      "t": "How records are used",
+      "h": 223
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 687,
+    "rowHs": [
+     100,
+     100,
+     100,
+     100,
+     99
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Record",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 246,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Type",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 123,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "By",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 176,
+      "ch": 35
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp global-work-clamp--two",
+      "cell": "Feeds",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 158,
+      "ch": 35
+     }
+    ],
+    "clippedCount": 30,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1085,
+      "cw": 318,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 2399,
+      "ch": 590,
+      "maxH": "590px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "operational-records-table-heading"
+     }
+    ],
+    "panelH": 744,
+    "clippedCount": 5,
+    "clippedWithoutFullText": 0,
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "What it says",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 70,
+      "ch": 53
+     }
+    ],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "oprecords-manual-stress",
+   "url": "http://127.0.0.1:5391/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "manualForm",
+   "panel": "Record a manual reading",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Operational records",
+     "h": 265
+    },
+    {
+     "t": "Record a manual reading",
+     "h": 325
+    },
+    {
+     "t": "How records are used",
+     "h": 325
+    }
+   ],
+   "baselineOpTable": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1105,
+    "clientW": 1105,
+    "fits": true,
+    "overflowX": "auto",
+    "tableW": 1105,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      92
+     ],
+     [
+      "Type",
+      112
+     ],
+     [
+      "Site",
+      153
+     ],
+     [
+      "When",
+      132
+     ],
+     [
+      "By",
+      122
+     ],
+     [
+      "What it says",
+      275
+     ],
+     [
+      "Feeds",
+      127
+     ],
+     [
+      "State",
+      92
+     ]
+    ],
+    "rowHs": [
+     99
+    ]
+   },
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "form: only the scope Site option names are variable (set to 160); other text is fixed copy",
+    "intendedFields": 2,
+    "fields160": 2,
+    "panelsAfter": [
+     {
+      "t": "Operational records",
+      "h": 265
+     },
+     {
+      "t": "Record a manual reading",
+      "h": 325
+     },
+     {
+      "t": "How records are used",
+      "h": 325
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 325,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 325,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "oprecords-manual-stress",
+   "url": "http://127.0.0.1:5391/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "manualForm",
+   "panel": "Record a manual reading",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Operational records",
+     "h": 288
+    },
+    {
+     "t": "Record a manual reading",
+     "h": 513
+    },
+    {
+     "t": "How records are used",
+     "h": 223
+    }
+   ],
+   "baselineOpTable": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1085,
+    "clientW": 318,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1085,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      125
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     99
+    ]
+   },
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "form: only the scope Site option names are variable (set to 160); other text is fixed copy",
+    "intendedFields": 2,
+    "fields160": 2,
+    "panelsAfter": [
+     {
+      "t": "Operational records",
+      "h": 288
+     },
+     {
+      "t": "Record a manual reading",
+      "h": 513
+     },
+     {
+      "t": "How records are used",
+      "h": 223
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 513,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 513,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "oprecords-used-stress",
+   "url": "http://127.0.0.1:5391/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "asIs",
+   "panel": "How records are used",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Operational records",
+     "h": 265
+    },
+    {
+     "t": "Record a manual reading",
+     "h": 325
+    },
+    {
+     "t": "How records are used",
+     "h": 325
+    }
+   ],
+   "baselineOpTable": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1105,
+    "clientW": 1105,
+    "fits": true,
+    "overflowX": "auto",
+    "tableW": 1105,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      92
+     ],
+     [
+      "Type",
+      112
+     ],
+     [
+      "Site",
+      153
+     ],
+     [
+      "When",
+      132
+     ],
+     [
+      "By",
+      122
+     ],
+     [
+      "What it says",
+      275
+     ],
+     [
+      "Feeds",
+      127
+     ],
+     [
+      "State",
+      92
+     ]
+    ],
+    "rowHs": [
+     99
+    ]
+   },
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Operational records",
+      "h": 265
+     },
+     {
+      "t": "Record a manual reading",
+      "h": 325
+     },
+     {
+      "t": "How records are used",
+      "h": 325
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 325,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 325,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "oprecords-used-stress",
+   "url": "http://127.0.0.1:5391/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "asIs",
+   "panel": "How records are used",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Operational records",
+     "h": 288
+    },
+    {
+     "t": "Record a manual reading",
+     "h": 513
+    },
+    {
+     "t": "How records are used",
+     "h": 223
+    }
+   ],
+   "baselineOpTable": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1085,
+    "clientW": 318,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1085,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      125
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     99
+    ]
+   },
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Operational records",
+      "h": 288
+     },
+     {
+      "t": "Record a manual reading",
+      "h": 513
+     },
+     {
+      "t": "How records are used",
+      "h": 223
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 223,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 223,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-workdone-stress21-WR-000007",
+   "url": "http://127.0.0.1:5391/maintenance/requests/ca807fd9-2405-4b45-b815-f6b0dd371f00?site_id=KOBO-001",
+   "kind": "workDone",
+   "panel": "Work done",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 442
+    },
+    {
+     "t": "Lifecycle",
+     "h": 442
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1440,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1160,
+    "listCW": 1160,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "not a row table: narrative, latest activity and dl values",
+    "dlTerms": [
+     "Type",
+     "Asset",
+     "Warranty",
+     "Linked action"
+    ],
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 503
+     },
+     {
+      "t": "Lifecycle",
+      "h": 503
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 503,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 559,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 2
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-workdone-stress21-WR-000007",
+   "url": "http://127.0.0.1:5391/maintenance/requests/ca807fd9-2405-4b45-b815-f6b0dd371f00?site_id=KOBO-001",
+   "kind": "workDone",
+   "panel": "Work done",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 442
+    },
+    {
+     "t": "Lifecycle",
+     "h": 167
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 504,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "not a row table: narrative, latest activity and dl values",
+    "dlTerms": [
+     "Type",
+     "Asset",
+     "Warranty",
+     "Linked action"
+    ],
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 690
+     },
+     {
+      "t": "Lifecycle",
+      "h": 167
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 690,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 776,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 2
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-lifecycle-stress21-WR-000007",
+   "url": "http://127.0.0.1:5391/maintenance/requests/ca807fd9-2405-4b45-b815-f6b0dd371f00?site_id=KOBO-001",
+   "kind": "asIs",
+   "panel": "Lifecycle",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 442
+    },
+    {
+     "t": "Lifecycle",
+     "h": 442
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1440,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1160,
+    "listCW": 1160,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1160,
+      "cw": 1160,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 442
+     },
+     {
+      "t": "Lifecycle",
+      "h": 442
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 442,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 442,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-overview-lifecycle-stress21-WR-000007",
+   "url": "http://127.0.0.1:5391/maintenance/requests/ca807fd9-2405-4b45-b815-f6b0dd371f00?site_id=KOBO-001",
+   "kind": "asIs",
+   "panel": "Lifecycle",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Work done",
+     "h": 442
+    },
+    {
+     "t": "Lifecycle",
+     "h": 167
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 504,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Work done",
+      "h": 442
+     },
+     {
+      "t": "Lifecycle",
+      "h": 167
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 167,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 167,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-record-stress21-WR-000007",
+   "url": "http://127.0.0.1:5391/maintenance/requests/ca807fd9-2405-4b45-b815-f6b0dd371f00/record?site_id=KOBO-001",
+   "kind": "recordGroups5",
+   "panel": "Maintenance record · activity",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Maintenance record · activity",
+     "h": 596
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1425,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1145,
+    "listCW": 1145,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1145,
+      "cw": 1145,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1145,
+      "cw": 1145,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1145,
+      "cw": 1145,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "rowUnit": "record group (tbody) incl. its item rows",
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "panelsAfter": [
+     {
+      "t": "Maintenance record · activity",
+      "h": 622
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 3465,
+      "ch": 500,
+      "maxH": "500px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-record-heading"
+     }
+    ],
+    "panelH": 622,
+    "rowHs": [
+     686,
+     686,
+     686,
+     686,
+     686
+    ],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1090,
+      "cw": 1090,
+      "scrollable": false,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 3625,
+      "ch": 500,
+      "maxH": "500px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-record-heading"
+     }
+    ],
+    "panelH": 622,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 5
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-record-stress21-WR-000007",
+   "url": "http://127.0.0.1:5391/maintenance/requests/ca807fd9-2405-4b45-b815-f6b0dd371f00/record?site_id=KOBO-001",
+   "kind": "recordGroups5",
+   "panel": "Maintenance record · activity",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Maintenance record · activity",
+     "h": 636
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 504,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "rowUnit": "record group (tbody) incl. its item rows",
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "panelsAfter": [
+     {
+      "t": "Maintenance record · activity",
+      "h": 763
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 3904,
+      "ch": 600,
+      "maxH": "600px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-record-heading"
+     }
+    ],
+    "panelH": 763,
+    "rowHs": [
+     774,
+     774,
+     774,
+     774,
+     774
+    ],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 960,
+      "cw": 318,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 4064,
+      "ch": 600,
+      "maxH": "600px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-record-heading"
+     }
+    ],
+    "panelH": 763,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 5
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-history-stress21-WR-000007",
+   "url": "http://127.0.0.1:5391/maintenance/requests/ca807fd9-2405-4b45-b815-f6b0dd371f00/history?site_id=KOBO-001",
+   "kind": "rows5",
+   "panel": "History",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "History",
+     "h": 487
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 1425,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 248,
+      "right": 299,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 324,
+      "right": 433,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 458,
+      "right": 615,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 640,
+      "right": 680,
+      "top": 250,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 1145,
+    "listCW": 1145,
+    "listFits": true,
+    "rows": 1,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 1145,
+      "cw": 1145,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 1145,
+      "cw": 1145,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 1145,
+      "cw": 1145,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "live": {
+     "before": {
+      "values": 0,
+      "overflowing": 0,
+      "overflowingWithoutButton": 0,
+      "buttons": 0,
+      "names": []
+     },
+     "expanded": {
+      "count": 0,
+      "buttons": 0,
+      "clippedExpanded": 0,
+      "full160": 0,
+      "showLess": 0,
+      "inLink": 0,
+      "panelH": 529,
+      "docOverflowX": 0
+     },
+     "after": {
+      "values": 0,
+      "overflowing": 0,
+      "overflowingWithoutButton": 0,
+      "buttons": 0,
+      "names": []
+     },
+     "collapsedAgain": 0
+    },
+    "disclosures": {
+     "values": 0,
+     "overflowing": 0,
+     "overflowingWithoutButton": 0,
+     "buttons": 0,
+     "names": []
+    },
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "History",
+      "h": 529
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 533,
+      "ch": 430,
+      "maxH": "430px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 529,
+    "rowHs": [
+     100,
+     100,
+     100,
+     100,
+     99
+    ],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1090,
+      "cw": 1090,
+      "scrollable": false,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 613,
+      "ch": 430,
+      "maxH": "430px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 529,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "wr-history-stress21-WR-000007",
+   "url": "http://127.0.0.1:5391/maintenance/requests/ca807fd9-2405-4b45-b815-f6b0dd371f00/history?site_id=KOBO-001",
+   "kind": "rows5",
+   "panel": "History",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "History",
+     "h": 510
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 434,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 434,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 434,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 481,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   },
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "live": {
+     "before": {
+      "values": 0,
+      "overflowing": 0,
+      "overflowingWithoutButton": 0,
+      "buttons": 0,
+      "names": []
+     },
+     "expanded": {
+      "count": 0,
+      "buttons": 0,
+      "clippedExpanded": 0,
+      "full160": 0,
+      "showLess": 0,
+      "inLink": 0,
+      "panelH": 602,
+      "docOverflowX": 0
+     },
+     "after": {
+      "values": 0,
+      "overflowing": 0,
+      "overflowingWithoutButton": 0,
+      "buttons": 0,
+      "names": []
+     },
+     "collapsedAgain": 0
+    },
+    "disclosures": {
+     "values": 0,
+     "overflowing": 0,
+     "overflowingWithoutButton": 0,
+     "buttons": 0,
+     "names": []
+    },
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "History",
+      "h": 602
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 709,
+      "ch": 480,
+      "maxH": "480px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 602,
+    "rowHs": [
+     135,
+     135,
+     135,
+     135,
+     134
+    ],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 750,
+      "cw": 318,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 789,
+      "ch": 480,
+      "maxH": "480px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "panelH": 602,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  }
+ ]
+}

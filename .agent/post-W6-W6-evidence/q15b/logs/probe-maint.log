@@ -1,0 +1,58 @@
+﻿maintenance-cwr-positive 1440 {"base":657,"panelH":657,"verified":true,"want":30,"got":30,"rows":[155,155,155,155,154],"clip":20,"vScroll":["809/478:478px"],"clipNoFull":0,"doc":0,"open":657,"openClipNoFull":0}
+maintenance-cwr-positive 390 {"base":737,"panelH":737,"verified":true,"want":30,"got":30,"rows":[155,155,155,155,154],"clip":20,"vScroll":["809/518:518px"],"clipNoFull":0,"doc":0,"open":737,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000001 1440 {"base":325,"panelH":463,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":491,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000001 390 {"base":325,"panelH":651,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":694,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000001 1440 {"base":325,"panelH":325,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":325,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000001 390 {"base":167,"panelH":167,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":167,"openClipNoFull":0}
+wr-record-maint-WR-000001 1440 SKIPPED no record table [{"t":"Maintenance record · activity","h":160}]
+wr-record-maint-WR-000001 390 SKIPPED no record table [{"t":"Maintenance record · activity","h":178}]
+wr-history-maint-WR-000001 1440 {"base":287,"panelH":529,"verified":true,"want":10,"got":10,"rows":[100,100,100,100,99],"clip":0,"vScroll":["533/430:430px"],"clipNoFull":0,"doc":0,"open":529,"openClipNoFull":0}
+wr-history-maint-WR-000001 390 {"base":310,"panelH":602,"verified":true,"want":10,"got":10,"rows":[135,135,135,135,134],"clip":0,"vScroll":["709/480:480px"],"clipNoFull":0,"doc":0,"open":602,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000002 1440 {"base":325,"panelH":463,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":491,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000002 390 {"base":325,"panelH":651,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":694,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000002 1440 {"base":325,"panelH":325,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":325,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000002 390 {"base":167,"panelH":167,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":167,"openClipNoFull":0}
+wr-record-maint-WR-000002 1440 SKIPPED no record table [{"t":"Maintenance record · activity","h":160}]
+wr-record-maint-WR-000002 390 SKIPPED no record table [{"t":"Maintenance record · activity","h":178}]
+wr-history-maint-WR-000002 1440 {"base":287,"panelH":529,"verified":true,"want":10,"got":10,"rows":[100,100,100,100,99],"clip":0,"vScroll":["533/430:430px"],"clipNoFull":0,"doc":0,"open":529,"openClipNoFull":0}
+wr-history-maint-WR-000002 390 {"base":310,"panelH":602,"verified":true,"want":10,"got":10,"rows":[135,135,135,135,134],"clip":0,"vScroll":["709/480:480px"],"clipNoFull":0,"doc":0,"open":602,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000003 1440 {"base":325,"panelH":463,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":491,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000003 390 {"base":325,"panelH":651,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":694,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000003 1440 {"base":325,"panelH":325,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":325,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000003 390 {"base":167,"panelH":167,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":167,"openClipNoFull":0}
+wr-record-maint-WR-000003 1440 SKIPPED no record table [{"t":"Maintenance record · activity","h":160}]
+wr-record-maint-WR-000003 390 SKIPPED no record table [{"t":"Maintenance record · activity","h":178}]
+wr-history-maint-WR-000003 1440 {"base":287,"panelH":529,"verified":true,"want":10,"got":10,"rows":[100,100,100,100,99],"clip":0,"vScroll":["533/430:430px"],"clipNoFull":0,"doc":0,"open":529,"openClipNoFull":0}
+wr-history-maint-WR-000003 390 {"base":310,"panelH":602,"verified":true,"want":10,"got":10,"rows":[135,135,135,135,134],"clip":0,"vScroll":["709/480:480px"],"clipNoFull":0,"doc":0,"open":602,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000004 1440 {"base":325,"panelH":463,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":491,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000004 390 {"base":325,"panelH":651,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":694,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000004 1440 {"base":325,"panelH":325,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":325,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000004 390 {"base":194,"panelH":194,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":194,"openClipNoFull":0}
+wr-record-maint-WR-000004 1440 SKIPPED no record table [{"t":"Maintenance record · activity","h":160}]
+wr-record-maint-WR-000004 390 SKIPPED no record table [{"t":"Maintenance record · activity","h":178}]
+wr-history-maint-WR-000004 1440 {"base":352,"panelH":529,"verified":true,"want":10,"got":10,"rows":[100,100,100,100,99],"clip":0,"vScroll":["533/430:430px"],"clipNoFull":0,"doc":0,"open":529,"openClipNoFull":0}
+wr-history-maint-WR-000004 390 {"base":375,"panelH":602,"verified":true,"want":10,"got":10,"rows":[135,135,135,135,134],"clip":0,"vScroll":["709/480:480px"],"clipNoFull":0,"doc":0,"open":602,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000005 1440 {"base":325,"panelH":463,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":491,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000005 390 {"base":325,"panelH":651,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":694,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000005 1440 {"base":325,"panelH":325,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":325,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000005 390 {"base":167,"panelH":167,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":167,"openClipNoFull":0}
+wr-record-maint-WR-000005 1440 SKIPPED no record table [{"t":"Maintenance record · activity","h":160}]
+wr-record-maint-WR-000005 390 SKIPPED no record table [{"t":"Maintenance record · activity","h":178}]
+wr-history-maint-WR-000005 1440 {"base":352,"panelH":529,"verified":true,"want":10,"got":10,"rows":[100,100,100,100,99],"clip":0,"vScroll":["533/430:430px"],"clipNoFull":0,"doc":0,"open":529,"openClipNoFull":0}
+wr-history-maint-WR-000005 390 {"base":375,"panelH":602,"verified":true,"want":10,"got":10,"rows":[135,135,135,135,134],"clip":0,"vScroll":["709/480:480px"],"clipNoFull":0,"doc":0,"open":602,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000006 1440 {"base":365,"panelH":503,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":559,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000006 390 {"base":365,"panelH":690,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":776,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000006 1440 {"base":365,"panelH":365,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":365,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000006 390 {"base":167,"panelH":167,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":167,"openClipNoFull":0}
+wr-record-maint-WR-000006 1440 {"base":561,"panelH":622,"verified":true,"want":70,"got":70,"rows":[686,686,686,686,686],"clip":0,"vScroll":["3465/500:500px"],"clipNoFull":0,"doc":0,"open":622,"openClipNoFull":0}
+wr-record-maint-WR-000006 390 {"base":601,"panelH":763,"verified":true,"want":70,"got":70,"rows":[774,774,774,774,774],"clip":0,"vScroll":["3904/600:600px"],"clipNoFull":0,"doc":0,"open":763,"openClipNoFull":0}
+wr-history-maint-WR-000006 1440 {"base":417,"panelH":529,"verified":true,"want":10,"got":10,"rows":[100,100,100,100,99],"clip":0,"vScroll":["533/430:430px"],"clipNoFull":0,"doc":0,"open":529,"openClipNoFull":0}
+wr-history-maint-WR-000006 390 {"base":439,"panelH":602,"verified":true,"want":10,"got":10,"rows":[135,135,135,135,134],"clip":0,"vScroll":["709/480:480px"],"clipNoFull":0,"doc":0,"open":602,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000007 1440 {"base":325,"panelH":463,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":491,"openClipNoFull":0}
+wr-overview-workdone-maint-WR-000007 390 {"base":325,"panelH":651,"verified":true,"want":5,"got":5,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":694,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000007 1440 {"base":325,"panelH":325,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":325,"openClipNoFull":0}
+wr-overview-lifecycle-maint-WR-000007 390 {"base":167,"panelH":167,"verified":true,"want":0,"got":0,"rows":[],"clip":0,"vScroll":[],"clipNoFull":0,"doc":0,"open":167,"openClipNoFull":0}
+wr-record-maint-WR-000007 1440 SKIPPED no record table [{"t":"Maintenance record · activity","h":160}]
+wr-record-maint-WR-000007 390 SKIPPED no record table [{"t":"Maintenance record · activity","h":178}]
+wr-history-maint-WR-000007 1440 {"base":287,"panelH":529,"verified":true,"want":10,"got":10,"rows":[100,100,100,100,99],"clip":0,"vScroll":["533/430:430px"],"clipNoFull":0,"doc":0,"open":529,"openClipNoFull":0}
+wr-history-maint-WR-000007 390 {"base":310,"panelH":602,"verified":true,"want":10,"got":10,"rows":[135,135,135,135,134],"clip":0,"vScroll":["709/480:480px"],"clipNoFull":0,"doc":0,"open":602,"openClipNoFull":0}

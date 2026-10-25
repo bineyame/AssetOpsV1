@@ -1,0 +1,68 @@
+[
+ {
+  "name": "incidents-cases-stress",
+  "url": "http://127.0.0.1:5391/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "kind": "rows5",
+  "panel": "Incident cases"
+ },
+ {
+  "name": "incidents-boundaries-stress",
+  "url": "http://127.0.0.1:5391/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "kind": "asIs",
+  "panel": "Case boundaries"
+ },
+ {
+  "name": "maintenance-cwr-stress",
+  "url": "http://127.0.0.1:5391/maintenance?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z",
+  "kind": "rows5",
+  "panel": "Corrective work requests"
+ },
+ {
+  "name": "preventive-plan-stress",
+  "url": "http://127.0.0.1:5391/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "kind": "rows5",
+  "panel": "Preventive plan"
+ },
+ {
+  "name": "oprecords-records-stress",
+  "url": "http://127.0.0.1:5391/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "kind": "rows5",
+  "panel": "Operational records"
+ },
+ {
+  "name": "oprecords-manual-stress",
+  "url": "http://127.0.0.1:5391/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "kind": "manualForm",
+  "panel": "Record a manual reading"
+ },
+ {
+  "name": "oprecords-used-stress",
+  "url": "http://127.0.0.1:5391/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "kind": "asIs",
+  "panel": "How records are used"
+ },
+ {
+  "name": "wr-overview-workdone-stress21-WR-000007",
+  "url": "http://127.0.0.1:5391/maintenance/requests/ca807fd9-2405-4b45-b815-f6b0dd371f00?site_id=KOBO-001",
+  "kind": "workDone",
+  "panel": "Work done"
+ },
+ {
+  "name": "wr-overview-lifecycle-stress21-WR-000007",
+  "url": "http://127.0.0.1:5391/maintenance/requests/ca807fd9-2405-4b45-b815-f6b0dd371f00?site_id=KOBO-001",
+  "kind": "asIs",
+  "panel": "Lifecycle"
+ },
+ {
+  "name": "wr-record-stress21-WR-000007",
+  "url": "http://127.0.0.1:5391/maintenance/requests/ca807fd9-2405-4b45-b815-f6b0dd371f00/record?site_id=KOBO-001",
+  "kind": "recordGroups5",
+  "panel": "Maintenance record \u00b7 activity"
+ },
+ {
+  "name": "wr-history-stress21-WR-000007",
+  "url": "http://127.0.0.1:5391/maintenance/requests/ca807fd9-2405-4b45-b815-f6b0dd371f00/history?site_id=KOBO-001",
+  "kind": "rows5",
+  "panel": "History"
+ }
+]
