@@ -164,15 +164,44 @@ export type DecisionRead<T> =
   /** No answer, or an answer that is not the documented shape. */
   | { status: "unavailable"; message: string | null };
 
-/** u6b ruling 9: the decision-read refusal copy by code, shared by the detail and the CTA list read. */
-export function decisionRefusalCopy(read: Exclude<DecisionRead<unknown>, { status: "loaded" }>): string {
+/** A recovery the page itself can offer beside the refusal copy; a closed gate offers none. */
+export type DecisionRefusalAction = "first-page" | null;
+
+export const DECISIONS_CLOSED =
+  "Decisions are closed while the Performance assessment is unavailable. Try again when it opens.";
+export const DECISIONS_UNAVAILABLE = "Decisions are unavailable right now. Try again.";
+
+/** post-W6 W4 R311/R321 (Q4): exact codes first, then the HTTP status; never a raw code or server message. */
+const DECISION_CODE_COPY: Record<string, { copy: string; action: DecisionRefusalAction }> = {
+  PERFORMANCE_CUTOVER_CLOSED: { copy: DECISIONS_CLOSED, action: null },
+  DECISION_BASIS_CHANGED: { copy: "The evidence changed. Reload this page.", action: null },
+  INVALID_KNOWN_AT: { copy: "Choose a valid evidence cutoff.", action: null },
+  INVALID_WINDOW: { copy: "Choose a valid Site-local window.", action: null },
+  INVALID_CURSOR: { copy: "This page of results expired. Return to the first page.", action: "first-page" },
+  DECISION_DUPLICATE_KEY: { copy: "This change conflicts with a recorded decision. Reload this page.", action: null },
+  DECISION_CORRECTION_CONFLICT: { copy: "This change conflicts with a recorded decision. Reload this page.", action: null },
+};
+
+/** u6b ruling 9 / post-W6 W4 Q4: the decision-read refusal copy and offered action, shared by every decision mount. */
+export function decisionRefusal(read: Exclude<DecisionRead<unknown>, { status: "loaded" }>): {
+  copy: string;
+  action: DecisionRefusalAction;
+} {
   if (read.status === "refused") {
-    if (read.httpStatus === 401) return "Sign in to see this page.";
-    if (read.httpStatus === 403) return "You do not have access to this site.";
-    if (read.httpStatus === 404) return "This decision was not found at this site.";
-    if (read.httpStatus === 409) return "The evidence changed. Reload this page.";
+    const byCode = DECISION_CODE_COPY[read.code];
+    if (byCode !== undefined) return byCode;
+    if (read.httpStatus === 401) return { copy: "Sign in to see this page.", action: null };
+    if (read.httpStatus === 403) return { copy: "You do not have access to this site.", action: null };
+    if (read.httpStatus === 404) return { copy: "This decision was not found at this site.", action: null };
+    if (read.httpStatus === 422) return { copy: "This request cannot be used. Check your entries and try again.", action: null };
+    if (read.httpStatus === 409) return { copy: "The decision could not be recorded. Reload this page.", action: null };
   }
-  return "Decisions are unavailable right now. Try again.";
+  return { copy: DECISIONS_UNAVAILABLE, action: null };
+}
+
+/** The copy alone, for mounts that offer no recovery control. */
+export function decisionRefusalCopy(read: Exclude<DecisionRead<unknown>, { status: "loaded" }>): string {
+  return decisionRefusal(read).copy;
 }
 
 /** u6b ruling 11: a later Alternatives page reuses the returned cutoff and cursor; the first page sends neither. */

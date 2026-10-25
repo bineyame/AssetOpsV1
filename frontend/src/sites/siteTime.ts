@@ -93,3 +93,34 @@ export function siteTime(value: string | null | undefined, timeZone: string | nu
     siteZone: zone !== null,
   };
 }
+
+/**
+ * post-W6 W4 R320/R450 (Q8/Q14): Site-local calendar days for date inputs. The URL keeps UTC bounds: a day input is
+ * the Site's local midnight, converted here. A missing or invalid zone uses UTC (callers say `UTC` in the label).
+ */
+export function siteZoneOrUtc(timeZone: string | null | undefined): string {
+  return validZone(timeZone) ?? "UTC";
+}
+
+/** The Site-local `YYYY-MM-DD` of an instant, or "" when it does not parse. */
+export function siteLocalDate(value: string | null | undefined, timeZone: string | null | undefined): string {
+  const d = parse(value);
+  if (d === null) return "";
+  const p = parts(d, siteZoneOrUtc(timeZone));
+  return `${p.y}-${String(p.m).padStart(2, "0")}-${String(p.day).padStart(2, "0")}`;
+}
+
+/** The UTC ISO instant (`...Z`, no milliseconds) of local midnight starting `isoDate` at the Site; "" for a bad date. */
+export function siteLocalMidnightUtc(isoDate: string, timeZone: string | null | undefined): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
+  if (m === null) return "";
+  const zone = siteZoneOrUtc(timeZone);
+  const wall = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const offsetAt = (utc: number) => {
+    const p = parts(new Date(utc), zone);
+    return Date.UTC(p.y, p.m - 1, p.day, Number(p.hh), Number(p.mm), Number(p.ss)) - utc;
+  };
+  let utc = wall - offsetAt(wall);
+  utc = wall - offsetAt(utc);
+  return new Date(utc).toISOString().replace(".000Z", "Z");
+}

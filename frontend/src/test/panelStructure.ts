@@ -60,6 +60,9 @@ const LEADING_SELECTOR =
   // post-W6 W1-b Q26/Q52: the visible MOCK DEVIATION D2 (R383) line below a retained Finding Site tab row.
   '[data-mock-deviation="R383"], ' +
 
+  // post-W6 W4 R325/Q14: the mini Scenarios page-local Window row (MOCK DEVIATION D2 R450), directly in the page body.
+  ".mini-scenarios > .mini-scenarios-window-row, " +
+
   // W3-03 run 2: the v69 `portfolio` screen's own three leading rows (context line, five value cards, pulse).
   ".portfolio-v2 > .portfolio-context, .portfolio-v2 > .value-grid, .portfolio-v2 > .portfolio-pulse";
 /**

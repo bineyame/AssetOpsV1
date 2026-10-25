@@ -25,7 +25,7 @@ import type {
   ScenarioListBody,
   ScenarioRow,
 } from "../miniDecisionsClient";
-import { createMiniDecisionsClient, microsecondBefore } from "../miniDecisionsClient";
+import { createMiniDecisionsClient, decisionRefusal, decisionRefusalCopy, microsecondBefore } from "../miniDecisionsClient";
 import { scenarioMoney } from "../MiniScenarios";
 import { OpportunityDecisionEntry } from "../MiniOpportunity";
 import { SiteFindingIndex } from "../SiteFindingIndex";
@@ -295,7 +295,8 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     expect(document.querySelector("[data-scenario-detail-unavailable]")?.textContent).toBe("Scenario detail unavailable");
     noControl(document.querySelector("[data-scenario-creation-unavailable]"));
     expect(document.querySelector("[data-scenario-creation-unavailable]")?.textContent).toBe("Scenario creation unavailable");
-    expect(main().querySelector("form, input, textarea")).toBeNull();
+    // No creation control in the panel (the page-local Window, R450, sits above it).
+    expect(panelTitled("Financial scenarios").querySelector("form, input, textarea")).toBeNull();
     // A cursor page reuses the returned bounds and cutoff, never the browser clock or a renewable window.
     fireEvent.click(document.querySelector("[data-scenarios-next]")!);
     await screen.findByText("Second");
@@ -378,18 +379,10 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
       const scroll = document.querySelector(".mini-scenarios-table .data-table__scroll");
       expect(scroll?.querySelector("table")).not.toBeNull();
       expect(scroll?.closest(".panel")?.querySelector("h2")?.textContent).toBe("Financial scenarios");
-      // u9c: exactly 144 px at desktop (before the narrow block) and 188 px at <=600 px (inside it).
+      // post-W6 W4 R325 (Q13): no inner vertical cap at any width; every row shows (u9c 144/188 px caps retired).
       const narrow = MINI_CSS.indexOf("@media (max-width: 600px)");
-      const desktopRule = ".mini-scenarios-table .data-table__scroll { max-height: 144px; overflow: auto; }";
-      const narrowRule = "@media (max-width: 600px) { .mini-scenarios-table .data-table__scroll { max-height: 188px; overflow: auto; }";
-      expect(MINI_CSS).toContain(desktopRule);
-      expect(MINI_CSS.indexOf(desktopRule)).toBeLessThan(narrow);
-      expect(MINI_CSS).toContain(narrowRule);
+      expect(MINI_CSS).not.toMatch(/\.mini-scenarios-table \.data-table__scroll \{[^}]*max-height/);
       expect(MINI_CSS).not.toContain("calc(36px + 3 * 72px)");
-      expect(MINI_CSS.match(/\.mini-scenarios-table \.data-table__scroll \{ max-height: [^;]+;/g)).toEqual([
-        ".mini-scenarios-table .data-table__scroll { max-height: 144px;",
-        ".mini-scenarios-table .data-table__scroll { max-height: 188px;",
-      ]);
       // Sticky header at every width; 720 px grid and sticky 144 px Scenario column at 390.
       expect(MINI_CSS).toContain(".mini-scenarios-table thead th { position: sticky; top: 0;");
       expect(MINI_CSS.indexOf("thead th { position: sticky")).toBeLessThan(narrow);
@@ -472,7 +465,7 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
  * W4-03 unit 6b ("Unit-5..12 rulings (u5)" 6b; "Unit-6 rulings (u6)" 1-6): the canonical mini Finding row is
  * `Overview | Analysis (unavailable) | Evidence | Alternatives | Recommendation | History`; one W1 Finding read
  * resolves the exact revision before any Alternatives href or GET; the global breadcrumb is
- * `Findings › Finding code unavailable › {section} · site: {Site}`. Cold/EV child addresses are a section gap.
+ * `Findings › Finding › {section} · site: {Site}` (post-W6 W4 R328). Cold/EV child addresses are a section gap.
  */
 describe("W4-03 unit 6b: canonical mini Alternatives", () => {
   const F = "49281b7c-96ac-456d-ab6b-040bb0760444";
@@ -667,6 +660,8 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     noControl(document.querySelector('[data-tab-unavailable="Alternatives"]'));
     expect(document.querySelector('[data-tab-unavailable="Alternatives"]')?.textContent).toBe("Alternatives · Not available yet");
     expect(document.querySelectorAll("[data-alternatives-finding-unavailable]")).toHaveLength(1);
+    // post-W6 W4 R328: a refused selection still names the slot `Finding`, never a code gap.
+    expect(document.querySelector("[data-finding-crumb]")?.textContent).toBe("Finding");
     expect(document.querySelector("[data-finding-code-gap]")).toBeNull();
     expect(location()).toBe(`/sites/${CODE}/findings/${F}/alternatives`);
   });
@@ -704,15 +699,16 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
       /^Analysis unavailable for this authored alternative; use the Finding overview and evidence\.$/,
     );
     noControl(document.querySelector("[data-analysis-helper]"));
-    // Global breadcrumb: Findings › Finding code unavailable › Alternatives · site: {Site}.
-    expect(crumbs().textContent).toBe("FindingsFinding code unavailableAlternatives· site: MINIGRID site");
+    // Global breadcrumb (post-W6 W4 R328): Findings › Finding › Alternatives · site: {Site}; no public code exists.
+    expect(crumbs().textContent).toBe("FindingsFindingAlternatives· site: MINIGRID site");
+    expect(crumbs().textContent).not.toContain("code unavailable");
     expect(crumbs().querySelector('a[href="/findings"]')).toHaveTextContent("Findings");
     expect(crumbs().querySelector("[data-mini-finding-site] a")).toHaveAttribute("href", `/sites/${CODE}`);
     // M7: no whitespace node between crumbs or before the Site suffix, so no line can begin with a separator.
     expect(crumbs().querySelector(".mini-finding-crumbs__lead")?.textContent).toBe("· site:");
     expect([crumbs(), ...Array.from(crumbs().querySelectorAll("ol"))].flatMap((e) => Array.from(e.childNodes))
       .filter((n) => n.nodeType === Node.TEXT_NODE)).toEqual([]);
-    noControl(crumbs().querySelector("[data-finding-code-gap]"));
+    noControl(crumbs().querySelector("[data-finding-crumb]"));
     expect(crumbs().textContent).not.toMatch(/F-104|mini:dispatch:key/);
     expect(crumbs().textContent).not.toContain(F);
     // H3 (final review; ledger l.186): the v69 `Open site` header action resolves the authorized Site Overview.
@@ -739,7 +735,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     );
     // post-W6 W1-a Q7: History no longer carries the Analysis helper.
     expect(document.querySelector("[data-analysis-helper]")).toBeNull();
-    expect(crumbs().textContent).toBe("FindingsFinding code unavailableHistory· site: MINIGRID site");
+    expect(crumbs().textContent).toBe("FindingsFindingHistory· site: MINIGRID site");
     // post-W6 W1-a Q9 / R186: every Finding section carries Open site; the Alternatives marker stays its own.
     expect(document.querySelector('nav[aria-label="Site sections"]')).not.toBeNull(); // M6 scope
     expect(document.querySelector("[data-alternatives-open-site]")).toBeNull();
@@ -1010,6 +1006,36 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     await settledScreen();
     await waitFor(() => expect(document.querySelector("[data-tab-unavailable='Alternatives']")).not.toBeNull());
     expect(document.querySelector("h1")?.textContent).toBe("Finding");
+  });
+
+  it("post-W6 W4 R328: the crumb reads `Finding` for a refused and a no-revision read, never `Finding code unavailable`", async () => {
+    const path = `/sites/${CODE}/findings/${F}/alternatives?revision_id=${REV}`;
+    frameAt(path, findingsClient(() => ({ status: "not_found", message: null }) as FindingReadResult<FindingDetailBody>));
+    await settledScreen();
+    await waitFor(() => expect(crumbs().textContent).toBe("FindingsFindingAlternatives· site: MINIGRID site"));
+    cleanup();
+    // A same-Site read with no selected revision does not resolve; the slot still says `Finding`.
+    frameAt(path, findingsClient(() => w1(CODE, "")));
+    await settledScreen();
+    await waitFor(() => expect(crumbs().textContent).toBe("FindingsFindingAlternatives· site: MINIGRID site"));
+    expect(main().textContent).not.toContain("Finding code unavailable");
+  });
+
+  it("post-W6 W4 R311/R321 (Q4): Alternatives refusal copy is keyed on the exact code before the HTTP status", async () => {
+    const path = `/sites/${CODE}/findings/${F}/alternatives?revision_id=${REV}`;
+    for (const [read, copy] of [
+      [{ status: "refused", httpStatus: 409, code: "PERFORMANCE_CUTOVER_CLOSED", message: "raw" }, "Decisions are closed while the Performance assessment is unavailable. Try again when it opens."],
+      [{ status: "refused", httpStatus: 422, code: "INVALID_KNOWN_AT", message: "raw" }, "Choose a valid evidence cutoff."],
+      [{ status: "refused", httpStatus: 422, code: "INVALID_CURSOR", message: "raw" }, "This page of results expired. Return to the first page."],
+      [{ status: "refused", httpStatus: 422, code: "INVALID_LIMIT", message: "raw" }, "This request cannot be used. Check your entries and try again."],
+    ] as [DecisionRead<AlternativeListBody>, string][]) {
+      frameAt(path, findingsClient(() => w1(CODE, REV)), read);
+      await settledScreen();
+      await waitFor(() => expect(document.querySelector("[data-alternatives-refused]")?.textContent).toBe(copy));
+      expect(main().textContent).not.toContain("raw");
+      expect(main().textContent).not.toContain("Reload this page");
+      cleanup();
+    }
   });
 
   it("u6b_alternatives_refusal_copy_reason_and_paging", async () => {
@@ -1450,7 +1476,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     // Header, description, Open site, one selected Overview tab and the disabled Findings root.
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Productive-use headroom at MINIGRID site");
     expect(main().textContent).toContain(
-      "Five-day renewable headroom and an explicitly authored scenario, with evidence and demand limits.",
+      "Can recurring renewable headroom support useful additional demand?",
     );
     expect(screen.getByRole("link", { name: "Open site" }).getAttribute("href")).toBe(`/sites/${CODE}`);
     const tabs = Array.from(document.querySelectorAll("[data-opportunity-tabs] li"));
@@ -1694,5 +1720,95 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
         expect(note).toBeNull();
       }
     }
+  });
+});
+
+describe("post-W6 W4 R311/R321 (Q4): the shared decision refusal table", () => {
+  it.each([
+    [409, "PERFORMANCE_CUTOVER_CLOSED", "Decisions are closed while the Performance assessment is unavailable. Try again when it opens.", null],
+    [409, "DECISION_BASIS_CHANGED", "The evidence changed. Reload this page.", null],
+    [422, "INVALID_KNOWN_AT", "Choose a valid evidence cutoff.", null],
+    [422, "INVALID_WINDOW", "Choose a valid Site-local window.", null],
+    [422, "INVALID_CURSOR", "This page of results expired. Return to the first page.", "first-page"],
+    [409, "DECISION_DUPLICATE_KEY", "This change conflicts with a recorded decision. Reload this page.", null],
+    [409, "DECISION_CORRECTION_CONFLICT", "This change conflicts with a recorded decision. Reload this page.", null],
+    [422, "INVALID_LIMIT", "This request cannot be used. Check your entries and try again.", null],
+    [422, "DECISION_INPUT_INVALID", "This request cannot be used. Check your entries and try again.", null],
+    [422, "DECISION_ATTESTATION_INVALID", "This request cannot be used. Check your entries and try again.", null],
+    [409, "SOMETHING_ELSE", "The decision could not be recorded. Reload this page.", null],
+    [503, "DECISION_STORE_UNAVAILABLE", "Decisions are unavailable right now. Try again.", null],
+    [401, "UNAUTHENTICATED", "Sign in to see this page.", null],
+    [403, "SITE_ACCESS_DENIED", "You do not have access to this site.", null],
+    [404, "DECISION_NOT_FOUND", "This decision was not found at this site.", null],
+  ])("%i %s", (httpStatus, code, copy, action) => {
+    const read = { status: "refused" as const, httpStatus, code, message: "server text" };
+    expect(decisionRefusal(read)).toEqual({ copy, action });
+    expect(decisionRefusalCopy(read)).toBe(copy);
+  });
+
+  it("a closed gate never offers Reload; an unreadable answer is unavailable", () => {
+    expect(decisionRefusal({ status: "refused", httpStatus: 409, code: "PERFORMANCE_CUTOVER_CLOSED", message: null }).copy).not.toContain("Reload");
+    expect(decisionRefusal({ status: "unavailable", message: null })).toEqual({ copy: "Decisions are unavailable right now. Try again.", action: null });
+  });
+});
+
+describe("post-W6 W4 Q5/R325/R450: Scenarios refusals, rows and the Site-time Window", () => {
+  it("Q5: a 4xx refusal is the shared table copy, never the server message; INVALID_CURSOR offers the first page", async () => {
+    const client = renderAt(`/sites/${CODE}/financials/scenarios?from=${FROM}&to=${TO}&known_at=${KNOWN}&cursor=stale`, [
+      { status: "refused", httpStatus: 422, code: "INVALID_CURSOR", message: "Cursor `stale` is not valid for this window." },
+      ok(list([row()])),
+    ]);
+    await settledScreen();
+    await screen.findByText(/This page of results expired\. Return to the first page\./);
+    expect(main().textContent).not.toContain("Cursor `stale`");
+    expect(main().textContent).not.toContain("INVALID_CURSOR");
+    fireEvent.click(screen.getByRole("button", { name: "First page" }));
+    await waitFor(() => expect(client.getScenarios).toHaveBeenCalledTimes(2));
+    expect(vi.mocked(client.getScenarios).mock.calls[1][1]).toEqual({ from: FROM, to: TO, known_at: KNOWN, cursor: null });
+    cleanup();
+    renderAt(`/sites/${CODE}/financials/scenarios`, [{ status: "refused", httpStatus: 422, code: "INVALID_KNOWN_AT", message: "known_at must be ..." }]);
+    await settledScreen();
+    await screen.findByText("Choose a valid evidence cutoff.");
+    expect(main().textContent).not.toContain("known_at must be");
+    expect(screen.queryByRole("button", { name: "First page" })).toBeNull();
+  });
+
+  it("R325: five long rows all render with no inner vertical cap", async () => {
+    const long = "L".repeat(160);
+    const rows = [1, 2, 3, 4, 5].map((n) => row({ id: id(900 + n), name: `${n} ${long}` }));
+    renderAt(`/sites/${CODE}/financials/scenarios`, [ok(list(rows))]);
+    await settledScreen();
+    await waitFor(() => expect(cells()).toHaveLength(5));
+    for (const [i, r] of cells().entries()) expect(r[0]).toContain(`${i + 1} ${long}`);
+  });
+
+  it("R450: the Window shows Site-local days with the zone, writes UTC midnight bounds, keeps the cutoff and reads page one", async () => {
+    const client = renderAt(`/sites/${CODE}/financials/scenarios?from=2026-10-13T21:00:00Z&to=2026-10-20T21:00:00Z&known_at=${KNOWN}`, [ok(list([row()]))]);
+    await settledScreen();
+    const form = await screen.findByRole("form", { name: "Window" });
+    const from = form.querySelector("[data-scenarios-window-from]") as HTMLInputElement;
+    const to = form.querySelector("[data-scenarios-window-to]") as HTMLInputElement;
+    // Africa/Nairobi (EAT, UTC+3): 21:00Z is the next local midnight.
+    expect([from.value, to.value]).toEqual(["2026-10-14", "2026-10-21"]);
+    expect(form.textContent).toContain("From (EAT)");
+    expect(document.querySelector("[data-mock-deviation='R450']")?.textContent?.trim()).toBe("MOCK DEVIATION D2 (R450)");
+    fireEvent.change(from, { target: { value: "2026-10-01" } });
+    fireEvent.change(to, { target: { value: "2026-10-03" } });
+    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+    await waitFor(() => expect(location()).toContain("from=2026-09-30T21%3A00%3A00Z"));
+    expect(location()).toContain("to=2026-10-02T21%3A00%3A00Z");
+    await waitFor(() => expect(vi.mocked(client.getScenarios).mock.calls.at(-1)?.[1]).toEqual({ from: "2026-09-30T21:00:00Z", to: "2026-10-02T21:00:00Z", known_at: KNOWN, cursor: null }));
+  });
+
+  it("R450: a reversed Window stays on the page with its reason and makes no new read", async () => {
+    const client = renderAt(`/sites/${CODE}/financials/scenarios?from=2026-10-13T21:00:00Z&to=2026-10-20T21:00:00Z&known_at=${KNOWN}`, [ok(list([row()]))]);
+    await settledScreen();
+    const form = await screen.findByRole("form", { name: "Window" });
+    await waitFor(() => expect(client.getScenarios).toHaveBeenCalledTimes(1));
+    fireEvent.change(form.querySelector("[data-scenarios-window-from]") as HTMLInputElement, { target: { value: "2026-10-05" } });
+    fireEvent.change(form.querySelector("[data-scenarios-window-to]") as HTMLInputElement, { target: { value: "2026-10-02" } });
+    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+    expect((await screen.findByRole("alert")).textContent).toBe("The end must be after the start.");
+    expect(client.getScenarios).toHaveBeenCalledTimes(1);
   });
 });

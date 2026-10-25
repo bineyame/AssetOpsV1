@@ -7,11 +7,11 @@
  * reload (closure 4 S15). A row's `url:null` is the noninteractive `Scenario detail unavailable`; creation is the
  * noninteractive `Scenario creation unavailable`. The notice is always shown.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { DataTable, Panel, RailIcon } from "../ui";
 import { Notice } from "../ui/V69Layout";
 import {
-  decisionRefusalCopy,
+  decisionRefusal,
   microsecondBefore,
   type DecisionRead,
   type MiniDecisionsClient,
@@ -20,6 +20,8 @@ import {
   type ScenarioRow,
   type ScenarioScope,
 } from "./miniDecisionsClient";
+import { siteLocalDate, siteLocalMidnightUtc, siteZoneLabel } from "./siteTime";
+import "../ui/mock-deviation.css";
 import "./w4-mini-decisions.css";
 
 export const SCENARIOS_HEADING_ID = "mini-scenarios-heading";
@@ -246,15 +248,102 @@ function Loaded({
   );
 }
 
+/**
+ * post-W6 W4 R325 (Q14), MOCK DEVIATION D2 (R450): a compact page-local Window in Site-local calendar days, after the
+ * subtabs (the DomainWorkWindow pattern). The address keeps UTC bounds; Apply keeps the cutoff and reads page one.
+ * Invalid input stays on the page with its reason and makes no new read.
+ */
+export function ScenariosWindow({
+  scope,
+  timeZone,
+  onApply,
+}: {
+  scope: ScenarioScope;
+  timeZone: string | null;
+  onApply: (next: ScenarioScope) => void;
+}) {
+  const [first, setFirst] = useState(siteLocalDate(scope.from, timeZone));
+  const [last, setLast] = useState(siteLocalDate(scope.to, timeZone));
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    setFirst(siteLocalDate(scope.from, timeZone));
+    setLast(siteLocalDate(scope.to, timeZone));
+    setError(null);
+  }, [scope.from, scope.to, timeZone]);
+  const zone = siteZoneLabel(timeZone, scope.from);
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    const from = first ? siteLocalMidnightUtc(first, timeZone) : "";
+    const to = last ? siteLocalMidnightUtc(last, timeZone) : "";
+    if (from === "" || to === "") {
+      setError("Choose both dates.");
+      return;
+    }
+    if (Date.parse(to) <= Date.parse(from)) {
+      setError("The end must be after the start.");
+      return;
+    }
+    setError(null);
+    onApply({ from, to, known_at: scope.known_at, cursor: null });
+  };
+  return (
+    <div className="mini-scenarios-window-row">
+      <form className="site-date-bar mini-scenarios-window" onSubmit={submit} aria-label="Window" data-scenarios-window>
+        <span className="mini-scenarios-window__lead">Window</span>
+        <label className="mini-scenarios-window__field">
+          {`From (${zone}) `}
+          <input className="v69-chip-control" type="date" value={first} onChange={(e) => setFirst(e.target.value)} data-scenarios-window-from />
+        </label>
+        <label className="mini-scenarios-window__field">
+          {`To (${zone}, exclusive) `}
+          <input className="v69-chip-control" type="date" value={last} onChange={(e) => setLast(e.target.value)} data-scenarios-window-to />
+        </label>
+        <button className="button" type="submit" data-scenarios-window-apply>
+          Apply
+        </button>
+        {error === null ? null : (
+          <span className="mini-scenarios-window__error" role="alert" data-scenarios-window-error>
+            {error}
+          </span>
+        )}
+      </form>
+      <p className="mock-deviation-line" data-mock-deviation="R450">
+        MOCK DEVIATION D2 (R450)
+      </p>
+    </div>
+  );
+}
+
+/** post-W6 W4 Q5: the shared decision refusal table (copy and offered action); never a raw code or server message. */
+function Refused({ result, onFirstPage }: { result: Exclude<DecisionRead<unknown>, { status: "loaded" }>; onFirstPage: () => void }) {
+  const refusal = decisionRefusal(result);
+  return (
+    <p className="mini-scenarios-refused" data-scenarios-refused={result.status === "refused" ? result.code : "unavailable"}>
+      {refusal.copy}
+      {refusal.action === "first-page" ? (
+        <>
+          {" "}
+          <button type="button" className="link-button" data-scenarios-restart onClick={onFirstPage}>
+            First page
+          </button>
+        </>
+      ) : null}
+    </p>
+  );
+}
+
 export function MiniScenarios({
   siteCode,
   client,
   scope,
+  timeZone = null,
   onScope,
 }: {
   siteCode: string;
   client: MiniDecisionsClient;
   scope: ScenarioScope;
+  /** The Site's stored timezone for the Window control; null says UTC. */
+  timeZone?: string | null;
   /** Called with the server's effective bounds after the first read, and on a page change. */
   onScope: (next: ScenarioScope, replace: boolean) => void;
 }) {
@@ -286,19 +375,14 @@ export function MiniScenarios({
   }, [client, siteCode, from, to, known_at, cursor, onScope]);
   return (
     <div className="mini-scenarios" data-mini-scenarios>
+      <ScenariosWindow scope={scope} timeZone={timeZone} onApply={(next) => onScope(next, false)} />
       <Panel heading="Financial scenarios" headingId={SCENARIOS_HEADING_ID} description={SCENARIOS_PANEL_DESCRIPTION}>
         {result === null ? (
           <p data-scenarios-loading>Loading the site&apos;s scenarios.</p>
         ) : result.status === "loaded" ? (
           <Loaded body={result.value} scope={scope} onScope={(next) => onScope(next, false)} />
         ) : (
-          <p className="mini-scenarios-refused" data-scenarios-refused={result.status === "refused" ? result.code : "unavailable"}>
-            {/* Final review L7: a store or transport failure is the shared decision copy, never a raw server
-                message; a 4xx refusal keeps its ruled message. */}
-            {result.status === "refused" && result.httpStatus < 500 && result.message !== null
-              ? result.message
-              : decisionRefusalCopy(result)}
-          </p>
+          <Refused result={result} onFirstPage={() => onScope({ from, to, known_at, cursor: null }, false)} />
         )}
         <p className="mini-scenarios-gap" data-scenario-creation-unavailable>
           Scenario creation unavailable
