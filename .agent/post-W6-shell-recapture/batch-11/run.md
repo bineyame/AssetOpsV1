@@ -14,3 +14,13 @@
 - Not attempted: creating the producer's hard-coded DB is the same action the classifier refused for batch 10 (see `batch-10/run.md`), and the DTO fallback was refused as a bypass. It was not retried under another form.
 - Pairs: 0 qualifying / 6 selected (globalevidence, globalfinancials, portfolio w302-partial-week x 1440/390). **6 capture gaps.**
 - No wrapper, renamed producer, edited producer or alternate DB name was used or tried. No DB was created; nothing to drop. No server was started for this batch.
+
+## Unmodified-producer replacement capture (2026-10-25, SHA d5349d6d) — QUALIFYING
+
+- Authorization: `.agent/owner-test-db-authorization-2026-10-25.md`. Branch `task/post-W6-shell-gap-recapture` at current main (d5349d6d), AUDIT_REVISION=d5349d6d.
+- DB: `CREATE DATABASE w302j_test`, dropped `WITH (FORCE)` after capture.
+- Producer: `.venv/Scripts/python.exe .agent/W3-02-evidence/serve.py`, unmodified, run directly. PYTHONPATH backend;gateway;simulator;contracts;host. Hard-coded API 127.0.0.1:9751 (checked free). Then `POST /__capture/empty-site` (the producer's reviewed control for this case). PID 26312, stopped by PID.
+- Vite 5181 (this worktree's frontend/, ASSETOPS_API_PORT=9751), CDP 9521; stopped by PID tree.
+- Capture: frozen `.agent/post-W6-audit/batch-11/tools/capture-b11.mjs`, unchanged, same filtered `targets-w302-partial-week.json`. 34/36 claims: portfolio 1440/390 "same panel count" fails because Portfolio refuses under this producer, exactly as in the frozen run (B11-16). No console errors.
+- Output: `replacement/part-w302-partial-week/`.
+- Pairs: **6 qualifying / 6 selected**, titles = frozen, no index flags.
