@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { siteTime, siteZoneLabel } from "./siteTime";
+import { siteTime, siteZoneAvailable, siteZoneLabel } from "./siteTime";
 
 import {
   AttentionList,
@@ -293,7 +293,12 @@ function Gap({ id, children }: { id: string; children: ReactNode }) {
   );
 }
 
-function RefusedGap({ id, refusal, onRetry }: { id: string; refusal: Refusal; onRetry?: () => void }) {
+/**
+ * Cross-card ruling 5: a refused page carries its refusal sentence once, in its first panel; every later panel refused
+ * by the same read (`repeat`) says only `Not assessed`, as the EV pages do.
+ */
+function RefusedGap({ id, refusal, onRetry, repeat = false }: { id: string; refusal: Refusal; onRetry?: () => void; repeat?: boolean }) {
+  if (repeat) return <Gap id={id}>Not assessed</Gap>;
   return (
     <>
       <Gap id={id}>{refusal.sentence}</Gap>
@@ -687,7 +692,7 @@ function OverviewScreen(p: ScreenProps) {
           }
         >
           {refused !== null ? (
-            <RefusedGap id="cold-site-temperature" refusal={refused} />
+            <RefusedGap id="cold-site-temperature" refusal={refused} repeat />
           ) : none ? (
             <Gap id="cold-site-temperature">{NO_COLD_ASSESSMENT}</Gap>
           ) : tempRefused !== null ? (
@@ -703,7 +708,7 @@ function OverviewScreen(p: ScreenProps) {
         </Panel>
         <Panel heading="Needs attention" headingId="cold-site-attention-heading">
           {refused !== null ? (
-            <RefusedGap id="cold-site-attention" refusal={refused} />
+            <RefusedGap id="cold-site-attention" refusal={refused} repeat />
           ) : none ? (
             <Gap id="cold-site-attention">{NO_COLD_ASSESSMENT}</Gap>
           ) : o!.needs_attention.length === 0 ? (
@@ -732,7 +737,7 @@ function OverviewScreen(p: ScreenProps) {
       <div className="panel-pair">
         <Panel heading="Bounded money consequence" headingId="cold-site-money-heading">
           {refused !== null ? (
-            <RefusedGap id="cold-site-money" refusal={refused} />
+            <RefusedGap id="cold-site-money" refusal={refused} repeat />
           ) : money!.state === "WITHHELD" ? (
             <>
               <div className="metric-value v69-metric__value" data-cold-money="withheld">
@@ -759,7 +764,7 @@ function OverviewScreen(p: ScreenProps) {
         </Panel>
         <Panel heading="Next step" headingId="cold-site-next-heading">
           {refused !== null ? (
-            <RefusedGap id="cold-site-next" refusal={refused} />
+            <RefusedGap id="cold-site-next" refusal={refused} repeat />
           ) : next === null ? (
             <Gap id="cold-site-next">No recorded next step</Gap>
           ) : (
@@ -967,7 +972,7 @@ function EvidenceScreen(p: ScreenProps) {
           description="Source contact and accepted facts are separate; neither establishes equipment condition."
         >
           {refused !== null ? (
-            <RefusedGap id="cold-site-sources" refusal={refused} />
+            <RefusedGap id="cold-site-sources" refusal={refused} repeat />
           ) : none ? (
             <Gap id="cold-site-sources">{NO_COLD_ASSESSMENT}</Gap>
           ) : (
@@ -1086,7 +1091,7 @@ function EvidenceScreen(p: ScreenProps) {
         </Panel>
         <Panel heading="Most useful next evidence" headingId="cold-site-next-evidence-heading">
           {refused !== null ? (
-            <RefusedGap id="cold-site-next-evidence" refusal={refused} />
+            <RefusedGap id="cold-site-next-evidence" refusal={refused} repeat />
           ) : none ? (
             <Gap id="cold-site-next-evidence">{NO_COLD_ASSESSMENT}</Gap>
           ) : missing.length === 0 && !excursionPresent ? (
@@ -1203,7 +1208,8 @@ function AnalysisScreen(p: ScreenProps) {
   const none = a !== null && !isSelected(a);
   const key = keyOf(p, "a");
   // R259: the column headers name the zone the cells use (`EAT` for Addis; `UTC` when the Site zone is missing).
-  const zone = siteZoneLabel(p.timeZone, a?.window.to ?? null);
+  // UI guide section 4: a missing or invalid Site zone is stated, never implied Site-local (same suffix as EV Analysis).
+  const zone = siteZoneAvailable(p.timeZone) ? siteZoneLabel(p.timeZone, a?.window.to ?? null) : "UTC; Site time zone unavailable";
   const pages = more.key === key ? more.pages : [];
   const rows = a === null ? [] : [a, ...pages].flatMap((x) => x.accepted_records.items);
   const cursor = a === null ? null : (pages.length > 0 ? pages[pages.length - 1] : a).accepted_records.next_cursor;
@@ -1311,7 +1317,7 @@ function AnalysisScreen(p: ScreenProps) {
       </Panel>
       <Panel heading="How a claim limit is set" headingId="cold-site-limit-heading">
         {refused !== null ? (
-          <RefusedGap id="cold-site-limit" refusal={refused} />
+          <RefusedGap id="cold-site-limit" refusal={refused} repeat />
         ) : none || a!.claim_rules.length === 0 ? (
           <Gap id="cold-site-limit">Claim limit not assessed</Gap>
         ) : (
@@ -1529,7 +1535,7 @@ function FinancialsScreen(p: ScreenProps) {
       <div className="panel-pair">
         <Panel heading="Assumptions in use" headingId="cold-site-in-use-heading">
           {sRefused !== null ? (
-            <RefusedGap id="cold-site-in-use" refusal={sRefused} />
+            <RefusedGap id="cold-site-in-use" refusal={sRefused} repeat={refused !== null} />
           ) : (
             <>
               <AssumptionValues read={s!} />
@@ -1541,7 +1547,7 @@ function FinancialsScreen(p: ScreenProps) {
         </Panel>
         <Panel heading="Not included" headingId="cold-site-not-included-heading">
           {refused !== null ? (
-            <RefusedGap id="cold-site-not-included" refusal={refused} />
+            <RefusedGap id="cold-site-not-included" refusal={refused} repeat />
           ) : f!.not_included.length === 0 ? (
             <Gap id="cold-site-not-included">No exclusion reason recorded</Gap>
           ) : (

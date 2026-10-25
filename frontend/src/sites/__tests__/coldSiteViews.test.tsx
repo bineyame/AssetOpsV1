@@ -360,6 +360,16 @@ const LEDGER_CLAIM = new RegExp(
 const main = () => document.querySelector("main") as HTMLElement;
 const text = (el: Element) => (el.textContent ?? "").replace(/\s+/g, " ");
 
+// Cross-card ruling 5 (post-W6 W2-cold): the sentence once, in the first panel; every later refused panel says Not assessed.
+const expectSentenceOnce = (panels: readonly string[], sentence: string) => {
+  expect(text(panelTitled(panels[0]))).toContain(sentence);
+  for (const t of panels.slice(1)) {
+    expect(text(panelTitled(t))).toContain("Not assessed");
+    expect(text(panelTitled(t))).not.toContain(sentence);
+  }
+  expect(text(main()).split(sentence).length - 1).toBe(1);
+};
+
 describe("W2-04: cold Site routes keep the v69 panel structure", () => {
   it.each(ROUTES)("stocked: %s", async (screenId, path) => {
     renderCold(path, STOCKED);
@@ -414,20 +424,20 @@ describe("W2-04: cold Site routes keep the v69 panel structure", () => {
     expect(body).not.toMatch(/\bUSD\b|\$|Healthy|Online/);
   });
 
-  it.each(ROUTES)("refused source disclosure (403): %s keeps every panel with the statement and no IDs", async (screenId, path) => {
+  it.each(ROUTES)("refused source disclosure (403): %s keeps every panel, the statement once and no IDs", async (screenId, path) => {
     renderCold(path, all(FORBIDDEN as never));
     await settledScreen();
     expectV69Panels(screenId);
     const affected = screenId === "cold-financials" ? ["What happened → what it means in money", "Assumptions in use", "Not included"] : PANELS[screenId];
-    for (const t of affected) expect(text(panelTitled(t))).toContain(SOURCE_FORBIDDEN);
+    expectSentenceOnce(affected, SOURCE_FORBIDDEN);
     expect(text(main())).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-/);
   });
 
-  it.each(ROUTES)("unavailable (503): %s keeps every panel with the statement and one retry", async (screenId, path) => {
+  it.each(ROUTES)("unavailable (503): %s keeps every panel, the statement once and one retry", async (screenId, path) => {
     const { coldSite } = renderCold(path, all(DOWN as never));
     await settledScreen();
     expectV69Panels(screenId);
-    for (const t of PANELS[screenId]) expect(text(panelTitled(t))).toContain(COLD_SITE_UNAVAILABLE);
+    expectSentenceOnce(PANELS[screenId], COLD_SITE_UNAVAILABLE);
     const retries = screen.getAllByRole("button", { name: "Retry" });
     expect(retries.length).toBeGreaterThanOrEqual(1);
     const calls = Object.values(coldSite).reduce((n, f) => n + (f as ReturnType<typeof vi.fn>).mock.calls.length, 0);
@@ -1074,7 +1084,7 @@ describe("W2-F 2: cold frame on refusal, consequence counts and record IDs", () 
         expect(text(strip())).toContain("Not assessed");
         expect(text(strip())).not.toMatch(/consequence line/);
       }
-      for (const t of PANELS[screenId]) expect(text(panelTitled(t))).toContain(COLD_SITE_UNAVAILABLE);
+      expectSentenceOnce(PANELS[screenId], COLD_SITE_UNAVAILABLE);
       cleanup();
       // Invalid window: the malformed dates are not echoed; the strip and the panel gaps remain.
       renderCold(path.replace(encodeURIComponent(FROM), "not-a-date"), all(INVALID as never));
@@ -1303,7 +1313,7 @@ describe("W2-cold unit 3: cold Evidence and Analysis", () => {
     await settledScreen();
     expect(cell("measured").textContent).toBe("16:19:00");
     expect(cell("received").textContent).toBe("16:19:02");
-    expect(heads().slice(2, 5)).toEqual(["Measured (UTC)", "Sent (UTC)", "Received (UTC)"]);
+    expect(heads().slice(2, 5)).toEqual(["Measured (UTC; Site time zone unavailable)", "Sent (UTC; Site time zone unavailable)", "Received (UTC; Site time zone unavailable)"]);
   });
 
   it("r258_cooling_links_at_the_window", async () => {
