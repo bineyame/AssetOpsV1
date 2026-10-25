@@ -174,10 +174,10 @@ Evidence: `.agent/post-W6-W3-estate-recapture/fix-round/` (parts `part-b10-posit
 | Consequence register | 1050/1800 | 974/1575 (w303), 974/1407 (w302) | within; doc overflow 0, clipped 0, table scroller 800/318 at 390 |
 | Objectives across the estate | 600/800 | 336/321 | within; five fixed rows stay one line in the matrix's own scroller (3872/275-328), 0 clipped |
 | Where management should act first | 900/1200 | 784/854 | within; 0 clipped |
-| Findings across the estate | 1000/1500 | 1686/3549 (rows 304/671 px) | EXCEEDS under the all-field reading |
-| Managed actions | 750/1100 | 1655/2225 (rows 304/414 px) | EXCEEDS |
+| Findings across the estate | 1900/3900 (caps2 ruling 2) | 1686/3549 (rows 304/671 px) | within |
+| Managed actions | 1850/2500 (caps2 ruling 3) | 1655/2225 (rows 304/414 px) | within |
 | Evidence panels (no cap ruled) | none | Recurring gaps 287/549; Capability coverage unchanged | informational |
 
-The old probe changed only the first text, or only the Limit; its Findings 774/976 and Actions 624/730 figures were not all-field. Findings and Actions are over their caps under the strict reading, and ruling 2's improve-widths fallback was ruled for the register only. They are returned for an Architect ruling (cap, or whether ruling 1 means all fields for these tables). At 390 the M1 fixed 672 px layout makes the Findings case taller than the old 205 px layout would (3549 vs 2575). Document overflow and clipped text are 0 everywhere.
+The old probe changed only the first text, or only the Limit; its Findings 774/976 and Actions 624/730 figures were not all-field. Under the original caps Findings and Actions exceeded; the Architect then confirmed the all-field reading and revised their caps (`.agent/post-W6-W3-caps2-rulings.md`), under which both are within. At 390 the M1 fixed 672 px layout makes the Findings case taller than the old 205 px layout would (3549 vs 2575). Document overflow and clipped text are 0 everywhere.
 
 Targeted checks: estate vitest folder, `tsc --noEmit` (clean), `check-all.ps1` (see report). No full suites, no build.
