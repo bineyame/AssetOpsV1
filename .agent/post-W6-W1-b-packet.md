@@ -176,3 +176,50 @@ records are in `probe/probe-A.md` and `probe/probe-B.md`.
   - Action history counts and Show all.
   - Interpretation history paging and the scroll cue.
 - Owner decisions are pending for the R383, R384 and R385 D2 rows.
+
+## Fix round 3 (caps rulings 1-2, review Lows, residual) at 31313478 plus this commit
+
+SYNTHETIC LAYOUT EVIDENCE, NOT PRODUCT DATA. Probe tool `probe/tools/C-probe.mjs` (reuses B-probe helpers); output,
+logs and PNGs in `.agent/post-W6-W1-b-recapture/probe/fix3/`. Producers s601b/s602b run on private DBs
+`assetops_s601b_audit_w1brc3`, `assetops_s602b_audit_w1brc3*` (dropped afterwards; ports 18151-18153, 5196/5197, CDP 9536,
+servers stopped by PID; all ports confirmed free).
+
+**Built:** Action history table (header and all rows) in one region `Action history entries` (role=region, tabIndex 0,
+overflow-y auto, max 480 px, 500 px at <=640), chip, count sentence and toggle outside, cue `Scroll history to see every
+entry` only on overflow; the existing table-local horizontal region stays inside. Evidence requirements cap 500/1050.
+Lows 1-4 fixed. `.mock-deviation-line` moved to `ui/mock-deviation.css`, imported by both rendering components, with a
+source test. Revert proofs: `SiteAction.tsx` alone (2 new tests fail), `SiteActionVerification.tsx` alone (source test fails).
+
+**Action history (cap 800 at 390; all synthetic fields verified, panel = closed panel height, region = client/scroll)**
+
+| case | width | panel | region client/scroll | cue | rows | doc overflow |
+|---|---|---|---|---|---|---|
+| default 3 rows, 160-char meanings | 1440 | 408 | 269/269 | hidden | 3 | 0 |
+| default 3 rows | 390 | 566 | 375/375 | hidden | 3 | 0 |
+| five clones, 160 chars | 1440 | 558 | 419/419 | hidden | 5 | 0 |
+| five clones, 160 chars | 390 | **715** (was 963) | 500/595 | shown | 5 | 0 |
+| real six rows expanded (Show all) | 1440 | 612 | 474/474 | hidden | 6 | 0 |
+| real six rows expanded | 390 | 649 | 474/474 | hidden | 6 | 0 |
+| narrow, 36-char full codes, default 3 | 390 | 514 | 322/322 | hidden | 3 | 0 |
+| narrow, full codes, expanded 6 | 390 | 649 | 474/474 | hidden | 6 | 0 |
+
+Baselines (real): 355 at 1440, 451 at 390. Five-clone at 390 is 715, under 800, so no further ruling is needed.
+Keyboard: the region and the inner horizontal table region both take focus in every case; at 390 the inner scroller
+scrolls sideways (e.g. 318/576) and the last row is reachable by scrolling the region (scrollTop 95 in the overflow case).
+Clipped set: the visually hidden caption and two reference `code.action-ref` elements, which are the shipped 12ch ellipsis
+(full value in the title and the exact references), unchanged by this round.
+Note: the first "full codes" run found no title values to expand (0 codes changed) and was discarded; the rerun sets every
+history code to a 36-character reference (4 and 6 codes changed).
+
+**Evidence requirements (cap 500/1050), four fixed rows, 7 detail texts at 160 chars (7/7 verified)**
+
+| case | 1440 real / synthetic | 390 real / synthetic |
+|---|---|---|
+| s602b guardrail | 396 / 458 | 605 / 956 |
+| s602b default | 370 / 432 | 531 / 898 |
+
+All rows kept; clipped only the hidden caption; document overflow 0. Both within 500/1050.
+
+**Checks:** `tsc --noEmit` clean; `check-all.ps1` 11/11; targeted vitest 176/176; full vitest at this tree (probe run
+6m48s): 3127 passed, 1 failed (`evEnergy.test.tsx` "energy_states_table_loading", a 14 s load-time timeout while other
+agents ran captures); the file alone passes 10/10 on rerun, and it is untouched by this slice. Production build passes.
