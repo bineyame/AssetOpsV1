@@ -1,0 +1,18 @@
+pairs(with mock)=128 consoleErrors=0 pagesWithOverflowX=0 pagesWithClippedText=1
+panel | width | cap | max real (case) | worst-case primary (case) | stress all-long-leaves | within cap
+Consequence register | 390 | 1200 | 452 (globalfinancials/w303-partial) | 726 (globalfinancials/w302-partial-week) | 1575 | YES
+Consequence register | 1440 | 800 | 389 (globalfinancials/w303-partial) | 626 (globalfinancials/w302-partial-week) | 938 | YES
+Cost lens | 390 | 1500 | 203 (findings-cost/partial) | 0 () | 0 | YES
+Cost lens | 1440 | 1000 | 165 (findings-cost/historical) | 0 () | 0 | YES
+Findings across the estate | 390 | 1500 | 491 (findings/historical) | 976 (findings/historical) | 976 | YES
+Findings across the estate | 1440 | 1000 | 454 (findings/historical) | 774 (findings/partial) | 774 | YES
+Managed actions | 390 | 1100 | 219 (actions/historical) | 730 (actions/historical) | 730 | YES
+Managed actions | 1440 | 750 | 201 (actions/historical) | 624 (actions/historical) | 624 | YES
+Objectives across the estate | 390 | 800 | 321 (portfolio/no-window) | 311 (portfolio/no-window) | 311 | YES
+Objectives across the estate | 1440 | 600 | 352 (portfolio/no-window) | 342 (portfolio/no-window) | 342 | YES
+Opportunities lens | 390 | 1500 | 203 (findings-opportunities/partial) | 0 () | 0 | YES
+Opportunities lens | 1440 | 1000 | 165 (findings-opportunities/historical) | 0 () | 0 | YES
+Risks lens | 390 | 1500 | 203 (findings-risks/partial) | 0 () | 0 | YES
+Risks lens | 1440 | 1000 | 165 (findings-risks/historical) | 0 () | 0 | YES
+Where management should act first | 390 | 1200 | 587 (portfolio/w303-partial) | 854 (portfolio/w303-partial) | 854 | YES
+Where management should act first | 1440 | 900 | 535 (portfolio/w303-pending) | 784 (portfolio/w303-partial) | 784 | YES

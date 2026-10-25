@@ -1,0 +1,4164 @@
+{
+  "revision": "321cfe56",
+  "captured_at": "2026-10-25T00:18:19.618Z",
+  "pairs": [
+    {
+      "screen": "foundation",
+      "case": "imported-period",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation?at=2026-09-30T00:00:00Z",
+      "mock_hash": "#/foundation",
+      "app_image": "foundation-imported-period-1440-app.png",
+      "mock_image": "foundation-imported-period-1440-mock.png",
+      "app": {
+        "titles": [
+          "Configured topology",
+          "Identity and operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 248,
+            "y": 361,
+            "w": 725,
+            "h": 407,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Single line diagram →",
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Generator fuel tank",
+              "Diesel generator",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Identity and operating obligations",
+            "x": 991,
+            "y": 361,
+            "w": 403,
+            "h": 606,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Financials › Assumptions"
+            ],
+            "chips": [
+              "Demonstration data",
+              "Planned",
+              "User"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 248,
+            "y": 986,
+            "w": 1145,
+            "h": 749,
+            "columns": [
+              "Control",
+              "Configured value",
+              "Authority",
+              "Evidence / change"
+            ],
+            "rows": 5,
+            "links": [
+              "Open Dispatch; choose an assessed day",
+              "Publish reserve change"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — Foundation records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Configured topology",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "30 %",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Control",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "13px": 2,
+            "12px": 1
+          },
+          "first": {
+            "text": "Declared ratings and configured connections; not live energy",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 361,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 1784,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model [current]",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1784
+      },
+      "mock": {
+        "titles": [
+          "Configured topology",
+          "Identity & operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 234,
+            "y": 416,
+            "w": 735,
+            "h": 397,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Single line diagram →"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Identity & operating obligations",
+            "x": 987,
+            "y": 416,
+            "w": 408,
+            "h": 397,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site Financials"
+            ],
+            "chips": [
+              "Simulated"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 234,
+            "y": 831,
+            "w": 1161,
+            "h": 287,
+            "columns": [
+              "Control",
+              "Configured value",
+              "Authority",
+              "Evidence / change"
+            ],
+            "rows": 4,
+            "links": [
+              "Published policy ↗ ↗",
+              "Review proposed change →",
+              "Constraint evidence ↗ ↗",
+              "See actual operation →"
+            ],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Configured topology",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Battery reserve",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Control",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 1
+          },
+          "first": {
+            "text": "Ratings and configured connections; not live energy flows",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Definition, topology and controls · public configuration at ",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "19.8px",
+          "color": "rgb(97, 112, 135)"
+        },
+        "firstPanelY": 416,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 1140,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1184
+      }
+    },
+    {
+      "screen": "foundation",
+      "case": "imported-period",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation?at=2026-09-30T00:00:00Z",
+      "mock_hash": "#/foundation",
+      "app_image": "foundation-imported-period-390-app.png",
+      "mock_image": "foundation-imported-period-390-mock.png",
+      "app": {
+        "titles": [
+          "Configured topology",
+          "Identity and operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 16,
+            "y": 585,
+            "w": 358,
+            "h": 738,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Single line diagram →",
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Generator fuel tank",
+              "Diesel generator",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Identity and operating obligations",
+            "x": 16,
+            "y": 1339,
+            "w": 358,
+            "h": 606,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Financials › Assumptions"
+            ],
+            "chips": [
+              "Demonstration data",
+              "Planned",
+              "User"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 16,
+            "y": 1961,
+            "w": 358,
+            "h": 1109,
+            "columns": [
+              "Control",
+              "Configured value",
+              "Authority",
+              "Evidence / change"
+            ],
+            "rows": 5,
+            "links": [
+              "Open Dispatch; choose an assessed day",
+              "Publish reserve change"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — Foundation records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 127
+        },
+        "h2": {
+          "text": "Configured topology",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "30 %",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Control",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "13px": 2,
+            "12px": 1
+          },
+          "first": {
+            "text": "Declared ratings and configured connections; not live energy",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 585,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "ol",
+            "cls": "site-tabs__list",
+            "client": 358,
+            "scroll": 521
+          },
+          {
+            "tag": "div",
+            "cls": "data-table__scroll",
+            "client": 318,
+            "scroll": 395
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model [current]",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 3112
+      },
+      "mock": {
+        "titles": [
+          "Configured topology",
+          "Identity & operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 15,
+            "y": 681,
+            "w": 360,
+            "h": 657,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Single line diagram →"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Identity & operating obligations",
+            "x": 15,
+            "y": 1357,
+            "w": 360,
+            "h": 340,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site Financials"
+            ],
+            "chips": [
+              "Simulated"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 393,
+            "columns": [
+              "Control",
+              "Configured value",
+              "Authority",
+              "Evidence / change"
+            ],
+            "rows": 4,
+            "links": [
+              "Published policy ↗ ↗",
+              "Review proposed change →",
+              "Constraint evidence ↗ ↗",
+              "See actual operation →"
+            ],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 339
+        },
+        "h2": {
+          "text": "Configured topology",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Battery reserve",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Control",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 1
+          },
+          "first": {
+            "text": "Ratings and configured connections; not live energy flows",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Definition, topology and controls · public configuration at ",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "19.8px",
+          "color": "rgb(97, 112, 135)"
+        },
+        "firstPanelY": 681,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 511
+          },
+          {
+            "tag": "div",
+            "cls": "table-wrap",
+            "client": 320,
+            "scroll": 391
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2202
+      }
+    },
+    {
+      "screen": "foundation",
+      "case": "no-version",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/foundation",
+      "app_image": "foundation-no-version-1440-app.png",
+      "mock_image": "foundation-no-version-1440-mock.png",
+      "app": {
+        "titles": [
+          "Configured topology",
+          "Identity and operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 248,
+            "y": 521,
+            "w": 734,
+            "h": 122,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Identity and operating obligations",
+            "x": 1000,
+            "y": 521,
+            "w": 408,
+            "h": 122,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 248,
+            "y": 661,
+            "w": 1160,
+            "h": 101,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Configured topology",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": null,
+        "th": null,
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "13px": 3
+          },
+          "first": {
+            "text": "No Foundation version is stored for the selected time, so no",
+            "family": "system-ui",
+            "size": "13px",
+            "weight": "400",
+            "lineHeight": "21.45px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "The configuration in effect now is not shown in its place.",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "18px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "firstPanelY": 521,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 1000,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model [current]",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1000
+      },
+      "mock": {
+        "titles": [
+          "Configured topology",
+          "Identity & operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 234,
+            "y": 416,
+            "w": 735,
+            "h": 397,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Single line diagram →"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Identity & operating obligations",
+            "x": 987,
+            "y": 416,
+            "w": 408,
+            "h": 397,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site Financials"
+            ],
+            "chips": [
+              "Simulated"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 234,
+            "y": 831,
+            "w": 1161,
+            "h": 287,
+            "columns": [
+              "Control",
+              "Configured value",
+              "Authority",
+              "Evidence / change"
+            ],
+            "rows": 4,
+            "links": [
+              "Published policy ↗ ↗",
+              "Review proposed change →",
+              "Constraint evidence ↗ ↗",
+              "See actual operation →"
+            ],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Configured topology",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Battery reserve",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Control",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 1
+          },
+          "first": {
+            "text": "Ratings and configured connections; not live energy flows",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Definition, topology and controls · public configuration at ",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "19.8px",
+          "color": "rgb(97, 112, 135)"
+        },
+        "firstPanelY": 416,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 1140,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1184
+      }
+    },
+    {
+      "screen": "foundation",
+      "case": "no-version",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/foundation",
+      "app_image": "foundation-no-version-390-app.png",
+      "mock_image": "foundation-no-version-390-mock.png",
+      "app": {
+        "titles": [
+          "Configured topology",
+          "Identity and operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 16,
+            "y": 691,
+            "w": 358,
+            "h": 122,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Identity and operating obligations",
+            "x": 16,
+            "y": 829,
+            "w": 358,
+            "h": 122,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 16,
+            "y": 968,
+            "w": 358,
+            "h": 122,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 127
+        },
+        "h2": {
+          "text": "Configured topology",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": null,
+        "th": null,
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "13px": 3
+          },
+          "first": {
+            "text": "No Foundation version is stored for the selected time, so no",
+            "family": "system-ui",
+            "size": "13px",
+            "weight": "400",
+            "lineHeight": "21.45px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "The configuration in effect now is not shown in its place.",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "18px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "firstPanelY": 691,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "ol",
+            "cls": "site-tabs__list",
+            "client": 358,
+            "scroll": 521
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model [current]",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1132
+      },
+      "mock": {
+        "titles": [
+          "Configured topology",
+          "Identity & operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 15,
+            "y": 681,
+            "w": 360,
+            "h": 657,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Single line diagram →"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Identity & operating obligations",
+            "x": 15,
+            "y": 1357,
+            "w": 360,
+            "h": 340,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site Financials"
+            ],
+            "chips": [
+              "Simulated"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 393,
+            "columns": [
+              "Control",
+              "Configured value",
+              "Authority",
+              "Evidence / change"
+            ],
+            "rows": 4,
+            "links": [
+              "Published policy ↗ ↗",
+              "Review proposed change →",
+              "Constraint evidence ↗ ↗",
+              "See actual operation →"
+            ],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 339
+        },
+        "h2": {
+          "text": "Configured topology",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Battery reserve",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Control",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 1
+          },
+          "first": {
+            "text": "Ratings and configured connections; not live energy flows",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Definition, topology and controls · public configuration at ",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "19.8px",
+          "color": "rgb(97, 112, 135)"
+        },
+        "firstPanelY": 681,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 511
+          },
+          {
+            "tag": "div",
+            "cls": "table-wrap",
+            "client": 320,
+            "scroll": 391
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2202
+      }
+    },
+    {
+      "screen": "foundation",
+      "case": "now",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation",
+      "mock_hash": "#/foundation",
+      "app_image": "foundation-now-1440-app.png",
+      "mock_image": "foundation-now-1440-mock.png",
+      "app": {
+        "titles": [
+          "Configured topology",
+          "Identity and operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 248,
+            "y": 339,
+            "w": 725,
+            "h": 407,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Single line diagram →",
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Generator fuel tank",
+              "Diesel generator",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Identity and operating obligations",
+            "x": 991,
+            "y": 339,
+            "w": 403,
+            "h": 606,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Financials › Assumptions"
+            ],
+            "chips": [
+              "Demonstration data",
+              "Planned",
+              "User"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 248,
+            "y": 963,
+            "w": 1145,
+            "h": 749,
+            "columns": [
+              "Control",
+              "Configured value",
+              "Authority",
+              "Evidence / change"
+            ],
+            "rows": 5,
+            "links": [
+              "Open Dispatch; choose an assessed day",
+              "Publish reserve change"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — Foundation records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Configured topology",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "45 %",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Control",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "13px": 2,
+            "12px": 1
+          },
+          "first": {
+            "text": "Declared ratings and configured connections; not live energy",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 339,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 1762,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model [current]",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1762
+      },
+      "mock": {
+        "titles": [
+          "Configured topology",
+          "Identity & operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 234,
+            "y": 416,
+            "w": 735,
+            "h": 397,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Single line diagram →"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Identity & operating obligations",
+            "x": 987,
+            "y": 416,
+            "w": 408,
+            "h": 397,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site Financials"
+            ],
+            "chips": [
+              "Simulated"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 234,
+            "y": 831,
+            "w": 1161,
+            "h": 287,
+            "columns": [
+              "Control",
+              "Configured value",
+              "Authority",
+              "Evidence / change"
+            ],
+            "rows": 4,
+            "links": [
+              "Published policy ↗ ↗",
+              "Review proposed change →",
+              "Constraint evidence ↗ ↗",
+              "See actual operation →"
+            ],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Configured topology",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Battery reserve",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Control",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 1
+          },
+          "first": {
+            "text": "Ratings and configured connections; not live energy flows",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Definition, topology and controls · public configuration at ",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "19.8px",
+          "color": "rgb(97, 112, 135)"
+        },
+        "firstPanelY": 416,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 1140,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1184
+      }
+    },
+    {
+      "screen": "foundation",
+      "case": "now",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation",
+      "mock_hash": "#/foundation",
+      "app_image": "foundation-now-390-app.png",
+      "mock_image": "foundation-now-390-mock.png",
+      "app": {
+        "titles": [
+          "Configured topology",
+          "Identity and operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 16,
+            "y": 525,
+            "w": 358,
+            "h": 738,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Single line diagram →",
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Generator fuel tank",
+              "Diesel generator",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Identity and operating obligations",
+            "x": 16,
+            "y": 1279,
+            "w": 358,
+            "h": 606,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Financials › Assumptions"
+            ],
+            "chips": [
+              "Demonstration data",
+              "Planned",
+              "User"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 16,
+            "y": 1902,
+            "w": 358,
+            "h": 1109,
+            "columns": [
+              "Control",
+              "Configured value",
+              "Authority",
+              "Evidence / change"
+            ],
+            "rows": 5,
+            "links": [
+              "Open Dispatch; choose an assessed day",
+              "Publish reserve change"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — Foundation records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 127
+        },
+        "h2": {
+          "text": "Configured topology",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "45 %",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Control",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "13px": 2,
+            "12px": 1
+          },
+          "first": {
+            "text": "Declared ratings and configured connections; not live energy",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 525,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "ol",
+            "cls": "site-tabs__list",
+            "client": 358,
+            "scroll": 521
+          },
+          {
+            "tag": "div",
+            "cls": "data-table__scroll",
+            "client": 318,
+            "scroll": 395
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model [current]",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 3052
+      },
+      "mock": {
+        "titles": [
+          "Configured topology",
+          "Identity & operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 15,
+            "y": 681,
+            "w": 360,
+            "h": 657,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Single line diagram →"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Identity & operating obligations",
+            "x": 15,
+            "y": 1357,
+            "w": 360,
+            "h": 340,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site Financials"
+            ],
+            "chips": [
+              "Simulated"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 393,
+            "columns": [
+              "Control",
+              "Configured value",
+              "Authority",
+              "Evidence / change"
+            ],
+            "rows": 4,
+            "links": [
+              "Published policy ↗ ↗",
+              "Review proposed change →",
+              "Constraint evidence ↗ ↗",
+              "See actual operation →"
+            ],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 339
+        },
+        "h2": {
+          "text": "Configured topology",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Battery reserve",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Control",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 1
+          },
+          "first": {
+            "text": "Ratings and configured connections; not live energy flows",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Definition, topology and controls · public configuration at ",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "19.8px",
+          "color": "rgb(97, 112, 135)"
+        },
+        "firstPanelY": 681,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 511
+          },
+          {
+            "tag": "div",
+            "cls": "table-wrap",
+            "client": 320,
+            "scroll": 391
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2202
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "battery",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/sld?component=battery",
+      "mock_hash": "#/sld",
+      "app_image": "sld-battery-1440-app.png",
+      "mock_image": "sld-battery-1440-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 248,
+            "y": 339,
+            "w": 1145,
+            "h": 1097,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site evidence →",
+              "Clear selected part",
+              "Site Evidence →"
+            ],
+            "chips": [
+              "Configured, not live"
+            ],
+            "disclosures": [
+              "Advanced details — selected part channels"
+            ]
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 1453,
+            "w": 1145,
+            "h": 640,
+            "columns": [
+              "Part",
+              "Type",
+              "Declared rating",
+              "Channels"
+            ],
+            "rows": 10,
+            "links": [
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Diesel generator",
+              "Generator fuel tank",
+              "AC bus",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — diagram records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 4
+          },
+          "first": {
+            "text": "Topology type not stated in this version · configured equipm",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 339,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 2144,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Single line diagram [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram [current]",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2144
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 596,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 1030,
+            "w": 1161,
+            "h": 287,
+            "columns": [
+              "Part",
+              "Role at this site",
+              "What it reports"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Kobo Mini-grid · AC-coupled mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array + inverter",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1
+          },
+          "first": {
+            "text": "Configured equipment, protection and metering · reporting st",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "This is the configured site, not a live view. Ratings come f",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 416,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 1399,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1443
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "battery",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/sld?component=battery",
+      "mock_hash": "#/sld",
+      "app_image": "sld-battery-390-app.png",
+      "mock_image": "sld-battery-390-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 16,
+            "y": 507,
+            "w": 358,
+            "h": 1136,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site evidence →",
+              "PV array · 60 kW",
+              "PV inverter · 50 kW",
+              "Battery energy storage · 200 kWh",
+              "Battery power conversion system · 30 kW",
+              "Diesel generator · 40 kW",
+              "Generator fuel tank · 400 L",
+              "AC bus · 400 V",
+              "Residential feeder · 25 kW",
+              "Health clinic · 10 kW",
+              "Grain mill · 40 kW",
+              "Clear selected part",
+              "Site Evidence →"
+            ],
+            "chips": [
+              "Configured, not live"
+            ],
+            "disclosures": [
+              "Advanced details — selected part channels"
+            ]
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 1661,
+            "w": 358,
+            "h": 940,
+            "columns": [
+              "Part",
+              "Type",
+              "Declared rating",
+              "Channels"
+            ],
+            "rows": 10,
+            "links": [
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Diesel generator",
+              "Generator fuel tank",
+              "AC bus",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — diagram records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 127
+        },
+        "h2": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 4
+          },
+          "first": {
+            "text": "Topology type not stated in this version · configured equipm",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 507,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "ol",
+            "cls": "site-tabs__list",
+            "client": 358,
+            "scroll": 521
+          },
+          {
+            "tag": "div",
+            "cls": "data-table__scroll",
+            "client": 318,
+            "scroll": 341
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Single line diagram [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram [current]",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2643
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 15,
+            "y": 654,
+            "w": 360,
+            "h": 318,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 990,
+            "w": 360,
+            "h": 481,
+            "columns": [
+              "Part",
+              "Role at this site",
+              "What it reports"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 339
+        },
+        "h2": {
+          "text": "Kobo Mini-grid · AC-coupled mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array + inverter",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1
+          },
+          "first": {
+            "text": "Configured equipment, protection and metering · reporting st",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "This is the configured site, not a live view. Ratings come f",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 654,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 511
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1661
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "now",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/sld",
+      "mock_hash": "#/sld",
+      "app_image": "sld-now-1440-app.png",
+      "mock_image": "sld-now-1440-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 248,
+            "y": 339,
+            "w": 1145,
+            "h": 974,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site evidence →",
+              "Site Evidence →"
+            ],
+            "chips": [
+              "Configured, not live"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 1331,
+            "w": 1145,
+            "h": 640,
+            "columns": [
+              "Part",
+              "Type",
+              "Declared rating",
+              "Channels"
+            ],
+            "rows": 10,
+            "links": [
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Diesel generator",
+              "Generator fuel tank",
+              "AC bus",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — diagram records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 4
+          },
+          "first": {
+            "text": "Topology type not stated in this version · configured equipm",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 339,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 2021,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Single line diagram [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram [current]",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2021
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 596,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 1030,
+            "w": 1161,
+            "h": 287,
+            "columns": [
+              "Part",
+              "Role at this site",
+              "What it reports"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Kobo Mini-grid · AC-coupled mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array + inverter",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1
+          },
+          "first": {
+            "text": "Configured equipment, protection and metering · reporting st",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "This is the configured site, not a live view. Ratings come f",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 416,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 1399,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1443
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "now",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/sld",
+      "mock_hash": "#/sld",
+      "app_image": "sld-now-390-app.png",
+      "mock_image": "sld-now-390-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 16,
+            "y": 507,
+            "w": 358,
+            "h": 922,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site evidence →",
+              "PV array · 60 kW",
+              "PV inverter · 50 kW",
+              "Battery energy storage · 200 kWh",
+              "Battery power conversion system · 30 kW",
+              "Diesel generator · 40 kW",
+              "Generator fuel tank · 400 L",
+              "AC bus · 400 V",
+              "Residential feeder · 25 kW",
+              "Health clinic · 10 kW",
+              "Grain mill · 40 kW",
+              "Site Evidence →"
+            ],
+            "chips": [
+              "Configured, not live"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 1447,
+            "w": 358,
+            "h": 940,
+            "columns": [
+              "Part",
+              "Type",
+              "Declared rating",
+              "Channels"
+            ],
+            "rows": 10,
+            "links": [
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Diesel generator",
+              "Generator fuel tank",
+              "AC bus",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — diagram records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 127
+        },
+        "h2": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 4
+          },
+          "first": {
+            "text": "Topology type not stated in this version · configured equipm",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 507,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "ol",
+            "cls": "site-tabs__list",
+            "client": 358,
+            "scroll": 521
+          },
+          {
+            "tag": "div",
+            "cls": "data-table__scroll",
+            "client": 318,
+            "scroll": 341
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Single line diagram [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram [current]",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2429
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 15,
+            "y": 654,
+            "w": 360,
+            "h": 318,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 990,
+            "w": 360,
+            "h": 481,
+            "columns": [
+              "Part",
+              "Role at this site",
+              "What it reports"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 339
+        },
+        "h2": {
+          "text": "Kobo Mini-grid · AC-coupled mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array + inverter",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1
+          },
+          "first": {
+            "text": "Configured equipment, protection and metering · reporting st",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "This is the configured site, not a live view. Ratings come f",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 654,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 511
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1661
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "unknown-part",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/sld?component=no-such-part",
+      "mock_hash": "#/sld",
+      "app_image": "sld-unknown-part-1440-app.png",
+      "mock_image": "sld-unknown-part-1440-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 248,
+            "y": 400,
+            "w": 1145,
+            "h": 974,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site evidence →",
+              "Site Evidence →"
+            ],
+            "chips": [
+              "Configured, not live"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 1393,
+            "w": 1145,
+            "h": 640,
+            "columns": [
+              "Part",
+              "Type",
+              "Declared rating",
+              "Channels"
+            ],
+            "rows": 10,
+            "links": [
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Diesel generator",
+              "Generator fuel tank",
+              "AC bus",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — diagram records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 4
+          },
+          "first": {
+            "text": "Topology type not stated in this version · configured equipm",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 400,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 2083,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Single line diagram [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram [current]",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2083
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 596,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 1030,
+            "w": 1161,
+            "h": 287,
+            "columns": [
+              "Part",
+              "Role at this site",
+              "What it reports"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Kobo Mini-grid · AC-coupled mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array + inverter",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1
+          },
+          "first": {
+            "text": "Configured equipment, protection and metering · reporting st",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "This is the configured site, not a live view. Ratings come f",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 416,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 1399,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1443
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "unknown-part",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/sld?component=no-such-part",
+      "mock_hash": "#/sld",
+      "app_image": "sld-unknown-part-390-app.png",
+      "mock_image": "sld-unknown-part-390-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 16,
+            "y": 607,
+            "w": 358,
+            "h": 922,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site evidence →",
+              "PV array · 60 kW",
+              "PV inverter · 50 kW",
+              "Battery energy storage · 200 kWh",
+              "Battery power conversion system · 30 kW",
+              "Diesel generator · 40 kW",
+              "Generator fuel tank · 400 L",
+              "AC bus · 400 V",
+              "Residential feeder · 25 kW",
+              "Health clinic · 10 kW",
+              "Grain mill · 40 kW",
+              "Site Evidence →"
+            ],
+            "chips": [
+              "Configured, not live"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 1547,
+            "w": 358,
+            "h": 940,
+            "columns": [
+              "Part",
+              "Type",
+              "Declared rating",
+              "Channels"
+            ],
+            "rows": 10,
+            "links": [
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Diesel generator",
+              "Generator fuel tank",
+              "AC bus",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — diagram records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 127
+        },
+        "h2": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 4
+          },
+          "first": {
+            "text": "Topology type not stated in this version · configured equipm",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 607,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "ol",
+            "cls": "site-tabs__list",
+            "client": 358,
+            "scroll": 521
+          },
+          {
+            "tag": "div",
+            "cls": "data-table__scroll",
+            "client": 318,
+            "scroll": 341
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Single line diagram [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram [current]",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2529
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 15,
+            "y": 654,
+            "w": 360,
+            "h": 318,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 990,
+            "w": 360,
+            "h": 481,
+            "columns": [
+              "Part",
+              "Role at this site",
+              "What it reports"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 339
+        },
+        "h2": {
+          "text": "Kobo Mini-grid · AC-coupled mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array + inverter",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1
+          },
+          "first": {
+            "text": "Configured equipment, protection and metering · reporting st",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "This is the configured site, not a live view. Ratings come f",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 654,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 511
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1661
+      }
+    }
+  ]
+}

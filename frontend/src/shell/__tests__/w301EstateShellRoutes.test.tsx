@@ -145,8 +145,12 @@ describe("W3-01 estate roots in the operator shell", () => {
       expect(document.querySelector(`[data-estate-root="${lens}"]`), lens).not.toBeNull();
       expect(screen.getByRole("main")).toContainElement(document.querySelector(`[data-estate-root="${lens}"]`) as HTMLElement);
       expect(screen.getByRole("heading", { level: 1, name: "Findings" })).toBeInTheDocument();
-      expect(estate.calls).toHaveLength(1);
-      expect(estate.calls[0]).toMatchObject({ kind: "findings", lens });
+      // One Findings read for the lens, plus the post-W6 W3-estate Q7 scope read (Site names for the cause copy).
+      expect(estate.calls).toHaveLength(2);
+      expect(estate.calls.filter((call) => (call as { kind: string }).kind === "findings")).toEqual([
+        expect.objectContaining({ kind: "findings", lens }),
+      ]);
+      expect(estate.calls.filter((call) => (call as { kind: string }).kind === "scope")).toHaveLength(1);
       expect(analytics.getAssessment).not.toHaveBeenCalled();
       expect(railCurrent()).toBe("Findings");
       view.unmount();

@@ -1,0 +1,585 @@
+{
+  "revision": "710b0de5",
+  "captured_at": "2026-10-24T22:50:03.557Z",
+  "pairs": [
+    {
+      "screen": "sites",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites",
+      "mock_hash": "#/sites",
+      "app_image": "sites-empty-1440-app.png",
+      "mock_image": "sites-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "Site inventory",
+          "In setup"
+        ],
+        "panels": [
+          {
+            "title": "Site inventory",
+            "x": 248,
+            "y": 262,
+            "w": 1160,
+            "h": 263,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "In setup",
+            "x": 248,
+            "y": 544,
+            "w": 1160,
+            "h": 161,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Sites",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Site inventory",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": null,
+        "th": null,
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 2,
+            "12px": 4,
+            "13px": 2,
+            "14px": 1
+          },
+          "first": {
+            "text": "Mode says where a site's readings come from. It is not a mea",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 262,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 1000,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites [current] [disabled]"
+            ]
+          }
+        ],
+        "pageHeight": 1000
+      },
+      "mock": {
+        "titles": [
+          "Site inventory",
+          "In setup"
+        ],
+        "panels": [
+          {
+            "title": "Site inventory",
+            "x": 234,
+            "y": 482,
+            "w": 1161,
+            "h": 314,
+            "columns": [
+              "Site",
+              "Type",
+              "Mode",
+              "Assessment",
+              "Top issue",
+              "Evidence",
+              "Last analysed"
+            ],
+            "rows": 3,
+            "links": [
+              "Kobo Mini-grid",
+              "Generator support",
+              "Limited ↗",
+              "GreenHarvest Cold Room",
+              "Temperature excursion",
+              "Limited ↗",
+              "Depot Charging Hub",
+              "Interrupted session",
+              "Limited ↗"
+            ],
+            "chips": [
+              "Simulated",
+              "Needs attention",
+              "Simulated",
+              "Degraded",
+              "Simulated",
+              "Needs attention"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "In setup",
+            "x": 234,
+            "y": 814,
+            "w": 1161,
+            "h": 253,
+            "columns": [
+              "Site",
+              "Type",
+              "Created by",
+              "State",
+              "Next step",
+              "Created"
+            ],
+            "rows": 2,
+            "links": [
+              "+ Form",
+              "From template",
+              "Batch upload",
+              "Connect the gateway and map points →",
+              "Map 12 of 16 points →"
+            ],
+            "chips": [
+              "Draft",
+              "Pending activation"
+            ],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Sites",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Site inventory",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Kobo Mini-gridMG-DEMO-01",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Site",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 2
+          },
+          "first": {
+            "text": "Mode is provenance. A row is a Site, never a simulation run.",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "A site with no accepted evidence in the selected period is U",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 482,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 1149,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Directory",
+              "Add site · form",
+              "From template",
+              "Batch upload",
+              "Setup history"
+            ]
+          }
+        ],
+        "pageHeight": 1193
+      }
+    },
+    {
+      "screen": "sites",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites",
+      "mock_hash": "#/sites",
+      "app_image": "sites-empty-390-app.png",
+      "mock_image": "sites-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "Site inventory",
+          "In setup"
+        ],
+        "panels": [
+          {
+            "title": "Site inventory",
+            "x": 16,
+            "y": 581,
+            "w": 358,
+            "h": 341,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "In setup",
+            "x": 16,
+            "y": 940,
+            "w": 358,
+            "h": 201,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Sites",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 127
+        },
+        "h2": {
+          "text": "Site inventory",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": null,
+        "th": null,
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 2,
+            "12px": 4,
+            "13px": 2,
+            "14px": 1
+          },
+          "first": {
+            "text": "Mode says where a site's readings come from. It is not a mea",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 581,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites [current] [disabled]"
+            ]
+          }
+        ],
+        "pageHeight": 1182
+      },
+      "mock": {
+        "titles": [
+          "Site inventory",
+          "In setup"
+        ],
+        "panels": [
+          {
+            "title": "Site inventory",
+            "x": 15,
+            "y": 745,
+            "w": 360,
+            "h": 384,
+            "columns": [
+              "Site",
+              "Type",
+              "Mode",
+              "Assessment",
+              "Top issue",
+              "Evidence",
+              "Last analysed"
+            ],
+            "rows": 3,
+            "links": [
+              "Kobo Mini-grid",
+              "Generator support",
+              "Limited ↗",
+              "GreenHarvest Cold Room",
+              "Temperature excursion",
+              "Limited ↗",
+              "Depot Charging Hub",
+              "Interrupted session",
+              "Limited ↗"
+            ],
+            "chips": [
+              "Simulated",
+              "Needs attention",
+              "Simulated",
+              "Degraded",
+              "Simulated",
+              "Needs attention"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "In setup",
+            "x": 15,
+            "y": 1147,
+            "w": 360,
+            "h": 409,
+            "columns": [
+              "Site",
+              "Type",
+              "Created by",
+              "State",
+              "Next step",
+              "Created"
+            ],
+            "rows": 2,
+            "links": [
+              "+ Form",
+              "From template",
+              "Batch upload",
+              "Connect the gateway and map points →",
+              "Map 12 of 16 points →"
+            ],
+            "chips": [
+              "Draft",
+              "Pending activation"
+            ],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Sites",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 298
+        },
+        "h2": {
+          "text": "Site inventory",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Kobo Mini-gridMG-DEMO-01",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Site",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 2
+          },
+          "first": {
+            "text": "Mode is provenance. A row is a Site, never a simulation run.",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "A site with no accepted evidence in the selected period is U",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 745,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 420
+          },
+          {
+            "tag": "div",
+            "cls": "table-wrap",
+            "client": 320,
+            "scroll": 600
+          },
+          {
+            "tag": "div",
+            "cls": "table-wrap",
+            "client": 320,
+            "scroll": 476
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Directory",
+              "Add site · form",
+              "From template",
+              "Batch upload",
+              "Setup history"
+            ]
+          }
+        ],
+        "pageHeight": 1728
+      }
+    }
+  ]
+}

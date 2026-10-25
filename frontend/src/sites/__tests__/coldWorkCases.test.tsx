@@ -190,7 +190,7 @@ describe("W5-02 K3a: cold Site > Work > Incidents (v69 cold-work-incidents)", ()
   it("renders the mock strip, columns, Site-time Window, plain Findings with versions, and the domain notice", async () => {
     const { main } = await mountCases("incidents", loaded(body([incident(1)])));
     expectV69Panels("cold-work-incidents");
-    expect(text(strip(main))).toContain(`Scoped to GreenHarvest · 1 incidents`);
+    expect(text(strip(main))).toMatch(/Scoped to GreenHarvest · 1 incident(?!s)/);
     expect(text(strip(main))).toContain(WORK_STRIP_DETAIL_DOMAIN.incidents);
     expect(text(strip(main))).not.toContain(WORK_STRIP_DETAIL);
     const manage = main.querySelector("[data-work-manage-link]") as HTMLAnchorElement;
@@ -475,5 +475,20 @@ describe("W5-02 K3a: mini-grid isolation", () => {
       expect(main.querySelector("[data-domain-work-notice], [data-domain-work-source-unavailable], .domain-work-code")).toBeNull();
       cleanup();
     }
+  });
+});
+
+describe("post-W6 shell R319: cold Work count strip grammar", () => {
+  it.each([
+    ["incidents", 0, "0 incidents"],
+    ["incidents", 1, "1 incident"],
+    ["incidents", 3, "3 incidents"],
+    ["maintenance", 0, "0 maintenance cases"],
+    ["maintenance", 1, "1 maintenance case"],
+    ["maintenance", 2, "2 maintenance cases"],
+  ] as const)("%s with %i reads %s", async (kind, count, words) => {
+    const rows = count === 0 ? [] : [kind === "incidents" ? incident(1) : request(1)];
+    const { main } = await mountCases(kind, loaded(body(rows, { total_count: count })));
+    expect(text(strip(main))).toMatch(new RegExp(`Scoped to GreenHarvest · ${words}(?![a-z])`));
   });
 });

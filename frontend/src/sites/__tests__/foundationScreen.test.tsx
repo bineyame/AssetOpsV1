@@ -1053,7 +1053,13 @@ describe("the SLD view model reaches the screen, and nothing else does", () => {
     const fromRecord = new Set(
       (JSON.stringify(HYBRID_MINI_GRID_SITE).match(/\d+(?:\.\d+)?/g) ?? []),
     );
-    const onScreen = (container.textContent ?? "").match(/\d+(?:\.\d+)?/g) ?? [];
+    // Closeout ruling 3: the one visible MOCK DEVIATION label (register R382) is inspection metadata, not drawn
+    // record content. Exactly that label, with exactly that text, is left out of the scan; nothing else is.
+    const labels = Array.from(container.querySelectorAll("[data-mock-deviation]"));
+    expect(labels.map((label) => label.textContent?.trim())).toEqual(["MOCK DEVIATION D2 (R382)"]);
+    const scanned = container.cloneNode(true) as HTMLElement;
+    scanned.querySelectorAll("[data-mock-deviation='R382']").forEach((label) => label.remove());
+    const onScreen = (scanned.textContent ?? "").match(/\d+(?:\.\d+)?/g) ?? [];
 
     expect(onScreen.length).toBeGreaterThan(0);
     for (const value of onScreen) {

@@ -1,0 +1,5403 @@
+{
+  "revision": "710b0de5",
+  "captured_at": "2026-10-24T23:14:31.227Z",
+  "pairs": [
+    {
+      "screen": "evidence",
+      "case": "no-readings",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
+      "mock_hash": "#/evidence",
+      "app_image": "evidence-no-readings-1440-app.png",
+      "mock_image": "evidence-no-readings-1440-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 248,
+            "y": 387,
+            "w": 1145,
+            "h": 457,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 862,
+            "w": 725,
+            "h": 480,
+            "tables": 1,
+            "rows": 8,
+            "columns": [
+              "Source",
+              "Accepted in period",
+              "Latest taken",
+              "Latest received",
+              "Readings"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 9,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 991,
+            "y": 862,
+            "w": 403,
+            "h": 369,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1453,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview*",
+              "Analysis"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 1,
+          "10px": 8,
+          "13px": 4,
+          "14px": 9
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1453
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 387,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Capability",
+              "Evidence",
+              "What we can say",
+              "What is missing",
+              "Next step"
+            ],
+            "chips": [
+              "Limited",
+              "Limited",
+              "Limited",
+              "None",
+              "None"
+            ],
+            "links": 5,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 821,
+            "w": 735,
+            "h": 387,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Source",
+              "Status at window end",
+              "Quality",
+              "What it provides",
+              "Affects"
+            ],
+            "chips": [
+              "Gap",
+              "Good",
+              "Good",
+              "Good",
+              "Limited"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 987,
+            "y": 821,
+            "w": 408,
+            "h": 387,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Restore battery output-limit reporting",
+              "Measure what the clinic needs",
+              "Test battery capacity"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1334,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview*",
+              "Analysis"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1290
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "evidence",
+      "case": "no-readings",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
+      "mock_hash": "#/evidence",
+      "app_image": "evidence-no-readings-390-app.png",
+      "mock_image": "evidence-no-readings-390-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 16,
+            "y": 670,
+            "w": 358,
+            "h": 651,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 1339,
+            "w": 358,
+            "h": 724,
+            "tables": 1,
+            "rows": 8,
+            "columns": [
+              "Source",
+              "Accepted in period",
+              "Latest taken",
+              "Latest received",
+              "Readings"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 9,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 16,
+            "y": 2080,
+            "w": 358,
+            "h": 369,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2568,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview*",
+              "Analysis"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 480,
+            "cw": 318,
+            "panel": "Data sources · data quality, not equipment condition"
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 1,
+          "10px": 8,
+          "13px": 4,
+          "14px": 9
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 15,
+            "y": 639,
+            "w": 360,
+            "h": 549,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Capability",
+              "Evidence",
+              "What we can say",
+              "What is missing",
+              "Next step"
+            ],
+            "chips": [
+              "Limited",
+              "Limited",
+              "Limited",
+              "None",
+              "None"
+            ],
+            "links": 5,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1205,
+            "w": 360,
+            "h": 533,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Source",
+              "Status at window end",
+              "Quality",
+              "What it provides",
+              "Affects"
+            ],
+            "chips": [
+              "Gap",
+              "Good",
+              "Good",
+              "Good",
+              "Limited"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 15,
+            "y": 1757,
+            "w": 360,
+            "h": 319,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Restore battery output-limit reporting",
+              "Measure what the clinic needs",
+              "Test battery capacity"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2248,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview*",
+              "Analysis"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 448,
+            "cw": 320,
+            "panel": "What we can conclude now"
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 474,
+            "cw": 320,
+            "panel": "Data sources · data quality, not equipment condition"
+          }
+        ],
+        "pSizes": {
+          "11px": 5
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "no-selection",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-no-selection-1440-app.png",
+      "mock_image": "evidence-analysis-no-selection-1440-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 248,
+            "y": 427,
+            "w": 1145,
+            "h": 452,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 248,
+            "y": 898,
+            "w": 1145,
+            "h": 241,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 6,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1189,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 1065,
+            "panel": "Deliveries"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1189
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 266,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 234,
+            "y": 699,
+            "w": 1161,
+            "h": 148,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "no-selection",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-no-selection-390-app.png",
+      "mock_image": "evidence-analysis-no-selection-390-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 16,
+            "y": 702,
+            "w": 358,
+            "h": 662,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 16,
+            "y": 1382,
+            "w": 358,
+            "h": 413,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 6,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1837,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 482,
+            "cw": 318,
+            "panel": "Accepted records behind the conclusions"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 953,
+            "cw": 278,
+            "panel": "Sources in this period"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 278,
+            "panel": "Deliveries"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 738,
+            "cw": 278,
+            "panel": "Readings by input"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 15,
+            "y": 612,
+            "w": 360,
+            "h": 371,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 228,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1323,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 471,
+            "cw": 320,
+            "panel": "Accepted records behind the conclusions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "supported",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=a4589610-12ab-497f-a488-038d0047ac87",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-supported-1440-app.png",
+      "mock_image": "evidence-analysis-supported-1440-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 248,
+            "y": 427,
+            "w": 1145,
+            "h": 452,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 248,
+            "y": 898,
+            "w": 1145,
+            "h": 266,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Reading",
+              "Covered",
+              "Gaps",
+              "Accepted readings"
+            ],
+            "chips": [],
+            "links": 101,
+            "buttons": 0,
+            "details": 12,
+            "h3": [
+              "Readings this conclusion needs"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1214,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 1065,
+            "panel": "Deliveries"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1214
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 266,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 234,
+            "y": 699,
+            "w": 1161,
+            "h": 148,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "supported",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=a4589610-12ab-497f-a488-038d0047ac87",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-supported-390-app.png",
+      "mock_image": "evidence-analysis-supported-390-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 16,
+            "y": 747,
+            "w": 358,
+            "h": 662,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 16,
+            "y": 1427,
+            "w": 358,
+            "h": 497,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Reading",
+              "Covered",
+              "Gaps",
+              "Accepted readings"
+            ],
+            "chips": [],
+            "links": 101,
+            "buttons": 0,
+            "details": 12,
+            "h3": [
+              "Readings this conclusion needs"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1966,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 482,
+            "cw": 318,
+            "panel": "Accepted records behind the conclusions"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 953,
+            "cw": 278,
+            "panel": "Sources in this period"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 278,
+            "panel": "Deliveries"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 738,
+            "cw": 278,
+            "panel": "Readings by input"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 15,
+            "y": 612,
+            "w": 360,
+            "h": 371,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 228,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1323,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 471,
+            "cw": 320,
+            "panel": "Accepted records behind the conclusions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "indeterminate",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=c487f363-5e6c-4df4-9310-ef8eb5bbeb5b",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-indeterminate-1440-app.png",
+      "mock_image": "evidence-analysis-indeterminate-1440-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 248,
+            "y": 427,
+            "w": 1145,
+            "h": 452,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 248,
+            "y": 898,
+            "w": 1145,
+            "h": 266,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Reading",
+              "Covered",
+              "Gaps",
+              "Accepted readings"
+            ],
+            "chips": [],
+            "links": 87,
+            "buttons": 0,
+            "details": 11,
+            "h3": [
+              "What limits it",
+              "Readings this conclusion needs"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1214,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 1065,
+            "panel": "Deliveries"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1214
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 266,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 234,
+            "y": 699,
+            "w": 1161,
+            "h": 148,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "indeterminate",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=c487f363-5e6c-4df4-9310-ef8eb5bbeb5b",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-indeterminate-390-app.png",
+      "mock_image": "evidence-analysis-indeterminate-390-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 16,
+            "y": 747,
+            "w": 358,
+            "h": 662,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 16,
+            "y": 1427,
+            "w": 358,
+            "h": 497,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Reading",
+              "Covered",
+              "Gaps",
+              "Accepted readings"
+            ],
+            "chips": [],
+            "links": 87,
+            "buttons": 0,
+            "details": 11,
+            "h3": [
+              "What limits it",
+              "Readings this conclusion needs"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1966,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 482,
+            "cw": 318,
+            "panel": "Accepted records behind the conclusions"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 953,
+            "cw": 278,
+            "panel": "Sources in this period"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 278,
+            "panel": "Deliveries"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 738,
+            "cw": 278,
+            "panel": "Readings by input"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 325,
+            "cw": 318,
+            "panel": "How each limit is set"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 15,
+            "y": 612,
+            "w": 360,
+            "h": 371,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 228,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1323,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 471,
+            "cw": 320,
+            "panel": "Accepted records behind the conclusions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "limited",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=a0a2209f-1069-4f6c-9e37-b3852e393dfa",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-limited-1440-app.png",
+      "mock_image": "evidence-analysis-limited-1440-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 248,
+            "y": 427,
+            "w": 1145,
+            "h": 452,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 248,
+            "y": 898,
+            "w": 1145,
+            "h": 266,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Reading",
+              "Covered",
+              "Gaps",
+              "Accepted readings"
+            ],
+            "chips": [],
+            "links": 81,
+            "buttons": 0,
+            "details": 12,
+            "h3": [
+              "What limits it",
+              "Readings this conclusion needs"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1214,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 1065,
+            "panel": "Deliveries"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1214
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 266,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 234,
+            "y": 699,
+            "w": 1161,
+            "h": 148,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "limited",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=a0a2209f-1069-4f6c-9e37-b3852e393dfa",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-limited-390-app.png",
+      "mock_image": "evidence-analysis-limited-390-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 16,
+            "y": 747,
+            "w": 358,
+            "h": 662,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 16,
+            "y": 1427,
+            "w": 358,
+            "h": 517,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Reading",
+              "Covered",
+              "Gaps",
+              "Accepted readings"
+            ],
+            "chips": [],
+            "links": 81,
+            "buttons": 0,
+            "details": 12,
+            "h3": [
+              "What limits it",
+              "Readings this conclusion needs"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1986,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 482,
+            "cw": 318,
+            "panel": "Accepted records behind the conclusions"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 953,
+            "cw": 278,
+            "panel": "Sources in this period"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 278,
+            "panel": "Deliveries"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 738,
+            "cw": 278,
+            "panel": "Readings by input"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 339,
+            "cw": 318,
+            "panel": "How each limit is set"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 15,
+            "y": 612,
+            "w": 360,
+            "h": 371,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 228,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1323,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 471,
+            "cw": 320,
+            "panel": "Accepted records behind the conclusions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "historical",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-13&revision=f311aa92-bca4-495e-8e8f-21f7f284f3d9",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-historical-1440-app.png",
+      "mock_image": "evidence-analysis-historical-1440-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 248,
+            "y": 427,
+            "w": 1145,
+            "h": 452,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 248,
+            "y": 898,
+            "w": 1145,
+            "h": 266,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Reading",
+              "Covered",
+              "Gaps",
+              "Accepted readings"
+            ],
+            "chips": [],
+            "links": 99,
+            "buttons": 0,
+            "details": 12,
+            "h3": [
+              "Readings this conclusion needs"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1214,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 1065,
+            "panel": "Deliveries"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1214
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 266,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 234,
+            "y": 699,
+            "w": 1161,
+            "h": 148,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "historical",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-13&revision=f311aa92-bca4-495e-8e8f-21f7f284f3d9",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-historical-390-app.png",
+      "mock_image": "evidence-analysis-historical-390-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 16,
+            "y": 747,
+            "w": 358,
+            "h": 662,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 16,
+            "y": 1427,
+            "w": 358,
+            "h": 497,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Reading",
+              "Covered",
+              "Gaps",
+              "Accepted readings"
+            ],
+            "chips": [],
+            "links": 99,
+            "buttons": 0,
+            "details": 12,
+            "h3": [
+              "Readings this conclusion needs"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1966,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 482,
+            "cw": 318,
+            "panel": "Accepted records behind the conclusions"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 953,
+            "cw": 278,
+            "panel": "Sources in this period"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 278,
+            "panel": "Deliveries"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 738,
+            "cw": 278,
+            "panel": "Readings by input"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 15,
+            "y": 612,
+            "w": 360,
+            "h": 371,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 228,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1323,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 471,
+            "cw": 320,
+            "panel": "Accepted records behind the conclusions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "stale",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-15&revision=360d977d-8312-4242-824c-fdb4ea0c416e",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-stale-1440-app.png",
+      "mock_image": "evidence-analysis-stale-1440-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 248,
+            "y": 427,
+            "w": 1145,
+            "h": 452,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 248,
+            "y": 898,
+            "w": 1145,
+            "h": 266,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Reading",
+              "Covered",
+              "Gaps",
+              "Accepted readings"
+            ],
+            "chips": [],
+            "links": 101,
+            "buttons": 0,
+            "details": 12,
+            "h3": [
+              "Readings this conclusion needs"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1214,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 1065,
+            "panel": "Deliveries"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1214
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 266,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 234,
+            "y": 699,
+            "w": 1161,
+            "h": 148,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "stale",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-15&revision=360d977d-8312-4242-824c-fdb4ea0c416e",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-stale-390-app.png",
+      "mock_image": "evidence-analysis-stale-390-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 16,
+            "y": 747,
+            "w": 358,
+            "h": 662,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 16,
+            "y": 1427,
+            "w": 358,
+            "h": 517,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Reading",
+              "Covered",
+              "Gaps",
+              "Accepted readings"
+            ],
+            "chips": [],
+            "links": 101,
+            "buttons": 0,
+            "details": 12,
+            "h3": [
+              "Readings this conclusion needs"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1986,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 482,
+            "cw": 318,
+            "panel": "Accepted records behind the conclusions"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 953,
+            "cw": 278,
+            "panel": "Sources in this period"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 278,
+            "panel": "Deliveries"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 738,
+            "cw": 278,
+            "panel": "Readings by input"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 15,
+            "y": 612,
+            "w": 360,
+            "h": 371,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 228,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1323,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 471,
+            "cw": 320,
+            "panel": "Accepted records behind the conclusions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "refused-other-day",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=a4589610-12ab-497f-a488-038d0047ac87",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-refused-other-day-1440-app.png",
+      "mock_image": "evidence-analysis-refused-other-day-1440-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 248,
+            "y": 427,
+            "w": 1145,
+            "h": 452,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 248,
+            "y": 898,
+            "w": 1145,
+            "h": 311,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 7,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1259,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 1065,
+            "panel": "Deliveries"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1259
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 266,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 234,
+            "y": 699,
+            "w": 1161,
+            "h": 148,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "refused-other-day",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=a4589610-12ab-497f-a488-038d0047ac87",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-refused-other-day-390-app.png",
+      "mock_image": "evidence-analysis-refused-other-day-390-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 16,
+            "y": 747,
+            "w": 358,
+            "h": 662,
+            "tables": 5,
+            "rows": 10,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 27,
+            "details": 6,
+            "h3": [
+              "Readings not accepted (all periods)"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How each limit is set",
+            "x": 16,
+            "y": 1427,
+            "w": 358,
+            "h": 542,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 7,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2011,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs local-views",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 482,
+            "cw": 318,
+            "panel": "Accepted records behind the conclusions"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 953,
+            "cw": 278,
+            "panel": "Sources in this period"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 1212,
+            "cw": 278,
+            "panel": "Deliveries"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 738,
+            "cw": 278,
+            "panel": "Readings by input"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "10px": 4,
+          "12px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 15,
+            "y": 612,
+            "w": 360,
+            "h": 371,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source · reading",
+              "Value",
+              "Measured (EAT)",
+              "Sent",
+              "Received",
+              "Record"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 3,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 228,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1323,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence*"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Analysis*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 471,
+            "cw": 320,
+            "panel": "Accepted records behind the conclusions"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

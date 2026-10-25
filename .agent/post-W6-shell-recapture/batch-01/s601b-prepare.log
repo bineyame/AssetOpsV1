@@ -1,0 +1,9 @@
+=== 1. Private tree (git HEAD) with its own var/ ===
+  C:\Users\assef\Bineyame\AssetOpsV1-review3\var\s601b_shellrc\tree (code from 710b0de5)
+=== 2. Database assetops_s601b_audit ===
+  created
+=== 3. D-action-records through the real stores and Action API ===
+  built: action 9c967100-6f6b-4f36-b8b6-91041199105a change 4902825c-c650-472f-b471-808e9be170fd events 6
+=== 4. Performance comparison (releases the Finding reads) ===
+  Performance cutover: permitted
+Prepared. Next: links, then serve.

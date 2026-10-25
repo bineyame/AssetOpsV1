@@ -1,0 +1,1256 @@
+{
+  "revision": "710b0de5",
+  "captured_at": "2026-10-24T22:52:26.233Z",
+  "pairs": [
+    {
+      "screen": "changes",
+      "case": "applied",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/changes/4902825c-c650-472f-b471-808e9be170fd",
+      "mock_hash": "#/changes",
+      "app_image": "changes-applied-1440-app.png",
+      "mock_image": "changes-applied-1440-mock.png",
+      "app": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 248,
+            "y": 471,
+            "w": 725,
+            "h": 419,
+            "columns": [
+              "Field",
+              "Before",
+              "After",
+              "Purpose"
+            ],
+            "rows": 2,
+            "links": [
+              "The Action (SYSTEM demonstration) →",
+              "1 Nov 2026, 01:00 UTC",
+              "1 Nov 2026, 01:02 UTC",
+              "1 Nov 2026, 01:03 UTC"
+            ],
+            "chips": [],
+            "disclosures": [
+              "How this was worked out",
+              "Versions and records this change names"
+            ]
+          },
+          {
+            "title": "Decision path",
+            "x": 991,
+            "y": 471,
+            "w": 403,
+            "h": 419,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Application record →",
+              "Inspect accepted evidence →",
+              "View verification →"
+            ],
+            "chips": [
+              "No verification plan yet"
+            ],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Change and effect",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Battery reserve",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Field",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "10px": 1,
+            "11px": 3
+          },
+          "first": {
+            "text": "Battery · effective 2 Nov 2026, 00:00 UTC onward · recorded ",
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 471,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 1001,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Changed value"
+        ],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Change & effect [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect [current]"
+            ]
+          }
+        ],
+        "pageHeight": 1001
+      },
+      "mock": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 234,
+            "y": 547,
+            "w": 735,
+            "h": 319,
+            "columns": [
+              "Field",
+              "Before",
+              "Proposed",
+              "Purpose"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Decision path",
+            "x": 987,
+            "y": 547,
+            "w": 408,
+            "h": 319,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Inspect plan →",
+              "Inspect accepted evidence →",
+              "View verification →"
+            ],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Change and effect",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Stop threshold",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Field",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 3
+          },
+          "first": {
+            "text": "Freeze target, coverage, comparable windows and guardrails.",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.05px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Illustrative proposal. No real controller command is sent by",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 547,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 957,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1001
+      }
+    },
+    {
+      "screen": "changes",
+      "case": "applied",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/changes/4902825c-c650-472f-b471-808e9be170fd",
+      "mock_hash": "#/changes",
+      "app_image": "changes-applied-390-app.png",
+      "mock_image": "changes-applied-390-mock.png",
+      "app": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 16,
+            "y": 813,
+            "w": 358,
+            "h": 553,
+            "columns": [
+              "Field",
+              "Before",
+              "After",
+              "Purpose"
+            ],
+            "rows": 2,
+            "links": [
+              "The Action (SYSTEM demonstration) →",
+              "1 Nov 2026, 01:00 UTC",
+              "1 Nov 2026, 01:02 UTC",
+              "1 Nov 2026, 01:03 UTC"
+            ],
+            "chips": [],
+            "disclosures": [
+              "How this was worked out",
+              "Versions and records this change names"
+            ]
+          },
+          {
+            "title": "Decision path",
+            "x": 16,
+            "y": 1383,
+            "w": 358,
+            "h": 330,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Application record →",
+              "Inspect accepted evidence →",
+              "View verification →"
+            ],
+            "chips": [
+              "No verification plan yet"
+            ],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 127
+        },
+        "h2": {
+          "text": "Change and effect",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Battery reserve",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Field",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "10px": 1,
+            "11px": 3
+          },
+          "first": {
+            "text": "Battery · effective 2 Nov 2026, 00:00 UTC onward · recorded ",
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 813,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Changed value"
+        ],
+        "innerScroll": [
+          {
+            "tag": "ol",
+            "cls": "site-tabs__list",
+            "client": 358,
+            "scroll": 521
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Change & effect [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect [current]"
+            ]
+          }
+        ],
+        "pageHeight": 1832
+      },
+      "mock": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 15,
+            "y": 932,
+            "w": 360,
+            "h": 411,
+            "columns": [
+              "Field",
+              "Before",
+              "Proposed",
+              "Purpose"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Decision path",
+            "x": 15,
+            "y": 1361,
+            "w": 360,
+            "h": 353,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Inspect plan →",
+              "Inspect accepted evidence →",
+              "View verification →"
+            ],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 339
+        },
+        "h2": {
+          "text": "Change and effect",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Stop threshold",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Field",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 3
+          },
+          "first": {
+            "text": "Freeze target, coverage, comparable windows and guardrails.",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.05px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Illustrative proposal. No real controller command is sent by",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 932,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 511
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1905
+      }
+    },
+    {
+      "screen": "changes",
+      "case": "no-selection-s601b",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/changes",
+      "mock_hash": "#/changes",
+      "app_image": "changes-no-selection-s601b-1440-app.png",
+      "mock_image": "changes-no-selection-s601b-1440-mock.png",
+      "app": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 248,
+            "y": 391,
+            "w": 734,
+            "h": 96,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Decision path",
+            "x": 1000,
+            "y": 391,
+            "w": 408,
+            "h": 96,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Change and effect",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": null,
+        "th": null,
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "10px": 2
+          },
+          "first": {
+            "text": "No change is selected, so no setting, version or outcome is ",
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Back to the Foundation",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "18px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "firstPanelY": 391,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 1000,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Change & effect [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect [current]"
+            ]
+          }
+        ],
+        "pageHeight": 1000
+      },
+      "mock": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 234,
+            "y": 547,
+            "w": 735,
+            "h": 319,
+            "columns": [
+              "Field",
+              "Before",
+              "Proposed",
+              "Purpose"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Decision path",
+            "x": 987,
+            "y": 547,
+            "w": 408,
+            "h": 319,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Inspect plan →",
+              "Inspect accepted evidence →",
+              "View verification →"
+            ],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Change and effect",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Stop threshold",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Field",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 3
+          },
+          "first": {
+            "text": "Freeze target, coverage, comparable windows and guardrails.",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.05px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Illustrative proposal. No real controller command is sent by",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 547,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 957,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1001
+      }
+    },
+    {
+      "screen": "changes",
+      "case": "no-selection-s601b",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/changes",
+      "mock_hash": "#/changes",
+      "app_image": "changes-no-selection-s601b-390-app.png",
+      "mock_image": "changes-no-selection-s601b-390-mock.png",
+      "app": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 16,
+            "y": 505,
+            "w": 358,
+            "h": 96,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Decision path",
+            "x": 16,
+            "y": 617,
+            "w": 358,
+            "h": 96,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 127
+        },
+        "h2": {
+          "text": "Change and effect",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": null,
+        "th": null,
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "10px": 2
+          },
+          "first": {
+            "text": "No change is selected, so no setting, version or outcome is ",
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Back to the Foundation",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "18px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "firstPanelY": 505,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "ol",
+            "cls": "site-tabs__list",
+            "client": 358,
+            "scroll": 521
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Change & effect [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect [current]"
+            ]
+          }
+        ],
+        "pageHeight": 900
+      },
+      "mock": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 15,
+            "y": 932,
+            "w": 360,
+            "h": 411,
+            "columns": [
+              "Field",
+              "Before",
+              "Proposed",
+              "Purpose"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Decision path",
+            "x": 15,
+            "y": 1361,
+            "w": 360,
+            "h": 353,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Inspect plan →",
+              "Inspect accepted evidence →",
+              "View verification →"
+            ],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 339
+        },
+        "h2": {
+          "text": "Change and effect",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Stop threshold",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Field",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 3
+          },
+          "first": {
+            "text": "Freeze target, coverage, comparable windows and guardrails.",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.05px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Illustrative proposal. No real controller command is sent by",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 932,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 511
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1905
+      }
+    }
+  ]
+}

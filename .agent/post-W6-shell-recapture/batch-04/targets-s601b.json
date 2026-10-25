@@ -1,0 +1,62 @@
+[
+ {
+  "id": "recommendation",
+  "case": "accepted",
+  "url": "http://localhost:5181/sites/KOBO-001/findings/b1cde1f1-c43d-4bcf-9ab8-e8ef2d842ae5/recommendation?revision_id=2a6d740f-42c9-4344-93a5-451fb0c0861d"
+ },
+ {
+  "id": "action-overview",
+  "case": "recorded",
+  "url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a"
+ },
+ {
+  "id": "action-overview",
+  "case": "pending-f02",
+  "url": "http://localhost:5181/sites/KOBO-001/actions/7e3a7942-abc3-4626-956d-069125bc6b23"
+ },
+ {
+  "id": "action-overview",
+  "case": "unknown-section",
+  "url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/nosuch"
+ },
+ {
+  "id": "action-execution",
+  "case": "applied",
+  "url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/execution"
+ },
+ {
+  "id": "action-execution",
+  "case": "failed-pending",
+  "url": "http://localhost:5181/sites/KOBO-001/actions/7e3a7942-abc3-4626-956d-069125bc6b23/execution"
+ },
+ {
+  "id": "action-history",
+  "case": "all",
+  "url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/history"
+ },
+ {
+  "id": "action-history",
+  "case": "event-failed-stale",
+  "url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/history?event_id=b18bab92-394a-43b9-a5a1-611ec4fae41d"
+ },
+ {
+  "id": "action-history",
+  "case": "recorded-at",
+  "url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/history?recorded_at=2026-11-01T00:30:00%2B00:00"
+ },
+ {
+  "id": "action-history",
+  "case": "selector-conflict",
+  "url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/history?event_id=152243eb-3583-40f3-8e31-f750347139b7&recorded_at=2026-11-01T00:30:00%2B00:00"
+ },
+ {
+  "id": "action-plan",
+  "case": "pre-plan-s601b",
+  "url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/plan"
+ },
+ {
+  "id": "action-evidence",
+  "case": "pre-plan-s601b",
+  "url": "http://localhost:5181/sites/KOBO-001/actions/9c967100-6f6b-4f36-b8b6-91041199105a/evidence"
+ }
+]

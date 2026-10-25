@@ -1,0 +1,2007 @@
+{
+  "revision": "ac2e9b4f",
+  "captured_at": "2026-10-25T02:07:35.449Z",
+  "pairs": [
+    {
+      "screen": "sld",
+      "case": "battery",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/sld?component=battery",
+      "mock_hash": "#/sld",
+      "app_image": "sld-battery-1440-app.png",
+      "mock_image": "sld-battery-1440-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 248,
+            "y": 339,
+            "w": 1145,
+            "h": 1097,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site evidence →",
+              "Clear selected part",
+              "Site Evidence →"
+            ],
+            "chips": [
+              "Configured, not live"
+            ],
+            "disclosures": [
+              "Advanced details — selected part channels"
+            ]
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 1453,
+            "w": 1145,
+            "h": 640,
+            "columns": [
+              "Part",
+              "Type",
+              "Declared rating",
+              "Channels"
+            ],
+            "rows": 10,
+            "links": [
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Diesel generator",
+              "Generator fuel tank",
+              "AC bus",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — diagram records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 4
+          },
+          "first": {
+            "text": "Topology type not stated in this version · configured equipm",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 339,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 2144,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Single line diagram [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram [current]",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2144
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 596,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 1030,
+            "w": 1161,
+            "h": 287,
+            "columns": [
+              "Part",
+              "Role at this site",
+              "What it reports"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Kobo Mini-grid · AC-coupled mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array + inverter",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1
+          },
+          "first": {
+            "text": "Configured equipment, protection and metering · reporting st",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "This is the configured site, not a live view. Ratings come f",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 416,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 1399,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1443
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "battery",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/sld?component=battery",
+      "mock_hash": "#/sld",
+      "app_image": "sld-battery-390-app.png",
+      "mock_image": "sld-battery-390-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 16,
+            "y": 507,
+            "w": 358,
+            "h": 1168,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site evidence →",
+              "PV array · 60 kW",
+              "PV inverter · 50 kW",
+              "Battery energy storage · 200 kWh",
+              "Battery power conversion system · 30 kW",
+              "Diesel generator · 40 kW",
+              "Generator fuel tank · 400 L",
+              "AC bus · 400 V",
+              "Residential feeder · 25 kW",
+              "Health clinic · 10 kW",
+              "Grain mill · 40 kW",
+              "Clear selected part",
+              "Site Evidence →"
+            ],
+            "chips": [
+              "Configured, not live"
+            ],
+            "disclosures": [
+              "Advanced details — selected part channels"
+            ]
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 1693,
+            "w": 358,
+            "h": 940,
+            "columns": [
+              "Part",
+              "Type",
+              "Declared rating",
+              "Channels"
+            ],
+            "rows": 10,
+            "links": [
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Diesel generator",
+              "Generator fuel tank",
+              "AC bus",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — diagram records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 127
+        },
+        "h2": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 4,
+            "12px": 1
+          },
+          "first": {
+            "text": "Topology type not stated in this version · configured equipm",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 507,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "ol",
+            "cls": "site-tabs__list",
+            "client": 358,
+            "scroll": 521
+          },
+          {
+            "tag": "div",
+            "cls": "data-table__scroll",
+            "client": 318,
+            "scroll": 341
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Single line diagram [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram [current]",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2674
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 15,
+            "y": 654,
+            "w": 360,
+            "h": 318,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 990,
+            "w": 360,
+            "h": 481,
+            "columns": [
+              "Part",
+              "Role at this site",
+              "What it reports"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 339
+        },
+        "h2": {
+          "text": "Kobo Mini-grid · AC-coupled mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array + inverter",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1
+          },
+          "first": {
+            "text": "Configured equipment, protection and metering · reporting st",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "This is the configured site, not a live view. Ratings come f",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 654,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 511
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1661
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "now",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/sld",
+      "mock_hash": "#/sld",
+      "app_image": "sld-now-1440-app.png",
+      "mock_image": "sld-now-1440-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 248,
+            "y": 339,
+            "w": 1145,
+            "h": 974,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site evidence →",
+              "Site Evidence →"
+            ],
+            "chips": [
+              "Configured, not live"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 1331,
+            "w": 1145,
+            "h": 640,
+            "columns": [
+              "Part",
+              "Type",
+              "Declared rating",
+              "Channels"
+            ],
+            "rows": 10,
+            "links": [
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Diesel generator",
+              "Generator fuel tank",
+              "AC bus",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — diagram records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 4
+          },
+          "first": {
+            "text": "Topology type not stated in this version · configured equipm",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 339,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 2021,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Single line diagram [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram [current]",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2021
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 596,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 1030,
+            "w": 1161,
+            "h": 287,
+            "columns": [
+              "Part",
+              "Role at this site",
+              "What it reports"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Kobo Mini-grid · AC-coupled mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array + inverter",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1
+          },
+          "first": {
+            "text": "Configured equipment, protection and metering · reporting st",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "This is the configured site, not a live view. Ratings come f",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 416,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 1399,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1443
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "now",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/sld",
+      "mock_hash": "#/sld",
+      "app_image": "sld-now-390-app.png",
+      "mock_image": "sld-now-390-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 16,
+            "y": 507,
+            "w": 358,
+            "h": 954,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site evidence →",
+              "PV array · 60 kW",
+              "PV inverter · 50 kW",
+              "Battery energy storage · 200 kWh",
+              "Battery power conversion system · 30 kW",
+              "Diesel generator · 40 kW",
+              "Generator fuel tank · 400 L",
+              "AC bus · 400 V",
+              "Residential feeder · 25 kW",
+              "Health clinic · 10 kW",
+              "Grain mill · 40 kW",
+              "Site Evidence →"
+            ],
+            "chips": [
+              "Configured, not live"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 1479,
+            "w": 358,
+            "h": 940,
+            "columns": [
+              "Part",
+              "Type",
+              "Declared rating",
+              "Channels"
+            ],
+            "rows": 10,
+            "links": [
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Diesel generator",
+              "Generator fuel tank",
+              "AC bus",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — diagram records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 127
+        },
+        "h2": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 4,
+            "12px": 1
+          },
+          "first": {
+            "text": "Topology type not stated in this version · configured equipm",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 507,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "ol",
+            "cls": "site-tabs__list",
+            "client": 358,
+            "scroll": 521
+          },
+          {
+            "tag": "div",
+            "cls": "data-table__scroll",
+            "client": 318,
+            "scroll": 341
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Single line diagram [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram [current]",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2460
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 15,
+            "y": 654,
+            "w": 360,
+            "h": 318,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 990,
+            "w": 360,
+            "h": 481,
+            "columns": [
+              "Part",
+              "Role at this site",
+              "What it reports"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 339
+        },
+        "h2": {
+          "text": "Kobo Mini-grid · AC-coupled mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array + inverter",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1
+          },
+          "first": {
+            "text": "Configured equipment, protection and metering · reporting st",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "This is the configured site, not a live view. Ratings come f",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 654,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 511
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1661
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "unknown-part",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/sld?component=no-such-part",
+      "mock_hash": "#/sld",
+      "app_image": "sld-unknown-part-1440-app.png",
+      "mock_image": "sld-unknown-part-1440-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 248,
+            "y": 400,
+            "w": 1145,
+            "h": 974,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site evidence →",
+              "Site Evidence →"
+            ],
+            "chips": [
+              "Configured, not live"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 1393,
+            "w": 1145,
+            "h": 640,
+            "columns": [
+              "Part",
+              "Type",
+              "Declared rating",
+              "Channels"
+            ],
+            "rows": 10,
+            "links": [
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Diesel generator",
+              "Generator fuel tank",
+              "AC bus",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — diagram records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 4
+          },
+          "first": {
+            "text": "Topology type not stated in this version · configured equipm",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 400,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 2083,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Single line diagram [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram [current]",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2083
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 596,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 1030,
+            "w": 1161,
+            "h": 287,
+            "columns": [
+              "Part",
+              "Role at this site",
+              "What it reports"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Kobo Mini-grid · AC-coupled mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array + inverter",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1
+          },
+          "first": {
+            "text": "Configured equipment, protection and metering · reporting st",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "This is the configured site, not a live view. Ratings come f",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 416,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 1399,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1443
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "unknown-part",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/foundation/sld?component=no-such-part",
+      "mock_hash": "#/sld",
+      "app_image": "sld-unknown-part-390-app.png",
+      "mock_image": "sld-unknown-part-390-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 16,
+            "y": 607,
+            "w": 358,
+            "h": 954,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Site evidence →",
+              "PV array · 60 kW",
+              "PV inverter · 50 kW",
+              "Battery energy storage · 200 kWh",
+              "Battery power conversion system · 30 kW",
+              "Diesel generator · 40 kW",
+              "Generator fuel tank · 400 L",
+              "AC bus · 400 V",
+              "Residential feeder · 25 kW",
+              "Health clinic · 10 kW",
+              "Grain mill · 40 kW",
+              "Site Evidence →"
+            ],
+            "chips": [
+              "Configured, not live"
+            ],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 1579,
+            "w": 358,
+            "h": 940,
+            "columns": [
+              "Part",
+              "Type",
+              "Declared rating",
+              "Channels"
+            ],
+            "rows": 10,
+            "links": [
+              "PV array",
+              "PV inverter",
+              "Battery energy storage",
+              "Battery power conversion system",
+              "Diesel generator",
+              "Generator fuel tank",
+              "AC bus",
+              "Residential feeder",
+              "Health clinic",
+              "Grain mill"
+            ],
+            "chips": [],
+            "disclosures": [
+              "Advanced details — diagram records"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 127
+        },
+        "h2": {
+          "text": "Kobo mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1,
+            "10px": 4,
+            "12px": 1
+          },
+          "first": {
+            "text": "Topology type not stated in this version · configured equipm",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 607,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "ol",
+            "cls": "site-tabs__list",
+            "client": 358,
+            "scroll": 521
+          },
+          {
+            "tag": "div",
+            "cls": "data-table__scroll",
+            "client": 318,
+            "scroll": 341
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Foundation",
+              "Single line diagram [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation [current]",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Foundation views",
+            "items": [
+              "Site model",
+              "Single line diagram [current]",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 2561
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 15,
+            "y": 654,
+            "w": 360,
+            "h": 318,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 990,
+            "w": 360,
+            "h": 481,
+            "columns": [
+              "Part",
+              "Role at this site",
+              "What it reports"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 339
+        },
+        "h2": {
+          "text": "Kobo Mini-grid · AC-coupled mini-grid",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "Solar array + inverter",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Part",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 1
+          },
+          "first": {
+            "text": "Configured equipment, protection and metering · reporting st",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "This is the configured site, not a live view. Ratings come f",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 654,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [
+          "Site"
+        ],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 511
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "label": "Section views",
+            "items": [
+              "Site model",
+              "Single line diagram",
+              "Readiness",
+              "Change & effect"
+            ]
+          }
+        ],
+        "pageHeight": 1661
+      }
+    }
+  ]
+}

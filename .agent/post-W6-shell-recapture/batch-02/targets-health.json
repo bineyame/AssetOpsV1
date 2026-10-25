@@ -1,0 +1,7 @@
+[
+ {
+  "id": "health",
+  "case": "kobo001-gateways",
+  "url": "http://localhost:5181/sites/KOBO-001/health"
+ }
+]

@@ -11,6 +11,7 @@ import type {
   EstateFindingsBody,
   EstateLens,
   EstateResult,
+  EstateScopeBody,
 } from "../estateClient";
 
 export const SITE_A = "10000000-0000-4000-8000-000000000011";
@@ -153,6 +154,7 @@ export function loaded<T>(value: T): EstateResult<T> {
 export function fakeClient(
   findings: (lens: EstateLens) => EstateResult<EstateFindingsBody>,
   actions: EstateResult<EstateActionsBody> = loaded(actionsBody()),
+  scope: EstateResult<EstateScopeBody> | null = null,
 ): EstateClient & { calls: unknown[] } {
   const calls: unknown[] = [];
   return {
@@ -165,7 +167,23 @@ export function fakeClient(
       calls.push({ kind: "actions", ...query });
       return Promise.resolve(actions);
     },
-    scope: () => Promise.reject(new Error("the pages do not read scope")),
+    // Q7: the Finding lenses read scope for Site names; no answer means the read failed (generic copy).
+    scope: (query) => {
+      calls.push({ kind: "scope", ...query });
+      return scope === null ? Promise.reject(new Error("no scope answer")) : Promise.resolve(scope);
+    },
     portfolio: () => Promise.reject(new Error("the W3-01 roots do not read the Portfolio")),
+  };
+}
+
+/** Q7: a scope body naming the given Sites (site_id -> name) at the fixture cutoff. */
+export function scopeBody(sites: [string, string][]): EstateScopeBody {
+  return {
+    schema_version: "estate-scope-1",
+    sites: sites.map(([site_id, site_name], i) => ({ site_id, site_code: `S-${i + 1}`, site_name, coverage_state: "CURRENT" })),
+    authorized_site_count: sites.length,
+    covered_site_count: sites.length,
+    access_basis: `sha256:${"b".repeat(64)}`,
+    known_at: KNOWN,
   };
 }

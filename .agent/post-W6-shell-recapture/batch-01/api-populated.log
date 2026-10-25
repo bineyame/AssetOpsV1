@@ -1,0 +1,223 @@
+api populated on 127.0.0.1:18101 (assetops_shellrc_b01_walk_test)
+INFO:     Started server process [20872]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:18101 (Press CTRL+C to quit)
+INFO:     127.0.0.1:61681 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60303 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51213 - "GET /api/sites/KOBO-001/assets/9f7a0a29-c36f-46a0-8203-46a69ccde612/battery HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51214 - "GET /api/sites/KOBO-001/assets/9f7a0a29-c36f-46a0-8203-46a69ccde612/battery HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62575 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62576 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62577 - "GET /api/sites/KOBO-001/assets/9f7a0a29-c36f-46a0-8203-46a69ccde612/battery HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62578 - "GET /api/sites/KOBO-001/assets/9f7a0a29-c36f-46a0-8203-46a69ccde612/battery HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59627 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59628 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59629 - "GET /api/sites/KOBO-001/assets/00000000-0000-4000-8000-000000000000/battery HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59630 - "GET /api/sites/KOBO-001/assets/00000000-0000-4000-8000-000000000000/battery HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53328 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53329 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53330 - "GET /api/sites/KOBO-001/assets/00000000-0000-4000-8000-000000000000/battery HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53331 - "GET /api/sites/KOBO-001/assets/00000000-0000-4000-8000-000000000000/battery HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64603 - "GET /api/sites/KOBO-002 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64604 - "GET /api/sites/KOBO-002 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62375 - "GET /api/sites/KOBO-002 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62376 - "GET /api/sites/KOBO-002 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61499 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61500 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49671 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49673 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63323 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63324 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63325 - "GET /api/sites/KOBO-001/foundation/changes/00000000-0000-4000-8000-000000000000 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:63327 - "GET /api/sites/KOBO-001/foundation/changes/00000000-0000-4000-8000-000000000000 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49933 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49935 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49937 - "GET /api/sites/KOBO-001/foundation/changes/00000000-0000-4000-8000-000000000000 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49939 - "GET /api/sites/KOBO-001/foundation/changes/00000000-0000-4000-8000-000000000000 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55657 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55656 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55655 - "GET /api/sites/KOBO-001/foundation?at=2026-09-30T00%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55660 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55661 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55662 - "GET /api/sites/KOBO-001/foundation?at=2026-09-30T00%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61406 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61405 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61404 - "GET /api/sites/KOBO-001/foundation?at=2026-09-30T00%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61408 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61407 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61409 - "GET /api/sites/KOBO-001/foundation?at=2026-09-30T00%3A00%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64060 - "GET /api/sites/KOBO-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64062 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64061 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64063 - "GET /api/sites/KOBO-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64064 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64065 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52560 - "GET /api/sites/KOBO-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52562 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52561 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52563 - "GET /api/sites/KOBO-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52564 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52565 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50399 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50398 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50397 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50400 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50401 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50402 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62249 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62248 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62247 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62250 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62251 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62252 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54155 - "GET /api/sites/KOBO-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54157 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54156 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54158 - "GET /api/sites/KOBO-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54160 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54159 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64646 - "GET /api/sites/KOBO-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64647 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64648 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64649 - "GET /api/sites/KOBO-001/foundation?at=2026-09-01T00%3A00%3A00Z HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:65108 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65109 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54639 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54638 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54637 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54642 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54641 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54643 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64723 - "GET /api/sites/KOBO-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50398 - "GET /api/sites/KOBO-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62566 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62567 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62565 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62568 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62569 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60871 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57691 - "GET /api/sites/KOBO-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63421 - "GET /api/sites/KOBO-001/gateway-health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65528 - "GET /api/sites HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "GET /api/simulator-lab/site-template-lineage HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65530 - "GET /api/sites HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65531 - "GET /api/simulator-lab/site-template-lineage HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62248 - "GET /api/simulator-lab/site-template-lineage HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62249 - "GET /api/sites HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62251 - "GET /api/simulator-lab/site-template-lineage HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62252 - "GET /api/sites HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50919 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50920 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50917 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50922 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50921 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50923 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54161 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54160 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54159 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54165 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54166 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54168 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52227 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52228 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52226 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52229 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52230 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52231 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59526 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59527 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59525 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59528 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59529 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59530 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52314 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52315 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52313 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52316 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62573 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62574 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65448 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65447 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65446 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65449 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65450 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65451 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52500 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52499 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52498 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52501 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52502 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52503 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53073 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53072 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53071 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53074 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53075 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53076 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61816 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61815 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61814 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61817 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61818 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61819 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62136 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62135 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62134 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62137 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62138 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62139 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60836 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60837 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60835 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60839 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60838 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60840 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50244 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50243 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50242 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50247 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50248 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50249 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65494 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65493 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65492 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65495 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65496 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65497 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59287 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59288 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59286 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56151 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60409 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64229 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60633 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60634 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60632 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60635 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60636 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60637 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59384 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59385 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59383 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59386 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59387 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59388 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64493 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64495 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64491 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64497 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64499 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64501 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52462 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52463 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52461 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52465 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52464 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52466 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51991 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51992 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51990 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51994 - "GET /api/sites/KOBO-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51993 - "GET /api/sites/KOBO-001/foundation/versions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51995 - "GET /api/sites/KOBO-001/foundation HTTP/1.1" 200 OK

@@ -33,6 +33,8 @@ import {
   KeyValues,
   MetricCard,
   MetricCards,
+  MissingClaim,
+  Notice,
   Panel,
   plainTime,
   SITE_SCREEN_DESCRIPTIONS,
@@ -56,7 +58,7 @@ import type {
 import { eventWords, outcomeWords as pendingOutcomeWords, Ref, SYSTEM_DEMONSTRATION, when } from "./actionPresentation";
 import { stateLabel, stateSentence, stateTone } from "./verificationWords";
 import type { TrialLinks } from "./recommendationVerification";
-import type { VerificationSummary } from "./verificationClient";
+import { createVerificationClient, type PlanBody, type VerificationClient, type VerificationSummary } from "./verificationClient";
 import "./w1f4-changes-work.css";
 
 export interface SiteFoundationChangeLinks {
@@ -175,18 +177,57 @@ function metricToneFor(state: string): MetricTone {
   return tone === "pass" ? "green" : tone === "fail" ? "red" : tone === "unknown" ? "muted" : "amber";
 }
 
+const DEFAULT_VERIFICATION = createVerificationClient();
+
+/** post-W6 shell R141 (Q14): copy for the frozen plan's Target and Guardrails cards. */
+export const PLAN_DETAILS_NOT_AVAILABLE = "Plan details are not available yet.";
+
+/** The not-available line, tagged as the registered gap (G-changes-plan-figures, register R379). */
+function PlanDetailsNotAvailable() {
+  return (
+    <MissingClaim gapId="G-changes-plan-figures" placement="changes.metrics.plan-figures">
+      {PLAN_DETAILS_NOT_AVAILABLE}
+    </MissingClaim>
+  );
+}
+
+/** Each figure is null on its own when the exact plan read carries no usable value for it (a D1 gap). */
+type PlanFigures = { target: string | null; guardrails: string | null } | null;
+
+/**
+ * The stored target and guardrail count of the frozen plan, each computed independently, or null when the read has
+ * no plan (a D1 gap; never inferred from the Action or the mock). `ratio` [num, den] means later × den ≤ earlier × num.
+ * The percentage is floored so it never overstates the required reduction.
+ */
+export function planFigures(body: PlanBody | null | undefined): PlanFigures {
+  const plan = body?.plan ?? null;
+  if (plan === null) return null;
+  const ratio = plan.target?.ratio;
+  let target: string | null = null;
+  if (Array.isArray(ratio) && ratio.length === 2) {
+    const [num, den] = ratio;
+    if (den > 0 && num >= 0 && num < den) target = `≥${Math.floor(((den - num) * 100) / den)}% lower`;
+    else if (den > 0 && num === den) target = "No increase";
+  }
+  const count = plan.guardrails ? Object.keys(plan.guardrails).length : 0;
+  const guardrails = count > 0 ? `${count} required` : null;
+  return target === null && guardrails === null ? null : { target, guardrails };
+}
+
 export function SiteFoundationChange({
   siteId,
   changeId,
   client,
   links,
   onTitle,
+  verificationClient = DEFAULT_VERIFICATION,
 }: {
   siteId: string;
   changeId: string;
   client: ActionClient;
   links: SiteFoundationChangeLinks;
   onTitle?: (title: string) => void;
+  verificationClient?: VerificationClient;
 }) {
   const [read, setRead] = useState<ActionReadResult<PolicyChangeBody> | null>(null);
   const [attempts, setAttempts] = useState<ActionReadResult<ActionEventsBody> | null>(null);
@@ -212,6 +253,33 @@ export function SiteFoundationChange({
     onTitle?.(change ? "Battery reserve change" : "Foundation change");
   }, [onTitle, change]);
 
+  // post-W6 shell R141 (Q14): the frozen plan is read only when the change names one.
+  const loadedVerification = read?.status === "loaded" ? (read.value.verification ?? null) : null;
+  const frozenPlanId =
+    loadedVerification && loadedVerification.state !== "NO_PLAN" ? loadedVerification.plan_id : null;
+  const planActionId = change?.action_id ?? null;
+  const [planRead, setPlanRead] = useState<{ planId: string; figures: PlanFigures | "pending" | "failed" } | null>(null);
+  useEffect(() => {
+    if (frozenPlanId === null || planActionId === null) {
+      setPlanRead(null);
+      return;
+    }
+    let active = true;
+    setPlanRead({ planId: frozenPlanId, figures: "pending" });
+    void verificationClient
+      .getPlan(siteId, planActionId, { id: frozenPlanId, recordedAt: null })
+      .then((loaded) => {
+        if (!active) return;
+        setPlanRead({ planId: frozenPlanId, figures: loaded.status === "loaded" ? planFigures(loaded.value) : "failed" });
+      })
+      .catch(() => {
+        if (active) setPlanRead({ planId: frozenPlanId, figures: "failed" });
+      });
+    return () => {
+      active = false;
+    };
+  }, [verificationClient, siteId, planActionId, frozenPlanId]);
+
   if (read === null) return <p>{FOUNDATION_CHANGE_LOADING}</p>;
   if (read.status === "refused") return <RefusedChange refusal={read} links={links} />;
 
@@ -221,6 +289,9 @@ export function SiteFoundationChange({
   const actionHref = links.action(c.action_id, "overview", LATEST);
   const verificationState = verification === null ? c.outcome.state : verification.state;
   const planId = verification && verification.state !== "NO_PLAN" ? verification.plan_id : null;
+  const planFigure = planRead !== null && planRead.planId === planId ? planRead.figures : "pending";
+  const figures = typeof planFigure === "object" ? planFigure : null;
+  const planState = planId === null ? "none" : planFigure === null ? "absent" : typeof planFigure === "string" ? planFigure : "loaded";
   const outcomeText = verification
     ? `Verification: ${stateLabel(verification.state, verification.reasons)}.`
     : pendingOutcomeWords(c.outcome.state);
@@ -268,21 +339,25 @@ export function SiteFoundationChange({
           note="Battery reserve · applied"
           data={{ "data-change-metric": "change" }}
         />
+        {/* post-W6 shell R141 (Q14): the frozen plan's stored target and guardrail count. While the plan read is
+            pending or failed, the cards keep "Set in the plan" and say the details are not available yet.
+            MOCK DEVIATION D1 (post-W6 shell Q14, register R379): a plan read with no stored target or
+            guardrails shows the same not-available line instead of the mock's values. */}
         <MetricCard
           label="Target"
-          value={planId ? "Set in the plan" : "Not recorded yet"}
-          note={planId ? "Frozen before the later window is judged" : "No verification plan is frozen yet"}
-          word
+          value={planId ? (figures?.target ?? "Set in the plan") : "Not recorded yet"}
+          note={planId ? (figures?.target ? "Frozen before the later window is judged" : <PlanDetailsNotAvailable />) : "No verification plan is frozen yet"}
+          word={!(planId && figures?.target)}
           tone={planId ? undefined : "muted"}
-          data={{ "data-change-metric": "target" }}
+          data={{ "data-change-metric": "target", "data-change-plan-read": planState }}
         />
         <MetricCard
           label="Guardrails"
-          value={planId ? "Set in the plan" : "Not recorded yet"}
-          note={planId ? "Service, reserve and stored-energy limits" : "Limits are set when the plan is frozen"}
-          word
+          value={planId ? (figures?.guardrails ?? "Set in the plan") : "Not recorded yet"}
+          note={planId ? (figures?.guardrails ? "Service, reserve and stored-energy limits" : <PlanDetailsNotAvailable />) : "Limits are set when the plan is frozen"}
+          word={!(planId && figures?.guardrails)}
           tone={planId ? undefined : "muted"}
-          data={{ "data-change-metric": "guardrails" }}
+          data={{ "data-change-metric": "guardrails", "data-change-plan-read": planState }}
         />
         <MetricCard
           label="Outcome"
@@ -350,7 +425,9 @@ export function SiteFoundationChange({
             ]}
           />
           <ChartNote>
-            Battery <Ref value={c.asset_id} attr="data-change-asset" /> · effective{" "}
+            {/* post-W6 shell R151 (Q15): the change DTO carries no stored battery label, so the sentence says
+                "Battery"; the asset UUID stays in the "Battery" row of the technical references above. */}
+            <span data-change-asset={c.asset_id}>Battery</span> · effective{" "}
             <span data-change-effective={c.effective_from}>{plainTime(c.effective_from) ?? when(c.effective_from)}</span>
             {c.validity === "EFFECTIVE_FROM_OPEN_ENDED" ? " onward" : null} · recorded{" "}
             <span data-change-recorded={c.recorded_at}>{plainTime(c.recorded_at) ?? when(c.recorded_at)}</span>
@@ -371,10 +448,11 @@ export function SiteFoundationChange({
         </Panel>
       </div>
 
-      <p className="notice notice--info" data-change-later-sections>
+      {/* post-W6 shell R119 (Q6): the mock's closing blue `.notice` (11 px, boxed); the copy stays this page's own. */}
+      <Notice tone="blue" data={{ "data-change-later-sections": "" }}>
         There is no list of Site changes yet; a change is reached from the Action that made it.{" "}
         <Link to={links.foundation}>Back to the Foundation</Link>
-      </p>
+      </Notice>
     </div>
   );
 }
@@ -585,6 +663,18 @@ function DecisionPath({
   );
 }
 
+/** post-W6 shell R151 (Q15): plain words for a failed application attempt's stored code. */
+export const FAILURE_WORDS: Record<string, string> = {
+  ACTION_FOUNDATION_STALE: "The site configuration changed before this was applied",
+  ACTION_VALUE_INVALID: "The proposed value was outside the allowed range",
+  ACTION_EFFECTIVE_TIME_INVALID: "The effective time was not valid",
+};
+export const FAILURE_WORDS_UNKNOWN = "The attempt was refused";
+
+export function failureWords(code: string | null | undefined): string {
+  return (code ? FAILURE_WORDS[code] : undefined) ?? FAILURE_WORDS_UNKNOWN;
+}
+
 /** Application attempts of the Action, read from its events; FAILED attempts changed nothing. */
 function Attempts({
   attempts,
@@ -622,10 +712,19 @@ function Attempts({
                 >
                   {plainTime(event.recorded_at) ?? when(event.recorded_at)}
                 </Link>{" "}
-                <Ref value={event.failure_code ?? "UNKNOWN"} />
+                <span data-change-failure-words={event.failure_code ?? "UNKNOWN"}>{failureWords(event.failure_code)}</span>
               </li>
             ))}
           </ul>
+          {/* post-W6 shell R151 (Q15): the raw failure codes stay reachable in the technical disclosure. */}
+          <ExactReferences
+            name="change-failed-attempt-codes"
+            variant="tech"
+            references={failed.map((event, index) => ({
+              label: `Attempt ${index + 1} failure code · ${plainTime(event.recorded_at) ?? when(event.recorded_at)}`,
+              value: event.failure_code ?? null,
+            }))}
+          />
         </>
       )}
     </div>

@@ -1,0 +1,7 @@
+Fresh receipts for every case meant to read CURRENT (view within about 2 minutes):
+  s7-current: diagnostic 85fe1d42-b535-4feb-8bd3-ab68204fa95d
+  s7-delayed-old: diagnostic a736a0e7-ab55-4ca5-8cde-187e241056f6
+  s7-queue-growth: diagnostic 9aebc2d8-14dc-4212-99b6-f7fc64447233
+  s7-clock-offset: diagnostic 5fd6a507-fa8c-437a-af6c-c0737f691a45
+  s7-disk-stop: diagnostic 32ce3420-ba40-4ace-b0a0-3b473f12baee
+  s7-disk-recovery: diagnostic 7296454e-4cf7-4d2b-ab10-12e5953fb745

@@ -1,0 +1,15 @@
+chrome pid 15092
+PASS  loaded http://localhost:5181/sites/KOBO-001/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  health-kobo001-gateways 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  health-kobo001-gateways 1440: mock rendered
+PASS  health-kobo001-gateways 1440: same panel count  {"app":["Physical asset condition","Data sources · data quality, not equipment condition"],"mock":["Physical asset condition","Data sources · data quality, not equipment condition"]}
+PASS  health-kobo001-gateways 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/health: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  health-kobo001-gateways 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/health: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  health-kobo001-gateways 390: mock rendered
+PASS  health-kobo001-gateways 390: same panel count  {"app":["Physical asset condition","Data sources · data quality, not equipment condition"],"mock":["Physical asset condition","Data sources · data quality, not equipment condition"]}
+PASS  health-kobo001-gateways 390: no app page overflow  {"overflowX":0}
+
+12/12 claims passed; evidence in .agent/post-W6-shell-recapture/batch-02/part-health

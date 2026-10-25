@@ -1,0 +1,12 @@
+[
+ {
+  "id": "dispatch",
+  "case": "default-no-day",
+  "url": "http://localhost:5181/sites/KOBO-001/performance/dispatch"
+ },
+ {
+  "id": "analysis",
+  "case": "limited",
+  "url": "http://localhost:5181/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis"
+ }
+]

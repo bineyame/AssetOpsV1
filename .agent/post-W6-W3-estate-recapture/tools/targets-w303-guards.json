@@ -1,0 +1,47 @@
+[
+ {
+  "id": "globalevidence",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5180/evidence?from=2026-10-07T00%3A00%3A00Z&to=2026-10-06T00%3A00%3A00Z"
+ },
+ {
+  "id": "globalevidence",
+  "case": "refused-over-31d",
+  "url": "http://127.0.0.1:5180/evidence?from=2026-09-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z"
+ },
+ {
+  "id": "globalevidence",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5180/evidence"
+ },
+ {
+  "id": "globalfinancials",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5180/financials?from=2026-10-07T00%3A00%3A00Z&to=2026-10-06T00%3A00%3A00Z"
+ },
+ {
+  "id": "globalfinancials",
+  "case": "refused-over-31d",
+  "url": "http://127.0.0.1:5180/financials?from=2026-09-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z"
+ },
+ {
+  "id": "globalfinancials",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5180/financials"
+ },
+ {
+  "id": "portfolio",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5180/portfolio?from=2026-10-07T00%3A00%3A00Z&to=2026-10-06T00%3A00%3A00Z"
+ },
+ {
+  "id": "portfolio",
+  "case": "refused-over-31d",
+  "url": "http://127.0.0.1:5180/portfolio?from=2026-09-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z"
+ },
+ {
+  "id": "portfolio",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5180/portfolio"
+ }
+]

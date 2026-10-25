@@ -8,8 +8,10 @@
   min-width: 500px;
 }
 
+/* Post-W6 W3-estate Q12 (R302): no vertical cap on the register, so every bounded row shows (both EV rows
+   included); the horizontal scroller at 390 is kept by the shared estate `.data-table__scroll` rule. */
 .estate-financials-table .data-table__scroll {
-  max-height: 176px;
+  overflow-x: auto;
 }
 
 .estate-financials .estate-financials-prose {
@@ -63,12 +65,8 @@
 }
 
 @media (max-width: 640px) {
-  /* Final review H1: the three-row baseline (header + 3 measured rows) fits before the list scrolls internally. */
   .estate-page[data-estate-root="financials"] .estate-financials-table .data-table {
     min-width: 800px;
-  }
-  .estate-financials-table .data-table__scroll {
-    max-height: 300px;
   }
 }
 

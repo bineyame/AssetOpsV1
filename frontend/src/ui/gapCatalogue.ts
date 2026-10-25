@@ -12,6 +12,7 @@
  */
 export const UI_GAP_CATALOGUE = {
   "G-finding-evidence-coverage": { status: "open", placements: ["finding-evidence.bundle.coverage"] },
+  "G-changes-plan-figures": { status: "open", placements: ["changes.metrics.plan-figures"] },
   "G-finding-evidence-use": { status: "open", placements: ["finding-evidence.bundle.use"] },
   "G-foundation-change-record": { status: "open", placements: ["foundation.controls.change-record"] },
   "G-foundation-constraint-evidence": { status: "open", placements: ["foundation.controls.constraint-evidence"] },

@@ -1,0 +1,32 @@
+[
+ {
+  "id": "cold-foundation",
+  "case": "stocked",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/foundation"
+ },
+ {
+  "id": "cold-readiness",
+  "case": "stocked",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/foundation/readiness"
+ },
+ {
+  "id": "cold-sld",
+  "case": "stocked",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/foundation/sld"
+ },
+ {
+  "id": "temperature",
+  "case": "excursion",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z"
+ },
+ {
+  "id": "coldbackup",
+  "case": "excursion",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z"
+ },
+ {
+  "id": "cold-finding",
+  "case": "start-excursion",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176"
+ }
+]

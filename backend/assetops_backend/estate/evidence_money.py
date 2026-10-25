@@ -17,7 +17,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Callable
 from urllib.parse import quote, urlencode
 
@@ -136,20 +136,56 @@ def _site_href(code: str) -> str:
     return f"/sites/{quote(code, safe='')}"
 
 
+def site_home_href(code: str, domain: str) -> str:
+    """Post-W6 W3-estate Q2/Q9: the Site home every estate row links to. An EV Site opens its EV overview
+    (`/sites/{code}/ev`); mini-grid and cold-chain keep the base Site route. `domain` is the estate domain constant
+    (`EV`) or the stored Site type (`EV_CHARGING`)."""
+    base = _site_href(code)
+    return f"{base}/ev" if DOMAIN_OF_SITE_TYPE.get(domain, domain) == EV else base
+
+
+#: Post-W6 W3-estate Q10: the longest selected window a Site route accepts.
+MAX_WINDOW = timedelta(days=31)
+
+
+def proven_window_query(lo: datetime | None, hi: datetime | None, known: datetime | None,
+                        evidence_cutoff: datetime | None, k: datetime, watermark: datetime | None = None,
+                        ) -> str | None:
+    """Closure 5 B5: the `from`/`to`/`known_at` query of one pinned Site window, only when `known` equals the
+    passed Site evidence cutoff and is at or before both the estate cutoff and the committed watermark. None when
+    anything is unproved."""
+    if (lo is None or hi is None or known is None or evidence_cutoff is None or known != evidence_cutoff
+            or known > k or (watermark is not None and known > watermark)):
+        return None
+    return urlencode([("from", cold.plain(lo)), ("to", cold.plain(hi)), ("known_at", cold.plain(known))])
+
+
+def finding_window_href(code: str, finding_id: str, lo: datetime | None, hi: datetime | None,
+                        known: datetime | None, evidence_cutoff: datetime | None, k: datetime,
+                        watermark: datetime | None = None) -> str | None:
+    """Post-W6 W3-estate Q4/Q10: a cold/EV Finding's exact Site route over the selected Site window that holds
+    it and the proven row-local cutoff; null when unproved, not a forward span, or longer than 31 days. Never
+    episode bounds."""
+    if lo is None or hi is None or not lo < hi or hi - lo > MAX_WINDOW:
+        return None
+    query = proven_window_query(lo, hi, known, evidence_cutoff, k, watermark)
+    return None if query is None else f"{_site_href(code)}/findings/{quote(str(finding_id), safe='')}?{query}"
+
+
 def window_links(code: str, domain: str, snap: dict[str, Any] | None, evidence_cutoff: datetime | None,
                  k: datetime) -> dict[str, Any]:
     """Closure 5 B5: a cold/EV row link carries only its own pinned `lo`/`hi` and row-local `known`, and only when
     `known` equals the passed Site evidence cutoff and is at or before both the estate cutoff and the committed
-    watermark. Anything unprovable (and every placeholder) is the base Site route, `Opens current Site view`."""
-    base = _site_href(code)
+    watermark. Anything unprovable (and every placeholder) is the Site home (EV: `/sites/{code}/ev`), `Opens
+    current Site view`."""
+    base, home = _site_href(code), site_home_href(code, domain)
     if snap is not None:
-        lo, hi, known, mark = snap.get("lo"), snap.get("hi"), snap.get("known"), snap.get("watermark")
-        if (lo is not None and hi is not None and known is not None and evidence_cutoff is not None
-                and known == evidence_cutoff and known <= k and (mark is None or known <= mark)):
+        query = proven_window_query(snap.get("lo"), snap.get("hi"), snap.get("known"), evidence_cutoff, k,
+                                    snap.get("watermark"))
+        if query is not None:
             path = f"{base}/evidence" if domain == COLD else f"{base}/ev/evidence"
-            query = urlencode([("from", cold.plain(lo)), ("to", cold.plain(hi)), ("known_at", cold.plain(known))])
-            return {"site": base, "site_readiness": f"{path}?{query}", "site_readiness_label": None}
-    return {"site": base, "site_readiness": base, "site_readiness_label": CURRENT_VIEW}
+            return {"site": home, "site_readiness": f"{path}?{query}", "site_readiness_label": None}
+    return {"site": home, "site_readiness": home, "site_readiness_label": CURRENT_VIEW}
 
 
 def _gap(domain: str, code: str, role: str | None, label: str, step: str) -> dict[str, Any]:
@@ -180,7 +216,8 @@ def _row(site: dict[str, Any], domain: str, key: str, label: str, **values: Any)
            "window_start": None, "window_end": None, "raw_state": UNASSESSED, "readiness": UNKNOWN,
            "current_ceiling": None, "ceiling": None, "ceiling_source": "NONE", "next_evidence": None,
            "gap_codes": [], "selected_revision_ids": [], "source_provenance": dict(NO_PROVENANCE),
-           "links": {"site": _site_href(site["site_code"]), "site_readiness": _site_href(site["site_code"]),
+           "links": {"site": site_home_href(site["site_code"], domain),
+                     "site_readiness": site_home_href(site["site_code"], domain),
                      "site_readiness_label": CURRENT_VIEW},
            "disclosure": {"capability_key": key, "constituents": [], "reasons": [], "historical": None},
            "_key": (str(site["site_code_key"]), str(site["site_id"]).lower(), key), "_gaps": [],

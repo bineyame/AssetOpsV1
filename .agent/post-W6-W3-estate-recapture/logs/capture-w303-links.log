@@ -1,0 +1,53 @@
+chrome pid 7924
+PASS  loaded http://127.0.0.1:5180/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l00 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l01 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l02 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/KOBO-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-w303-l03 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/COLD-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l04 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/KOBO-001/financials: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-w303-l05 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/EV-LAB-001/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l06 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l07 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/EV-LAB-002/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l08 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/EV-LAB-002/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l09 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l10 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-w303-l11 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/KOBO-001/findings/00000002-0000-4000-8000-000000000749?revision_id=00000002-0000-4000-8000-00000000074b: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l12 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/COLD-LAB-001/performance/temperature: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l13 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/EV-LAB-001/performance/sessions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-w303-l14 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/EV-LAB-002/performance/sessions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-w303-l15 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/KOBO-001/performance/service: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-w303-l16 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/COLD-LAB-001/performance/backup: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l17 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/KOBO-001/performance/backup: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l18 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/COLD-LAB-001/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-w303-l19 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/EV-LAB-001/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-w303-l20 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/EV-LAB-002/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-w303-l21 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/KOBO-001/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-w303-l22 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-w303-l23 1440: app rendered
+PASS  loaded http://127.0.0.1:5180/sites/KOBO-001/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-w303-l24 1440: app rendered
+
+50/50 claims passed; evidence in part-w303-links
