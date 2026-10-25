@@ -2452,3 +2452,5 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - UI pass: dark mobile header stretches to ~275-335 px on short 390 pages (also cold K4).
 
 - **Frontend load flakes (2026-10-25).** `frontend/src/**/evEnergy.test.tsx` "energy_states_table_loading" ("the store read has not settled", 14 s timeout) fails intermittently in full vitest runs that overlap captures/suites (seen in shell, W1-a, W1-b batches); passes alone. Also once: `s404SiteFindingIndex.test.tsx` "assessed empty > changing the dates writes a new window…". Make the waits deterministic (fake timers or longer per-test timeout) in a small test-hygiene slice.
+
+- **Post-W6 follow-ups for the final complete review (2026-10-25).** (a) W6 review L1: global Work row basis does not bind `site_domain`; a Site with work cases but no evidence could change type between pages without a 409 — Architect to decide. (b) W1-a Lows: cue ResizeObserver/toggle unit test; stale packet numbers. (c) R328 needs a public Finding code (backend contract slice, W4 build ruling 1). (d) R374 development_access composition gap before real principals. (e) Global error boundary slice (R386).
