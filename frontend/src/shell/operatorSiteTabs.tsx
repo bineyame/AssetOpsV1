@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import { useCurrentTabInView } from "../ui/useCurrentTabInView";
+import "../ui/mock-deviation.css";
 
 import {
   siteDetailHref,
@@ -107,7 +108,7 @@ export function OperatorSiteTabs({ siteId, current }: OperatorSiteTabsProps) {
   }
 
   return (
-    <nav className="site-tabs" aria-label={OPERATOR_SITE_TABS_LABEL} ref={rowRef}>
+    <nav className="site-tabs site-tabs--site" aria-label={OPERATOR_SITE_TABS_LABEL} ref={rowRef}>
       <ol className="site-tabs__list">
         {OPERATOR_SITE_TABS.map((tab) => (
           <li className="site-tabs__item" key={tab.label}>
@@ -121,6 +122,11 @@ export function OperatorSiteTabs({ siteId, current }: OperatorSiteTabsProps) {
           </li>
         ))}
       </ol>
+      {/* post-W6 W4 R333: up to 760 px the row wraps so every label stays visible (WCAG 2.2 reflow). The mock keeps
+          one scrolling row, so the wrap is a proposed departure, labelled where it shows (the line is hidden wider). */}
+      <p className="mock-deviation-line site-tabs__deviation" data-mock-deviation="R453">
+        MOCK DEVIATION D2 (R453)
+      </p>
     </nav>
   );
 }
