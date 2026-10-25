@@ -445,7 +445,7 @@ Each open D1/D2/D4/D5/D6 row must show `MOCK DEVIATION Dn` beside the affected e
 | R344 | B15-10 | cold-action | D3 | Fix in W5-cold-Work | open |
 | R345 | B16-06 | availability | D3 | Fix in W5-EV-Work | open |
 | R346 | B16-07 | energy | D3 | Fix in W5-EV-Work | open |
-| R347 | B16-16 | availability, energy, ev-health, ev-scenarios, ev-work | D3 | Fix in W5-EV-Work | open |
+| R347 | B16-16 | availability, energy, ev-health, ev-scenarios, ev-work | D3 | W2-EV owns common EV tab mechanism; W5-EV-Work applies it to depth/work and recaptures | open |
 | R348 | B17-04 | ev-action | D3 | Fix in W5-EV-Work | open |
 | R349 | B17-06 | ev-action | D3 | Fix in W5-EV-Work | open |
 | R350 | B17-08 | link-check | D3 | Fix in W5-EV-Work | open |
@@ -471,8 +471,8 @@ Each open D1/D2/D4/D5/D6 row must show `MOCK DEVIATION Dn` beside the affected e
 | R370 | B19-10 | wr-overview, wr-record, wr-history | D3 | Fix in W6-global-Work | open |
 | R371 | B19-12 | link-check | D3 | Fix in W6-global-Work | open |
 | R372 | B19-13 | wr-overview, wr-record, wr-history | D3 | Fix in W6-global-Work | open |
-| R373 | B19-15 | wr-overview, wr-record, wr-history | D3 | Fix in W6-global-Work | open |
-| R374 | R373 rulings Q4 | estate roots (`/api/estate/*`) and other Site reads composed with `development_access` | D3 | Separate security audit and slice before real principal rollout: inventory every affected `create_app` route, one principal policy, prove denied reads and lists | open |
+| R373 | B19-15 | wr-overview, wr-record, wr-history | D3 | Fix in W6-global-Work | resolved (merged 2026-10-25) |
+| R374 | R373 rulings Q4 | estate roots (`/api/estate/*`) and other Site reads composed with `development_access` | D3 | Separate security audit and slice before real principal rollout: inventory every affected `create_app` route, one principal policy, prove denied reads and lists. Named by R373 review L1: `/api/sites/{s}/work/decision-contexts` (mini_decisions_api.py, own development_access, can reveal case existence) and `/api/sites/{s}/action-index`; also the global lists treating an access 401 as denied (empty 200) | open |
 | R375 | B1-16 (R127 split, shell Q3/Q9) | sites | D4 | `MOCK DEVIATION D4`: subtitle stays "Every site configured in this build." instead of the mock's "Find and compare sites across the operating estate"; the root crumb (D3) is fixed. Label at `shell/SitesFrame.tsx`. | open |
 | R376 | B1-14 (R125 split, shell Q3/Q8) | sites, foundation | D4 | `MOCK DEVIATION D4`: provenance chip says "Demonstration data", not "Simulated"; its tone now follows the mock purple (D3 fixed). Labels at the Foundation Identity "Evidence mode" row and the Sites inventory chip (`SitesIndex.tsx`). | open |
 | R377 | B1-21 (R129 split, shell Q3/Q10) | foundation | D2 | `MOCK DEVIATION D2`: topology cards keep one icon per declared part and linked part names (selection carries `?component` to SLD/Readiness) where the mock draws one centred icon; bus colour and icon centring (D3) are fixed. Proposed for owner approval. | open |

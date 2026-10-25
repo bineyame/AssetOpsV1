@@ -362,7 +362,7 @@ describe("W6-01c C3: work request Maintenance record", () => {
 
   it.each([
     ["UNAUTHENTICATED", "Sign in to see work records."],
-    ["SITE_SCOPE_FORBIDDEN", "No access to this Site's work request."],
+    ["SITE_SCOPE_FORBIDDEN", "No access to this Site's work."],
     ["WORK_CASE_NOT_FOUND", "No work case with this ID at this site."],
     ["WORK_STORE_UNAVAILABLE", "Work records could not be read. Reload."],
   ] as const)("states the %s refusal, keeps the panel slot and renders no notice", async (code, sentence) => {

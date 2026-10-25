@@ -1,0 +1,17 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "mini-200-granted",
+  "url": "http://127.0.0.1:5189/maintenance/requests/0f0c78a5-4d0c-413b-b2ad-7218d7526658?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "mini-200-granted",
+  "url": "http://127.0.0.1:5189/maintenance/requests/0f0c78a5-4d0c-413b-b2ad-7218d7526658/record?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "mini-200-granted",
+  "url": "http://127.0.0.1:5189/maintenance/requests/0f0c78a5-4d0c-413b-b2ad-7218d7526658/history?site_id=KOBO-001"
+ }
+]
