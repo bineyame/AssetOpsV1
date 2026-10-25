@@ -743,4 +743,28 @@ describe("post-W6 W3-estate Findings and Actions roots", () => {
     expect(Array.from(main().querySelectorAll("[data-estate-action-link]")).map((a) => a.textContent)).toEqual(actions.map((a) => a.action_title));
     view.unmount();
   });
+
+  it("M1: the Findings index table renders a colgroup whose first column is the 152px Finding column at narrow width", async () => {
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/estate/estate.css`, "utf8");
+    const narrow = css.slice(css.indexOf("@media (max-width: 640px)"));
+    const client = fakeClient((lens) => loaded(findingsBody(lens, { rows: [findingRow(1)] })));
+    for (const entry of [`/findings?${WINDOW}`, `/findings/cost?${WINDOW}`]) {
+      const view = renderAt(entry, client);
+      await settledScreen();
+      const table = main().querySelector("table.data-table") as HTMLElement;
+      const cols = Array.from(table.querySelectorAll("colgroup > col.estate-findings-col"));
+      // Rendered structure: one col per header, so the pixel rules below address real columns.
+      expect(cols).toHaveLength(table.querySelectorAll("thead th").length);
+      expect(cols).toHaveLength(7);
+      // The narrow rules give every column a pixel width; the first is 152px and the table is a fixed 672px.
+      expect(narrow).toMatch(/col\.estate-findings-col:nth-child\(1\) \{ width: 152px !important; \}/);
+      expect(narrow).toMatch(/:has\(col\.estate-findings-col\) \{[^}]*table-layout: fixed;[^}]*width: 672px/s);
+      const px = Array.from(narrow.matchAll(/col\.estate-findings-col:nth-child\((\d)\) \{ width: (\d+)px/g)).map((m) => Number(m[2]));
+      expect(px).toHaveLength(7);
+      expect(px.reduce((a, b) => a + b, 0)).toBe(672);
+      view.unmount();
+    }
+  });
 });

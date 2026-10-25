@@ -120,7 +120,7 @@ describe("estate Portfolio page", () => {
     ]);
     expect(text(priority.querySelector("[data-portfolio-count]"))).toBe("2 selected Findings · coverage incomplete");
     const partialObjectives = document.querySelector("[data-portfolio-panel='objectives']") as HTMLElement;
-    expect(text(partialObjectives)).toContain("Site detail is unavailable for these cells.");
+    expect(text(partialObjectives)).not.toContain("Site detail is unavailable for these cells.");
     expect(text(partialObjectives)).not.toContain("Select a linked cell for context.");
     const w1 = priority.querySelector(`[data-portfolio-row^='f1f1f1f1']`) as HTMLElement;
     const cells = Array.from(w1.querySelectorAll("td")).map(lines);
@@ -178,7 +178,7 @@ describe("estate Portfolio page", () => {
     expect(cell("KOBO-001", "SERVICE_PRODUCT").getAttribute("aria-description")).toBe("No reviewed objective assessment");
     expect(objectives.querySelector("a")).toBeNull();
     expect(text(objectives)).toContain(
-      "Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured. Site detail is unavailable for these cells.",
+      "Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured.",
     );
     expect(text(objectives)).not.toContain("Select a linked cell for context.");
   });

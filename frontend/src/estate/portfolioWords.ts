@@ -23,7 +23,7 @@ export const PRIORITY_SUBTITLE = "Selected Findings across accessible Sites; pri
 export const OBJECTIVES_PANEL = "Objectives across the estate";
 export const OBJECTIVES_SUBTITLE = "Operating condition, not a composite health score";
 export const OBJECTIVES_FOOTNOTE =
-  "Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured. Site detail is unavailable for these cells.";
+  "Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured.";
 export const EVIDENCE_ASIDE = "Evidence that would change a decision";
 export const OPPORTUNITY_PANEL = "An opportunity beyond reducing cost";
 export const PROGRESS_PANEL = "What changed in this review";

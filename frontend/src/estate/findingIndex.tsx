@@ -329,7 +329,7 @@ function FindingRowsTable({ body, linkedIds }: { body: EstateFindingsBody; linke
     <DataTable labelledBy="estate-findings-heading">
       <colgroup>
         {[23, 13, 10, 11, 11, 22, 10].map((width, index) => (
-          <col key={index} style={{ width: `${width}%` }} />
+          <col key={index} className="estate-findings-col" style={{ width: `${width}%` }} />
         ))}
       </colgroup>
       <thead>

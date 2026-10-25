@@ -144,6 +144,23 @@
   .estate-page .data-table col:first-child {
     width: 152px !important;
   }
+
+  /* M1 (fix round): percent widths on the other columns left the first column ~205px inside a 900px table. At 390
+     the Findings table takes fixed pixel widths (672px, as the mock) so Finding is 152px and Priority and part of
+     Confidence are visible beside Site. */
+  .estate-page:not([data-estate-root="actions"]) .data-table:has(col.estate-findings-col) {
+    table-layout: fixed;
+    width: 672px;
+    min-width: 672px;
+  }
+
+  .estate-page .data-table col.estate-findings-col:nth-child(1) { width: 152px !important; }
+  .estate-page .data-table col.estate-findings-col:nth-child(2) { width: 96px !important; }
+  .estate-page .data-table col.estate-findings-col:nth-child(3) { width: 76px !important; }
+  .estate-page .data-table col.estate-findings-col:nth-child(4) { width: 90px !important; }
+  .estate-page .data-table col.estate-findings-col:nth-child(5) { width: 84px !important; }
+  .estate-page .data-table col.estate-findings-col:nth-child(6) { width: 110px !important; }
+  .estate-page .data-table col.estate-findings-col:nth-child(7) { width: 64px !important; }
 }
 
 @media (max-width: 360px) {
