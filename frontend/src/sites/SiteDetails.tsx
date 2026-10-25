@@ -91,6 +91,12 @@ export interface SiteDetailsProps {
    */
   parentTrail?: (siteId: string) => Crumb[];
   /**
+   * The Site's own address (post-W6 W1-a Q1 / R156). When given, the Site crumb
+   * links to it and the trail ends at the current leaf, `Overview`, as in
+   * `Sites › {site} › Overview`. The shell owns its routes, so it supplies this.
+   */
+  siteHref?: (siteId: string) => string;
+  /**
    * Site actions the composing shell owns, placed inside the Quick actions
    * panel. The gated ones cannot live here: they depend on the feature flag
    * and on the Lab entry point, and this module may import neither.
@@ -115,6 +121,7 @@ export function SiteDetails({
   detail,
   tabs,
   parentTrail,
+  siteHref,
   quickActions,
   overview,
   templateLineage,
@@ -173,6 +180,7 @@ export function SiteDetails({
       site={result.site}
       tabs={tabs}
       parentTrail={parentTrail}
+      siteHref={siteHref}
       quickActions={quickActions}
       overview={overview}
       lineage={lineage?.get(result.site.site_id)}
@@ -207,6 +215,8 @@ export interface SiteDetailFactsProps {
   tabs?: ReactNode;
   /** See `SiteDetailsProps.parentTrail`. */
   parentTrail?: (siteId: string) => Crumb[];
+  /** See `SiteDetailsProps.siteHref`. */
+  siteHref?: (siteId: string) => string;
   /** See `SiteDetailsProps.quickActions`. */
   quickActions?: ReactNode;
   /** See `SiteDetailsProps.overview`. */
@@ -219,6 +229,7 @@ export function SiteDetailFacts({
   site,
   tabs,
   parentTrail,
+  siteHref,
   quickActions,
   overview,
   lineage,
@@ -228,7 +239,13 @@ export function SiteDetailFacts({
   return (
     <>
       {parentTrail === undefined ? null : (
-        <Breadcrumbs trail={[...parentTrail(view.siteId), { label: view.displayName }]} />
+        <Breadcrumbs
+          trail={
+            siteHref === undefined
+              ? [...parentTrail(view.siteId), { label: view.displayName }]
+              : [...parentTrail(view.siteId), { label: view.displayName, to: siteHref(view.siteId) }, { label: "Overview" }]
+          }
+        />
       )}
 
       {/*

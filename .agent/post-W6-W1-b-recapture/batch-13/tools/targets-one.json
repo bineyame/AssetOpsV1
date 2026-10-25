@@ -1,0 +1,72 @@
+[
+ {
+  "id": "sitework-incidents",
+  "case": "one-incident",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "one-request",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "empty-kobo",
+  "url": "http://127.0.0.1:5183/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "empty-kobo",
+  "url": "http://127.0.0.1:5183/sites/KOBO-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "empty-past-window",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "refused-long",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/work/incidents"
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "supported-current",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/opportunities/68f33657-3722-4c50-a183-ca503ce6e826"
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "supported-historical",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/opportunities/68f33657-3722-4c50-a183-ca503ce6e826?known_at=2026-10-25T09%3A35%3A34.634534Z"
+ },
+ {
+  "id": "scenarios",
+  "case": "positive-default",
+  "url": "http://127.0.0.1:5183/sites/MG-W402-001/financials/scenarios"
+ },
+ {
+  "id": "alternatives",
+  "case": "db-time-409",
+  "url": "http://127.0.0.1:5183/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/alternatives?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427"
+ },
+ {
+  "id": "alternatives",
+  "case": "no-revision",
+  "url": "http://127.0.0.1:5183/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/alternatives"
+ }
+]

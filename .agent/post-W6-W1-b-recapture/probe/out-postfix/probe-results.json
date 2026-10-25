@@ -1,0 +1,314 @@
+[
+ {
+  "name": "assumptions-default-s408-fix",
+  "variant": "interp-160-3rows",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 578
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 681
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "rows": 3,
+  "intendedFields": 6,
+  "fields160": 6,
+  "realBadges": [
+   "Latest at this moment",
+   "Latest at this moment",
+   "Earlier version"
+  ],
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "consequenceScroll": {
+   "clientH": 480,
+   "scrollH": 484,
+   "overflowY": "auto",
+   "maxH": "480px",
+   "cueHidden": false,
+   "focusable": true,
+   "role": "region",
+   "label": "Fuel cost versions"
+  },
+  "panelH": 749,
+  "rowHs": [
+   150,
+   150,
+   149
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedAll": {
+   "panelH": 1636,
+   "rowHs": [
+    3203,
+    3938,
+    3937
+   ],
+   "consequenceScroll": {
+    "clientH": 480,
+    "scrollH": 11113,
+    "overflowY": "auto",
+    "maxH": "480px",
+    "cueHidden": false,
+    "focusable": true,
+    "role": "region",
+    "label": "Fuel cost versions"
+   },
+   "clipped": [],
+   "innerScrollX": [],
+   "docOverflowX": 0
+  }
+ },
+ {
+  "name": "assumptions-default-s408-fix",
+  "variant": "interp-160-3rows",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 934
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 1045
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "rows": 3,
+  "intendedFields": 6,
+  "fields160": 6,
+  "realBadges": [
+   "Latest at this moment",
+   "Latest at this moment",
+   "Earlier version"
+  ],
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "consequenceScroll": {
+   "clientH": 900,
+   "scrollH": 1324,
+   "overflowY": "auto",
+   "maxH": "900px",
+   "cueHidden": false,
+   "focusable": true,
+   "role": "region",
+   "label": "Fuel cost versions"
+  },
+  "panelH": 1312,
+  "rowHs": [
+   430,
+   430,
+   429
+  ],
+  "clipped": [],
+  "innerScrollX": [
+   "data-table__scroll:416/318",
+   "data-table__scroll:764/286",
+   "data-table__scroll:770/286"
+  ],
+  "docOverflowX": 0,
+  "openedAll": {
+   "panelH": 2531,
+   "rowHs": [
+    5783,
+    7019,
+    7019
+   ],
+   "consequenceScroll": {
+    "clientH": 900,
+    "scrollH": 19856,
+    "overflowY": "auto",
+    "maxH": "900px",
+    "cueHidden": false,
+    "focusable": true,
+    "role": "region",
+    "label": "Fuel cost versions"
+   },
+   "clipped": [],
+   "innerScrollX": [
+    "data-table__scroll:437/318",
+    "data-table__scroll:764/286",
+    "data-table__scroll:770/286"
+   ],
+   "docOverflowX": 0
+  }
+ },
+ {
+  "name": "assumptions-default-s408-fix",
+  "variant": "interp-160-5rows",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 578
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 681
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "rows": 5,
+  "intendedFields": 10,
+  "fields160": 10,
+  "realBadges": [
+   "Latest at this moment",
+   "Latest at this moment",
+   "Earlier version",
+   "Latest at this moment",
+   "Latest at this moment"
+  ],
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "consequenceScroll": {
+   "clientH": 480,
+   "scrollH": 783,
+   "overflowY": "auto",
+   "maxH": "480px",
+   "cueHidden": false,
+   "focusable": true,
+   "role": "region",
+   "label": "Fuel cost versions"
+  },
+  "panelH": 749,
+  "rowHs": [
+   150,
+   150,
+   150,
+   150,
+   149
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedAll": {
+   "panelH": 1636,
+   "rowHs": [
+    3203,
+    3938,
+    3938,
+    3203,
+    3937
+   ],
+   "consequenceScroll": {
+    "clientH": 480,
+    "scrollH": 18254,
+    "overflowY": "auto",
+    "maxH": "480px",
+    "cueHidden": false,
+    "focusable": true,
+    "role": "region",
+    "label": "Fuel cost versions"
+   },
+   "clipped": [],
+   "innerScrollX": [],
+   "docOverflowX": 0
+  }
+ },
+ {
+  "name": "assumptions-default-s408-fix",
+  "variant": "interp-160-5rows",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "Financial assumptions",
+    "h": 934
+   },
+   {
+    "t": "Impact preview",
+    "h": 256
+   },
+   {
+    "t": "Interpretation history",
+    "h": 1045
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "rows": 5,
+  "intendedFields": 10,
+  "fields160": 10,
+  "realBadges": [
+   "Latest at this moment",
+   "Latest at this moment",
+   "Earlier version",
+   "Latest at this moment",
+   "Latest at this moment"
+  ],
+  "title": "Interpretation history",
+  "versionScroll": null,
+  "consequenceScroll": {
+   "clientH": 900,
+   "scrollH": 2184,
+   "overflowY": "auto",
+   "maxH": "900px",
+   "cueHidden": false,
+   "focusable": true,
+   "role": "region",
+   "label": "Fuel cost versions"
+  },
+  "panelH": 1312,
+  "rowHs": [
+   430,
+   430,
+   430,
+   430,
+   429
+  ],
+  "clipped": [],
+  "innerScrollX": [
+   "data-table__scroll:416/318",
+   "data-table__scroll:764/286",
+   "data-table__scroll:770/286"
+  ],
+  "docOverflowX": 0,
+  "openedAll": {
+   "panelH": 2531,
+   "rowHs": [
+    5783,
+    7019,
+    7019,
+    5783,
+    7019
+   ],
+   "consequenceScroll": {
+    "clientH": 900,
+    "scrollH": 32658,
+    "overflowY": "auto",
+    "maxH": "900px",
+    "cueHidden": false,
+    "focusable": true,
+    "role": "region",
+    "label": "Fuel cost versions"
+   },
+   "clipped": [],
+   "innerScrollX": [
+    "data-table__scroll:437/318",
+    "data-table__scroll:764/286",
+    "data-table__scroll:770/286"
+   ],
+   "docOverflowX": 0
+  }
+ }
+]

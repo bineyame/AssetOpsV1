@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { selectedClassification } from "./sourceProvenance";
 import { classificationWord } from "./coldAssessmentWords";
@@ -23,9 +23,9 @@ import {
 } from "../ui";
 import { UnavailableInline, UnavailableLinkEntry } from "../ui/UnavailableEntry";
 import { coldWindowSearch } from "./coldAssessmentClient";
-import { eatTime } from "./coldSiteViews";
-import { date, dayHm, hm } from "./coldFormat";
-import { evRefusalText } from "./EvAssessmentViews";
+import { siteTime, siteZoneAvailable, siteZoneLabel } from "./siteTime";
+import { dayHm, hm } from "./coldFormat";
+import { NOT_ASSESSED, RefusedGap, RefusedHead, evRefusalText, plural } from "./EvAssessmentViews";
 import type { EvEnvelope, EvRead, EvWindowQuery } from "./evAssessmentClient";
 import type {
   EvAnalysisItem,
@@ -40,6 +40,7 @@ import type {
 } from "./evSiteClient";
 import { EvScenarios } from "./EvScenarios";
 import { createEvScenariosClient, type EvScenariosClient } from "./evScenariosClient";
+import { renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
 import { EvPowerChart } from "./assessmentGraphics";
 import "./w2-ev-site.css";
 
@@ -79,6 +80,12 @@ export interface EvSiteRoutes {
   availability: string;
   /** W5-03a E3: the selected EV Energy / site power depth page (Performance subtab). */
   energy: string;
+  /** post-W6 W2-EV R254 (Q15): the EV Health page the Charger condition card's View detail opens. */
+  health: string;
+  /** post-W6 W2-EV R258 (Q15): the EV Work page the Cause row's next step opens. */
+  work: string;
+  /** post-W6 W2-EV R258 (Q15): the mounted estate Evidence page (strip "Portfolio evidence"). */
+  portfolioEvidence: string;
   finding: (findingId: string) => string;
   /** W2-F B2/M8: the Foundation single line diagram at one instant (`at` only; no `from` or `known_at`). */
   sld: (at: string) => string;
@@ -156,11 +163,6 @@ function Chip({ word }: { word: string }) {
   );
 }
 
-const pad = (n: number) => String(n).padStart(2, "0");
-function hms(value: string | null | undefined): string {
-  const d = date(value);
-  return d === null ? NOT_RECORDED : `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
-}
 const instant = (value: string | null | undefined) => (value ? `${value}` : NOT_RECORDED);
 
 /** Display rounding of an exact Decimal string to two places, half even on the absolute value, without a float. */
@@ -266,6 +268,12 @@ function Gap({ id, children }: { id: string; children: ReactNode }) {
   );
 }
 
+/* ---------- refused pages (post-W6 W2-EV R284, cross-card ruling 5) ---------- */
+
+/** The Overview's five and the Financials' four tile labels, kept on a refused page with `Not assessed` values. */
+const OVERVIEW_TILES = ["Session service", "Availability", "Site power", "Charger condition", "Evidence"];
+const FINANCIAL_TILES = ["Delivered energy", "Gross tariff estimate", "Lost revenue", "Collections"];
+
 /* ---------- shared strip pieces ---------- */
 
 /** Evidence aggregate over the four mock-visible capabilities (review r1 L2; copy ledger "Shared strip"). */
@@ -312,7 +320,15 @@ function StateNote({ env }: { env: EvEnvelope }) {
 }
 
 /** The selected window and cutoff (copy ledger: `{from}–{to} UTC · known at {known_at} UTC`). */
+/** post-W6 W2-EV (Q14): each screen's window bar reports its loaded read's selected query to the frame's main tabs. */
+const ReportSelected = createContext<((search: string) => void) | null>(null);
+
 function WindowBar({ env, extra }: { env: EvEnvelope | null; extra?: string | null }) {
+  const report = useContext(ReportSelected);
+  const search = selectedWindowSearch(env);
+  useEffect(() => {
+    report?.(search);
+  }, [report, search]);
   if (env === null) return null;
   const w = env.window;
   const text = w.from === null || w.to === null ? "No window selected" : `${dayHm(w.from)}–${dayHm(w.to)} UTC · known at ${dayHm(w.known_at)} UTC`;
@@ -334,10 +350,13 @@ export interface EvSiteFrameProps {
   window: EvWindowQuery;
   client: EvSiteClient;
   routes: EvSiteRoutes;
-  tabs: ReactNode;
+  /** post-W6 W2-EV (Q14): a function receives the loaded read's selected `?from=&to=&known_at=` ("" when none). */
+  tabs: EvTabs;
   parentTrail: Crumb[];
   /** W5-03b E6: the authored clock from the address, carried only by the Scenarios entry. */
   scenarioAt?: string | null;
+  /** post-W6 W2-EV R259: the Site's IANA timezone for Analysis times (UTC fallback when missing). */
+  timeZone?: string | null;
   /** W5-03b E6: the authored scenario list client (the Scenarios view reads only this). */
   scenarios?: EvScenariosClient;
 }
@@ -416,25 +435,32 @@ function Subtabs({ view, routes, window, scenarioAt }: { view: EvSiteView; route
 
 export function EvSiteFrame(props: EvSiteFrameProps) {
   const { view } = props;
+  // The selected query belongs to this view and requested window only; a stale report never reaches the tabs.
+  const selectedKey = `${view}|${keyOf(props, "tabs")}`;
+  const [selected, setSelected] = useState<{ key: string; search: string } | null>(null);
+  const report = useCallback((search: string) => setSelected({ key: selectedKey, search }), [selectedKey]);
+  const search = selected !== null && selected.key === selectedKey ? selected.search : "";
   return (
     <main aria-labelledby={EV_SITE_HEADING_ID} data-ev-site-view={SCREEN[view]}>
       <Breadcrumbs trail={[...props.parentTrail, ...CRUMB[view]]} />
       <SitePageHeader siteName={props.siteName} siteId={props.siteId} mode={props.mode} description={DESCRIPTION[view]} headingId={EV_SITE_HEADING_ID} />
-      {props.tabs}
+      {renderEvTabs(props.tabs, search)}
       <Subtabs view={view} routes={props.routes} window={props.window} scenarioAt={props.scenarioAt ?? null} />
-      {view === "overview" ? (
-        <OverviewScreen {...props} />
-      ) : view === "evidence" ? (
-        <EvidenceScreen {...props} />
-      ) : view === "analysis" ? (
-        <AnalysisScreen {...props} />
-      ) : view === "financials" ? (
-        <FinancialsScreen {...props} />
-      ) : view === "scenarios" ? (
-        <EvScenarios siteCode={props.siteId} window={props.window} scenarioAt={props.scenarioAt ?? null} client={props.scenarios ?? DEFAULT_SCENARIOS} />
-      ) : (
-        <AssumptionsScreen {...props} />
-      )}
+      <ReportSelected.Provider value={report}>
+        {view === "overview" ? (
+          <OverviewScreen {...props} />
+        ) : view === "evidence" ? (
+          <EvidenceScreen {...props} />
+        ) : view === "analysis" ? (
+          <AnalysisScreen {...props} />
+        ) : view === "financials" ? (
+          <FinancialsScreen {...props} />
+        ) : view === "scenarios" ? (
+          <EvScenarios siteCode={props.siteId} window={props.window} scenarioAt={props.scenarioAt ?? null} client={props.scenarios ?? DEFAULT_SCENARIOS} />
+        ) : (
+          <AssumptionsScreen {...props} />
+        )}
+      </ReportSelected.Provider>
     </main>
   );
 }
@@ -472,7 +498,7 @@ function OverviewCards({ o, caps, routes }: { o: EvOverviewRead; caps: EvCapabil
   const sessionNote =
     d.started === null
       ? "Session outcomes not assessed"
-      : `${d.completed ?? "Unknown"} completed · ${d.observed_abort ?? "Unknown"} observed aborts · ${d.incomplete ?? "Unknown"} incomplete · of ${d.started} attempts`;
+      : `${d.completed ?? "Unknown"} completed · ${plural(d.observed_abort, "observed abort", "observed aborts")} · ${d.incomplete ?? "Unknown"} incomplete · of ${plural(d.started, "attempt", "attempts")}`;
   const p = o.site_power;
   const peak = p.observed_peak_kw === null ? "Unknown" : `${p.observed_peak_kw} kW observed peak`;
   const powerNote = p.observed_peak_kw === null ? (p.limitation ?? "No accepted Site import report") : coverageText(p.coverage, p.limitation);
@@ -480,12 +506,15 @@ function OverviewCards({ o, caps, routes }: { o: EvOverviewRead; caps: EvCapabil
   const window = o.window;
   return (
     <MetricCards columns={5} label="EV charging conditions">
-      <MetricCard label={<Link to={sel(routes.sessions, window)}>Session service</Link>} value={sessionWord(o)} note={sessionNote} tone="muted" assessment data={{ "data-ev-card": "sessions" }} />
-      <MetricCard label={<Link to={sel(routes.availability, window)}>Availability</Link>} value="Not assessed" note="Connector availability is not assessed" tone="muted" assessment data={{ "data-ev-card": "availability" }} />
-      <MetricCard label={<Link to={sel(routes.energy, window)}>Site power</Link>} value={peak} note={powerNote} tone="muted" assessment data={{ "data-ev-card": "power" }} />
-      <MetricCard label="Charger condition" value="Not assessed" note="Source reporting is not equipment condition" tone="muted" assessment data={{ "data-ev-card": "charger" }} />
+      {/* post-W6 W2-EV R254 (Q15, cold Q8): plain labels and a "View detail →" link on every card; a value this read
+          does not carry says "Not summarised here" and names the page that lists it. */}
+      <MetricCard label="Session service" value={sessionWord(o)} note={sessionNote} tone="muted" assessment data={{ "data-ev-card": "sessions" }} link={<Link to={sel(routes.sessions, window)}>View detail →</Link>} />
+      <MetricCard label="Availability" value="Not summarised here" note="Connector availability is listed under Performance" tone="muted" assessment data={{ "data-ev-card": "availability" }} link={<Link to={sel(routes.availability, window)}>View detail →</Link>} />
+      <MetricCard label="Site power" value={peak} note={powerNote} tone="muted" assessment data={{ "data-ev-card": "power" }} link={<Link to={sel(routes.energy, window)}>View detail →</Link>} />
+      <MetricCard label="Charger condition" value="Not summarised here" note="Charger condition is listed under Health" tone="muted" assessment data={{ "data-ev-card": "charger" }} link={<Link to={sel(routes.health, window)}>View detail →</Link>} />
       <MetricCard
-        label={<Link to={sel(routes.evidence, window)}>Evidence</Link>}
+        label="Evidence"
+        link={<Link to={sel(routes.evidence, window)}>View detail →</Link>}
         value={word.replace("Evidence ", "").replace(/^./, (c) => c.toUpperCase())}
         note={caps.length === 0 ? "Evidence coverage not assessed" : `${CAP_ROWS.length} capabilities · no single score`}
         tone="muted"
@@ -496,8 +525,10 @@ function OverviewCards({ o, caps, routes }: { o: EvOverviewRead; caps: EvCapabil
   );
 }
 
-const CHRONOLOGY_SLOTS = 7;
-
+/*
+ * post-W6 W2-EV R283 (Q10): only accepted events and the incomplete-session end gap, never padding slots. Event
+ * details is an in-page disclosure with no mounted destination, so every accepted event is rendered (no truncation).
+ */
 function chronology(items: EvAnalysisItem[], incomplete: boolean): { events: TimelineEvent[]; extra: EvAnalysisItem[] } {
   const accepted = items
     .filter((i) => i.record_kind !== null && EVENT_KINDS.includes(i.record_kind) && i.use !== "EXCLUDED")
@@ -507,9 +538,7 @@ function chronology(items: EvAnalysisItem[], incomplete: boolean): { events: Tim
         kindRank(a.record_kind) - kindRank(b.record_kind) ||
         a.evidence_id.localeCompare(b.evidence_id),
     );
-  const room = incomplete ? CHRONOLOGY_SLOTS - 1 : CHRONOLOGY_SLOTS;
-  const shown = accepted.slice(0, room);
-  const events: TimelineEvent[] = shown.map((i) => ({
+  const events: TimelineEvent[] = accepted.map((i) => ({
     key: i.evidence_id,
     time: `${hm(i.source_time)} UTC`,
     title: (
@@ -522,7 +551,6 @@ function chronology(items: EvAnalysisItem[], incomplete: boolean): { events: Tim
     tone: i.record_kind === "EV_CONNECTOR_FAULT" || i.record_kind === "EV_SESSION_ABORT" ? "danger" : undefined,
   }));
   if (incomplete) events.push({ key: "end-missing", time: "—", title: "End record missing", tone: "gap" });
-  while (events.length < CHRONOLOGY_SLOTS) events.push({ key: `empty-${events.length}`, time: "—", title: "No accepted event", tone: "gap" });
   return { events, extra: accepted };
 }
 
@@ -573,10 +601,7 @@ function OverviewScreen(p: EvSiteFrameProps) {
   return (
     <>
       {o === null ? (
-        <StatusBar label="EV Site state">
-          <Chip word={overviewStatusWord(null)} />
-          <Chip word={overviewConfidenceWord(null)} />
-        </StatusBar>
+        <RefusedHead read={overview} window={p.window} label="EV Site state" tiles={OVERVIEW_TILES} />
       ) : (
         <>
           <WindowBar env={o} />
@@ -600,10 +625,16 @@ function OverviewScreen(p: EvSiteFrameProps) {
         actions={o === null ? undefined : <Link to={sel(routes.sessions, o.window)}>Review sessions →</Link>}
       >
         {refused !== null ? (
-          <Gap id="ev-site-day">{refused}</Gap>
+          <RefusedGap id="ev-site-day" read={overview} />
         ) : (
           <>
-            <CausalTimeline events={chron.events} label="Service day sequence" />
+            {chron.events.length === 0 ? (
+              <p className="prose" data-ev-day-empty="">
+                No accepted event in this window
+              </p>
+            ) : (
+              <CausalTimeline events={chron.events} label="Service day sequence" />
+            )}
             <p className="prose" data-ev-day-limit>
               {o!.status.limitation ?? "Only accepted records are shown; the cause of an interruption is not established."}
             </p>
@@ -631,7 +662,7 @@ function OverviewScreen(p: EvSiteFrameProps) {
           description="Power is operating context, not proof of charger condition or cause."
         >
           {refused !== null ? (
-            <Gap id="ev-site-power">{refused}</Gap>
+            <Gap id="ev-site-power">{NOT_ASSESSED}</Gap>
           ) : refusal(analysis) !== null ? (
             <Gap id="ev-site-power">{refusal(analysis)}</Gap>
           ) : o!.window.from === null || o!.window.to === null ? (
@@ -681,7 +712,7 @@ function OverviewScreen(p: EvSiteFrameProps) {
         </Panel>
         <Panel heading="Needs attention" headingId="ev-site-attention-heading">
           {refused !== null ? (
-            <Gap id="ev-site-attention">{refused}</Gap>
+            <Gap id="ev-site-attention">{NOT_ASSESSED}</Gap>
           ) : o!.needs_attention.length === 0 ? (
             <Gap id="ev-site-attention">No recorded attention item for this window</Gap>
           ) : (
@@ -720,7 +751,7 @@ function OverviewScreen(p: EvSiteFrameProps) {
       <div className="panel-pair ev-site-pair">
         <Panel heading="Bounded money consequence" headingId="ev-site-money-heading">
           {refused !== null ? (
-            <Gap id="ev-site-money">{refused}</Gap>
+            <Gap id="ev-site-money">{NOT_ASSESSED}</Gap>
           ) : (
             <>
               <div className="metric-value v69-metric__value ev-site-amount" data-ev-money={money!.state ?? "none"}>
@@ -746,7 +777,7 @@ function OverviewScreen(p: EvSiteFrameProps) {
         </Panel>
         <Panel heading="Next step" headingId="ev-site-next-heading">
           {refused !== null ? (
-            <Gap id="ev-site-next">{refused}</Gap>
+            <Gap id="ev-site-next">{NOT_ASSESSED}</Gap>
           ) : next === null ? (
             <Gap id="ev-site-next">No recorded next step</Gap>
           ) : (
@@ -795,7 +826,7 @@ function canSay(row: string, cap: EvCapability | null, o: EvOverviewRead | null)
   if (row === "sessions") {
     const d = o?.denominator;
     if (d === undefined || d.started === null) return "Session outcomes not assessed";
-    return `${d.completed ?? "Unknown"} completed · ${d.observed_abort ?? "Unknown"} observed aborts · ${d.incomplete ?? "Unknown"} incomplete`;
+    return `${d.completed ?? "Unknown"} completed · ${plural(d.observed_abort, "observed abort", "observed aborts")} · ${d.incomplete ?? "Unknown"} incomplete`;
   }
   if (row === "energy") {
     const kwh = o?.energy.complete_kwh ?? null;
@@ -836,9 +867,12 @@ function EvidenceScreen(p: EvSiteFrameProps) {
   const caps = e?.capabilities ?? [];
   const routes = p.routes;
   const analysisHref = e === null ? null : evSiteUiHref(e.links.analysis, routes);
-  const financialsHref = e === null ? null : evSiteUiHref(e.links.financials, routes);
   const sessionsHref = e === null ? null : sel(routes.sessions, e.window);
   const availabilityHref = e === null ? null : sel(routes.availability, e.window);
+  // post-W6 W2-EV R258 (Q15): Delivered energy reviews EV Energy, the Cause row opens EV Work, both at the window.
+  const energyHref = e === null ? null : sel(routes.energy, e.window);
+  const workHref = e === null ? null : sel(routes.work, e.window);
+  const interrupted = (o?.findings.count ?? 0) > 0 || (o?.denominator.observed_abort ?? 0) > 0;
   const word = evidenceAggregate(caps);
   const rowChips = CAP_ROWS.map((r) => chipOf(capOf(caps, r.claim)));
   const count = (w: string) => rowChips.filter((c) => c === w).length;
@@ -846,8 +880,9 @@ function EvidenceScreen(p: EvSiteFrameProps) {
   return (
     <>
       <WindowBar env={e} />
+      {e === null ? <RefusedHead read={evidence} window={p.window} label="Evidence state" /> : null}
       {e === null ? null : (
-        <StatusBar label="Evidence state" action={<UnavailableInline label="Portfolio evidence" />}>
+        <StatusBar label="Evidence state" action={<Link to={routes.portfolioEvidence}>Portfolio evidence</Link>}>
           <Chip word={word} />
           {` ${CAP_ROWS.length} capabilities · ${count("Full")} full · ${count("Limited")} limited · ${count("None")} none${count("Contradictory") > 0 ? ` · ${count("Contradictory")} contradictory` : ""} · no single score`}
           <Provenance env={e} />
@@ -856,7 +891,7 @@ function EvidenceScreen(p: EvSiteFrameProps) {
       )}
       <Panel heading="What we can conclude now" headingId="ev-site-conclude-heading" description="Evidence readiness is not equipment condition">
         {refused !== null ? (
-          <Gap id="ev-site-conclude">{refused}</Gap>
+          <RefusedGap id="ev-site-conclude" read={evidence} />
         ) : (
           <>
             <DataTable labelledBy="ev-site-conclude-heading">
@@ -873,20 +908,24 @@ function EvidenceScreen(p: EvSiteFrameProps) {
                 {CAP_ROWS.map((row) => {
                   const cap = capOf(caps, row.claim);
                   const nextHref =
-                    row.key === "sessions" ? sessionsHref : row.key === "energy" ? financialsHref : row.key === "availability" ? availabilityHref : null;
+                    row.key === "sessions" ? sessionsHref : row.key === "energy" ? energyHref : row.key === "availability" ? availabilityHref : workHref;
+                  // R258: with nothing interrupted, the Cause row is not a limited claim.
+                  const quietCause = row.key === "cause" && o !== null && !interrupted;
                   return (
                     <tr key={row.key} data-capability-row={row.key}>
                       <th scope="row">{row.label}</th>
                       <td>
-                        <Chip word={chipOf(cap)} />
+                        <Chip word={quietCause ? "No interruption" : chipOf(cap)} />
                       </td>
-                      <td>{canSay(row.key, cap, o)}</td>
+                      <td>{quietCause ? "No interruption observed in this window" : canSay(row.key, cap, o)}</td>
                       <td data-ev-missing-basis={row.key}>{missingBasis(cap)}</td>
                       <td>
                         {nextHref === null ? (
                           <UnavailableInline label={row.key === "availability" ? "Availability" : "Work"} />
                         ) : (
-                          <Link to={nextHref}>{row.key === "sessions" ? "Review sessions" : row.key === "availability" ? "Review availability" : "Review financials"}</Link>
+                          <Link to={nextHref}>
+                            {row.key === "sessions" ? "Review sessions" : row.key === "availability" ? "Review availability" : row.key === "energy" ? "Review energy →" : "Review work →"}
+                          </Link>
                         )}
                       </td>
                     </tr>
@@ -913,7 +952,7 @@ function EvidenceScreen(p: EvSiteFrameProps) {
       <div className="panel-pair ev-site-pair">
         <Panel heading="Data sources · data quality, not equipment condition" headingId="ev-site-sources-heading">
           {refused !== null ? (
-            <Gap id="ev-site-sources">{refused}</Gap>
+            <Gap id="ev-site-sources">{NOT_ASSESSED}</Gap>
           ) : (
             <>
               <p className="v69-chart-note" data-ev-contact-checked>
@@ -964,14 +1003,14 @@ function EvidenceScreen(p: EvSiteFrameProps) {
         </Panel>
         <Panel heading="Most useful next evidence" headingId="ev-site-next-evidence-heading">
           {refused !== null ? (
-            <Gap id="ev-site-next-evidence">{refused}</Gap>
+            <Gap id="ev-site-next-evidence">{NOT_ASSESSED}</Gap>
           ) : (
             <>
               <AttentionList
                 label="Most useful next evidence"
-                items={[0, 1, 2].map((i) => {
-                  const n = e!.next_evidence[i];
-                  return n === undefined
+                // post-W6 W2-EV R258: only recorded requests, never padded rows; none recorded says so once.
+                items={(e!.next_evidence.length === 0 ? [null] : e!.next_evidence).map((n, i) => {
+                  return n === null
                     ? { key: `none-${i}`, title: "No further evidence request recorded", body: "" }
                     : {
                         key: n.code,
@@ -1049,7 +1088,22 @@ function valueText(i: EvAnalysisItem): string {
   return i.unit === null ? i.value_display : `${i.value_display} ${i.unit}`;
 }
 
+/**
+ * post-W6 W2-EV R259 (Q15, cold Q11): Measured, Sent and Received in the Site's timezone with seconds, a date when the
+ * local day differs from Measured, the exact UTC instant in `title`; a missing zone falls back to UTC, labelled so.
+ */
+function SiteTimeCell({ value, timeZone, reference }: { value: string | null | undefined; timeZone: string | null | undefined; reference: string | null | undefined }) {
+  const t = siteTime(value, timeZone, reference);
+  return (
+    <td className="ev-site-nowrap" title={t === null ? undefined : `${t.utc} UTC`} data-ev-utc={t?.utc}>
+      {t === null ? NOT_RECORDED : t.text}
+    </td>
+  );
+}
+
 function AnalysisScreen(p: EvSiteFrameProps) {
+  // UI guide section 4: a missing or invalid Site zone never reads as Site-local.
+  const zone = siteZoneAvailable(p.timeZone) ? siteZoneLabel(p.timeZone) : "UTC; Site time zone unavailable";
   const first = useEvRead(() => p.client.getAnalysis(p.siteId, p.window), keyOf(p, "a"));
   const [more, setMore] = useState<{ key: string; items: EvAnalysisItem[]; cursor: string | null } | null>(null);
   if (first === null) return <p>{EV_SITE_LOADING}</p>;
@@ -1069,6 +1123,7 @@ function AnalysisScreen(p: EvSiteFrameProps) {
   return (
     <>
       <WindowBar env={a} />
+      {a === null ? <RefusedHead read={first} window={p.window} label="Analysis state" /> : null}
       {a === null ? null : (
         <StatusBar label="Analysis state">
           <Badge tone="neutral" className="ev-site-chip">
@@ -1081,7 +1136,7 @@ function AnalysisScreen(p: EvSiteFrameProps) {
       )}
       <Panel heading="Accepted records behind the conclusions" headingId="ev-site-records-heading" description="Measured time is kept even when a report arrives late">
         {refused !== null ? (
-          <Gap id="ev-site-records">{refused}</Gap>
+          <RefusedGap id="ev-site-records" read={first} />
         ) : items.length === 0 ? (
           <Gap id="ev-site-records">No accepted EV records in this window</Gap>
         ) : (
@@ -1089,7 +1144,7 @@ function AnalysisScreen(p: EvSiteFrameProps) {
             <DataTable labelledBy="ev-site-records-heading">
               <thead>
                 <tr>
-                  {["Source · reading", "Value", "Measured (EAT)", "Sent (UTC)", "Received (UTC)", "Record"].map((h) => (
+                  {["Source · reading", "Value", `Measured (${zone})`, `Sent (${zone})`, `Received (${zone})`, "Record"].map((h) => (
                     <th key={h} scope="col">
                       {h}
                     </th>
@@ -1101,9 +1156,9 @@ function AnalysisScreen(p: EvSiteFrameProps) {
                   <tr key={i.evidence_id} data-record-row={i.evidence_id} data-record-use={i.use ?? ""} data-record-reason={i.reason ?? ""}>
                     <th scope="row">{i.source_label}</th>
                     <td>{valueText(i)}</td>
-                    <td className="ev-site-nowrap">{eatTime(i.source_time) ?? NOT_RECORDED}</td>
-                    <td className="ev-site-nowrap">{hms(i.sent_at)}</td>
-                    <td className="ev-site-nowrap">{hms(i.received_at)}</td>
+                    <SiteTimeCell value={i.source_time} timeZone={p.timeZone} reference={i.source_time} />
+                    <SiteTimeCell value={i.sent_at} timeZone={p.timeZone} reference={i.source_time} />
+                    <SiteTimeCell value={i.received_at} timeZone={p.timeZone} reference={i.source_time} />
                     <td>
                       {/* W2-F M10/N1: the full stored record UUID, visibly and as the accessible name. */}
                       <code className="ev-site-id" aria-label={`Record ${i.evidence_id}`} data-vocabulary-exempt="source-reference">{`REC ${i.evidence_id}`}</code>
@@ -1151,7 +1206,7 @@ function AnalysisScreen(p: EvSiteFrameProps) {
       </Panel>
       <Panel heading="How a claim limit is set" headingId="ev-site-claim-heading">
         {refused !== null ? (
-          <Gap id="ev-site-claim">{refused}</Gap>
+          <Gap id="ev-site-claim">{NOT_ASSESSED}</Gap>
         ) : a!.claim_rules.length === 0 ? (
           <Gap id="ev-site-claim">Claim limit not assessed</Gap>
         ) : (
@@ -1189,6 +1244,15 @@ function tariffText(t: EvAssumptionsRead["tariff"]): string {
   return t === null ? "Not declared" : `${t.value} ${t.currency}/kWh${t.basis ? ` · ${basisText(t.basis)}` : ""}`;
 }
 const billingText = (state: string | undefined) => (state === "NOT_CONNECTED" ? "Not connected" : "No record");
+/** MOCK DEVIATION (D4) R421 (R286 split, Q13): billing is a chip with the wire's wording ("No record" / "Not connected"). */
+const BillingChip = ({ state }: { state: string | undefined }) => (
+  <>
+    <Chip word={billingText(state)} />
+    <span className="mock-deviation-line" data-mock-deviation="R421">
+      MOCK DEVIATION D4 (R421)
+    </span>
+  </>
+);
 
 function consequenceWord(c: EvConsequence | null): string {
   if (c === null) return NO_SCENARIO;
@@ -1212,7 +1276,8 @@ function FinancialsScreen(p: EvSiteFrameProps) {
   const currency = c?.currency ?? s?.tariff?.currency ?? null;
   const proved = gross !== null && gross.coverage.ratio === "1";
   const confidence = proved ? "Metered with complete coverage" : (gross?.limitation ?? "Coverage limited");
-  const sessionsHref = f === null ? null : sel(routes.sessions, f.window);
+  // post-W6 W2-EV R285 (Q12): an estimated gross scenario's source is the selected-window EV Energy page.
+  const energyHref = f === null ? null : sel(routes.energy, f.window);
   const finding = o?.findings.items[0] ?? null;
   const findingHref = finding === null ? null : evSiteUiHref(finding.links.self, routes);
   const interrupted = (o?.findings.count ?? 0) > 0;
@@ -1225,6 +1290,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
   return (
     <>
       <WindowBar env={f} />
+      {f === null ? <RefusedHead read={financials} window={p.window} label="Financials state" tiles={FINANCIAL_TILES} /> : null}
       {f === null ? null : (
         <StatusBar label="Financials state" action={<UnavailableInline label="Portfolio roll-up" />}>
           <Badge tone="neutral" className="ev-site-chip">
@@ -1246,10 +1312,10 @@ function FinancialsScreen(p: EvSiteFrameProps) {
       <Panel
         heading="What happened → what it means in money"
         headingId="ev-site-bridge-heading"
-        description={(estimated && sessionsHref !== null) || findingHref !== null ? "Select a source to inspect its exact evidence" : undefined}
+        description={(estimated && energyHref !== null) || findingHref !== null ? "Select a source to inspect its exact evidence" : undefined}
       >
         {refused !== null ? (
-          <Gap id="ev-site-bridge">{refused}</Gap>
+          <RefusedGap id="ev-site-bridge" read={financials} />
         ) : (
           <>
             <DataTable labelledBy="ev-site-bridge-heading">
@@ -1284,7 +1350,9 @@ function FinancialsScreen(p: EvSiteFrameProps) {
                     <td>{estimated ? <Badge tone="neutral" className="ev-site-chip">Scenario</Badge> : <Chip word={c.state === "WITHHELD" ? "Withheld" : "Unpriced"} />}</td>
                     <td>{estimated ? confidence : (c.limitation ?? confidence)}</td>
                     <td>
-                      <ToLink href={estimated ? sessionsHref : null}>Sessions ↗</ToLink>
+                      <ToLink href={estimated ? energyHref : null} data={{ "data-ev-bridge-source": "scenario" }}>
+                        Energy ↗
+                      </ToLink>
                     </td>
                   </tr>
                 )}
@@ -1338,14 +1406,14 @@ function FinancialsScreen(p: EvSiteFrameProps) {
       <div className="panel-pair ev-site-pair">
         <Panel heading="Assumptions in use" headingId="ev-site-assumptions-heading">
           {refused !== null ? (
-            <Gap id="ev-site-assumptions">{refused}</Gap>
+            <Gap id="ev-site-assumptions">{NOT_ASSESSED}</Gap>
           ) : (
             <>
               <KeyValues
                 label="Assumptions in use"
                 rows={[
                   ["Tariff", s === null ? (refusal(assumptions) ?? "Not declared") : s.tariff === null ? <Chip word="Not declared" /> : tariffText(s.tariff)],
-                  ["Billing / collections", billingText(s?.billing_state)],
+                  ["Billing / collections", <BillingChip key="billing" state={s?.billing_state} />],
                   ["Currency", s?.tariff?.currency ?? (s === null ? "Not declared" : <Chip word="Not declared" />)],
                 ]}
               />
@@ -1362,7 +1430,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
         </Panel>
         <Panel heading="Not included" headingId="ev-site-excluded-heading">
           {refused !== null ? (
-            <Gap id="ev-site-excluded">{refused}</Gap>
+            <Gap id="ev-site-excluded">{NOT_ASSESSED}</Gap>
           ) : ["lost_sales", "collections", "margin", "repair", "warranty"].every((k) => f!.not_included.includes(k)) ? (
             <p className="prose">Lost sales, collections, margin, repair and warranty are not included in this gross tariff scenario.</p>
           ) : (
@@ -1401,9 +1469,10 @@ function AssumptionsScreen(p: EvSiteFrameProps) {
   return (
     <>
       <WindowBar env={s} extra={extra} />
+      {s === null ? <RefusedHead read={assumptions} window={p.window} label="Assumptions state" /> : null}
       <Panel heading="Financial assumptions" headingId="ev-site-fin-assumptions-heading" description="Site-scoped business context · changes keep the earlier version">
         {refused !== null ? (
-          <Gap id="ev-site-fin-assumptions">{refused}</Gap>
+          <RefusedGap id="ev-site-fin-assumptions" read={assumptions} />
         ) : (
           <>
             <DataTable labelledBy="ev-site-fin-assumptions-heading">
@@ -1424,7 +1493,9 @@ function AssumptionsScreen(p: EvSiteFrameProps) {
                 </tr>
                 <tr data-assumption-row="billing">
                   <th scope="row">Billing / collections</th>
-                  <td>{billingText(s!.billing_state)}</td>
+                  <td>
+                    <BillingChip state={s!.billing_state} />
+                  </td>
                   <td>Cash collection not assessed</td>
                 </tr>
                 <tr data-assumption-row="currency">

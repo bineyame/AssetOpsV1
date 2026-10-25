@@ -132,7 +132,7 @@ Run shell first: its CSS/tokens, Action frame crumbs and Work count copy have sh
 
 **Size:** 15 D3 IDs; five build units. **Severity:** Medium/Low.
 
-**Exact D3 IDs:** `R309` (B12-02), `R310` (B12-03), `R311` (B12-04), `R312` (B12-05), `R313` (B12-06), `R316` (B12-09), `R318` (B12-11), `R320` (B13-02), `R321` (B13-03), `R322` (B13-04), `R324` (B13-06), `R325` (B13-07), `R328` (B13-11), `R331` (B13-15), `R333` (B13-18).
+**Exact D3 IDs:** `R309` (B12-02), `R310` (B12-03), `R311` (B12-04), `R312` (B12-05), `R313` (B12-06), `R316` (B12-09), `R318` (B12-11), `R320` (B13-02), `R321` (B13-03), `R322` (B13-04), `R324` (B13-06), `R325` (B13-07), `R328` (B13-11), `R331` (B13-15), `R333` (B13-18). Build contract: `.agent/post-W6-W4-rulings.md` Q1–Q22.
 
 **Affected screens; panels in page order:** `renewable`: tone/decision cards → From physical headroom to an opportunity → Productive-use evaluation → Eligible and excluded windows; `service`: tone/decision cards → Where the power went → Delivered power by addressed load → What is supported; `fuel`: tone/decision cards → Fuel balance at a glance → Balance bridge; `backup`: tone/decision cards → Backup event chains → Backup readiness evidence; `sitework-incidents`, `sitework-maintenance`: list/refusal strip → cases and unclamped text; `opportunity-finding`: Bounded opportunity → Next decision → Consequence basis; `scenarios`: Financial scenarios; `alternatives`: Alternatives to investigate and route/header. Adjacent panels are regression-only.
 
@@ -140,13 +140,15 @@ Run shell first: its CSS/tokens, Action frame crumbs and Work count copy have sh
 
 **States:** B12–B13 stocked, zero, DB-time 409, refused, page two and long-row; both widths.
 
-**Files:** `frontend/src/sites/MiniPerformance.tsx`, `MiniOpportunity.tsx`, `MiniScenarios.tsx`, `MiniAlternatives.tsx`, `SiteWorkIncidents.tsx`, `SiteWorkMaintenance.tsx`, `siteWorkCases.tsx`; `shell/SiteAnalyticsFrames.tsx` for the mounted mini destination/header. Read `miniDepthClient.ts` for selected-state semantics.
+**Files:** `frontend/src/sites/MiniPerformance.tsx`, `MiniOpportunity.tsx`, `MiniScenarios.tsx`, `MiniAlternatives.tsx`, `SiteWorkIncidents.tsx`, `SiteWorkMaintenance.tsx`, `siteWorkCases.tsx`; `shell/SiteAnalyticsFrames.tsx` for the mounted mini destination/header. Also scoped: `miniDecisionsClient.ts`, `siteTime.ts` delegation, `OperatorSiteTabs`/its hook and shared tab CSS for R333, semantic tokens, and the cold refused-frame import only if safely lifted after W2-cold. Read `miniDepthClient.ts` for selected-state semantics. W4 owns R322 shared mini/cold/EV case refusals; W5-cold-Work owns the separate B15-04 cold-action mount and B14-04 cold tone application.
 
 **Tests:** `sites/__tests__/siteWorkCases.test.tsx`, `miniRenewableRoutes.test.tsx`, `miniServiceRoutes.test.tsx`, `miniFuelRoutes.test.tsx`, `miniBackupRoutes.test.tsx`; existing mini decision/scenario and opportunity Finding tests. Add long narrative, zero, bad-window and tab visibility cases.
 
-**Paired recaptures:** all 96 indexed pairs for `renewable`, `service`, `fuel`, `backup`, `sitework-incidents`, `sitework-maintenance`, `opportunity-finding`, `scenarios`, `alternatives`; both widths, including zero, DB-time 409, refused and long text. If `siteWorkCases.tsx` changes, add cold/EV case-page regression pairs. Record SHA/caps.
+**Paired recaptures:** all 96 indexed pairs for `renewable`, `service`, `fuel`, `backup`, `sitework-incidents`, `sitework-maintenance`, `opportunity-finding`, `scenarios`, `alternatives`; both widths, including zero, DB-time 409, refused and long text. Add cold/EV case-page regression pairs for shared Work/time changes, and one 390 pair per distinct app-wide Site tab row for R333 after the last W4/W6 merge. Use pure selected-row tests for populated Alternatives, capture-only DOM probes for five long rows, and component tests for unproducible mini 503; record gaps and the pinned producer clock. Record SHA/caps.
 
-**Caps:** apply the measured docket below. User-expanded all-disclosures-open is exempt from closed-height caps; it must remain readable without page or panel clipping. If a remeasure exceeds a cap, adjust layout or internal scrolling and recapture; if that cannot preserve the content, return to Architect for a revised cap based on the worst-case fixture before merge.
+**Caps:** remove the Scenarios 144/188 px inner table cap and retire its 348/391 px placeholder panel caps. For every W4 named panel at both widths, record the final-SHA largest closed peak using five 160-character rows in each variable field, longest refusal/empty copy and IDs; provisional cap = `50 × ceil(peak × 1.15 / 50)` px, subject to numeric Architect ratification before merge. The relevant R332 443 px measurement is a 1440 floor only for its panel. User-expanded all-disclosures-open is exempt from closed-height caps and must not clip. On a miss, wrap, then page where supported, then use an obvious accessible inner scroll with every row reachable; recapture. If none works, return the measured fixture to Architect before merge.
+
+**Proposed departures and numbering:** R450 D2 mini Scenarios Window control, R451 D1 renewable confidence `Not assessed`, R452 D1 unclassified service-bar colour, R453 D2 app-wide Site-tab wrap; label each departure beside the affected UI and keep D2 owner decisions open. Reserve W6 R396–R419, W2-EV/W2-cold R420–R449, W4 R450–R459; check the rebased register before adding rows.
 
 ### W5-cold-Work — Cold depth and Work
 

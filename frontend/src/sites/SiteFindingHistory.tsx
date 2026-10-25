@@ -15,7 +15,7 @@
  * reading appends a version and never rewrites an earlier one, and the times
  * shown are not a way to view the Finding as of an earlier moment.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { DataTable, Disclosure, ExactReferences, Panel, ProductStatus, ShowAll } from "../ui";
@@ -27,6 +27,8 @@ import type { FindingClient, FindingHistoryBody, FindingReadResult, HistoryRevis
 import { findingRefusalWords } from "./findingPresentation";
 import { findingCurrentnessWords, LIFECYCLE_WORDS, transitionWords } from "./findingWords";
 import { FINDING_NAME } from "./SiteFindingEvidence";
+import { findingLocalTime } from "./findingTime";
+import { siteZoneLabel } from "./siteTime";
 import "./w1ux02-finding.css";
 import "./w1f3-finding-history.css";
 
@@ -51,6 +53,48 @@ type HistoryRead =
   | { status: "refused"; read: Exclude<FindingReadResult<FindingHistoryBody>, { status: "loaded" }> }
   | { status: "loaded"; first: FindingHistoryBody; rows: HistoryRevision[]; pages: number; complete: boolean; drift: boolean };
 
+/**
+ * Architect caps2 ruling 3: the "Show all N versions" control and both version tables sit in one labelled,
+ * keyboard-focusable vertical scroll region, so the closed panel stays inside its cap. Nothing is hidden or
+ * truncated; the cue appears only when the content overflows the region.
+ */
+function VersionScroll({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (el === null) return;
+    const measure = () => setOverflows(el.scrollHeight > el.clientHeight + 1);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    for (const child of Array.from(el.children)) observer.observe(child);
+    el.addEventListener("toggle", measure, true);
+    return () => {
+      observer.disconnect();
+      el.removeEventListener("toggle", measure, true);
+    };
+  }, []);
+  return (
+    <>
+      <p className="site-finding-history__scroll-cue" data-history-scroll-cue hidden={!overflows}>
+        Scroll versions to see every row
+      </p>
+      <div
+        ref={ref}
+        className="site-finding-history__versions"
+        role="region"
+        aria-label="Recorded versions"
+        tabIndex={0}
+        data-history-versions-scroll
+      >
+        {children}
+      </div>
+    </>
+  );
+}
+
 function at(instant: string | null | undefined): number | null {
   if (!instant) {
     return null;
@@ -70,11 +114,14 @@ export function SiteFindingHistory({
   client,
   links,
   onTitle,
+  timeZone,
 }: {
   siteId: string;
   findingId: string;
   client: FindingClient;
   links: SiteFindingHistoryLinks;
+  /** post-W6 W1-a Q17 / R195: the Site's timezone for the Time column; missing or invalid falls back to UTC. */
+  timeZone?: string | null;
   /** W1-F5b (carry 10): the page heading is the selected version's Finding name, as on the Finding and in the mock. */
   onTitle?: (title: string) => void;
 }) {
@@ -128,7 +175,9 @@ export function SiteFindingHistory({
 
   const selectedRow =
     read.status === "loaded" ? read.rows.find((row) => row.revision_no === read.first.selection.revision_no) : undefined;
-  const title = selectedRow ? (LIFECYCLE_WORDS[selectedRow.lifecycle]?.title ?? FINDING_NAME) : FINDING_NAME;
+  // post-W6 W1-a Q16 / R193: loading, refused and not-found reads are headed "Finding", as the root is.
+  const title =
+    read.status !== "loaded" ? "Finding" : selectedRow ? (LIFECYCLE_WORDS[selectedRow.lifecycle]?.title ?? FINDING_NAME) : FINDING_NAME;
   useEffect(() => {
     onTitle?.(title);
   }, [onTitle, title]);
@@ -149,7 +198,7 @@ export function SiteFindingHistory({
       data-history-total={body.page.total}
       data-history-loaded={rows.length}
     >
-      <RevisionHistory body={body} rows={rows} read={read} links={links} />
+      <RevisionHistory body={body} rows={rows} read={read} links={links} timeZone={timeZone} />
     </div>
   );
 }
@@ -262,11 +311,13 @@ function RevisionHistory({
   rows,
   read,
   links,
+  timeZone,
 }: {
   body: FindingHistoryBody;
   rows: HistoryRevision[];
   read: Extract<HistoryRead, { status: "loaded" }>;
   links: SiteFindingHistoryLinks;
+  timeZone?: string | null;
 }) {
   const { selection, state } = body;
   const no = selection.revision_no;
@@ -292,7 +343,9 @@ function RevisionHistory({
   const versionHead = (
     <thead>
       <tr>
-        <th scope="col">Version recorded</th>
+        <th scope="col" data-history-time-zone={siteZoneLabel(timeZone, rows[0]?.times.recorded_at ?? null)}>
+          Time ({siteZoneLabel(timeZone, rows[0]?.times.recorded_at ?? null)})
+        </th>
         <th scope="col">Event</th>
         <th scope="col">Basis</th>
       </tr>
@@ -305,6 +358,7 @@ function RevisionHistory({
       group={groupOf.get(r.id)}
       previousRecordedAt={r.previous_revision_id ? recordedAt.get(r.previous_revision_id) ?? null : null}
       links={links}
+      timeZone={timeZone}
     />
   );
   return (
@@ -384,22 +438,24 @@ function RevisionHistory({
           </span>
         ) : null}
       </p>
-      {earlier.length === 0 ? null : (
-        <ShowAll
-          name="finding-history-versions"
-          summary={`Show all ${rows.length} versions (${earlier.length} earlier)`}
-          defaultOpen={earlier.some((r) => r.is_selected)}
-        >
-          <DataTable labelledBy={HEADING_ID}>
-            {versionHead}
-            <tbody>{earlier.map(versionRow)}</tbody>
-          </DataTable>
-        </ShowAll>
-      )}
-      <DataTable labelledBy={HEADING_ID}>
-        {versionHead}
-        <tbody>{latest.map(versionRow)}</tbody>
-      </DataTable>
+      <VersionScroll>
+        {earlier.length === 0 ? null : (
+          <ShowAll
+            name="finding-history-versions"
+            summary={`Show all ${rows.length} versions (${earlier.length} earlier)`}
+            defaultOpen={earlier.some((r) => r.is_selected)}
+          >
+            <DataTable labelledBy={HEADING_ID}>
+              {versionHead}
+              <tbody>{earlier.map(versionRow)}</tbody>
+            </DataTable>
+          </ShowAll>
+        )}
+        <DataTable labelledBy={HEADING_ID}>
+          {versionHead}
+          <tbody>{latest.map(versionRow)}</tbody>
+        </DataTable>
+      </VersionScroll>
       {related.length === 0 ? null : (
         <p className="site-finding-history__related" data-history-related-line>
           Related Findings:{" "}
@@ -438,12 +494,16 @@ function VersionRow({
   group,
   previousRecordedAt,
   links,
+  timeZone,
 }: {
   r: HistoryRevision;
   group: { count: number; first: number; last: number } | undefined;
   previousRecordedAt: string | null;
   links: SiteFindingHistoryLinks;
+  timeZone?: string | null;
 }) {
+  // post-W6 W1-a Q17 / R195: Site-local `D Mon · HH:MM`, exact UTC in the title and the technical disclosure.
+  const recorded = findingLocalTime(r.times.recorded_at, timeZone);
   const state = LIFECYCLE_WORDS[r.lifecycle];
   const accepted = at(r.times.accepted_at);
   const previous = at(previousRecordedAt);
@@ -459,7 +519,15 @@ function VersionRow({
       data-history-latest={r.is_latest ? "true" : undefined}
       aria-current={r.is_selected ? "true" : undefined}
     >
-      <td>{stamp(r.times.recorded_at)}</td>
+      <td data-history-recorded-utc={recorded?.utc}>
+        {recorded === null ? (
+          stamp(r.times.recorded_at)
+        ) : (
+          <time dateTime={recorded.utc} title={`${recorded.utc} (UTC)`}>
+            {recorded.dayMonth} · {recorded.clock}
+          </time>
+        )}
+      </td>
       <td>
         <strong>
           Version {r.revision_no} · {transitionWords(r.transition)}
@@ -534,6 +602,10 @@ function VersionRow({
             <dd>
               {stamp(r.times.source_time.first)} to {stamp(r.times.source_time.last)}
             </dd>
+          </div>
+          <div>
+            <dt>Version recorded (UTC)</dt>
+            <dd data-history-recorded-exact>{recorded?.utc ?? stamp(r.times.recorded_at)}</dd>
           </div>
           <div>
             <dt>Last cited reading received</dt>

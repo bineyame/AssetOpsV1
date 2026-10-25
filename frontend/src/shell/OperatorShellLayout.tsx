@@ -64,10 +64,12 @@ const operatorRailItems: NavRailItem[] = [
 /**
  * W5-02c K4a (`.agent/W5-02c-K4-preflight-rulings.md` rulings 1-2; register R69 resolved): every Site Action detail
  * path, for any Site type (W1 mini-grid, cold and EV), selects the `Actions` root as the v69 rail does for
- * `cold-action` and `action-*` (`index.html:729,742,1114`); every other path keeps `NavLink` matching. The guard in
- * `tools/checks/navigation-truthfulness.ps1` pins this exact source line and its call form.
+ * `cold-action` and `action-*` (`index.html:729,742,1114`). post-W6 W1-b Q25 / R202 (pre-flight ruling 6): every
+ * Site Finding detail path and child (`/sites/:id/findings/:fid`, including Recommendation, Evidence, History and
+ * Alternatives) selects `Findings`; the Site Findings index keeps `NavLink` matching, as does every other path. The
+ * guard in `tools/checks/navigation-truthfulness.ps1` pins this exact source line and its call form.
  */
-const railActiveLabel = (pathname: string): "Actions" | null => (/^\/sites\/[^/]+\/actions\/[^/]+(?:\/.*)?$/.test(pathname) ? "Actions" : null);
+const railActiveLabel = (pathname: string): "Actions" | "Findings" | null => (/^\/sites\/[^/]+\/actions\/[^/]+(?:\/.*)?$/.test(pathname) ? "Actions" : /^\/sites\/[^/]+\/findings\/[^/]+(?:\/.*)?$/.test(pathname) ? "Findings" : null);
 
 /**
  * The rail is a real component now, but it owns no items: this list is still

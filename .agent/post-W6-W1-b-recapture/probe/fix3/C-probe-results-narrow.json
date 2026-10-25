@@ -1,0 +1,418 @@
+[
+ {
+  "name": "action-history-s601b-all",
+  "variant": "C-hist-narrow-fullcodes-default3",
+  "w": 1440,
+  "url": "http://localhost:5196/sites/KOBO-001/actions/363e4a97-470b-4ad4-9b63-eb0dd7b60e51/history",
+  "baseline": {
+   "panels": [
+    {
+     "t": "Action history",
+     "h": 355
+    }
+   ],
+   "docOverflowX": 0,
+   "region": {
+    "regionRole": "region",
+    "regionName": "Action history entries",
+    "tabIndex": 0,
+    "overflowY": "auto",
+    "maxHeight": "480px",
+    "regionClientH": 217,
+    "regionScrollH": 217,
+    "cueHidden": true,
+    "cueText": "Scroll history to see every entry",
+    "cueVisible": false,
+    "rowCount": 3,
+    "tableHasHead": true,
+    "toggleOutside": true,
+    "countOutside": true,
+    "focusable": true,
+    "innerScroller": {
+     "cw": 1120,
+     "sw": 1120,
+     "tabIndex": 0,
+     "role": "region"
+    },
+    "innerFocusable": true,
+    "innerScrolledX": 0,
+    "lastRowReachable": true,
+    "scrollTopAtEnd": 0,
+    "rowTextLens": [
+     122,
+     131,
+     202
+    ]
+   },
+   "panelH": 355
+  },
+  "synthetic": true,
+  "verified": true,
+  "clicked": false,
+  "realRows": 3,
+  "cloned": false,
+  "fields160": 3,
+  "fullCodesExpanded": 4,
+  "panelH": 408,
+  "rowHs": [
+   74,
+   75,
+   74
+  ],
+  "clipped": [
+   "CAPTION.w1f4-action-caption",
+   "CODE.action-ref",
+   "CODE.action-ref"
+  ],
+  "docOverflowX": 0,
+  "region": {
+   "regionRole": "region",
+   "regionName": "Action history entries",
+   "tabIndex": 0,
+   "overflowY": "auto",
+   "maxHeight": "480px",
+   "regionClientH": 269,
+   "regionScrollH": 269,
+   "cueHidden": true,
+   "cueText": "Scroll history to see every entry",
+   "cueVisible": false,
+   "rowCount": 3,
+   "tableHasHead": true,
+   "toggleOutside": true,
+   "countOutside": true,
+   "focusable": true,
+   "innerScroller": {
+    "cw": 1120,
+    "sw": 1120,
+    "tabIndex": 0,
+    "role": "region"
+   },
+   "innerFocusable": true,
+   "innerScrolledX": 0,
+   "lastRowReachable": true,
+   "scrollTopAtEnd": 0,
+   "rowTextLens": [
+    262,
+    262,
+    330
+   ]
+  },
+  "truncation": "Showing the latest 3 of 6 recorded entries; show all to see every entry.",
+  "button": "Show all 6 entries"
+ },
+ {
+  "name": "action-history-s601b-all",
+  "variant": "C-hist-narrow-fullcodes-default3",
+  "w": 390,
+  "url": "http://localhost:5196/sites/KOBO-001/actions/363e4a97-470b-4ad4-9b63-eb0dd7b60e51/history",
+  "baseline": {
+   "panels": [
+    {
+     "t": "Action history",
+     "h": 451
+    }
+   ],
+   "docOverflowX": 0,
+   "region": {
+    "regionRole": "region",
+    "regionName": "Action history entries",
+    "tabIndex": 0,
+    "overflowY": "auto",
+    "maxHeight": "500px",
+    "regionClientH": 260,
+    "regionScrollH": 260,
+    "cueHidden": true,
+    "cueText": "Scroll history to see every entry",
+    "cueVisible": false,
+    "rowCount": 3,
+    "tableHasHead": true,
+    "toggleOutside": true,
+    "countOutside": true,
+    "focusable": true,
+    "innerScroller": {
+     "cw": 318,
+     "sw": 576,
+     "tabIndex": 0,
+     "role": "region"
+    },
+    "innerFocusable": true,
+    "innerScrolledX": 258,
+    "lastRowReachable": true,
+    "scrollTopAtEnd": 0,
+    "rowTextLens": [
+     122,
+     131,
+     202
+    ]
+   },
+   "panelH": 451
+  },
+  "synthetic": true,
+  "verified": true,
+  "clicked": false,
+  "realRows": 3,
+  "cloned": false,
+  "fields160": 3,
+  "fullCodesExpanded": 4,
+  "panelH": 514,
+  "rowHs": [
+   92,
+   93,
+   92
+  ],
+  "clipped": [
+   "CAPTION.w1f4-action-caption",
+   "CODE.action-ref",
+   "CODE.action-ref"
+  ],
+  "docOverflowX": 0,
+  "region": {
+   "regionRole": "region",
+   "regionName": "Action history entries",
+   "tabIndex": 0,
+   "overflowY": "auto",
+   "maxHeight": "500px",
+   "regionClientH": 322,
+   "regionScrollH": 322,
+   "cueHidden": true,
+   "cueText": "Scroll history to see every entry",
+   "cueVisible": false,
+   "rowCount": 3,
+   "tableHasHead": true,
+   "toggleOutside": true,
+   "countOutside": true,
+   "focusable": true,
+   "innerScroller": {
+    "cw": 318,
+    "sw": 591,
+    "tabIndex": 0,
+    "role": "region"
+   },
+   "innerFocusable": true,
+   "innerScrolledX": 273,
+   "lastRowReachable": true,
+   "scrollTopAtEnd": 0,
+   "rowTextLens": [
+    262,
+    262,
+    330
+   ]
+  },
+  "truncation": "Showing the latest 3 of 6 recorded entries; show all to see every entry.",
+  "button": "Show all 6 entries"
+ },
+ {
+  "name": "action-history-s601b-all",
+  "variant": "C-hist-narrow-fullcodes-expanded",
+  "w": 1440,
+  "url": "http://localhost:5196/sites/KOBO-001/actions/363e4a97-470b-4ad4-9b63-eb0dd7b60e51/history",
+  "baseline": {
+   "panels": [
+    {
+     "t": "Action history",
+     "h": 355
+    }
+   ],
+   "docOverflowX": 0,
+   "region": {
+    "regionRole": "region",
+    "regionName": "Action history entries",
+    "tabIndex": 0,
+    "overflowY": "auto",
+    "maxHeight": "480px",
+    "regionClientH": 217,
+    "regionScrollH": 217,
+    "cueHidden": true,
+    "cueText": "Scroll history to see every entry",
+    "cueVisible": false,
+    "rowCount": 3,
+    "tableHasHead": true,
+    "toggleOutside": true,
+    "countOutside": true,
+    "focusable": true,
+    "innerScroller": {
+     "cw": 1120,
+     "sw": 1120,
+     "tabIndex": 0,
+     "role": "region"
+    },
+    "innerFocusable": true,
+    "innerScrolledX": 0,
+    "lastRowReachable": true,
+    "scrollTopAtEnd": 0,
+    "rowTextLens": [
+     122,
+     131,
+     202
+    ]
+   },
+   "panelH": 355
+  },
+  "synthetic": true,
+  "verified": true,
+  "clicked": true,
+  "realRows": 6,
+  "cloned": false,
+  "fields160": 6,
+  "fullCodesExpanded": 6,
+  "panelH": 612,
+  "rowHs": [
+   54,
+   75,
+   75,
+   75,
+   75,
+   74
+  ],
+  "clipped": [
+   "CAPTION.w1f4-action-caption",
+   "CODE.action-ref",
+   "CODE.action-ref"
+  ],
+  "docOverflowX": 0,
+  "region": {
+   "regionRole": "region",
+   "regionName": "Action history entries",
+   "tabIndex": 0,
+   "overflowY": "auto",
+   "maxHeight": "480px",
+   "regionClientH": 474,
+   "regionScrollH": 474,
+   "cueHidden": true,
+   "cueText": "Scroll history to see every entry",
+   "cueVisible": false,
+   "rowCount": 6,
+   "tableHasHead": true,
+   "toggleOutside": true,
+   "countOutside": true,
+   "focusable": true,
+   "innerScroller": {
+    "cw": 1120,
+    "sw": 1120,
+    "tabIndex": 0,
+    "role": "region"
+   },
+   "innerFocusable": true,
+   "innerScrolledX": 0,
+   "lastRowReachable": true,
+   "scrollTopAtEnd": 0,
+   "rowTextLens": [
+    218,
+    332,
+    322,
+    262,
+    262,
+    330
+   ]
+  },
+  "truncation": null,
+  "button": "Show the latest 3"
+ },
+ {
+  "name": "action-history-s601b-all",
+  "variant": "C-hist-narrow-fullcodes-expanded",
+  "w": 390,
+  "url": "http://localhost:5196/sites/KOBO-001/actions/363e4a97-470b-4ad4-9b63-eb0dd7b60e51/history",
+  "baseline": {
+   "panels": [
+    {
+     "t": "Action history",
+     "h": 451
+    }
+   ],
+   "docOverflowX": 0,
+   "region": {
+    "regionRole": "region",
+    "regionName": "Action history entries",
+    "tabIndex": 0,
+    "overflowY": "auto",
+    "maxHeight": "500px",
+    "regionClientH": 260,
+    "regionScrollH": 260,
+    "cueHidden": true,
+    "cueText": "Scroll history to see every entry",
+    "cueVisible": false,
+    "rowCount": 3,
+    "tableHasHead": true,
+    "toggleOutside": true,
+    "countOutside": true,
+    "focusable": true,
+    "innerScroller": {
+     "cw": 318,
+     "sw": 576,
+     "tabIndex": 0,
+     "role": "region"
+    },
+    "innerFocusable": true,
+    "innerScrolledX": 258,
+    "lastRowReachable": true,
+    "scrollTopAtEnd": 0,
+    "rowTextLens": [
+     122,
+     131,
+     202
+    ]
+   },
+   "panelH": 451
+  },
+  "synthetic": true,
+  "verified": true,
+  "clicked": true,
+  "realRows": 6,
+  "cloned": false,
+  "fields160": 6,
+  "fullCodesExpanded": 6,
+  "panelH": 649,
+  "rowHs": [
+   54,
+   75,
+   75,
+   75,
+   75,
+   74
+  ],
+  "clipped": [
+   "CAPTION.w1f4-action-caption",
+   "CODE.action-ref",
+   "CODE.action-ref"
+  ],
+  "docOverflowX": 0,
+  "region": {
+   "regionRole": "region",
+   "regionName": "Action history entries",
+   "tabIndex": 0,
+   "overflowY": "auto",
+   "maxHeight": "500px",
+   "regionClientH": 474,
+   "regionScrollH": 474,
+   "cueHidden": true,
+   "cueText": "Scroll history to see every entry",
+   "cueVisible": false,
+   "rowCount": 6,
+   "tableHasHead": true,
+   "toggleOutside": true,
+   "countOutside": true,
+   "focusable": true,
+   "innerScroller": {
+    "cw": 318,
+    "sw": 1099,
+    "tabIndex": 0,
+    "role": "region"
+   },
+   "innerFocusable": true,
+   "innerScrolledX": 781,
+   "lastRowReachable": true,
+   "scrollTopAtEnd": 0,
+   "rowTextLens": [
+    218,
+    332,
+    322,
+    262,
+    262,
+    330
+   ]
+  },
+  "truncation": null,
+  "button": "Show the latest 3"
+ }
+]

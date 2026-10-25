@@ -20,6 +20,8 @@
  * and never as a conclusion about how the site is operating.
  */
 
+import { siteTime, siteZoneLabel } from "./siteTime";
+import { findingLocalTime } from "./findingTime";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -83,32 +85,17 @@ function when(value: string | null | undefined): string {
   return value === null || value === undefined ? "none" : readableTime(value);
 }
 
-/**
+/*
  * post-W6 shell R170 (Q18): the records table's measured time in the selected Site's timezone (the mock's
- * `Measured (EAT)`, `HH:MM:SS`). The stored instant stays UTC and is exposed on the cell's title. Intl names East
- * Africa Time only as `GMT+3`, so the common zones are named here; others use Intl's short name.
+ * `Measured (EAT)`, `HH:MM:SS`). The stored instant stays UTC and is exposed on the cell's title.
+ * post-W6 W1-a (Architect W1 rulings, cross-card 1 / G3 / Q50): these shell helpers keep their names and contracts
+ * but delegate to the canonical `siteTime.ts`; no second timezone algorithm remains here. post-W6 W2-EV (W1-a
+ * closeout ruling 5): Asmara, Djibouti and Mogadishu are in the canonical EAT table, so no local zone list remains.
  */
-const ZONE_ABBREVIATIONS: Record<string, string> = {
-  "Africa/Addis_Ababa": "EAT",
-  "Africa/Asmara": "EAT",
-  "Africa/Dar_es_Salaam": "EAT",
-  "Africa/Djibouti": "EAT",
-  "Africa/Kampala": "EAT",
-  "Africa/Mogadishu": "EAT",
-  "Africa/Nairobi": "EAT",
-  UTC: "UTC",
-  "Etc/UTC": "UTC",
-};
 
 /** The usable IANA zone, or null when it is missing or this browser cannot resolve it (the UTC fallback). */
 export function usableZone(timezone: string | null | undefined): string | null {
-  if (!timezone) return null;
-  try {
-    new Intl.DateTimeFormat("en-GB", { timeZone: timezone });
-    return timezone;
-  } catch {
-    return null;
-  }
+  return siteTime("1970-01-01T00:00:00Z", timezone)?.siteZone ? (timezone as string) : null;
 }
 
 /**
@@ -116,43 +103,13 @@ export function usableZone(timezone: string | null | undefined): string | null {
  * than for 1 January 1970. Without an instant it uses the current time.
  */
 export function zoneAbbreviation(timezone: string | null | undefined, at?: string | Date | null): string {
-  const zone = usableZone(timezone);
-  if (zone === null) return "UTC";
-  const known = ZONE_ABBREVIATIONS[zone];
-  if (known) return known;
-  const instant = at instanceof Date ? at : at ? new Date(at) : new Date();
-  const when = Number.isNaN(instant.getTime()) ? new Date() : instant;
-  const name = new Intl.DateTimeFormat("en-GB", { timeZone: zone, timeZoneName: "short" })
-    .formatToParts(when)
-    .find((part) => part.type === "timeZoneName")?.value;
-  return name ?? zone;
+  const instant = at instanceof Date ? (Number.isNaN(at.getTime()) ? null : at.toISOString()) : at;
+  return siteZoneLabel(timezone, instant);
 }
-
-function zoneClock(zone: string, date: Date): { day: string; time: string } {
-  const p = Object.fromEntries(
-    new Intl.DateTimeFormat("en-GB", {
-      timeZone: zone,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hourCycle: "h23",
-    })
-      .formatToParts(date)
-      .map((part) => [part.type, part.value]),
-  );
-  return { day: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}:${p.second}` };
-}
-
-const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /** The selected day (`YYYY-MM-DD`) on the Site's clock, from the read window's start. */
 export function selectedLocalDay(windowStart: string | null | undefined, timezone: string | null | undefined): string | null {
-  const date = windowStart ? new Date(windowStart) : null;
-  if (date === null || Number.isNaN(date.getTime())) return null;
-  return zoneClock(usableZone(timezone) ?? "UTC", date).day;
+  return findingLocalTime(windowStart, timezone)?.day ?? null;
 }
 
 /** `HH:MM:SS` on the Site's clock; `D Mon · HH:MM:SS` when that local day differs from the selected day. */
@@ -162,12 +119,11 @@ export function measuredTime(
   selectedDay: string | null,
 ): string {
   if (instant === null || instant === undefined) return "none";
-  const date = new Date(instant);
-  if (Number.isNaN(date.getTime())) return instant;
-  const clock = zoneClock(usableZone(timezone) ?? "UTC", date);
-  if (selectedDay !== null && clock.day === selectedDay) return clock.time;
-  const [, month, day] = clock.day.split("-");
-  return `${Number(day)} ${SHORT_MONTHS[Number(month) - 1]} · ${clock.time}`;
+  const clock = siteTime(instant, timezone);
+  const local = findingLocalTime(instant, timezone);
+  if (clock === null || local === null) return instant;
+  if (selectedDay !== null && local.day === selectedDay) return clock.text;
+  return `${local.dayMonth} · ${clock.text}`;
 }
 
 function plural(count: number, one: string, many: string): string {

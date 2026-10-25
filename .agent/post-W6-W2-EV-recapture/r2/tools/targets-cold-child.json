@@ -1,0 +1,25 @@
+[
+ {
+  "id": "cold-finding",
+  "case": "excursion-finding",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170"
+ },
+ {
+  "id": "cold-finding",
+  "case": "child-evidence",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170/evidence",
+  "mock": "cold-finding"
+ },
+ {
+  "id": "cold-finding",
+  "case": "child-recommendation",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170/recommendation",
+  "mock": "cold-finding"
+ },
+ {
+  "id": "cold-finding",
+  "case": "child-unknown",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170/not-a-section",
+  "mock": "cold-finding"
+ }
+]

@@ -1,0 +1,889 @@
+{
+  "revision": "2af5fef6",
+  "captured_at": "2026-10-25T09:54:46.719Z",
+  "pairs": [
+    {
+      "screen": "cold-action",
+      "case": "all-open",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/0ae3398b-f434-4e1c-a9e7-e30d11420775/verification",
+      "mock_hash": "#/cold-action",
+      "app_image": "cold-action-all-open-1440-app.png",
+      "mock_image": "cold-action-all-open-1440-mock.png",
+      "app": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 248,
+            "y": 285,
+            "w": 1160,
+            "h": 292,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 248,
+            "y": 595,
+            "w": 1160,
+            "h": 168,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-000002 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Witness automatic-start test",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "OpenMaintenance lead · Cold · Finding 9f3194f3Finding version8ff1df9f-27f8-43d5-b5b7-4e591a3889e2",
+          "cards": [],
+          "notice": [
+            "Completed inspection does not establish successful service restoration."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 1,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 1
+        },
+        "b15": {
+          "crumbs": "ActionsACT-000001Verification· site: Cold replay lab",
+          "subtitle": "Has backup service been restored after the inspection?",
+          "headerButtons": [
+            "Open site"
+          ],
+          "strip": "OpenMaintenance lead · Cold · Finding 9f3194f3Finding version8ff1df9f-27f8-43d5-b5b7-4e591a3889e2",
+          "related": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+          "inspect": {
+            "tag": "BUTTON",
+            "text": "Inspect maintenance evidence",
+            "disabled": false,
+            "href": null
+          },
+          "finding": "Open source Finding →",
+          "intentMissing": "",
+          "criteria": [
+            "Automatic startAccepted command followed by successful running statusNot tested",
+            "Power deliveryGenerator supply reaches the cooling systemNot tested",
+            "Cooling recoveryTemperature recovery within declared test conditionsNot established",
+            "RecurrenceCovered observation window without a qualifying repeatPending"
+          ],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "ActionsACT-000001Verification· site: Cold replay lab ACT-000001 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · Cold · Finding 9f3194f3 Finding version 8ff1df9f-27f8-43d5-b5b7-4e591a3889e2 Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet. Completed inspection does not establish successful service restoration."
+        },
+        "mainLinks": [
+          "Actions -> /actions",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Open site -> /sites/COLD-LAB-001",
+          "Verification -> /sites/COLD-LAB-001/actions/0ae3398b-f434-4e1c-a9e7-e30d11420775/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 287,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 234,
+            "y": 671,
+            "w": 1161,
+            "h": 150,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-019 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-051 · Witness automatic-start test",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Actions›ACT-051›Verification· site: GreenHarvest Cold Room",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Actions › ACT-051 › Verification · site: GreenHarvest Cold Room ACT-051 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · GreenHarvest · F-118 Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-019 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → Completed inspection does not establish successful service restoration. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Verification -> #/cold-action",
+          "Inspect maintenance evidence -> #/workverification",
+          "Open source Finding → -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-action",
+      "case": "all-open",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/0ae3398b-f434-4e1c-a9e7-e30d11420775/verification",
+      "mock_hash": "#/cold-action",
+      "app_image": "cold-action-all-open-390-app.png",
+      "mock_image": "cold-action-all-open-390-mock.png",
+      "app": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 16,
+            "y": 443,
+            "w": 358,
+            "h": 433,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 16,
+            "y": 894,
+            "w": 358,
+            "h": 272,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-000002 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1286,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Witness automatic-start test",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "OpenMaintenance lead · Cold · Finding 9f3194f3Finding version8ff1df9f-27f8-43d5-b5b7-4e591a3889e2",
+          "cards": [],
+          "notice": [
+            "Completed inspection does not establish successful service restoration."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 1,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 1
+        },
+        "b15": {
+          "crumbs": "ActionsACT-000001Verification· site: Cold replay lab",
+          "subtitle": "Has backup service been restored after the inspection?",
+          "headerButtons": [
+            "Open site"
+          ],
+          "strip": "OpenMaintenance lead · Cold · Finding 9f3194f3Finding version8ff1df9f-27f8-43d5-b5b7-4e591a3889e2",
+          "related": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+          "inspect": {
+            "tag": "BUTTON",
+            "text": "Inspect maintenance evidence",
+            "disabled": false,
+            "href": null
+          },
+          "finding": "Open source Finding →",
+          "intentMissing": "",
+          "criteria": [
+            "Automatic startAccepted command followed by successful running statusNot tested",
+            "Power deliveryGenerator supply reaches the cooling systemNot tested",
+            "Cooling recoveryTemperature recovery within declared test conditionsNot established",
+            "RecurrenceCovered observation window without a qualifying repeatPending"
+          ],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "ActionsACT-000001Verification· site: Cold replay lab ACT-000001 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · Cold · Finding 9f3194f3 Finding version 8ff1df9f-27f8-43d5-b5b7-4e591a3889e2 Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet. Completed inspection does not establish successful service restoration."
+        },
+        "mainLinks": [
+          "Actions -> /actions",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Open site -> /sites/COLD-LAB-001",
+          "Verification -> /sites/COLD-LAB-001/actions/0ae3398b-f434-4e1c-a9e7-e30d11420775/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 15,
+            "y": 578,
+            "w": 360,
+            "h": 428,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 15,
+            "y": 1024,
+            "w": 360,
+            "h": 194,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-019 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1391,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-051 · Witness automatic-start test",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Actions›ACT-051›Verification· site: GreenHarvest Cold Room",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Actions › ACT-051 › Verification · site: GreenHarvest Cold Room ACT-051 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · GreenHarvest · F-118 Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-019 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → Completed inspection does not establish successful service restoration. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Verification -> #/cold-action",
+          "Inspect maintenance evidence -> #/workverification",
+          "Open source Finding → -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

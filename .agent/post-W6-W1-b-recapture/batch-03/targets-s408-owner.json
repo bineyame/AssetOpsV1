@@ -1,0 +1,52 @@
+[
+ {
+  "id": "financials",
+  "case": "priced",
+  "url": "http://localhost:5185/sites/KOBO-001/financials?finding_id=d72b0a73-9655-49c8-8101-785a12abdc8d&revision_id=764dbb1c-5f88-4771-8a6c-12a974a14ebc&consequence_revision_id=4534701d-9e9a-4696-ad47-1d30c660b0f0"
+ },
+ {
+  "id": "financials",
+  "case": "unpriced",
+  "url": "http://localhost:5185/sites/KOBO-001/financials?finding_id=211178b8-d1e7-452e-9a09-136716ec0cac&revision_id=a31ce719-be3a-4732-9e67-0c9cb5196ef2"
+ },
+ {
+  "id": "financials",
+  "case": "quantity-unavailable",
+  "url": "http://localhost:5185/sites/KOBO-001/financials?finding_id=d72b0a73-9655-49c8-8101-785a12abdc8d&revision_id=305c7081-7bd2-4cb5-aa84-f1e3a9218804"
+ },
+ {
+  "id": "financials",
+  "case": "nofinding",
+  "url": "http://localhost:5185/sites/KOBO-001/financials"
+ },
+ {
+  "id": "financials",
+  "case": "notfound",
+  "url": "http://localhost:5185/sites/KOBO-001/financials?finding_id=00000000-0000-4000-8000-000000000000"
+ },
+ {
+  "id": "finding-evidence",
+  "case": "labelled",
+  "url": "http://localhost:5185/sites/KOBO-001/findings/d72b0a73-9655-49c8-8101-785a12abdc8d/evidence?revision_id=764dbb1c-5f88-4771-8a6c-12a974a14ebc"
+ },
+ {
+  "id": "assumptions",
+  "case": "default",
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions"
+ },
+ {
+  "id": "assumptions",
+  "case": "recorded-T1",
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T09%3A17%3A25.903783%2B00%3A00"
+ },
+ {
+  "id": "assumptions",
+  "case": "recorded-T3",
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T09%3A20%3A06.460952%2B00%3A00"
+ },
+ {
+  "id": "assumptions",
+  "case": "T3-page2",
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-25T09%3A20%3A06.460952%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI1VDA5OjE3OjU5LjkxMTE2MiswMDowMCIsIjQ1MzQ3MDFkLTllOWEtNDY5Ni1hZDQ3LTFkMzBjNjYwYjBmMCJdLCJmZW5jZSI6InNjaDEtYTBkYmE3Y2YyMGQzMDA2NjcwYTIzMDY2YTI3Y2E2NDM1ZDAyNjExNTdkY2FmZTdiNDNjNmUyOTA3YzQxODI2OSIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjVUMDk6MjA6MDYuNDYwOTUyKzAwOjAwIiwic2l0ZV9pZCI6IjZiOTU0NWUxLWU2M2ItNDY0MS1hZjU4LTBiNzRmYjc5YmRkMSIsInRlbmFudF9pZCI6IjNmYTYzYzgwLWJkNmUtNDM3Yy1hZjUzLTcwMGJmZTc3OWUwOSIsInYiOjF9&history_limit=2"
+ }
+]

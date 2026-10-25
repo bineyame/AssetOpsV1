@@ -80,13 +80,13 @@ function LocationProbe() {
   return <output data-location>{`${location.pathname}${location.search}`}</output>;
 }
 
-function renderAt(path: string, evidence: SiteEvidenceClient) {
+function renderAt(path: string, evidence: SiteEvidenceClient, detail: SiteDetailClient = DETAIL) {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <App
         flags={featureFlagsWith(false)}
         siteDirectory={DIRECTORY}
-        siteDetail={DETAIL}
+        siteDetail={detail}
         siteEvidence={evidence}
         siteAnalytics={EMPTY_ANALYTICS_CLIENT}
       />
@@ -213,6 +213,25 @@ describe("V-01b Site Evidence overview", () => {
 });
 
 describe("V-01b Site Evidence analysis", () => {
+  // post-W6 W2-EV (W1-a closeout ruling 5): the three EAT zones the shell once labelled locally now come from the
+  // canonical siteTime table, with the exact UTC instant on the measured cell's title.
+  it.each(["Africa/Asmara", "Africa/Djibouti", "Africa/Mogadishu"])("labels %s as EAT with exact UTC detail", async (timezone) => {
+    const detail: SiteDetailClient = {
+      getSite: () => Promise.resolve({ status: "loaded", site: { ...HYBRID_MINI_GRID_SITE, timezone } }),
+    };
+    renderAt(ANALYSIS_URL, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }), detail);
+    await settledScreen();
+    const records = panel("Accepted records behind the conclusions");
+    const heads = Array.from(records.querySelector("table")?.querySelectorAll("thead th") ?? []).map((th) => th.textContent);
+    expect(heads[2]).toBe("Measured (EAT)");
+    const measured = records.querySelector("[data-evidence-measured]") as HTMLElement;
+    const utc = measured.getAttribute("data-evidence-measured") as string;
+    const local = new Date(new Date(utc).getTime() + 3 * 3600_000).toISOString().slice(11, 19);
+    expect(measured.textContent).toMatch(new RegExp(`${local}$`));
+    expect(measured.title).toContain(utc);
+    expect(measured.title).toContain("UTC");
+  });
+
   it("shows accepted records behind the conclusions and how each limit is set", async () => {
     const client = ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE });
     renderAt(ANALYSIS_URL, client);

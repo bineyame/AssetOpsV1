@@ -1,0 +1,137 @@
+[
+ {
+  "name": "action-evidence-s602b-guardrail",
+  "variant": "er-160x5",
+  "w": 1440,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505/evidence",
+  "baselinePanels": [
+   {
+    "t": "Evidence requirements",
+    "h": 396
+   }
+  ],
+  "baselineDocOverflowX": 0,
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 10,
+  "fields160": 10,
+  "title": "Evidence requirements",
+  "panelH": 521,
+  "rowHs": [
+   58,
+   59,
+   59,
+   59,
+   58
+  ],
+  "clipped": [
+   "CAPTION.visually-hidden"
+  ],
+  "innerScrollX": [
+   "data-table__scroll:1990/1088",
+   "data-table__scroll:1990/1088"
+  ],
+  "tableScroller": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1120,
+    "cw": 1120
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1088,
+    "cw": 1088
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1088,
+    "cw": 1088
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1990,
+    "cw": 1088
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1088,
+    "cw": 1088
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1990,
+    "cw": 1088
+   }
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "action-evidence-s602b-guardrail",
+  "variant": "er-160x5",
+  "w": 390,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505/evidence",
+  "baselinePanels": [
+   {
+    "t": "Evidence requirements",
+    "h": 605
+   }
+  ],
+  "baselineDocOverflowX": 0,
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 10,
+  "fields160": 10,
+  "title": "Evidence requirements",
+  "panelH": 1114,
+  "rowHs": [
+   157,
+   158,
+   158,
+   158,
+   157
+  ],
+  "clipped": [
+   "CAPTION.visually-hidden"
+  ],
+  "innerScrollX": [
+   "data-table__scroll:390/286",
+   "data-table__scroll:923/286",
+   "data-table__scroll:1990/286",
+   "data-table__scroll:923/286",
+   "data-table__scroll:1990/286"
+  ],
+  "tableScroller": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 318,
+    "cw": 318
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 390,
+    "cw": 286
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 923,
+    "cw": 286
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1990,
+    "cw": 286
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 923,
+    "cw": 286
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 1990,
+    "cw": 286
+   }
+  ],
+  "docOverflowX": 0
+ }
+]

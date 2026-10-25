@@ -149,8 +149,12 @@ describe("W1-F4: sitework keeps the v69 panel structure in every variant", () =>
     expect(q("[data-site-work] .status-strip [data-site-work-scope]")?.textContent).toContain(
       `Scoped to ${HYBRID_MINI_GRID_SITE.display_name}`,
     );
-    // No global Actions list exists in this build, so no "Manage in Actions" link.
-    expect(document.body.textContent).not.toMatch(/Manage in Actions/);
+    // post-W6 W1-b Q36 / R230: the mini strip links the mounted global Actions list.
+    const strip = q("[data-site-work] .status-strip") as HTMLElement;
+    const manage = strip.querySelector("[data-site-work-manage]") as HTMLAnchorElement;
+    expect(manage.textContent).toBe("Manage in Actions →");
+    expect(manage.getAttribute("href")).toBe("/actions");
+    expect(document.querySelectorAll("[data-site-work-manage]")).toHaveLength(1);
   });
 
   it("W4-01: the Work row is the mock's Actions | Incidents | Maintenance, all three live, Actions current", async () => {

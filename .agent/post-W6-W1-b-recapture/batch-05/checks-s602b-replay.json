@@ -1,0 +1,338 @@
+[
+ {
+  "screen": "verification",
+  "case": "verified-current",
+  "w": 1440,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/verification",
+  "h1": "ACT-000001 · Battery reserve trial",
+  "siteTabRows": 0,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Actions"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Target and guardrails evaluated together",
+    "h": 347
+   },
+   {
+    "t": "Activity evidence",
+    "h": 338
+   },
+   {
+    "t": "Outcome evidence",
+    "h": 338
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "verification",
+  "case": "verified-current",
+  "w": 390,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/verification",
+  "h1": "ACT-000001 · Battery reserve trial",
+  "siteTabRows": 0,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Actions"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Target and guardrails evaluated together",
+    "h": 659
+   },
+   {
+    "t": "Activity evidence",
+    "h": 314
+   },
+   {
+    "t": "Outcome evidence",
+    "h": 338
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "verification",
+  "case": "historical-outcome",
+  "w": 1440,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/verification?outcome_id=04b44b8a-4eac-4588-99aa-0baa27005b4f",
+  "h1": "ACT-000001 · Battery reserve trial",
+  "siteTabRows": 0,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Actions"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Target and guardrails evaluated together",
+    "h": 366
+   },
+   {
+    "t": "Activity evidence",
+    "h": 338
+   },
+   {
+    "t": "Outcome evidence",
+    "h": 338
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "verification",
+  "case": "historical-outcome",
+  "w": 390,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/verification?outcome_id=04b44b8a-4eac-4588-99aa-0baa27005b4f",
+  "h1": "ACT-000001 · Battery reserve trial",
+  "siteTabRows": 0,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Actions"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Target and guardrails evaluated together",
+    "h": 678
+   },
+   {
+    "t": "Activity evidence",
+    "h": 314
+   },
+   {
+    "t": "Outcome evidence",
+    "h": 338
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "verification",
+  "case": "selector-conflict",
+  "w": 1440,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/verification?outcome_id=04b44b8a-4eac-4588-99aa-0baa27005b4f&recorded_at=2026-10-16T01%3A00%3A00%2B00%3A00",
+  "h1": "ACT-000001 · Battery reserve trial",
+  "siteTabRows": 0,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Actions"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Target and guardrails evaluated together",
+    "h": 96
+   },
+   {
+    "t": "Activity evidence",
+    "h": 166
+   },
+   {
+    "t": "Outcome evidence",
+    "h": 166
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "verification",
+  "case": "selector-conflict",
+  "w": 390,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/verification?outcome_id=04b44b8a-4eac-4588-99aa-0baa27005b4f&recorded_at=2026-10-16T01%3A00%3A00%2B00%3A00",
+  "h1": "ACT-000001 · Battery reserve trial",
+  "siteTabRows": 0,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Actions"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Target and guardrails evaluated together",
+    "h": 96
+   },
+   {
+    "t": "Activity evidence",
+    "h": 96
+   },
+   {
+    "t": "Outcome evidence",
+    "h": 166
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "verification",
+  "case": "unknown-action",
+  "w": 1440,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/00000000-0000-4000-8000-000000000000/verification",
+  "h1": "Action",
+  "siteTabRows": 0,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Actions"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Target and guardrails evaluated together",
+    "h": 96
+   },
+   {
+    "t": "Activity evidence",
+    "h": 96
+   },
+   {
+    "t": "Outcome evidence",
+    "h": 96
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "verification",
+  "case": "unknown-action",
+  "w": 390,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/00000000-0000-4000-8000-000000000000/verification",
+  "h1": "Action",
+  "siteTabRows": 0,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Actions"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Target and guardrails evaluated together",
+    "h": 96
+   },
+   {
+    "t": "Activity evidence",
+    "h": 96
+   },
+   {
+    "t": "Outcome evidence",
+    "h": 96
+   }
+  ],
+  "overflowX": 0
+ }
+]

@@ -342,3 +342,26 @@ main[data-domain-action-shell] [data-domain-action-strip] .disclosure__body > co
   overflow-wrap: normal;
   word-break: normal;
 }
+
+/* post-W6 W1-b caps ruling 2 (Q37): the Action history table scrolls inside one focusable region. */
+.w1f4-action-history-entries {
+  max-height: 480px;
+  overflow-y: auto;
+}
+.w1f4-action-history-entries:focus-visible {
+  outline: 2px solid var(--focus, #1d4ed8);
+  outline-offset: 2px;
+}
+.w1f4-action-history-cue {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.w1f4-action-history-cue[hidden] {
+  display: none;
+}
+@media (max-width: 640px) {
+  .w1f4-action-history-entries {
+    max-height: 500px;
+  }
+}

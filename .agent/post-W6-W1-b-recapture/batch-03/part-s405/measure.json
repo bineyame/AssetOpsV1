@@ -1,0 +1,150 @@
+[
+ {
+  "screen": "financials",
+  "case": "priced-current",
+  "width": "1440",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Trade-offs and exclusions"
+  ],
+  "panels": [
+   {
+    "t": "What happened → what it means in money",
+    "h": 347,
+    "openDetails": 0
+   },
+   {
+    "t": "Assumptions in use",
+    "h": 275,
+    "openDetails": 0
+   },
+   {
+    "t": "Trade-offs and exclusions",
+    "h": 393,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/financials?finding_id=ccdf824a-0a51-4cd3-afdc-45fe1503f447&revision_id=da6a7ff6-476c-4f4e-9375-6711e723ad98"
+ },
+ {
+  "screen": "financials",
+  "case": "priced-current",
+  "width": "390",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Trade-offs and exclusions"
+  ],
+  "panels": [
+   {
+    "t": "What happened → what it means in money",
+    "h": 631,
+    "openDetails": 0
+   },
+   {
+    "t": "Assumptions in use",
+    "h": 308,
+    "openDetails": 0
+   },
+   {
+    "t": "Trade-offs and exclusions",
+    "h": 413,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 54,
+  "url": "http://localhost:5185/sites/KOBO-001/financials?finding_id=ccdf824a-0a51-4cd3-afdc-45fe1503f447&revision_id=da6a7ff6-476c-4f4e-9375-6711e723ad98"
+ },
+ {
+  "screen": "assumptions",
+  "case": "single-price",
+  "width": "1440",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 539,
+    "openDetails": 0
+   },
+   {
+    "t": "Impact preview",
+    "h": 256,
+    "openDetails": 0
+   },
+   {
+    "t": "Interpretation history",
+    "h": 681,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions"
+ },
+ {
+  "screen": "assumptions",
+  "case": "single-price",
+  "width": "390",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 855,
+    "openDetails": 0
+   },
+   {
+    "t": "Impact preview",
+    "h": 256,
+    "openDetails": 0
+   },
+   {
+    "t": "Interpretation history",
+    "h": 1068,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 54,
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions"
+ }
+]

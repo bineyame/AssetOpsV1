@@ -1,0 +1,12 @@
+[
+ {
+  "id": "opportunity-finding",
+  "case": "supported-current",
+  "url": "http://localhost:5183/sites/MG-W402-001/opportunities/9c2f231c-93a5-4a29-a953-9301277cf1fc"
+ },
+ {
+  "id": "alternatives",
+  "case": "db-time-409",
+  "url": "http://localhost:5183/sites/KOBO-001/findings/b635dba5-ad42-4cda-8bca-76bde6762555/alternatives?revision_id=2dfd805c-a888-4814-a7c5-d612a31fec78"
+ }
+]

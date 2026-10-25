@@ -1,0 +1,16 @@
+Sun Oct 25 12:49:00 EAST 2026
+=== 1. Private tree (git HEAD) ===
+  C:\Users\assef\Bineyame\AssetOpsV1-review7\var\w502b_w1brc15\tree (code from 2af5fef6)
+=== 2. positive: database w502b_positive_w1brc15_test ===
+  built positive blocked: None {'positive': ('CURRENT', 1), 'zero': ('CURRENT', 0), 'historical': ('HISTORICAL', 1)}  (65s)
+=== 3. worstcase: database w502b_worstcase_w1brc15_test ===
+  built worstcase blocked: None {'worstcase': ('CURRENT', 6)}  (36s)
+=== 4. pending: database w502b_pending_w1brc15_test ===
+  built pending blocked: None {'pending': ('PENDING_RECOMPUTE', 1)}  (35s)
+=== 5. stale: database w502b_stale_w1brc15_test ===
+  built stale blocked: None {'stale': ('STALE_SOURCE', 1)}  (31s)
+=== 6. unknown: database w502b_unknown_w1brc15_test ===
+  built unknown blocked: None {'unknown': ('UNKNOWN', 1)}  (35s)
+Manifest: C:\Users\assef\Bineyame\AssetOpsV1-review7\var\w502b_w1brc15\manifest.json
+EXIT 0
+Sun Oct 25 12:52:30 EAST 2026

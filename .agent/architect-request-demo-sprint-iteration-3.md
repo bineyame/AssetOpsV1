@@ -1,0 +1,10 @@
+# Architect request: demo-sprint iteration 3 (selection reasoning)
+
+You are the AssetOps Architect. Your iteration-2 `Docs/demo-sprint/scenario-options.md` is committed. While you were working, the owner added (verbatim, see the end of `.agent/owner-demo-sprint-feedback-2-2026-10-25.md`): "so  the reason we select scenarios in the context described is the most important and 3 is the mimimum".
+
+Coordinator review: the ranking and boundaries are sound, but the *selection reasoning* is compressed into table cells. Make it the centre of the document. Revise `scenario-options.md` (keep the table as a summary) by adding, for each shortlisted scenario (M1, C1, E1, E2 and any you now promote), a short dedicated section **"Why this scenario, for this buyer, in this African context"** that argues the case in business terms:
+- Who exactly the buyer is (operator type, region/market pattern, revenue model), what keeps them up at night, and how this scenario touches it (money, risk, uptime, investor/DFI or export-buyer obligations).
+- Why it is more compelling for that buyer than the alternatives you parked (explicit comparison with the nearest rival scenario in the same vertical, e.g. M1 vs M2 diesel and M3 collections; C1 vs C3 vaccine and C2 door; E1 vs E2 and E3).
+- The hook in the buyer's own words/units and why it lands in a 12–15 minute meeting, while staying credible to a sceptical engineer (state what makes it honest).
+- What the buyer will want to do next (the pilot they'd sign up for) and why.
+Also add a brief "Why these, in this order" paragraph at the top that a commercial reader can absorb in one minute. Re-check whether any parked high-stakes scenario (diesel, collections/prepaid, vaccine) deserves promotion as a *discovery hook* inside a hero's narrative (talked about with honest "we need your data" framing) rather than as a built scenario. Keep it concise; no implementation; do not edit product code, tests or `.gitignore`. Update `five-day-plan.md`'s Architect recommendation only if the shortlist changes. End with the request for owner review.

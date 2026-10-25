@@ -1,0 +1,641 @@
+{
+  "revision": "2af5fef6",
+  "captured_at": "2026-10-25T09:36:08.834Z",
+  "pairs": [
+    {
+      "screen": "alternatives",
+      "case": "db-time-409",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5185/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/alternatives?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427",
+      "mock_hash": "#/alternatives",
+      "app_image": "alternatives-db-time-409-1440-app.png",
+      "mock_image": "alternatives-db-time-409-1440-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Open site",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427&view=analysis",
+            "text": "Analysis",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/evidence?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/alternatives?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427",
+            "text": "Alternatives",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/recommendation?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427",
+            "text": "Recommendation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/history?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427",
+            "text": "History",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Alternatives to investigate"
+        ],
+        "panels": [
+          {
+            "title": "Alternatives to investigate",
+            "x": 248,
+            "y": 205,
+            "w": 1160,
+            "h": 99,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Generator support merits review: bounded candidate avoidable running",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs finding-sections",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence",
+              "Alternatives*",
+              "Recommendation",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "FindingsFinding code unavailableAlternatives· site: Kobo mini-grid Generator support merits review: bounded candidate avoidable running Kobo mini-grid · generator support finding Open site Overview Analysis Evidence Alternatives Recommendation History Analysis unavailable for this authored alternative; use the Finding overview and evidence. Alternatives to investigate The evidence changed. Reload this page. Candidate runtime is not proof that stopping the generator would have preserved service."
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Open site",
+            "panel": ""
+          },
+          {
+            "href": "#/finding",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "#/analysis",
+            "text": "Analysis",
+            "panel": ""
+          },
+          {
+            "href": "#/finding-evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "#/alternatives",
+            "text": "Alternatives",
+            "panel": ""
+          },
+          {
+            "href": "#/recommendation",
+            "text": "Recommendation",
+            "panel": ""
+          },
+          {
+            "href": "#/finding-history",
+            "text": "History",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Alternatives to investigate"
+        ],
+        "panels": [
+          {
+            "title": "Alternatives to investigate",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Explanation",
+              "Evidence",
+              "Disposition"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Generator support review",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence",
+              "Alternatives*",
+              "Recommendation",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "alternatives",
+      "case": "db-time-409",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5185/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/alternatives?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427",
+      "mock_hash": "#/alternatives",
+      "app_image": "alternatives-db-time-409-390-app.png",
+      "mock_image": "alternatives-db-time-409-390-mock.png",
+      "app": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Open site",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427&view=analysis",
+            "text": "Analysis",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/evidence?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/alternatives?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427",
+            "text": "Alternatives",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/recommendation?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427",
+            "text": "Recommendation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/KOBO-001/findings/4a83b814-175e-4948-b3cb-02bd6614fbca/history?revision_id=d2f823b5-bb8e-4de0-9229-5c0da30ea427",
+            "text": "History",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Alternatives to investigate"
+        ],
+        "panels": [
+          {
+            "title": "Alternatives to investigate",
+            "x": 16,
+            "y": 417,
+            "w": 358,
+            "h": 99,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Generator support merits review: bounded candidate avoidable running",
+          "top": 149,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs finding-sections",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence",
+              "Alternatives*",
+              "Recommendation",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 405,
+            "cw": 358,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "mainText": "FindingsFinding code unavailableAlternatives· site: Kobo mini-grid Generator support merits review: bounded candidate avoidable running Kobo mini-grid · generator support finding Open site Overview Analysis Evidence Alternatives Recommendation History Analysis unavailable for this authored alternative; use the Finding overview and evidence. Alternatives to investigate The evidence changed. Reload this page. Candidate runtime is not proof that stopping the generator would have preserved service."
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Open site",
+            "panel": ""
+          },
+          {
+            "href": "#/finding",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "#/analysis",
+            "text": "Analysis",
+            "panel": ""
+          },
+          {
+            "href": "#/finding-evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "#/alternatives",
+            "text": "Alternatives",
+            "panel": ""
+          },
+          {
+            "href": "#/recommendation",
+            "text": "Recommendation",
+            "panel": ""
+          },
+          {
+            "href": "#/finding-history",
+            "text": "History",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Alternatives to investigate"
+        ],
+        "panels": [
+          {
+            "title": "Alternatives to investigate",
+            "x": 15,
+            "y": 432,
+            "w": 360,
+            "h": 331,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Explanation",
+              "Evidence",
+              "Disposition"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1015,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Generator support review",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Analysis",
+              "Evidence",
+              "Alternatives*",
+              "Recommendation",
+              "History"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 427,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+[
+ {
+  "screen": "cold-finding",
+  "case": "start-excursion",
+  "width": "1440",
+  "h1": "Backup generator did not start when the grid failed",
+  "titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "panels": [
+   {
+    "t": "Bounded conclusion",
+    "h": 217,
+    "openDetails": 0
+   },
+   {
+    "t": "Operational context",
+    "h": 261,
+    "openDetails": 0
+   },
+   {
+    "t": "Recommended next step",
+    "h": 131,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Findings"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176"
+ },
+ {
+  "screen": "cold-finding",
+  "case": "start-excursion",
+  "width": "390",
+  "h1": "Backup generator did not start when the grid failed",
+  "titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "panels": [
+   {
+    "t": "Bounded conclusion",
+    "h": 294,
+    "openDetails": 0
+   },
+   {
+    "t": "Operational context",
+    "h": 527,
+    "openDetails": 0
+   },
+   {
+    "t": "Recommended next step",
+    "h": 148,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Findings"
+  ],
+  "headerH": 83,
+  "url": "http://localhost:5185/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176"
+ }
+]

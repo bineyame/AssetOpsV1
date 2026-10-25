@@ -1,0 +1,29 @@
+INFO:     Started server process [14868]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:18131 (Press CTRL+C to quit)
+INFO:     127.0.0.1:49733 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51309 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59208 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59209 - "GET /api/sites/COLD-LAB-001/cold/financial-assumptions?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59211 - "GET /api/sites/COLD-LAB-001/cold/financial-assumptions?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59520 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59521 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51813 - "GET /api/sites/COLD-LAB-001/cold/financial-assumptions?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51814 - "GET /api/sites/COLD-LAB-001/cold/financial-assumptions?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61359 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54192 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59426 - "GET /api/sites/COLD-LAB-001/cold/financial-assumptions?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62246 - "GET /api/sites/COLD-LAB-001/cold/financial-assumptions?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65494 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49866 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49867 - "GET /api/sites/COLD-LAB-001/cold/financial-assumptions?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49868 - "GET /api/sites/COLD-LAB-001/cold/financial-assumptions?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56481 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57205 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52206 - "GET /api/sites/COLD-LAB-001/cold/financial-assumptions?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50397 - "GET /api/sites/COLD-LAB-001/cold/financial-assumptions?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60651 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60652 - "GET /api/sites/COLD-LAB-001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60653 - "GET /api/sites/COLD-LAB-001/cold/financial-assumptions?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60654 - "GET /api/sites/COLD-LAB-001/cold/financial-assumptions?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z HTTP/1.1" 200 OK

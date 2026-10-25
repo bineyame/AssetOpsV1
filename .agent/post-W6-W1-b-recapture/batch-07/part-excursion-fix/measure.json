@@ -1,0 +1,54 @@
+[
+ {
+  "screen": "cold-assumptions",
+  "case": "no-selection",
+  "width": "1440",
+  "historyScroll": null,
+  "h1": "Cold replay lab",
+  "titles": [
+   "Financial assumptions"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 315,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"
+ },
+ {
+  "screen": "cold-assumptions",
+  "case": "no-selection",
+  "width": "390",
+  "historyScroll": null,
+  "h1": "Cold replay lab",
+  "titles": [
+   "Financial assumptions"
+  ],
+  "panels": [
+   {
+    "t": "Financial assumptions",
+    "h": 373,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 54,
+  "url": "http://localhost:5185/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"
+ }
+]
