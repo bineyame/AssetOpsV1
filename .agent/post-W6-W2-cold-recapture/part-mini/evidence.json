@@ -1,0 +1,679 @@
+{
+  "revision": "47d7929c",
+  "captured_at": "2026-10-25T19:06:23.479Z",
+  "pairs": [
+    {
+      "screen": "sitefindings",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5196/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-stocked-1440-app.png",
+      "mock_image": "sitefindings-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 248,
+            "y": 321,
+            "w": 1160,
+            "h": 451,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Finding",
+              "Domain",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens",
+              "Period"
+            ],
+            "chips": [
+              "From (UTC day)To (UTC day, included)Show Findings",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed"
+            ],
+            "links": 13,
+            "buttons": 1,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 6,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "extra": {
+          "location": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+          "labels": {
+            "R435": [],
+            "R436": [],
+            "R437": []
+          },
+          "sentenceCounts": {
+            "invalid": 0,
+            "tooLong": 0,
+            "notUtc": 0,
+            "other": 0
+          },
+          "windowTitle": 0,
+          "notAssessed": 9,
+          "notDetermined": 0,
+          "banners": [],
+          "tabs": [
+            [
+              {
+                "text": "Overview",
+                "href": "/sites/KOBO-001"
+              },
+              {
+                "text": "Foundation",
+                "href": "/sites/KOBO-001/foundation"
+              },
+              {
+                "text": "Health",
+                "href": "/sites/KOBO-001/health"
+              },
+              {
+                "text": "Performance",
+                "href": "/sites/KOBO-001/performance"
+              },
+              {
+                "text": "Findings",
+                "href": "/sites/KOBO-001/findings"
+              },
+              {
+                "text": "Work",
+                "href": "/sites/KOBO-001/work"
+              },
+              {
+                "text": "Financials",
+                "href": "/sites/KOBO-001/financials"
+              },
+              {
+                "text": "Evidence",
+                "href": "/sites/KOBO-001/evidence"
+              }
+            ]
+          ],
+          "globalNote": 0,
+          "detailsOpen": 0,
+          "details": 1
+        }
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 234,
+            "y": 406,
+            "w": 1161,
+            "h": 288,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Finding",
+              "Domain",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "High",
+              "Lowⓘ",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Recommendation"
+            ],
+            "links": 6,
+            "buttons": 2,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5196/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-stocked-390-app.png",
+      "mock_image": "sitefindings-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 16,
+            "y": 534,
+            "w": 358,
+            "h": 684,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Finding",
+              "Domain",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens",
+              "Period"
+            ],
+            "chips": [
+              "From (UTC day)To (UTC day, included)Show Findings",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed"
+            ],
+            "links": 13,
+            "buttons": 1,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1375,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 1223,
+            "cw": 318,
+            "panel": "Findings at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 6,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "extra": {
+          "location": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+          "labels": {
+            "R435": [],
+            "R436": [],
+            "R437": []
+          },
+          "sentenceCounts": {
+            "invalid": 0,
+            "tooLong": 0,
+            "notUtc": 0,
+            "other": 0
+          },
+          "windowTitle": 0,
+          "notAssessed": 9,
+          "notDetermined": 0,
+          "banners": [],
+          "tabs": [
+            [
+              {
+                "text": "Overview",
+                "href": "/sites/KOBO-001"
+              },
+              {
+                "text": "Foundation",
+                "href": "/sites/KOBO-001/foundation"
+              },
+              {
+                "text": "Health",
+                "href": "/sites/KOBO-001/health"
+              },
+              {
+                "text": "Performance",
+                "href": "/sites/KOBO-001/performance"
+              },
+              {
+                "text": "Findings",
+                "href": "/sites/KOBO-001/findings"
+              },
+              {
+                "text": "Work",
+                "href": "/sites/KOBO-001/work"
+              },
+              {
+                "text": "Financials",
+                "href": "/sites/KOBO-001/financials"
+              },
+              {
+                "text": "Evidence",
+                "href": "/sites/KOBO-001/evidence"
+              }
+            ]
+          ],
+          "globalNote": 0,
+          "detailsOpen": 0,
+          "details": 1
+        }
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 15,
+            "y": 667,
+            "w": 360,
+            "h": 460,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Finding",
+              "Domain",
+              "Priority",
+              "Confidence",
+              "State",
+              "Main consequence",
+              "Lens"
+            ],
+            "chips": [
+              "High",
+              "Lowⓘ",
+              "Open",
+              "Medium",
+              "High",
+              "Open",
+              "Medium",
+              "Mediumⓘ",
+              "Recommendation"
+            ],
+            "links": 6,
+            "buttons": 2,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1317,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings*",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 653,
+            "cw": 320,
+            "panel": "Findings at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

@@ -1,0 +1,650 @@
+{
+ "revision": null,
+ "label": "Probe sections (rows160*, title160*, title-episode160*) are SYNTHETIC LAYOUT EVIDENCE, NOT PRODUCT DATA",
+ "results": [
+  {
+   "screen": "cold-findings",
+   "case": "stocked",
+   "width": 1440,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "ready": true,
+   "revision": null,
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "h": 287,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [
+    "Scoped to Cold replay lab"
+   ],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 4,
+   "banners": [],
+   "statusBars": [
+    "Scoped to Cold replay lab · 2 open · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Cold-chain Findings are not in the global Findings list MOCK DEVIATION D1 (R436)Manage in Findings · Not ",
+    "Scoped to Cold replay lab · 2 open · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Cold-chain Findings are not in the global Findings list MOCK DEVIATION D1 (R436)",
+    "Manage in Findings · Not available yet"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Findings at this site",
+     "kind": "coldrows",
+     "real": {
+      "closed": {
+       "panelH": 287,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 287,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "table": {
+       "cw": 1120,
+       "sw": 1120,
+       "wrapCw": 1120,
+       "wrapSw": 1120
+      },
+      "panelH": 566,
+      "panelW": 1160,
+      "rowHs": [
+       81,
+       81,
+       81,
+       81,
+       81
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1120,
+        "cw": 1120,
+        "scrolls": false
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 566,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "table": {
+       "cw": 1120,
+       "sw": 1120,
+       "wrapCw": 1120,
+       "wrapSw": 1120
+      },
+      "panelH": 609,
+      "panelW": 1160,
+      "rowHs": [
+       81,
+       81,
+       81,
+       81,
+       81
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1120,
+        "cw": 1120,
+        "scrolls": false
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 609,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title-episode160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 1284,
+       "sw": 1284,
+       "wrapCw": 1120,
+       "wrapSw": 1284
+      },
+      "panelH": 581,
+      "panelW": 1160,
+      "rowHs": [
+       81,
+       81,
+       81,
+       81,
+       81
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1284,
+        "cw": 1120,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 581,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1284,
+         "cw": 1120,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title-episode160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 1284,
+       "sw": 1284,
+       "wrapCw": 1120,
+       "wrapSw": 1284
+      },
+      "panelH": 624,
+      "panelW": 1160,
+      "rowHs": [
+       81,
+       81,
+       81,
+       81,
+       81
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1284,
+        "cw": 1120,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 624,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1284,
+         "cw": 1120,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "cold-findings",
+   "case": "stocked",
+   "width": 390,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "ready": true,
+   "revision": null,
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "h": 341,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [
+    "Scoped to Cold replay lab"
+   ],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 4,
+   "banners": [],
+   "statusBars": [
+    "Scoped to Cold replay lab · 2 open · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Cold-chain Findings are not in the global Findings list MOCK DEVIATION D1 (R436)Manage in Findings · Not ",
+    "Scoped to Cold replay lab · 2 open · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Cold-chain Findings are not in the global Findings list MOCK DEVIATION D1 (R436)",
+    "Manage in Findings · Not available yet"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Findings at this site",
+     "kind": "coldrows",
+     "real": {
+      "closed": {
+       "panelH": 341,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 949,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 341,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 949,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "table": {
+       "cw": 797,
+       "sw": 797,
+       "wrapCw": 318,
+       "wrapSw": 797
+      },
+      "panelH": 764,
+      "panelW": 358,
+      "rowHs": [
+       117,
+       117,
+       117,
+       117,
+       117
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 797,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 764,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 797,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "table": {
+       "cw": 797,
+       "sw": 797,
+       "wrapCw": 318,
+       "wrapSw": 797
+      },
+      "panelH": 856,
+      "panelW": 358,
+      "rowHs": [
+       117,
+       117,
+       117,
+       117,
+       117
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 797,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 856,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 797,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title-episode160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 1284,
+       "sw": 1284,
+       "wrapCw": 318,
+       "wrapSw": 1284
+      },
+      "panelH": 584,
+      "panelW": 358,
+      "rowHs": [
+       81,
+       81,
+       81,
+       81,
+       81
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1284,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 584,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1284,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title-episode160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 1284,
+       "sw": 1284,
+       "wrapCw": 318,
+       "wrapSw": 1284
+      },
+      "panelH": 676,
+      "panelW": 358,
+      "rowHs": [
+       81,
+       81,
+       81,
+       81,
+       81
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1284,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 676,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1284,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
