@@ -126,3 +126,53 @@ Closeout rulings for all three points are now on main (`post-W6-W3-closeout-ruli
 - The Q8 CSS test only checks the stylesheet text, so it cannot catch a layout that does not change (M1). Any similar "CSS source" assertion for a table column needs a measured capture behind it.
 - A cold or EV Finding held by more than one selected window (for example an episode that crosses a day boundary) gets a null link by design. With a multi-day estate window, such rows read "Finding detail unavailable" even though a provable window exists. This follows the "stay unavailable if unproved" ruling, but it may surprise users once multi-day episodes are populated.
 - No DB-free API test pins the Portfolio row `links.finding`/`links.site`. The proof sits in the 90 s+ Postgres scope test.
+
+## Re-review of the fix round (1daa8821, b7913438, 5658757d; head f6f6ecfd)
+
+**Verdict: REJECT for merge as committed (one High hygiene finding). The product changes are sound; once the stray files are removed this is ACCEPT.**
+
+### Findings
+
+- **H1 (High): commit 5658757d adds about 10,800 generated or environment files.** It tracks `.venv/` (4,840 files), `frontend/node_modules/` (5,293), `__pycache__` and `.pyc` (2,460 across the tree), `var/` (36 files), `frontend/dist/`, `.ruff_cache/`, `backend/.pytest_cache/` and `backend/.ruff_cache/`. None of these exist on main or at 16481b7c. The commit's real content is the packet, `capture.mjs`, the `fix-round/` evidence and `cap-table.txt`.
+  - **Check that fails:** `tools/check-all.ps1` reports "Check failed: 1 of 11 guards". The failing guard is Architecture seams (`tools/checks/configuration-persistence.ps1`), with six "var/ holds tracked files. The writable user ... store must not be in version control" errors. The other 10 guards pass.
+  - **Also:** `git status` shows tracked `frontend/node_modules/.vite/vitest/results.json` modified by test runs.
+  - **Fix:** rebuild 5658757d, or add a follow-up commit, so it holds only `.agent/` content. Use `git rm -r --cached` on the paths above, and check `.gitignore`. Rebuilding is preferable because the merge would otherwise bring about 10,800 files into main's history. Then re-run `check-all.ps1`.
+- **L1 (Low): `fix-round/cap-table.txt` and the packet "Fix round" table still label Findings and Actions against the superseded caps.** They show 1000/1500 and 750/1100 with "NO" or "EXCEEDS". The revised caps in `post-W6-W3-caps2-rulings.md` are 1900/3900 and 1850/2500. The measured values 1686/3549 and 1655/2225 are within the revised caps. Update the table and the packet; no recapture is needed because the measurements are final.
+
+### Verified
+
+- **M1 in rendered layout.**
+  - `evidence.json` `tableCols` for `part-b10-positive` and `part-b10-partial` at 390 shows a 672 px table in a 318 px scroller.
+  - Column widths are 152/80/64/90/84/126/76.
+  - Visible widths are Finding 152, Site 80, Priority 64 and Confidence 22 of 90, with State, Main consequence and Lens at 0.
+  - At 1440 the table is 1105 px, with no change.
+  - Actions at 390 stays at 820 px (`:not([data-estate-root="actions"])`).
+  - CSS: `estate.css:148-162`, `findingIndex.tsx:332`.
+  - Not verified: the screenshots themselves. I did not recapture, and the JSON is the capture tool's own measurement.
+- **Structural test (`estateRoots.test.tsx`, "M1: ...").** With `className="estate-findings-col"` removed from `findingIndex.tsx` (single-file revert), the test fails with "expected [] to have a length of 7 but got +0". With the fix restored, `estateRoots` passes 12/12. I restored the file with `git checkout`.
+- **Test limits.** The test checks the rendered `<col>` structure plus CSS source text, so it cannot prove the pixel layout. The capture measurement is that proof.
+- **Ruling 3.** `OBJECTIVES_FOOTNOTE` is exactly "Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured." The Portfolio test asserts the exact string and the absence of the stale sentence. The captured `objectivesFootnote` in both `part-w303-*` runs shows it at 1440 and 390.
+- **Probe (`tools/probe.js`).**
+  - It sets every non-typed cell leaf of five clones to 160 characters and asserts `verified`.
+  - It also sets the full Limits text.
+  - Recorded counts: Findings 20/20, Actions 35/35, register 30/30 with all five variable columns changed, Objectives 33/33 (padded to five Sites), Portfolio priority panel 85/85.
+  - Outputs are labelled `synthetic: true` and the cap table opens with a synthetic label.
+  - Typed columns (Value, Priority, Confidence, State, Lens) are kept, as the rulings allow.
+- **Caps (cap-table).**
+
+| Panel | Measured 1440/390 | Cap | Result |
+| --- | --- | --- | --- |
+| Findings (partial and positive) | 1686/3549 | 1900/3900 | within |
+| Managed actions | 1655/2225 | 1850/2500 | within |
+| Consequence register | 974/1575 | 1050/1800 | within |
+| Objectives | 336/321 | 600/800 | within |
+| Where management should act first | 784/854 | 900/1200 | within |
+
+  - Clipped text is 0 and document overflow is 0 in every row.
+  - The 390 table scrollers are Findings 672/318, Actions 820/318 and register 800/318.
+- **No hiding, no loosening.** No rows are hidden and there are no clamps. `estate.css` adds only the narrow-width rules. I found no guard or test assertions removed. The only test edits are the footnote assertions and the new M1 test.
+- **Targeted checks.**
+  - `vitest run src/estate`: 5 files, 58/58 tests passed.
+  - `tsc --noEmit`: clean.
+  - `check-all.ps1`: fails 1 of 11 guards (H1).
+- **Not run.** The full vitest suite, the build and any captures (shared-machine constraint).
