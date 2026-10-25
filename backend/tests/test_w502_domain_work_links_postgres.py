@@ -178,10 +178,19 @@ def assert_global_domain_parity(cold, b: SimpleNamespace, api_class, root: str, 
     w4_old = rows_by_id(site_index(cold, w4_kind, b.window, [iso(b.before)]))
     rows, old_rows = rows_by_id(now), rows_by_id(old)
     domain = expected_link(cold, b.aid)
-    assert rows[case_id]["action_links"] == [{"label": domain["label"], "href": domain["href"]}]
+    # Post-W6 W6 Q10 (R366): the global row labels the Action by its stored public code; the Site row keeps W4's
+    # `Action {id8}` label (Site Work stays W4/W5's). The href and every other field stay at parity.
+    with cold.engine.connect() as c:
+        code = c.execute(text("SELECT action_code FROM domain_action WHERE id = :a"), {"a": b.aid}).scalar_one()
+    assert code.startswith("ACT-")
+    relabel = {domain["label"]: code}
+    assert rows[case_id]["action_links"] == [{"label": code, "href": domain["href"]}]
+    assert {r["site_domain"] for r in rows.values()} == {"COLDCHAIN"}
+    assert {r["links"]["site"]["href"] for r in rows.values()} == {f"/sites/{cold.code}"}
     for got, site in ((rows, w4), (old_rows, w4_old)):
         for cid, row in got.items():
-            assert row["action_links"] == [{"label": x["label"], "href": x["href"]} for x in site[cid]["action_links"]]
+            assert row["action_links"] == [{"label": relabel.get(x["label"], x["label"]), "href": x["href"]}
+                                           for x in site[cid]["action_links"]]
             assert row["source_provenance"]["basis_sha256"] == site[cid]["source_provenance"]["basis_sha256"]
     sel = selected_ids(cold, case_id, b.after, b.aid, cold.revision_id)
     assert rows[case_id]["source_provenance"]["basis_sha256"] == basis_sha256(cold.t, cold.s, sel, cold.cited)

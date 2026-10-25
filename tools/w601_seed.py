@@ -638,7 +638,8 @@ def _linked_hrefs(url: str, tenant: Any, fid: str, action_id: str, incident_id: 
             body = service.read(tenant, kind, request, lambda code: True)
             [row] = [r for r in body["rows"] if r["case_id"] == case_id]
             finding = [x for x in row["finding_links"] if x["label"] == f"Finding {fid[:8]}" and x["href"]]
-            act = [x for x in row["action_links"] if x["label"] == f"Action {action_id[:8]}" and x["href"]]
+            # Post-W6 W6 Q10 (R366): global Action labels are the stored `ACT-` code, so the link is found by href.
+            act = [x for x in row["action_links"] if x["label"].startswith("ACT-") and action_id in (x["href"] or "")]
             if not finding or not act:
                 raise SystemExit(f"linked: /api/work/{kind} row {row['code']} lacks a lineage-true Finding or Action "
                                  f"href: {row['finding_links']} {row['action_links']}")

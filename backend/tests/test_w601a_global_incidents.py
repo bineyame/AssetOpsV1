@@ -29,7 +29,8 @@ WINDOW = {"from": "2026-10-15T00:00:00Z", "to": "2026-10-22T00:00:00Z"}
 KEY = "a1" * 32
 ROW_KEYS = {"site_code", "site_name", "site_id", "site_code_key", "case_id", "code", "kind", "revision_id", "title",
             "narrative", "occurred_at", "created_at", "recorded_at", "state", "owner", "asset_id", "asset_label",
-            "incident_id", "linked_request_codes", "finding_links", "action_links", "source_provenance", "links"}
+            "incident_id", "linked_request_codes", "finding_links", "action_links", "source_provenance", "links",
+            "site_domain", "linked_requests"}
 ENVELOPE = {"schema_version", "scope", "window", "known_at", "status", "coverage", "total_count", "state_counts", "rows",
             "next_cursor", "selection_token"}
 
@@ -109,8 +110,10 @@ def encode(payload: dict) -> str:
     return base64.urlsafe_b64encode(raw).decode().rstrip("=")
 
 
-def query(known_at: str) -> str:
-    return "&".join(f"{k}={quote(v, safe='')}" for k, v in (*WINDOW.items(), ("known_at", known_at)))
+def query(known_at: str | None = None) -> str:
+    """The window, plus `known_at` only for an explicit cutoff (post-W6 W6 Q5, R360)."""
+    pairs = (*WINDOW.items(), *(() if known_at is None else (("known_at", known_at),)))
+    return "&".join(f"{k}={quote(v, safe='')}" for k, v in pairs)
 
 
 # --- key, scope and tenants ---------------------------------------------------------------------------------------
@@ -215,6 +218,8 @@ def test_same_time_uuid_tie_and_row_shape(store, key) -> None:  # noqa: F811
         assert r["created_at"].endswith("Z") and len(r["created_at"]) == 20 and r["created_at"] >= "2026-10-22T11:59:00Z"
         assert r["asset_id"] is None and r["asset_label"] is None and r["incident_id"] is None
         assert r["finding_links"] == [] and r["action_links"] == []
+        # Post-W6 W6 Q2/Q3: the stored Site type rides on the row; a mini-grid Site home is the base Site route.
+        assert r["site_domain"] == "MINIGRID"
         assert r["links"]["site"] == {"label": r["site_name"], "href": f"/sites/{r['site_code']}"}
         assert r["source_provenance"]["classification"] == "UNKNOWN"
     assert body["window"] == {**WINDOW, "bounds": "[from, to)"} and body["known_at"] == "2026-10-22T12:00:02Z"
@@ -286,22 +291,69 @@ def test_linked_request_codes_order(store, key) -> None:  # noqa: F811
     assert unlinked["code"] not in {c for r in now["rows"] for c in r["linked_request_codes"]}
 
 
-def test_site_incidents_link_carries_response_known_at(store, key) -> None:  # noqa: F811
+def test_site_incidents_link_carries_only_an_explicit_known_at(store, key) -> None:  # noqa: F811
+    """Post-W6 W6 Q5 (R360, superseding A1Q Q8 for this href): a current read's Site incidents link carries the window
+    only; an explicit cutoff is carried at its exact instant (P-C1-5 form), on page one and page two."""
     info = seed("incidents")
     api = Api(info["tenants"]["demo"], READ_NOW + timedelta(microseconds=250_000))
     try:
-        implicit, explicit = api.ok(limit="5"), api.ok(known_at="2026-10-22T12:00:01Z")
+        implicit, explicit = api.ok(limit="5"), api.ok(known_at="2026-10-22T12:00:01Z", limit="5")
         page_two = api.ok(limit="5", cursor=implicit["next_cursor"])
+        explicit_two = api.ok(limit="5", known_at="2026-10-22T12:00:01Z", cursor=explicit["next_cursor"])
     finally:
         api.close()
     assert implicit["known_at"] == "2026-10-22T12:00:02Z" and explicit["known_at"] == "2026-10-22T12:00:01Z"
-    for body in (implicit, explicit, page_two):
+    exact = "2026-10-22T12:00:01.000000Z"
+    for body, known in ((implicit, None), (page_two, None), (explicit, exact), (explicit_two, exact)):
+        assert body["rows"]
         for r in body["rows"]:
             assert r["links"]["site_incidents"] == {
-                "label": "Site incidents",
-                "href": f"/sites/{r['site_code']}/work/incidents?{query(body['known_at'])}"}
-    assert "from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z&known_at=2026-10-22T12%3A00%3A02Z" in (
-        implicit["rows"][0]["links"]["site_incidents"]["href"])
+                "label": "Site incidents", "href": f"/sites/{r['site_code']}/work/incidents?{query(known)}"}
+    assert implicit["rows"][0]["links"]["site_incidents"]["href"].endswith(
+        "?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z")
+    assert "known_at" not in page_two["rows"][0]["links"]["site_incidents"]["href"]
+
+
+def test_linked_request_destinations(store, key) -> None:  # noqa: F811
+    """Post-W6 W6 Q4 (R359): each linked request code is a `{label, href}` to that request's exact Overview at its
+    Site, from the same selection as `linked_request_codes` (unchanged); `known_at` only for an explicit cutoff.
+    The selected IDs enter the cursor basis, and paging stays stable across them."""
+    info = seed("incidents")
+    [request] = [w for w in info["written"] if w["kind"] == "MAINTENANCE_REQUEST"]
+    api = Api(info["tenants"]["demo"])
+    try:
+        now = api.ok()
+        old = api.ok(known_at="2026-10-22T12:00:00Z")
+        one = api.ok(limit="5")
+        two = api.ok(limit="5", cursor=one["next_cursor"])
+    finally:
+        api.close()
+    base = f"/maintenance/requests/{request['case_id']}?site_id=KOBO-001"
+    for body, href in ((now, base), (old, base + "&known_at=2026-10-22T12%3A00%3A00.000000Z")):
+        [linked] = [r for r in body["rows"] if r["title"] == "Generator stopped"]
+        assert linked["linked_request_codes"] == [request["code"]]
+        assert linked["linked_requests"] == [{"label": request["code"], "href": href}]
+        assert all(r["linked_requests"] == [] for r in body["rows"] if r["title"] != "Generator stopped")
+    assert [r["case_id"] for r in one["rows"] + two["rows"]] == [r["case_id"] for r in now["rows"]]
+    assert two["selection_token"] == one["selection_token"] == now["selection_token"]
+
+
+def test_linked_request_ids_enter_the_basis(store, key, monkeypatch) -> None:  # noqa: F811
+    """Post-W6 W6 Q1/Q4: a changed linked request ID behind an unchanged code changes the selection token."""
+    from assetops_backend.work.adapters import postgres_global_read as reader
+
+    info = seed("incidents")
+    api = Api(info["tenants"]["demo"])
+    try:
+        before = api.ok()
+        real = reader.GlobalReadTx.linked_requests
+        monkeypatch.setattr(reader.GlobalReadTx, "linked_requests", lambda self, *a: [
+            {**r, "id": "00000000-0000-4000-8000-0000000000ff"} for r in real(self, *a)])
+        after = api.ok()
+    finally:
+        api.close()
+    assert [r["linked_request_codes"] for r in after["rows"]] == [r["linked_request_codes"] for r in before["rows"]]
+    assert after["selection_token"] != before["selection_token"]
 
 
 def test_read_clock_override_pins_read_at(store, key) -> None:  # noqa: F811

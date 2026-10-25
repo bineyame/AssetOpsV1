@@ -30,6 +30,7 @@ from urllib.parse import quote
 from uuid import UUID
 
 from assetops_backend.estate.scope import MESSAGES as ESTATE_MESSAGES
+from assetops_backend.estate.evidence_money import site_home_href
 from assetops_backend.estate.scope import access_basis, encode_cursor, token_time, wire_time
 from assetops_backend.work import model as m
 from assetops_backend.work.service import (action_event_ids, all_action_links, case_basis, missing_lineage,
@@ -232,9 +233,37 @@ def _site_href(site_code: str) -> str:
     return f"/sites/{quote(site_code, safe='')}"
 
 
-def _window_query(lo: datetime, hi: datetime, known_at: datetime) -> str:
-    """A1Q Q8: the global page's `[from, to)` and the response `known_at`, URL-encoded on every page."""
-    return "&".join(f"{k}={quote(wire_time(v), safe='')}" for k, v in (("from", lo), ("to", hi), ("known_at", known_at)))
+def _window_query(lo: datetime, hi: datetime, cutoff: datetime | None) -> str:
+    """The global page's `[from, to)`, URL-encoded on every page. Post-W6 W6 Q5 (R360, superseding A1Q Q8 for the
+    Site incidents/maintenance fallbacks): `known_at` is carried only for an explicit inbound cutoff, at that exact
+    instant (the P-C1-5 / P-E1-6 rule); a current read never pins the read watermark."""
+    parts = [f"{k}={quote(wire_time(v), safe='')}" for k, v in (("from", lo), ("to", hi))]
+    if cutoff is not None:
+        parts.append(f"known_at={quote(m.iso(cutoff), safe='')}")
+    return "&".join(parts)
+
+
+def site_link(site: dict[str, Any]) -> dict[str, str]:
+    """Post-W6 W6 Q3 (R353): the Site home of a global row, by the selected Site's stored type (EV opens `/ev`)."""
+    return {"label": site["site_name"], "href": site_home_href(site["site_code"], site["site_type"])}
+
+
+def coded_actions(gx: Any, tenant_id: UUID, site_id: UUID, actions: list[dict[str, Any]]
+                  ) -> tuple[list[dict[str, Any]], list[list[str]]]:
+    """Post-W6 W6 Q10 (R366): label each Action link by its stored public `ACT-` code; an Action with no stored code
+    keeps the honest `Action {id8}` label (never an invented code). Returns the relabelled links and the sorted
+    `[action_id, code]` pairs that were read, for the selected basis."""
+    codes = gx.action_codes(tenant_id, site_id, [x["action_id"] for x in actions])
+    out = [{**x, "label": codes.get(str(x["action_id"]).lower(), x["label"])} for x in actions]
+    return out, sorted([aid, code] for aid, code in codes.items())
+
+
+def linked_request_link(request: dict[str, str], site_code: str, cutoff: datetime | None) -> dict[str, str]:
+    """Post-W6 W6 Q4 (R359): the stored WR code opening that request's exact Overview at its Site."""
+    href = f"/maintenance/requests/{quote(request['id'], safe='')}?site_id={quote(site_code, safe='')}"
+    if cutoff is not None:
+        href += f"&known_at={quote(m.iso(cutoff), safe='')}"
+    return {"label": request["code"], "href": href}
 
 
 def _owner(events: list[dict[str, Any]]) -> str | None:
@@ -249,8 +278,9 @@ def _owner(events: list[dict[str, Any]]) -> str | None:
 def select_incidents(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: datetime, hi: datetime,
                      known_at: datetime, cutoff: datetime | None = None) -> list[dict[str, Any]]:
     """Every eligible Incident of every authorized Site at K, before paging: `{wire, key, basis}` sorted by the
-    section 1 tuple. Provenance and links follow the Site row exactly (A1Q Q3, Q7)."""
-    return _select_cases(gx, tenant_id, sites, lo, hi, known_at, m.INCIDENT)
+    section 1 tuple. Provenance and links follow the Site row exactly (A1Q Q3, Q7). Post-W6 W6 Q5: `cutoff` is K
+    only for an explicit `known_at`; it decides whether generated hrefs carry `known_at`."""
+    return _select_cases(gx, tenant_id, sites, lo, hi, known_at, m.INCIDENT, cutoff)
 
 
 def select_maintenance(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: datetime, hi: datetime,
@@ -264,7 +294,7 @@ def select_maintenance(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo
 def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: datetime, hi: datetime,
                   known_at: datetime, case_kind: str, cutoff: datetime | None = None) -> list[dict[str, Any]]:
     out = []
-    query = _window_query(lo, hi, known_at)
+    query = _window_query(lo, hi, cutoff)
     states = STATE_COUNTS["incidents" if case_kind == m.INCIDENT else "maintenance"]
     member = "occurred_at" if case_kind == m.INCIDENT else "created_at"
     for site in sites:
@@ -291,7 +321,8 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
             action_links = all_action_links(links)
             findings = [_finding_link(code, x, by_key.get(("FINDING", x["finding_id"], x["finding_revision_id"]),
                                                           {"lineage": False})["lineage"]) for x in finding_links]
-            actions = [_action_link(code, x, by_key.get(action_selection_key(x))) for x in action_links]
+            actions, action_codes = coded_actions(gx, tenant_id, site_id, [
+                _action_link(code, x, by_key.get(action_selection_key(x))) for x in action_links])
             try:
                 state = m.reduce_state(case_kind, events)
             except (ValueError, m.WorkRefused) as error:  # no CREATED event, or an event chain W4 cannot reduce
@@ -301,6 +332,7 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
             asset_label = None if case["asset_code"] is None else f"{case['asset_code']} · {case['asset_type']}"
             wire = {
                 "site_code": code, "site_name": name, "site_id": sid, "site_code_key": site["site_code_key"],
+                "site_domain": site["site_type"],
                 "case_id": cid, "code": case["public_code"], "kind": case_kind, "revision_id": rid,
                 "title": revision["title"], "narrative": revision["narrative"],
                 "occurred_at": wire_time(case["occurred_at"]), "created_at": wire_time(case["created_at"]),
@@ -317,11 +349,17 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
             if links.get("domain_action_links"):  # W5-02a ruling C1; W1-only and unlinked rows keep their basis
                 basis["domain_action_links"] = sorted(
                     [x["action_id"], x["finding_revision_id"]] for x in links["domain_action_links"])
-            site_link = {"label": name, "href": _site_href(code)}
+            if action_codes:  # Post-W6 W6 Q10: displayed ACT codes are read values; rows without Actions unchanged
+                basis["action_codes"] = action_codes
+            home = site_link(site)
             if case_kind == m.INCIDENT:
-                requests = gx.linked_request_codes(tenant_id, site_id, cid, known_at)
+                linked = gx.linked_requests(tenant_id, site_id, cid, known_at)
+                requests = [r["code"] for r in linked]
                 wire["linked_request_codes"] = requests
+                wire["linked_requests"] = [linked_request_link(r, code, cutoff) for r in linked]
                 basis["linked_request_codes"] = requests
+                if linked:  # Post-W6 W6 Q4: the destination IDs, under their own key; unlinked rows unchanged
+                    basis["linked_request_ids"] = [r["id"] for r in linked]
             else:  # P-B1-12: W4 Site row parity for the latest selected record
                 wire.update({"record_id": record_id, "activity": None if record is None else record["activity"],
                              "outcome_note": None if record is None else record["outcome_note"]})
@@ -329,14 +367,14 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
             wire["action_links"] = [{"label": x["label"], "href": x["href"]} for x in actions]
             wire["source_provenance"] = dto
             if case_kind == m.INCIDENT:
-                wire["links"] = {"site": site_link,
+                wire["links"] = {"site": home,
                                  "site_incidents": {"label": "Site incidents",
                                                     "href": f"{_site_href(code)}/work/incidents?{query}"}}
             else:  # P-B1-13 label and Site fallback; W6-01c C2 (P-C2-12): the exact request Overview
                 detail = f"/maintenance/requests/{quote(cid, safe='')}?site_id={quote(code, safe='')}"
                 if cutoff is not None:  # P-C1-5: only an explicit cutoff is carried, at its exact instant
                     detail += f"&known_at={quote(m.iso(cutoff), safe='')}"
-                wire["links"] = {"site": site_link,
+                wire["links"] = {"site": home,
                                  "site_maintenance": {"label": "Site maintenance",
                                                       "href": f"{_site_href(code)}/work/maintenance?{query}"},
                                  "detail": {"label": wire["code"], "href": detail}}
@@ -367,6 +405,7 @@ def select_preventive(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo:
             dto = provenance_dto(rx, tenant_id, site_id, [], [head_id])
             wire = {
                 "site_code": code, "site_name": name, "site_id": sid, "site_code_key": site["site_code_key"],
+                "site_domain": site["site_type"],
                 "canonical_plan_id": root_id, "root_id": root_id, "head_id": head_id, "code": plan["root_code"],
                 "title": plan["title"], "trigger_kind": plan["trigger_kind"],
                 "next_due_at": None if plan["next_due_at"] is None else wire_time(plan["next_due_at"]),
@@ -375,7 +414,7 @@ def select_preventive(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo:
                 "root_occurred_at": wire_time(plan["root_occurred_at"]), "occurred_at": wire_time(plan["occurred_at"]),
                 "recorded_at": wire_time(plan["recorded_at"]), "supersedes_plan_id": supersedes,
                 "correction_reason": plan["correction_reason"], "source_provenance": dto,
-                "links": {"site": {"label": name, "href": _site_href(code)}}}
+                "links": {"site": site_link(site)}}
             # A1Q2 R3 standing rule: every stored value a row field reads is bound in the basis.
             basis = {"site_id": sid, "canonical_plan_id": root_id, "head_id": head_id, "asset_id": asset_id,
                      "root_code": plan["root_code"], "root_occurred_at": token_time(plan["root_occurred_at"]),

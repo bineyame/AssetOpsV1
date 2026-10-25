@@ -18,7 +18,7 @@ from uuid import UUID
 from assetops_backend.estate.scope import token_time, wire_time
 from assetops_backend.work import model as m
 from assetops_backend.work.global_detail import _day_window
-from assetops_backend.work.global_index import GlobalWorkRefusal, _micros, _site_href
+from assetops_backend.work.global_index import GlobalWorkRefusal, _micros, _site_href, site_link
 from assetops_backend.work.service import provenance_dto
 
 ALL = "all"
@@ -71,6 +71,7 @@ def select_operational(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo
             dto = provenance_dto(rx, tenant_id, site_id, [], [head_id])
             wire = {
                 "site_code": code, "site_name": name, "site_id": sid, "site_code_key": site["site_code_key"],
+                "site_domain": site["site_type"],
                 "canonical_record_id": root_id, "root_id": root_id, "head_id": head_id, "code": rec["root_code"],
                 "kind": rec["kind"], "body": rec["body"], "root_occurred_at": wire_time(rec["root_occurred_at"]),
                 "occurred_at": wire_time(rec["occurred_at"]), "recorded_at": wire_time(rec["recorded_at"]),
@@ -80,7 +81,7 @@ def select_operational(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo
                 "case_kind": case_kind, "case_code": case_code, "state": rec["state"],
                 "supersedes_record_id": supersedes, "correction_reason": rec["correction_reason"],
                 "source_provenance": dto,
-                "links": {"site": {"label": name, "href": _site_href(code)}, "case": case_link}}
+                "links": {"site": site_link(site), "case": case_link}}
             # P-E1-7 and the A1Q2 R3 standing rule: every stored value a row field reads is bound in the basis.
             basis = {"site_id": sid, "canonical_record_id": root_id, "root_id": root_id, "head_id": head_id,
                      "code": rec["root_code"], "root_occurred_at": token_time(rec["root_occurred_at"]),
