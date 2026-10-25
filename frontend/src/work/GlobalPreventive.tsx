@@ -24,6 +24,7 @@ import {
   CHANGE_WINDOW,
   Clamp,
   GlobalWorkBar,
+  assetLabelWords,
   GlobalWorkSlot,
   LinkOrText,
   Pager,
@@ -47,6 +48,8 @@ export const PREVENTIVE_PLAN_FOOTER =
   "Completing a draft plan here is unavailable; a performed record and later evidence are separate.";
 export const PREVENTIVE_NOTICE = "No incident link or cause is established by these draft plans.";
 export const NO_DRAFT_PLANS = "No draft plans in this window.";
+/** Post-W6 W6 Q7: the stored time that places a plan in the window. */
+export const PREVENTIVE_MEMBERSHIP = "Listed by the time each plan was first recorded.";
 
 const DATE_ONLY = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 
@@ -91,7 +94,7 @@ function PlanRow({ row }: { row: GlobalPreventiveRow }) {
       </td>
       <td>
         <Clamp data={{ "data-global-work-asset-site": "" }}>
-          {row.asset_label ?? "No asset recorded"}
+          {assetLabelWords(row.asset_label) ?? "No asset recorded"}
           {" · "}
           <LinkOrText link={row.links.site} data={{ "data-global-work-site": row.site_code }} />
         </Clamp>
@@ -203,7 +206,7 @@ export function GlobalPreventivePage({ client }: { client?: GlobalWorkClient }) 
       <Breadcrumbs trail={[{ label: "Maintenance", to: corrective }, { label: "Preventive · scheduled" }]} />
       <PageHeader title="Maintenance" headingId={GLOBAL_PREVENTIVE_HEADING_ID} subtitle={GLOBAL_PREVENTIVE_SUBTITLE} />
       <MaintenanceViews current="preventive" query={query} />
-      <GlobalWorkBar page={page} label="Preventive window" />
+      <GlobalWorkBar page={page} label="Preventive window" membership={PREVENTIVE_MEMBERSHIP} />
       <PreventiveStrip />
       <GlobalWorkSlot page={page} loading={GLOBAL_PREVENTIVE_LOADING} cards={(value) => <Cards body={value} />} />
       <Panel heading="Preventive plan" headingId={TABLE_HEADING_ID} description={PREVENTIVE_PLAN_FOOTER}>

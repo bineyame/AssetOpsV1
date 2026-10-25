@@ -11,7 +11,7 @@
  */
 import { Link } from "react-router-dom";
 import { stateTone } from "../sites/siteWorkCases";
-import { DataTable, MetricCard, MetricCards, PageHeader, Panel } from "../ui";
+import { Breadcrumbs, DataTable, MetricCard, MetricCards, PageHeader, Panel } from "../ui";
 import {
   globalWorkUtc,
   type GlobalIncidentRow,
@@ -25,6 +25,8 @@ import {
   GlobalWorkBar,
   GlobalWorkSlot,
   LinkOrText,
+  MockDeviation,
+  findingLinks,
   Pager,
   SCROLL_TABLE,
   WorkSourceLine,
@@ -46,6 +48,8 @@ export const GLOBAL_INCIDENTS_LOADING = "Loading the incidents across the estate
 export const INCIDENT_CASES_FOOTER = "An incident connects authored events and linked records; a gap alone does not create a case.";
 export const CASE_BOUNDARIES_TEXT = "A closed case records a workflow step. Cause and outcome need their own evidence.";
 export const NO_INCIDENT_CASES = "No incident cases in this window.";
+/** Post-W6 W6 Q7: the stored time that places an Incident in the window. */
+export const INCIDENTS_MEMBERSHIP = "Listed by incident start time.";
 
 /** A2Q8: copied, because `STATE_LABEL` in `siteWorkCases.tsx` is not exported. */
 const STATE_LABEL: Readonly<Record<GlobalIncidentState, string>> = {
@@ -55,18 +59,22 @@ const STATE_LABEL: Readonly<Record<GlobalIncidentState, string>> = {
 };
 
 function FindingsWork({ row }: { row: GlobalIncidentRow }) {
-  const links = [...row.finding_links, ...row.action_links];
-  if (links.length === 0 && row.linked_request_codes.length === 0) return <Clamp>None linked</Clamp>;
+  const links = [...findingLinks(row.finding_links, row.site_domain), ...row.action_links];
+  if (links.length === 0 && row.linked_requests.length === 0) return <Clamp>None linked</Clamp>;
   const linkParts = links.map((link, index) => (
     <LinkOrText key={`${link.label}-${index}`} link={link} data={{ "data-global-work-link": "" }} />
+  ));
+  // Post-W6 W6 Q4 (R359): each linked request code opens that request's exact Overview, or stays legible as text.
+  const requestParts = row.linked_requests.map((link, index) => (
+    <LinkOrText key={`${link.label}-${index}`} link={link} data={{ "data-global-work-request-link": "" }} />
   ));
   return (
     <Clamp data={{ "data-global-work-findings": "" }}>
       {joined(linkParts, " · ")}
-      {row.linked_request_codes.length > 0 ? (
+      {requestParts.length > 0 ? (
         <>
           {links.length > 0 ? " / " : null}
-          <span data-global-work-request-codes>{row.linked_request_codes.join(" · ")}</span>
+          <span data-global-work-request-codes>{joined(requestParts, " · ")}</span>
         </>
       ) : null}
     </Clamp>
@@ -195,10 +203,16 @@ export function GlobalIncidentsPage({ client }: { client?: GlobalWorkClient }) {
 
   return (
     <div className="global-work" data-global-work-root="incidents">
+      {/* Post-W6 W6 (R357): the same one-level trail as Maintenance. */}
+      <Breadcrumbs trail={[{ label: "Incidents" }]} />
       <PageHeader title="Incidents" headingId={GLOBAL_INCIDENTS_HEADING_ID} subtitle={GLOBAL_INCIDENTS_SUBTITLE} />
       {/* The shared control bar and the status line sit in the page's date-bar slot (estate precedent). */}
-      <GlobalWorkBar page={page} label="Incidents window" />
-      <GlobalWorkSlot page={page} loading={GLOBAL_INCIDENTS_LOADING} cards={(value) => <Cards body={value} />} />
+      <GlobalWorkBar page={page} label="Incidents window" membership={INCIDENTS_MEMBERSHIP} />
+      <GlobalWorkSlot
+        page={page}
+        loading={GLOBAL_INCIDENTS_LOADING}
+        cards={(value) => <Cards body={value} />}
+      />
       <Panel heading="Incident cases" headingId={TABLE_HEADING_ID} description={INCIDENT_CASES_FOOTER}>
         {shown && body !== null ? (
           body.total_count === 0 ? (
@@ -219,9 +233,15 @@ export function GlobalIncidentsPage({ client }: { client?: GlobalWorkClient }) {
                 cursor={query?.cursor ?? null}
                 onPage={(cursor, nextTrail) => query && page.go(query, cursor, nextTrail)}
               />
+              {/* MOCK DEVIATION D1 (R73, extended to this screen with its R85 companion): the INC code opens the
+                  Site's incidents window, not an Incident detail, because no Incident detail route is mounted. */}
+              <MockDeviation category="D1" id="R73" />
             </>
           )
         ) : null}
+        {/* MOCK DEVIATION D1 (R358): cards 2-4 and the Severity column state "Not assessed" / "Not recorded"
+            because work cases record no severity or evidence review state. */}
+        {shown ? <MockDeviation category="D1" id="R358" /> : null}
       </Panel>
       <Panel heading="Case boundaries" headingId="global-incidents-boundaries-heading">
         <p className="prose global-work-prose" data-global-work-boundaries>

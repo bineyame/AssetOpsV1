@@ -38,6 +38,7 @@ function row(n: number, over: Partial<GlobalMaintenanceRow> = {}): GlobalMainten
     site_name: "Kobo",
     site_id: "00000000-0000-4000-8000-000000000002",
     site_code_key: "kobo-001",
+    site_domain: "MINIGRID",
     case_id: `00000000-0000-4000-8000-${String(100 + n).padStart(12, "0")}`,
     code: `WR-${String(n).padStart(6, "0")}`,
     kind: "MAINTENANCE_REQUEST",
@@ -348,7 +349,8 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}&site_id=KOBO-001`, reads);
     await settled();
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: KNOWN, cursor: null }]);
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00 UTC");
+    // Post-W6 W6 Q14 (R372): seconds on the historical line.
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 UTC");
     expect(cards()).not.toBeNull();
   });
 
@@ -477,5 +479,60 @@ describe("W6-01b B2: the /maintenance route in the app shell", () => {
     expect(link).toHaveAttribute("href", "/maintenance");
     expect(link).toHaveAttribute("aria-current", "page");
     expect(reads.calls).toHaveLength(1);
+  });
+});
+
+describe("Post-W6 W6: global Maintenance corrections", () => {
+  afterEach(cleanup);
+
+  it("R352: cold and EV Findings are plain text; a mini-grid Finding keeps its link", async () => {
+    const finding = { label: "Finding a1b2c3d4", href: "/sites/X/findings/f1?revision_id=r1" };
+    const rows = [
+      row(1, { site_domain: "MINIGRID", finding_links: [finding] }),
+      row(2, { site_domain: "COLDCHAIN", finding_links: [finding] }),
+      row(3, { site_domain: "EV_CHARGING", finding_links: [finding] }),
+    ];
+    mount(PAGE, client({ "page-one": loaded(body(rows)) }));
+    await settled();
+    const lineage = Array.from(document.querySelectorAll('[data-global-work-lineage="linked"]'));
+    expect(lineage).toHaveLength(3);
+    expect(within(lineage[0] as HTMLElement).getByRole("link", { name: "Finding a1b2c3d4" })).toHaveAttribute("href", finding.href);
+    for (const cell of lineage.slice(1)) {
+      expect(text(cell)).toBe("Finding a1b2c3d4");
+      expect(within(cell as HTMLElement).queryByRole("link")).toBeNull();
+    }
+  });
+
+  it("Q18: one open request is singular; asset labels read as plain words", async () => {
+    const rows = [
+      row(1, { state: "OPEN", asset_label: "c1 · EV_CONNECTOR" }),
+      row(2, { state: "COMPLETED", asset_label: "generator-1 · GENERATOR" }),
+    ];
+    mount(PAGE, client({ "page-one": loaded(body(rows, { state_counts: { OPEN: 1, IN_PROGRESS: 0, COMPLETED: 1, CANCELLED: 0 } })) }));
+    await settled();
+    expect(text(document.querySelector('[data-global-work-card="open"]'))).toContain("1 request in progress or open");
+    const assets = Array.from(document.querySelectorAll("[data-global-work-asset-site]")).map(text);
+    expect(assets[0]).toMatch(/^EV connector c1 · /);
+    expect(assets[1]).toMatch(/^Backup generator · generator-1 · /);
+    expect(document.body.textContent).not.toMatch(/EV_CONNECTOR|· GENERATOR/);
+  });
+
+  it("R354: a later page opened from its URL states its count without a range", async () => {
+    mount(`${PAGE}&cursor=CURSOR-2`, client({ "CURSOR-2": loaded(body([row(6)], { total_count: 6 })) }));
+    await settled();
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 6");
+  });
+
+  it("Q7/Q8/Q17: membership line, alert refusal and the R355/R358 labels", async () => {
+    mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+    await settled();
+    expect(text(document.querySelector("[data-global-work-membership]"))).toBe("Listed by the time each request was opened.");
+    const panel = panelTitled("Corrective work requests");
+    expect(text(panel.querySelector('[data-mock-deviation="R355"]'))).toBe("MOCK DEVIATION D1 (R355)");
+    expect(text(panel.querySelector('[data-mock-deviation="R358"]'))).toBe("MOCK DEVIATION D1 (R358)");
+    cleanup();
+    mount(PAGE, client({ "page-one": { status: "refused", code: "UNAUTHENTICATED" } }));
+    await settled();
+    expect(within(screen.getByRole("main")).getByRole("alert")).toHaveAttribute("data-global-work-refusal", "UNAUTHENTICATED");
   });
 });

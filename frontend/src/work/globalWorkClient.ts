@@ -27,6 +27,15 @@ export interface GlobalWorkProvenance {
   reasons: string[];
 }
 
+/**
+ * Post-W6 W6 Q2 (R352): the selected Site's stored `site_type`, sent as `site_domain` on every global row and on the
+ * request-detail `selected` block. Only a mini-grid Finding route selects the exact revision, so only a MINIGRID row
+ * renders its Finding as a link.
+ */
+export type GlobalSiteDomain = "MINIGRID" | "COLDCHAIN" | "EV_CHARGING";
+const SITE_DOMAINS: ReadonlySet<string> = new Set(["MINIGRID", "COLDCHAIN", "EV_CHARGING"]);
+export const findingLinkSelectsRevision = (domain: GlobalSiteDomain): boolean => domain === "MINIGRID";
+
 export type GlobalIncidentState = "OPEN" | "IN_PROGRESS" | "CLOSED";
 
 export interface GlobalIncidentRow {
@@ -34,6 +43,7 @@ export interface GlobalIncidentRow {
   site_name: string;
   site_id: string;
   site_code_key: string;
+  site_domain: GlobalSiteDomain;
   case_id: string;
   code: string;
   kind: "INCIDENT";
@@ -49,6 +59,8 @@ export interface GlobalIncidentRow {
   asset_label: string | null;
   incident_id: string | null;
   linked_request_codes: string[];
+  /** Post-W6 W6 Q4 (R359): each linked request's stored code and exact Overview destination. */
+  linked_requests: GlobalWorkLink[];
   finding_links: GlobalWorkLink[];
   action_links: GlobalWorkLink[];
   source_provenance: GlobalWorkProvenance;
@@ -62,6 +74,7 @@ export interface GlobalMaintenanceRow {
   site_name: string;
   site_id: string;
   site_code_key: string;
+  site_domain: GlobalSiteDomain;
   case_id: string;
   code: string;
   kind: "MAINTENANCE_REQUEST";
@@ -90,6 +103,7 @@ export interface GlobalPreventiveRow {
   site_name: string;
   site_id: string;
   site_code_key: string;
+  site_domain: GlobalSiteDomain;
   canonical_plan_id: string;
   root_id: string;
   head_id: string;
@@ -120,6 +134,7 @@ export interface GlobalOperationalRow {
   site_name: string;
   site_id: string;
   site_code_key: string;
+  site_domain: GlobalSiteDomain;
   canonical_record_id: string;
   root_id: string;
   head_id: string;
@@ -236,11 +251,18 @@ const isObject = (value: unknown): value is Record<string, unknown> =>
 /** Incidents and maintenance carry an object `state_counts`; preventive and operational records carry null only. */
 const NULL_COUNTS: ReadonlySet<GlobalWorkRoot> = new Set(["preventive", "operational-records"]);
 
+/** Post-W6 W6 Q2/Q4: every row names its Site domain; an Incident row carries its linked request links. */
+function isRow(value: unknown, root: GlobalWorkRoot): boolean {
+  if (!isObject(value) || typeof value.site_domain !== "string" || !SITE_DOMAINS.has(value.site_domain)) return false;
+  return root !== "incidents" || everyItem(value.linked_requests, isLink);
+}
+
 function isEnvelope(value: unknown, root: GlobalWorkRoot): boolean {
   return (
     isObject(value) &&
     value.schema_version === GLOBAL_WORK_SCHEMA &&
     Array.isArray(value.rows) &&
+    value.rows.every((row) => isRow(row, root)) &&
     typeof value.total_count === "number" &&
     typeof value.known_at === "string" &&
     typeof value.status === "string" &&
@@ -420,7 +442,15 @@ export interface GlobalWorkDetailOperationalRecord {
 
 export interface GlobalWorkDetailBody {
   schema_version: typeof GLOBAL_WORK_DETAIL_SCHEMA;
-  selected: { site_code: string; site_id: string; case_id: string; case_code: string; case_kind: string; known_at: string };
+  selected: {
+    site_code: string;
+    site_id: string;
+    case_id: string;
+    case_code: string;
+    case_kind: string;
+    known_at: string;
+    site_domain: GlobalSiteDomain;
+  };
   work_detail: WorkCaseDetail;
   work_asset: { code: string; type: string } | null;
   history: { revisions: GlobalWorkDetailRevision[]; operational_records: GlobalWorkDetailOperationalRecord[] };
@@ -455,7 +485,8 @@ export const GLOBAL_WORK_DETAIL_REFUSAL_COPY: Readonly<Record<GlobalWorkDetailRe
   SITE_NOT_FOUND: "No imported Site found for this request.",
   WORK_CASE_NOT_FOUND: "No work case with this ID at this site.",
   INVALID_KNOWN_AT: GLOBAL_WORK_REFUSAL_COPY.INVALID_KNOWN_AT,
-  WORK_STORE_UNAVAILABLE: GLOBAL_WORK_REFUSAL_COPY.WORK_STORE_UNAVAILABLE,
+  // Post-W6 W6 Q11 (R367): the detail page offers its own Reload control, so the sentence does not repeat it.
+  WORK_STORE_UNAVAILABLE: "Work records could not be read.",
 };
 
 const DETAIL_STATUS: Readonly<Record<number, ReadonlySet<string>>> = {
@@ -535,6 +566,8 @@ export function isGlobalWorkDetailBody(value: unknown): value is GlobalWorkDetai
   return (
     isObject(selected) &&
     ["site_code", "site_id", "case_id", "case_code", "case_kind", "known_at"].every((k) => isString(selected[k])) &&
+    isString(selected.site_domain) &&
+    SITE_DOMAINS.has(selected.site_domain) &&
     isWorkDetail(value.work_detail) &&
     (asset === null || (isObject(asset) && isString(asset.code) && isString(asset.type))) &&
     isObject(history) &&
@@ -639,11 +672,14 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const MIDNIGHT = /^\d{4}-\d{2}-\d{2}T00:00:00Z$/;
 const INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?Z$/;
 
-/** The seven complete UTC days ending today 00:00 UTC, `[from, to)`. */
+/**
+ * Post-W6 W6 Q7 (the global half of R338): seven UTC calendar days including today, `[today − 6 days 00:00Z,
+ * tomorrow 00:00Z)`. An explicit URL window is kept exactly.
+ */
 export function defaultGlobalWorkWindow(now: number = Date.now()): { from: string; to: string } {
-  const today = `${new Date(now).toISOString().slice(0, 10)}T00:00:00Z`;
-  const from = new Date(Date.parse(today) - 7 * DAY_MS).toISOString().slice(0, 10);
-  return { from: `${from}T00:00:00Z`, to: today };
+  const today = Date.parse(`${new Date(now).toISOString().slice(0, 10)}T00:00:00Z`);
+  const day = (ms: number) => `${new Date(ms).toISOString().slice(0, 10)}T00:00:00Z`;
+  return { from: day(today - 6 * DAY_MS), to: day(today + DAY_MS) };
 }
 
 function validMidnight(value: string): boolean {
@@ -709,4 +745,22 @@ export function globalWorkUtc(instant: string): string {
   const ms = Date.parse(instant);
   if (Number.isNaN(ms)) return instant;
   return `${DATE_FORMAT.format(new Date(ms))} UTC`;
+}
+
+const SECONDS_FORMAT = new Intl.DateTimeFormat("en-GB", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hourCycle: "h23",
+  timeZone: "UTC",
+});
+
+/** Post-W6 W6 Q14 (R372): `22 Oct 2026, 12:00:01 UTC`, for every historical status line and the WR date bar. */
+export function globalWorkUtcSeconds(instant: string): string {
+  const ms = Date.parse(instant);
+  if (Number.isNaN(ms)) return instant;
+  return `${SECONDS_FORMAT.format(new Date(ms))} UTC`;
 }

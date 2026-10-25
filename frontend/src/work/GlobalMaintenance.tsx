@@ -27,10 +27,14 @@ import {
   GlobalWorkBar,
   GlobalWorkSlot,
   LinkOrText,
+  MockDeviation,
   Pager,
   SCROLL_TABLE,
   WorkSourceLine,
+  assetLabelWords,
+  findingLinks,
   joined,
+  requestCount,
   useGlobalWorkPage,
 } from "./globalWorkParts";
 import "./globalWork.css";
@@ -46,6 +50,8 @@ export const CORRECTIVE_REQUESTS_FOOTER = "Completed is activity evidence only; 
 export const MAINTENANCE_NOTICE = "A completed request records activity; an equipment outcome remains unverified.";
 export const NO_WORK_REQUESTS = "No work requests in this window.";
 export const NO_LINKED_FINDING_OR_ACTION = "No linked Finding or Action";
+/** Post-W6 W6 Q7: the stored time that places a request in the window. */
+export const MAINTENANCE_MEMBERSHIP = "Listed by the time each request was opened.";
 
 const STATE_LABEL: Readonly<Record<GlobalMaintenanceState, string>> = {
   OPEN: "Open",
@@ -111,7 +117,8 @@ function WorkRequestCell({ row }: { row: GlobalMaintenanceRow }) {
   const text = `${row.code} · ${row.title}`;
   // W6-01c C2: the primary link is the exact request Overview (`links.detail`); Site maintenance is the fallback.
   const href = row.links.detail?.href ?? row.links.site_maintenance.href;
-  const links = [...row.finding_links, ...row.action_links];
+  // Post-W6 W6 Q2 (R352): cold and EV Findings are plain `Finding {id8}`; a mini-grid Finding keeps its link.
+  const links = [...findingLinks(row.finding_links, row.site_domain), ...row.action_links];
   return (
     <>
       <Clamp data={{ "data-global-work-title": "" }}>{href ? <Link to={href}>{text}</Link> : text}</Clamp>
@@ -142,7 +149,7 @@ function RequestRow({ row }: { row: GlobalMaintenanceRow }) {
       </td>
       <td>
         <Clamp data={{ "data-global-work-asset-site": "" }}>
-          {row.asset_label ?? "No asset recorded"}
+          {assetLabelWords(row.asset_label) ?? "No asset recorded"}
           {" · "}
           <LinkOrText link={row.links.site} data={{ "data-global-work-site": row.site_code }} />
         </Clamp>
@@ -218,7 +225,7 @@ function Cards({ body, query }: { body: GlobalMaintenanceBody; query: GlobalWork
       <MetricCard
         label="Open work"
         value={String(open)}
-        note={`${open} requests in progress or open`}
+        note={`${requestCount(open)} in progress or open`}
         data={{ "data-global-work-card": "open" }}
       />
       <MetricCard
@@ -258,8 +265,12 @@ export function GlobalMaintenancePage({ client }: { client?: GlobalWorkClient })
       <Breadcrumbs trail={[{ label: "Maintenance" }]} />
       <PageHeader title="Maintenance" headingId={GLOBAL_MAINTENANCE_HEADING_ID} subtitle={GLOBAL_MAINTENANCE_SUBTITLE} />
       <MaintenanceViews current="corrective" query={query} />
-      <GlobalWorkBar page={page} label="Maintenance window" />
-      <GlobalWorkSlot page={page} loading={GLOBAL_MAINTENANCE_LOADING} cards={(value) => <Cards body={value} query={query} />} />
+      <GlobalWorkBar page={page} label="Maintenance window" membership={MAINTENANCE_MEMBERSHIP} />
+      <GlobalWorkSlot
+        page={page}
+        loading={GLOBAL_MAINTENANCE_LOADING}
+        cards={(value) => <Cards body={value} query={query} />}
+      />
       <Panel heading="Corrective work requests" headingId={TABLE_HEADING_ID} description={CORRECTIVE_REQUESTS_FOOTER}>
         {shown && body !== null ? (
           body.total_count === 0 ? (
@@ -280,9 +291,14 @@ export function GlobalMaintenancePage({ client }: { client?: GlobalWorkClient })
                 cursor={query?.cursor ?? null}
                 onPage={(cursor, nextTrail) => query && page.go(query, cursor, nextTrail)}
               />
+              {/* MOCK DEVIATION D1 (R355): the table keeps the panel's height budget with an inner scroll, so every
+                  row stays reachable inside it. */}
+              <MockDeviation category="D1" id="R355" />
             </>
           )
         ) : null}
+        {/* MOCK DEVIATION D1 (R358): cards 2-4 state "Not assessed" where no stored assessment exists. */}
+        {shown ? <MockDeviation category="D1" id="R358" /> : null}
       </Panel>
       <Notice tone="blue" data={{ "data-global-work-notice": "" }}>
         <p>{MAINTENANCE_NOTICE}</p>

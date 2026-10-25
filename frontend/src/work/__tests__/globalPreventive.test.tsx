@@ -37,6 +37,7 @@ function row(n: number, over: Partial<GlobalPreventiveRow> = {}): GlobalPreventi
     site_name: "Kobo",
     site_id: "00000000-0000-4000-8000-000000000002",
     site_code_key: "kobo-001",
+    site_domain: "MINIGRID",
     canonical_plan_id: id,
     root_id: id,
     head_id: id,
@@ -284,7 +285,8 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
     mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}`, reads);
     await settled();
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: KNOWN, cursor: null }]);
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 20 Oct 2026, 12:00 UTC");
+    // Post-W6 W6 Q14 (R372): seconds on the historical line.
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 20 Oct 2026, 12:00:03 UTC");
     expect(within(screen.getByRole("navigation", { name: "Maintenance views" })).getByRole("link", { name: "Corrective" })).toHaveAttribute(
       "href",
       `${CORRECTIVE}&known_at=${encodeURIComponent(KNOWN)}`,
@@ -387,5 +389,20 @@ describe("W6-01b B3: the /maintenance/preventive route in the app shell", () => 
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
     expect(within(rail).getByRole("link", { name: "Maintenance" })).toHaveAttribute("aria-current", "page");
     expect(reads.calls).toHaveLength(1);
+  });
+});
+
+describe("Post-W6 W6: global Preventive corrections", () => {
+  afterEach(cleanup);
+
+  it("Q7/R354/R361: membership line, URL-opened later page caption and the refusal alert", async () => {
+    mount(`${PAGE}&cursor=CURSOR-2`, client({ "CURSOR-2": loaded(body([row(6)], { total_count: 6 })) }));
+    await settled();
+    expect(text(document.querySelector("[data-global-work-membership]"))).toBe("Listed by the time each plan was first recorded.");
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 6");
+    cleanup();
+    mount(PAGE, client({ "page-one": { status: "refused", code: "WORK_STORE_UNAVAILABLE" } }));
+    await settled();
+    expect(within(screen.getByRole("main")).getByRole("alert")).toHaveAttribute("data-global-work-refusal", "WORK_STORE_UNAVAILABLE");
   });
 });

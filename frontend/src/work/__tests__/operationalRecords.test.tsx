@@ -38,6 +38,7 @@ function row(n: number, over: Partial<GlobalOperationalRow> = {}): GlobalOperati
     site_name: "Kobo",
     site_id: "00000000-0000-4000-8000-000000000002",
     site_code_key: "kobo-001",
+    site_domain: "MINIGRID",
     canonical_record_id: id,
     root_id: id,
     head_id: id,
@@ -258,15 +259,16 @@ describe("W6-01e E2: global Operational records", () => {
       "Feeds",
       "State",
     ]);
+    // Post-W6 W6 Q16 (R356): fixed widths summing to 1100 px, inside the 1105 px table client width at 1440.
     expect(Array.from(table.querySelectorAll("col")).map((c) => (c as HTMLElement).style.width)).toEqual([
-      "140px",
+      "90px",
       "110px",
-      "125px",
       "150px",
-      "150px",
-      "220px",
-      "150px",
-      "105px",
+      "130px",
+      "120px",
+      "270px",
+      "140px",
+      "90px",
     ]);
     const trs = Array.from(table.querySelectorAll("tbody tr"));
     expect(trs).toHaveLength(5);
@@ -330,10 +332,13 @@ describe("W6-01e E2: global Operational records", () => {
       "Taken at",
     ]);
     const [site, reading] = Array.from(form.querySelectorAll("select"));
-    expect(Array.from(site.querySelectorAll("option")).map(text)).toEqual(["Kobo Mini-grid", "GreenHarvest Cold Room"]);
+    // Post-W6 W6 Q17 (R362): no mock Site; with no covered Site in the response, one empty placeholder.
+    expect(Array.from(site.querySelectorAll("option")).map(text)).toEqual(["No Site selected"]);
     expect(Array.from(reading.querySelectorAll("option")).map(text)).toEqual(["Fuel tank dip", "Stock in chamber", "Meter reading"]);
     expect((form.querySelectorAll("input")[0] as HTMLInputElement).placeholder).toBe("e.g. 192 L");
-    expect((form.querySelectorAll("input")[1] as HTMLInputElement).value).toBe("6 Oct 2026 · 16:00 EAT");
+    expect((form.querySelectorAll("input")[1] as HTMLInputElement).value).toBe("");
+    expect((form.querySelectorAll("input")[1] as HTMLInputElement).placeholder).toBe("Event time");
+    expect(text(form.querySelector('[data-mock-deviation="R362"]'))).toBe("MOCK DEVIATION D4 (R362)");
     for (const control of Array.from(form.querySelectorAll("select, input, button"))) {
       expect(control).toBeDisabled();
     }
@@ -460,7 +465,8 @@ describe("W6-01e E2: global Operational records", () => {
     const reads = client({ "page-one": loaded(body([row(1)], { status: "HISTORICAL", known_at: KNOWN })) });
     mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}`, reads);
     await settled();
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00 UTC");
+    // Post-W6 W6 Q14 (R372): seconds on the historical line.
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 UTC");
   });
 
   it("states a read failure, an invalid window and no accessible Sites, never a zero", async () => {
@@ -546,5 +552,41 @@ describe("W6-01e E2: the /operational-records route in the app shell", () => {
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
     expect(within(rail).getByRole("link", { name: "Operational records" })).toHaveAttribute("aria-current", "page");
     expect(reads.calls).toHaveLength(1);
+  });
+});
+
+describe("Post-W6 W6: Operational records corrections", () => {
+  afterEach(cleanup);
+
+  it("R362: the inert form offers only the response's covered Sites, named by a returned row", async () => {
+    const value = body([row(1)], {
+      coverage: {
+        state: "COMPLETE",
+        reason: null,
+        sites: [
+          { site_code: "KOBO-001", site_id: "00000000-0000-4000-8000-000000000002", state: "COVERED" },
+          { site_code: "COLD-LAB-001", site_id: "00000000-0000-4000-8000-000000000003", state: "COVERED" },
+        ],
+      },
+    });
+    mount(PAGE, client({ "page-one": loaded(value) }));
+    await settled();
+    const form = document.querySelector("[data-global-work-manual-form]") as HTMLElement;
+    const options = Array.from(form.querySelectorAll("[data-global-work-form-site] option"));
+    expect(options.map(text)).toEqual([`${row(1).site_name} · KOBO-001`, "COLD-LAB-001"]);
+    expect(form.textContent).not.toMatch(/Kobo Mini-grid|GreenHarvest|EAT/);
+    expect(form.querySelector("[data-global-work-form-time]")).toHaveValue("");
+    expect(form.querySelector("[data-rec-submit]")).toBeDisabled();
+  });
+
+  it("Q7/R354/R361: membership line, URL-opened later page caption and the refusal alert", async () => {
+    mount(`${PAGE}&cursor=CURSOR-2`, client({ "CURSOR-2": loaded(body([row(6)], { total_count: 6 })) }));
+    await settled();
+    expect(text(document.querySelector("[data-global-work-membership]"))).toBe("Listed by the time each record's event happened.");
+    expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 6");
+    cleanup();
+    mount(PAGE, client({ "page-one": { status: "refused", code: "WORK_STORE_UNAVAILABLE" } }));
+    await settled();
+    expect(within(screen.getByRole("main")).getByRole("alert")).toHaveAttribute("data-global-work-refusal", "WORK_STORE_UNAVAILABLE");
   });
 });
