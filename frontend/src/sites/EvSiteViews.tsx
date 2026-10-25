@@ -23,7 +23,7 @@ import {
 } from "../ui";
 import { UnavailableInline, UnavailableLinkEntry } from "../ui/UnavailableEntry";
 import { coldWindowSearch } from "./coldAssessmentClient";
-import { siteTime, siteZoneLabel } from "./siteTime";
+import { siteTime, siteZoneAvailable, siteZoneLabel } from "./siteTime";
 import { dayHm, hm } from "./coldFormat";
 import { NOT_ASSESSED, RefusedGap, RefusedHead, evRefusalText, plural } from "./EvAssessmentViews";
 import type { EvEnvelope, EvRead, EvWindowQuery } from "./evAssessmentClient";
@@ -1102,7 +1102,8 @@ function SiteTimeCell({ value, timeZone, reference }: { value: string | null | u
 }
 
 function AnalysisScreen(p: EvSiteFrameProps) {
-  const zone = siteZoneLabel(p.timeZone);
+  // UI guide section 4: a missing or invalid Site zone never reads as Site-local.
+  const zone = siteZoneAvailable(p.timeZone) ? siteZoneLabel(p.timeZone) : "UTC; Site time zone unavailable";
   const first = useEvRead(() => p.client.getAnalysis(p.siteId, p.window), keyOf(p, "a"));
   const [more, setMore] = useState<{ key: string; items: EvAnalysisItem[]; cursor: string | null } | null>(null);
   if (first === null) return <p>{EV_SITE_LOADING}</p>;
@@ -1244,7 +1245,14 @@ function tariffText(t: EvAssumptionsRead["tariff"]): string {
 }
 const billingText = (state: string | undefined) => (state === "NOT_CONNECTED" ? "Not connected" : "No record");
 /** MOCK DEVIATION (D4) R421 (R286 split, Q13): billing is a chip with the wire's wording ("No record" / "Not connected"). */
-const BillingChip = ({ state }: { state: string | undefined }) => <Chip word={billingText(state)} />;
+const BillingChip = ({ state }: { state: string | undefined }) => (
+  <>
+    <Chip word={billingText(state)} />
+    <span className="mock-deviation-line" data-mock-deviation="R421">
+      MOCK DEVIATION D4 (R421)
+    </span>
+  </>
+);
 
 function consequenceWord(c: EvConsequence | null): string {
   if (c === null) return NO_SCENARIO;

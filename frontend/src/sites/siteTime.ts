@@ -63,6 +63,11 @@ function parts(d: Date, timeZone: string): { y: number; m: number; day: number; 
   return { y: Number(get("year")), m: Number(get("month")), day: Number(get("day")), hh: get("hour"), mm: get("minute"), ss: get("second") };
 }
 
+/** True when the Site timezone is present and a valid IANA zone (UI guide section 4). */
+export function siteZoneAvailable(timeZone: string | null | undefined): boolean {
+  return validZone(timeZone) !== null;
+}
+
 /** The header label for a Site timezone (`EAT`, `UTC`, or Intl's short name); `UTC` when missing or invalid. */
 export function siteZoneLabel(timeZone: string | null | undefined, at?: string | null): string {
   const zone = validZone(timeZone);

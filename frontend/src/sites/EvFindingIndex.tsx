@@ -22,16 +22,17 @@ export function EvFindingIndex({
   siteName,
   window,
   client,
-  findingHref,
-  sessionsHref,
+  findingBase,
+  sessionsBase,
   tabs,
 }: {
   siteId: string;
   siteName: string;
   window: EvWindowQuery;
   client: EvAssessmentClient;
-  findingHref: (findingId: string) => string;
-  sessionsHref: string;
+  /** The Finding route without a query; the index appends its own read's selected window and cutoff. */
+  findingBase: (findingId: string) => string;
+  sessionsBase: string;
   tabs: EvTabs;
 }) {
   const key = `${siteId}|${window.from ?? ""}|${window.to ?? ""}|${window.known_at ?? ""}`;
@@ -69,6 +70,10 @@ export function EvFindingIndex({
     );
   }
   const body = read.value;
+  // Ruling Q23: row links carry the read's own selected window and cutoff, not the address.
+  const search = selectedWindowSearch(body);
+  const findingHref = (id: string) => `${findingBase(id)}${search}`;
+  const sessionsHref = `${sessionsBase}${search}`;
   const open = body.items.filter((i) => i.lifecycle === "SUPPORTED").length;
   return (
     <div className="finding-index" data-ev-findings-index="loaded">
@@ -116,7 +121,7 @@ export function EvFindingIndex({
             </tbody>
           </DataTable>
         )}
-        {body.next_cursor !== null ? (
+        {body.next_cursor !== null && body.items.length > 0 ? (
           <p className="prose" data-ev-findings-cursor>
             {`Showing the first ${body.items.length} Findings; paging is not available on this page.`}
           </p>

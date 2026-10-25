@@ -62,7 +62,9 @@ describe("EV Site Findings", () => {
     const { client, findingIndex } = mount("EV_CHARGING", ok(findings([item])));
     await settledScreen();
     const link = await screen.findByRole("link", { name: item.title });
-    expect(link.getAttribute("href")).toBe(`/sites/${CODE}/findings/${FID}?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`);
+    expect(link.getAttribute("href")).toBe(`/sites/${CODE}/findings/${FID}?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(TO)}`);
+    const sessions = [...document.querySelectorAll("a")].find((a) => a.textContent === "Sessions" && a.closest("[data-ev-finding-row]"));
+    expect(sessions?.getAttribute("href")).toBe(`/sites/${CODE}/performance/sessions?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(TO)}`);
     expect(document.querySelector("[data-ev-findings-index='loaded']")).not.toBeNull();
     expect(document.body.textContent).toContain("Scoped to EV lab depot · 1 open");
     expect(document.body.textContent).toContain("EV charging Findings are not in the global Findings list");
@@ -79,12 +81,25 @@ describe("EV Site Findings", () => {
   it("states empty and cursor", async () => {
     mount("EV_CHARGING", ok(findings([], "next")));
     await screen.findByText("No Findings at this site in the selected window.");
-    expect(document.body.textContent).toContain("Showing the first 0 Findings; paging is not available on this page.");
+    expect(document.querySelector("[data-ev-findings-cursor]")).toBeNull();
+    expect(document.body.textContent).not.toContain("Showing the first 0");
+  });
+
+  it("keeps paging honesty when items exist and a cursor is set", async () => {
+    mount("EV_CHARGING", ok(findings([item], "next")));
+    await screen.findByText("Showing the first 1 Findings; paging is not available on this page.");
+  });
+
+  it("Q23: a no-window address opens rows with the read's own window and cutoff (inventory-check)", async () => {
+    mount("EV_CHARGING", ok(findings([item])), `/sites/${CODE}/findings`);
+    const link = await screen.findByRole("link", { name: item.title });
+    expect(link.getAttribute("href")).toBe(`/sites/${CODE}/findings/${FID}?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(TO)}`);
   });
 
   it("refuses a window with the shared sentence and keeps the strip", async () => {
     mount("EV_CHARGING", refused(422, "EV_WINDOW_TOO_LONG"));
     await screen.findByText("The selected window is longer than 31 days.");
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
     expect(document.body.textContent).toContain("Window cannot be read");
     expect(document.querySelector("[data-ev-findings-index='refused']")).not.toBeNull();
   });

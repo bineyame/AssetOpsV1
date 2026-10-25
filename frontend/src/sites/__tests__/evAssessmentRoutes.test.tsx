@@ -248,7 +248,9 @@ function expectOneRefusal(status: number, copy: string, gapId: string) {
   const gap = document.querySelector(`[data-panel-gap="${gapId}"]`) as HTMLElement;
   expect(gap.textContent).toBe(copy);
   expect(document.querySelector('[data-disclosure="ev-refusal-detail"]')).not.toBeNull();
-  expect(document.querySelector(".notice, [role=alert]")).toBeNull();
+  // UI guide section 3: no banner, and exactly one role=alert per area: the in-panel sentence itself.
+  expect(document.querySelector(".notice")).toBeNull();
+  expect(Array.from(document.querySelectorAll("[role=alert]"))).toEqual([gap]);
 }
 const rowCells = (n = 0) => Array.from(document.querySelectorAll("tbody tr")[n].querySelectorAll("td")).map((td) => td.textContent);
 const subtabs = (label: string) =>
@@ -901,6 +903,7 @@ describe("post-W6 W2-EV U2: Sessions and Finding links, denominator, plurals and
     renderEv(SESSIONS, ok(STATES.complete));
     await settledScreen();
     expect(document.querySelector("[data-ev-outside-outcomes]")).toBeNull();
+    expect(document.querySelector('[data-mock-deviation="R420"]')).toBeNull();
     cleanup();
     renderEv(SESSIONS, ok(sessions("CURRENT", "OBSERVED_SESSIONS", [session(10)], { started: 5, confirmed_delivery: 2, fault_aborted: 1, incomplete: 0 })));
     await settledScreen();
@@ -915,6 +918,8 @@ describe("post-W6 W2-EV U2: Sessions and Finding links, denominator, plurals and
     expect(document.querySelector("[data-ev-outside-outcomes]")?.textContent).toBe(
       "1 of 1 attempt is outside these three outcomes; see How to read the denominator.",
     );
+    expect(document.querySelectorAll('[data-mock-deviation="R420"]')).toHaveLength(1);
+    expect(document.querySelector('[data-mock-deviation="R420"]')?.textContent?.trim()).toBe("MOCK DEVIATION D4 (R420)");
     cleanup();
     renderEv(SESSIONS, ok(sessions("UNKNOWN", "UNKNOWN", [], { started: 5, confirmed_delivery: 0 })));
     await settledScreen();

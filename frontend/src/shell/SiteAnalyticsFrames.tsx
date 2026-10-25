@@ -500,8 +500,8 @@ export function SiteFindingsFrame({
               siteName={site.display_name}
               window={coldWindowFromParams(params)}
               client={evAssessment}
-              findingHref={evFindingHref((id) => siteFindingHref(site.site_id, id), coldWindowFromParams(params))}
-              sessionsHref={`${sitePerformanceHref(site.site_id, "sessions")}${coldWindowSearch(coldWindowFromParams(params))}`}
+              findingBase={(id) => siteFindingHref(site.site_id, id)}
+              sessionsBase={sitePerformanceHref(site.site_id, "sessions")}
               tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={EV_SITE_TAB_HREFS} search={search} />}
             />
           ) : (

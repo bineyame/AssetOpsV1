@@ -529,7 +529,7 @@ describe("W2-07 EV Site routes", () => {
     const table = panelTitled("Financial assumptions");
     expect(Array.from(table.querySelectorAll("tbody tr")).map((r) => Array.from(r.children).map((c) => c.textContent))).toEqual([
       ["Tariff", "0.2777 KES/kWh · Authored estimate", "Translating metered energy"],
-      ["Billing / collections", "No record", "Cash collection not assessed"],
+      ["Billing / collections", "No recordMOCK DEVIATION D4 (R421)", "Cash collection not assessed"],
       ["Currency", "KES", "Scenario display currency"],
     ]);
     expect(main().querySelector('[data-ev-notice="assumptions"]')?.textContent).toBe("Changing the tariff re-translates the same metered energy. It does not change what was measured.");
@@ -987,6 +987,8 @@ describe("post-W6 W2-EV U3: EV Site refusals, chronology, money links, cards, ev
       await renderAt(PATHS["ev-assumptions"], c);
       const cell = main().querySelector('[data-assumption-row="billing"] td') as HTMLElement;
       expect(cell.querySelector(".ev-site-chip")?.textContent).toBe(word);
+      expect(main().querySelectorAll('[data-mock-deviation="R421"]')).toHaveLength(1);
+      expect(main().querySelector('[data-mock-deviation="R421"]')?.textContent?.trim()).toBe("MOCK DEVIATION D4 (R421)");
       cleanup();
     }
   });
@@ -1042,7 +1044,7 @@ describe("post-W6 W2-EV U3: EV Site refusals, chronology, money links, cards, ev
       </MemoryRouter>,
     );
     await settledScreen();
-    expect(heads()[2]).toBe("Measured (UTC)");
+    expect(heads()).toEqual(["Source · reading", "Value", "Measured (UTC; Site time zone unavailable)", "Sent (UTC; Site time zone unavailable)", "Received (UTC; Site time zone unavailable)", "Record"]);
     expect(rows()[0].slice(1, 4)).toEqual(["20:30:00", "20:30:05", "21:15:00"]);
   });
 });

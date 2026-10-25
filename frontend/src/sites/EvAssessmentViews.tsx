@@ -153,7 +153,9 @@ export function RefusedGap({ id, read }: { id: string; read: EvRead<unknown> }) 
       : [{ label: "Read state", value: "No answer, or an answer that is not the documented shape" }];
   return (
     <>
-      <Gap id={id}>{evRefusalText(read)}</Gap>
+      <Gap id={id} alert>
+        {evRefusalText(read)}
+      </Gap>
       <ExactReferences variant="tech" name="ev-refusal-detail" references={references} />
     </>
   );
@@ -210,9 +212,9 @@ function SessionId({ external, id }: { external: string | null; id: string | nul
   );
 }
 
-function Gap({ id, children }: { id: string; children: ReactNode }) {
+function Gap({ id, children, alert }: { id: string; children: ReactNode; alert?: boolean }) {
   return (
-    <p className="not-available-yet v69-chart-note" data-panel-gap={id}>
+    <p className="not-available-yet v69-chart-note" data-panel-gap={id} role={alert ? "alert" : undefined}>
       {children}
     </p>
   );
@@ -524,9 +526,14 @@ function RecordsPanel({ read, refused, findingHref, energyHref }: { read: EvSess
   return (
     <Panel heading="Session service records" headingId="ev-records-heading" description={<Link to={energyHref} data-ev-energy-summary="">Energy summary →</Link>}>
       {outside === null ? null : (
-        <p className="prose v69-chart-note" data-ev-outside-outcomes="">
-          {outside}
-        </p>
+        <>
+          <p className="prose v69-chart-note" data-ev-outside-outcomes="">
+            {outside}
+          </p>
+          <p className="mock-deviation-line" data-mock-deviation="R420">
+            MOCK DEVIATION D4 (R420)
+          </p>
+        </>
       )}
       {body}
     </Panel>
