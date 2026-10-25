@@ -1,0 +1,176 @@
+[
+ {
+  "name": "maintenance-cwr-positive",
+  "url": "http://127.0.0.1:5390/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "kind": "rows5",
+  "panel": "Corrective work requests"
+ },
+ {
+  "name": "wr-overview-workdone-maint-WR-000001",
+  "url": "http://127.0.0.1:5390/maintenance/requests/a7fd6947-1ddd-4e29-945d-d3a2d166fae8?site_id=KOBO-001",
+  "kind": "workDone",
+  "panel": "Work done"
+ },
+ {
+  "name": "wr-overview-lifecycle-maint-WR-000001",
+  "url": "http://127.0.0.1:5390/maintenance/requests/a7fd6947-1ddd-4e29-945d-d3a2d166fae8?site_id=KOBO-001",
+  "kind": "asIs",
+  "panel": "Lifecycle"
+ },
+ {
+  "name": "wr-record-maint-WR-000001",
+  "url": "http://127.0.0.1:5390/maintenance/requests/a7fd6947-1ddd-4e29-945d-d3a2d166fae8/record?site_id=KOBO-001",
+  "kind": "recordGroups5",
+  "panel": "Maintenance record \u00b7 activity"
+ },
+ {
+  "name": "wr-history-maint-WR-000001",
+  "url": "http://127.0.0.1:5390/maintenance/requests/a7fd6947-1ddd-4e29-945d-d3a2d166fae8/history?site_id=KOBO-001",
+  "kind": "rows5",
+  "panel": "History"
+ },
+ {
+  "name": "wr-overview-workdone-maint-WR-000002",
+  "url": "http://127.0.0.1:5390/maintenance/requests/300b6f64-70c4-4806-b906-d3a56bf6d9fe?site_id=KOBO-001",
+  "kind": "workDone",
+  "panel": "Work done"
+ },
+ {
+  "name": "wr-overview-lifecycle-maint-WR-000002",
+  "url": "http://127.0.0.1:5390/maintenance/requests/300b6f64-70c4-4806-b906-d3a56bf6d9fe?site_id=KOBO-001",
+  "kind": "asIs",
+  "panel": "Lifecycle"
+ },
+ {
+  "name": "wr-record-maint-WR-000002",
+  "url": "http://127.0.0.1:5390/maintenance/requests/300b6f64-70c4-4806-b906-d3a56bf6d9fe/record?site_id=KOBO-001",
+  "kind": "recordGroups5",
+  "panel": "Maintenance record \u00b7 activity"
+ },
+ {
+  "name": "wr-history-maint-WR-000002",
+  "url": "http://127.0.0.1:5390/maintenance/requests/300b6f64-70c4-4806-b906-d3a56bf6d9fe/history?site_id=KOBO-001",
+  "kind": "rows5",
+  "panel": "History"
+ },
+ {
+  "name": "wr-overview-workdone-maint-WR-000003",
+  "url": "http://127.0.0.1:5390/maintenance/requests/7f518022-1731-44eb-89ad-c8108083ae82?site_id=KOBO-001",
+  "kind": "workDone",
+  "panel": "Work done"
+ },
+ {
+  "name": "wr-overview-lifecycle-maint-WR-000003",
+  "url": "http://127.0.0.1:5390/maintenance/requests/7f518022-1731-44eb-89ad-c8108083ae82?site_id=KOBO-001",
+  "kind": "asIs",
+  "panel": "Lifecycle"
+ },
+ {
+  "name": "wr-record-maint-WR-000003",
+  "url": "http://127.0.0.1:5390/maintenance/requests/7f518022-1731-44eb-89ad-c8108083ae82/record?site_id=KOBO-001",
+  "kind": "recordGroups5",
+  "panel": "Maintenance record \u00b7 activity"
+ },
+ {
+  "name": "wr-history-maint-WR-000003",
+  "url": "http://127.0.0.1:5390/maintenance/requests/7f518022-1731-44eb-89ad-c8108083ae82/history?site_id=KOBO-001",
+  "kind": "rows5",
+  "panel": "History"
+ },
+ {
+  "name": "wr-overview-workdone-maint-WR-000004",
+  "url": "http://127.0.0.1:5390/maintenance/requests/379c3d3c-7807-4fa3-9c1e-25dcfc762abf?site_id=KOBO-001",
+  "kind": "workDone",
+  "panel": "Work done"
+ },
+ {
+  "name": "wr-overview-lifecycle-maint-WR-000004",
+  "url": "http://127.0.0.1:5390/maintenance/requests/379c3d3c-7807-4fa3-9c1e-25dcfc762abf?site_id=KOBO-001",
+  "kind": "asIs",
+  "panel": "Lifecycle"
+ },
+ {
+  "name": "wr-record-maint-WR-000004",
+  "url": "http://127.0.0.1:5390/maintenance/requests/379c3d3c-7807-4fa3-9c1e-25dcfc762abf/record?site_id=KOBO-001",
+  "kind": "recordGroups5",
+  "panel": "Maintenance record \u00b7 activity"
+ },
+ {
+  "name": "wr-history-maint-WR-000004",
+  "url": "http://127.0.0.1:5390/maintenance/requests/379c3d3c-7807-4fa3-9c1e-25dcfc762abf/history?site_id=KOBO-001",
+  "kind": "rows5",
+  "panel": "History"
+ },
+ {
+  "name": "wr-overview-workdone-maint-WR-000005",
+  "url": "http://127.0.0.1:5390/maintenance/requests/4661d694-0106-4132-8595-a63568445b7a?site_id=KOBO-002",
+  "kind": "workDone",
+  "panel": "Work done"
+ },
+ {
+  "name": "wr-overview-lifecycle-maint-WR-000005",
+  "url": "http://127.0.0.1:5390/maintenance/requests/4661d694-0106-4132-8595-a63568445b7a?site_id=KOBO-002",
+  "kind": "asIs",
+  "panel": "Lifecycle"
+ },
+ {
+  "name": "wr-record-maint-WR-000005",
+  "url": "http://127.0.0.1:5390/maintenance/requests/4661d694-0106-4132-8595-a63568445b7a/record?site_id=KOBO-002",
+  "kind": "recordGroups5",
+  "panel": "Maintenance record \u00b7 activity"
+ },
+ {
+  "name": "wr-history-maint-WR-000005",
+  "url": "http://127.0.0.1:5390/maintenance/requests/4661d694-0106-4132-8595-a63568445b7a/history?site_id=KOBO-002",
+  "kind": "rows5",
+  "panel": "History"
+ },
+ {
+  "name": "wr-overview-workdone-maint-WR-000006",
+  "url": "http://127.0.0.1:5390/maintenance/requests/89a55b22-01ec-4f21-8068-7d2d1aa398d5?site_id=KOBO-002",
+  "kind": "workDone",
+  "panel": "Work done"
+ },
+ {
+  "name": "wr-overview-lifecycle-maint-WR-000006",
+  "url": "http://127.0.0.1:5390/maintenance/requests/89a55b22-01ec-4f21-8068-7d2d1aa398d5?site_id=KOBO-002",
+  "kind": "asIs",
+  "panel": "Lifecycle"
+ },
+ {
+  "name": "wr-record-maint-WR-000006",
+  "url": "http://127.0.0.1:5390/maintenance/requests/89a55b22-01ec-4f21-8068-7d2d1aa398d5/record?site_id=KOBO-002",
+  "kind": "recordGroups5",
+  "panel": "Maintenance record \u00b7 activity"
+ },
+ {
+  "name": "wr-history-maint-WR-000006",
+  "url": "http://127.0.0.1:5390/maintenance/requests/89a55b22-01ec-4f21-8068-7d2d1aa398d5/history?site_id=KOBO-002",
+  "kind": "rows5",
+  "panel": "History"
+ },
+ {
+  "name": "wr-overview-workdone-maint-WR-000007",
+  "url": "http://127.0.0.1:5390/maintenance/requests/65ea4e01-60be-4fec-9b3b-b349117b5bf2?site_id=KOBO-001",
+  "kind": "workDone",
+  "panel": "Work done"
+ },
+ {
+  "name": "wr-overview-lifecycle-maint-WR-000007",
+  "url": "http://127.0.0.1:5390/maintenance/requests/65ea4e01-60be-4fec-9b3b-b349117b5bf2?site_id=KOBO-001",
+  "kind": "asIs",
+  "panel": "Lifecycle"
+ },
+ {
+  "name": "wr-record-maint-WR-000007",
+  "url": "http://127.0.0.1:5390/maintenance/requests/65ea4e01-60be-4fec-9b3b-b349117b5bf2/record?site_id=KOBO-001",
+  "kind": "recordGroups5",
+  "panel": "Maintenance record \u00b7 activity"
+ },
+ {
+  "name": "wr-history-maint-WR-000007",
+  "url": "http://127.0.0.1:5390/maintenance/requests/65ea4e01-60be-4fec-9b3b-b349117b5bf2/history?site_id=KOBO-001",
+  "kind": "rows5",
+  "panel": "History"
+ }
+]

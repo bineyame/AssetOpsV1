@@ -1,0 +1,8737 @@
+{
+ "label": "SYNTHETIC LAYOUT PROBE - not product data (probe rows); real rows are the unmodified app",
+ "product": "f3da6e90",
+ "seed": "tools/w601_seed.py unmodified; DBs assetops_w601_w6q15<tag>_test",
+ "caps": [
+  {
+   "screen": "incidents",
+   "panel": "Incident cases",
+   "w": 1440,
+   "baseCase": "incidents-cases-positive",
+   "basePart": "part-inc",
+   "baseRealClosedPx": 536,
+   "probeClosedPxOnBase": 647,
+   "fiveRowHeights": [
+    100,
+    100,
+    100,
+    100,
+    99
+   ],
+   "rowUnit": "table row (tr)",
+   "peakClosedPx": 647,
+   "peakCase": "incidents-cases-positive(probe)",
+   "cap": 700,
+   "provisionalCap": null,
+   "pass": true,
+   "clippedClosed": 20,
+   "clippedClosedWithoutFullText": 20,
+   "vScrollers": [
+    {
+     "el": "data-table__scroll",
+     "sh": 533,
+     "ch": 468,
+     "maxH": "468px",
+     "overflowY": "auto",
+     "tabindex": 0,
+     "role": "region",
+     "label": "global-incidents-cases-heading"
+    }
+   ],
+   "scrollers": [
+    {
+     "el": "data-table__scroll",
+     "sw": 1090,
+     "cw": 1090,
+     "scrollable": false,
+     "tabindex": 0,
+     "role": "region"
+    }
+   ],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 647,
+    "clipped": 20,
+    "clippedWithoutFullText": 20,
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1033,
+      "ch": 468,
+      "maxH": "468px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-incidents-cases-heading"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "incidents-cases-positive",
+     536,
+     647
+    ],
+    [
+     "incidents-cases-stress",
+     536,
+     647
+    ]
+   ]
+  },
+  {
+   "screen": "incidents",
+   "panel": "Incident cases",
+   "w": 390,
+   "baseCase": "incidents-cases-positive",
+   "basePart": "part-inc",
+   "baseRealClosedPx": 730,
+   "probeClosedPxOnBase": 737,
+   "fiveRowHeights": [
+    120,
+    120,
+    120,
+    120,
+    119
+   ],
+   "rowUnit": "table row (tr)",
+   "peakClosedPx": 737,
+   "peakCase": "incidents-cases-positive(probe)",
+   "cap": 800,
+   "provisionalCap": null,
+   "pass": true,
+   "clippedClosed": 25,
+   "clippedClosedWithoutFullText": 20,
+   "vScrollers": [
+    {
+     "el": "data-table__scroll",
+     "sh": 633,
+     "ch": 518,
+     "maxH": "518px",
+     "overflowY": "auto",
+     "tabindex": 0,
+     "role": "region",
+     "label": "global-incidents-cases-heading"
+    }
+   ],
+   "scrollers": [
+    {
+     "el": "data-table__scroll",
+     "sw": 720,
+     "cw": 318,
+     "scrollable": true,
+     "tabindex": 0,
+     "role": "region"
+    }
+   ],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 737,
+    "clipped": 25,
+    "clippedWithoutFullText": 20,
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1273,
+      "ch": 518,
+      "maxH": "518px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-incidents-cases-heading"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "incidents-cases-positive",
+     730,
+     737
+    ],
+    [
+     "incidents-cases-stress",
+     677,
+     737
+    ]
+   ]
+  },
+  {
+   "screen": "incidents",
+   "panel": "Case boundaries",
+   "w": 1440,
+   "baseCase": "incidents-boundaries-positive",
+   "basePart": "part-inc",
+   "baseRealClosedPx": 103,
+   "probeClosedPxOnBase": 103,
+   "fiveRowHeights": [],
+   "rowUnit": "no variable text field: measured as-is",
+   "peakClosedPx": 103,
+   "peakCase": "incidents-boundaries-positive(probe)",
+   "cap": null,
+   "provisionalCap": 150,
+   "pass": null,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [],
+   "scrollers": [],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 103,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "incidents-boundaries-positive",
+     103,
+     103
+    ],
+    [
+     "incidents-boundaries-stress",
+     103,
+     103
+    ]
+   ]
+  },
+  {
+   "screen": "incidents",
+   "panel": "Case boundaries",
+   "w": 390,
+   "baseCase": "incidents-boundaries-positive",
+   "basePart": "part-inc",
+   "baseRealClosedPx": 126,
+   "probeClosedPxOnBase": 126,
+   "fiveRowHeights": [],
+   "rowUnit": "no variable text field: measured as-is",
+   "peakClosedPx": 126,
+   "peakCase": "incidents-boundaries-positive(probe)",
+   "cap": null,
+   "provisionalCap": 150,
+   "pass": null,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [],
+   "scrollers": [],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 126,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "incidents-boundaries-positive",
+     126,
+     126
+    ],
+    [
+     "incidents-boundaries-stress",
+     126,
+     126
+    ]
+   ]
+  },
+  {
+   "screen": "maintenance",
+   "panel": "Corrective work requests",
+   "w": 1440,
+   "baseCase": "maintenance-cwr-positive",
+   "basePart": "part-maint",
+   "baseRealClosedPx": 657,
+   "probeClosedPxOnBase": 657,
+   "fiveRowHeights": [
+    173,
+    173,
+    173,
+    173,
+    172
+   ],
+   "rowUnit": "table row (tr)",
+   "peakClosedPx": 657,
+   "peakCase": "maintenance-cwr-positive(probe)",
+   "cap": 700,
+   "provisionalCap": null,
+   "pass": true,
+   "clippedClosed": 20,
+   "clippedClosedWithoutFullText": 10,
+   "vScrollers": [
+    {
+     "el": "data-table__scroll",
+     "sh": 897,
+     "ch": 478,
+     "maxH": "478px",
+     "overflowY": "auto",
+     "tabindex": 0,
+     "role": "region",
+     "label": "global-maintenance-requests-heading"
+    }
+   ],
+   "scrollers": [
+    {
+     "el": "data-table__scroll",
+     "sw": 1090,
+     "cw": 1090,
+     "scrollable": false,
+     "tabindex": 0,
+     "role": "region"
+    }
+   ],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 657,
+    "clipped": 20,
+    "clippedWithoutFullText": 10,
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1377,
+      "ch": 478,
+      "maxH": "478px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-maintenance-requests-heading"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "maintenance-cwr-positive",
+     657,
+     657
+    ],
+    [
+     "maintenance-cwr-stress",
+     351,
+     657
+    ]
+   ]
+  },
+  {
+   "screen": "maintenance",
+   "panel": "Corrective work requests",
+   "w": 390,
+   "baseCase": "maintenance-cwr-positive",
+   "basePart": "part-maint",
+   "baseRealClosedPx": 737,
+   "probeClosedPxOnBase": 737,
+   "fiveRowHeights": [
+    173,
+    173,
+    173,
+    173,
+    172
+   ],
+   "rowUnit": "table row (tr)",
+   "peakClosedPx": 737,
+   "peakCase": "maintenance-cwr-positive(probe)",
+   "cap": 800,
+   "provisionalCap": null,
+   "pass": true,
+   "clippedClosed": 20,
+   "clippedClosedWithoutFullText": 10,
+   "vScrollers": [
+    {
+     "el": "data-table__scroll",
+     "sh": 897,
+     "ch": 518,
+     "maxH": "518px",
+     "overflowY": "auto",
+     "tabindex": 0,
+     "role": "region",
+     "label": "global-maintenance-requests-heading"
+    }
+   ],
+   "scrollers": [
+    {
+     "el": "data-table__scroll",
+     "sw": 1030,
+     "cw": 318,
+     "scrollable": true,
+     "tabindex": 0,
+     "role": "region"
+    }
+   ],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 737,
+    "clipped": 20,
+    "clippedWithoutFullText": 10,
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1457,
+      "ch": 518,
+      "maxH": "518px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-maintenance-requests-heading"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "maintenance-cwr-positive",
+     737,
+     737
+    ],
+    [
+     "maintenance-cwr-stress",
+     391,
+     737
+    ]
+   ]
+  },
+  {
+   "screen": "maintenance-preventive",
+   "panel": "Preventive plan",
+   "w": 1440,
+   "baseCase": "preventive-plan-positive",
+   "basePart": "part-prev",
+   "baseRealClosedPx": 489,
+   "probeClosedPxOnBase": 599,
+   "fiveRowHeights": [
+    100,
+    100,
+    100,
+    100,
+    99
+   ],
+   "rowUnit": "table row (tr)",
+   "peakClosedPx": 599,
+   "peakCase": "preventive-plan-positive(probe)",
+   "cap": 600,
+   "provisionalCap": null,
+   "pass": true,
+   "clippedClosed": 30,
+   "clippedClosedWithoutFullText": 25,
+   "vScrollers": [
+    {
+     "el": "data-table__scroll",
+     "sh": 533,
+     "ch": 468,
+     "maxH": "468px",
+     "overflowY": "auto",
+     "tabindex": 0,
+     "role": "region",
+     "label": "global-preventive-plan-heading"
+    }
+   ],
+   "scrollers": [
+    {
+     "el": "data-table__scroll",
+     "sw": 1090,
+     "cw": 1090,
+     "scrollable": false,
+     "tabindex": 0,
+     "role": "region"
+    }
+   ],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 599,
+    "clipped": 30,
+    "clippedWithoutFullText": 25,
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1113,
+      "ch": 468,
+      "maxH": "468px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-preventive-plan-heading"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "preventive-plan-positive",
+     489,
+     599
+    ],
+    [
+     "preventive-plan-stress",
+     265,
+     599
+    ]
+   ]
+  },
+  {
+   "screen": "maintenance-preventive",
+   "panel": "Preventive plan",
+   "w": 390,
+   "baseCase": "preventive-plan-positive",
+   "basePart": "part-prev",
+   "baseRealClosedPx": 690,
+   "probeClosedPxOnBase": 690,
+   "fiveRowHeights": [
+    120,
+    120,
+    120,
+    120,
+    119
+   ],
+   "rowUnit": "table row (tr)",
+   "peakClosedPx": 690,
+   "peakCase": "preventive-plan-positive(probe)",
+   "cap": 690,
+   "provisionalCap": null,
+   "pass": true,
+   "clippedClosed": 30,
+   "clippedClosedWithoutFullText": 25,
+   "vScrollers": [
+    {
+     "el": "data-table__scroll",
+     "sh": 633,
+     "ch": 518,
+     "maxH": "518px",
+     "overflowY": "auto",
+     "tabindex": 0,
+     "role": "region",
+     "label": "global-preventive-plan-heading"
+    }
+   ],
+   "scrollers": [
+    {
+     "el": "data-table__scroll",
+     "sw": 720,
+     "cw": 318,
+     "scrollable": true,
+     "tabindex": 0,
+     "role": "region"
+    }
+   ],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 690,
+    "clipped": 30,
+    "clippedWithoutFullText": 25,
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1353,
+      "ch": 518,
+      "maxH": "518px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-preventive-plan-heading"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "preventive-plan-positive",
+     690,
+     690
+    ],
+    [
+     "preventive-plan-stress",
+     326,
+     690
+    ]
+   ]
+  },
+  {
+   "screen": "oprecords",
+   "panel": "Operational records",
+   "w": 1440,
+   "baseCase": "oprecords-records-positive",
+   "basePart": "part-op",
+   "baseRealClosedPx": 631,
+   "probeClosedPxOnBase": 631,
+   "fiveRowHeights": [
+    221,
+    221,
+    221,
+    221,
+    220
+   ],
+   "rowUnit": "table row (tr)",
+   "peakClosedPx": 631,
+   "peakCase": "oprecords-records-positive(probe)",
+   "cap": 650,
+   "provisionalCap": null,
+   "pass": true,
+   "clippedClosed": 35,
+   "clippedClosedWithoutFullText": 30,
+   "vScrollers": [
+    {
+     "el": "data-table__scroll",
+     "sh": 1137,
+     "ch": 485,
+     "maxH": "500px",
+     "overflowY": "auto",
+     "tabindex": 0,
+     "role": "region",
+     "label": "operational-records-table-heading"
+    }
+   ],
+   "scrollers": [
+    {
+     "el": "data-table__scroll",
+     "sw": 1100,
+     "cw": 1090,
+     "scrollable": true,
+     "tabindex": 0,
+     "role": "region"
+    }
+   ],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 631,
+    "clipped": 35,
+    "clippedWithoutFullText": 30,
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 2257,
+      "ch": 485,
+      "maxH": "500px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "operational-records-table-heading"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "oprecords-records-positive",
+     631,
+     631
+    ],
+    [
+     "oprecords-records-stress",
+     265,
+     631
+    ]
+   ]
+  },
+  {
+   "screen": "oprecords",
+   "panel": "Operational records",
+   "w": 390,
+   "baseCase": "oprecords-records-positive",
+   "basePart": "part-op",
+   "baseRealClosedPx": 702,
+   "probeClosedPxOnBase": 744,
+   "fiveRowHeights": [
+    221,
+    221,
+    221,
+    221,
+    220
+   ],
+   "rowUnit": "table row (tr)",
+   "peakClosedPx": 744,
+   "peakCase": "oprecords-records-positive(probe)",
+   "cap": 780,
+   "provisionalCap": null,
+   "pass": true,
+   "clippedClosed": 35,
+   "clippedClosedWithoutFullText": 30,
+   "vScrollers": [
+    {
+     "el": "data-table__scroll",
+     "sh": 1137,
+     "ch": 590,
+     "maxH": "590px",
+     "overflowY": "auto",
+     "tabindex": 0,
+     "role": "region",
+     "label": "operational-records-table-heading"
+    }
+   ],
+   "scrollers": [
+    {
+     "el": "data-table__scroll",
+     "sw": 1100,
+     "cw": 318,
+     "scrollable": true,
+     "tabindex": 0,
+     "role": "region"
+    }
+   ],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 744,
+    "clipped": 35,
+    "clippedWithoutFullText": 30,
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 2257,
+      "ch": 590,
+      "maxH": "590px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "operational-records-table-heading"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "oprecords-records-positive",
+     702,
+     744
+    ],
+    [
+     "oprecords-records-stress",
+     288,
+     744
+    ]
+   ]
+  },
+  {
+   "screen": "oprecords",
+   "panel": "Record a manual reading",
+   "w": 1440,
+   "baseCase": "oprecords-manual-positive",
+   "basePart": "part-op",
+   "baseRealClosedPx": 325,
+   "probeClosedPxOnBase": 325,
+   "fiveRowHeights": [],
+   "rowUnit": "form: only the scope Site option names are variable (set to 160); other text is fixed copy",
+   "peakClosedPx": 325,
+   "peakCase": "oprecords-manual-positive(probe)",
+   "cap": null,
+   "provisionalCap": 400,
+   "pass": null,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [],
+   "scrollers": [],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 325,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "oprecords-manual-positive",
+     325,
+     325
+    ],
+    [
+     "oprecords-manual-stress",
+     325,
+     325
+    ]
+   ]
+  },
+  {
+   "screen": "oprecords",
+   "panel": "Record a manual reading",
+   "w": 390,
+   "baseCase": "oprecords-manual-positive",
+   "basePart": "part-op",
+   "baseRealClosedPx": 513,
+   "probeClosedPxOnBase": 513,
+   "fiveRowHeights": [],
+   "rowUnit": "form: only the scope Site option names are variable (set to 160); other text is fixed copy",
+   "peakClosedPx": 513,
+   "peakCase": "oprecords-manual-positive(probe)",
+   "cap": null,
+   "provisionalCap": 600,
+   "pass": null,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [],
+   "scrollers": [],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 513,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "oprecords-manual-positive",
+     513,
+     513
+    ],
+    [
+     "oprecords-manual-stress",
+     513,
+     513
+    ]
+   ]
+  },
+  {
+   "screen": "oprecords",
+   "panel": "How records are used",
+   "w": 1440,
+   "baseCase": "oprecords-used-positive",
+   "basePart": "part-op",
+   "baseRealClosedPx": 325,
+   "probeClosedPxOnBase": 325,
+   "fiveRowHeights": [],
+   "rowUnit": "no variable text field: measured as-is",
+   "peakClosedPx": 325,
+   "peakCase": "oprecords-used-positive(probe)",
+   "cap": null,
+   "provisionalCap": 400,
+   "pass": null,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [],
+   "scrollers": [],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 325,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "oprecords-used-positive",
+     325,
+     325
+    ],
+    [
+     "oprecords-used-stress",
+     325,
+     325
+    ]
+   ]
+  },
+  {
+   "screen": "oprecords",
+   "panel": "How records are used",
+   "w": 390,
+   "baseCase": "oprecords-used-positive",
+   "basePart": "part-op",
+   "baseRealClosedPx": 223,
+   "probeClosedPxOnBase": 223,
+   "fiveRowHeights": [],
+   "rowUnit": "no variable text field: measured as-is",
+   "peakClosedPx": 223,
+   "peakCase": "oprecords-used-positive(probe)",
+   "cap": null,
+   "provisionalCap": 300,
+   "pass": null,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [],
+   "scrollers": [],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 223,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "oprecords-used-positive",
+     223,
+     223
+    ],
+    [
+     "oprecords-used-stress",
+     223,
+     223
+    ]
+   ]
+  },
+  {
+   "screen": "wr-overview",
+   "panel": "Work done",
+   "w": 1440,
+   "baseCase": "wr-overview-workdone-stress21-WR-000007",
+   "basePart": "part-stress",
+   "baseRealClosedPx": 442,
+   "probeClosedPxOnBase": 503,
+   "fiveRowHeights": [],
+   "rowUnit": "not a row table: narrative, latest activity and dl values",
+   "peakClosedPx": 503,
+   "peakCase": "wr-overview-workdone-detail-WR-000001(probe)",
+   "cap": 500,
+   "provisionalCap": null,
+   "pass": false,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [],
+   "scrollers": [],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 559,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "wr-overview-workdone-detail-WR-000001",
+     365,
+     503
+    ],
+    [
+     "wr-overview-workdone-dhist-WR-000001",
+     365,
+     503
+    ],
+    [
+     "wr-overview-workdone-dlinked-WR-000001",
+     365,
+     503
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000006",
+     365,
+     503
+    ],
+    [
+     "wr-overview-workdone-stress21-WR-000007",
+     442,
+     503
+    ],
+    [
+     "wr-overview-workdone-stress-wr7",
+     442,
+     503
+    ],
+    [
+     "wr-overview-workdone-detail-WR-000002",
+     325,
+     463
+    ],
+    [
+     "wr-overview-workdone-dhist-WR-000002",
+     325,
+     463
+    ],
+    [
+     "wr-overview-workdone-dlinked-WR-000002",
+     325,
+     463
+    ],
+    [
+     "wr-overview-workdone-dlinked-WR-000005",
+     325,
+     463
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000001",
+     325,
+     463
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000002",
+     325,
+     463
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000003",
+     325,
+     463
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000004",
+     325,
+     463
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000005",
+     325,
+     463
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000007",
+     325,
+     463
+    ]
+   ]
+  },
+  {
+   "screen": "wr-overview",
+   "panel": "Work done",
+   "w": 390,
+   "baseCase": "wr-overview-workdone-stress21-WR-000007",
+   "basePart": "part-stress",
+   "baseRealClosedPx": 442,
+   "probeClosedPxOnBase": 690,
+   "fiveRowHeights": [],
+   "rowUnit": "not a row table: narrative, latest activity and dl values",
+   "peakClosedPx": 690,
+   "peakCase": "wr-overview-workdone-detail-WR-000001(probe)",
+   "cap": null,
+   "provisionalCap": 800,
+   "pass": null,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [],
+   "scrollers": [],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 776,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "wr-overview-workdone-detail-WR-000001",
+     365,
+     690
+    ],
+    [
+     "wr-overview-workdone-dhist-WR-000001",
+     365,
+     690
+    ],
+    [
+     "wr-overview-workdone-dlinked-WR-000001",
+     365,
+     690
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000006",
+     365,
+     690
+    ],
+    [
+     "wr-overview-workdone-stress21-WR-000007",
+     442,
+     690
+    ],
+    [
+     "wr-overview-workdone-stress-wr7",
+     442,
+     690
+    ],
+    [
+     "wr-overview-workdone-detail-WR-000002",
+     325,
+     651
+    ],
+    [
+     "wr-overview-workdone-dhist-WR-000002",
+     325,
+     651
+    ],
+    [
+     "wr-overview-workdone-dlinked-WR-000002",
+     325,
+     651
+    ],
+    [
+     "wr-overview-workdone-dlinked-WR-000005",
+     325,
+     651
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000001",
+     325,
+     651
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000002",
+     325,
+     651
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000003",
+     325,
+     651
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000004",
+     325,
+     651
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000005",
+     325,
+     651
+    ],
+    [
+     "wr-overview-workdone-maint-WR-000007",
+     325,
+     651
+    ]
+   ]
+  },
+  {
+   "screen": "wr-overview",
+   "panel": "Lifecycle",
+   "w": 1440,
+   "baseCase": "wr-overview-lifecycle-stress21-WR-000007",
+   "basePart": "part-stress",
+   "baseRealClosedPx": 442,
+   "probeClosedPxOnBase": 442,
+   "fiveRowHeights": [],
+   "rowUnit": "no variable text field: measured as-is",
+   "peakClosedPx": 442,
+   "peakCase": "wr-overview-lifecycle-stress21-WR-000007(probe)",
+   "cap": 500,
+   "provisionalCap": null,
+   "pass": true,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [],
+   "scrollers": [],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 442,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "wr-overview-lifecycle-stress21-WR-000007",
+     442,
+     442
+    ],
+    [
+     "wr-overview-lifecycle-stress-wr7",
+     442,
+     442
+    ],
+    [
+     "wr-overview-lifecycle-detail-WR-000001",
+     365,
+     365
+    ],
+    [
+     "wr-overview-lifecycle-dhist-WR-000001",
+     365,
+     365
+    ],
+    [
+     "wr-overview-lifecycle-dlinked-WR-000001",
+     365,
+     365
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000006",
+     365,
+     365
+    ],
+    [
+     "wr-overview-lifecycle-detail-WR-000002",
+     325,
+     325
+    ],
+    [
+     "wr-overview-lifecycle-dhist-WR-000002",
+     325,
+     325
+    ],
+    [
+     "wr-overview-lifecycle-dlinked-WR-000002",
+     325,
+     325
+    ],
+    [
+     "wr-overview-lifecycle-dlinked-WR-000005",
+     325,
+     325
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000001",
+     325,
+     325
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000002",
+     325,
+     325
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000003",
+     325,
+     325
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000004",
+     325,
+     325
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000005",
+     325,
+     325
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000007",
+     325,
+     325
+    ]
+   ]
+  },
+  {
+   "screen": "wr-overview",
+   "panel": "Lifecycle",
+   "w": 390,
+   "baseCase": "wr-overview-lifecycle-detail-WR-000002",
+   "basePart": "part-detail",
+   "baseRealClosedPx": 194,
+   "probeClosedPxOnBase": 194,
+   "fiveRowHeights": [],
+   "rowUnit": "no variable text field: measured as-is",
+   "peakClosedPx": 194,
+   "peakCase": "wr-overview-lifecycle-detail-WR-000002(probe)",
+   "cap": null,
+   "provisionalCap": 250,
+   "pass": null,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [],
+   "scrollers": [],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 194,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "wr-overview-lifecycle-detail-WR-000002",
+     194,
+     194
+    ],
+    [
+     "wr-overview-lifecycle-dhist-WR-000002",
+     194,
+     194
+    ],
+    [
+     "wr-overview-lifecycle-dlinked-WR-000002",
+     194,
+     194
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000004",
+     194,
+     194
+    ],
+    [
+     "wr-overview-lifecycle-detail-WR-000001",
+     167,
+     167
+    ],
+    [
+     "wr-overview-lifecycle-dhist-WR-000001",
+     167,
+     167
+    ],
+    [
+     "wr-overview-lifecycle-dlinked-WR-000001",
+     167,
+     167
+    ],
+    [
+     "wr-overview-lifecycle-dlinked-WR-000005",
+     167,
+     167
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000001",
+     167,
+     167
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000002",
+     167,
+     167
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000003",
+     167,
+     167
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000005",
+     167,
+     167
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000006",
+     167,
+     167
+    ],
+    [
+     "wr-overview-lifecycle-maint-WR-000007",
+     167,
+     167
+    ],
+    [
+     "wr-overview-lifecycle-stress21-WR-000007",
+     167,
+     167
+    ],
+    [
+     "wr-overview-lifecycle-stress-wr7",
+     167,
+     167
+    ]
+   ]
+  },
+  {
+   "screen": "wr-record",
+   "panel": "Maintenance record · activity",
+   "w": 1440,
+   "baseCase": "wr-record-stress21-WR-000007",
+   "basePart": "part-stress",
+   "baseRealClosedPx": 596,
+   "probeClosedPxOnBase": 622,
+   "fiveRowHeights": [
+    686,
+    686,
+    686,
+    686,
+    686
+   ],
+   "rowUnit": "record group (tbody) incl. its item rows",
+   "peakClosedPx": 622,
+   "peakCase": "wr-record-detail-WR-000001(probe)",
+   "cap": 700,
+   "provisionalCap": null,
+   "pass": true,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [
+    {
+     "el": "data-table__scroll",
+     "sh": 3465,
+     "ch": 500,
+     "maxH": "500px",
+     "overflowY": "auto",
+     "tabindex": 0,
+     "role": "region",
+     "label": "work-request-record-heading"
+    }
+   ],
+   "scrollers": [
+    {
+     "el": "data-table__scroll",
+     "sw": 1090,
+     "cw": 1090,
+     "scrollable": false,
+     "tabindex": 0,
+     "role": "region"
+    }
+   ],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 622,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 3625,
+      "ch": 500,
+      "maxH": "500px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-record-heading"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "wr-record-detail-WR-000001",
+     561,
+     622
+    ],
+    [
+     "wr-record-dhist-WR-000001",
+     561,
+     622
+    ],
+    [
+     "wr-record-dlinked-WR-000001",
+     561,
+     622
+    ],
+    [
+     "wr-record-maint-WR-000006",
+     561,
+     622
+    ],
+    [
+     "wr-record-stress21-WR-000007",
+     596,
+     622
+    ],
+    [
+     "wr-record-stress-wr7",
+     596,
+     622
+    ]
+   ]
+  },
+  {
+   "screen": "wr-record",
+   "panel": "Maintenance record · activity",
+   "w": 390,
+   "baseCase": "wr-record-stress21-WR-000007",
+   "basePart": "part-stress",
+   "baseRealClosedPx": 636,
+   "probeClosedPxOnBase": 763,
+   "fiveRowHeights": [
+    774,
+    774,
+    774,
+    774,
+    774
+   ],
+   "rowUnit": "record group (tbody) incl. its item rows",
+   "peakClosedPx": 763,
+   "peakCase": "wr-record-detail-WR-000001(probe)",
+   "cap": null,
+   "provisionalCap": 900,
+   "pass": null,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [
+    {
+     "el": "data-table__scroll",
+     "sh": 3904,
+     "ch": 600,
+     "maxH": "600px",
+     "overflowY": "auto",
+     "tabindex": 0,
+     "role": "region",
+     "label": "work-request-record-heading"
+    }
+   ],
+   "scrollers": [
+    {
+     "el": "data-table__scroll",
+     "sw": 960,
+     "cw": 318,
+     "scrollable": true,
+     "tabindex": 0,
+     "role": "region"
+    }
+   ],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 763,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 4064,
+      "ch": 600,
+      "maxH": "600px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-record-heading"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "wr-record-detail-WR-000001",
+     601,
+     763
+    ],
+    [
+     "wr-record-dhist-WR-000001",
+     601,
+     763
+    ],
+    [
+     "wr-record-dlinked-WR-000001",
+     601,
+     763
+    ],
+    [
+     "wr-record-maint-WR-000006",
+     601,
+     763
+    ],
+    [
+     "wr-record-stress21-WR-000007",
+     636,
+     763
+    ],
+    [
+     "wr-record-stress-wr7",
+     636,
+     763
+    ]
+   ]
+  },
+  {
+   "screen": "wr-history",
+   "panel": "History",
+   "w": 1440,
+   "baseCase": "wr-history-stress21-WR-000007",
+   "basePart": "part-stress",
+   "baseRealClosedPx": 487,
+   "probeClosedPxOnBase": 529,
+   "fiveRowHeights": [
+    100,
+    100,
+    100,
+    100,
+    99
+   ],
+   "rowUnit": "table row (tr)",
+   "peakClosedPx": 558,
+   "peakCase": "wr-history-detail-WR-000001(probe)",
+   "cap": 550,
+   "provisionalCap": null,
+   "pass": false,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [
+    {
+     "el": "data-table__scroll",
+     "sh": 533,
+     "ch": 430,
+     "maxH": "430px",
+     "overflowY": "auto",
+     "tabindex": 0,
+     "role": "region",
+     "label": "work-request-history-heading"
+    }
+   ],
+   "scrollers": [
+    {
+     "el": "data-table__scroll",
+     "sw": 1090,
+     "cw": 1090,
+     "scrollable": false,
+     "tabindex": 0,
+     "role": "region"
+    }
+   ],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 529,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 613,
+      "ch": 430,
+      "maxH": "430px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "wr-history-detail-WR-000001",
+     485,
+     558
+    ],
+    [
+     "wr-history-dhist-WR-000001",
+     485,
+     558
+    ],
+    [
+     "wr-history-dlinked-WR-000001",
+     485,
+     558
+    ],
+    [
+     "wr-history-detail-WR-000002",
+     352,
+     529
+    ],
+    [
+     "wr-history-dhist-WR-000002",
+     352,
+     529
+    ],
+    [
+     "wr-history-dlinked-WR-000002",
+     352,
+     529
+    ],
+    [
+     "wr-history-dlinked-WR-000005",
+     287,
+     529
+    ],
+    [
+     "wr-history-maint-WR-000001",
+     287,
+     529
+    ],
+    [
+     "wr-history-maint-WR-000002",
+     287,
+     529
+    ],
+    [
+     "wr-history-maint-WR-000003",
+     287,
+     529
+    ],
+    [
+     "wr-history-maint-WR-000004",
+     352,
+     529
+    ],
+    [
+     "wr-history-maint-WR-000005",
+     352,
+     529
+    ],
+    [
+     "wr-history-maint-WR-000006",
+     417,
+     529
+    ],
+    [
+     "wr-history-maint-WR-000007",
+     287,
+     529
+    ],
+    [
+     "wr-history-stress21-WR-000007",
+     487,
+     529
+    ],
+    [
+     "wr-history-stress-wr7",
+     487,
+     529
+    ]
+   ]
+  },
+  {
+   "screen": "wr-history",
+   "panel": "History",
+   "w": 390,
+   "baseCase": "wr-history-stress21-WR-000007",
+   "basePart": "part-stress",
+   "baseRealClosedPx": 510,
+   "probeClosedPxOnBase": 602,
+   "fiveRowHeights": [
+    135,
+    135,
+    135,
+    135,
+    134
+   ],
+   "rowUnit": "table row (tr)",
+   "peakClosedPx": 630,
+   "peakCase": "wr-history-detail-WR-000001(probe)",
+   "cap": 690,
+   "provisionalCap": null,
+   "pass": true,
+   "clippedClosed": 0,
+   "clippedClosedWithoutFullText": 0,
+   "vScrollers": [
+    {
+     "el": "data-table__scroll",
+     "sh": 709,
+     "ch": 480,
+     "maxH": "480px",
+     "overflowY": "auto",
+     "tabindex": 0,
+     "role": "region",
+     "label": "work-request-history-heading"
+    }
+   ],
+   "scrollers": [
+    {
+     "el": "data-table__scroll",
+     "sw": 750,
+     "cw": 318,
+     "scrollable": true,
+     "tabindex": 0,
+     "role": "region"
+    }
+   ],
+   "docOverflowX": 0,
+   "allOpen": {
+    "panelH": 602,
+    "clipped": 0,
+    "clippedWithoutFullText": 0,
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 789,
+      "ch": 480,
+      "maxH": "480px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "work-request-history-heading"
+     }
+    ],
+    "docOverflowX": 0
+   },
+   "allCases": [
+    [
+     "wr-history-detail-WR-000001",
+     508,
+     630
+    ],
+    [
+     "wr-history-dhist-WR-000001",
+     508,
+     630
+    ],
+    [
+     "wr-history-dlinked-WR-000001",
+     508,
+     630
+    ],
+    [
+     "wr-history-detail-WR-000002",
+     375,
+     602
+    ],
+    [
+     "wr-history-dhist-WR-000002",
+     375,
+     602
+    ],
+    [
+     "wr-history-dlinked-WR-000002",
+     375,
+     602
+    ],
+    [
+     "wr-history-dlinked-WR-000005",
+     310,
+     602
+    ],
+    [
+     "wr-history-maint-WR-000001",
+     310,
+     602
+    ],
+    [
+     "wr-history-maint-WR-000002",
+     310,
+     602
+    ],
+    [
+     "wr-history-maint-WR-000003",
+     310,
+     602
+    ],
+    [
+     "wr-history-maint-WR-000004",
+     375,
+     602
+    ],
+    [
+     "wr-history-maint-WR-000005",
+     375,
+     602
+    ],
+    [
+     "wr-history-maint-WR-000006",
+     439,
+     602
+    ],
+    [
+     "wr-history-maint-WR-000007",
+     310,
+     602
+    ],
+    [
+     "wr-history-stress21-WR-000007",
+     510,
+     602
+    ],
+    [
+     "wr-history-stress-wr7",
+     510,
+     602
+    ]
+   ]
+  }
+ ],
+ "assertions": {
+  "all_verified": true,
+  "count": 136,
+  "items": [
+   {
+    "case": "wr-overview-workdone-detail-WR-000001",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-detail-WR-000001",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-detail-WR-000001",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-detail-WR-000001",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-record-detail-WR-000001",
+    "w": 1440,
+    "kind": "recordGroups5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-record-detail-WR-000001",
+    "w": 390,
+    "kind": "recordGroups5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-detail-WR-000001",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-detail-WR-000001",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-detail-WR-000002",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-detail-WR-000002",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-detail-WR-000002",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-detail-WR-000002",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-detail-WR-000002",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-detail-WR-000002",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-dhist-WR-000001",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-dhist-WR-000001",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-dhist-WR-000001",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-dhist-WR-000001",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-record-dhist-WR-000001",
+    "w": 1440,
+    "kind": "recordGroups5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-record-dhist-WR-000001",
+    "w": 390,
+    "kind": "recordGroups5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-dhist-WR-000001",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-dhist-WR-000001",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-dhist-WR-000002",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-dhist-WR-000002",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-dhist-WR-000002",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-dhist-WR-000002",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-dhist-WR-000002",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-dhist-WR-000002",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-dlinked-WR-000001",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-dlinked-WR-000001",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-dlinked-WR-000001",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-dlinked-WR-000001",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-record-dlinked-WR-000001",
+    "w": 1440,
+    "kind": "recordGroups5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-record-dlinked-WR-000001",
+    "w": 390,
+    "kind": "recordGroups5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-dlinked-WR-000001",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-dlinked-WR-000001",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-dlinked-WR-000002",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-dlinked-WR-000002",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-dlinked-WR-000002",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-dlinked-WR-000002",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-dlinked-WR-000002",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-dlinked-WR-000002",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-dlinked-WR-000005",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "a[data-work-request-action=]"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-dlinked-WR-000005",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "a[data-work-request-action=]"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-dlinked-WR-000005",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-dlinked-WR-000005",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-dlinked-WR-000005",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     3,
+     3,
+     3,
+     3,
+     3
+    ],
+    "intendedFields": 15,
+    "fields160": 15,
+    "fieldNames": [
+     "td[data-history-event]",
+     "a[data-history-source-link]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-dlinked-WR-000005",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     3,
+     3,
+     3,
+     3,
+     3
+    ],
+    "intendedFields": 15,
+    "fields160": 15,
+    "fieldNames": [
+     "td[data-history-event]",
+     "a[data-history-source-link]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "incidents-cases-positive",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     5,
+     5,
+     5,
+     5,
+     5
+    ],
+    "intendedFields": 25,
+    "fields160": 25,
+    "fieldNames": [
+     "a",
+     "a[data-global-work-site]",
+     "div",
+     "div[data-global-work-owner]",
+     "div"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "incidents-cases-positive",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     5,
+     5,
+     5,
+     5,
+     5
+    ],
+    "intendedFields": 25,
+    "fields160": 25,
+    "fieldNames": [
+     "a",
+     "a[data-global-work-site]",
+     "div",
+     "div[data-global-work-owner]",
+     "div"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "incidents-boundaries-positive",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "incidents-boundaries-positive",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "maintenance-cwr-positive",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     6,
+     6,
+     6,
+     6,
+     6
+    ],
+    "intendedFields": 30,
+    "fields160": 30,
+    "fieldNames": [
+     "a",
+     "div[data-global-work-lineage]",
+     "div[data-global-work-asset-site]",
+     "div[data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-global-work-owner]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "maintenance-cwr-positive",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     6,
+     6,
+     6,
+     6,
+     6
+    ],
+    "intendedFields": 30,
+    "fields160": 30,
+    "fieldNames": [
+     "a",
+     "div[data-global-work-lineage]",
+     "div[data-global-work-asset-site]",
+     "div[data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-global-work-owner]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000001",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000001",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000001",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000001",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-maint-WR-000001",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-maint-WR-000001",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000002",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000002",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000002",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000002",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-maint-WR-000002",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-maint-WR-000002",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000003",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000003",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000003",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000003",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-maint-WR-000003",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-maint-WR-000003",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000004",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000004",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000004",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000004",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-maint-WR-000004",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-maint-WR-000004",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000005",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000005",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000005",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000005",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-maint-WR-000005",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-maint-WR-000005",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000006",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000006",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000006",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000006",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-record-maint-WR-000006",
+    "w": 1440,
+    "kind": "recordGroups5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-record-maint-WR-000006",
+    "w": 390,
+    "kind": "recordGroups5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-maint-WR-000006",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-maint-WR-000006",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000007",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-maint-WR-000007",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "p[data-work-request-latest=none]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000007",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-maint-WR-000007",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-maint-WR-000007",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-maint-WR-000007",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "td[data-history-event]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "oprecords-records-positive",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "intendedFields": 40,
+    "fields160": 40,
+    "fieldNames": [
+     "div[data-global-work-code]",
+     "div[data-global-work-correction]",
+     "div[data-global-work-kind]",
+     "a[data-global-work-site]",
+     "div[data-global-work-actor]",
+     "div[data-global-work-body]",
+     "a[data-global-work-case]",
+     "div[data-global-work-feeds]"
+    ],
+    "extraFields160": 2
+   },
+   {
+    "case": "oprecords-records-positive",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "intendedFields": 40,
+    "fields160": 40,
+    "fieldNames": [
+     "div[data-global-work-code]",
+     "div[data-global-work-correction]",
+     "div[data-global-work-kind]",
+     "a[data-global-work-site]",
+     "div[data-global-work-actor]",
+     "div[data-global-work-body]",
+     "a[data-global-work-case]",
+     "div[data-global-work-feeds]"
+    ],
+    "extraFields160": 2
+   },
+   {
+    "case": "oprecords-manual-positive",
+    "w": 1440,
+    "kind": "manualForm",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 2,
+    "fields160": 2,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "oprecords-manual-positive",
+    "w": 390,
+    "kind": "manualForm",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 2,
+    "fields160": 2,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "oprecords-used-positive",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "oprecords-used-positive",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "preventive-plan-positive",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "intendedFields": 40,
+    "fields160": 40,
+    "fieldNames": [
+     "div[data-global-work-title]",
+     "div[data-global-work-asset-site]",
+     "div[data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-global-work-trigger]",
+     "div",
+     "div[data-global-work-due]",
+     "div"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "preventive-plan-positive",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "intendedFields": 40,
+    "fields160": 40,
+    "fieldNames": [
+     "div[data-global-work-title]",
+     "div[data-global-work-asset-site]",
+     "div[data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-global-work-trigger]",
+     "div",
+     "div[data-global-work-due]",
+     "div"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "incidents-cases-stress",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     5,
+     5,
+     5,
+     5,
+     5
+    ],
+    "intendedFields": 25,
+    "fields160": 25,
+    "fieldNames": [
+     "a",
+     "a[data-global-work-site]",
+     "div",
+     "div[data-global-work-owner]",
+     "div"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "incidents-cases-stress",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     5,
+     5,
+     5,
+     5,
+     5
+    ],
+    "intendedFields": 25,
+    "fields160": 25,
+    "fieldNames": [
+     "a",
+     "a[data-global-work-site]",
+     "div",
+     "div[data-global-work-owner]",
+     "div"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "incidents-boundaries-stress",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "incidents-boundaries-stress",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "maintenance-cwr-stress",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     6,
+     6,
+     6,
+     6,
+     6
+    ],
+    "intendedFields": 30,
+    "fields160": 30,
+    "fieldNames": [
+     "a",
+     "div[data-global-work-lineage]",
+     "div[data-global-work-asset-site]",
+     "div[data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-global-work-owner]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "maintenance-cwr-stress",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     6,
+     6,
+     6,
+     6,
+     6
+    ],
+    "intendedFields": 30,
+    "fields160": 30,
+    "fieldNames": [
+     "a",
+     "div[data-global-work-lineage]",
+     "div[data-global-work-asset-site]",
+     "div[data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-global-work-owner]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "preventive-plan-stress",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "intendedFields": 40,
+    "fields160": 40,
+    "fieldNames": [
+     "div[data-global-work-title]",
+     "div[data-global-work-asset-site]",
+     "div[data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-global-work-trigger]",
+     "div",
+     "div[data-global-work-due]",
+     "div"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "preventive-plan-stress",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "intendedFields": 40,
+    "fields160": 40,
+    "fieldNames": [
+     "div[data-global-work-title]",
+     "div[data-global-work-asset-site]",
+     "div[data-global-work-asset-site]",
+     "a[data-global-work-site]",
+     "div[data-global-work-trigger]",
+     "div",
+     "div[data-global-work-due]",
+     "div"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "oprecords-records-stress",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     6,
+     6,
+     6,
+     6,
+     6
+    ],
+    "intendedFields": 30,
+    "fields160": 30,
+    "fieldNames": [
+     "div[data-global-work-code]",
+     "div[data-global-work-kind]",
+     "a[data-global-work-site]",
+     "div[data-global-work-actor]",
+     "div[data-global-work-body]",
+     "div[data-global-work-feeds]"
+    ],
+    "extraFields160": 2
+   },
+   {
+    "case": "oprecords-records-stress",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     6,
+     6,
+     6,
+     6,
+     6
+    ],
+    "intendedFields": 30,
+    "fields160": 30,
+    "fieldNames": [
+     "div[data-global-work-code]",
+     "div[data-global-work-kind]",
+     "a[data-global-work-site]",
+     "div[data-global-work-actor]",
+     "div[data-global-work-body]",
+     "div[data-global-work-feeds]"
+    ],
+    "extraFields160": 2
+   },
+   {
+    "case": "oprecords-manual-stress",
+    "w": 1440,
+    "kind": "manualForm",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 2,
+    "fields160": 2,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "oprecords-manual-stress",
+    "w": 390,
+    "kind": "manualForm",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 2,
+    "fields160": 2,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "oprecords-used-stress",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "oprecords-used-stress",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-stress21-WR-000007",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-stress21-WR-000007",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-stress21-WR-000007",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-stress21-WR-000007",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-record-stress21-WR-000007",
+    "w": 1440,
+    "kind": "recordGroups5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-record-stress21-WR-000007",
+    "w": 390,
+    "kind": "recordGroups5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-stress21-WR-000007",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "div[data-history-clamp]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-stress21-WR-000007",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "div[data-history-clamp]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-overview-workdone-stress-wr7",
+    "w": 1440,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-workdone-stress-wr7",
+    "w": 390,
+    "kind": "workDone",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 5,
+    "fields160": 5,
+    "fieldNames": [
+     "div[data-work-request-clamp=narrative]",
+     "div[data-work-request-clamp=activity]",
+     "dd",
+     "dd",
+     "dd"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-stress-wr7",
+    "w": 1440,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-overview-lifecycle-stress-wr7",
+    "w": 390,
+    "kind": "asIs",
+    "verified": true,
+    "rows": 0,
+    "fieldsPerRow": null,
+    "intendedFields": 0,
+    "fields160": 0,
+    "fieldNames": null,
+    "extraFields160": null
+   },
+   {
+    "case": "wr-record-stress-wr7",
+    "w": 1440,
+    "kind": "recordGroups5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-record-stress-wr7",
+    "w": 390,
+    "kind": "recordGroups5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     14,
+     14,
+     14,
+     14,
+     14
+    ],
+    "intendedFields": 70,
+    "fields160": 70,
+    "fieldNames": [
+     "th[data-work-record-group-heading=true]",
+     "div[data-work-record-clamp=activity]",
+     "div[data-work-record-clamp=outcome]",
+     "span[data-work-record-outcome-basis=true]",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td",
+     "td"
+    ],
+    "extraFields160": null
+   },
+   {
+    "case": "wr-history-stress-wr7",
+    "w": 1440,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "div[data-history-clamp]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   },
+   {
+    "case": "wr-history-stress-wr7",
+    "w": 390,
+    "kind": "rows5",
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "intendedFields": 10,
+    "fields160": 10,
+    "fieldNames": [
+     "div[data-history-clamp]",
+     "span[data-history-by]"
+    ],
+    "extraFields160": 0
+   }
+  ]
+ },
+ "skippedOrErrored": [
+  [
+   "wr-record-detail-WR-000002",
+   1440,
+   "no record table"
+  ],
+  [
+   "wr-record-detail-WR-000002",
+   390,
+   "no record table"
+  ],
+  [
+   "wr-record-dhist-WR-000002",
+   1440,
+   "no record table"
+  ],
+  [
+   "wr-record-dhist-WR-000002",
+   390,
+   "no record table"
+  ],
+  [
+   "wr-record-dlinked-WR-000002",
+   1440,
+   "no record table"
+  ],
+  [
+   "wr-record-dlinked-WR-000002",
+   390,
+   "no record table"
+  ],
+  [
+   "wr-record-dlinked-WR-000005",
+   1440,
+   "no record table"
+  ],
+  [
+   "wr-record-dlinked-WR-000005",
+   390,
+   "no record table"
+  ],
+  [
+   "wr-record-maint-WR-000001",
+   1440,
+   "no record table"
+  ],
+  [
+   "wr-record-maint-WR-000001",
+   390,
+   "no record table"
+  ],
+  [
+   "wr-record-maint-WR-000002",
+   1440,
+   "no record table"
+  ],
+  [
+   "wr-record-maint-WR-000002",
+   390,
+   "no record table"
+  ],
+  [
+   "wr-record-maint-WR-000003",
+   1440,
+   "no record table"
+  ],
+  [
+   "wr-record-maint-WR-000003",
+   390,
+   "no record table"
+  ],
+  [
+   "wr-record-maint-WR-000004",
+   1440,
+   "no record table"
+  ],
+  [
+   "wr-record-maint-WR-000004",
+   390,
+   "no record table"
+  ],
+  [
+   "wr-record-maint-WR-000005",
+   1440,
+   "no record table"
+  ],
+  [
+   "wr-record-maint-WR-000005",
+   390,
+   "no record table"
+  ],
+  [
+   "wr-record-maint-WR-000007",
+   1440,
+   "no record table"
+  ],
+  [
+   "wr-record-maint-WR-000007",
+   390,
+   "no record table"
+  ]
+ ],
+ "R356": [
+  {
+   "case": "oprecords-records-positive",
+   "w": 1440,
+   "real": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1100,
+    "clientW": 1090,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1100,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      140
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     185,
+     82,
+     82,
+     82,
+     82
+    ]
+   },
+   "probe": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1100,
+    "clientW": 1090,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1100,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      140
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     221,
+     221,
+     221,
+     221,
+     220
+    ]
+   }
+  },
+  {
+   "case": "oprecords-records-positive",
+   "w": 390,
+   "real": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1100,
+    "clientW": 318,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1100,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      140
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     185,
+     82,
+     82,
+     82,
+     82
+    ]
+   },
+   "probe": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1100,
+    "clientW": 318,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1100,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      140
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     221,
+     221,
+     221,
+     221,
+     220
+    ]
+   }
+  },
+  {
+   "case": "oprecords-records-stress",
+   "w": 1440,
+   "real": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1105,
+    "clientW": 1105,
+    "fits": true,
+    "overflowX": "auto",
+    "tableW": 1105,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      111
+     ],
+     [
+      "Site",
+      151
+     ],
+     [
+      "When",
+      131
+     ],
+     [
+      "By",
+      121
+     ],
+     [
+      "What it says",
+      271
+     ],
+     [
+      "Feeds",
+      141
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     99
+    ]
+   },
+   "probe": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1100,
+    "clientW": 1090,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1100,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      140
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     116,
+     116,
+     116,
+     116,
+     115
+    ]
+   }
+  },
+  {
+   "case": "oprecords-records-stress",
+   "w": 390,
+   "real": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1100,
+    "clientW": 318,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1100,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      140
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     99
+    ]
+   },
+   "probe": {
+    "scrollerClass": "data-table__scroll",
+    "scrollW": 1100,
+    "clientW": 318,
+    "fits": false,
+    "overflowX": "auto",
+    "tableW": 1100,
+    "tableLayout": "fixed",
+    "cols": [
+     [
+      "Record",
+      90
+     ],
+     [
+      "Type",
+      110
+     ],
+     [
+      "Site",
+      150
+     ],
+     [
+      "When",
+      130
+     ],
+     [
+      "By",
+      120
+     ],
+     [
+      "What it says",
+      270
+     ],
+     [
+      "Feeds",
+      140
+     ],
+     [
+      "State",
+      90
+     ]
+    ],
+    "rowHs": [
+     116,
+     116,
+     116,
+     116,
+     115
+    ]
+   }
+  }
+ ],
+ "R364": [
+  {
+   "case": "wr-overview-workdone-detail-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 361,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-detail-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 361,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-record-detail-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 361,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-detail-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 290,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 290,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 290,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 337,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-detail-WR-000002",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-detail-WR-000002",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-detail-WR-000002",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 258,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-dhist-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 361,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-dhist-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 361,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-record-dhist-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 361,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-dhist-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 290,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 290,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 290,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 337,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-dhist-WR-000002",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-dhist-WR-000002",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-dhist-WR-000002",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 258,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-dlinked-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 361,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-dlinked-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 361,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-record-dlinked-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 314,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 361,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-dlinked-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 290,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 290,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 290,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 337,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-dlinked-WR-000002",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-dlinked-WR-000002",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-dlinked-WR-000002",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 258,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-dlinked-WR-000005",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 285,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 285,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 285,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 332,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-dlinked-WR-000005",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 285,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 285,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 285,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 332,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-dlinked-WR-000005",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 261,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 261,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 261,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 308,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-maint-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-maint-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-maint-WR-000001",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 258,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-maint-WR-000002",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-maint-WR-000002",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-maint-WR-000002",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 258,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-maint-WR-000003",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-maint-WR-000003",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-maint-WR-000003",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 258,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-maint-WR-000004",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-maint-WR-000004",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-maint-WR-000004",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 258,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-maint-WR-000005",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-maint-WR-000005",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-maint-WR-000005",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 258,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-maint-WR-000006",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-maint-WR-000006",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-record-maint-WR-000006",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-maint-WR-000006",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 258,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-maint-WR-000007",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-maint-WR-000007",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 234,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 281,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-maint-WR-000007",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 211,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 258,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-stress21-WR-000007",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 504,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-stress21-WR-000007",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 504,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-record-stress21-WR-000007",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 504,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-stress21-WR-000007",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 434,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 434,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 434,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 481,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-workdone-stress-wr7",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 504,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-overview-lifecycle-stress-wr7",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 504,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-record-stress-wr7",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 457,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 504,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  },
+  {
+   "case": "wr-history-stress-wr7",
+   "w": 390,
+   "tabs": {
+    "vw": 390,
+    "count": 4,
+    "items": [
+     {
+      "text": "Overview",
+      "left": 16,
+      "right": 67,
+      "top": 434,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Maintenance record",
+      "left": 85,
+      "right": 194,
+      "top": 434,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "Verification · Not available yet",
+      "left": 212,
+      "right": 369,
+      "top": 434,
+      "inside": true,
+      "labelComplete": true
+     },
+     {
+      "text": "History",
+      "left": 16,
+      "right": 56,
+      "top": 481,
+      "inside": true,
+      "labelComplete": true
+     }
+    ],
+    "listSW": 358,
+    "listCW": 358,
+    "listFits": true,
+    "rows": 2,
+    "ancestors": [
+     {
+      "el": "OL.site-tabs__list",
+      "overflowX": "auto",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "NAV.site-tabs work-request-tabs",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     },
+     {
+      "el": "DIV.global-work work-request work-",
+      "overflowX": "visible",
+      "sw": 358,
+      "cw": 358,
+      "innerScroller": false
+     }
+    ],
+    "noInnerTabScroller": true,
+    "allInside": true
+   }
+  }
+ ],
+ "findings": {
+  "capExceeded_noFallbackRuled_nothingChanged": [
+   "wr-overview Work done 1440: probe 503 px > 500 (base stress WR-000007 real 442; fixture stress clock 2026-10-20 and 2026-10-21, every WR). Lifecycle stretches to 503 in the same grid row under that probe (real 442 passes).",
+   "wr-history History 1440: peak 558 px > 550 on detail WR-000001 (6 events -> pager 'Showing 1-5 of 6', +29 px); largest real base stress WR-000007 probe 529 passes. Rows sit in a 430 px inner vertical scroller (tabindex 0, role region)."
+  ],
+  "R356_1440_fail": "oprecords table scroller clientWidth 1090 (not 1105) whenever the 500 px max-height inner vertical scroller is active (positive 5 rows, five-row probe): its 15 px vertical scrollbar leaves 1090 < 1100 table width -> scrollWidth 1100 > clientWidth 1090. Stress (1 row, no vertical scrollbar) fits 1105/1105. Columns match Q16 exactly.",
+  "clippedClosedAndAllOpen": "list tables keep 2-line global-work-clamp cells that have no full-text disclosure and no title attribute (Incident cases: Site/Severity/Owner/Findings; CWR: Asset/site, Owner; Preventive: Asset/site, Trigger, Last done, Next due, What it proves; Operational: Record, Type, Site, By, Feeds). With 160-char values they clip in closed AND all-open states. WR panels: zero clipping.",
+  "innerVerticalScrollers": "list tables and WR record/history use inner vertical table scroll (max-height 468/478/500/430/500 at 1440; 518/518/590/480/600 at 390), role=region, tabindex=0, aria-labelledby the panel heading; all five rows reachable by scrolling.",
+  "noRecordTable": "WR record five-row probe skipped where the WR has no maintenance record (maint WR-000001..5,7; detail/dhist/dlinked WR-000002, dlinked WR-000005)."
+ }
+}

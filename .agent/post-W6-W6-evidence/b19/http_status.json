@@ -1,0 +1,5 @@
+{"note": "read-only GET /api/work/requests/{id}?site_id=..., recorded during capture at f3da6e90",
+ "mini": {"request": "e490e95f-d395-4410-b7da-42ed0b087968 WR-000001 KOBO-001", "plain_18651": 200, "api_403_18656": 403, "api_403_body": {"detail":{"code":"SITE_SCOPE_FORBIDDEN","message":"No access to Site 'KOBO-001'."}}, "api_503_18657": 503},
+ "cold": {"request": "f933c2a1-7c30-4dc3-95f3-338927a23989 WR-000002 COLD-LAB-001", "positive_8971": 200, "forbidden_8976": 403, "forbidden_body": {"detail":{"code":"SITE_SCOPE_FORBIDDEN","message":"No access to Site 'COLD-LAB-001'."}}, "global_maintenance_list_total": {"positive": 1, "forbidden": 0}},
+ "ev": {"request": "de35eb30-83a3-4c92-ac81-bac23c4dd7d4 WR-000002 EV-LAB-001", "positive_18671": 200, "forbidden_18676": 403, "forbidden_body": {"detail":{"code":"SITE_SCOPE_FORBIDDEN","message":"No access to Site 'EV-LAB-001'."}}, "global_maintenance_list_total": {"positive": 1, "forbidden": 0}, "attest_forbidden": {"http": 403, "code": "SITE_SCOPE_FORBIDDEN"}, "stopped_api_18677_via_vite_proxy": 500}
+}

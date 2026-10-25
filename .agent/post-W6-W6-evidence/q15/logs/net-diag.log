@@ -1,0 +1,9 @@
+file:///C:/Users/assef/Bineyame/AssetOpsV1-review8/.agent/post-W6-W6-evidence/q15/tools/cdp.mjs:22
+  ws.addEventListener("message", (e) => { const m = JSON.parse(e.data); if (m.method) listeners.forEach((f) => f(m)); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } });
+     ^
+
+TypeError: Cannot read properties of undefined (reading 'addEventListener')
+    at session (file:///C:/Users/assef/Bineyame/AssetOpsV1-review8/.agent/post-W6-W6-evidence/q15/tools/cdp.mjs:22:6)
+    at async file:///C:/Users/assef/Bineyame/AssetOpsV1-review8/.agent/post-W6-W6-evidence/q15/tools/net.mjs:3:11
+
+Node.js v24.15.0

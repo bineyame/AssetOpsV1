@@ -1,0 +1,51 @@
+{
+ "tabs": [
+  "OL.site-tabs__list > LI.site-tabs__item > a.site-tabs__link class=site-tabs__link data-work-request-tab=overview «Overview»",
+  "OL.site-tabs__list > LI.site-tabs__item > a.site-tabs__link class=site-tabs__link data-work-request-tab=history «History»"
+ ],
+ "panels": [
+  {
+   "h": "History",
+   "H": 487,
+   "texts": [
+    "h2 class=panel__heading len=7 «History»",
+    "p class=global-work-scroll-hint data-global-work-scroll-hint=true len=25 «Scroll table horizontally»",
+    "th  len=4 «Time»",
+    "th  len=5 «Event»",
+    "th  len=2 «By»",
+    "span class=work-history-time data-history-time=true len=25 «20 Oct 2026, 11:59:07 UTC»",
+    "summary  len=15 «Occurrence time»",
+    "[C] details class=global-work-details data-history-occurred=true len=34 «Occurred 18 Oct 2026, 10:00:00 UTC»",
+    "td class=work-history-event data-history-event=true len=7 «Created»",
+    "span class=work-history-by data-history-by=true len=17 «Name not recorded»",
+    "summary  len=12 «Stored actor»",
+    "[C] details class=global-work-details data-history-actor=true len=30 «SERVICE · service:w401-fixture»",
+    "span class=work-history-time data-history-time=true len=25 «20 Oct 2026, 11:59:08 UTC»",
+    "summary  len=15 «Occurrence time»",
+    "[C] details class=global-work-details data-history-occurred=true len=34 «Occurred 19 Oct 2026, 12:00:00 UTC»",
+    "div class=global-work-clamp data-history-clamp=ASSIGN len=140 «Assigned to FieldmaintenancesupervisorteamFieldmai»",
+    "summary  len=15 «Full event text»",
+    "[C] details class=global-work-details data-history-full=true len=140 «Assigned to FieldmaintenancesupervisorteamFieldmai»",
+    "span class=work-history-by data-history-by=true len=17 «Name not recorded»",
+    "summary  len=12 «Stored actor»",
+    "[C] details class=global-work-details data-history-actor=true len=30 «SERVICE · service:w401-fixture»",
+    "span class=work-history-time data-history-time=true len=25 «20 Oct 2026, 11:59:10 UTC»",
+    "summary  len=15 «Occurrence time»",
+    "[C] details class=global-work-details data-history-occurred=true len=34 «Occurred 19 Oct 2026, 12:00:00 UTC»",
+    "div class=global-work-clamp data-history-clamp=CORRECTION len=720 «Correction: Corrected the inspection scope Correct»",
+    "summary  len=15 «Full event text»",
+    "[C] details class=global-work-details data-history-full=true len=720 «Correction: Corrected the inspection scope Correct»",
+    "span class=work-history-by data-history-by=true len=17 «Name not recorded»",
+    "summary  len=12 «Stored actor»",
+    "[C] details class=global-work-details data-history-actor=true len=30 «SERVICE · service:w401-fixture»",
+    "td  len=1 «—»",
+    "td class=work-history-event len=29 «Site visit start not recorded»",
+    "td  len=1 «—»",
+    "td  len=1 «—»",
+    "td class=work-history-event len=53 «Verification pending · no outcome assessment recor»",
+    "td  len=1 «—»",
+    "p class=global-work-deviation data-mock-deviation=R369 len=24 «MOCK DEVIATION D2 (R369)»"
+   ]
+  }
+ ]
+}

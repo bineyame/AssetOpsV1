@@ -1,0 +1,1152 @@
+{
+ "label": "SYNTHETIC LAYOUT PROBE - not product data",
+ "product": "f3da6e90",
+ "results": [
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "incidents-cases-positive",
+   "url": "http://127.0.0.1:5390/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Incident cases",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Incident cases",
+     "h": 536
+    },
+    {
+     "t": "Case boundaries",
+     "h": 103
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     5,
+     5,
+     5,
+     5,
+     5
+    ],
+    "intendedFields": 25,
+    "fields160": 25,
+    "fieldNames": [
+     "a",
+     "a[data-global-work-site]",
+     "div",
+     "div[data-global-work-owner]",
+     "div"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "Incident cases",
+      "h": 647
+     },
+     {
+      "t": "Case boundaries",
+      "h": 103
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 533,
+      "ch": 468,
+      "maxH": "468px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-incidents-cases-heading"
+     }
+    ],
+    "panelH": 647,
+    "rowHs": [
+     100,
+     100,
+     100,
+     100,
+     99
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 141,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 141,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 141,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 141,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 141,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 106,
+      "ch": 53
+     }
+    ],
+    "clippedCount": 20,
+    "clippedWithoutFullText": 20,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 1090,
+      "cw": 1090,
+      "scrollable": false,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1033,
+      "ch": 468,
+      "maxH": "468px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-incidents-cases-heading"
+     }
+    ],
+    "panelH": 647,
+    "clippedCount": 20,
+    "clippedWithoutFullText": 20,
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 141,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 141,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 141,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 141,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 106,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 141,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 123,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 106,
+      "ch": 53
+     }
+    ],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "incidents-cases-positive",
+   "url": "http://127.0.0.1:5390/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "rows5",
+   "panel": "Incident cases",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Incident cases",
+     "h": 730
+    },
+    {
+     "t": "Case boundaries",
+     "h": 126
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": true,
+    "verified": true,
+    "rows": 5,
+    "fieldsPerRow": [
+     5,
+     5,
+     5,
+     5,
+     5
+    ],
+    "intendedFields": 25,
+    "fields160": 25,
+    "fieldNames": [
+     "a",
+     "a[data-global-work-site]",
+     "div",
+     "div[data-global-work-owner]",
+     "div"
+    ],
+    "extraFields160": 0,
+    "rowsRef": 5,
+    "opTable": null,
+    "panelsAfter": [
+     {
+      "t": "Incident cases",
+      "h": 737
+     },
+     {
+      "t": "Case boundaries",
+      "h": 126
+     }
+    ],
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 633,
+      "ch": 518,
+      "maxH": "518px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-incidents-cases-heading"
+     }
+    ],
+    "panelH": 737,
+    "rowHs": [
+     120,
+     120,
+     120,
+     120,
+     119
+    ],
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 264,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 369,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 229,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 264,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 369,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 229,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 264,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 369,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 229,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 264,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 369,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 229,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 264,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 369,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 229,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     }
+    ],
+    "clippedCount": 25,
+    "clippedWithoutFullText": 20,
+    "scrollers": [
+     {
+      "el": "data-table__scroll",
+      "sw": 720,
+      "cw": 318,
+      "scrollable": true,
+      "tabindex": 0,
+      "role": "region"
+     }
+    ],
+    "docOverflowX": 0,
+    "_cl": null
+   },
+   "allOpen": {
+    "vScrollers": [
+     {
+      "el": "data-table__scroll",
+      "sh": 1273,
+      "ch": 518,
+      "maxH": "518px",
+      "overflowY": "auto",
+      "tabindex": 0,
+      "role": "region",
+      "label": "global-incidents-cases-heading"
+     }
+    ],
+    "panelH": 737,
+    "clippedCount": 25,
+    "clippedWithoutFullText": 20,
+    "clipped": [
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 264,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 369,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 229,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 264,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 369,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 229,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 264,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 369,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 229,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 264,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 369,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 229,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Incident",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": true,
+      "sh": 88,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Site",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 264,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Severity",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 369,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Owner",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 229,
+      "ch": 53
+     },
+     {
+      "el": "DIV.global-work-clamp",
+      "cell": "Findings / work",
+      "titleAttr": false,
+      "clamp": true,
+      "fullTextDisclosure": false,
+      "sh": 176,
+      "ch": 53
+     }
+    ],
+    "docOverflowX": 0,
+    "details": 10
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "incidents-boundaries-positive",
+   "url": "http://127.0.0.1:5390/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "asIs",
+   "panel": "Case boundaries",
+   "w": 1440,
+   "baselinePanels": [
+    {
+     "t": "Incident cases",
+     "h": 536
+    },
+    {
+     "t": "Case boundaries",
+     "h": 103
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Incident cases",
+      "h": 536
+     },
+     {
+      "t": "Case boundaries",
+      "h": 103
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 103,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 103,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  },
+  {
+   "label": "SYNTHETIC LAYOUT PROBE - not product data",
+   "name": "incidents-boundaries-positive",
+   "url": "http://127.0.0.1:5390/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+   "kind": "asIs",
+   "panel": "Case boundaries",
+   "w": 390,
+   "baselinePanels": [
+    {
+     "t": "Incident cases",
+     "h": 730
+    },
+    {
+     "t": "Case boundaries",
+     "h": 126
+    }
+   ],
+   "baselineOpTable": null,
+   "baselineTabs": null,
+   "baselineDocOverflowX": 0,
+   "closed": {
+    "synthetic": false,
+    "verified": true,
+    "rows": 0,
+    "rowUnit": "no variable text field: measured as-is",
+    "intendedFields": 0,
+    "fields160": 0,
+    "panelsAfter": [
+     {
+      "t": "Incident cases",
+      "h": 730
+     },
+     {
+      "t": "Case boundaries",
+      "h": 126
+     }
+    ],
+    "vScrollers": [],
+    "panelH": 126,
+    "rowHs": [],
+    "clipped": [],
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "scrollers": [],
+    "docOverflowX": 0
+   },
+   "allOpen": {
+    "vScrollers": [],
+    "panelH": 126,
+    "clippedCount": 0,
+    "clippedWithoutFullText": 0,
+    "clipped": [],
+    "docOverflowX": 0,
+    "details": 0
+   }
+  }
+ ]
+}
