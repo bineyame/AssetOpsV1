@@ -1,0 +1,17 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "ev-403-denied",
+  "url": "http://127.0.0.1:5189/maintenance/requests/2394857d-d9c7-4161-a6ff-2f4f4994d13b?site_id=EV-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-403-denied",
+  "url": "http://127.0.0.1:5189/maintenance/requests/2394857d-d9c7-4161-a6ff-2f4f4994d13b/record?site_id=EV-LAB-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-403-denied",
+  "url": "http://127.0.0.1:5189/maintenance/requests/2394857d-d9c7-4161-a6ff-2f4f4994d13b/history?site_id=EV-LAB-001"
+ }
+]

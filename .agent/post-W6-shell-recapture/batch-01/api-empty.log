@@ -1,0 +1,13 @@
+api empty on 127.0.0.1:18101 (assetops_shellrc_b01_empty_test)
+INFO:     Started server process [8748]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:18101 (Press CTRL+C to quit)
+INFO:     127.0.0.1:64868 - "GET /api/sites HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59227 - "GET /api/sites HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64867 - "GET /api/simulator-lab/site-template-lineage HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51233 - "GET /api/simulator-lab/site-template-lineage HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55100 - "GET /api/sites HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55099 - "GET /api/simulator-lab/site-template-lineage HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55101 - "GET /api/sites HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58615 - "GET /api/simulator-lab/site-template-lineage HTTP/1.1" 200 OK

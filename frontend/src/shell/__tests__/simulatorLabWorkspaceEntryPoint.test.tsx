@@ -133,7 +133,12 @@ describe("workspace entry point: disabled", () => {
       expect(
         screen.queryByRole("navigation", { name: "Workspace utilities" }),
       ).toBeNull();
-      expect(screen.getAllByRole("navigation")).toHaveLength(1);
+      // post-W6 shell R127: the Sites page now carries its root breadcrumb, so the operator rail is the only
+      // navigation besides that page crumb; a workspace landmark would still fail.
+      expect(
+        screen.getAllByRole("navigation").filter((nav) => nav.getAttribute("aria-label") !== "Breadcrumb"),
+      ).toHaveLength(1);
+      expect(screen.getAllByRole("navigation", { name: "Breadcrumb" })).toHaveLength(1);
       expect(
         screen.queryByRole("link", { name: SIMULATOR_LAB_ENTRY_POINT_LABEL }),
       ).toBeNull();

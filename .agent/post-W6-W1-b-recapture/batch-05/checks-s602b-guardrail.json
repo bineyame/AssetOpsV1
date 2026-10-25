@@ -1,0 +1,86 @@
+[
+ {
+  "screen": "verification",
+  "case": "guardrail",
+  "w": 1440,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505/verification",
+  "h1": "ACT-000001 · Battery reserve trial",
+  "siteTabRows": 0,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Actions"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Target and guardrails evaluated together",
+    "h": 390
+   },
+   {
+    "t": "Activity evidence",
+    "h": 354
+   },
+   {
+    "t": "Outcome evidence",
+    "h": 354
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "verification",
+  "case": "guardrail",
+  "w": 390,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505/verification",
+  "h1": "ACT-000001 · Battery reserve trial",
+  "siteTabRows": 0,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Actions"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Target and guardrails evaluated together",
+    "h": 751
+   },
+   {
+    "t": "Activity evidence",
+    "h": 314
+   },
+   {
+    "t": "Outcome evidence",
+    "h": 354
+   }
+  ],
+  "overflowX": 0
+ }
+]

@@ -782,6 +782,11 @@ describe("W4-02 Overview mini cards", () => {
       `/sites/${SITE_ID}/performance/renewable?from=${encodeURIComponent(DAY.from)}&to=${encodeURIComponent(DAY.to)}&known_at=${known}`,
     );
     expect(card("fuel").textContent).toContain("View detail →");
+    // post-W6 W1-a Q2 / R157: the detail link sits in the card's footer slot, never inside the note.
+    for (const key of ["service", "fuel", "renewable"]) {
+      expect(card(key).querySelector(`.v69-metric__link [data-objective-card-detail="${key}"]`)?.textContent).toBe("View detail →");
+      expect(card(key).querySelector(`.v69-metric__note [data-objective-card-detail]`)).toBeNull();
+    }
   });
 
   it("shows Unknown for an unsettled answer and Unavailable without a link for a failed read, never zero", async () => {
@@ -906,5 +911,103 @@ describe("W4-02 Overview mini cards", () => {
     expect(stripText()).toContain("Assessed for this day: dispatch only · the other objectives have no read on this Overview");
     expect(document.querySelector("[data-objective-statement]")?.textContent).toContain("does not state an operating objective");
     expect(document.body.textContent).not.toContain("Reads on this Overview");
+  });
+});
+
+describe("post-W6 W1-a: Overview crumbs, card links and tones, SLD link, failed-day reasons", () => {
+  const card = (key: string) => document.querySelector(`[data-objective-card="${key}"]`) as HTMLElement;
+  const footerLink = (key: string) => card(key).querySelector(`.v69-metric__link [data-objective-card-detail="${key}"]`);
+
+  it("Q1 / R156: the trail is Sites › {site} › Overview with the Site crumb linked", async () => {
+    const { client } = clientOf(() => summary("2026-10-23"));
+    renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
+    await settledScreen();
+    const trail = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(Array.from(trail.querySelectorAll("li")).map((li) => li.textContent)).toEqual(["Sites", HYBRID_MINI_GRID_SITE.display_name, "Overview"]);
+    expect(within(trail).getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual(["/sites", `/sites/${SITE_ID}`]);
+    expect(trail.querySelector('[aria-current="page"]')?.textContent).toBe("Overview");
+  });
+
+  it("Q2 / R157 / Q48: Dispatch and Battery carry a footer View detail link; Dispatch's border follows the stored classification", async () => {
+    const { client } = clientOf(() => summary("2026-10-23"));
+    renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
+    await settledScreen();
+    expect(footerLink("dispatch")?.textContent).toBe("View detail →");
+    expect(footerLink("dispatch")?.getAttribute("href")).toBe(`/sites/${SITE_ID}/performance/dispatch?day=2026-10-23`);
+    expect(footerLink("battery")?.getAttribute("href")).toBe(`/sites/${SITE_ID}/assets`);
+    // Battery keeps its no-condition value and no tone border; nothing invents an assessment.
+    expect(card("battery").querySelector(".v69-metric__value")?.textContent).toBe("Not available");
+    expect(card("battery").textContent).toContain("No battery condition read on this Overview");
+    expect(card("battery").classList.contains("v69-metric--assessment")).toBe(false);
+    // The fixture's stored classification is CANDIDATE_AVOIDABLE: amber.
+    expect(card("dispatch").classList.contains("v69-metric--assessment")).toBe(true);
+    expect(card("dispatch").classList.contains("v69-metric--amber")).toBe(true);
+    expect(card("dispatch").getAttribute("data-objective-card-tone")).toBe("amber");
+  });
+
+  it("Q2: a needed day is gray, and a day with no current read has no border", async () => {
+    const needed = clientOf(() => summary("2026-10-23", { assessment: { ...summary().assessment, claim_level: "NECESSARY" } }));
+    const first = renderAt(`/sites/${SITE_ID}?date=2026-10-23`, needed.client);
+    await settledScreen();
+    expect(card("dispatch").classList.contains("v69-metric--assessment")).toBe(true);
+    expect(card("dispatch").classList.contains("v69-metric--amber")).toBe(false);
+    expect(card("dispatch").getAttribute("data-objective-card-tone")).toBe("gray");
+    first.unmount();
+    const unassessed = clientOf(() =>
+      summary("2026-10-23", { assessment: { ...summary().assessment, state: "UNKNOWN", claim_level: null, dispatch_intervals: [] } }),
+    );
+    renderAt(`/sites/${SITE_ID}?date=2026-10-23`, unassessed.client);
+    await settledScreen();
+    expect(card("dispatch").classList.contains("v69-metric--assessment")).toBe(false);
+    expect(card("dispatch").getAttribute("data-objective-card-tone")).toBe("none");
+  });
+
+  it("Q3 / R159: Operating context links to the single line diagram at the selected window's end", async () => {
+    const { client } = clientOf(() => summary("2026-10-23"));
+    renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
+    await settledScreen();
+    const link = document.querySelector("[data-overview-sld-link]") as HTMLAnchorElement;
+    expect(link.textContent).toBe("Single line diagram →");
+    expect(link.closest("section")?.querySelector("h2")?.textContent).toBe("Operating context");
+    expect(link.getAttribute("href")).toBe(`/sites/${SITE_ID}/foundation/sld?at=${encodeURIComponent("2026-10-23T23:59:59Z")}`);
+  });
+
+  it("Q3: without a selected window the link is the bare mounted route", () => {
+    const sld = vi.fn((at: string | null) => (at === null ? "/sites/S/foundation/sld" : `/sites/S/foundation/sld?at=${at}`));
+    const base = summary("2026-10-23");
+    render(
+      <MemoryRouter>
+        <SiteWindowOverview
+          summary={{ ...base, window: { ...base.window, end: null as unknown as string } }}
+          links={{ dispatchDay: () => "/d", finding: () => "/f", financials: () => "/m", assumption: () => "/a", evidenceRecord: () => "/e", sld }}
+          onSelectDay={() => undefined}
+        />
+      </MemoryRouter>,
+    );
+    expect(sld).toHaveBeenCalledWith(null);
+    expect(document.querySelector("[data-overview-sld-link]")?.getAttribute("href")).toBe("/sites/S/foundation/sld");
+  });
+
+  it("Q4 / R164: a failed day lists the assessment's and the Finding's reasons under distinct labels with no duplicate key", async () => {
+    const errors = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      const { client } = clientOf(() =>
+        summary("2026-10-07", {
+          freshness: { state: "FAILED", stage: "S3", reasons: ["S3_FAILED", "S3_TIMEOUT"], errors: [], source_open: true, source_reason: "open" },
+          assessment: { ...summary().assessment, state: "FAILED", status: "FAILED", status_reasons: ["RUN_FAILED", "INPUT_MISSING"], dispatch_intervals: [] },
+          known_finding: null,
+        }),
+      );
+      renderAt(`/sites/${SITE_ID}?date=2026-10-07`, client);
+      await settledScreen();
+      const labels = Array.from(document.querySelectorAll("[data-exact-references] dt, [data-exact-references] th")).map((n) => n.textContent);
+      expect(labels).toEqual(expect.arrayContaining(["Recorded reason 1", "Recorded reason 2", "Finding reason 1", "Finding reason 2"]));
+      const text = document.body.textContent ?? "";
+      for (const code of ["RUN_FAILED", "INPUT_MISSING", "S3_FAILED", "S3_TIMEOUT"]) expect(text).toContain(code);
+      const duplicate = errors.mock.calls.filter((call) => String(call[0]).includes("same key"));
+      expect(duplicate).toEqual([]);
+    } finally {
+      errors.mockRestore();
+    }
   });
 });

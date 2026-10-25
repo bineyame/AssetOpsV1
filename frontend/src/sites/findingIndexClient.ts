@@ -62,6 +62,8 @@ export interface FindingIndexRow {
     assessment_revision_id: string;
     analytic_run_id: string;
     analytic_run_ids?: string[];
+    /** post-W6 W1-b Q19: the cited 15-minute interval assessment revisions (the backend emits it per row). */
+    interval_assessment_revision_ids?: string[];
     model_version: string;
     matcher_version: string;
     cohort_sha256: string | null;

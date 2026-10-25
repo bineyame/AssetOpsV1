@@ -72,6 +72,7 @@
 .estate-portfolio .objective-cell.degraded{background:#fbeae7;color:#ac574c}
 .estate-portfolio .objective-cell.limited{background:#f0ebf7;color:#80629b}
 .estate-portfolio .objective-cell.na{background:transparent;color:#9aa6b5}
+.estate-portfolio a.objective-cell{display:block;text-decoration:none}
 .estate-portfolio .portfolio-evidence{margin-top:13px;padding:16px;border:1px solid #dfe5f2;background:#eef3fa;border-radius:6px}
 .estate-portfolio .portfolio-evidence>div{display:flex;align-items:flex-start;gap:8px}
 .estate-portfolio .portfolio-evidence .icon{width:15px;height:15px;color:#6381ae}
@@ -117,6 +118,9 @@
 .estate-portfolio .portfolio-inert{font-size:10px;color:#7b899d}
 .estate-portfolio .opportunity-quantity{font-size:16px}
 .estate-portfolio .portfolio-drawer{max-height:320px;overflow:auto;font-size:10px;padding:8px 0}
+/* Post-W6 W3-estate Q13 (R307): each Site's assessment IDs scroll inside their own 160px box; raw keys wrap. */
+.estate-portfolio .portfolio-scope-ids{max-height:160px;overflow:auto;overflow-wrap:anywhere;font-family:var(--font-mono, monospace)}
+.estate-portfolio .portfolio-scope-raw{overflow-wrap:anywhere}
 .estate-portfolio .portfolio-drawer__notice{background:#eef3fa;padding:8px;border-radius:5px}
 .estate-portfolio .portfolio-loading{list-style:none;padding:0;color:var(--muted, #6b7a90);font-size:11px}
 .estate-portfolio .portfolio-evidence__site{font-size:9px;margin:0 0 6px}

@@ -399,7 +399,7 @@ describe("W6-01d C4: work request History page", () => {
   });
 
   it.each([
-    ["SITE_SCOPE_FORBIDDEN", "No access to this Site's work request."],
+    ["SITE_SCOPE_FORBIDDEN", "No access to this Site's work."],
     ["WORK_CASE_NOT_FOUND", "No work case with this ID at this site."],
     ["WORK_STORE_UNAVAILABLE", "Work records could not be read. Reload."],
   ] as const)("states the %s refusal in the shared frame with the History panel slot", async (code, sentence) => {

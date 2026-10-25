@@ -20,6 +20,8 @@
  * and never as a conclusion about how the site is operating.
  */
 
+import { siteTime, siteZoneLabel } from "./siteTime";
+import { findingLocalTime } from "./findingTime";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -83,6 +85,47 @@ function when(value: string | null | undefined): string {
   return value === null || value === undefined ? "none" : readableTime(value);
 }
 
+/*
+ * post-W6 shell R170 (Q18): the records table's measured time in the selected Site's timezone (the mock's
+ * `Measured (EAT)`, `HH:MM:SS`). The stored instant stays UTC and is exposed on the cell's title.
+ * post-W6 W1-a (Architect W1 rulings, cross-card 1 / G3 / Q50): these shell helpers keep their names and contracts
+ * but delegate to the canonical `siteTime.ts`; no second timezone algorithm remains here. post-W6 W2-EV (W1-a
+ * closeout ruling 5): Asmara, Djibouti and Mogadishu are in the canonical EAT table, so no local zone list remains.
+ */
+
+/** The usable IANA zone, or null when it is missing or this browser cannot resolve it (the UTC fallback). */
+export function usableZone(timezone: string | null | undefined): string | null {
+  return siteTime("1970-01-01T00:00:00Z", timezone)?.siteZone ? (timezone as string) : null;
+}
+
+/**
+ * The short zone name at `at` (the selected window's start), so a DST zone is named for the period shown rather
+ * than for 1 January 1970. Without an instant it uses the current time.
+ */
+export function zoneAbbreviation(timezone: string | null | undefined, at?: string | Date | null): string {
+  const instant = at instanceof Date ? (Number.isNaN(at.getTime()) ? null : at.toISOString()) : at;
+  return siteZoneLabel(timezone, instant);
+}
+
+/** The selected day (`YYYY-MM-DD`) on the Site's clock, from the read window's start. */
+export function selectedLocalDay(windowStart: string | null | undefined, timezone: string | null | undefined): string | null {
+  return findingLocalTime(windowStart, timezone)?.day ?? null;
+}
+
+/** `HH:MM:SS` on the Site's clock; `D Mon · HH:MM:SS` when that local day differs from the selected day. */
+export function measuredTime(
+  instant: string | null | undefined,
+  timezone: string | null | undefined,
+  selectedDay: string | null,
+): string {
+  if (instant === null || instant === undefined) return "none";
+  const clock = siteTime(instant, timezone);
+  const local = findingLocalTime(instant, timezone);
+  if (clock === null || local === null) return instant;
+  if (selectedDay !== null && local.day === selectedDay) return clock.text;
+  return `${local.dayMonth} · ${clock.text}`;
+}
+
 function plural(count: number, one: string, many: string): string {
   return `${count} ${count === 1 ? one : many}`;
 }
@@ -125,6 +168,8 @@ export interface LedgerSiteEvidenceProps {
   gatewayHealth: GatewayHealthClient | undefined;
   claimLimit?: ClaimLimitClient;
   assessmentHref?: (day: string, revisionId: string) => string;
+  /** post-W6 shell R170: the selected Site's stored IANA timezone; absent or unknown falls back to UTC. */
+  timezone?: string | null;
 }
 
 export function LedgerSiteEvidence({
@@ -134,6 +179,7 @@ export function LedgerSiteEvidence({
   gatewayHealth,
   claimLimit,
   assessmentHref,
+  timezone = null,
 }: LedgerSiteEvidenceProps) {
   const [params, setParams] = useSearchParams();
   const view = localView(params);
@@ -197,7 +243,7 @@ export function LedgerSiteEvidence({
             </span>
           </StatusBar>
           {/* W1-F2: the v69 evidence-analysis panels. Records (and readings not accepted) first, then how a limit is set. */}
-          <Inspector siteId={siteId} ledger={ledger} evidence={evidence}>
+          <Inspector siteId={siteId} ledger={ledger} evidence={evidence} timezone={timezone}>
             <Rejected
               siteId={siteId}
               ledger={ledger}
@@ -1267,13 +1313,17 @@ function Inspector({
   siteId,
   ledger,
   evidence,
+  timezone,
   children,
 }: {
   siteId: string;
   ledger: LedgerEvidenceClient | undefined;
   evidence: LedgerEvidence;
+  timezone: string | null;
   children?: ReactNode;
 }) {
+  const measuredZone = zoneAbbreviation(timezone, evidence.window.start);
+  const selectedDay = selectedLocalDay(evidence.window.start, timezone);
   const [params, setParams] = useSearchParams();
   const signal = params.get("signal");
   const source = params.get("source");
@@ -1377,15 +1427,18 @@ function Inspector({
           <p data-evidence-records-empty>No accepted reading in this period.</p>
         ) : (
           <>
+            {/* MOCK DEVIATION D1 (post-W6 shell Q3/Q18, register R381): no "Missing / Inspect the gap" row and no
+                external-link marker on Open record; the ledger read has no stored gap row to list. */}
             <ChartNote data={{ "data-evidence-records-count": String(list.value.records.length) }}>
-              {`${list.value.records.length} of ${list.value.total} accepted readings in this period, earliest taken first. Taken and sent times: ${clocks.join(" or ")}; received times: server clock (UTC). The gap between them is not a delivery delay.`}
+              {`${list.value.records.length} of ${list.value.total} accepted readings in this period, earliest measured first. Measured and sent times: ${clocks.join(" or ")}; received times: server clock (UTC). Measured times are shown in site time (${measuredZone}); sent and received times stay UTC. The gap between them is not a delivery delay.`}
             </ChartNote>
             <DataTable labelledBy="site-evidence-inspector-heading">
               <thead>
                 <tr>
                   <th scope="col">Source · reading</th>
                   <th scope="col">Value</th>
-                  <th scope="col">Taken</th>
+                  {/* post-W6 shell R170 (Q18): measured time on the Site's clock, like the mock `Measured (EAT)`. */}
+                  <th scope="col" data-evidence-measured-zone={measuredZone}>{`Measured (${measuredZone})`}</th>
                   <th scope="col">Sent</th>
                   <th scope="col">Received</th>
                   <th scope="col">Record</th>
@@ -1409,7 +1462,12 @@ function Inspector({
                         <span className="evidence-records__quality">{` (quality: ${qualityWords(item.quality).toLowerCase()})`}</span>
                       )}
                     </td>
-                    <td>{when(item.source_time)}</td>
+                    <td
+                      data-evidence-measured={item.source_time ?? ""}
+                      title={item.source_time ? `Exact time: ${when(item.source_time)} (${item.source_time})` : undefined}
+                    >
+                      {measuredTime(item.source_time, timezone, selectedDay)}
+                    </td>
                     <td>{when(item.published_at)}</td>
                     <td>{when(item.received_at)}</td>
                     <td>
@@ -1553,7 +1611,11 @@ function RecordView({ detail, onClose }: { detail: EvidenceRead<LedgerRecordDeta
       ) : detail.status === "unavailable" ? (
         <p data-record-state="unavailable">{detail.message ?? "The reading could not be read."}</p>
       ) : (
-        <RecordFacts item={detail.value} />
+        // post-W6 shell Q23: past a bounded height the opened reading scrolls inside itself (keyboard-focusable), so
+        // five long rows plus an opened reading stay within the closed caps. Nothing in it is hidden or clipped.
+        <div className="evidence-record-view__body" role="region" aria-label="Reading detail" tabIndex={0}>
+          <RecordFacts item={detail.value} />
+        </div>
       )}
     </div>
   );

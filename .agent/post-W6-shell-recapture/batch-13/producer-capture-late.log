@@ -1,0 +1,41 @@
+opportunity-supported-current 1440: status 1160x43 | cards 1160x95 | Bounded opportunity 1160x216 | Next decision 734x267 | Consequence basis 408x267 | doc 1440/1440
+opportunity-supported-current 390: status 343x66 | cards 343x227 | Bounded opportunity 343x325 | Next decision 343x199 | Consequence basis 343x267 | doc 375/375
+opportunity-supported-historical 1440: status 1160x43 | cards 1160x95 | Bounded opportunity 1160x216 | Next decision 734x267 | Consequence basis 408x267 | doc 1440/1440
+opportunity-supported-historical 390: status 343x66 | cards 343x227 | Bounded opportunity 343x325 | Next decision 343x199 | Consequence basis 343x267 | doc 375/375
+scenarios-populated 1440: Financial scenarios 1160x328 | notice 1160x43 | doc 1440/1440
+scenarios-populated 390: Financial scenarios 343x372 | notice 343x80 | doc 375/375
+scenarios-empty 1440: Financial scenarios 1160x325 | notice 1160x43 | doc 1440/1440
+scenarios-empty 390: Financial scenarios 358x325 | notice 358x80 | doc 390/390
+scenarios-refused 1440: Financial scenarios 1160x160 | notice 1160x43 | doc 1440/1440
+scenarios-refused 390: Financial scenarios 358x160 | notice 358x80 | doc 390/390
+alternatives-db-time 1440: Alternatives to investigate 1160x99 | notice 1160x43 | doc 1440/1440
+alternatives-db-time 390: Alternatives to investigate 358x99 | notice 358x61 | doc 390/390
+alternatives-read-503 1440: Alternatives to investigate 1160x125 | notice 1160x43 | doc 1440/1440 | harness 2
+alternatives-read-503 390: Alternatives to investigate 358x125 | notice 358x61 | doc 390/390 | harness 2
+opportunity-current-late-settled 1440: status 1160x43 | cards 1160x83 | Bounded opportunity 1160x185 | Next decision 734x267 | Consequence basis 408x267 | doc 1440/1440
+opportunity-current-late-settled 390: status 343x88 | cards 343x231 | Bounded opportunity 343x294 | Next decision 343x176 | Consequence basis 343x267 | doc 375/375
+opportunity-late-stale-k-before-late 1440: status 1160x43 | cards 1160x95 | Bounded opportunity 1160x185 | Next decision 734x267 | Consequence basis 408x267 | doc 1440/1440
+opportunity-late-stale-k-before-late 390: status 343x88 | cards 343x239 | Bounded opportunity 343x294 | Next decision 343x176 | Consequence basis 343x267 | doc 375/375
+opportunity-missing-day-limited 1440: status 1160x43 | cards 1160x83 | Bounded opportunity 1160x185 | Next decision 734x267 | Consequence basis 408x267 | doc 1440/1440
+opportunity-missing-day-limited 390: status 343x66 | cards 343x211 | Bounded opportunity 343x294 | Next decision 343x176 | Consequence basis 343x267 | doc 375/375
+incidents-linked-stocked 1440: status 1160x39 | panel 1160x443 | notice 1160x44 | doc 1440/1440
+incidents-linked-stocked 390: status 343x61 | panel 343x430 | notice 343x83 | doc 375/375
+incidents-refused-overlay 1440: status 1160x39 | panel 1160x445 | notice 1160x44 | doc 1440/1440 | harness 2
+incidents-refused-overlay 390: status 343x61 | panel 343x456 | notice 343x83 | doc 375/375 | harness 2
+maintenance-unlinked-stocked 1440: status 1160x39 | panel 1160x316 | notice 1160x44 | doc 1440/1440
+maintenance-unlinked-stocked 390: status 343x61 | panel 343x360 | notice 343x83 | doc 375/375
+mock scenarios-1440: Financial scenarios 1161x316 | notice 1161x42 | order ["Financial scenarios"]
+mock scenarios-390: Financial scenarios 345x355 | notice 345x78 | order ["Financial scenarios"]
+mock alternatives-1440: Alternatives to investigate 1161x243 | notice 1161x42 | order ["Alternatives to investigate"]
+mock alternatives-390: Alternatives to investigate 345x331 | notice 345x60 | order ["Alternatives to investigate"]
+mock opportunity-finding-1440: status 1161x45 | cards 1161x113 | Bounded opportunity 1161x208 | Next decision 735x268 | Consequence basis 408x268 | order ["Bounded opportunity","Next decision","Consequence basis"]
+mock opportunity-finding-390: status 345x72 | cards 345x264 | Bounded opportunity 345x308 | Next decision 345x193 | Consequence basis 345x268 | order ["Bounded opportunity","Next decision","Consequence basis"]
+mock sitework-incidents-1440: status 1161x37 | panel 1161x316 | notice 1161x42 | order ["Incidents at this site"]
+mock sitework-incidents-390: status 345x91 | panel 345x354 | notice 345x78 | order ["Incidents at this site"]
+mock sitework-maintenance-1440: status 1161x37 | panel 1161x296 | notice 1161x42 | order ["Maintenance at this site"]
+mock sitework-maintenance-390: status 345x91 | panel 345x316 | notice 345x78 | order ["Maintenance at this site"]
+mock positive:opportunity-finding-1440: status 1161x45 | cards 1161x113 | Bounded opportunity 1161x208 | Next decision 735x268 | Consequence basis 408x268 | order ["Bounded opportunity","Next decision","Consequence basis"]
+mock positive:opportunity-finding-390: status 345x72 | cards 345x264 | Bounded opportunity 345x308 | Next decision 345x193 | Consequence basis 345x268 | order ["Bounded opportunity","Next decision","Consequence basis"]
+w403 capture checks passed (459)
+unproved: alternatives-stocked: Not an exit gate while the resolved F02 revision is future dated (u9, PR-12.4); stocked rows are API/component proof only (uF 1).
+unproved: alternatives-empty-current: Successful empty at current DB time unproved: no current selected Finding basis exists while F02 is future dated (uF 1).

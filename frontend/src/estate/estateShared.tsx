@@ -8,6 +8,8 @@ import { Link } from "react-router-dom";
 import { Notice } from "../ui";
 import {
   FIRST_PAGE_CODES,
+  WINDOW_NOT_VALID,
+  invalidWindowCopy,
   type EstateEnvelope,
   type EstateQuery,
   type EstateSiteState,
@@ -92,10 +94,13 @@ export function EstateDateBar({
   query,
   body,
   onApply,
+  windowRefused = false,
 }: {
   query: Pick<EstateQuery, "from" | "to" | "known_at" | "cursor">;
   body: EstateEnvelope | null;
   onApply: (next: Pick<EstateQuery, "from" | "to" | "known_at">) => void;
+  /** Post-W6 W3-estate Q14: a refused `INVALID_WINDOW` read says `Window not valid` and never echoes the dates. */
+  windowRefused?: boolean;
 }) {
   const [first, setFirst] = useState(query.from.slice(0, 10));
   const [last, setLast] = useState(lastDay(query.to));
@@ -110,7 +115,7 @@ export function EstateDateBar({
   return (
     <form className="site-date-bar estate-date-bar" onSubmit={submit} data-estate-date-bar>
       <span className="site-date-bar__window" data-estate-window>
-        Window {query.from.slice(0, 10)} to {lastDay(query.to)} (UTC days)
+        {windowRefused ? WINDOW_NOT_VALID : `Window ${query.from.slice(0, 10)} to ${lastDay(query.to)} (UTC days)`}
       </span>
       <span className="site-date-bar__cutoff" data-estate-cutoff>
         {cutoffText}
@@ -193,11 +198,26 @@ export function LimitationNotice({ sentences }: { sentences: string[] }) {
   );
 }
 
-/** A refused or unreadable read: the refusal table's exact UI copy, with a page-one link where it asks for one. */
-export function EstateRefusal({ code, copy, firstPage }: { code: string; copy: string; firstPage: string }) {
+/**
+ * A refused or unreadable read: the refusal table's exact UI copy, with a page-one link where it asks for one. An
+ * `INVALID_WINDOW` refusal uses the shared cross-card window sentence classified from the page query (Q14).
+ */
+export function EstateRefusal({
+  code,
+  copy,
+  firstPage,
+  window,
+}: {
+  code: string;
+  copy: string;
+  firstPage: string;
+  window?: Pick<EstateQuery, "from" | "to">;
+}) {
+  const text = code === "INVALID_WINDOW" && window !== undefined ? invalidWindowCopy(window) : copy;
   return (
     <div className="notice v69-notice" data-page-refusal={code}>
-      <p>{copy}</p>
+      {code === "INVALID_WINDOW" ? <strong className="notice__title" data-refusal-title>Window cannot be read</strong> : null}
+      <p>{text}</p>
       {FIRST_PAGE_CODES.has(code) ? (
         <p>
           <Link to={firstPage}>First page</Link>

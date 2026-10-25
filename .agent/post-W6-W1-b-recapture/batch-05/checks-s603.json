@@ -1,0 +1,342 @@
+[
+ {
+  "screen": "sitework",
+  "case": "positive",
+  "w": 1440,
+  "url": "http://localhost:5186/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
+  "h1": "Kobo mini-grid",
+  "siteTabRows": 1,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Sites"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Actions at this site",
+    "h": 319
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "sitework",
+  "case": "positive",
+  "w": 390,
+  "url": "http://localhost:5186/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
+  "h1": "Kobo mini-grid",
+  "siteTabRows": 1,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Sites"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Actions at this site",
+    "h": 598
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "sitework",
+  "case": "page1-limit1",
+  "w": 1440,
+  "url": "http://localhost:5186/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1",
+  "h1": "Kobo mini-grid",
+  "siteTabRows": 1,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Sites"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Actions at this site",
+    "h": 254
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "sitework",
+  "case": "page1-limit1",
+  "w": 390,
+  "url": "http://localhost:5186/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1",
+  "h1": "Kobo mini-grid",
+  "siteTabRows": 1,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Sites"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Actions at this site",
+    "h": 482
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "sitework",
+  "case": "zero",
+  "w": 1440,
+  "url": "http://localhost:5186/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+  "h1": "Kobo mini-grid",
+  "siteTabRows": 1,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Sites"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Actions at this site",
+    "h": 233
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "sitework",
+  "case": "zero",
+  "w": 390,
+  "url": "http://localhost:5186/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+  "h1": "Kobo mini-grid",
+  "siteTabRows": 1,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Sites"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Actions at this site",
+    "h": 393
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "sitework",
+  "case": "no-window",
+  "w": 1440,
+  "url": "http://localhost:5186/sites/KOBO-001/work",
+  "h1": "Kobo mini-grid",
+  "siteTabRows": 1,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Sites"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Actions at this site",
+    "h": 196
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "sitework",
+  "case": "no-window",
+  "w": 390,
+  "url": "http://localhost:5186/sites/KOBO-001/work",
+  "h1": "Kobo mini-grid",
+  "siteTabRows": 1,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Sites"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Actions at this site",
+    "h": 340
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "sitework",
+  "case": "invalid-window",
+  "w": 1440,
+  "url": "http://localhost:5186/sites/KOBO-001/work?from=2026-11-02T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+  "h1": "Kobo mini-grid",
+  "siteTabRows": 1,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Sites"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Actions at this site",
+    "h": 196
+   }
+  ],
+  "overflowX": 0
+ },
+ {
+  "screen": "sitework",
+  "case": "invalid-window",
+  "w": 390,
+  "url": "http://localhost:5186/sites/KOBO-001/work?from=2026-11-02T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+  "h1": "Kobo mini-grid",
+  "siteTabRows": 1,
+  "r383": 0,
+  "r383Visible": 0,
+  "r383AfterTabs": [],
+  "activeRail": [
+   "Sites"
+  ],
+  "railItems": [
+   "Portfolio",
+   "Sites",
+   "Assets",
+   "Findings",
+   "Actions",
+   "Incidents",
+   "Maintenance",
+   "Operational records",
+   "Evidence",
+   "Financials",
+   "Settings"
+  ],
+  "panels": [
+   {
+    "t": "Actions at this site",
+    "h": 340
+   }
+  ],
+  "overflowX": 0
+ }
+]

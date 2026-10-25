@@ -137,10 +137,24 @@ function checkTone(state: string | undefined): MetricTone {
  * no shown outcome every card is a gap word: `gap` says which (Pending while
  * no outcome is current; Not available when the read failed).
  */
-export function VerificationMetricCards({ outcome, record, gap }: { outcome: OutcomeBody | null; record: OutcomeRecord | null; gap: "Pending" | "Not available" }) {
+/** post-W6 W1-b Q34 / R228: the card note when the address names conflicting selections (no read was made). */
+export const CONFLICT_CARD_NOTE = "Not read: the address names conflicting selections.";
+
+export function VerificationMetricCards({
+  outcome,
+  record,
+  gap,
+  conflict = false,
+}: {
+  outcome: OutcomeBody | null;
+  record: OutcomeRecord | null;
+  gap: "Pending" | "Not available";
+  /** A selector conflict: nothing was read, so the notes say that rather than a read failure. */
+  conflict?: boolean;
+}) {
   const label = "Verification measures";
   if (outcome === null || record === null) {
-    const note = gap === "Pending" ? "No current outcome to measure" : "The verification read failed";
+    const note = gap === "Pending" ? "No current outcome to measure" : conflict ? CONFLICT_CARD_NOTE : "The verification read failed";
     return (
       <MetricCards label={label} data={{ "data-verification-cards": "gap" }}>
         <MetricCard label="Target change" value={gap} note={note} word tone="muted" data={{ "data-verification-card": "target" }} />

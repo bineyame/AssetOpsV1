@@ -110,7 +110,7 @@ const EV_ROW = row({
   raw_state: "UNASSESSED",
   readiness: "UNKNOWN",
   selected_revision_ids: [],
-  links: { site: "/sites/EV-LAB-001", site_readiness: "/sites/EV-LAB-001", site_readiness_label: "Opens current Site view" },
+  links: { site: "/sites/EV-LAB-001/ev", site_readiness: "/sites/EV-LAB-001/ev", site_readiness_label: "Opens current Site view" },
 });
 
 const GAPS: EvidenceGap[] = [
@@ -299,17 +299,21 @@ describe("W3-02 estate Evidence root", () => {
     expect(unlocksText(["energy@b", "temperature@a", "energy@a", "unknown@x"])).toBe("Delivered energy · Temperature compliance");
   });
 
-  it("keepsInertMockActions", async () => {
+  it("relatedRecordsShowOnlyTheTwoLiveDestinations", async () => {
     renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body())));
     await settledScreen();
     const gaps = panelTitled(GAPS_PANEL);
     const examples = gaps.querySelector("[data-estate-examples]") as HTMLElement;
-    expect(examples.textContent).toContain("Example destinations");
-    // W6-01e E2 (P-E2-9): two inert examples remain.
-    for (const label of ["ACT-049, ACT-061", "Map transfer switch"]) {
-      const entry = within(examples).getByLabelText(`${label}, Not available yet`);
-      expect(entry.textContent).toBe(`${label} · Not available yet`);
-    }
+    // Post-W6 W3-estate Q11: `Related records` over the two live links; the mock-only entries are gone.
+    expect(examples.querySelector(".estate-evidence-examples__label")?.textContent).toBe("Related records");
+    expect(examples.textContent).not.toContain("Example destinations");
+    expect(main().textContent).not.toContain("ACT-049");
+    expect(main().textContent).not.toContain("ACT-061");
+    expect(main().textContent).not.toContain("Map transfer switch");
+    expect(within(examples).getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual([
+      `/operational-records?${WINDOW}`,
+      `/maintenance/preventive?${WINDOW}`,
+    ]);
     // W6-01b B3 (P-B3-2): the Preventive example is one live link to the selected window; nothing else is a control,
     // and no gap row carries an invented Action link.
     expect(within(examples).queryByLabelText("Preventive plan, Not available yet")).toBeNull();
@@ -445,7 +449,7 @@ describe("W3-02 estate Evidence root", () => {
       ESTATE_READ_UNAVAILABLE: "Estate data is temporarily unavailable. Try again.",
       ESTATE_BASIS_CHANGED: "The selection changed. Refresh to see the latest basis.",
       ESTATE_SELECTION_INCONSISTENT: "The selection changed. Refresh to see the latest basis.",
-      INVALID_WINDOW: "Choose a UTC window of up to 31 days with a start before its end.",
+      INVALID_WINDOW: "The selected window is invalid.",
       INVALID_KNOWN_AT: RESET,
       INVALID_LIMIT: RESET,
       INVALID_CURSOR: RESET,
@@ -499,7 +503,7 @@ describe("W3-02 estate Evidence root", () => {
     await settledScreen();
     const links = Array.from(panelTitled(COVERAGE_PANEL).querySelectorAll("[data-estate-site-link]"));
     // The server owns `links.*`: the cold row opens its own window; the others open the current Site view.
-    expect(links.map((a) => a.getAttribute("href"))).toEqual(["/sites/KOBO-001", COLD_LINK, "/sites/EV-LAB-001"]);
+    expect(links.map((a) => a.getAttribute("href"))).toEqual(["/sites/KOBO-001", COLD_LINK, "/sites/EV-LAB-001/ev"]);
     const rows = within(panelTitled(COVERAGE_PANEL)).getAllByRole("row").slice(1);
     expect(rows.map((r) => r.querySelector("[data-estate-current-view]")?.textContent ?? null)).toEqual([
       "Opens current Site view",
@@ -708,5 +712,27 @@ describe("W3-02 c2d Evidence words", () => {
       return out.split(" — ")[0];
     });
     expect(new Set(labels).size).toBe(6);
+  });
+});
+
+describe("post-W6 W3-estate refused window", () => {
+  it("classifiesInvalidWindowFromThePageQueryAndHidesTheDates", async () => {
+    const cases: [string, string][] = [
+      ["from=2026-10-07T00:00:00Z&to=2026-10-05T00:00:00Z", "The selected window needs both a start and an end, with the start before the end."],
+      ["from=2026-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
+      [WINDOW, "The selected window is invalid."],
+    ];
+    for (const [query, copy] of cases) {
+      const view = renderAt(`${ESTATE_EVIDENCE_PATH}?${query}`, fake({ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", copy: "server copy" }));
+      await settledScreen();
+      expect(main().querySelector("[data-page-refusal='INVALID_WINDOW'] p")?.textContent).toBe(copy);
+      expect(main().querySelector("[data-estate-window]")?.textContent).toBe("Window not valid");
+      view.unmount();
+    }
+    const view = renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake({ status: "refused", httpStatus: 403, code: "ESTATE_SCOPE_FORBIDDEN", copy: EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN }));
+    await settledScreen();
+    expect(main().querySelector("[data-page-refusal] p")?.textContent).toBe(EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN);
+    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("Window 2026-10-13 to 2026-10-19 (UTC days)");
+    view.unmount();
   });
 });

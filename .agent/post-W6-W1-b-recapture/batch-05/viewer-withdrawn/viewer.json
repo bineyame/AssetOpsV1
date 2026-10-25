@@ -1,0 +1,52 @@
+[
+ {
+  "screen": "action-history",
+  "case": "x-withdrawn",
+  "w": 1440,
+  "before": {
+   "url": "http://localhost:5186/sites/KOBO-001/actions/cd814ebb-cafd-447b-9b45-be56fb1eb1ef/history",
+   "panelH": 312,
+   "rows": 3,
+   "button": "Show all 6 entries",
+   "expanded": "false",
+   "truncated": "Showing the latest 3 of 6 recorded entries; show all to see every entry.",
+   "overflowX": 0
+  },
+  "clicked": true,
+  "click": "Show all 6 entries",
+  "after": {
+   "url": "http://localhost:5186/sites/KOBO-001/actions/cd814ebb-cafd-447b-9b45-be56fb1eb1ef/history",
+   "panelH": 428,
+   "rows": 6,
+   "button": "Show the latest 3",
+   "expanded": "true",
+   "truncated": null,
+   "overflowX": 0
+  }
+ },
+ {
+  "screen": "action-history",
+  "case": "x-withdrawn",
+  "w": 390,
+  "before": {
+   "url": "http://localhost:5186/sites/KOBO-001/actions/cd814ebb-cafd-447b-9b45-be56fb1eb1ef/history",
+   "panelH": 609,
+   "rows": 3,
+   "button": "Show all 6 entries",
+   "expanded": "false",
+   "truncated": "Showing the latest 3 of 6 recorded entries; show all to see every entry.",
+   "overflowX": 0
+  },
+  "clicked": true,
+  "click": "Show all 6 entries",
+  "after": {
+   "url": "http://localhost:5186/sites/KOBO-001/actions/cd814ebb-cafd-447b-9b45-be56fb1eb1ef/history",
+   "panelH": 700,
+   "rows": 6,
+   "button": "Show the latest 3",
+   "expanded": "true",
+   "truncated": null,
+   "overflowX": 0
+  }
+ }
+]

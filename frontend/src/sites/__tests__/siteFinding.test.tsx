@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
@@ -7,6 +7,7 @@ import { AS_OF_PATTERN, expectStateLineVisible, visibleOutsideClosedDisclosure }
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import type { SourceProvenance } from "../sourceProvenance";
+import type { FinancialReadResult, FindingFinancialsBody } from "../financialsClient";
 import {
   createFindingClient,
   type FindingClient,
@@ -14,7 +15,7 @@ import {
   type FindingReadResult,
   type RevisionSummary,
 } from "../findingClient";
-import { SiteFinding } from "../SiteFinding";
+import { SiteFinding, type FindingCostClient, type SiteFindingLinks } from "../SiteFinding";
 
 const F = "49281b7c-96ac-456d-ab6b-040bb0760444";
 const PRIOR = "ce269028-d1c0-41cb-9b11-081b2229da03";
@@ -149,7 +150,13 @@ function Where() {
   return <output data-testid="where">{at.pathname + at.search}</output>;
 }
 
-function mount(client: FindingClient, search = "", id = F, withRecommendation = true) {
+function mount(
+  client: FindingClient,
+  search = "",
+  id = F,
+  withRecommendation = true,
+  extra: { timeZone?: string | null; financials?: FindingCostClient; links?: Partial<SiteFindingLinks> } = {},
+) {
   return render(
     <MemoryRouter initialEntries={[`/sites/KOBO-001/findings/${id}${search}`]}>
       <Routes>
@@ -162,6 +169,8 @@ function mount(client: FindingClient, search = "", id = F, withRecommendation = 
                 siteId="KOBO-001"
                 findingId={id}
                 client={client}
+                timeZone={extra.timeZone}
+                financials={extra.financials}
                 links={{
                   finding: (fid, rid) => `/sites/KOBO-001/findings/${fid}${rid ? `?revision_id=${rid}` : ""}`,
                   dispatch: (day, rid) => `/sites/KOBO-001/performance/dispatch?day=${day}${rid ? `&revision=${rid}` : ""}`,
@@ -171,6 +180,7 @@ function mount(client: FindingClient, search = "", id = F, withRecommendation = 
                   ...(withRecommendation
                     ? { recommendation: (rid: string | null) => `/sites/KOBO-001/findings/${id}/recommendation${rid ? `?revision_id=${rid}` : ""}` }
                     : {}),
+                  ...extra.links,
                 }}
               />
               </main>
@@ -663,10 +673,11 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
     expect(expectFindingStateVisible(answer)).toBe("Using the latest checked readings");
     expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 12 Oct 2026, 08:01 UTC");
     // W1-F3 review M4: the version and period are said once, in the strip; the panel subtitle keeps the period.
-    expect(document.querySelector("[data-chip='period']")?.textContent).toBe("2026-10-06 08:00–09:00 UTC");
+    // post-W6 W1-a Q10: with no Site timezone the period falls back to UTC visibly; exact UTC sits in a closed detail.
+    expect(document.querySelector("[data-chip='period'] [data-period-local]")?.textContent).toBe("2026-10-06 08:00–09:00 UTC (site time zone unavailable; UTC shown)");
     expect(answer.querySelector("[data-product-status-scope]")).toBeNull();
     expect(answer.querySelector("[data-product-status-label]")).toBeNull();
-    expect(answer.textContent).toMatch(/Period covered · 2026-10-06 08:00–09:00 UTC · 1 h/);
+    expect(answer.textContent).toMatch(/Period covered · 2026-10-06 08:00–09:00 UTC \(site time zone unavailable; UTC shown\) · 1 h/);
     // The consequence is not worked out on this page: a muted word, never an amount.
     const money = document.querySelector("[data-finding-card='MONEY']") as HTMLElement;
     expect(money.className).toMatch(/v69-metric--muted/);
@@ -852,5 +863,276 @@ describe("W1-F3: finding renders exactly the v69 panels", () => {
     await settledScreen();
     expectV69Panels("finding");
     expect(panelTitled("Where to look next").querySelector("[data-finding-dispatch-closed]")).not.toBeNull();
+  });
+});
+
+describe("post-W6 W1-a: Finding overview time, links and the exact-version cost card", () => {
+  const W1A_LINKS: Partial<SiteFindingLinks> = {
+    alternatives: (rid) => `/sites/KOBO-001/findings/${F}/alternatives?revision_id=${rid}`,
+    assumptions: "/sites/KOBO-001/financials/assumptions",
+    financials: (rid) => `/sites/KOBO-001/financials?finding_id=${F}&revision_id=${rid}`,
+  };
+  const loaded = () => fake({ status: "loaded", value: body([summary(1, "OPENED"), summary(2, "BASIS_REFRESHED")]) });
+  function costBody(revisionId: string, consequence: Record<string, unknown>): FindingFinancialsBody {
+    return {
+      site_code: "KOBO-001",
+      audit_only: null,
+      finding: { id: F },
+      selection: { revision_id: revisionId, revision_no: 2, is_latest: true, selected_by: "REQUEST" },
+      revision: { id: revisionId, revision_no: 2, title: "t", lifecycle: "SUPPORTED", claim_level: "CANDIDATE_AVOIDABLE" },
+      window: { start: "2026-10-06T08:00:00Z", end: "2026-10-06T09:00:00Z" },
+      consequence: {
+        state: "PRICED", currentness: "CURRENT", quantity_source: "q", quantity: null, amount: { low: "0.00", high: "15.82" },
+        currency: "USD", price_revision_id: "p", consequence_revision_id: "c", quantity_reason: null, price_reason: null, reason: "r",
+        ...consequence,
+      },
+    } as unknown as FindingFinancialsBody;
+  }
+  const costClient = (answer: (rid: string | null) => FinancialReadResult<FindingFinancialsBody>) => {
+    const asked: (string | null)[] = [];
+    const client: FindingCostClient = {
+      getFindingFinancials: async (_s, _f, rid) => {
+        asked.push(rid);
+        return answer(rid);
+      },
+    };
+    return { client, asked };
+  };
+  const moneyCard = () => document.querySelector("[data-finding-card='MONEY']") as HTMLElement;
+
+  it("Q10 / R187: the status period is Site-local with a closed UTC detail holding both exact instants", async () => {
+    mount(loaded(), "", F, true, { timeZone: "Africa/Addis_Ababa" });
+    await settledScreen();
+    const period = document.querySelector("[data-finding-statusbar] [data-chip='period']") as HTMLElement;
+    expect(period.querySelector("[data-period-local]")?.textContent).toBe("2026-10-06 11:00–12:00 EAT");
+    const utc = period.querySelector("details[data-period-utc]") as HTMLDetailsElement;
+    expect(utc.open).toBe(false);
+    expect(utc.querySelector("summary")?.textContent).toBe("UTC time");
+    expect(Array.from(utc.querySelectorAll("time")).map((t) => t.getAttribute("dateTime"))).toEqual([
+      "2026-10-06T08:00:00.000Z",
+      "2026-10-06T09:00:00.000Z",
+    ]);
+  });
+
+  // post-W6 W2-EV (W1-a closeout ruling 5): Asmara, Djibouti and Mogadishu read EAT from the canonical table, with
+  // the exact UTC instants in the closed detail.
+  it.each(["Africa/Asmara", "Africa/Djibouti", "Africa/Mogadishu"])("Q10: a %s Site reads EAT with exact UTC detail", async (timeZone) => {
+    mount(loaded(), "", F, true, { timeZone });
+    await settledScreen();
+    const period = document.querySelector("[data-finding-statusbar] [data-chip='period']") as HTMLElement;
+    expect(period.querySelector("[data-period-local]")?.textContent).toBe("2026-10-06 11:00–12:00 EAT");
+    const utc = period.querySelector("details[data-period-utc]") as HTMLDetailsElement;
+    expect(Array.from(utc.querySelectorAll("time")).map((t) => t.getAttribute("dateTime"))).toEqual([
+      "2026-10-06T08:00:00.000Z",
+      "2026-10-06T09:00:00.000Z",
+    ]);
+  });
+
+  it("Q10: a UTC Site reads UTC, and a local-midnight crossing names both local days", async () => {
+    const crossing = body([summary(1, "OPENED")]);
+    crossing.revision = { ...crossing.revision, episode: { start: "2026-10-06T20:30:00+00:00", end: "2026-10-06T22:00:00+00:00" } };
+    const first = mount(fake({ status: "loaded", value: crossing }), "", F, true, { timeZone: "Africa/Addis_Ababa" });
+    await settledScreen();
+    expect(document.querySelector("[data-period-local]")?.textContent).toBe("2026-10-06 23:30 – 2026-10-07 01:00 EAT");
+    first.unmount();
+    mount(loaded(), "", F, true, { timeZone: "Etc/UTC" });
+    await settledScreen();
+    expect(document.querySelector("[data-period-local]")?.textContent).toBe("2026-10-06 08:00–09:00 UTC");
+  });
+
+  it("Q11 / R188: What happened links to this Finding's Evidence at the selected version from its panel head", async () => {
+    mount(loaded(), "?revision_id=rev-2", F);
+    await settledScreen();
+    const link = happened().querySelector(".panel__actions [data-finding-inspect-evidence]") as HTMLAnchorElement;
+    expect(link.textContent).toBe("Inspect evidence →");
+    expect(link.getAttribute("href")).toBe(`/sites/KOBO-001/findings/${F}/evidence?revision_id=rev-2`);
+  });
+
+  it("Q8 / Q13 (R185, R190): one Inspect financial assumptions link, after the recommendation button", async () => {
+    mount(loaded(), "", F, true, { links: W1A_LINKS });
+    await settledScreen();
+    const next = panelTitled("What to do next");
+    const links = document.querySelectorAll("[data-finding-assumptions-link]");
+    expect(links).toHaveLength(1);
+    expect(links[0].textContent).toBe("Inspect financial assumptions →");
+    expect(links[0].getAttribute("href")).toBe("/sites/KOBO-001/financials/assumptions");
+    const button = next.querySelector("a.button.primary") as HTMLElement;
+    expect(button.compareDocumentPosition(links[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(document.querySelector("[data-finding-financials-link]")).toBeNull();
+  });
+
+  it("Q14 / R191: What limits links to Alternatives at the resolved version and keeps its context disclosure", async () => {
+    mount(loaded(), "", F, true, { links: W1A_LINKS });
+    await settledScreen();
+    const limits = panelTitled("What limits this conclusion");
+    const link = limits.querySelector("[data-finding-limits-alternatives]") as HTMLAnchorElement;
+    expect(link.textContent).toBe("See analysis and alternatives →");
+    expect(link.getAttribute("href")).toBe(`/sites/KOBO-001/findings/${F}/alternatives?revision_id=rev-2`);
+    expect(limits.querySelector("details[data-show-all='finding-limits-context']")).not.toBeNull();
+  });
+
+  it("Q15 / R192: Where to look next is Analysis, Evidence, Alternatives, History, Dispatch, Related, each at the version", async () => {
+    mount(loaded(), "", F, true, { links: W1A_LINKS });
+    await settledScreen();
+    const look = panelTitled("Where to look next");
+    expect(Array.from(look.querySelectorAll("[data-attention-item]")).map((li) => li.getAttribute("data-attention-item"))).toEqual([
+      "analysis", "evidence", "alternatives", "history", "dispatch", "related",
+    ]);
+    const alt = look.querySelector("[data-attention-item='alternatives']") as HTMLElement;
+    expect(alt.textContent).toContain("Other explanations and what would tell them apart.");
+    expect(alt.querySelector("[data-finding-alternatives-link]")?.getAttribute("href")).toBe(
+      `/sites/KOBO-001/findings/${F}/alternatives?revision_id=rev-2`,
+    );
+  });
+
+  it("M1 / Q15 fallback: two related Findings stay inline; five sit behind a count disclosure with every link kept", async () => {
+    const two = body([summary(1, "OPENED")]);
+    two.relations.recurs_after_finding_id = PRIOR;
+    two.relations.split_parts = ["aaaaaaaa-0000-4000-8000-000000000001"];
+    const first = mount(fake({ status: "loaded", value: two }));
+    await settledScreen();
+    const look = () => panelTitled("Where to look next");
+    expect(look().querySelector("[data-show-all='finding-related']")).toBeNull();
+    expect(look().querySelectorAll("[data-finding-related]")).toHaveLength(2);
+    first.unmount();
+    const five = body([summary(1, "OPENED")]);
+    five.relations.recurs_after_finding_id = PRIOR;
+    five.relations.recurred_by = ["aaaaaaaa-0000-4000-8000-000000000002", "aaaaaaaa-0000-4000-8000-000000000003"];
+    five.relations.split_parts = ["aaaaaaaa-0000-4000-8000-000000000001", "aaaaaaaa-0000-4000-8000-000000000004"];
+    mount(fake({ status: "loaded", value: five }));
+    await settledScreen();
+    const disclosure = look().querySelector("details[data-show-all='finding-related']") as HTMLDetailsElement;
+    expect(disclosure.open).toBe(false);
+    expect(disclosure.querySelector("summary")?.textContent).toBe("Show all 5 related Findings");
+    expect(disclosure.querySelectorAll("a[data-finding-related]")).toHaveLength(5);
+    expect(look().querySelectorAll("[data-finding-related]")).toHaveLength(5);
+  });
+
+  it("Q12 / R189: a current PRICED answer for the exact version shows Cost exposure, its range and a Financials link", async () => {
+    const { client, asked } = costClient((rid) => ({ status: "loaded", value: costBody(rid as string, {}) }));
+    mount(loaded(), "", F, true, { financials: client, links: W1A_LINKS });
+    await settledScreen();
+    await screen.findByText("0.00 to 15.82 USD");
+    expect(asked).toEqual(["rev-2"]);
+    expect(moneyCard().querySelector(".v69-metric__label")?.textContent).toBe("Cost exposure");
+    expect(moneyCard().textContent).toContain("Bounded for this Finding version; see Financials.");
+    expect(moneyCard().querySelector("[data-finding-cost-link]")?.getAttribute("href")).toBe(
+      `/sites/KOBO-001/financials?finding_id=${F}&revision_id=rev-2`,
+    );
+  });
+
+  it("ruling 2: What happened repeats the Site-time period with the exact template, and every prose repeat agrees", async () => {
+    mount(loaded(), "", F, true, { timeZone: "Africa/Addis_Ababa" });
+    await settledScreen();
+    const answer = happened();
+    expect(answer.querySelector(".panel__description, [data-panel-description]")?.textContent ?? answer.textContent).toContain(
+      "Period covered · 2026-10-06 11:00–12:00 EAT · 1 h",
+    );
+    expect(answer.textContent).toContain("The generator stayed on from 2026-10-06 11:00–12:00 EAT.");
+    expect(answer.textContent).not.toContain("08:00–09:00");
+    expect(document.querySelector("details[data-period-utc]")).not.toBeNull();
+  });
+
+  it("ruling 2: a series-limit end line uses Site time", async () => {
+    const base = body([summary(1, "OPENED")]);
+    const limited = { ...base, revision: { ...base.revision, claim: { ...base.revision.claim, end_reason: "SERIES_LIMIT" as const } } };
+    mount(fake({ status: "loaded", value: limited }), "", F, true, { timeZone: "Africa/Addis_Ababa" });
+    await settledScreen();
+    expect(document.querySelector("[data-finding-end-reason='SERIES_LIMIT']")?.textContent).toContain("ends at 2026-10-06 12:00 EAT because");
+  });
+
+  it.each([["missing", null], ["invalid", "Not/AZone"]])("ruling 3: a %s Site zone shows UTC with the one fallback suffix", async (_n, zone) => {
+    mount(loaded(), "", F, true, { timeZone: zone });
+    await settledScreen();
+    expect(document.querySelector("[data-chip='period'] [data-period-local]")?.textContent).toBe(
+      "2026-10-06 08:00–09:00 UTC (site time zone unavailable; UTC shown)",
+    );
+    expect(happened().textContent).toContain("Period covered · 2026-10-06 08:00–09:00 UTC (site time zone unavailable; UTC shown) · 1 h");
+    expect(document.body.textContent).not.toContain("site time zone not recorded");
+  });
+
+  it("ruling 4: a STALE priced answer shows Not available with the exact out-of-date reason", async () => {
+    const { client } = costClient((rid) => ({ status: "loaded", value: costBody(rid as string, { currentness: "STALE" }) }));
+    mount(loaded(), "", F, true, { financials: client, links: W1A_LINKS });
+    await settledScreen();
+    await screen.findByText((_t, el) => el?.getAttribute("data-finding-cost") === "PRICED");
+    expect(moneyCard().querySelector(".v69-metric__note")?.textContent).toBe(
+      "The cost for this Finding version is out of date; no current amount is shown.",
+    );
+    expect(moneyCard().textContent).not.toMatch(/\d+\.\d\d|USD/);
+  });
+
+  it("ruling 4: a HISTORICAL priced answer names its currentness", async () => {
+    const { client } = costClient((rid) => ({ status: "loaded", value: costBody(rid as string, { currentness: "HISTORICAL" }) }));
+    mount(loaded(), "", F, true, { financials: client, links: W1A_LINKS });
+    await settledScreen();
+    await screen.findByText((_t, el) => el?.getAttribute("data-finding-cost") === "PRICED");
+    expect(moneyCard().querySelector(".v69-metric__note")?.textContent).toContain("historical");
+    expect(moneyCard().querySelector("[data-finding-cost-link]")).toBeNull();
+  });
+
+  it("L1: a cost answer for an earlier version that arrives after the selection changed is never shown", async () => {
+    const resolvers = new Map<string, (r: FinancialReadResult<FindingFinancialsBody>) => void>();
+    const client: FindingCostClient = {
+      getFindingFinancials: (_s, _f, rid) => new Promise((res) => { resolvers.set(rid as string, res); }),
+    };
+    const revs = [summary(1, "OPENED"), summary(2, "BASIS_REFRESHED")];
+    const finding = fake((rid) => ({ status: "loaded", value: body(revs, rid === "rev-1" ? 1 : 2) }));
+    function Switch() {
+      const go = useNavigate();
+      return <button type="button" onClick={() => go(`/sites/KOBO-001/findings/${F}?revision_id=rev-2`)}>switch to version 2</button>;
+    }
+    render(
+      <MemoryRouter initialEntries={[`/sites/KOBO-001/findings/${F}?revision_id=rev-1`]}>
+        <Routes>
+          <Route
+            path="/sites/:siteId/findings/:findingId"
+            element={
+              <main>
+                <Switch />
+                <SiteFinding siteId="KOBO-001" findingId={F} client={finding} financials={client} links={{ ...W1A_LINKS, finding: () => "/x", dispatch: () => "/d", evidence: "/e" } as SiteFindingLinks} />
+              </main>
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    await waitFor(() => expect(resolvers.has("rev-1")).toBe(true));
+    fireEvent.click(screen.getByText("switch to version 2"));
+    await waitFor(() => expect(resolvers.has("rev-2")).toBe(true));
+    // The earlier version's PRICED answer arrives after the selection changed. Its payload deliberately names the
+    // current version, so only the request-keyed guard (not the payload version check) can keep it off the screen.
+    await act(async () => { resolvers.get("rev-1")?.({ status: "loaded", value: costBody("rev-2", { amount: { low: "1.11", high: "9.99" } }) }); });
+    expect(document.body.textContent).not.toContain("9.99");
+    await act(async () => { resolvers.get("rev-2")?.({ status: "loaded", value: costBody("rev-2", { amount: { low: "2.22", high: "7.77" } }) }); });
+    await screen.findByText("2.22 to 7.77 USD");
+    expect(document.body.textContent).not.toContain("9.99");
+  });
+
+  const UNAVAILABLE_CASES: [string, (rid: string) => FinancialReadResult<FindingFinancialsBody>, string][] = [
+    ["withheld", (rid) => ({ status: "loaded", value: costBody(rid, { state: "WITHHELD_GENERATOR_SERIES", amount: null, currency: null }) }), "WITHHELD_GENERATOR_SERIES"],
+    ["unpriced", (rid) => ({ status: "loaded", value: costBody(rid, { state: "UNPRICED", amount: null }) }), "UNPRICED"],
+    ["priced but not current", (rid) => ({ status: "loaded", value: costBody(rid, { currentness: "STALE" }) }), "PRICED"],
+    ["failed", () => ({ status: "unavailable", message: null }), "failed"],
+    ["missing", () => ({ status: "not_found", message: null }), "missing"],
+    ["another version", () => ({ status: "loaded", value: costBody("rev-1", {}) }), "mismatch"],
+  ];
+  it.each(UNAVAILABLE_CASES)("Q12: a %s answer shows Not available with its own reason and no amount or money link", async (_name, answer, state) => {
+    const { client } = costClient((rid) => answer(rid as string));
+    mount(loaded(), "", F, true, { financials: client, links: W1A_LINKS });
+    await settledScreen();
+    await screen.findByText((_t, el) => el?.getAttribute("data-finding-cost") === state);
+    expect(moneyCard().querySelector(".v69-metric__value")?.textContent).toBe("Not available");
+    expect(moneyCard().querySelector(".v69-metric__note")?.textContent).not.toBe("");
+    expect(moneyCard().textContent).not.toMatch(/\d+\.\d\d|USD/);
+    expect(moneyCard().querySelector("[data-finding-cost-link]")).toBeNull();
+  });
+
+  it("Q12: no cost read is issued for a Finding read that did not resolve a version", async () => {
+    const { client, asked } = costClient(() => ({ status: "not_found", message: null }));
+    mount(fake({ status: "not_found", message: null }), "", F, true, { financials: client });
+    await settledScreen();
+    expect(asked).toEqual([]);
   });
 });

@@ -1,0 +1,42 @@
+[
+ {
+  "id": "evidence",
+  "case": "no-readings",
+  "url": "http://localhost:5181/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "no-selection",
+  "url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "supported",
+  "url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=a4589610-12ab-497f-a488-038d0047ac87"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "indeterminate",
+  "url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=c487f363-5e6c-4df4-9310-ef8eb5bbeb5b"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "limited",
+  "url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=a0a2209f-1069-4f6c-9e37-b3852e393dfa"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "historical",
+  "url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-13&revision=f311aa92-bca4-495e-8e8f-21f7f284f3d9"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "stale",
+  "url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-15&revision=360d977d-8312-4242-824c-fdb4ea0c416e"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "refused-other-day",
+  "url": "http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=a4589610-12ab-497f-a488-038d0047ac87"
+ }
+]

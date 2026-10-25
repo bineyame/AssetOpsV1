@@ -1,0 +1,17 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "cold-403-denied",
+  "url": "http://127.0.0.1:5189/maintenance/requests/197a0945-50c0-4edc-a5e0-3fac22cf8653?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-403-denied",
+  "url": "http://127.0.0.1:5189/maintenance/requests/197a0945-50c0-4edc-a5e0-3fac22cf8653/record?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "cold-403-denied",
+  "url": "http://127.0.0.1:5189/maintenance/requests/197a0945-50c0-4edc-a5e0-3fac22cf8653/history?site_id=COLD-LAB-001"
+ }
+]

@@ -8,6 +8,11 @@ describe("post-W6 W2-EV: shared Site-timezone formatter", () => {
     expect(siteTime("2026-10-24T13:08:42Z", "Africa/Addis_Ababa")).toEqual({ text: "16:08:42", utc: "2026-10-24T13:08:42.000Z", zone: "EAT", siteZone: true });
   });
 
+  it.each(["Africa/Asmara", "Africa/Djibouti", "Africa/Mogadishu"])("W1-a closeout ruling 5: %s is EAT in the canonical table", (zone) => {
+    expect(siteTime("2026-10-24T13:08:42Z", zone)).toEqual({ text: "16:08:42", utc: "2026-10-24T13:08:42.000Z", zone: "EAT", siteZone: true });
+    expect(siteZoneLabel(zone)).toBe("EAT");
+  });
+
   it("formats a UTC Site in UTC", () => {
     expect(siteTime("2026-10-24T13:08:42Z", "Etc/UTC")?.text).toBe("13:08:42");
     expect(siteZoneLabel("Etc/UTC")).toBe("UTC");

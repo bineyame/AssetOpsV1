@@ -1,0 +1,12 @@
+[
+ {
+  "name": "assumptions-default-s408-fix",
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions",
+  "variant": "interp-160-3rows"
+ },
+ {
+  "name": "assumptions-default-s408-fix",
+  "url": "http://localhost:5185/sites/KOBO-001/financials/assumptions",
+  "variant": "interp-160-5rows"
+ }
+]

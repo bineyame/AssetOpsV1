@@ -227,6 +227,7 @@ def create_app(
     mini_decision_command_access: Access = deny_decision_writes,
     mini_decision_principal: DecisionPrincipalResolver = no_decision_principal,
     domain_work_principal: Principal = no_service_principal,
+    site_read_access: Access = development_access,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -294,6 +295,10 @@ def create_app(
     verified Lab-owner principal exists). The owner walkthrough's isolated app
     injects a Site-scoped owner check for `EV-LAB-001`; nothing here reads a
     global flag that would grant every Site.
+
+    R373 (B19-15): `site_read_access` is the one Site-read admission callable for Site Work, domain Work and the
+    global Work roots (request detail and the four lists). It defaults to `development_access`, which admits the
+    development operator everywhere; estate roots and other Site reads are not threaded here (R374).
     """
     resolved_flags = load_feature_flags() if flags is None else flags
 
@@ -569,19 +574,22 @@ def create_app(
     app.include_router(build_work_router(
         build_work_service(database_url()) if database_url() else None, registry.ledger_scope, (WORK_UNAVAILABLE,),
         details=build_work_detail_service(database_url()) if database_url() else None,
-        lists=build_work_index_service(database_url()) if database_url() else None))
+        lists=build_work_index_service(database_url()) if database_url() else None, access=site_read_access))
     # W5-02a K1a (ruling A2): the domain Action commands through the same W4 gate. `domain_work_principal` is the
     # server SERVICE principal for tests/host wiring; by default none is injected (as for W4), so a write is 403.
     app.include_router(build_domain_work_router(
         build_domain_intent_service(database_url()) if database_url() else None,
-        WorkGate(registry.ledger_scope, (WORK_UNAVAILABLE,), principal=domain_work_principal), (WORK_UNAVAILABLE,),
+        WorkGate(registry.ledger_scope, (WORK_UNAVAILABLE,), access=site_read_access,
+                 principal=domain_work_principal), (WORK_UNAVAILABLE,),
         reads=build_domain_action_read_service(database_url())))
     # W6-01a (Lane A): the read-only global work roots `/api/work/{incidents,...}`; tenant from the server registry
     # only, per-Site admission through the Finding-route access seam; typed 503 without a database or cursor key.
     # W6-01c (G5): the exact request detail `/api/work/requests/{case_id}?site_id=` on the same router.
+    # R373 (B19-15): Site Work, domain Work and global Work (detail and all four lists) share ONE Site-read access
+    # callable, so a real principal can never be attached to Site Work while global Work stays on development access.
     app.include_router(build_global_work_router(
         build_global_work_index_service(database_url()), registry_tenant(registry),
-        access=development_access, unavailable=(SiteStoreUnavailable,),
+        access=site_read_access, unavailable=(SiteStoreUnavailable,),
         details=build_global_work_detail_service(database_url()), scope=registry.ledger_scope))
     # S4-02a: the human price write route has no success path (no verified human principal yet).
     app.include_router(build_financial_assumption_router(registry.ledger_scope))

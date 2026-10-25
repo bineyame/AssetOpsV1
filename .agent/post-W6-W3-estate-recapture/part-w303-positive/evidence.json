@@ -1,0 +1,3982 @@
+{
+  "revision": "c9665a90",
+  "captured_at": "2026-10-25T00:08:18.315Z",
+  "pairs": [
+    {
+      "screen": "globalevidence",
+      "case": "w303-positive",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "mock_hash": "#/globalevidence",
+      "app_image": "globalevidence-w303-positive-1440-app.png",
+      "mock_image": "globalevidence-w303-positive-1440-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Record details",
+            "bodyLen": 3901,
+            "body": "CapabilityBackup responseSiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentNoneSelected record references00000002-0000-4000-8000-000000000173Evidence record references00000002-0000-4000-8000-0000000000b6, 00000002-0000-4000-8000-0000000000b8, 00000002-0000-4000-8000-0000000000ba, 00000002-0000-4000-8000-0000000000bb, 00000002-0000-4000-8000-0000000000bd, 00000002-0000-4000-8000-0000000000be, 00000002-0000-4000-8000-0000000000c0, 00000002-0000-4000-8000-0000000000c2, 00000002-0000-4000-8000-0000000000c4, 00000002-0000-4000-8000-0000000000c6, 00000002-0000-4000",
+            "scrollH": 7020
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 3935,
+            "body": "CapabilityCooling recoverySiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-000000000173Evidence record references00000002-0000-4000-8000-0000000000b6, 00000002-0000-4000-8000-0000000000b8, 00000002-0000-4000-8000-0000000000ba, 00000002-0000-4000-8000-0000000000bb, 00000002-0000-4000-8000-0000000000bd, 00000002-0000-4000-8000-0000000000be, 00000002-0000-4000-8000-0000000000c0, 00000002-0000-4000-8000-0000000000c2, 00000002-0000-4000-8000-0000000000c4, 00000002-0000-4000-8000-0000000000c6, 00000002-0000-",
+            "scrollH": 7038
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 3867,
+            "body": "CapabilityProduct exposureSiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentNoneSelected record references00000002-0000-4000-8000-00000000016dEvidence record references00000002-0000-4000-8000-0000000000b6, 00000002-0000-4000-8000-0000000000b8, 00000002-0000-4000-8000-0000000000ba, 00000002-0000-4000-8000-0000000000bb, 00000002-0000-4000-8000-0000000000bd, 00000002-0000-4000-8000-0000000000be, 00000002-0000-4000-8000-0000000000c0, 00000002-0000-4000-8000-0000000000c2, 00000002-0000-4000-8000-0000000000c4, 00000002-0000-4000-8000-0000000000c6, 00000002-0000-400",
+            "scrollH": 6951
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 3834,
+            "body": "CapabilityTemperature complianceSiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-00000000016dEvidence record references00000002-0000-4000-8000-0000000000b6, 00000002-0000-4000-8000-0000000000b8, 00000002-0000-4000-8000-0000000000ba, 00000002-0000-4000-8000-0000000000bb, 00000002-0000-4000-8000-0000000000bd, 00000002-0000-4000-8000-0000000000be, 00000002-0000-4000-8000-0000000000c0, 00000002-0000-4000-8000-0000000000c2, 00000002-0000-4000-8000-0000000000c4, 00000002-0000-4000-8000-0000000000c6, 00000002-00",
+            "scrollH": 6881
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 4994,
+            "body": "CapabilityConnector availabilitySiteEV charging lab · EV-LAB-001Evidence window2026-10-06 08:00–09:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-0000000003d1Evidence record references00000002-0000-4000-8000-00000000024e, 00000002-0000-4000-8000-000000000250, 00000002-0000-4000-8000-000000000254, 00000002-0000-4000-8000-00000000025a, 00000002-0000-4000-8000-00000000025e, 00000002-0000-4000-8000-000000000260, 00000002-0000-4000-8000-000000000262, 00000002-0000-4000-8000-000000000264, 00000002-0000-4000-8000-000000000266, 00000002-0000-4000-8000-000000000268, 00000002-0",
+            "scrollH": 8968
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 400,
+            "body": "CapabilityCause of interruptionSiteEV charging lab · EV-LAB-001Evidence window2026-10-06 08:00–09:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-0000000003d1Evidence record referencesNone recordedSelected observationsCause of interruption — Limited. Cause is not established. Coverage duration cannot be calculated from the selected records. Missing: Connector fault report.",
+            "scrollH": 551
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 510,
+            "body": "CapabilityDelivered energySiteEV charging lab · EV-LAB-001Evidence window2026-10-06 08:00–09:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-0000000003d1Evidence record references00000002-0000-4000-8000-00000000026e, 00000002-0000-4000-8000-00000000028d, 00000002-0000-4000-8000-0000000002ac, 00000002-0000-4000-8000-0000000002cb, 00000002-0000-4000-8000-0000000002ea, 00000002-0000-4000-8000-000000000309, 00000002-0000-4000-8000-00000000031aSelected observationsDelivered energy — Full.",
+            "scrollH": 812
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 320,
+            "body": "CapabilitySession outcomesSiteEV charging lab · EV-LAB-001Evidence window2026-10-06 08:00–09:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-0000000003d1Evidence record references00000002-0000-4000-8000-000000000252, 00000002-0000-4000-8000-000000000314Selected observationsSession outcomes — Full.",
+            "scrollH": 464
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 4996,
+            "body": "CapabilityConnector availabilitySiteEV charging lab 2 · EV-LAB-002Evidence window2026-10-06 08:00–09:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-00000000062fEvidence record references00000002-0000-4000-8000-0000000004ac, 00000002-0000-4000-8000-0000000004ae, 00000002-0000-4000-8000-0000000004b2, 00000002-0000-4000-8000-0000000004b8, 00000002-0000-4000-8000-0000000004bc, 00000002-0000-4000-8000-0000000004be, 00000002-0000-4000-8000-0000000004c0, 00000002-0000-4000-8000-0000000004c2, 00000002-0000-4000-8000-0000000004c4, 00000002-0000-4000-8000-0000000004c6, 00000002",
+            "scrollH": 8968
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 402,
+            "body": "CapabilityCause of interruptionSiteEV charging lab 2 · EV-LAB-002Evidence window2026-10-06 08:00–09:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-00000000062fEvidence record referencesNone recordedSelected observationsCause of interruption — Limited. Cause is not established. Coverage duration cannot be calculated from the selected records. Missing: Connector fault report.",
+            "scrollH": 551
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 512,
+            "body": "CapabilityDelivered energySiteEV charging lab 2 · EV-LAB-002Evidence window2026-10-06 08:00–09:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-00000000062fEvidence record references00000002-0000-4000-8000-0000000004cc, 00000002-0000-4000-8000-0000000004eb, 00000002-0000-4000-8000-00000000050a, 00000002-0000-4000-8000-000000000529, 00000002-0000-4000-8000-000000000548, 00000002-0000-4000-8000-000000000567, 00000002-0000-4000-8000-000000000578Selected observationsDelivered energy — Full.",
+            "scrollH": 812
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 322,
+            "body": "CapabilitySession outcomesSiteEV charging lab 2 · EV-LAB-002Evidence window2026-10-06 08:00–09:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-00000000062fEvidence record references00000002-0000-4000-8000-0000000004b0, 00000002-0000-4000-8000-000000000572Selected observationsSession outcomes — Full.",
+            "scrollH": 464
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 2144,
+            "body": "CapabilityGenerator supportSiteKobo mini-grid · KOBO-001Evidence window2026-10-06 00:00 – 2026-10-07 00:00 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-000000000745Evidence record references00000002-0000-4000-8000-0000000006c7, 00000002-0000-4000-8000-0000000006c8, 00000002-0000-4000-8000-0000000006c9, 00000002-0000-4000-8000-0000000006ca, 00000002-0000-4000-8000-0000000006cb, 00000002-0000-4000-8000-0000000006cc, 00000002-0000-4000-8000-0000000006cd, 00000002-0000-4000-8000-0000000006d2, 00000002-0000-4000-8000-0000000006d3, 00000002-0000-4000-8000-0000000006d4, 00000",
+            "scrollH": 3736
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 69,
+            "body": "Gap codeMISSING_ROLEMissing roletransfer_resultSite codesCOLD-LAB-001",
+            "scrollH": 56
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Cold replay lab · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Cold replay lab · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Cold replay lab · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Cold replay lab · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab 2 · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab 2 · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab 2 · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab 2 · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid · mini-grid",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/operational-records?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Operational records →",
+            "panel": "Recurring evidence gaps"
+          },
+          {
+            "href": "/maintenance/preventive?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Preventive plan →",
+            "panel": "Recurring evidence gaps"
+          }
+        ],
+        "titles": [
+          "Capability coverage across sites",
+          "Recurring evidence gaps"
+        ],
+        "panels": [
+          {
+            "title": "Capability coverage across sites",
+            "x": 248,
+            "y": 333,
+            "w": 1160,
+            "h": 279,
+            "tables": 1,
+            "rows": 13,
+            "columns": [
+              "Site / domain",
+              "Operational capability",
+              "Readiness",
+              "Current ceiling",
+              "Next evidence"
+            ],
+            "chips": [
+              "None",
+              "Limited",
+              "None",
+              "Full",
+              "Limited",
+              "Limited",
+              "Full",
+              "Full",
+              "Limited",
+              "Limited",
+              "Full",
+              "Full",
+              "Limited"
+            ],
+            "links": 13,
+            "buttons": 0,
+            "details": 13,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Recurring evidence gaps",
+            "x": 248,
+            "y": 630,
+            "w": 1160,
+            "h": 183,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Gap",
+              "Sites",
+              "Unlocks",
+              "Next step"
+            ],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio evidence",
+          "top": 43,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "600",
+            "lineHeight": "15px",
+            "color": "rgb(107, 118, 144)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.95px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "13.05px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Capability coverage across sites",
+            "before": 279,
+            "rows": 13,
+            "after": 279,
+            "clipped": 0,
+            "innerV": [
+              {
+                "cls": "data-table__scroll",
+                "sh": 492,
+                "ch": 176
+              }
+            ],
+            "primary": {
+              "h": 279,
+              "changedLeaves": 5,
+              "cloneRowHs": [
+                93,
+                93,
+                93,
+                93,
+                92
+              ],
+              "clipped": 0,
+              "innerV": [
+                {
+                  "cls": "data-table__scroll",
+                  "sh": 492,
+                  "ch": 176
+                }
+              ],
+              "docOverflowX": 0
+            },
+            "stress": {
+              "h": 279,
+              "changedLeaves": 20,
+              "cloneRowHs": [
+                220,
+                220,
+                220,
+                220,
+                220
+              ],
+              "clipped": 0,
+              "innerV": [
+                {
+                  "cls": "data-table__scroll",
+                  "sh": 1130,
+                  "ch": 161
+                }
+              ],
+              "docOverflowX": 0
+            }
+          },
+          {
+            "title": "Recurring evidence gaps",
+            "before": 183,
+            "rows": 1,
+            "after": 287,
+            "clipped": 0,
+            "innerV": [
+              {
+                "cls": "data-table__scroll",
+                "sh": 340,
+                "ch": 180
+              }
+            ],
+            "primary": {
+              "h": 287,
+              "changedLeaves": 5,
+              "cloneRowHs": [
+                62,
+                62,
+                62,
+                62,
+                62
+              ],
+              "clipped": 0,
+              "innerV": [
+                {
+                  "cls": "data-table__scroll",
+                  "sh": 340,
+                  "ch": 180
+                }
+              ],
+              "docOverflowX": 0
+            },
+            "stress": {
+              "h": 287,
+              "changedLeaves": 10,
+              "cloneRowHs": [
+                109,
+                109,
+                109,
+                109,
+                108
+              ],
+              "clipped": 0,
+              "innerV": [
+                {
+                  "cls": "data-table__scroll",
+                  "sh": 572,
+                  "ch": 180
+                }
+              ],
+              "docOverflowX": 0
+            }
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/globalevidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "#/evidence",
+            "text": "Kobo · mini-grid",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "#/temperature",
+            "text": "GreenHarvest · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "#/availability",
+            "text": "Depot · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "#/actions",
+            "text": "ACT-049, ACT-061 →",
+            "panel": "Recurring evidence gaps"
+          },
+          {
+            "href": "#/oprecords",
+            "text": "Operational records →",
+            "panel": "Recurring evidence gaps"
+          },
+          {
+            "href": "#/maintenance-preventive",
+            "text": "Preventive plan →",
+            "panel": "Recurring evidence gaps"
+          }
+        ],
+        "titles": [
+          "Capability coverage across sites",
+          "Recurring evidence gaps"
+        ],
+        "panels": [
+          {
+            "title": "Capability coverage across sites",
+            "x": 234,
+            "y": 375,
+            "w": 1161,
+            "h": 285,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Site / domain",
+              "Operational capability",
+              "Readiness",
+              "Current ceiling",
+              "Next evidence"
+            ],
+            "chips": [
+              "Limited",
+              "Limited",
+              "Limited"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Recurring evidence gaps",
+            "x": 234,
+            "y": 678,
+            "w": 1161,
+            "h": 287,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Gap",
+              "Sites",
+              "Unlocks",
+              "Next step"
+            ],
+            "chips": [],
+            "links": 3,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1091,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Portfolio evidence",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1047
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "globalevidence",
+      "case": "w303-positive",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "mock_hash": "#/globalevidence",
+      "app_image": "globalevidence-w303-positive-390-app.png",
+      "mock_image": "globalevidence-w303-positive-390-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Record details",
+            "bodyLen": 3901,
+            "body": "CapabilityBackup responseSiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentNoneSelected record references00000002-0000-4000-8000-000000000173Evidence record references00000002-0000-4000-8000-0000000000b6, 00000002-0000-4000-8000-0000000000b8, 00000002-0000-4000-8000-0000000000ba, 00000002-0000-4000-8000-0000000000bb, 00000002-0000-4000-8000-0000000000bd, 00000002-0000-4000-8000-0000000000be, 00000002-0000-4000-8000-0000000000c0, 00000002-0000-4000-8000-0000000000c2, 00000002-0000-4000-8000-0000000000c4, 00000002-0000-4000-8000-0000000000c6, 00000002-0000-4000",
+            "scrollH": 54462
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 3935,
+            "body": "CapabilityCooling recoverySiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-000000000173Evidence record references00000002-0000-4000-8000-0000000000b6, 00000002-0000-4000-8000-0000000000b8, 00000002-0000-4000-8000-0000000000ba, 00000002-0000-4000-8000-0000000000bb, 00000002-0000-4000-8000-0000000000bd, 00000002-0000-4000-8000-0000000000be, 00000002-0000-4000-8000-0000000000c0, 00000002-0000-4000-8000-0000000000c2, 00000002-0000-4000-8000-0000000000c4, 00000002-0000-4000-8000-0000000000c6, 00000002-0000-",
+            "scrollH": 54792
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 3867,
+            "body": "CapabilityProduct exposureSiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentNoneSelected record references00000002-0000-4000-8000-00000000016dEvidence record references00000002-0000-4000-8000-0000000000b6, 00000002-0000-4000-8000-0000000000b8, 00000002-0000-4000-8000-0000000000ba, 00000002-0000-4000-8000-0000000000bb, 00000002-0000-4000-8000-0000000000bd, 00000002-0000-4000-8000-0000000000be, 00000002-0000-4000-8000-0000000000c0, 00000002-0000-4000-8000-0000000000c2, 00000002-0000-4000-8000-0000000000c4, 00000002-0000-4000-8000-0000000000c6, 00000002-0000-400",
+            "scrollH": 54062
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 3834,
+            "body": "CapabilityTemperature complianceSiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-00000000016dEvidence record references00000002-0000-4000-8000-0000000000b6, 00000002-0000-4000-8000-0000000000b8, 00000002-0000-4000-8000-0000000000ba, 00000002-0000-4000-8000-0000000000bb, 00000002-0000-4000-8000-0000000000bd, 00000002-0000-4000-8000-0000000000be, 00000002-0000-4000-8000-0000000000c0, 00000002-0000-4000-8000-0000000000c2, 00000002-0000-4000-8000-0000000000c4, 00000002-0000-4000-8000-0000000000c6, 00000002-00",
+            "scrollH": 53819
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 4994,
+            "body": "CapabilityConnector availabilitySiteEV charging lab · EV-LAB-001Evidence window2026-10-06 08:00–09:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-0000000003d1Evidence record references00000002-0000-4000-8000-00000000024e, 00000002-0000-4000-8000-000000000250, 00000002-0000-4000-8000-000000000254, 00000002-0000-4000-8000-00000000025a, 00000002-0000-4000-8000-00000000025e, 00000002-0000-4000-8000-000000000260, 00000002-0000-4000-8000-000000000262, 00000002-0000-4000-8000-000000000264, 00000002-0000-4000-8000-000000000266, 00000002-0000-4000-8000-000000000268, 00000002-0",
+            "scrollH": 70479
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 400,
+            "body": "CapabilityCause of interruptionSiteEV charging lab · EV-LAB-001Evidence window2026-10-06 08:00–09:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-0000000003d1Evidence record referencesNone recordedSelected observationsCause of interruption — Limited. Cause is not established. Coverage duration cannot be calculated from the selected records. Missing: Connector fault report.",
+            "scrollH": 3299
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 510,
+            "body": "CapabilityDelivered energySiteEV charging lab · EV-LAB-001Evidence window2026-10-06 08:00–09:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-0000000003d1Evidence record references00000002-0000-4000-8000-00000000026e, 00000002-0000-4000-8000-00000000028d, 00000002-0000-4000-8000-0000000002ac, 00000002-0000-4000-8000-0000000002cb, 00000002-0000-4000-8000-0000000002ea, 00000002-0000-4000-8000-000000000309, 00000002-0000-4000-8000-00000000031aSelected observationsDelivered energy — Full.",
+            "scrollH": 5647
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 320,
+            "body": "CapabilitySession outcomesSiteEV charging lab · EV-LAB-001Evidence window2026-10-06 08:00–09:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-0000000003d1Evidence record references00000002-0000-4000-8000-000000000252, 00000002-0000-4000-8000-000000000314Selected observationsSession outcomes — Full.",
+            "scrollH": 2881
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 4996,
+            "body": "CapabilityConnector availabilitySiteEV charging lab 2 · EV-LAB-002Evidence window2026-10-06 08:00–09:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-00000000062fEvidence record references00000002-0000-4000-8000-0000000004ac, 00000002-0000-4000-8000-0000000004ae, 00000002-0000-4000-8000-0000000004b2, 00000002-0000-4000-8000-0000000004b8, 00000002-0000-4000-8000-0000000004bc, 00000002-0000-4000-8000-0000000004be, 00000002-0000-4000-8000-0000000004c0, 00000002-0000-4000-8000-0000000004c2, 00000002-0000-4000-8000-0000000004c4, 00000002-0000-4000-8000-0000000004c6, 00000002",
+            "scrollH": 70322
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 402,
+            "body": "CapabilityCause of interruptionSiteEV charging lab 2 · EV-LAB-002Evidence window2026-10-06 08:00–09:05 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-00000000062fEvidence record referencesNone recordedSelected observationsCause of interruption — Limited. Cause is not established. Coverage duration cannot be calculated from the selected records. Missing: Connector fault report.",
+            "scrollH": 3299
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 512,
+            "body": "CapabilityDelivered energySiteEV charging lab 2 · EV-LAB-002Evidence window2026-10-06 08:00–09:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-00000000062fEvidence record references00000002-0000-4000-8000-0000000004cc, 00000002-0000-4000-8000-0000000004eb, 00000002-0000-4000-8000-00000000050a, 00000002-0000-4000-8000-000000000529, 00000002-0000-4000-8000-000000000548, 00000002-0000-4000-8000-000000000567, 00000002-0000-4000-8000-000000000578Selected observationsDelivered energy — Full.",
+            "scrollH": 5647
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 322,
+            "body": "CapabilitySession outcomesSiteEV charging lab 2 · EV-LAB-002Evidence window2026-10-06 08:00–09:05 UTCAssessmentFullSelected record references00000002-0000-4000-8000-00000000062fEvidence record references00000002-0000-4000-8000-0000000004b0, 00000002-0000-4000-8000-000000000572Selected observationsSession outcomes — Full.",
+            "scrollH": 2881
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 2144,
+            "body": "CapabilityGenerator supportSiteKobo mini-grid · KOBO-001Evidence window2026-10-06 00:00 – 2026-10-07 00:00 UTCAssessmentLimitedSelected record references00000002-0000-4000-8000-000000000745Evidence record references00000002-0000-4000-8000-0000000006c7, 00000002-0000-4000-8000-0000000006c8, 00000002-0000-4000-8000-0000000006c9, 00000002-0000-4000-8000-0000000006ca, 00000002-0000-4000-8000-0000000006cb, 00000002-0000-4000-8000-0000000006cc, 00000002-0000-4000-8000-0000000006cd, 00000002-0000-4000-8000-0000000006d2, 00000002-0000-4000-8000-0000000006d3, 00000002-0000-4000-8000-0000000006d4, 00000",
+            "scrollH": 28013
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 69,
+            "body": "Gap codeMISSING_ROLEMissing roletransfer_resultSite codesCOLD-LAB-001",
+            "scrollH": 230
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Cold replay lab · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Cold replay lab · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Cold replay lab · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Cold replay lab · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab 2 · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab 2 · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab 2 · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "EV charging lab 2 · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid · mini-grid",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "/operational-records?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Operational records →",
+            "panel": "Recurring evidence gaps"
+          },
+          {
+            "href": "/maintenance/preventive?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Preventive plan →",
+            "panel": "Recurring evidence gaps"
+          }
+        ],
+        "titles": [
+          "Capability coverage across sites",
+          "Recurring evidence gaps"
+        ],
+        "panels": [
+          {
+            "title": "Capability coverage across sites",
+            "x": 16,
+            "y": 688,
+            "w": 358,
+            "h": 421,
+            "tables": 1,
+            "rows": 13,
+            "columns": [
+              "Site / domain",
+              "Operational capability",
+              "Readiness",
+              "Current ceiling",
+              "Next evidence"
+            ],
+            "chips": [
+              "None",
+              "Limited",
+              "None",
+              "Full",
+              "Limited",
+              "Limited",
+              "Full",
+              "Full",
+              "Limited",
+              "Limited",
+              "Full",
+              "Full",
+              "Limited"
+            ],
+            "links": 13,
+            "buttons": 0,
+            "details": 13,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Recurring evidence gaps",
+            "x": 16,
+            "y": 1127,
+            "w": 358,
+            "h": 312,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Gap",
+              "Sites",
+              "Unlocks",
+              "Next step"
+            ],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1578,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio evidence",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "600",
+            "lineHeight": "15px",
+            "color": "rgb(107, 118, 144)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.95px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "13.05px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 520,
+            "cw": 318,
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 330,
+            "cw": 318,
+            "panel": "Recurring evidence gaps"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Capability coverage across sites",
+            "before": 421,
+            "rows": 13,
+            "after": 421,
+            "clipped": 0,
+            "innerV": [
+              {
+                "cls": "data-table__scroll",
+                "sh": 1223,
+                "ch": 300
+              }
+            ],
+            "primary": {
+              "h": 421,
+              "changedLeaves": 5,
+              "cloneRowHs": [
+                236,
+                236,
+                236,
+                236,
+                236
+              ],
+              "clipped": 0,
+              "innerV": [
+                {
+                  "cls": "data-table__scroll",
+                  "sh": 1223,
+                  "ch": 300
+                }
+              ],
+              "docOverflowX": 0
+            },
+            "stress": {
+              "h": 421,
+              "changedLeaves": 20,
+              "cloneRowHs": [
+                307,
+                307,
+                307,
+                307,
+                307
+              ],
+              "clipped": 0,
+              "innerV": [
+                {
+                  "cls": "data-table__scroll",
+                  "sh": 1578,
+                  "ch": 300
+                }
+              ],
+              "docOverflowX": 0
+            }
+          },
+          {
+            "title": "Recurring evidence gaps",
+            "before": 312,
+            "rows": 1,
+            "after": 549,
+            "clipped": 0,
+            "innerV": [
+              {
+                "cls": "data-table__scroll",
+                "sh": 991,
+                "ch": 420
+              }
+            ],
+            "primary": {
+              "h": 549,
+              "changedLeaves": 5,
+              "cloneRowHs": [
+                190,
+                190,
+                190,
+                190,
+                189
+              ],
+              "clipped": 0,
+              "innerV": [
+                {
+                  "cls": "data-table__scroll",
+                  "sh": 991,
+                  "ch": 420
+                }
+              ],
+              "docOverflowX": 0
+            },
+            "stress": {
+              "h": 549,
+              "changedLeaves": 10,
+              "cloneRowHs": [
+                427,
+                427,
+                427,
+                427,
+                427
+              ],
+              "clipped": 0,
+              "innerV": [
+                {
+                  "cls": "data-table__scroll",
+                  "sh": 2179,
+                  "ch": 420
+                }
+              ],
+              "docOverflowX": 0
+            }
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/globalevidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "#/evidence",
+            "text": "Kobo · mini-grid",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "#/temperature",
+            "text": "GreenHarvest · cold-chain",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "#/availability",
+            "text": "Depot · EV charging",
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "href": "#/actions",
+            "text": "ACT-049, ACT-061 →",
+            "panel": "Recurring evidence gaps"
+          },
+          {
+            "href": "#/oprecords",
+            "text": "Operational records →",
+            "panel": "Recurring evidence gaps"
+          },
+          {
+            "href": "#/maintenance-preventive",
+            "text": "Preventive plan →",
+            "panel": "Recurring evidence gaps"
+          }
+        ],
+        "titles": [
+          "Capability coverage across sites",
+          "Recurring evidence gaps"
+        ],
+        "panels": [
+          {
+            "title": "Capability coverage across sites",
+            "x": 15,
+            "y": 697,
+            "w": 360,
+            "h": 425,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Site / domain",
+              "Operational capability",
+              "Readiness",
+              "Current ceiling",
+              "Next evidence"
+            ],
+            "chips": [
+              "Limited",
+              "Limited",
+              "Limited"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Recurring evidence gaps",
+            "x": 15,
+            "y": 1139,
+            "w": 360,
+            "h": 639,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Gap",
+              "Sites",
+              "Unlocks",
+              "Next step"
+            ],
+            "chips": [],
+            "links": 3,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1969,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Portfolio evidence",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 531,
+            "cw": 320,
+            "panel": "Capability coverage across sites"
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 337,
+            "cw": 320,
+            "panel": "Recurring evidence gaps"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "globalfinancials",
+      "case": "w303-positive",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "mock_hash": "#/globalfinancials",
+      "app_image": "globalfinancials-w303-positive-1440-app.png",
+      "mock_image": "globalfinancials-w303-positive-1440-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Basis details",
+            "bodyLen": 877,
+            "body": "SiteCold replay lab · COLD-LAB-001LimitsThe excursion has no recorded end, so its total exposure has no upper bound.Assumption referencesNone recordedAssumption fingerprintNot comparableConsequence reference00000002-0000-4000-8000-000000000178Line referencecold_chain:00000002-0000-4000-8000-000000000178Technical inputsNone recordedEvidence references00000002-0000-4000-8000-0000000000d3, 00000002-0000-4000-8000-0000000000e1, 00000002-0000-4000-8000-0000000000ef, 00000002-0000-4000-8000-0000000000fd, 00000002-0000-4000-8000-00000000010b, 00000002-0000-4000-8000-000000000119, 00000002-0000-4000-8",
+            "scrollH": 940
+          },
+          {
+            "summary": "Basis details",
+            "bodyLen": 2623,
+            "body": "SiteKobo mini-grid · KOBO-001LimitsModelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount. This is not measured fuel saved, not expenditure and not a physical maximum. The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance). Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced.Assumption references00000002-0000-4000-8000-00000000074eAssumption fingerprintsha256:ab3584c587578b",
+            "scrollH": 3216
+          },
+          {
+            "summary": "Basis details",
+            "bodyLen": 805,
+            "body": "SiteEV charging lab · EV-LAB-001LimitsGross tariff scenario; not cash collected. Gross scenario only; not cash collected.Assumption references00000002-0000-4000-8000-000000000639Assumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000002-0000-4000-8000-00000000063bLine referenceev_charging:00000002-0000-4000-8000-00000000063bTechnical inputs00000002-0000-4000-8000-0000000003d3Evidence references00000002-0000-4000-8000-00000000026e, 00000002-0000-4000-8000-00000000028d, 00000002-0000-4000-8000-0000000002ac, 00000002-0000-4000-8000-0",
+            "scrollH": 833
+          },
+          {
+            "summary": "Basis details",
+            "bodyLen": 807,
+            "body": "SiteEV charging lab 2 · EV-LAB-002LimitsGross tariff scenario; not cash collected. Gross scenario only; not cash collected.Assumption references00000002-0000-4000-8000-00000000063fAssumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000002-0000-4000-8000-000000000641Line referenceev_charging:00000002-0000-4000-8000-000000000641Technical inputs00000002-0000-4000-8000-000000000631Evidence references00000002-0000-4000-8000-0000000004cc, 00000002-0000-4000-8000-0000000004eb, 00000002-0000-4000-8000-00000000050a, 00000002-0000-4000-8000",
+            "scrollH": 833
+          },
+          {
+            "summary": "Results (3) · 1 comparable total 3 grouping results. 1 comparable total by basis",
+            "bodyLen": 265,
+            "body": "Single lineCandidate operating-cost exposure · 1 lineComparableGross tariff estimate · KES 16.66–KES 16.67 · 2 linesNot totalledPotential product exposure · 1 lineNo price is recordedExcluded: 1 lineCold replay lab · Potential product exposure: No price is recorded",
+            "scrollH": 118
+          },
+          {
+            "summary": "Excluded: 1 line",
+            "bodyLen": 66,
+            "body": "Cold replay lab · Potential product exposure: No price is recorded",
+            "scrollH": 118
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "Cold replay lab",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Site evidence →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/KOBO-001/financials",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev",
+            "text": "EV charging lab",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev",
+            "text": "EV charging lab 2",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          }
+        ],
+        "titles": [
+          "Consequence register",
+          "Aggregation rule"
+        ],
+        "panels": [
+          {
+            "title": "Consequence register",
+            "x": 248,
+            "y": 265,
+            "w": 1160,
+            "h": 365,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Value",
+              "Basis / limit",
+              "Source"
+            ],
+            "chips": [
+              "Unpriced"
+            ],
+            "links": 8,
+            "buttons": 0,
+            "details": 4,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Aggregation rule",
+            "x": 248,
+            "y": 708,
+            "w": 1160,
+            "h": 121,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Single line",
+              "Comparable",
+              "Not totalled"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio financials",
+          "top": 43,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "600",
+            "lineHeight": "15px",
+            "color": "rgb(107, 118, 144)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.95px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "13.05px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Consequence register",
+            "before": 365,
+            "rows": 4,
+            "after": 602,
+            "clipped": 0,
+            "innerV": [],
+            "primary": {
+              "h": 602,
+              "changedLeaves": 5,
+              "cloneRowHs": [
+                94,
+                94,
+                94,
+                94,
+                94
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "docOverflowX": 0
+            },
+            "stress": {
+              "h": 914,
+              "changedLeaves": 20,
+              "cloneRowHs": [
+                156,
+                156,
+                156,
+                156,
+                156
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "docOverflowX": 0
+            }
+          },
+          {
+            "title": "Aggregation rule",
+            "before": 121,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/globalfinancials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/financials",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/temperature",
+            "text": "Site evidence →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/energy",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          }
+        ],
+        "titles": [
+          "Consequence register",
+          "Aggregation rule"
+        ],
+        "panels": [
+          {
+            "title": "Consequence register",
+            "x": 234,
+            "y": 306,
+            "w": 1161,
+            "h": 266,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Value",
+              "Basis / limit",
+              "Source"
+            ],
+            "chips": [],
+            "links": 6,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Aggregation rule",
+            "x": 234,
+            "y": 650,
+            "w": 1161,
+            "h": 99,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Portfolio financials",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "globalfinancials",
+      "case": "w303-positive",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "mock_hash": "#/globalfinancials",
+      "app_image": "globalfinancials-w303-positive-390-app.png",
+      "mock_image": "globalfinancials-w303-positive-390-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Basis details",
+            "bodyLen": 877,
+            "body": "SiteCold replay lab · COLD-LAB-001LimitsThe excursion has no recorded end, so its total exposure has no upper bound.Assumption referencesNone recordedAssumption fingerprintNot comparableConsequence reference00000002-0000-4000-8000-000000000178Line referencecold_chain:00000002-0000-4000-8000-000000000178Technical inputsNone recordedEvidence references00000002-0000-4000-8000-0000000000d3, 00000002-0000-4000-8000-0000000000e1, 00000002-0000-4000-8000-0000000000ef, 00000002-0000-4000-8000-0000000000fd, 00000002-0000-4000-8000-00000000010b, 00000002-0000-4000-8000-000000000119, 00000002-0000-4000-8",
+            "scrollH": 2661
+          },
+          {
+            "summary": "Basis details",
+            "bodyLen": 2623,
+            "body": "SiteKobo mini-grid · KOBO-001LimitsModelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount. This is not measured fuel saved, not expenditure and not a physical maximum. The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance). Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced.Assumption references00000002-0000-4000-8000-00000000074eAssumption fingerprintsha256:ab3584c587578b",
+            "scrollH": 8955
+          },
+          {
+            "summary": "Basis details",
+            "bodyLen": 805,
+            "body": "SiteEV charging lab · EV-LAB-001LimitsGross tariff scenario; not cash collected. Gross scenario only; not cash collected.Assumption references00000002-0000-4000-8000-000000000639Assumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000002-0000-4000-8000-00000000063bLine referenceev_charging:00000002-0000-4000-8000-00000000063bTechnical inputs00000002-0000-4000-8000-0000000003d3Evidence references00000002-0000-4000-8000-00000000026e, 00000002-0000-4000-8000-00000000028d, 00000002-0000-4000-8000-0000000002ac, 00000002-0000-4000-8000-0",
+            "scrollH": 2381
+          },
+          {
+            "summary": "Basis details",
+            "bodyLen": 807,
+            "body": "SiteEV charging lab 2 · EV-LAB-002LimitsGross tariff scenario; not cash collected. Gross scenario only; not cash collected.Assumption references00000002-0000-4000-8000-00000000063fAssumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000002-0000-4000-8000-000000000641Line referenceev_charging:00000002-0000-4000-8000-000000000641Technical inputs00000002-0000-4000-8000-000000000631Evidence references00000002-0000-4000-8000-0000000004cc, 00000002-0000-4000-8000-0000000004eb, 00000002-0000-4000-8000-00000000050a, 00000002-0000-4000-8000",
+            "scrollH": 2399
+          },
+          {
+            "summary": "Results (3) · 1 comparable total 3 grouping results. 1 comparable total by basis",
+            "bodyLen": 265,
+            "body": "Single lineCandidate operating-cost exposure · 1 lineComparableGross tariff estimate · KES 16.66–KES 16.67 · 2 linesNot totalledPotential product exposure · 1 lineNo price is recordedExcluded: 1 lineCold replay lab · Potential product exposure: No price is recorded",
+            "scrollH": 118
+          },
+          {
+            "summary": "Excluded: 1 line",
+            "bodyLen": 66,
+            "body": "Cold replay lab · Potential product exposure: No price is recorded",
+            "scrollH": 118
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "Cold replay lab",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Site evidence →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/KOBO-001/financials",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev",
+            "text": "EV charging lab",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev",
+            "text": "EV charging lab 2",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          }
+        ],
+        "titles": [
+          "Consequence register",
+          "Aggregation rule"
+        ],
+        "panels": [
+          {
+            "title": "Consequence register",
+            "x": 16,
+            "y": 476,
+            "w": 358,
+            "h": 429,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Value",
+              "Basis / limit",
+              "Source"
+            ],
+            "chips": [
+              "Unpriced"
+            ],
+            "links": 8,
+            "buttons": 0,
+            "details": 4,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Aggregation rule",
+            "x": 16,
+            "y": 1002,
+            "w": 358,
+            "h": 186,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Single line",
+              "Comparable",
+              "Not totalled"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1230,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio financials",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "600",
+            "lineHeight": "15px",
+            "color": "rgb(107, 118, 144)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.95px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "13.05px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 800,
+            "cw": 318,
+            "panel": "Consequence register"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Consequence register",
+            "before": 429,
+            "rows": 4,
+            "after": 682,
+            "clipped": 0,
+            "innerV": [],
+            "primary": {
+              "h": 682,
+              "changedLeaves": 5,
+              "cloneRowHs": [
+                110,
+                110,
+                110,
+                110,
+                110
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "docOverflowX": 0
+            },
+            "stress": {
+              "h": 1551,
+              "changedLeaves": 20,
+              "cloneRowHs": [
+                284,
+                284,
+                284,
+                284,
+                283
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "docOverflowX": 0
+            }
+          },
+          {
+            "title": "Aggregation rule",
+            "before": 186,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/globalfinancials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/financials",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/temperature",
+            "text": "Site evidence →",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Consequence register"
+          },
+          {
+            "href": "#/energy",
+            "text": "Site bridge →",
+            "panel": "Consequence register"
+          }
+        ],
+        "titles": [
+          "Consequence register",
+          "Aggregation rule"
+        ],
+        "panels": [
+          {
+            "title": "Consequence register",
+            "x": 15,
+            "y": 503,
+            "w": 360,
+            "h": 407,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Site",
+              "Category",
+              "Window / quantity",
+              "Value",
+              "Basis / limit",
+              "Source"
+            ],
+            "chips": [],
+            "links": 6,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Aggregation rule",
+            "x": 15,
+            "y": 1024,
+            "w": 360,
+            "h": 163,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1282,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Portfolio financials",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 514,
+            "cw": 320,
+            "panel": "Consequence register"
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "portfolio",
+      "case": "w303-positive",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5180/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "mock_hash": "#/portfolio",
+      "app_image": "portfolio-w303-positive-1440-app.png",
+      "mock_image": "portfolio-w303-positive-1440-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Assessment scope & periods ↗",
+            "bodyLen": 22703,
+            "body": "Portfolio scope & consequence ownershipSite / assessmentPeriodScopeCold replay lab · 98 selected assessmentsAssessment IDs00000002-0000-4000-8000-0000000000b600000002-0000-4000-8000-0000000000b800000002-0000-4000-8000-0000000000ba00000002-0000-4000-8000-0000000000bb00000002-0000-4000-8000-0000000000bd00000002-0000-4000-8000-0000000000be00000002-0000-4000-8000-0000000000c000000002-0000-4000-8000-0000000000c200000002-0000-4000-8000-0000000000c400000002-0000-4000-8000-0000000000c600000002-0000-4000-8000-0000000000c800000002-0000-4000-8000-0000000000ca00000002-0000-4000-8000-0000000000cb00000002-0",
+            "scrollH": 11981
+          },
+          {
+            "summary": "Assessment IDs",
+            "bodyLen": 3528,
+            "body": "00000002-0000-4000-8000-0000000000b600000002-0000-4000-8000-0000000000b800000002-0000-4000-8000-0000000000ba00000002-0000-4000-8000-0000000000bb00000002-0000-4000-8000-0000000000bd00000002-0000-4000-8000-0000000000be00000002-0000-4000-8000-0000000000c000000002-0000-4000-8000-0000000000c200000002-0000-4000-8000-0000000000c400000002-0000-4000-8000-0000000000c600000002-0000-4000-8000-0000000000c800000002-0000-4000-8000-0000000000ca00000002-0000-4000-8000-0000000000cb00000002-0000-4000-8000-0000000000cd00000002-0000-4000-8000-0000000000cf00000002-0000-4000-8000-0000000000d100000002-0000-4000-8000-",
+            "scrollH": 5173
+          },
+          {
+            "summary": "Assessment IDs",
+            "bodyLen": 8172,
+            "body": "00000002-0000-4000-8000-00000000024e00000002-0000-4000-8000-00000000025000000002-0000-4000-8000-00000000025200000002-0000-4000-8000-00000000025400000002-0000-4000-8000-00000000025500000002-0000-4000-8000-00000000025600000002-0000-4000-8000-00000000025800000002-0000-4000-8000-00000000025a00000002-0000-4000-8000-00000000025c00000002-0000-4000-8000-00000000025e00000002-0000-4000-8000-00000000026000000002-0000-4000-8000-00000000026200000002-0000-4000-8000-00000000026400000002-0000-4000-8000-00000000026600000002-0000-4000-8000-00000000026800000002-0000-4000-8000-00000000026a00000002-0000-4000-8000-",
+            "scrollH": 11981
+          },
+          {
+            "summary": "Assessment IDs",
+            "bodyLen": 8172,
+            "body": "00000002-0000-4000-8000-0000000004ac00000002-0000-4000-8000-0000000004ae00000002-0000-4000-8000-0000000004b000000002-0000-4000-8000-0000000004b200000002-0000-4000-8000-0000000004b300000002-0000-4000-8000-0000000004b400000002-0000-4000-8000-0000000004b600000002-0000-4000-8000-0000000004b800000002-0000-4000-8000-0000000004ba00000002-0000-4000-8000-0000000004bc00000002-0000-4000-8000-0000000004be00000002-0000-4000-8000-0000000004c000000002-0000-4000-8000-0000000004c200000002-0000-4000-8000-0000000004c400000002-0000-4000-8000-0000000004c600000002-0000-4000-8000-0000000004c800000002-0000-4000-8000-",
+            "scrollH": 11981
+          },
+          {
+            "summary": "Assessment IDs",
+            "bodyLen": 1728,
+            "body": "00000002-0000-4000-8000-0000000006c700000002-0000-4000-8000-0000000006c800000002-0000-4000-8000-0000000006c900000002-0000-4000-8000-0000000006ca00000002-0000-4000-8000-0000000006cb00000002-0000-4000-8000-0000000006cc00000002-0000-4000-8000-0000000006cd00000002-0000-4000-8000-0000000006d200000002-0000-4000-8000-0000000006d300000002-0000-4000-8000-0000000006d400000002-0000-4000-8000-0000000006d500000002-0000-4000-8000-0000000006d600000002-0000-4000-8000-0000000006d700000002-0000-4000-8000-0000000006db00000002-0000-4000-8000-0000000006dc00000002-0000-4000-8000-0000000006dd00000002-0000-4000-8000-",
+            "scrollH": 2534
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 132,
+            "body": "cold_chain:00000002-0000-4000-8000-000000000178 · sha256:5c1db40a38afd40f76703de835fc92becbe51b29a16c96b45624b36847e02eca · UNPRICED",
+            "scrollH": 120
+          },
+          {
+            "summary": "Inspect basis ↗",
+            "bodyLen": 679,
+            "body": "Change and verification basisSource objectRecorded factOutcome meaningMaintenance workNo completed-work source selectedActivity not establishedPolicy trial0 selected verification windowsOutcome pending, not a verified resultVerification outcomes0 surviving VERIFIED outcomes in 30 daysVerified outcome is not recovered valueNo selected Actions in this windowNo previous comparable Portfolio snapshot is selected; change deltas and recovered-value trends are withheld.Counts use retained Action and verification records. Portfolio does not decide resolution.Action counts cover only Actions created in",
+            "scrollH": 1128
+          },
+          {
+            "summary": "Energy basis ↗",
+            "bodyLen": 557,
+            "body": "Selected window: 6 Oct 2026 · 08:00–09:05 UTC.Source basisClassification: REGISTERED_SIMULATIONState: REGISTERED_SIMULATIONSource IDs: 00000002-0000-4000-8000-000000000188Evidence IDs: 00000002-0000-4000-8000-00000000026e, 00000002-0000-4000-8000-00000000028d, 00000002-0000-4000-8000-0000000002ac, 00000002-0000-4000-8000-0000000002cb, 00000002-0000-4000-8000-0000000002ea, 00000002-0000-4000-8000-000000000309, 00000002-0000-4000-8000-00000000031aBasis SHA-256: sha256:9d39949e16d8d597d58b5417206d66491ad808e644441264c7f01ecd4d7c9d7fReasons: None selected",
+            "scrollH": 806
+          }
+        ],
+        "links": [
+          {
+            "href": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Operating-cost exposure$0.00–$3.44Kobo mini-grid · Candidate operating-cost expo",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Service & product riskNot assessedNo reviewed estate risk classificationRisk cou",
+            "panel": ""
+          },
+          {
+            "href": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Inspect financial basis",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "Cold replay lab",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Cold room temperature outside its policy band",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Review Finding",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "Cold replay lab",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Backup generator did not start when the grid failed",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Review Finding",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/KOBO-001/findings/00000002-0000-4000-8000-000000000749?revision_id=00000002-0000-4000-8000-00000000074b",
+            "text": "Generator support merits review: bounded candidate avoidable running",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/KOBO-001/findings/00000002-0000-4000-8000-000000000749?revision_id=00000002-0000-4000-8000-00000000074b",
+            "text": "Review Finding",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Open all Findings →",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/performance/temperature",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-001/performance/sessions",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-002/performance/sessions",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001/performance/service",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/performance/backup",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001/performance/backup",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/health",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-001/health",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-002/health",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001/health",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "N/A",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "N/A",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "N/A",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001/financials",
+            "text": "Review",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "None",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001/evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Inspect the constraint →",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Inspect energy basis →",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Where management should act first",
+          "Objectives across the estate",
+          "An opportunity beyond reducing cost",
+          "What changed in this review"
+        ],
+        "panels": [
+          {
+            "title": "Where management should act first",
+            "x": 248,
+            "y": 481,
+            "w": 824,
+            "h": 535,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Site",
+              "Finding / operating mechanism",
+              "Value / consequence",
+              "Priority",
+              "Confidence",
+              "Action / next move"
+            ],
+            "chips": [
+              "All findings",
+              "Cost",
+              "Risks",
+              "Opportunities",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed"
+            ],
+            "links": 10,
+            "buttons": 4,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(227, 232, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Objectives across the estate",
+            "x": 1088,
+            "y": 481,
+            "w": 305,
+            "h": 352,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 18,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(227, 232, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "An opportunity beyond reducing cost",
+            "x": 248,
+            "y": 1034,
+            "w": 565,
+            "h": 229,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Scenario"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(124, 184, 166) 2px",
+            "radius": "7px"
+          },
+          {
+            "title": "What changed in this review",
+            "x": 829,
+            "y": 1034,
+            "w": 565,
+            "h": 229,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source object",
+              "Recorded fact",
+              "Outcome meaning"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [
+              "Change and verification basis"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(227, 232, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1342,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio Value & Operations",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "400",
+            "lineHeight": "15px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "8px",
+            "weight": "650",
+            "lineHeight": "12.8px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 262,
+            "cw": 135,
+            "panel": ""
+          },
+          {
+            "cls": "portfolio-matrix-scroll",
+            "sw": 428,
+            "cw": 275,
+            "panel": "Objectives across the estate"
+          },
+          {
+            "cls": "portfolio-drawer",
+            "sw": 65,
+            "cw": 58,
+            "panel": "What changed in this review"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 323,
+            "cw": 58,
+            "panel": "What changed in this review"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "10px": 3,
+          "9px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1342
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Where management should act first",
+            "before": 535,
+            "rows": 3,
+            "after": 784,
+            "clipped": 0,
+            "innerV": [
+              {
+                "cls": "data-table__scroll",
+                "sh": 1170,
+                "ch": 604
+              }
+            ],
+            "primary": {
+              "h": 784,
+              "changedLeaves": 5,
+              "cloneRowHs": [
+                228,
+                228,
+                228,
+                228,
+                227
+              ],
+              "clipped": 0,
+              "innerV": [
+                {
+                  "cls": "data-table__scroll",
+                  "sh": 1170,
+                  "ch": 604
+                }
+              ],
+              "docOverflowX": 0
+            },
+            "stress": {
+              "h": 784,
+              "changedLeaves": 30,
+              "cloneRowHs": [
+                228,
+                228,
+                228,
+                228,
+                227
+              ],
+              "clipped": 0,
+              "innerV": [
+                {
+                  "cls": "data-table__scroll",
+                  "sh": 1170,
+                  "ch": 604
+                }
+              ],
+              "docOverflowX": 0
+            }
+          },
+          {
+            "title": "Objectives across the estate",
+            "before": 352,
+            "rows": 5,
+            "after": 342,
+            "clipped": 0,
+            "innerV": [],
+            "primary": {
+              "h": 342,
+              "changedLeaves": 5,
+              "cloneRowHs": [
+                27,
+                27,
+                27,
+                27,
+                27
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "docOverflowX": 0
+            },
+            "stress": {
+              "h": 342,
+              "changedLeaves": 5,
+              "cloneRowHs": [
+                27,
+                27,
+                27,
+                27,
+                27
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "docOverflowX": 0
+            }
+          },
+          {
+            "title": "An opportunity beyond reducing cost",
+            "before": 229,
+            "rows": 0
+          },
+          {
+            "title": "What changed in this review",
+            "before": 229,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/portfolio",
+            "text": "Portfolio",
+            "panel": ""
+          },
+          {
+            "href": "#/financials",
+            "text": "Operating-cost exposure$3.31–3.97Kobo · 30 min candidate runtimeModelled + scena",
+            "panel": ""
+          },
+          {
+            "href": "#/findings",
+            "text": "Service & product risk2 sitesCold-room excursion + interrupted chargingMeasured ",
+            "panel": ""
+          },
+          {
+            "href": "#/renewable",
+            "text": "Productive-use opportunity18–20 kWKobo · headroom on 3 of 5 daysModelled · deman",
+            "panel": ""
+          },
+          {
+            "href": "#/asset",
+            "text": "Asset-life exposure1 battery on watchReserve and high-power stress observed30-da",
+            "panel": ""
+          },
+          {
+            "href": "#/globalfinancials",
+            "text": "Verified value recoveredNot establishedIntervention outcomes need more evidenceC",
+            "panel": ""
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-finding",
+            "text": "Backup response failed",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-action",
+            "text": "ACT-051",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/finding",
+            "text": "Extended generator support",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/verification",
+            "text": "ACT-048",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/ev-finding",
+            "text": "Charging session interrupted",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/ev-action",
+            "text": "ACT-061",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-finding-excursion",
+            "text": "Temperature excursion",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-finding-excursion",
+            "text": "Review recommendation",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/evidence",
+            "text": "Battery output-limit report missing",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/sitework",
+            "text": "ACT-049",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Productive-use headroom",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Review recommendation",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/findings",
+            "text": "Open all Findings →",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold",
+            "text": "Cold room",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/service",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/temperature",
+            "text": "Attention",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/sessions",
+            "text": "Attention",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/backup",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/coldbackup",
+            "text": "Degraded",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-foundation",
+            "text": "N/A",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/asset",
+            "text": "Watch",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold-health",
+            "text": "Investigate",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-health",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/financials",
+            "text": "Review",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold-financials",
+            "text": "Unassessed",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-financials",
+            "text": "Unassessed",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold-evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/evidence",
+            "text": "Inspect the constraint →",
+            "panel": ""
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Review opportunity Finding →",
+            "panel": "An opportunity beyond reducing cost"
+          },
+          {
+            "href": "#/renewable",
+            "text": "Inspect physical headroom →",
+            "panel": "An opportunity beyond reducing cost"
+          },
+          {
+            "href": "#/energy",
+            "text": "Inspect energy basis →",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Where management should act first",
+          "Objectives across the estate",
+          "An opportunity beyond reducing cost",
+          "What changed in this review"
+        ],
+        "panels": [
+          {
+            "title": "Where management should act first",
+            "x": 234,
+            "y": 518,
+            "w": 836,
+            "h": 709,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Site",
+              "Finding / operating mechanism",
+              "Value / consequence",
+              "Priority",
+              "Confidence",
+              "Action / next move"
+            ],
+            "chips": [
+              "All priorities",
+              "Cost",
+              "Risks",
+              "Opportunities",
+              "High",
+              "High",
+              "High",
+              "Lowⓘ",
+              "Medium",
+              "Mediumⓘ",
+              "Medium",
+              "High",
+              "Medium",
+              "High",
+              "Medium",
+              "Mediumⓘ"
+            ],
+            "links": 19,
+            "buttons": 7,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Objectives across the estate",
+            "x": 1086,
+            "y": 518,
+            "w": 309,
+            "h": 375,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 18,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "An opportunity beyond reducing cost",
+            "x": 234,
+            "y": 1244,
+            "w": 573,
+            "h": 223,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Scenario"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(124, 184, 166) 2px",
+            "radius": "7px"
+          },
+          {
+            "title": "What changed in this review",
+            "x": 823,
+            "y": 1244,
+            "w": 573,
+            "h": 223,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1558,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Portfolio Value & Operations",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "400",
+            "lineHeight": "15px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "8px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "10px": 3,
+          "9px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1514
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "portfolio",
+      "case": "w303-positive",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5180/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+      "mock_hash": "#/portfolio",
+      "app_image": "portfolio-w303-positive-390-app.png",
+      "mock_image": "portfolio-w303-positive-390-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Assessment scope & periods ↗",
+            "bodyLen": 22703,
+            "body": "Portfolio scope & consequence ownershipSite / assessmentPeriodScopeCold replay lab · 98 selected assessmentsAssessment IDs00000002-0000-4000-8000-0000000000b600000002-0000-4000-8000-0000000000b800000002-0000-4000-8000-0000000000ba00000002-0000-4000-8000-0000000000bb00000002-0000-4000-8000-0000000000bd00000002-0000-4000-8000-0000000000be00000002-0000-4000-8000-0000000000c000000002-0000-4000-8000-0000000000c200000002-0000-4000-8000-0000000000c400000002-0000-4000-8000-0000000000c600000002-0000-4000-8000-0000000000c800000002-0000-4000-8000-0000000000ca00000002-0000-4000-8000-0000000000cb00000002-0",
+            "scrollH": 7988
+          },
+          {
+            "summary": "Assessment IDs",
+            "bodyLen": 3528,
+            "body": "00000002-0000-4000-8000-0000000000b600000002-0000-4000-8000-0000000000b800000002-0000-4000-8000-0000000000ba00000002-0000-4000-8000-0000000000bb00000002-0000-4000-8000-0000000000bd00000002-0000-4000-8000-0000000000be00000002-0000-4000-8000-0000000000c000000002-0000-4000-8000-0000000000c200000002-0000-4000-8000-0000000000c400000002-0000-4000-8000-0000000000c600000002-0000-4000-8000-0000000000c800000002-0000-4000-8000-0000000000ca00000002-0000-4000-8000-0000000000cb00000002-0000-4000-8000-0000000000cd00000002-0000-4000-8000-0000000000cf00000002-0000-4000-8000-0000000000d100000002-0000-4000-8000-",
+            "scrollH": 3448
+          },
+          {
+            "summary": "Assessment IDs",
+            "bodyLen": 8172,
+            "body": "00000002-0000-4000-8000-00000000024e00000002-0000-4000-8000-00000000025000000002-0000-4000-8000-00000000025200000002-0000-4000-8000-00000000025400000002-0000-4000-8000-00000000025500000002-0000-4000-8000-00000000025600000002-0000-4000-8000-00000000025800000002-0000-4000-8000-00000000025a00000002-0000-4000-8000-00000000025c00000002-0000-4000-8000-00000000025e00000002-0000-4000-8000-00000000026000000002-0000-4000-8000-00000000026200000002-0000-4000-8000-00000000026400000002-0000-4000-8000-00000000026600000002-0000-4000-8000-00000000026800000002-0000-4000-8000-00000000026a00000002-0000-4000-8000-",
+            "scrollH": 7988
+          },
+          {
+            "summary": "Assessment IDs",
+            "bodyLen": 8172,
+            "body": "00000002-0000-4000-8000-0000000004ac00000002-0000-4000-8000-0000000004ae00000002-0000-4000-8000-0000000004b000000002-0000-4000-8000-0000000004b200000002-0000-4000-8000-0000000004b300000002-0000-4000-8000-0000000004b400000002-0000-4000-8000-0000000004b600000002-0000-4000-8000-0000000004b800000002-0000-4000-8000-0000000004ba00000002-0000-4000-8000-0000000004bc00000002-0000-4000-8000-0000000004be00000002-0000-4000-8000-0000000004c000000002-0000-4000-8000-0000000004c200000002-0000-4000-8000-0000000004c400000002-0000-4000-8000-0000000004c600000002-0000-4000-8000-0000000004c800000002-0000-4000-8000-",
+            "scrollH": 7988
+          },
+          {
+            "summary": "Assessment IDs",
+            "bodyLen": 1728,
+            "body": "00000002-0000-4000-8000-0000000006c700000002-0000-4000-8000-0000000006c800000002-0000-4000-8000-0000000006c900000002-0000-4000-8000-0000000006ca00000002-0000-4000-8000-0000000006cb00000002-0000-4000-8000-0000000006cc00000002-0000-4000-8000-0000000006cd00000002-0000-4000-8000-0000000006d200000002-0000-4000-8000-0000000006d300000002-0000-4000-8000-0000000006d400000002-0000-4000-8000-0000000006d500000002-0000-4000-8000-0000000006d600000002-0000-4000-8000-0000000006d700000002-0000-4000-8000-0000000006db00000002-0000-4000-8000-0000000006dc00000002-0000-4000-8000-0000000006dd00000002-0000-4000-8000-",
+            "scrollH": 1689
+          },
+          {
+            "summary": "Record details",
+            "bodyLen": 132,
+            "body": "cold_chain:00000002-0000-4000-8000-000000000178 · sha256:5c1db40a38afd40f76703de835fc92becbe51b29a16c96b45624b36847e02eca · UNPRICED",
+            "scrollH": 91
+          },
+          {
+            "summary": "Inspect basis ↗",
+            "bodyLen": 679,
+            "body": "Change and verification basisSource objectRecorded factOutcome meaningMaintenance workNo completed-work source selectedActivity not establishedPolicy trial0 selected verification windowsOutcome pending, not a verified resultVerification outcomes0 surviving VERIFIED outcomes in 30 daysVerified outcome is not recovered valueNo selected Actions in this windowNo previous comparable Portfolio snapshot is selected; change deltas and recovered-value trends are withheld.Counts use retained Action and verification records. Portfolio does not decide resolution.Action counts cover only Actions created in",
+            "scrollH": 964
+          },
+          {
+            "summary": "Energy basis ↗",
+            "bodyLen": 557,
+            "body": "Selected window: 6 Oct 2026 · 08:00–09:05 UTC.Source basisClassification: REGISTERED_SIMULATIONState: REGISTERED_SIMULATIONSource IDs: 00000002-0000-4000-8000-000000000188Evidence IDs: 00000002-0000-4000-8000-00000000026e, 00000002-0000-4000-8000-00000000028d, 00000002-0000-4000-8000-0000000002ac, 00000002-0000-4000-8000-0000000002cb, 00000002-0000-4000-8000-0000000002ea, 00000002-0000-4000-8000-000000000309, 00000002-0000-4000-8000-00000000031aBasis SHA-256: sha256:9d39949e16d8d597d58b5417206d66491ad808e644441264c7f01ecd4d7c9d7fReasons: None selected",
+            "scrollH": 806
+          }
+        ],
+        "links": [
+          {
+            "href": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Operating-cost exposure$0.00–$3.44Kobo mini-grid · Candidate operating-cost expo",
+            "panel": ""
+          },
+          {
+            "href": "/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Service & product riskNot assessedNo reviewed estate risk classificationRisk cou",
+            "panel": ""
+          },
+          {
+            "href": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Inspect financial basis",
+            "panel": ""
+          },
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "Cold replay lab",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Cold room temperature outside its policy band",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Review Finding",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/COLD-LAB-001",
+            "text": "Cold replay lab",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Backup generator did not start when the grid failed",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "Review Finding",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/KOBO-001",
+            "text": "Kobo mini-grid",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/KOBO-001/findings/00000002-0000-4000-8000-000000000749?revision_id=00000002-0000-4000-8000-00000000074b",
+            "text": "Generator support merits review: bounded candidate avoidable running",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/KOBO-001/findings/00000002-0000-4000-8000-000000000749?revision_id=00000002-0000-4000-8000-00000000074b",
+            "text": "Review Finding",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Open all Findings →",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/performance/temperature",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-001/performance/sessions",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-002/performance/sessions",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001/performance/service",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/performance/backup",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001/performance/backup",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/health",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-001/health",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-002/health",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001/health",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "N/A",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "N/A",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "N/A",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001/financials",
+            "text": "Review",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-25T00%3A02%3A14.776835Z",
+            "text": "None",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/sites/KOBO-001/evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+            "text": "Inspect the constraint →",
+            "panel": ""
+          },
+          {
+            "href": "/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+            "text": "Inspect energy basis →",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Where management should act first",
+          "Objectives across the estate",
+          "An opportunity beyond reducing cost",
+          "What changed in this review"
+        ],
+        "panels": [
+          {
+            "title": "Where management should act first",
+            "x": 16,
+            "y": 1123,
+            "w": 358,
+            "h": 551,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Site",
+              "Finding / operating mechanism",
+              "Value / consequence",
+              "Priority",
+              "Confidence",
+              "Action / next move"
+            ],
+            "chips": [
+              "All findings",
+              "Cost",
+              "Risks",
+              "Opportunities",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed",
+              "Not assessed"
+            ],
+            "links": 10,
+            "buttons": 4,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(227, 232, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Objectives across the estate",
+            "x": 16,
+            "y": 1690,
+            "w": 358,
+            "h": 321,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 18,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(227, 232, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "An opportunity beyond reducing cost",
+            "x": 16,
+            "y": 2213,
+            "w": 358,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Scenario"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(124, 184, 166) 2px",
+            "radius": "7px"
+          },
+          {
+            "title": "What changed in this review",
+            "x": 16,
+            "y": 2509,
+            "w": 358,
+            "h": 308,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source object",
+              "Recorded fact",
+              "Outcome meaning"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [
+              "Change and verification basis"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(227, 232, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2923,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Portfolio Value & Operations",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "400",
+            "lineHeight": "15px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "8px",
+            "weight": "650",
+            "lineHeight": "12.8px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 262,
+            "cw": 150,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 720,
+            "cw": 336,
+            "panel": "Where management should act first"
+          },
+          {
+            "cls": "portfolio-matrix-scroll",
+            "sw": 428,
+            "cw": 328,
+            "panel": "Objectives across the estate"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 323,
+            "cw": 73,
+            "panel": "What changed in this review"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "10px": 3,
+          "9px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "worstCase": [
+          {
+            "title": "Where management should act first",
+            "before": 551,
+            "rows": 3,
+            "after": 817,
+            "clipped": 0,
+            "innerV": [
+              {
+                "cls": "data-table__scroll",
+                "sh": 1258,
+                "ch": 604
+              }
+            ],
+            "primary": {
+              "h": 817,
+              "changedLeaves": 5,
+              "cloneRowHs": [
+                243,
+                243,
+                243,
+                243,
+                242
+              ],
+              "clipped": 0,
+              "innerV": [
+                {
+                  "cls": "data-table__scroll",
+                  "sh": 1258,
+                  "ch": 604
+                }
+              ],
+              "docOverflowX": 0
+            },
+            "stress": {
+              "h": 817,
+              "changedLeaves": 30,
+              "cloneRowHs": [
+                243,
+                243,
+                243,
+                243,
+                242
+              ],
+              "clipped": 0,
+              "innerV": [
+                {
+                  "cls": "data-table__scroll",
+                  "sh": 1258,
+                  "ch": 604
+                }
+              ],
+              "docOverflowX": 0
+            }
+          },
+          {
+            "title": "Objectives across the estate",
+            "before": 321,
+            "rows": 5,
+            "after": 311,
+            "clipped": 0,
+            "innerV": [],
+            "primary": {
+              "h": 311,
+              "changedLeaves": 5,
+              "cloneRowHs": [
+                27,
+                27,
+                27,
+                27,
+                27
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "docOverflowX": 0
+            },
+            "stress": {
+              "h": 311,
+              "changedLeaves": 5,
+              "cloneRowHs": [
+                27,
+                27,
+                27,
+                27,
+                27
+              ],
+              "clipped": 0,
+              "innerV": [],
+              "docOverflowX": 0
+            }
+          },
+          {
+            "title": "An opportunity beyond reducing cost",
+            "before": 268,
+            "rows": 0
+          },
+          {
+            "title": "What changed in this review",
+            "before": 308,
+            "rows": 0
+          }
+        ]
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/portfolio",
+            "text": "Portfolio",
+            "panel": ""
+          },
+          {
+            "href": "#/financials",
+            "text": "Operating-cost exposure$3.31–3.97Kobo · 30 min candidate runtimeModelled + scena",
+            "panel": ""
+          },
+          {
+            "href": "#/findings",
+            "text": "Service & product risk2 sitesCold-room excursion + interrupted chargingMeasured ",
+            "panel": ""
+          },
+          {
+            "href": "#/renewable",
+            "text": "Productive-use opportunity18–20 kWKobo · headroom on 3 of 5 daysModelled · deman",
+            "panel": ""
+          },
+          {
+            "href": "#/asset",
+            "text": "Asset-life exposure1 battery on watchReserve and high-power stress observed30-da",
+            "panel": ""
+          },
+          {
+            "href": "#/globalfinancials",
+            "text": "Verified value recoveredNot establishedIntervention outcomes need more evidenceC",
+            "panel": ""
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-finding",
+            "text": "Backup response failed",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-action",
+            "text": "ACT-051",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/finding",
+            "text": "Extended generator support",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/verification",
+            "text": "ACT-048",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/ev-finding",
+            "text": "Charging session interrupted",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/ev-action",
+            "text": "ACT-061",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold",
+            "text": "GreenHarvest",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-finding-excursion",
+            "text": "Temperature excursion",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/cold-finding-excursion",
+            "text": "Review recommendation",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/evidence",
+            "text": "Battery output-limit report missing",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/sitework",
+            "text": "ACT-049",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Productive-use headroom",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Review recommendation",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/findings",
+            "text": "Open all Findings →",
+            "panel": "Where management should act first"
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold",
+            "text": "Cold room",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev",
+            "text": "Depot",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/service",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/temperature",
+            "text": "Attention",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/sessions",
+            "text": "Attention",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/backup",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/coldbackup",
+            "text": "Degraded",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-foundation",
+            "text": "N/A",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/asset",
+            "text": "Watch",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold-health",
+            "text": "Investigate",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-health",
+            "text": "Unknown",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/financials",
+            "text": "Review",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold-financials",
+            "text": "Unassessed",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-financials",
+            "text": "Unassessed",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/cold-evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/ev-evidence",
+            "text": "Limited",
+            "panel": "Objectives across the estate"
+          },
+          {
+            "href": "#/evidence",
+            "text": "Inspect the constraint →",
+            "panel": ""
+          },
+          {
+            "href": "#/opportunity-finding",
+            "text": "Review opportunity Finding →",
+            "panel": "An opportunity beyond reducing cost"
+          },
+          {
+            "href": "#/renewable",
+            "text": "Inspect physical headroom →",
+            "panel": "An opportunity beyond reducing cost"
+          },
+          {
+            "href": "#/energy",
+            "text": "Inspect energy basis →",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "Where management should act first",
+          "Objectives across the estate",
+          "An opportunity beyond reducing cost",
+          "What changed in this review"
+        ],
+        "panels": [
+          {
+            "title": "Where management should act first",
+            "x": 15,
+            "y": 1147,
+            "w": 360,
+            "h": 773,
+            "tables": 1,
+            "rows": 6,
+            "columns": [
+              "Site",
+              "Finding / operating mechanism",
+              "Value / consequence",
+              "Priority",
+              "Confidence",
+              "Action / next move"
+            ],
+            "chips": [
+              "All priorities",
+              "Cost",
+              "Risks",
+              "Opportunities",
+              "High",
+              "High",
+              "High",
+              "Lowⓘ",
+              "Medium",
+              "Mediumⓘ",
+              "Medium",
+              "High",
+              "Medium",
+              "High",
+              "Medium",
+              "Mediumⓘ"
+            ],
+            "links": 19,
+            "buttons": 7,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Objectives across the estate",
+            "x": 15,
+            "y": 1936,
+            "w": 360,
+            "h": 375,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 18,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "An opportunity beyond reducing cost",
+            "x": 15,
+            "y": 2465,
+            "w": 360,
+            "h": 247,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [
+              "Scenario"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(124, 184, 166) 2px",
+            "radius": "7px"
+          },
+          {
+            "title": "What changed in this review",
+            "x": 15,
+            "y": 2740,
+            "w": 360,
+            "h": 298,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3192,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Portfolio Value & Operations",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "10px",
+            "weight": "400",
+            "lineHeight": "15px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "8px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "table-wrap",
+            "sw": 720,
+            "cw": 338,
+            "panel": "Where management should act first"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "10px": 3,
+          "9px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

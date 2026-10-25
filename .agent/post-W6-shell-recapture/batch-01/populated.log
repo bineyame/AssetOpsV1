@@ -1,0 +1,170 @@
+PASS  loaded http://localhost:5181/sites/KOBO-001/assets/9f7a0a29-c36f-46a0-8203-46a69ccde612: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  asset-kobo001-battery 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/asset: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  asset-kobo001-battery 1440: mock rendered its panels
+PASS  asset-kobo001-battery 1440: app and mock render the same number of panels  {"app":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and its limits"],"mock":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and claim boundary"]}
+PASS  asset-kobo001-battery 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/assets/9f7a0a29-c36f-46a0-8203-46a69ccde612: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  asset-kobo001-battery 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/asset: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  asset-kobo001-battery 390: mock rendered its panels
+PASS  asset-kobo001-battery 390: app and mock render the same number of panels  {"app":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and its limits"],"mock":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and claim boundary"]}
+PASS  asset-kobo001-battery 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/assets/00000000-0000-4000-8000-000000000000: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  asset-unknown-asset 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/asset: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  asset-unknown-asset 1440: mock rendered its panels
+PASS  asset-unknown-asset 1440: app and mock render the same number of panels  {"app":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and its limits"],"mock":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and claim boundary"]}
+PASS  asset-unknown-asset 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/assets/00000000-0000-4000-8000-000000000000: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  asset-unknown-asset 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/asset: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  asset-unknown-asset 390: mock rendered its panels
+PASS  asset-unknown-asset 390: app and mock render the same number of panels  {"app":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and its limits"],"mock":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and claim boundary"]}
+PASS  asset-unknown-asset 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  asset-unknown-site 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/asset: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  asset-unknown-site 1440: mock rendered its panels
+FAIL  asset-unknown-site 1440: app and mock render the same number of panels  {"app":["No such site"],"mock":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and claim boundary"]}
+PASS  asset-unknown-site 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  asset-unknown-site 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/asset: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  asset-unknown-site 390: mock rendered its panels
+FAIL  asset-unknown-site 390: app and mock render the same number of panels  {"app":["No such site"],"mock":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and claim boundary"]}
+PASS  asset-unknown-site 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/changes: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  changes-no-selection 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/changes: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  changes-no-selection 1440: mock rendered its panels
+PASS  changes-no-selection 1440: app and mock render the same number of panels  {"app":["Change and effect","Decision path"],"mock":["Change and effect","Decision path"]}
+PASS  changes-no-selection 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/changes: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  changes-no-selection 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/changes: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  changes-no-selection 390: mock rendered its panels
+PASS  changes-no-selection 390: app and mock render the same number of panels  {"app":["Change and effect","Decision path"],"mock":["Change and effect","Decision path"]}
+PASS  changes-no-selection 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/changes/00000000-0000-4000-8000-000000000000: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  changes-unknown-id 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/changes: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  changes-unknown-id 1440: mock rendered its panels
+PASS  changes-unknown-id 1440: app and mock render the same number of panels  {"app":["Change and effect","Decision path"],"mock":["Change and effect","Decision path"]}
+PASS  changes-unknown-id 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/changes/00000000-0000-4000-8000-000000000000: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  changes-unknown-id 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/changes: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  changes-unknown-id 390: mock rendered its panels
+PASS  changes-unknown-id 390: app and mock render the same number of panels  {"app":["Change and effect","Decision path"],"mock":["Change and effect","Decision path"]}
+PASS  changes-unknown-id 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation?at=2026-09-30T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  foundation-imported-period 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/foundation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  foundation-imported-period 1440: mock rendered its panels
+PASS  foundation-imported-period 1440: app and mock render the same number of panels  {"app":["Configured topology","Identity and operating obligations","Time-valid control configuration"],"mock":["Configured topology","Identity & operating obligations","Time-valid control configuration"]}
+PASS  foundation-imported-period 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation?at=2026-09-30T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  foundation-imported-period 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/foundation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  foundation-imported-period 390: mock rendered its panels
+PASS  foundation-imported-period 390: app and mock render the same number of panels  {"app":["Configured topology","Identity and operating obligations","Time-valid control configuration"],"mock":["Configured topology","Identity & operating obligations","Time-valid control configuration"]}
+PASS  foundation-imported-period 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation?at=2026-09-01T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  foundation-no-version 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/foundation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  foundation-no-version 1440: mock rendered its panels
+PASS  foundation-no-version 1440: app and mock render the same number of panels  {"app":["Configured topology","Identity and operating obligations","Time-valid control configuration"],"mock":["Configured topology","Identity & operating obligations","Time-valid control configuration"]}
+PASS  foundation-no-version 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation?at=2026-09-01T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  foundation-no-version 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/foundation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  foundation-no-version 390: mock rendered its panels
+PASS  foundation-no-version 390: app and mock render the same number of panels  {"app":["Configured topology","Identity and operating obligations","Time-valid control configuration"],"mock":["Configured topology","Identity & operating obligations","Time-valid control configuration"]}
+PASS  foundation-no-version 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  foundation-now 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/foundation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  foundation-now 1440: mock rendered its panels
+PASS  foundation-now 1440: app and mock render the same number of panels  {"app":["Configured topology","Identity and operating obligations","Time-valid control configuration"],"mock":["Configured topology","Identity & operating obligations","Time-valid control configuration"]}
+PASS  foundation-now 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  foundation-now 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/foundation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  foundation-now 390: mock rendered its panels
+PASS  foundation-now 390: app and mock render the same number of panels  {"app":["Configured topology","Identity and operating obligations","Time-valid control configuration"],"mock":["Configured topology","Identity & operating obligations","Time-valid control configuration"]}
+PASS  foundation-now 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/readiness?at=2026-09-01T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  readiness-no-version 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/readiness: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  readiness-no-version 1440: mock rendered its panels
+PASS  readiness-no-version 1440: app and mock render the same number of panels  {"app":["Readiness and commissioning evidence","Gateway status · No gateway selected","Connected sources","Effect on readiness and confidence"],"mock":["Readiness and commissioning evidence","Gateway status · GW-MG-01","Connected sources","Effect on readiness and confidence"]}
+PASS  readiness-no-version 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/readiness?at=2026-09-01T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  readiness-no-version 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/readiness: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  readiness-no-version 390: mock rendered its panels
+PASS  readiness-no-version 390: app and mock render the same number of panels  {"app":["Readiness and commissioning evidence","Gateway status · No gateway selected","Connected sources","Effect on readiness and confidence"],"mock":["Readiness and commissioning evidence","Gateway status · GW-MG-01","Connected sources","Effect on readiness and confidence"]}
+PASS  readiness-no-version 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/readiness: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  readiness-now 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/readiness: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  readiness-now 1440: mock rendered its panels
+PASS  readiness-now 1440: app and mock render the same number of panels  {"app":["Readiness and commissioning evidence","Gateway status · edge-kobo-001","Connected sources","Effect on readiness and confidence"],"mock":["Readiness and commissioning evidence","Gateway status · GW-MG-01","Connected sources","Effect on readiness and confidence"]}
+PASS  readiness-now 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/readiness: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  readiness-now 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/readiness: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  readiness-now 390: mock rendered its panels
+PASS  readiness-now 390: app and mock render the same number of panels  {"app":["Readiness and commissioning evidence","Gateway status · edge-kobo-001","Connected sources","Effect on readiness and confidence"],"mock":["Readiness and commissioning evidence","Gateway status · GW-MG-01","Connected sources","Effect on readiness and confidence"]}
+PASS  readiness-now 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sites-stocked 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/sites: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sites-stocked 1440: mock rendered its panels
+PASS  sites-stocked 1440: app and mock render the same number of panels  {"app":["Site inventory","In setup"],"mock":["Site inventory","In setup"]}
+PASS  sites-stocked 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sites-stocked 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/sites: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sites-stocked 390: mock rendered its panels
+PASS  sites-stocked 390: app and mock render the same number of panels  {"app":["Site inventory","In setup"],"mock":["Site inventory","In setup"]}
+PASS  sites-stocked 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/sld?component=battery: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sld-battery 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/sld: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sld-battery 1440: mock rendered its panels
+PASS  sld-battery 1440: app and mock render the same number of panels  {"app":["Kobo mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
+PASS  sld-battery 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/sld?component=battery: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sld-battery 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/sld: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sld-battery 390: mock rendered its panels
+PASS  sld-battery 390: app and mock render the same number of panels  {"app":["Kobo mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
+PASS  sld-battery 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/sld: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sld-now 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/sld: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sld-now 1440: mock rendered its panels
+PASS  sld-now 1440: app and mock render the same number of panels  {"app":["Kobo mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
+PASS  sld-now 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/sld: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sld-now 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/sld: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sld-now 390: mock rendered its panels
+PASS  sld-now 390: app and mock render the same number of panels  {"app":["Kobo mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
+PASS  sld-now 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/sld?component=no-such-part: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sld-unknown-part 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/sld: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sld-unknown-part 1440: mock rendered its panels
+PASS  sld-unknown-part 1440: app and mock render the same number of panels  {"app":["Kobo mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
+PASS  sld-unknown-part 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/sld?component=no-such-part: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sld-unknown-part 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/sld: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sld-unknown-part 390: mock rendered its panels
+PASS  sld-unknown-part 390: app and mock render the same number of panels  {"app":["Kobo mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
+PASS  sld-unknown-part 390: app has no horizontal page overflow  {"overflowX":0}
+
+166/168 claims passed; evidence in .agent/post-W6-shell-recapture/batch-01/populated

@@ -69,7 +69,6 @@ import {
   recommendationWords,
   when,
 } from "./actionPresentation";
-import { FINDING_NAME } from "./SiteFindingEvidence";
 import "./w1f4-recommendation.css";
 
 export interface SiteRecommendationLinks {
@@ -113,9 +112,9 @@ export function SiteRecommendation({
   const [outcome, setOutcome] = useState<CommandResult | null>(null);
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    onTitle?.(FINDING_NAME);
-  }, [onTitle]);
+  // post-W6 W1-a Q16 / R193: the heading is the frame's: the resolved Finding record's title, or "Finding" when the
+  // selection refuses. This view no longer sets a fixed name.
+  void onTitle;
 
   useEffect(() => {
     setLastLoaded(null);

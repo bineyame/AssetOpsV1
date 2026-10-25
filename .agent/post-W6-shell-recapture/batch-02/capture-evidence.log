@@ -1,0 +1,99 @@
+chrome pid 32028
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-no-readings 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-no-readings 1440: mock rendered
+PASS  evidence-no-readings 1440: same panel count  {"app":["What we can conclude now","Data sources · data quality, not equipment condition","Most useful next evidence"],"mock":["What we can conclude now","Data sources · data quality, not equipment condition","Most useful next evidence"]}
+PASS  evidence-no-readings 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-no-readings 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-no-readings 390: mock rendered
+PASS  evidence-no-readings 390: same panel count  {"app":["What we can conclude now","Data sources · data quality, not equipment condition","Most useful next evidence"],"mock":["What we can conclude now","Data sources · data quality, not equipment condition","Most useful next evidence"]}
+PASS  evidence-no-readings 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-no-selection 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-no-selection 1440: mock rendered
+PASS  evidence-analysis-no-selection 1440: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-no-selection 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-no-selection 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-no-selection 390: mock rendered
+PASS  evidence-analysis-no-selection 390: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-no-selection 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=a4589610-12ab-497f-a488-038d0047ac87: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-supported 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-supported 1440: mock rendered
+PASS  evidence-analysis-supported 1440: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-supported 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=a4589610-12ab-497f-a488-038d0047ac87: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-supported 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-supported 390: mock rendered
+PASS  evidence-analysis-supported 390: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-supported 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=c487f363-5e6c-4df4-9310-ef8eb5bbeb5b: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-indeterminate 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-indeterminate 1440: mock rendered
+PASS  evidence-analysis-indeterminate 1440: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-indeterminate 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=c487f363-5e6c-4df4-9310-ef8eb5bbeb5b: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-indeterminate 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-indeterminate 390: mock rendered
+PASS  evidence-analysis-indeterminate 390: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-indeterminate 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=a0a2209f-1069-4f6c-9e37-b3852e393dfa: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-limited 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-limited 1440: mock rendered
+PASS  evidence-analysis-limited 1440: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-limited 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=a0a2209f-1069-4f6c-9e37-b3852e393dfa: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-limited 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-limited 390: mock rendered
+PASS  evidence-analysis-limited 390: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-limited 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-13&revision=f311aa92-bca4-495e-8e8f-21f7f284f3d9: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-historical 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-historical 1440: mock rendered
+PASS  evidence-analysis-historical 1440: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-historical 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-13&revision=f311aa92-bca4-495e-8e8f-21f7f284f3d9: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-historical 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-historical 390: mock rendered
+PASS  evidence-analysis-historical 390: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-historical 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-15&revision=360d977d-8312-4242-824c-fdb4ea0c416e: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-stale 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-stale 1440: mock rendered
+PASS  evidence-analysis-stale 1440: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-stale 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-15&revision=360d977d-8312-4242-824c-fdb4ea0c416e: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-stale 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-stale 390: mock rendered
+PASS  evidence-analysis-stale 390: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-stale 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=a4589610-12ab-497f-a488-038d0047ac87: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-refused-other-day 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-analysis-refused-other-day 1440: mock rendered
+PASS  evidence-analysis-refused-other-day 1440: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-refused-other-day 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=a4589610-12ab-497f-a488-038d0047ac87: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-refused-other-day 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/evidence-analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-analysis-refused-other-day 390: mock rendered
+PASS  evidence-analysis-refused-other-day 390: same panel count  {"app":["Accepted records behind the conclusions","How each limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  evidence-analysis-refused-other-day 390: no app page overflow  {"overflowX":0}
+
+96/96 claims passed; evidence in .agent/post-W6-shell-recapture/batch-02/part-evidence

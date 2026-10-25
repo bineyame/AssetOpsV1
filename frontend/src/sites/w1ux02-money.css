@@ -282,3 +282,27 @@
 .price-history__row td.price-history__status {
   white-space: nowrap;
 }
+
+/* post-W6 W1-b Q23 cap fallback (pre-flight ruling 7): the Interpretation history version table scrolls inside one
+   focusable region so the closed panel stays within 800 px at 1440 and 1400 px at 390. */
+.consequence-history__versions {
+  max-height: 480px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.consequence-history__versions:focus-visible {
+  outline: 2px solid var(--focus, #1d4ed8);
+  outline-offset: 2px;
+}
+.consequence-history__scroll-cue {
+  margin: 0 0 4px;
+  font-size: 12px;
+}
+.consequence-history__scroll-cue[hidden] {
+  display: none;
+}
+@media (max-width: 640px) {
+  .consequence-history__versions {
+    max-height: 900px;
+  }
+}

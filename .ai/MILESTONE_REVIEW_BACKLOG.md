@@ -2433,6 +2433,7 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 
 ## Recurring flake (2026-10-24)
 - test_s4_schedule_tick_postgres.py::TestKillableStagesAndServerTimeouts::test_a_hung_stage_is_killed... failed in 3 consecutive full suites under -n 4 (PENDING vs LEASED / FAILED vs COMPLETED) and passes alone every time. Deflake (timing bound or lease wait) in the post-W6 hardening pass.
+- 2026-10-25: the same test now also fails ALONE (on main and on the R373 branch) while other agents load the machine, at line 438 (FAILED vs COMPLETED). test_s4_schedule_health_postgres.py::TestTickCost::test_measure_a_real_child_tick_over_one_and_four_sites failed once in the R373 full suite and passed alone. Both are load-sensitive timing bounds; deflaking is now more urgent.
 
 ## W5-04a Lows
 - Per-mode walkthrough DB URLs are built by string concatenation; a harness URL with a query string (?sslmode=) would break them.
@@ -2449,3 +2450,5 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - V5 no-write check omits work_case_action_link, work_case_finding_link, work_case_revision, verification_outcome, verification_evaluation_request; compares only the cited session; status in (CURRENT,HISTORICAL) accepts a swap (test_w504_ev_intent_api.py:299,313-317,349).
 - R113 cites 69+ (should be 71); W5-04c handoff opening and calls 1,2,9 read stale; old top-level W5-04c captures assert the bare link and are not marked superseded by post-w504b/.
 - UI pass: dark mobile header stretches to ~275-335 px on short 390 pages (also cold K4).
+
+- **Frontend load flakes (2026-10-25).** `frontend/src/**/evEnergy.test.tsx` "energy_states_table_loading" ("the store read has not settled", 14 s timeout) fails intermittently in full vitest runs that overlap captures/suites (seen in shell, W1-a, W1-b batches); passes alone. Also once: `s404SiteFindingIndex.test.tsx` "assessed empty > changing the dates writes a new window…". Make the waits deterministic (fake timers or longer per-test timeout) in a small test-hygiene slice.

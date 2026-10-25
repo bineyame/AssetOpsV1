@@ -1,0 +1,8 @@
+[
+ {
+  "id": "cold-action",
+  "case": "all-open",
+  "url": "http://localhost:5185/sites/COLD-LAB-001/actions/0ae3398b-f434-4e1c-a9e7-e30d11420775/verification",
+  "openAll": true
+ }
+]

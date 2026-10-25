@@ -19,7 +19,7 @@ import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import { defaultWorkWindow, type WorkIndexBody, type WorkRow } from "../workClient";
-import { WORK_CONTEXT_NOTICE, WORK_CONTEXT_NOTICE_DOMAIN, globalWorkManageHref, shortName } from "../siteWorkCases";
+import { WORK_CONTEXT_NOTICE, WORK_CONTEXT_NOTICE_DOMAIN, WORK_KIND_COPY, countWords, globalWorkManageHref, shortName } from "../siteWorkCases";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 
@@ -329,7 +329,7 @@ describe("W4-01: Site > Work > Incidents", () => {
     expect(text(changed)).toContain("The list changed. Reload the first page.");
     fireEvent.click(changed.querySelector("[data-work-restart]") as HTMLElement);
     await settledScreen();
-    expect(text(strip())).toContain("Scoped to Kobo · 1 incidents");
+    expect(text(strip())).toMatch(/Scoped to Kobo · 1 incident(?!s)/);
   });
 
   it("finding_link_uses_pinned_revision", async () => {
@@ -363,7 +363,7 @@ describe("W4-01: Site > Work > Incidents", () => {
     expect(unlinked.closest("a")).toBeNull();
     expect(panel.textContent).not.toMatch(/\bF-\d+/);
     // The missing selected source is a neutral link qualification, the case count stays exact.
-    expect(text(strip())).toContain("Scoped to Kobo · 1 incidents");
+    expect(text(strip())).toMatch(/Scoped to Kobo · 1 incident(?!s)/);
     expect(text(strip())).toContain("No selected source for linked evidence");
     expect(panel.querySelector("[data-work-coverage-line='LINK_SELECTION_MISSING']")).not.toBeNull();
   });
@@ -394,7 +394,7 @@ describe("W4-01: Site > Work > Maintenance", () => {
     await settledScreen();
     expectSlots("sitework-maintenance");
     expectPlantedPanelRejected("sitework-maintenance");
-    expect(text(strip())).toContain("Scoped to Kobo · 3 maintenance");
+    expect(text(strip())).toContain("Scoped to Kobo · 3 maintenance cases");
     // W6-01b B2: the Maintenance strip links to the live global page with the Site window and the loaded cutoff.
     expect(text(strip())).not.toContain("Not available yet");
     expect(Array.from(strip().querySelectorAll("a")).map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
@@ -750,7 +750,7 @@ describe("W4-03 unit 8: Site Work decision context", () => {
       expect(row(id).querySelector("[data-work-case-title] a")).toBeNull();
     }
     expect(row(ids[1]).querySelector("[data-work-decision-context]")).toBeNull();
-    expect(text(strip())).toContain("Scoped to Kobo · 2 maintenance");
+    expect(text(strip())).toContain("Scoped to Kobo · 2 maintenance cases");
     cleanup();
 
     // A refused overlay says so on every row without hiding them or implying they are unlinked.
@@ -768,7 +768,7 @@ describe("W4-03 unit 8: Site Work decision context", () => {
     for (const el of Array.from(refusedPanel.querySelectorAll("[data-work-decision-context]"))) {
       expect(text(el)).toBe("Decision context unavailable");
     }
-    expect(text(strip())).toContain("Scoped to Kobo · 2 maintenance");
+    expect(text(strip())).toContain("Scoped to Kobo · 2 maintenance cases");
   });
 });
 
@@ -802,5 +802,14 @@ describe("W5-02 K2a shared Work literals", () => {
       "Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet.",
     );
     expect(WORK_CONTEXT_NOTICE_DOMAIN).not.toContain("create flow");
+  });
+});
+
+describe("post-W6 shell R319: count strip grammar", () => {
+  it("says 0/1/many incidents and maintenance cases", () => {
+    const inc = WORK_KIND_COPY.incidents.noun;
+    const maint = WORK_KIND_COPY.maintenance.noun;
+    expect([0, 1, 2].map((n) => countWords(n, inc))).toEqual(["0 incidents", "1 incident", "2 incidents"]);
+    expect([0, 1, 3].map((n) => countWords(n, maint))).toEqual(["0 maintenance cases", "1 maintenance case", "3 maintenance cases"]);
   });
 });

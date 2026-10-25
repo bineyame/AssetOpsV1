@@ -1,0 +1,194 @@
+[
+ {
+  "name": "action-history-s601b-all",
+  "variant": "ah-160x5",
+  "w": 1440,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/051aa3c2-9081-40ec-9403-43857ea84850/history",
+  "baselinePanels": [
+   {
+    "t": "Action history",
+    "h": 355
+   }
+  ],
+  "baselineDocOverflowX": 0,
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "fields160": 5,
+  "template": "FAILED",
+  "countsLine": true,
+  "countsText": "Showing the latest 3 of 6 recorded entries; show all to see every entry.",
+  "colW": [
+   90,
+   743,
+   127,
+   160
+  ],
+  "title": "Action history",
+  "panelH": 558,
+  "rowHs": [
+   74,
+   75,
+   75,
+   75,
+   74
+  ],
+  "clipped": [
+   "CAPTION.w1f4-action-caption"
+  ],
+  "innerScrollX": [],
+  "tableScroller": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1120,
+    "cw": 1120
+   }
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "action-history-s601b-all",
+  "variant": "ah-160x5",
+  "w": 390,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/051aa3c2-9081-40ec-9403-43857ea84850/history",
+  "baselinePanels": [
+   {
+    "t": "Action history",
+    "h": 451
+   }
+  ],
+  "baselineDocOverflowX": 0,
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "fields160": 5,
+  "template": "FAILED",
+  "countsLine": true,
+  "countsText": "Showing the latest 3 of 6 recorded entries; show all to see every entry.",
+  "colW": [
+   62,
+   165,
+   74,
+   160
+  ],
+  "title": "Action history",
+  "panelH": 963,
+  "rowHs": [
+   145,
+   145,
+   145,
+   145,
+   145
+  ],
+  "clipped": [
+   "CAPTION.w1f4-action-caption"
+  ],
+  "innerScrollX": [
+   "data-table__scroll:461/318"
+  ],
+  "tableScroller": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 461,
+    "cw": 318
+   }
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "action-history-s601b-all",
+  "variant": "ah-160x5-cell",
+  "w": 1440,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/051aa3c2-9081-40ec-9403-43857ea84850/history",
+  "baselinePanels": [
+   {
+    "t": "Action history",
+    "h": 355
+   }
+  ],
+  "baselineDocOverflowX": 0,
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "fields160": 5,
+  "template": "FAILED",
+  "countsLine": true,
+  "countsText": "Showing the latest 3 of 6 recorded entries; show all to see every entry.",
+  "colW": [
+   90,
+   742,
+   127,
+   160
+  ],
+  "title": "Action history",
+  "panelH": 454,
+  "rowHs": [
+   54,
+   54,
+   54,
+   54,
+   54
+  ],
+  "clipped": [
+   "CAPTION.w1f4-action-caption"
+  ],
+  "innerScrollX": [],
+  "tableScroller": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1120,
+    "cw": 1120
+   }
+  ],
+  "docOverflowX": 0
+ },
+ {
+  "name": "action-history-s601b-all",
+  "variant": "ah-160x5-cell",
+  "w": 390,
+  "url": "http://localhost:5186/sites/KOBO-001/actions/051aa3c2-9081-40ec-9403-43857ea84850/history",
+  "baselinePanels": [
+   {
+    "t": "Action history",
+    "h": 451
+   }
+  ],
+  "baselineDocOverflowX": 0,
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "fields160": 5,
+  "template": "FAILED",
+  "countsLine": true,
+  "countsText": "Showing the latest 3 of 6 recorded entries; show all to see every entry.",
+  "colW": [
+   62,
+   70,
+   74,
+   160
+  ],
+  "title": "Action history",
+  "panelH": 2266,
+  "rowHs": [
+   406,
+   406,
+   406,
+   406,
+   406
+  ],
+  "clipped": [
+   "CAPTION.w1f4-action-caption"
+  ],
+  "innerScrollX": [
+   "data-table__scroll:366/318"
+  ],
+  "tableScroller": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 366,
+    "cw": 318
+   }
+  ],
+  "docOverflowX": 0
+ }
+]

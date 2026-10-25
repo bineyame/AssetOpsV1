@@ -1,0 +1,188 @@
+[
+ {
+  "screen": "finding",
+  "case": "late-stale",
+  "width": "1440",
+  "h1": "Generator support merits review",
+  "titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "panels": [
+   {
+    "t": "What happened",
+    "h": 338,
+    "openDetails": 0
+   },
+   {
+    "t": "What limits this conclusion",
+    "h": 308,
+    "openDetails": 0
+   },
+   {
+    "t": "What to do next",
+    "h": 211,
+    "openDetails": 0
+   },
+   {
+    "t": "Where to look next",
+    "h": 613,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 1,
+  "r383AfterTabs": true,
+  "railActive": [
+   "Findings"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/findings/88e322b3-85e3-4188-90e5-f14f32518898"
+ },
+ {
+  "screen": "finding",
+  "case": "late-stale",
+  "width": "390",
+  "h1": "Generator support merits review",
+  "titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "panels": [
+   {
+    "t": "What happened",
+    "h": 562,
+    "openDetails": 0
+   },
+   {
+    "t": "What limits this conclusion",
+    "h": 414,
+    "openDetails": 0
+   },
+   {
+    "t": "What to do next",
+    "h": 231,
+    "openDetails": 0
+   },
+   {
+    "t": "Where to look next",
+    "h": 716,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 1,
+  "r383AfterTabs": true,
+  "railActive": [
+   "Findings"
+  ],
+  "headerH": 91,
+  "url": "http://localhost:5185/sites/KOBO-001/findings/88e322b3-85e3-4188-90e5-f14f32518898"
+ },
+ {
+  "screen": "finding-history",
+  "case": "late-stale",
+  "width": "1440",
+  "h1": "Generator support merits review",
+  "titles": [
+   "Revision history"
+  ],
+  "panels": [
+   {
+    "t": "Revision history",
+    "h": 518,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 1,
+  "r383AfterTabs": true,
+  "railActive": [
+   "Findings"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/findings/88e322b3-85e3-4188-90e5-f14f32518898/history"
+ },
+ {
+  "screen": "finding-history",
+  "case": "late-stale",
+  "width": "390",
+  "h1": "Generator support merits review",
+  "titles": [
+   "Revision history"
+  ],
+  "panels": [
+   {
+    "t": "Revision history",
+    "h": 980,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 1,
+  "r383AfterTabs": true,
+  "railActive": [
+   "Findings"
+  ],
+  "headerH": 91,
+  "url": "http://localhost:5185/sites/KOBO-001/findings/88e322b3-85e3-4188-90e5-f14f32518898/history"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "late-stale",
+  "width": "1440",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 242,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 59,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch"
+ },
+ {
+  "screen": "sitefindings",
+  "case": "late-stale",
+  "width": "390",
+  "h1": "Kobo mini-grid",
+  "titles": [
+   "Findings at this site"
+  ],
+  "panels": [
+   {
+    "t": "Findings at this site",
+    "h": 437,
+    "openDetails": 0
+   }
+  ],
+  "overflowX": 0,
+  "siteTabRows": 1,
+  "r383Count": 0,
+  "r383AfterTabs": false,
+  "railActive": [
+   "Sites"
+  ],
+  "headerH": 72,
+  "url": "http://localhost:5185/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch"
+ }
+]

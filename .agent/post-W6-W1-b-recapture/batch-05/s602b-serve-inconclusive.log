@@ -1,0 +1,37 @@
+API for assetops_s602b_audit_w1brc on http://127.0.0.1:18142
+API for assetops_s602b_audit_w1brc_inconclusive (TEST-SCOPED inconclusive) on http://127.0.0.1:18143
+Frontends, each in its own PowerShell window, from frontend/:
+  $env:ASSETOPS_API_PORT="18142"; npm.cmd run dev -- --port 5186 --strictPort
+  $env:ASSETOPS_API_PORT="18143"; npm.cmd run dev -- --port 5187 --strictPort
+Replayed Action ACT-000001 (a44cec10-84d8-4cdd-8a1c-260f96fb43f8), manifest backend/conversions/d-verification-window-v2.json
+  Finding (origin version)
+    http://localhost:5186/sites/KOBO-001/findings/dd081377-c2bf-4665-b6de-ca13c9efef04?revision_id=7381af6e-6333-49be-8f2c-73fdedd9372e
+  Recommendation with success panels
+    http://localhost:5186/sites/KOBO-001/findings/dd081377-c2bf-4665-b6de-ca13c9efef04/recommendation?revision_id=7381af6e-6333-49be-8f2c-73fdedd9372e
+  Action overview
+    http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8
+  Plan (current)
+    http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/plan
+  Evidence (current)
+    http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/evidence
+  Verification (current: VERIFIED)
+    http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/verification
+  Verification, exact outcome (Historical label)
+    http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/verification?outcome_id=04b44b8a-4eac-4588-99aa-0baa27005b4f
+  Plan, exact plan
+    http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/plan?plan_revision_id=424e14a4-7dbf-4cfb-bc57-72edbdf51f5d
+  Selector conflict
+    http://localhost:5186/sites/KOBO-001/actions/a44cec10-84d8-4cdd-8a1c-260f96fb43f8/verification?outcome_id=04b44b8a-4eac-4588-99aa-0baa27005b4f&recorded_at=2026-10-16T01:00:00+00:00
+  Foundation change (later effect)
+    http://localhost:5186/sites/KOBO-001/foundation/changes/06035eb8-e853-4730-abca-b7b443852387
+TEST-SCOPED examples (not Lab runs) on the second frontend, port 5187, one case at a time (serve --case NAME):
+  [target_miss] TEST-SCOPED: Target not met (INEFFECTIVE, TARGET_MISS) - authored complete windows
+    http://localhost:5187/sites/KOBO-001/actions/da269095-08dc-4295-8c83-b9029f0d1a31/verification
+  [guardrail] TEST-SCOPED: Trial missed a safety or service limit (INEFFECTIVE, GUARDRAIL_FAIL) and the hold on a different Finding - authored complete windows
+    http://localhost:5187/sites/KOBO-001/actions/cfbf767a-ab01-46df-9c2d-adfab8c80505/verification
+    hold: http://localhost:5187/sites/KOBO-001/findings/93073b1d-d7fa-44b6-b062-b900dc9e8d77/recommendation?revision_id=53d19260-2951-4ba4-856b-529b582d559c
+  [inconclusive] TEST-SCOPED: Could not conclude (INCONCLUSIVE) - the real roles-2 windows are incomplete; no fake
+    http://localhost:5187/sites/KOBO-001/actions/ae4dffa4-3d8d-48a4-bfeb-ddccff6e4f33/verification
+  [withdrawn] TEST-SCOPED: VERIFIED, then late evidence: resolution withdrawn, overlap hold, re-settled INCONCLUSIVE - authored complete windows plus the real late reading
+    http://localhost:5187/sites/KOBO-001/actions/cd814ebb-cafd-447b-9b45-be56fb1eb1ef/verification
+    hold: http://localhost:5187/sites/KOBO-001/findings/4d93cbdd-fc83-4de2-b02e-d039a08fac90/recommendation?revision_id=10c2206a-dee4-4397-89b6-a887b59573bd

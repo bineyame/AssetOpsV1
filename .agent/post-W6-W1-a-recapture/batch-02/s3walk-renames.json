@@ -1,0 +1,3 @@
+[["SOURCE_DB, DB = \"assetops_s3cases\", \"assetops_s3walk\"", "SOURCE_DB, DB = \"assetops_s3cases\", \"assetops_w1arc_b02_s3walk_test\""],
+ ["WORK = Path(os.environ.get(\"LOCALAPPDATA\", Path.home())) / \"AssetOps\" / \"s3-dispatch-walkthrough\"", "WORK = Path(os.environ.get(\"LOCALAPPDATA\", Path.home())) / \"AssetOps\" / \"w1arc-b2-s3walk\"\nPRODUCER_WORK_PARENT = Path(os.environ.get(\"LOCALAPPDATA\", Path.home())) / \"AssetOps\""],
+ ["PRODUCER_MANIFEST = WORK.parent / \"s3-dispatch-cases\"", "PRODUCER_MANIFEST = PRODUCER_WORK_PARENT / \"s3-dispatch-cases\""]]

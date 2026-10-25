@@ -686,3 +686,48 @@ describe("W1-F2: v69 dispatch and analysis panel structure", () => {
     }
   });
 });
+
+describe("post-W6 W1-a Q6 / R178: a whole-window assessment named as the selected revision", () => {
+  const whole = (over: Partial<RevisionDetail> = {}): RevisionDetail =>
+    ({
+      ...detail(revision("win-1", "CANDIDATE_AVOIDABLE")),
+      assessment_key: "dispatch:window:g:2026-10-02",
+      scope: "WINDOW",
+      result: { portions_minutes: { necessary: "15", candidate: "15", indeterminate: "0" } },
+      ...over,
+    }) as unknown as RevisionDetail;
+
+  it("refuses a window-shaped revision with the ruled copy and a link to the bare day, without throwing", async () => {
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, { "win-1": whole() });
+    const { container } = mount(client, "?day=2026-10-02&revision=win-1&block=1");
+    await settledScreen();
+    await waitFor(() => expect(container.querySelector("[data-dispatch-refused='not-interval']")).not.toBeNull());
+    const refusal = container.querySelector("[data-page-refusal='not-interval']") as HTMLElement;
+    expect(refusal.querySelector(".page-refusal__title")?.textContent).toBe("This assessment cannot be shown as 15-minute blocks");
+    expect(refusal.textContent).toContain(
+      "The address names a whole-window assessment, not a 15-minute interval result for this day. Open the day without a selected revision.",
+    );
+    const open = refusal.querySelector("[data-dispatch-open-day]") as HTMLAnchorElement;
+    expect(open.textContent).toBe("Open this day");
+    expect(open.getAttribute("href")).toBe("/sites/KOBO-001/performance/dispatch?day=2026-10-02");
+    expect(container.querySelector("[data-selected-revision]")).toBeNull();
+  });
+
+  it("refuses a known WINDOW scope even when it carries interval-shaped fields", async () => {
+    const shaped = { ...detail(revision("win-2", "NECESSARY")), scope: "WINDOW" } as RevisionDetail;
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, { "win-2": shaped });
+    const { container } = mount(client, "?day=2026-10-02&revision=win-2&block=0");
+    await settledScreen();
+    await waitFor(() => expect(container.querySelector("[data-dispatch-refused='not-interval']")).not.toBeNull());
+  });
+
+  it("keeps a valid interval revision from another day as the labelled stored-other-day notice, with an unknown scope", async () => {
+    const other = { ...revision("rev-other", "CANDIDATE_AVOIDABLE"), window_start: "2026-09-30T00:00:00+00:00", scope: "SOMETHING_NEW" };
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, { "rev-other": detail(other) });
+    const { container } = mount(client, "?day=2026-10-02&revision=rev-other&block=1");
+    await settledScreen();
+    await waitFor(() => expect(container.querySelector("[data-selected-revision='rev-other']")).not.toBeNull());
+    expect(container.querySelector("[data-dispatch-refused='not-interval']")).toBeNull();
+    expect(container.querySelector("[data-dispatch-pinned]")).not.toBeNull();
+  });
+});

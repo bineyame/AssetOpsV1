@@ -1,0 +1,75 @@
+chrome pid 29480
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/foundation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-foundation-stocked 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/cold-foundation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-foundation-stocked 1440: mock rendered
+PASS  cold-foundation-stocked 1440: same panel count  {"app":["Physical site","Operating interpretation"],"mock":["Physical site","Operating interpretation"]}
+PASS  cold-foundation-stocked 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/foundation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-foundation-stocked 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/cold-foundation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-foundation-stocked 390: mock rendered
+PASS  cold-foundation-stocked 390: same panel count  {"app":["Physical site","Operating interpretation"],"mock":["Physical site","Operating interpretation"]}
+PASS  cold-foundation-stocked 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/foundation/readiness: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-readiness-stocked 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/cold-readiness: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-readiness-stocked 1440: mock rendered
+PASS  cold-readiness-stocked 1440: same panel count  {"app":["Readiness and commissioning evidence","Gateway status · edge-cold-lab-001","Connected sources","Effect on readiness and confidence"],"mock":["Readiness and commissioning evidence","Gateway status · GW-CR-01","Connected sources","Effect on readiness and confidence"]}
+PASS  cold-readiness-stocked 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/foundation/readiness: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-readiness-stocked 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/cold-readiness: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-readiness-stocked 390: mock rendered
+PASS  cold-readiness-stocked 390: same panel count  {"app":["Readiness and commissioning evidence","Gateway status · edge-cold-lab-001","Connected sources","Effect on readiness and confidence"],"mock":["Readiness and commissioning evidence","Gateway status · GW-CR-01","Connected sources","Effect on readiness and confidence"]}
+PASS  cold-readiness-stocked 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/foundation/sld: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-sld-stocked 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/cold-sld: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-sld-stocked 1440: mock rendered
+PASS  cold-sld-stocked 1440: same panel count  {"app":["Cold replay lab","What each part does"],"mock":["GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup","What each part does"]}
+PASS  cold-sld-stocked 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/foundation/sld: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-sld-stocked 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/cold-sld: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-sld-stocked 390: mock rendered
+PASS  cold-sld-stocked 390: same panel count  {"app":["Cold replay lab","What each part does"],"mock":["GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup","What each part does"]}
+PASS  cold-sld-stocked 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  temperature-excursion 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/temperature: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  temperature-excursion 1440: mock rendered
+PASS  temperature-excursion 1440: same panel count  {"app":["Temperature with operating context","Excursion context","Claim boundary"],"mock":["Temperature with operating context","Excursion context","Claim boundary"]}
+PASS  temperature-excursion 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  temperature-excursion 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/temperature: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  temperature-excursion 390: mock rendered
+PASS  temperature-excursion 390: same panel count  {"app":["Temperature with operating context","Excursion context","Claim boundary"],"mock":["Temperature with operating context","Excursion context","Claim boundary"]}
+PASS  temperature-excursion 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  coldbackup-excursion 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/coldbackup: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  coldbackup-excursion 1440: mock rendered
+PASS  coldbackup-excursion 1440: same panel count  {"app":["What the chain shows","Reconstructed event chain","Backup event chains","Evidence by causal step"],"mock":["What the chain shows","Reconstructed event chain","Backup event chains","Evidence by causal step"]}
+PASS  coldbackup-excursion 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  coldbackup-excursion 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/coldbackup: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  coldbackup-excursion 390: mock rendered
+PASS  coldbackup-excursion 390: same panel count  {"app":["What the chain shows","Reconstructed event chain","Backup event chains","Evidence by causal step"],"mock":["What the chain shows","Reconstructed event chain","Backup event chains","Evidence by causal step"]}
+PASS  coldbackup-excursion 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-finding-start-excursion 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/cold-finding: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-finding-start-excursion 1440: mock rendered
+PASS  cold-finding-start-excursion 1440: same panel count  {"app":["Bounded conclusion","Operational context","Recommended next step"],"mock":["Bounded conclusion","Operational context","Recommended next step"]}
+PASS  cold-finding-start-excursion 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-finding-start-excursion 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/cold-finding: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-finding-start-excursion 390: mock rendered
+PASS  cold-finding-start-excursion 390: same panel count  {"app":["Bounded conclusion","Operational context","Recommended next step"],"mock":["Bounded conclusion","Operational context","Recommended next step"]}
+PASS  cold-finding-start-excursion 390: no app page overflow  {"overflowX":0}
+
+72/72 claims passed; evidence in .agent/post-W6-shell-recapture/batch-06/excursion

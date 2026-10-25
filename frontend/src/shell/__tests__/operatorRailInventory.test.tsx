@@ -232,7 +232,28 @@ describe("Site Action detail rail selection (W5-02c K4a)", () => {
     ]);
   });
 
+  // post-W6 W1-b Q25 / R202 (pre-flight ruling 6): every Site Finding detail path and child selects Findings.
   it.each([
+    ["a W1 mini-grid Finding overview", "/sites/KOBO-001/findings/7d3c1f2e-0a4b-4c5d-8e9f-0a1b2c3d4e5f"],
+    ["a W1 mini-grid Finding Recommendation", "/sites/KOBO-001/findings/7d3c1f2e-0a4b-4c5d-8e9f-0a1b2c3d4e5f/recommendation"],
+    ["a W1 mini-grid Finding Evidence", "/sites/KOBO-001/findings/7d3c1f2e-0a4b-4c5d-8e9f-0a1b2c3d4e5f/evidence"],
+    ["a W1 mini-grid Finding History", "/sites/KOBO-001/findings/7d3c1f2e-0a4b-4c5d-8e9f-0a1b2c3d4e5f/history"],
+    ["a W1 mini-grid Finding Alternatives", "/sites/KOBO-001/findings/7d3c1f2e-0a4b-4c5d-8e9f-0a1b2c3d4e5f/alternatives"],
+    ["a cold Finding", "/sites/CR-TEST-01/findings/6f1c2a7e-0d4b-4c3e-9a51-1b2c3d4e5f60"],
+    ["an EV Finding child", "/sites/EV-LAB-001/findings/3e0a9b1c-7d2f-4e6a-8b5c-0f1e2d3c4b5a/evidence"],
+  ])("selects Findings alone on %s", async (_name, path) => {
+    const { links, current, active } = await railAt(path);
+    expect(current).toEqual(["Findings"]);
+    expect(active).toEqual(["Findings"]);
+    const findings = links.find((l) => l.textContent === "Findings") as HTMLElement;
+    expect(findings.getAttribute("href")).toBe("/findings");
+    expect((links.find((l) => l.textContent === "Sites") as HTMLElement).getAttribute("aria-current")).toBeNull();
+    expect(links.map((l) => l.textContent)).toEqual(LIVE);
+  });
+
+  it.each([
+    ["the Site Findings index", "/sites/KOBO-001/findings", "Sites"],
+    ["the global Findings root", "/findings", "Findings"],
     ["an ordinary Site page", "/sites/KOBO-001", "Sites"],
     ["a Site Work page", "/sites/KOBO-001/work", "Sites"],
     ["the global Actions root", "/actions", "Actions"],

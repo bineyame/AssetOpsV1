@@ -16,6 +16,7 @@ from uuid import uuid4
 import pytest
 
 from test_w301_estate_index_postgres import URL
+from assetops_backend.estate.evidence_money import CURRENT_VIEW
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
@@ -137,6 +138,11 @@ def test_three_domains_same_window_cutoff_and_full_selection_ids(portfolio_fixtu
     public = {r["finding_revision_id"]: r for r in findings["rows"]}
     domains = {"KOBO-001": "MINIGRID", "COLD-LAB-001": "COLDCHAIN", "EV-LAB-001": "EV_CHARGING",
                "EV-LAB-002": "EV_CHARGING"}
+    proven_queries: dict[str, set[str]] = {}
+    for item in evidence["rows"]:
+        if item["links"]["site_readiness_label"] is None:
+            proven_queries.setdefault(item["site_id"], set()).add(item["links"]["site_readiness"].split("?", 1)[1])
+    linked: set[str] = set()
     for row in body["rows"]:
         source = public[row["finding_revision_id"]]
         for key in ("site_id", "site_code", "site_name", "finding_label", "title", "lifecycle", "lens_flags",
@@ -147,8 +153,22 @@ def test_three_domains_same_window_cutoff_and_full_selection_ids(portfolio_fixtu
         # B4: the aligned 10-06 window selects no Action, so no row joins one.
         assert (row["action_id"], row["application_state"], row["resolution_state"],
                 row["verification_outcome"], row["links"]["action"]) == (None,) * 5
-        assert row["links"]["site"] == f"/sites/{row['site_code']}"
-        assert (row["links"]["finding"] is not None) == (row["domain"] == "MINIGRID")
+        # Post-W6 W3-estate Q2/Q9/Q10: the EV Site home; mini-grid keeps its exact `revision_id` Finding route; a
+        # cold/EV Finding opens over a proven selected Site window (one of that Site's proven Evidence windows,
+        # never episode bounds) or stays null. The Findings index emits the same link.
+        home = f"/sites/{row['site_code']}" + ("/ev" if row["domain"] == "EV_CHARGING" else "")
+        assert row["links"]["site"] == home == source["links"]["site"]
+        link = row["links"]["finding"]
+        assert link == source["links"]["finding"]
+        if row["domain"] == "MINIGRID":
+            assert link == (f"/sites/{row['site_code']}/findings/{row['finding_id']}?revision_id="
+                            f"{row['finding_revision_id']}")
+        elif link is not None:
+            path, query = link.split("?", 1)
+            assert path == f"/sites/{row['site_code']}/findings/{row['finding_id']}" and "revision_id" not in query
+            assert query in proven_queries.get(row["site_id"], set()), (link, proven_queries)
+            linked.add(row["domain"])
+    assert "COLDCHAIN" in linked, linked  # non-vacuous: the selected cold Finding row emits a live windowed link
     assert {r["site_code"] for r in body["rows"]} >= {"KOBO-001", "COLD-LAB-001"}
     kobo = next(r for r in body["rows"] if r["site_code"] == "KOBO-001")
     assert kobo["links"]["finding"] == public[kobo["finding_revision_id"]]["links"]["finding"]
@@ -306,10 +326,30 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monk
     assert w1[0]["consequence_revision_id"] in sites["KOBO-001"]["selected_revision_ids"]
     assert all(s["window"] == {"from": fx.window["from"], "to": fx.window["to"]} for s in sites.values())
 
-    # r1b2 R7: every Site cell has a null destination (no reviewed Site route accepts this selection); an unknown
-    # physical configuration is UNKNOWN for cost and evidence, never N/A (no persisted producer: the real
-    # `objective` over a NOT_APPLICABLE domain).
-    assert {x["destination"] for o in full["objectives"] for x in o["cells"]} == {None}
+    # Post-W6 W3-estate Q10 (supersedes r1b2 R7's null destinations): mounted Site routes per domain; cold/EV Cost
+    # control and Evidence reuse the Site's selected-window links (else its home); EV Backup has no configured
+    # objective. An unknown physical configuration is UNKNOWN for cost and evidence, never N/A, and has no
+    # destination (no persisted producer: the real `objective` over a NOT_APPLICABLE domain).
+    to = {code_of[o["site_id"]]: {x["key"]: x["destination"] for x in o["cells"]} for o in full["objectives"]}
+    assert to["KOBO-001"] == {
+        "SERVICE_PRODUCT": "/sites/KOBO-001/performance/service", "BACKUP": "/sites/KOBO-001/performance/backup",
+        "ASSET_CONDITION": "/sites/KOBO-001/health", "COST_CONTROL": "/sites/KOBO-001/financials",
+        "EVIDENCE": "/sites/KOBO-001/evidence"}
+    cold_to = to["COLD-LAB-001"]
+    assert (cold_to["SERVICE_PRODUCT"], cold_to["BACKUP"], cold_to["ASSET_CONDITION"]) == (
+        "/sites/COLD-LAB-001/performance/temperature", "/sites/COLD-LAB-001/performance/backup",
+        "/sites/COLD-LAB-001/health")
+    assert cold_to["EVIDENCE"].startswith("/sites/COLD-LAB-001/evidence?from=")
+    assert cold_to["COST_CONTROL"] == "/sites/COLD-LAB-001/financials?" + cold_to["EVIDENCE"].split("?", 1)[1]
+    for code in ("EV-LAB-001", "EV-LAB-002"):
+        ev_to = to[code]
+        assert (ev_to["SERVICE_PRODUCT"], ev_to["BACKUP"], ev_to["ASSET_CONDITION"]) == (
+            f"/sites/{code}/performance/sessions", None, f"/sites/{code}/health")
+        if ev_to["EVIDENCE"] == f"/sites/{code}/ev":
+            assert ev_to["COST_CONTROL"] == f"/sites/{code}/ev"
+        else:
+            assert ev_to["EVIDENCE"].startswith(f"/sites/{code}/ev/evidence?from=")
+            assert ev_to["COST_CONTROL"] == f"/sites/{code}/ev/financials?" + ev_to["EVIDENCE"].split("?", 1)[1]
     assert all(len(o["cells"]) == 5 for o in full["objectives"]) and len(full["objectives"]) == 4
     odd = {"site_id": "s", "site_code": "X", "site_name": "X", "site_type": "WIND"}
     cells = {x["key"]: x["state"] for x in portfolio.objective(
@@ -525,6 +565,9 @@ def _gap_row(site: dict, capability: str, gaps: list[tuple[str, str | None]], re
             "capability_key": capability, "_key": (site["site_code_key"], sid, capability),
             "raw_state": readiness, "readiness": readiness, "selected_revision_ids": [f"rev-{sid}"],
             "_assessments": [f"rev-{sid}"], "_cited": [], "_token_cited": [],
+            # Real rows always carry `links`; a fake row has no proven window, so it takes the label-carrying fallback.
+            "links": {"site": f"/sites/{site['site_code']}", "site_readiness": f"/sites/{site['site_code']}",
+                      "site_readiness_label": CURRENT_VIEW},
             "_gaps": [{"key": ("mini_grid", code, "role"), "domain": "mini_grid", "gap_code": code,
                        "missing_role": "role", "label": f"label {code}", "next_step": step} for code, step in gaps]}
 

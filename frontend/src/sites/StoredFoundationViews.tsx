@@ -19,7 +19,7 @@
 import { Fragment, useMemo, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, Breadcrumbs, DataTable, Disclosure, Fact, FactList, MissingClaim, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader, type Crumb } from "../ui";
+import { Badge, Breadcrumbs, DataTable, Disclosure, Fact, FactList, KeyValues, MissingClaim, Notice, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader, type Crumb } from "../ui";
 import {
   AcquisitionDetailsPanel,
   knownReadiness,
@@ -142,11 +142,12 @@ export function StoredFoundationViews(props: StoredFoundationViewsProps) {
       {tabs}
       <FoundationSubtabs current={view} hrefFor={viewHref} />
       {props.missingComponent ? (
-        <p className="notice notice--attention" role="status" data-selected-part-missing={props.missingComponent}>
+        // post-W6 shell R120 (Q7): the mock `.notice` primitive at 11 px, not a 14 px body paragraph.
+        <Notice data={{ role: "status", "data-selected-part-missing": props.missingComponent }}>
           <strong>Selected part is not in this Foundation period.</strong> Part{" "}
           <code>{props.missingComponent}</code> is not declared in Foundation v{foundation.revision.version}, so
           the selection was cleared. No other part was chosen in its place.
-        </p>
+        </Notice>
       ) : null}
       {view === "model" ? (
         <SiteModelView {...props} site={site} configuration={configuration} />
@@ -268,7 +269,7 @@ function SiteModelView(props: ViewProps) {
   return (
     <>
       {strip(props, <Link to={viewHref("readiness")}>Review configuration readiness →</Link>)}
-      <div className="panel-pair">
+      <div className="panel-pair panel-pair--top">
         <ConfiguredTopologyPanel
           site={props.site}
           sldHref={viewHref("sld")}
@@ -424,7 +425,9 @@ function TopologyCards({ cards, selection }: { cards: TopologyCard[]; selection:
           key={item.key}
           data-selected={item.parts.some((p) => p.componentId === selection.selected) ? "" : undefined}
         >
-          {/* V-01a round 2: one icon per declared part, named by its type. */}
+          {/* V-01a round 2: one icon per declared part, named by its type. MOCK DEVIATION D2 (post-W6 shell Q10,
+              register R377): paired icons and linked part names stay where the mock draws one centred icon,
+              because each part selection carries ?component to the SLD and Readiness. */}
           <span className="plant-card__icons">
             {item.parts.map((part) => (
               <ComponentTypeIcon key={part.componentId} componentType={part.componentType} size={44} />
@@ -499,6 +502,10 @@ export function loadFacts(foundation: FoundationReadModel, site: SiteDetailReadM
   };
 }
 
+/** post-W6 shell Q23: past this many characters an Identity value stacks under its term instead of a half column. */
+const WIDE_VALUE_CHARS = 40;
+const wide = (text: string | null | undefined): boolean => (text ?? "").length > WIDE_VALUE_CHARS;
+
 /** Names, each marked as user-owned, joined by `separator`. */
 function joined(names: string[], separator: string): ReactNode {
   return names.map((name, index) => (
@@ -525,53 +532,72 @@ function IdentityPanel({
   const facts = loadFacts(foundation, site);
   return (
     <Panel heading="Identity and operating obligations" headingId="foundation-identity-heading">
-      <FactList>
-        <Fact term="Site identity">
-          <UserName>{configuration.displayName}</UserName> · <ExactRef>{foundation.site.site_code}</ExactRef>
-        </Fact>
-        <Fact term="Archetype">{configuration.siteType}</Fact>
-        <Fact term="Location">{configuration.location}</Fact>
-        <Fact term="Timezone">{configuration.timezone}</Fact>
-        <Fact term="Critical service order">
-          {facts.firstCritical === null ? (
-            <span data-critical-load="not-configured">{CRITICAL_LOAD_NOT_CONFIGURED}</span>
-          ) : (
-            <span data-critical-load="configured">
-              First in critical service order:{" "}
-              <strong>
-                <UserName>{facts.firstCritical}</UserName>
-              </strong>
-              {facts.criticalOrder.length > 1 ? (
-                <small className="muted">
-                  {" "}
-                  Order: {joined(facts.criticalOrder, " → ")}. An order, not a service designation.
-                </small>
-              ) : null}
-            </span>
-          )}
-        </Fact>
-        <Fact term="Configured supplied users">
-          <span data-configured-loads="">
-            {facts.loads.length === 0 ? "No supplied users declared" : joined(facts.loads, ", ")}
-          </span>
-        </Fact>
-        <Fact term="Productive-use designation">
-          <span className="not-available-yet" data-productive-use="not-declared">
-            <MissingClaim gapId="G-foundation-productive-use" placement="foundation.identity.productive-use">
-              {PRODUCTIVE_USE_NOT_DECLARED}
-            </MissingClaim>
-          </span>
-        </Fact>
-        <Fact term="Evidence mode">
-          <Badge tone="provenance">{configuration.sourceMode}</Badge>
-        </Fact>
-        <Fact term="Lifecycle status">
-          <Badge tone="lifecycle">{configuration.lifecycleStatus}</Badge>
-        </Fact>
-        <Fact term="Configuration origin">
-          <Badge tone="origin">{configuration.configurationOrigin}</Badge>
-        </Fact>
-      </FactList>
+      {/* post-W6 shell Q23: a long free-text value (over WIDE_VALUE_CHARS) takes its own full-width line. */}
+      {/* post-W6 shell R130 (Q11): the mock `.key-values` (right-aligned values, row rules). All ten stored rows stay;
+          the mock's six-row panel is illustrative, and a code token never breaks mid-token. */}
+      <KeyValues
+        label="Identity and operating obligations"
+        rows={[
+          [
+            "Site identity",
+            <>
+              <UserName>{configuration.displayName}</UserName> · <ExactRef>{foundation.site.site_code}</ExactRef>
+            </>,
+            "site-identity",
+            wide(`${configuration.displayName} · ${foundation.site.site_code}`),
+          ],
+          ["Archetype", configuration.siteType, "archetype"],
+          ["Location", configuration.location, "location", wide(configuration.location)],
+          ["Timezone", configuration.timezone, "timezone", wide(configuration.timezone)],
+          [
+            "Critical service order",
+            facts.firstCritical === null ? (
+              <span data-critical-load="not-configured">{CRITICAL_LOAD_NOT_CONFIGURED}</span>
+            ) : (
+              <span data-critical-load="configured">
+                First in critical service order:{" "}
+                <strong>
+                  <UserName>{facts.firstCritical}</UserName>
+                </strong>
+                {facts.criticalOrder.length > 1 ? (
+                  <small className="muted">
+                    {" "}
+                    Order: {joined(facts.criticalOrder, " → ")}. An order, not a service designation.
+                  </small>
+                ) : null}
+              </span>
+            ),
+            "critical-service-order",
+            facts.firstCritical !== null && wide(`${facts.firstCritical} ${facts.criticalOrder.join(" → ")}`),
+          ],
+          [
+            "Configured supplied users",
+            <span data-configured-loads="">
+              {facts.loads.length === 0 ? "No supplied users declared" : joined(facts.loads, ", ")}
+            </span>,
+            "configured-supplied-users",
+            wide(facts.loads.join(", ")),
+          ],
+          [
+            "Productive-use designation",
+            <span className="not-available-yet" data-productive-use="not-declared">
+              <MissingClaim gapId="G-foundation-productive-use" placement="foundation.identity.productive-use">
+                {PRODUCTIVE_USE_NOT_DECLARED}
+              </MissingClaim>
+            </span>,
+            "productive-use",
+          ],
+          // MOCK DEVIATION D4 (post-W6 shell Q3, register R376): the truthful "Demonstration data" wording, not the
+          // mock's "Simulated"; only the tone follows the mock.
+          ["Evidence mode", <Badge tone="provenance">{configuration.sourceMode}</Badge>, "evidence-mode"],
+          ["Lifecycle status", <Badge tone="lifecycle">{configuration.lifecycleStatus}</Badge>, "lifecycle-status"],
+          [
+            "Configuration origin",
+            <Badge tone="origin">{configuration.configurationOrigin}</Badge>,
+            "configuration-origin",
+          ],
+        ]}
+      />
       <p className="not-available-yet" data-financial-assumptions="not-available">
         <MissingClaim gapId="G-foundation-financial-assumptions" placement="foundation.identity.financial-assumptions">
           {FINANCIAL_ASSUMPTIONS_NOT_AVAILABLE}. Physical ratings here are not financial assumptions.
@@ -641,6 +667,8 @@ function SldView(props: ViewProps) {
         actions={<Link to={props.evidenceHref}>Site evidence →</Link>}
       >
         <SldDeviceSummary foundation={foundation} site={site} />
+        {/* MOCK DEVIATION D4 (post-W6 shell Q3/Q6, register R378): no closing callout; the mock's text asserts live
+            reporting dots and component asset pages this drawing does not have. */}
         <SiteSldPrimary
           site={site}
           boundDevices={boundDevices}
@@ -1002,11 +1030,12 @@ function ReadinessView(props: ViewProps) {
         evidenceHref={evidenceHref}
         healthHref={props.healthHref}
       />
-      <p className="note" data-readiness-scope="">
+      {/* post-W6 shell R119/R120 (Q6/Q7): the mock's closing blue `.notice` (11 px, boxed); the copy stays this view's own. */}
+      <Notice tone="blue" data={{ "data-readiness-scope": "" }}>
         This view assesses configuration: roles, channel links, Foundation gaps and registrations. Gateway status
         reports central server contact only. What the readings can support, accepted evidence and source diagnostics are on{" "}
         <Link to={evidenceHref}>Site Evidence</Link>.
-      </p>
+      </Notice>
     </>
   );
 }

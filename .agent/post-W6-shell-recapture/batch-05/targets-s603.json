@@ -1,0 +1,7 @@
+[
+ {
+  "id": "sitework",
+  "case": "invalid-window",
+  "url": "http://localhost:5181/sites/KOBO-001/work?from=2026-11-02T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z"
+ }
+]

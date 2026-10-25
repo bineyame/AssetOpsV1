@@ -127,7 +127,8 @@ describe("W1-F4 C1: the Action views keep their single v69 panel in every varian
     expect(q("[data-page-refusal]")).toBeNull();
     const panel = panelTitled(title);
     expect(panel.querySelector("[data-product-status-label]")).not.toBeNull();
-    expect(panel.querySelector("[data-action-selection-notice='LATEST']")).not.toBeNull();
+    // post-W6 W1-b Q30 / R219: History's default reading carries the "Latest at read time" chip instead of raw counts.
+    expect(panel.querySelector(screenId === "action-history" ? "[data-action-history-latest]" : "[data-action-selection-notice='LATEST']")).not.toBeNull();
   });
 
   it("stocked overview: the mock's key values, with the absent owner stated in its row", async () => {
@@ -164,7 +165,7 @@ describe("W1-F4 C1: the Action views keep their single v69 panel in every varian
     expect(panel.querySelectorAll("[data-action-select-event]").length).toBe((hi.events_latest.body.events as unknown[]).length);
     const labels = Array.from(panel.querySelectorAll("[data-action-history-outcome-label]")).map((b) => b.getAttribute("data-action-history-outcome-label"));
     expect(labels).toEqual(["earlier", "current"]);
-    expect(panel.querySelector("[data-action-history-resolution='RESOLUTION_WITHDRAWN']")?.textContent).toMatch(/not permanent/);
+    expect(panel.querySelector("[data-action-history-resolution='RESOLUTION_WITHDRAWN']")?.textContent).toContain("The evaluator withdrew an earlier outcome; the Action is open for a new outcome.");
     expect(panel.querySelector("[data-action-history-outcomes='listed']")?.textContent).toMatch(/later evidence can withdraw it/);
   });
 

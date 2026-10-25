@@ -3,7 +3,12 @@
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { readGlobalWorkDetail, type GlobalWorkDetailBody, type WorkCaseDetailEvent } from "../globalWorkClient";
+import {
+  GLOBAL_WORK_DETAIL_REFUSAL_COPY,
+  readGlobalWorkDetail,
+  type GlobalWorkDetailBody,
+  type WorkCaseDetailEvent,
+} from "../globalWorkClient";
 
 const CASE = "6f1c2d3e-4a5b-4c6d-8e7f-001122334455";
 const OVERVIEW = `/maintenance/requests/${CASE}?site_id=KOBO-001`;
@@ -127,5 +132,18 @@ describe("readGlobalWorkDetail action links", () => {
     const second = await readGlobalWorkDetail("/api/work/requests/x");
     expect(second.status).toBe("loaded");
     if (second.status === "loaded") expect(second.value.work_detail.action_links).toEqual([w1]);
+  });
+});
+
+describe("readGlobalWorkDetail denied Site (R373 ruling Q5)", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("test_denied_site_reads_as_forbidden_with_copy_that_names_no_request", async () => {
+    const body = { detail: { code: "SITE_SCOPE_FORBIDDEN", message: "No access to Site 'KOBO-001'." } };
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(body), { status: 403 })));
+    const result = await readGlobalWorkDetail(`/api/work/requests/${CASE}?site_id=KOBO-001`);
+    expect(result).toEqual({ status: "refused", code: "SITE_SCOPE_FORBIDDEN" });
+    expect(GLOBAL_WORK_DETAIL_REFUSAL_COPY.SITE_SCOPE_FORBIDDEN).toBe("No access to this Site's work.");
+    expect(GLOBAL_WORK_DETAIL_REFUSAL_COPY.SITE_SCOPE_FORBIDDEN).not.toMatch(/request/i);
   });
 });
