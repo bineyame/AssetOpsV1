@@ -2358,6 +2358,26 @@ describe("post-W6 shell: Foundation identity layout and the no-version heading",
     expect(document.querySelector('[data-key-value="long"] dd')?.textContent).toBe(long);
   });
 
+  it("Q23 (capture review F1): a stored Identity location over 40 characters is wide on the route and shown in full", async () => {
+    const locality = "Kobo settlement north of the river crossing";
+    const longLocation = (): FoundationRead<FoundationReadModel> => ({
+      status: "loaded",
+      value: foundation(PAST, {
+        ...published([BATTERY_SOC, GENSET_POWER], []),
+        detail: { ...SITE, location: { ...SITE.location, locality } },
+      }),
+    });
+    renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(longLocation), healthOf(gatewayEntry()));
+    await settledScreen();
+    const identity = regionNamed("Identity and operating obligations");
+    const row = identity.querySelector('[data-key-value="location"]') as HTMLElement;
+    const expected = `${locality}, ${SITE.location.country}`;
+    expect(expected.length).toBeGreaterThan(40);
+    expect(row.hasAttribute("data-key-value-wide")).toBe(true);
+    expect(row.querySelector("dd")?.textContent).toBe(expected);
+    expect(identity.querySelector('[data-key-value="archetype"]')?.hasAttribute("data-key-value-wide")).toBe(false);
+  });
+
   it("Q13: a readable key of every drawn part follows the drawing and chooses the same part", async () => {
     renderAt(`/sites/${ID}/foundation/sld`, fakeFoundation(READY));
     await settledScreen();
@@ -2375,6 +2395,18 @@ describe("post-W6 shell: Foundation identity layout and the no-version heading",
     const again = document.querySelector(`[data-sld-key-part='${part}'] button`) as HTMLButtonElement;
     expect(again.getAttribute("aria-pressed")).toBe("true");
     expect(document.querySelectorAll("svg.sld [data-selected]")).toHaveLength(1);
+  });
+
+  it("closeout ruling 3: the phone part key carries a visible MOCK DEVIATION D2 (R382) label on the SLD view", async () => {
+    renderAt(`/sites/${ID}/foundation/sld`, fakeFoundation(READY));
+    await settledScreen();
+    expect(document.querySelectorAll("svg.sld")).toHaveLength(1);
+    const labels = document.querySelectorAll("[data-mock-deviation='R382']");
+    expect(labels).toHaveLength(1);
+    expect(labels[0].textContent?.trim()).toBe("MOCK DEVIATION D2 (R382)");
+    expect(labels[0].className).toBe("sld-key__deviation");
+    // The label sits with the key it describes, directly before it.
+    expect(labels[0].nextElementSibling?.hasAttribute("data-sld-key")).toBe(true);
   });
 
   it("R133: the no-version Foundation and Readiness headings name the stored Site, not its code", async () => {

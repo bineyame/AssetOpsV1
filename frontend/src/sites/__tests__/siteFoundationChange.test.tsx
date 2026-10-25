@@ -344,6 +344,8 @@ describe("post-W6 shell: change page plan figures, failure words, crumb and clos
     // [1, 3] requires a 66.7% reduction: floored to 66, never rounded up to 67.
     expect(planFigures(body({ ...storedPlan, target: { ...storedPlan.target, ratio: [1, 3] } }))?.target).toBe("≥66% lower");
     expect(planFigures(body({ ...storedPlan, target: { ...storedPlan.target, ratio: [1, 1] } }))?.target).toBe("No increase");
+    expect(planFigures(body({ ...storedPlan, target: { ...storedPlan.target, ratio: [4, 5] } }))?.target).toBe("≥20% lower");
+    expect(planFigures(body({ ...storedPlan, target: { ...storedPlan.target, ratio: [9, 10] } }))?.target).toBe("≥10% lower");
     expect(planFigures(body({ ...storedPlan, target: { ...storedPlan.target, ratio: [1, 1] }, guardrails: {} }))).toEqual({
       target: "No increase",
       guardrails: null,

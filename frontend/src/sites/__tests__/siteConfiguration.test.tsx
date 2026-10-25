@@ -17,6 +17,7 @@ import {
 } from "../SiteSingleLineDiagram";
 import { SLD_UNAVAILABLE_STATEMENTS } from "../sldViewModel";
 import { settledScreen } from "../../test/settled";
+import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 import { spacedText, withoutRegion } from "../../test/text";
 
 /**
@@ -402,6 +403,15 @@ describe("a configuration is rendered from its foundation document", () => {
     expect(factValue(container, "Summary")).toBe(
       USER_SIMULATED_SITE.foundation.summary,
     );
+  });
+
+  it("closeout ruling 3: the Lab drawing's phone part key carries the MOCK DEVIATION D2 (R382) label", async () => {
+    const { container } = renderConfiguration(HYBRID_MINI_GRID_SITE);
+    await settledScreen();
+    expect(container.querySelectorAll("svg.sld")).toHaveLength(1);
+    const label = container.querySelector("[data-mock-deviation='R382']");
+    expect(label?.textContent?.trim()).toBe("MOCK DEVIATION D2 (R382)");
+    expect(label?.nextElementSibling?.hasAttribute("data-sld-key")).toBe(true);
   });
 
   it("renders every declared component with its declared rating", async () => {

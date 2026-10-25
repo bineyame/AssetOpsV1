@@ -62,6 +62,15 @@ describe("post-W6 shell CSS contracts", () => {
     expect(rule).toContain("font-size: 12px;");
   });
 
+  it("closeout ruling 3 (R382): the key's MOCK DEVIATION D2 label is hidden at desktop and visible with the phone key", () => {
+    expect(block(CSS, ".sld-key__deviation")).toContain("display: none;");
+    const media = CSS.indexOf("@media (max-width: 640px) {\n  .sld-key {");
+    expect(media).toBeGreaterThanOrEqual(0);
+    const rule = block(CSS, "  .sld-key__deviation", media);
+    expect(rule).toContain("display: block;");
+    expect(rule).toContain("font-size: 12px;");
+  });
+
   it("Q23: long Identity values stack full width; the opened reading scrolls inside itself; phone rows wrap wider", () => {
     expect(block(CSS, ".v69-key-values > div[data-key-value-wide] > dd")).toContain("grid-column: 1 / -1;");
     expect(block(CSS, ".v69-key-values > div[data-key-value-wide] > dt")).toContain("grid-column: 1 / -1;");

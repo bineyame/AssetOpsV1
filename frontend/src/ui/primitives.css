@@ -958,6 +958,10 @@ button:focus-visible {
   display: none;
 }
 
+.sld-key__deviation {
+  display: none;
+}
+
 @media (max-width: 640px) {
   .sld-key {
     display: flex;
@@ -967,6 +971,14 @@ button:focus-visible {
     padding: 0;
     list-style: none;
     font-size: 12px;
+  }
+
+  /* Closeout ruling 3, register R382: the key's MOCK DEVIATION D2 label, visible wherever the key is. */
+  .sld-key__deviation {
+    display: block;
+    margin: var(--space-3) 0 0;
+    font-size: 12px;
+    color: var(--text-secondary);
   }
 
   .sld-key__choice[aria-pressed="true"] {

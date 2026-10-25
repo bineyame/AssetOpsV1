@@ -761,7 +761,12 @@ function SldDrawing({
       </ul>
       {/* post-W6 shell Q13: scaled to fit a phone column, the drawing's own labels fall below a readable size, so a
           readable key of the drawn parts follows it. CSS shows it only at phone width; it never widens the drawing.
-          With a selection, each entry chooses the same part as the drawing, by keyboard or pointer. */}
+          With a selection, each entry chooses the same part as the drawing, by keyboard or pointer.
+          MOCK DEVIATION D2 (post-W6 shell closeout ruling 3, register R382): the mock's phone drawing has no separate
+          part key, so the key carries a visible label, shown with it at phone width only, pending the owner's choice. */}
+      <p className="sld-key__deviation" data-mock-deviation="R382">
+        MOCK DEVIATION D2 (R382)
+      </p>
       <ul className="sld-key" aria-label="Parts in the drawing" data-sld-key="">
         {diagram.nodes.map((node) => {
           const rating = ratingText(node);

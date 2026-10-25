@@ -206,7 +206,7 @@ export function planFigures(body: PlanBody | null | undefined): PlanFigures {
   let target: string | null = null;
   if (Array.isArray(ratio) && ratio.length === 2) {
     const [num, den] = ratio;
-    if (den > 0 && num >= 0 && num < den) target = `≥${Math.floor((1 - num / den) * 100)}% lower`;
+    if (den > 0 && num >= 0 && num < den) target = `≥${Math.floor(((den - num) * 100) / den)}% lower`;
     else if (den > 0 && num === den) target = "No increase";
   }
   const count = plan.guardrails ? Object.keys(plan.guardrails).length : 0;
