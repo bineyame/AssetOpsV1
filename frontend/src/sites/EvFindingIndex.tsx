@@ -76,8 +76,8 @@ export function EvFindingIndex({
       <LensChips />
       <StatusBar label="EV Findings" action={<UnavailableInline label="Manage in Findings" />}>
         <strong>{`Scoped to ${siteName} · ${open} open`}</strong>
-        <span>{windowText(body.window.from, body.window.to)}</span>
-        <span data-ev-findings-global-note>{EV_FINDING_INDEX_GLOBAL_NOTE}</span>
+        <span>{` · ${windowText(body.window.from, body.window.to)}`}</span>
+        <span data-ev-findings-global-note>{` · ${EV_FINDING_INDEX_GLOBAL_NOTE}`}</span>
       </StatusBar>
       <Panel heading="Findings at this site" headingId={EV_FINDING_INDEX_HEADING_ID}>
         {body.items.length === 0 ? (
@@ -97,7 +97,9 @@ export function EvFindingIndex({
             </thead>
             <tbody>
               {body.items.map((i) => (
-                <tr key={`${i.finding_id}|${i.revision_id}`} data-ev-finding-row={i.finding_id}>
+                // The mini index row class (w1ux02-findings-index.css): a 15rem title column at phone width, other cells on one
+                // line, so a long title wraps in a readable column instead of a one-word strip (Q26 cap fallback).
+                <tr key={`${i.finding_id}|${i.revision_id}`} className="finding-index-row" data-ev-finding-row={i.finding_id}>
                   <td>
                     <Link to={findingHref(i.finding_id)}>{i.title}</Link>
                   </td>

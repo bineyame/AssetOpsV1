@@ -67,6 +67,9 @@ describe("EV Site Findings", () => {
     expect(document.body.textContent).toContain("Scoped to EV lab depot · 1 open");
     expect(document.body.textContent).toContain("EV charging Findings are not in the global Findings list");
     expect(document.querySelectorAll("[data-ev-finding-row] td")).toHaveLength(7);
+    // Q26 cap fallback: the mini index row class gives the title a readable column; the strip parts are separated.
+    expect(document.querySelector("[data-ev-finding-row]")?.classList.contains("finding-index-row")).toBe(true);
+    expect(document.querySelector("[data-ev-findings-global-note]")?.textContent).toBe(" · EV charging Findings are not in the global Findings list");
     expect(client.listFindings).toHaveBeenCalledWith(CODE, expect.objectContaining({ from: FROM, to: TO }));
     expect(findingIndex.getFindingIndex).not.toHaveBeenCalled();
     const tab = [...document.querySelectorAll("a")].find((a) => a.textContent === "Overview");
