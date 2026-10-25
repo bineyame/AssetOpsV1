@@ -57,6 +57,8 @@ const CHROME_SELECTOR = "nav, header.page-header, .site-date-bar";
  */
 const LEADING_SELECTOR =
   ".status-strip, [data-page-refusal], .v69-mheader, .v69-cards, .v69-chips, [data-selected-part-missing], [data-selected-part-chip], .v69-objective, [data-analysis-helper], [data-alternatives-finding-unavailable], " +
+  // post-W6 W1-b Q26/Q52: the visible MOCK DEVIATION D2 (R383) line below a retained Finding Site tab row.
+  '[data-mock-deviation="R383"], ' +
 
   // W3-03 run 2: the v69 `portfolio` screen's own three leading rows (context line, five value cards, pulse).
   ".portfolio-v2 > .portfolio-context, .portfolio-v2 > .value-grid, .portfolio-v2 > .portfolio-pulse";
