@@ -225,13 +225,15 @@ describe("a site is opened from a Sites row", () => {
     // so the destinations are Overview and Foundation, and T027 adds
     // Evidence, and T028 adds Performance and Findings between Foundation and
     // Evidence, and S4-02a adds Financials before Evidence, and S7-01b adds Health after Foundation. All of it is navigation, none of it is an action on the site,
-    // and aspects without a capability are not rendered at all.
+    // and aspects without a capability are not rendered at all. post-W6 W1-a Q1 / R156 links the Site crumb in
+    // `Sites › {site} › Overview`.
     expect(
       within(main)
         .getAllByRole("link")
         .map((link) => [link.getAttribute("href"), link.textContent]),
     ).toEqual([
       ["/sites", "Sites"],
+      ["/sites/MG-002", "Kalangala Mini-Grid"],
       ["/sites/MG-002", "Overview"],
       ["/sites/MG-002/foundation", "Foundation"],
       ["/sites/MG-002/health", "Health"],
