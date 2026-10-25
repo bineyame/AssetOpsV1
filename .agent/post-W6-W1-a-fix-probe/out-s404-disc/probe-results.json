@@ -1,0 +1,84 @@
+[
+ {
+  "name": "finding",
+  "variant": "rel-160x5-disc",
+  "w": 1440,
+  "baselinePanels": [
+   {
+    "t": "What happened",
+    "h": 338
+   },
+   {
+    "t": "What limits this conclusion",
+    "h": 286
+   },
+   {
+    "t": "What to do next",
+    "h": 211
+   },
+   {
+    "t": "Where to look next",
+    "h": 613
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "title": "Where to look next",
+  "panelH": 614,
+  "rowHs": [
+   105,
+   105,
+   105,
+   105,
+   105
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedPanelH": 780,
+  "openedClipped": [],
+  "openedDocOverflowX": 0
+ },
+ {
+  "name": "finding",
+  "variant": "rel-160x5-disc",
+  "w": 390,
+  "baselinePanels": [
+   {
+    "t": "What happened",
+    "h": 562
+   },
+   {
+    "t": "What limits this conclusion",
+    "h": 453
+   },
+   {
+    "t": "What to do next",
+    "h": 231
+   },
+   {
+    "t": "Where to look next",
+    "h": 716
+   }
+  ],
+  "synthetic": true,
+  "verified": true,
+  "intendedFields": 5,
+  "title": "Where to look next",
+  "panelH": 682,
+  "rowHs": [
+   105,
+   105,
+   105,
+   105,
+   105
+  ],
+  "clipped": [],
+  "innerScrollX": [],
+  "docOverflowX": 0,
+  "openedPanelH": 1013,
+  "openedClipped": [],
+  "openedDocOverflowX": 0
+ }
+]

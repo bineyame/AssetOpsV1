@@ -1,0 +1,41 @@
+API on http://127.0.0.1:18121 (log C:\Users\assef\Bineyame\AssetOpsV1-review4\var\s601b_w1arc\logs\api-18121.log), pid 26540
+Grants: C:\Users\assef\Bineyame\AssetOpsV1-review4\var\s601b_w1arc\action-demo-grants.json (this database's tenant/Site, fixture Findings only)
+Frontend, from frontend/:  $env:ASSETOPS_API_PORT="18121"; npm.cmd run dev -- --port 5183 --strictPort
+Action ACT-000001 (0b90e0fc-4a6a-428f-9852-aa2cacbd0521) on Finding F01 939c8cb4-5dcc-40b1-b70d-74a78aeaae09
+  Finding F01, origin version
+    http://localhost:5183/sites/KOBO-001/findings/939c8cb4-5dcc-40b1-b70d-74a78aeaae09?revision_id=5a4a1238-3723-423d-bb1e-8e94a1105f28
+  recommendation:1#a accepted snapshot + live status
+    http://localhost:5183/sites/KOBO-001/findings/939c8cb4-5dcc-40b1-b70d-74a78aeaae09/recommendation?revision_id=5a4a1238-3723-423d-bb1e-8e94a1105f28
+  recommendation:1#a latest Finding version (earlier trial still open notice)
+    http://localhost:5183/sites/KOBO-001/findings/939c8cb4-5dcc-40b1-b70d-74a78aeaae09/recommendation
+  recommendation:1#a unavailable (SOC at headroom)
+    http://localhost:5183/sites/KOBO-001/findings/33e419f7-fbd6-482a-a255-f9370a9bd0d1/recommendation
+  action-overview:1#a
+    http://localhost:5183/sites/KOBO-001/actions/0b90e0fc-4a6a-428f-9852-aa2cacbd0521
+  action-execution:1#a
+    http://localhost:5183/sites/KOBO-001/actions/0b90e0fc-4a6a-428f-9852-aa2cacbd0521/execution
+  action-history:1#a
+    http://localhost:5183/sites/KOBO-001/actions/0b90e0fc-4a6a-428f-9852-aa2cacbd0521/history
+  changes:1#a
+    http://localhost:5183/sites/KOBO-001/foundation/changes/14bd1b32-f5ad-4c7a-a7fb-137a420b3056
+  bare changes (unavailable)
+    http://localhost:5183/sites/KOBO-001/foundation/changes
+  second Action (F02, failed no-change, still pending)
+    http://localhost:5183/sites/KOBO-001/actions/64fc14ac-21bb-4a31-aa63-91c53a650dae/execution
+  history at ACCEPTED
+    http://localhost:5183/sites/KOBO-001/actions/0b90e0fc-4a6a-428f-9852-aa2cacbd0521/history?event_id=ec95823c-49a5-4f2a-a066-0272f825b093
+  history at OBSERVED
+    http://localhost:5183/sites/KOBO-001/actions/0b90e0fc-4a6a-428f-9852-aa2cacbd0521/history?event_id=05d56efa-0e65-4a16-8d47-84b903129f8e
+  history at FAILED ACTION_FOUNDATION_STALE
+    http://localhost:5183/sites/KOBO-001/actions/0b90e0fc-4a6a-428f-9852-aa2cacbd0521/history?event_id=5cf96d96-b72c-447e-955d-4cdefd6d3956
+  history at FAILED ACTION_VALUE_INVALID
+    http://localhost:5183/sites/KOBO-001/actions/0b90e0fc-4a6a-428f-9852-aa2cacbd0521/history?event_id=765363fa-40b7-4301-91ea-25f305279e05
+  history at FAILED ACTION_EFFECTIVE_TIME_INVALID
+    http://localhost:5183/sites/KOBO-001/actions/0b90e0fc-4a6a-428f-9852-aa2cacbd0521/history?event_id=0fdd18b4-7b2a-4465-9292-bdd83c99ad19
+  history at APPLIED
+    http://localhost:5183/sites/KOBO-001/actions/0b90e0fc-4a6a-428f-9852-aa2cacbd0521/history?event_id=1843d5f0-bda6-4d03-aa08-1d9c98e85f18
+  history recorded through the observation
+    http://localhost:5183/sites/KOBO-001/actions/0b90e0fc-4a6a-428f-9852-aa2cacbd0521/history?recorded_at=2026-11-01T00:30:00+00:00
+  selector conflict (both)
+    http://localhost:5183/sites/KOBO-001/actions/0b90e0fc-4a6a-428f-9852-aa2cacbd0521/history?event_id=05d56efa-0e65-4a16-8d47-84b903129f8e&recorded_at=2026-11-01T00:30:00+00:00
+  Foundation versions: expected 84daf5fb-83b0-44a9-bdb7-9b889c2a69b7, split 178b9688-94aa-4ba4-be8d-87421d271aac, new 941f47f6-30e6-4ee2-b2e9-bfa15b570968

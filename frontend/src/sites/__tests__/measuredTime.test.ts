@@ -37,4 +37,10 @@ describe("evidence measured time", () => {
     expect(measuredTime(null, "Africa/Addis_Ababa", null)).toBe("none");
     expect(measuredTime("not-a-time", "Africa/Addis_Ababa", null)).toBe("not-a-time");
   });
+
+  it("post-W6 W1-a: delegates to siteTime.ts and keeps the shell's EAT names", () => {
+    expect(zoneAbbreviation("Africa/Mogadishu")).toBe("EAT");
+    expect(zoneAbbreviation("Africa/Nairobi", new Date("2026-10-13T00:00:00Z"))).toBe("EAT");
+    expect(measuredTime("2026-10-13T11:20:05Z", "Not/AZone", "2026-10-13")).toBe("11:20:05");
+  });
 });

@@ -223,6 +223,21 @@ function isRevision(value: unknown): value is RevisionDetail {
   );
 }
 
+/** Stored assessment scopes that are not one 15-minute interval result (post-W6 W1-a Q6 / R178). */
+const NON_INTERVAL_SCOPES: ReadonlySet<string> = new Set(["WINDOW"]);
+
+/**
+ * post-W6 W1-a Q6 / R178: whether a loaded revision can be shown as 15-minute blocks. `getRevision` loads any
+ * stored revision, and a whole-window assessment has no `result.segments`. A known non-interval scope is refused
+ * before any indexing; an unknown or absent scope passes only with a valid interval shape.
+ */
+export function isIntervalRevision(value: RevisionDetail | AssessmentRevision): boolean {
+  if (typeof value.scope === "string" && NON_INTERVAL_SCOPES.has(value.scope)) return false;
+  const result: unknown = value.result;
+  if (!isObject(result)) return false;
+  return Array.isArray(result.segments) && isObject(result.interval);
+}
+
 /** The cutover read: its 503 carries a closed body, which is shown, not discarded. */
 async function readCutover(path: string): Promise<EvidenceRead<CutoverState>> {
   let response: Response;

@@ -238,7 +238,8 @@ export function SiteFindingEvidence({
     };
   }, [client, siteId, findingId, revisionId, offset]);
 
-  const title = read?.status === "loaded" ? (LIFECYCLE_WORDS[read.value.revision.lifecycle]?.title ?? FINDING_NAME) : FINDING_NAME;
+  // post-W6 W1-a Q16 / R193: loading, refused and not-found reads are headed "Finding", as the root is.
+  const title = read?.status === "loaded" ? (LIFECYCLE_WORDS[read.value.revision.lifecycle]?.title ?? FINDING_NAME) : "Finding";
   useEffect(() => {
     onTitle?.(title);
   }, [onTitle, title]);

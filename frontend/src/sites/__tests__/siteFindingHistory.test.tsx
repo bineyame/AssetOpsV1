@@ -5,9 +5,9 @@
  * back/forward keep exact version IDs; an omitted ID is labelled "latest at
  * read time").
  */
-import { fireEvent, render, screen, cleanup } from "@testing-library/react";
+import { fireEvent, render, screen, cleanup, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
@@ -256,7 +256,8 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     expect(q("[data-history-pin]")).toHaveAttribute("href", `${HISTORY}?revision_id=${rid(205)}`);
     expect(q("[data-finding-section='history']")).toHaveAttribute("aria-current", "page");
     // W1-F5b carry 10: the heading is the selected version's Finding name, not a generic "Finding history".
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator support/);
+    // post-W6 W1-a Q16: the heading is "Finding" until the read settles, then set from the frame's title effect.
+    await waitFor(() => expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator support/));
     expect(screen.getByRole("heading", { level: 1 })).not.toHaveTextContent(/history/i);
     const { violations } = scanProductVocabulary(container, "finding history");
     expect(violations, describeViolations(violations)).toEqual([]);
@@ -335,7 +336,7 @@ describe("Finding History child view (S4-03 phase 3)", () => {
 
   it("names the time kinds separately and makes no as-of-a-moment replay claim", async () => {
     await frame(HISTORY, client({ total: 1 }));
-    for (const term of ["Version recorded", "Readings from", "Last cited reading received", "Last cited reading accepted", "Analysis finished"]) {
+    for (const term of ["Version recorded (UTC)", "Readings from", "Last cited reading received", "Last cited reading accepted", "Analysis finished"]) {
       expect(screen.getByText(term)).toBeInTheDocument();
     }
     // W1-F3 phase D: the Basis cell shows one short phrase; its labelled times sit in a closed per-row disclosure.
@@ -453,13 +454,11 @@ describe("Q3: exact versions survive old -> new -> Evidence -> old, reload and b
   });
 });
 
-describe("Finding to Financials bridge link (S4-02a)", () => {
-  it("carries the Finding ID and the pinned version", async () => {
+describe("Finding to Financials bridge link (S4-02a; post-W6 W1-a Q8 / R185)", () => {
+  it("is no longer an aside on the History section row; the Finding's What to do next carries the money link", async () => {
     await frame(`${HISTORY}?revision_id=${rid(2)}`, client({ total: 3 }));
-    expect(q("[data-finding-financials-link] a")).toHaveAttribute(
-      "href",
-      `/sites/${SITE}/financials?finding_id=${F}&revision_id=${rid(2)}`,
-    );
+    expect(q("[data-finding-financials-link]")).toBeNull();
+    expect(q("[data-finding-assumptions-link]")).toBeNull();
   });
 });
 
@@ -636,6 +635,44 @@ describe("W1-F3: Finding History renders exactly the v69 panel (finding-history)
     }
   });
 
+  it("caps2 ruling 3: both version tables and the Show-all control sit in one labelled, focusable scroll region; the rest stays outside", async () => {
+    await frame(HISTORY, client({ total: 205 }));
+    const region = panel().querySelector("[data-history-versions-scroll]") as HTMLElement;
+    expect(region.getAttribute("role")).toBe("region");
+    expect(region.getAttribute("aria-label")).toBe("Recorded versions");
+    expect(region.tabIndex).toBe(0);
+    expect(region.querySelector("details[data-show-all='finding-history-versions']")).not.toBeNull();
+    expect(region.querySelectorAll("table")).toHaveLength(2);
+    expect(region.querySelectorAll("[data-history-revision]")).toHaveLength(205);
+    for (const sel of ["[data-history-state-line]", "[data-history-summary]", "[data-history-kept-as-recorded]", "[data-exact-references]"]) {
+      const el = panel().querySelector(sel);
+      expect(el, sel).not.toBeNull();
+      expect(region.contains(el), sel).toBe(false);
+    }
+    // jsdom has no layout, so the cue is present but hidden; the CSS caps the region at 400 px (1440) and 1000 px (390).
+    const cue = panel().querySelector("[data-history-scroll-cue]") as HTMLElement;
+    expect(cue.textContent).toBe("Scroll versions to see every row");
+    expect(cue.hidden).toBe(true);
+    // vitest serves imported CSS as empty text and node types are absent, so read from disk untyped.
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/sites/w1f3-finding-history.css`, "utf8");
+    expect(css).toMatch(/\.site-finding-history__versions\s*\{[^}]*max-height:\s*400px;[^}]*overflow-y:\s*auto/);
+    expect(css).toMatch(/max-width:\s*640px\)\s*\{\s*\.site-finding-history__versions\s*\{\s*max-height:\s*1000px/);
+  });
+
+  it("caps2 ruling 3: the cue shows when the region's content overflows its viewport", async () => {
+    const sh = vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(900);
+    const ch = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(400);
+    try {
+      await frame(HISTORY, client({ total: 205 }));
+      await waitFor(() => expect((panel().querySelector("[data-history-scroll-cue]") as HTMLElement).hidden).toBe(false));
+    } finally {
+      sh.mockRestore();
+      ch.mockRestore();
+    }
+  });
+
   it("height phase: an earlier selected version hidden behind 'Show all' opens the expander so the selection is visible", async () => {
     await frame(`${HISTORY}?revision_id=${rid(2)}`, client({ total: 205 }));
     const showAll = panel().querySelector("details[data-show-all='finding-history-versions']") as HTMLDetailsElement;
@@ -670,4 +707,38 @@ describe("W1-F3: Finding History renders exactly the v69 panel (finding-history)
       expect(all("[data-history-revision]")).toHaveLength(0);
     },
   );
+});
+
+describe("post-W6 W1-a Q16 / Q17: History heading and Site-local time", () => {
+  it("Q17 / R195: the Time column is headed with the Site zone; cells are local D Mon · HH:MM with exact UTC in the title and detail", async () => {
+    await frame(`${HISTORY}?revision_id=${rid(1)}`, client({ total: 1 }));
+    const head = document.querySelector("[data-history-time-zone]") as HTMLElement;
+    expect(head.textContent?.trim()).toBe("Time (EAT)");
+    const row = q(`[data-history-revision='${rid(1)}']`) as HTMLElement;
+    const cell = row.querySelector("td time") as HTMLElement;
+    // t(10) is 14:10 UTC, 17:10 in Africa/Kampala.
+    expect(cell.textContent).toBe("6 Oct · 17:10");
+    expect(cell.getAttribute("title")).toBe("2026-10-06T14:10:00.000Z (UTC)");
+    expect(row.querySelector("[data-history-recorded-exact]")?.textContent).toBe("2026-10-06T14:10:00.000Z");
+  });
+
+  it("Q17: a Site without a timezone falls back to UTC and says so in the heading", async () => {
+    const noZone: SiteDetailClient = { getSite: async () => ({ status: "loaded", site: { ...HYBRID_MINI_GRID_SITE, timezone: "" } }) };
+    render(
+      <MemoryRouter initialEntries={[`${HISTORY}?revision_id=${rid(1)}`]}>
+        <Routes>
+          <Route path="/sites/:siteId/findings/:findingId/:findingView" element={<SiteFindingFrame detail={noZone} sitesPath="/sites" findings={client({ total: 1 })} />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect((document.querySelector("[data-history-time-zone]") as HTMLElement).textContent?.trim()).toBe("Time (UTC)");
+    expect(q(`[data-history-revision='${rid(1)}'] td time`)?.textContent).toBe("6 Oct · 14:10");
+  });
+
+  it("Q16 / R193: a refused History read is headed Finding, not a fixed Finding name", async () => {
+    const refused: FindingClient = { ...client({ total: 1 }), getFindingHistory: async () => ({ status: "forbidden", message: null }) };
+    await frame(HISTORY, refused);
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Finding$/);
+  });
 });

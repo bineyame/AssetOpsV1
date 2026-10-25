@@ -1,0 +1,16 @@
+[rename] 'SOURCE_DB, DB = "assetops_s3cases", "assetops_s3walk"' -> 'SOURCE_DB, DB = "assetops_s3cases", "assetops_w1arc_b02_s3walk_test"'
+[rename] 'WORK = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AssetOps" / "s3-dispatch-walkthrough"' -> 'WORK = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AssetOps" / "w1arc-b2-s3walk"\nPRODUCER_WORK_PARENT = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AssetOps"'
+[rename] 'PRODUCER_MANIFEST = WORK.parent / "s3-dispatch-cases"' -> 'PRODUCER_MANIFEST = PRODUCER_WORK_PARENT / "s3-dispatch-cases"'
+=== 1. Private work tree (git HEAD) with its own var/ ===
+  C:\Users\assef\AppData\Local\AssetOps\w1arc-b2-s3walk\tree (code from 2b27676c)
+  demo manifest: C:\Users\assef\AppData\Local\AssetOps\w1arc-b2-s3walk\s3-dispatch-cases-v1.json (copied from the producer work directory)
+=== 2. Database assetops_w1arc_b02_s3walk_test as a copy of assetops_s3cases ===
+  copied
+=== 3. File-backed comparison (writes the report into the private tree only) ===
+  PASSED: Empty-set comparison: the file-backed baseline holds no dispatch claim for KOBO-001, so no claim is said to match; a zero-inventory statement, not claim parity.
+  Lineage: {'selected_runs': 10, 'selected_heads_other_model': 0, 'run_evidence_not_accepted': 0, 'revision_evidence_outside_run': 0, 'runs_without_window_revision': 0, 'foundation_revisions_missing': 0}
+  Report: C:\Users\assef\AppData\Local\AssetOps\w1arc-b2-s3walk\tree\var\evidence\migration-performance\kobo-001\20261025T035830342284Z-57483ef6-1b67-4855-a905-8bdfec8e98b1.json
+  Performance cutover: permitted
+=== 4. Staged states: FAILED 2026-10-07, PENDING 2026-10-05 (walkthrough database only) ===
+  staged: FAILED 2026-10-07 and PENDING 2026-10-05
+Prepared. Next: serve.

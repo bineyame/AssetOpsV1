@@ -75,8 +75,9 @@ describe("W1-F4: Recommendation keeps the v69 panel structure in every variant",
   it("stocked (trial proposed): the proposal, limits, accept control and money link sit in panel 1; 2 and 3 state their gaps", async () => {
     await show(rec.pre_accept_available);
     expectV69Panels("recommendation");
-    // W1-F5b review M2: the heading is the Finding's name, as on Finding, Evidence and History, not "Recommendation".
-    expect(document.querySelector("h1")?.textContent).toBe("Generator support review");
+    // W1-F5b review M2 and post-W6 W1-a Q16 / R193: the heading is the resolved Finding record's title, never
+    // "Recommendation" or a fixed name; this fake's Finding selection refuses, so it reads "Finding".
+    expect(document.querySelector("h1")?.textContent).toBe("Finding");
     expect(document.querySelector("[data-headline-card]")).toBeNull();
     expect(document.querySelector("[data-page-refusal]")).toBeNull();
     // The former answer card's state line is the strip's lead, never a card.

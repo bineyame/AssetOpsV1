@@ -110,3 +110,26 @@
 .site-finding-history__summary {
   margin-bottom: 8px;
 }
+
+/* caps2 ruling 3: one vertical scroll region holds the version list (max 400 px at 1440, 1000 px at 390). */
+.site-finding-history__versions {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.site-finding-history__versions:focus-visible {
+  outline: 2px solid var(--focus, #1d4ed8);
+  outline-offset: 2px;
+}
+.site-finding-history__scroll-cue {
+  margin: 0 0 4px;
+  font-size: 12px;
+}
+.site-finding-history__scroll-cue[hidden] {
+  display: none;
+}
+@media (max-width: 640px) {
+  .site-finding-history__versions {
+    max-height: 1000px;
+  }
+}

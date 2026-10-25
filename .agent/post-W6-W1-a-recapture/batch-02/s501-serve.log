@@ -1,0 +1,10 @@
+  Performance comparison (source gate): exit 0 -> gate OPEN
+API for assetops_s501_owner_audit: python -m uvicorn lab_app:app --host 127.0.0.1 --port 18121 (log C:\Users\assef\Bineyame\AssetOpsV1-review4\var\s501_owner_w1arc\logs\api-18121.log)
+Frontend, from frontend/:
+  $env:ASSETOPS_API_PORT="18121"; npm.cmd run dev -- --port 5183 --strictPort
+  ordinary   http://localhost:5183/sites/KOBO-001?date=2026-10-02
+  failed     http://localhost:5183/sites/KOBO-001?date=2026-10-07
+  p01        http://localhost:5183/sites/KOBO-001?date=2026-10-23
+  p02        http://localhost:5183/sites/KOBO-001?date=2026-10-24
+  unassessed http://localhost:5183/sites/KOBO-001?date=2026-11-10
+Ctrl+C stops the API.

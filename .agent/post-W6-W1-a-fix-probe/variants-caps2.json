@@ -1,0 +1,4 @@
+[{"name":"finding-history","url":"http://localhost:5183/sites/KOBO-001/findings/9f74c89f-85d8-410e-a779-f2378012c7e3/history","variant":"history-5"},
+{"name":"finding-history","url":"http://localhost:5183/sites/KOBO-001/findings/9f74c89f-85d8-410e-a779-f2378012c7e3/history","variant":"history-real5-rel160"},
+{"name":"finding-history","url":"http://localhost:5183/sites/KOBO-001/findings/9f74c89f-85d8-410e-a779-f2378012c7e3/history","variant":"hist-measure"},
+{"name":"finding-history-v1","url":"http://localhost:5183/sites/KOBO-001/findings/9f74c89f-85d8-410e-a779-f2378012c7e3/history?revision_id=7c256189-6564-40dc-8615-eb9b0c439c49","variant":"hist-measure"}]

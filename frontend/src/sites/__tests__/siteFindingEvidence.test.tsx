@@ -584,19 +584,26 @@ describe("Finding frame sections (S4-03 phase 2)", () => {
     expect(q("[data-finding-financials-link]")).toBeNull();
     // W1-F5b carry 10: the heading is the Finding's own name, as on the Finding and in the mock.
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator support merits review$/);
-    // W4-03 unit 6b (u5 6b, u6): the canonical mini row is Overview, unavailable Analysis, Evidence, Alternatives,
-    // Recommendation, History. This fake's W1 Finding read refuses, so Alternatives is the noninteractive gap.
+    // W4-03 unit 6b (u5 6b, u6) and post-W6 W1-a Q7/Q16: the canonical mini row is Overview, Analysis, Evidence,
+    // Alternatives, Recommendation, History. This fake's W1 Finding read refuses, so Analysis is plain text and
+    // Alternatives is the short disabled tab, with its full reason on the line below the row.
     const sections = screen.getByRole("navigation", { name: "Finding sections" });
     expect(rowLabels(sections)).toEqual([
       "Overview",
-      `Analysis (${UNAVAILABLE_STATUS})`,
+      "Analysis",
       "Evidence",
-      "Alternatives for this Finding unavailable",
+      `Alternatives (${UNAVAILABLE_STATUS})`,
       "Recommendation",
       "History",
     ]);
-    expectUnavailableEntry(sections, "Analysis");
+    expectUnavailableEntry(sections, "Alternatives");
+    expect(q("[data-alternatives-finding-unavailable]")).toHaveTextContent("Alternatives for this Finding unavailable");
     expect(document.querySelectorAll('a[href*="alternatives" i]')).toHaveLength(0);
+  });
+
+  it("post-W6 W1-a Q16 / R193: a refused Evidence read is headed Finding, not a fixed Finding name", async () => {
+    await frame(`/sites/${SITE}/findings/${F}/evidence?revision_id=${R1}`, fake({ status: "forbidden", message: null }));
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Finding$/);
   });
 
   it("refuses an unknown section name instead of showing another view", async () => {

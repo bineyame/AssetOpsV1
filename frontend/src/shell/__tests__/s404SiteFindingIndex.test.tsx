@@ -453,12 +453,17 @@ describe("W1-F3: Site Findings index renders exactly the v69 panel (sitefindings
     expectV69Panels("sitefindings");
     const panel = card();
     expect(state()).toBe(expected);
-    // W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the one-line statusbar, then the panel; inside it, under the
-    // heading, the mock's lens chips (All live and selected, the rest unbuilt) beside the compact window control.
+    // post-W6 W1-a Q18 / R196: the mock's lens chips (All live and selected, the rest unbuilt) sit above the scope
+    // strip; the strip carries "Manage in Findings"; the panel holds the compact window control under its heading.
     expect(statusBar().compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const controls = panel.querySelector("[data-site-findings-controls]") as HTMLElement;
-    expect(controls, "lens chips and window share one controls row in the panel").not.toBeNull();
-    const lenses = within(controls).getByRole("list", { name: "Finding lenses" });
+    expect(controls, "the window control row is in the panel").not.toBeNull();
+    const lenses = screen.getByRole("list", { name: "Finding lenses" });
+    expect(panel.contains(lenses), "the lens row is outside the panel").toBe(false);
+    expect(lenses.compareDocumentPosition(statusBar()) & Node.DOCUMENT_POSITION_FOLLOWING, "lenses above the strip").toBeTruthy();
+    const manage = statusBar().querySelector("[data-site-findings-manage]") as HTMLAnchorElement;
+    expect(manage.textContent).toBe("Manage in Findings →");
+    expect(manage.getAttribute("href")).toBe("/findings");
     expect(rowLabels(lenses)).toEqual([
       "All",
       `Cost (${UNAVAILABLE_STATUS})`,
