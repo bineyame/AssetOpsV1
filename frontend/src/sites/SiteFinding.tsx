@@ -818,9 +818,9 @@ function costCard(cost: FindingCost): { priced: true; value: string; revisionId:
   return { priced: false, state: c.state, note: consequenceWords(c, false).label };
 }
 
-function pricedNotCurrentNote(currentness: string): string {
+function pricedNotCurrentNote(currentness: string | null): string {
   if (currentness === "STALE") return "The cost for this Finding version is out of date; no current amount is shown.";
-  return `The cost for this Finding version is not current (${currentness.toLowerCase().replace(/_/g, " ")}); no current amount is shown.`;
+  return `The cost for this Finding version is not current (${(currentness ?? "unknown").toLowerCase().replace(/_/g, " ")}); no current amount is shown.`;
 }
 
 /** The mock's four metric cards: the separate minute counts and the cost card (post-W6 W1-a Q12). */
