@@ -195,6 +195,27 @@ describe("cold-action Related activity (ruling 5, R100) and controls (ruling 8, 
     expect(inspect.getAttribute("data-domain-action-inspect-target")).toBe(`/maintenance/requests/${CASE_ID}?site_id=${SITE}`);
   });
 
+  it.each<[string, string | null, string, string]>([
+    ["VERIFICATION_WINDOW", RECORD_ID, "verification-window", "Work was recorded; verification is open and no outcome is established."],
+    ["VERIFICATION_WINDOW", null, "not-linked", "No completed inspection is linked to this Action."],
+    ["CANCELLED", RECORD_ID, "cancelled", "The linked request was cancelled; no completed work or verified outcome is established."],
+    ["CANCELLED", null, "cancelled", "The linked request was cancelled; no completed work or verified outcome is established."],
+  ])("post-W6 R344: a linked %s request (record %s) reads its exact state, never a verified outcome", async (state, record, kind, sentence) => {
+    const { main } = await mount(() => loaded(positive({ links: { finding: detailBody().links.finding, work: linkedWork(state, record) } })));
+    expect(main.querySelector("[data-domain-action-related]")?.getAttribute("data-domain-action-related")).toBe(kind);
+    expect(text(main.querySelector("[data-domain-action-related-sentence]"))).toBe(sentence);
+    expect(text(main.querySelector("[data-domain-action-related]"))).not.toContain("is complete");
+  });
+
+  it("post-W6 R344: without a linked case, VERIFICATION_WINDOW and CANCELLED states still read not linked", async () => {
+    for (const state of ["VERIFICATION_WINDOW", "CANCELLED"]) {
+      const work = { ...NO_WORK, request_state: state, record_id: RECORD_ID };
+      const { main } = await mount(() => loaded(positive({ links: { finding: detailBody().links.finding, work } })));
+      expect(main.querySelector("[data-domain-action-related]")?.getAttribute("data-domain-action-related")).toBe("not-linked");
+      cleanup();
+    }
+  });
+
   it("a COMPLETED request without its performed record is not a completed inspection; Inspect stays live (ruling 19)", async () => {
     const { main } = await mount(() => loaded(positive({ links: { finding: detailBody().links.finding, work: linkedWork("COMPLETED", null) } })));
     expect(text(main.querySelector("[data-domain-action-related-sentence]"))).toBe("No completed inspection is linked to this Action.");
