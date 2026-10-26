@@ -22,7 +22,6 @@ import { CoolingObservationGraphic } from "./coldDepthGraphics";
 import { type ColdSiteRoutes, SelectedWindowBar, coldUiHref, recordLabel, utcClock } from "./coldSiteViews";
 
 export const COOLING_LOADING = "Loading the site's cooling read.";
-export const COLD_DEPTH_REFUSAL_HEADING = "Cold depth unavailable";
 export const COLD_DEPTH_UNREACHABLE = "The cold depth read could not be reached.";
 export const COLD_DEPTH_MALFORMED = "The cold depth read answered in an unexpected shape.";
 export const COOLING_MATCH_NOT_ESTABLISHED = "Not established";

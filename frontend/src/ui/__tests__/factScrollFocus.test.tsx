@@ -25,13 +25,13 @@ const view = () => (
 afterEach(cleanup);
 
 describe("recapture fix F4 (B13-18): a scrolling fact value is keyboard reachable", () => {
-  it("is a focusable group named by its full value once it scrolls, and is released when it fits", () => {
+  it("is focusable, named by its full value once it scrolls, and is released when it fits", () => {
     const r = render(view());
     const dd = r.container.querySelector("dd") as HTMLElement;
     scroller(dd, 400, 120, "auto");
     r.rerender(view());
     expect(dd.getAttribute("tabindex")).toBe("0");
-    expect(dd.getAttribute("role")).toBe("group");
+    expect(dd.hasAttribute("role")).toBe(false);
     expect(dd.getAttribute("aria-label")).toBe(`Full value: ${LONG}`);
     scroller(dd, 100, 120, "auto");
     r.rerender(view());

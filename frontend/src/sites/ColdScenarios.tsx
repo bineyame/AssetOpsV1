@@ -20,7 +20,6 @@ import "./coldScenarios.css";
 export const SCENARIOS_LOADING = "Loading the site's cold scenarios.";
 export const SCENARIOS_UNREACHABLE = "The cold scenarios read could not be reached.";
 export const SCENARIOS_MALFORMED = "The cold scenarios read answered in an unexpected shape.";
-export const SCENARIOS_REFUSAL_HEADING = "Cold scenarios unavailable";
 export const SCENARIOS_PANEL = "Financial scenarios";
 /**
  * MOCK DEVIATION (D4) R25 (post-W6 W5-cold R337, B14-08): the mock's working-note subtitle is false copy on a built
