@@ -1007,3 +1007,43 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
     expect(document.querySelector("[data-domain-action-shell]")).toBeNull();
   });
 });
+
+/* ---------- R339: the Site tab row keeps the selected window on cold Work ---------- */
+describe("W5-cold R339: Site tabs on cold Work carry from/to/known_at", () => {
+  const tabHrefs = () =>
+    Array.from(document.querySelectorAll(`nav[aria-label="${OPERATOR_SITE_TABS_LABEL}"] a`)).map((a) => a.getAttribute("href") ?? "");
+  const tripleQuery = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
+  const empty = () => domainClient(() => ({ status: "loaded", value: indexBody([]) })).client;
+
+  it("Actions: every tab href carries the triple", async () => {
+    await mountWork(workPath(tripleQuery), empty());
+    const hrefs = tabHrefs();
+    expect(hrefs.length).toBeGreaterThan(3);
+    for (const h of hrefs) {
+      const u = new URL(h, "http://x");
+      expect([u.searchParams.get("from"), u.searchParams.get("to"), u.searchParams.get("known_at")]).toEqual([FROM, TO, KNOWN]);
+    }
+  });
+
+  it.each(["incidents", "maintenance"] as const)("%s cases: every tab href carries the triple", async (kind) => {
+    await mountCases(kind, `/sites/${SITE}/work/${kind}?${tripleQuery}`, empty());
+    const hrefs = tabHrefs();
+    expect(hrefs.length).toBeGreaterThan(3);
+    for (const h of hrefs) expect(new URL(h, "http://x").searchParams.get("known_at")).toBe(KNOWN);
+  });
+
+  it("a bare Work URL gives bare tabs", async () => {
+    await mountWork(`/sites/${SITE}/work`, empty());
+    const hrefs = tabHrefs();
+    expect(hrefs.length).toBeGreaterThan(3);
+    for (const h of hrefs) expect(h).not.toContain("?");
+  });
+
+  it("a mini-grid Site keeps bare tabs even with a window in the address", async () => {
+    const mini = { ...HYBRID_MINI_GRID_SITE, site_id: SITE } as SiteDetailReadModel;
+    await mountCases("incidents", `/sites/${SITE}/work/incidents?${tripleQuery}`, empty(), mini);
+    const hrefs = tabHrefs();
+    expect(hrefs.length).toBeGreaterThan(3);
+    for (const h of hrefs) expect(h).not.toContain("known_at");
+  });
+});

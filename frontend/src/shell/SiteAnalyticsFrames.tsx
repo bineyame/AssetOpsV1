@@ -2080,7 +2080,7 @@ function DomainWorkActionsPage({
         ]}
       />
       <ChangesWorkPageHeader site={site} screen="sitework" headingId={SITE_WORK_HEADING_ID} />
-      <OperatorSiteTabs siteId={site.site_id} current="Work" />
+      <OperatorSiteTabs siteId={site.site_id} current="Work" search={coldTabSearch(site, params)} />
       <WorkSubrow
         siteId={site.site_id}
         siteType={site.site_type}
@@ -2287,7 +2287,7 @@ export function SiteWorkCasesFrame({
             ]}
           />
           <ChangesWorkPageHeader site={site} screen={`sitework-${kind}`} headingId={SITE_WORK_CASES_HEADING_ID} />
-          <OperatorSiteTabs siteId={siteId} current="Work" />
+          <OperatorSiteTabs siteId={siteId} current="Work" search={coldTabSearch(site, params)} />
           <WorkSubrow
             siteId={site.site_id}
             siteType={site.site_type}
