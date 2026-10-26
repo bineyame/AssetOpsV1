@@ -498,8 +498,11 @@ routes = list(build_domain_work_router(
     build_domain_intent_service(url), WorkGate(registry.ledger_scope, (M.WORK_UNAVAILABLE,), access=access,
                                                command_access=access),
     (M.WORK_UNAVAILABLE,), reads=build_domain_action_read_service(url)).routes)
-routes += list(build_work_router(None, registry.ledger_scope, (M.WORK_UNAVAILABLE,), access=access,
-                                 command_access=access, lists=build_work_index_service(url)).routes)
+# R373 (W6 Q20, W5-EV): the case detail read (`GET /work/cases/{id}`) needs `details=`; without it this router, inserted
+# ahead of the product router, answered 503. Mirrors main.py's `build_work_router` call: the product work and detail services.
+routes += list(build_work_router(M.build_work_service(url), registry.ledger_scope, (M.WORK_UNAVAILABLE,), access=access,
+                                 command_access=access, lists=build_work_index_service(url),
+                                 details=M.build_work_detail_service(url)).routes)
 # R373 (B19-15) ruling Q7: global Work (request detail and the four lists) behind the same server-side grant, with
 # the product global router's own service, tenant, scope and unavailable dependencies: denied detail 403, lists filtered.
 from assetops_backend.global_work_api import build_global_work_router
