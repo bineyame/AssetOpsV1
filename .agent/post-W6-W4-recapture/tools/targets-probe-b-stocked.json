@@ -1,0 +1,35 @@
+[
+ {
+  "id": "sitework-incidents",
+  "case": "stocked",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "caps": [
+   {
+    "panel": "Incidents at this site",
+    "kind": "fields",
+    "fields": [
+     "[data-work-case-title]",
+     "[data-work-mini-long^='work-mini-narrative']"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "stocked",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "caps": [
+   {
+    "panel": "Maintenance at this site",
+    "kind": "fields",
+    "fields": [
+     "[data-work-case-title]",
+     "[data-work-asset], td:nth-child(2) .muted",
+     "[data-work-activity]",
+     "[data-work-outcome-note]",
+     "[data-work-mini-long^='work-mini-next']"
+    ]
+   }
+  ]
+ }
+]

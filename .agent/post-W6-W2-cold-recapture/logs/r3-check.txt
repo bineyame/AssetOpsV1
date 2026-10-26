@@ -1,0 +1,35 @@
+captures 34 passed 32 revisions ['8bfd4730']
+FAIL cold-finding start-refused-window 1440 sent 3 panels [('Bounded conclusion', 1, 0), ('Operational context', 1, 0), ('Recommended next step', 0, 0)] wt 1 ban 1 ovx 0 clip 0 con 0 mock True
+FAIL cold-finding start-refused-window 390 sent 3 panels [('Bounded conclusion', 1, 0), ('Operational context', 1, 0), ('Recommended next step', 0, 0)] wt 1 ban 1 ovx 0 clip 0 con 0 mock True
+PASS temperature refused 1440 sent 1 panels [('Temperature with operating c', 1, 0), ('Excursion context', 0, 1), ('Claim boundary', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS temperature refused 390 sent 1 panels [('Temperature with operating c', 1, 0), ('Excursion context', 0, 1), ('Claim boundary', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS coldbackup refused 1440 sent 1 panels [('What the chain shows', 1, 0), ('Reconstructed event chain', 0, 1), ('Backup event chains', 0, 1), ('Evidence by causal step', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS coldbackup refused 390 sent 1 panels [('What the chain shows', 1, 0), ('Reconstructed event chain', 0, 1), ('Backup event chains', 0, 1), ('Evidence by causal step', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-findings refused 1440 sent 1 panels [('Findings at this site', 1, 0)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-findings refused 390 sent 1 panels [('Findings at this site', 1, 0)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold refused 1440 sent 1 panels [('What happened · power → cool', 1, 0), ('Chamber temperature', 0, 1), ('Needs attention', 0, 1), ('Bounded money consequence', 0, 1), ('Next step', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold refused 390 sent 1 panels [('What happened · power → cool', 1, 0), ('Chamber temperature', 0, 1), ('Needs attention', 0, 1), ('Bounded money consequence', 0, 1), ('Next step', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-evidence refused 1440 sent 1 panels [('What we can conclude now', 1, 0), ('Data sources · data quality,', 0, 1), ('Most useful next evidence', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-evidence refused 390 sent 1 panels [('What we can conclude now', 1, 0), ('Data sources · data quality,', 0, 1), ('Most useful next evidence', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-evidence-analysis refused 1440 sent 1 panels [('Accepted records behind the ', 1, 0), ('How a claim limit is set', 0, 1)] wt 0 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-evidence-analysis refused 390 sent 1 panels [('Accepted records behind the ', 1, 0), ('How a claim limit is set', 0, 1)] wt 0 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-financials refused 1440 sent 1 panels [('What happened → what it mean', 1, 0), ('Assumptions in use', 0, 1), ('Not included', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-financials refused 390 sent 1 panels [('What happened → what it mean', 1, 0), ('Assumptions in use', 0, 1), ('Not included', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-assumptions refused 1440 sent 1 panels [('Financial assumptions', 1, 0)] wt 0 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-assumptions refused 390 sent 1 panels [('Financial assumptions', 1, 0)] wt 0 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold one-sided-from 1440 sent 1 panels [('What happened · power → cool', 1, 0), ('Chamber temperature', 0, 1), ('Needs attention', 0, 1), ('Bounded money consequence', 0, 1), ('Next step', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold one-sided-from 390 sent 1 panels [('What happened · power → cool', 1, 0), ('Chamber temperature', 0, 1), ('Needs attention', 0, 1), ('Bounded money consequence', 0, 1), ('Next step', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold long-32d 1440 sent 1 panels [('What happened · power → cool', 1, 0), ('Chamber temperature', 0, 1), ('Needs attention', 0, 1), ('Bounded money consequence', 0, 1), ('Next step', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold long-32d 390 sent 1 panels [('What happened · power → cool', 1, 0), ('Chamber temperature', 0, 1), ('Needs attention', 0, 1), ('Bounded money consequence', 0, 1), ('Next step', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS temperature one-sided-from 1440 sent 1 panels [('Temperature with operating c', 1, 0), ('Excursion context', 0, 1), ('Claim boundary', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS temperature one-sided-from 390 sent 1 panels [('Temperature with operating c', 1, 0), ('Excursion context', 0, 1), ('Claim boundary', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS temperature long-32d 1440 sent 1 panels [('Temperature with operating c', 1, 0), ('Excursion context', 0, 1), ('Claim boundary', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS temperature long-32d 390 sent 1 panels [('Temperature with operating c', 1, 0), ('Excursion context', 0, 1), ('Claim boundary', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS coldbackup one-sided-from 1440 sent 1 panels [('What the chain shows', 1, 0), ('Reconstructed event chain', 0, 1), ('Backup event chains', 0, 1), ('Evidence by causal step', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS coldbackup one-sided-from 390 sent 1 panels [('What the chain shows', 1, 0), ('Reconstructed event chain', 0, 1), ('Backup event chains', 0, 1), ('Evidence by causal step', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS coldbackup long-32d 1440 sent 1 panels [('What the chain shows', 1, 0), ('Reconstructed event chain', 0, 1), ('Backup event chains', 0, 1), ('Evidence by causal step', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS coldbackup long-32d 390 sent 1 panels [('What the chain shows', 1, 0), ('Reconstructed event chain', 0, 1), ('Backup event chains', 0, 1), ('Evidence by causal step', 0, 1)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-findings one-sided-from 1440 sent 1 panels [('Findings at this site', 1, 0)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-findings one-sided-from 390 sent 1 panels [('Findings at this site', 1, 0)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-findings long-32d 1440 sent 1 panels [('Findings at this site', 1, 0)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True
+PASS cold-findings long-32d 390 sent 1 panels [('Findings at this site', 1, 0)] wt 1 ban 0 ovx 0 clip 0 con 0 mock True

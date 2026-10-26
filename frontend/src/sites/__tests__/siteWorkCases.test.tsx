@@ -19,7 +19,7 @@ import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import { defaultWorkWindow, type WorkIndexBody, type WorkRow } from "../workClient";
-import { WORK_CONTEXT_NOTICE, WORK_CONTEXT_NOTICE_DOMAIN, WORK_KIND_COPY, countWords, globalWorkManageHref, shortName } from "../siteWorkCases";
+import { WORK_CONTEXT_NOTICE, WORK_CONTEXT_NOTICE_DOMAIN, WORK_KIND_COPY, countWords, globalWorkManageHref, shortName, siteWindowText } from "../siteWorkCases";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 
@@ -239,7 +239,8 @@ describe("W4-01: Site > Work > Incidents", () => {
     expect(text(first.querySelector("[data-work-case-title]"))).toBe("INC-000001 · Witnessed start request failed");
     // `url: null`: plain text, no link, handler or tab stop.
     expect(first.querySelector("td:first-child a, td:first-child [tabindex], td:first-child button")).toBeNull();
-    expect(text(first.querySelector("[data-work-window]"))).toBe("6 Oct · from 19:11");
+    // post-W6 W4 R320: Site-local with the zone label (the shared siteTime formatter); exact UTC stays in `UTC and IDs`.
+    expect(text(first.querySelector("[data-work-window]"))).toBe("6 Oct · from 19:11 EAT");
     expect(text(first)).toContain("2026-10-06 16:11 UTC");
     expect(text(first)).toContain("No linked finding");
     expect(Array.from(panel.querySelectorAll("[data-work-state]")).map((c) => [c.textContent, c.getAttribute("data-work-tone")])).toEqual([
@@ -262,13 +263,13 @@ describe("W4-01: Site > Work > Incidents", () => {
     expect(page2.querySelector("[data-work-previous]")).not.toBeNull();
     expect(text(strip())).toContain("Scoped to Kobo · 7 incidents");
     // M1: page two reads as of the first page's K (explicitly sent); the strip stays three slots.
-    expect(text(strip())).toContain("Read as of 2026-10-07 00:00 UTC");
+    expect(text(strip())).toContain("Read as of 2026-10-07 03:00 EAT");
     expect(strip().querySelectorAll(":scope > span")).toHaveLength(3);
     // Previous sends the same K again, and the page still reads as of it.
     fireEvent.click(page2.querySelector("[data-work-previous]") as HTMLElement);
     await settledScreen();
     expect(requests.at(-1)).toBe(api("incidents", DAY, `&known_at=${K}`));
-    expect(text(strip())).toContain("Read as of 2026-10-07 00:00 UTC");
+    expect(text(strip())).toContain("Read as of 2026-10-07 03:00 EAT");
     cleanup();
     vi.unstubAllGlobals();
 
@@ -531,7 +532,8 @@ describe("W4-01 fix r1: subtab counts, strip words and coverage copy", () => {
     vi.unstubAllGlobals();
 
     // A window change clears the old counts at once and reads the new window.
-    const W2 = { from: "2026-10-08T00:00:00Z", to: "2026-10-09T00:00:00Z" };
+    // post-W6 W4 R320: the day inputs are Site-local (EAT), sent as the UTC instants of local midnight.
+    const W2 = { from: "2026-10-07T21:00:00Z", to: "2026-10-08T21:00:00Z" };
     serve({
       [api("incidents", DAY)]: { status: 200, body: body([]) },
       [api("incidents", W2)]: { status: 200, body: body([]) },
@@ -558,7 +560,7 @@ describe("W4-01 fix r1: subtab counts, strip words and coverage copy", () => {
       [{ status: "PENDING_RECOMPUTE", coverage: { state: "PARTIAL", reason: "LINK_WORK_PENDING" } }, "Linked evidence is being reassessed", "Linked evidence is being reassessed."],
       [{ status: "STALE_SOURCE", coverage: { state: "PARTIAL", reason: "LINK_SOURCE_STALE" } }, "Linked evidence source is out of date", "Linked evidence is being reassessed."],
       [{ status: "UNKNOWN", coverage: { state: "UNKNOWN", reason: "LINK_SELECTION_MISSING" } }, "No selected source for linked evidence", "A linked record has no selected source."],
-      [{ status: "HISTORICAL" }, "Read as of 2026-10-07 00:00 UTC", null],
+      [{ status: "HISTORICAL" }, "Read as of 2026-10-07 03:00 EAT", null],
     ];
     for (const [over, word, coverage] of cases) {
       serve({ [api("incidents", DAY)]: { status: 200, body: body(one, over) } });
@@ -813,5 +815,132 @@ describe("post-W6 shell R319: count strip grammar", () => {
     const maint = WORK_KIND_COPY.maintenance.noun;
     expect([0, 1, 2].map((n) => countWords(n, inc))).toEqual(["0 incidents", "1 incident", "2 incidents"]);
     expect([0, 1, 3].map((n) => countWords(n, maint))).toEqual(["0 maintenance cases", "1 maintenance case", "3 maintenance cases"]);
+  });
+});
+
+describe("post-W6 W4 R320/R322/R324: mini Work in Site time, plain refusals and long text", () => {
+  it("R320: the window form shows Site-local days with the zone and writes local midnights as UTC bounds", async () => {
+    const LOCAL = { from: "2026-10-05T21:00:00Z", to: "2026-10-06T21:00:00Z" };
+    serve({ [api("incidents", LOCAL)]: { status: 200, body: body([incidentRow(1, { occurred_at: "2026-10-06T21:00:00Z" })]) } });
+    mount(page("incidents", LOCAL));
+    await settledScreen();
+    const inputs = document.querySelectorAll<HTMLInputElement>("[data-work-window] input");
+    // Local midnight boundary: [06 Oct 00:00 EAT, 07 Oct 00:00 EAT) is the one local day 6 Oct.
+    await vi.waitFor(() => expect([inputs[0].value, inputs[1].value]).toEqual(["2026-10-06", "2026-10-06"]));
+    expect(text(document.querySelector("[data-work-window]"))).toContain("(EAT)");
+    // build ruling 7: the end field carries the zone and says the day is included.
+    expect(text(document.querySelector("[data-work-window]"))).toContain("to (EAT, included)");
+    // 21:00Z is the next local day at 00:00 EAT.
+    expect(text(document.querySelector("main tbody tr [data-work-window]"))).toBe("7 Oct · from 00:00 EAT");
+    expect(text(strip())).not.toContain("UTC+3");
+  });
+
+  it("R320: a missing or invalid zone says UTC", () => {
+    expect(siteWindowText("2026-10-06T16:11:00Z", null, true)).toBe("6 Oct · from 16:11 UTC");
+    expect(siteWindowText("2026-10-06T16:11:00Z", "Not/AZone", true)).toBe("6 Oct · from 16:11 UTC");
+    expect(siteWindowText("2026-10-06T16:11:00Z", "Africa/Addis_Ababa", true)).toBe("6 Oct · from 19:11 EAT");
+  });
+
+  it.each([
+    ["a reversed window", { from: "2026-10-07T00:00:00Z", to: "2026-10-06T00:00:00Z" }, "INVALID_WINDOW", "The end must be after the start."],
+    ["a 36-day window", { from: "2026-09-01T00:00:00Z", to: "2026-10-07T00:00:00Z" }, "INVALID_WINDOW", "Choose a window of 31 days or fewer."],
+    ["an unprovable window", { from: "2026-10-06T00:00:00Z", to: "2026-10-07T00:00:00Z" }, "INVALID_WINDOW", "Choose a valid Site-local window."],
+    ["a bad cutoff", { from: "2026-10-06T00:00:00Z", to: "2026-10-07T00:00:00Z" }, "INVALID_KNOWN_AT", "Choose a valid evidence cutoff."],
+  ])("R322: %s is plain client copy, never the server message; the strip and subtabs say the input is the cause", async (_name, w, code, copy) => {
+    serve({
+      [api("incidents", w)]: { status: 422, body: refusal(code, "`from` must be before `to` (server text)") },
+      [countPath("incidents", w)]: { status: 422, body: refusal(code, "`from` must be before `to` (server text)") },
+      [countPath("maintenance", w)]: { status: 422, body: refusal(code, "`from` must be before `to` (server text)") },
+    });
+    mount(page("incidents", w));
+    await settledScreen();
+    const refused = panelTitled("Incidents at this site").querySelector("[data-work-refused]") as HTMLElement;
+    await vi.waitFor(() => expect(text(refused)).toContain(copy));
+    expect(text(document.querySelector("main"))).not.toContain("server text");
+    expect(text(document.querySelector("main"))).not.toContain("`");
+    expect(text(strip())).toContain("Counts not shown: the selected window is not valid.");
+    expect(text(strip())).not.toContain("work source unavailable");
+    const tabs = () => Array.from(document.querySelectorAll('nav[aria-label="Site Work sections"] a, nav.site-subtabs a'), (a) => text(a));
+    await vi.waitFor(() => expect(tabs()).toEqual(expect.arrayContaining(["Incidents", "Maintenance"])));
+  });
+
+  it("R322: a source failure keeps Count unknown and the (—) suffix; INVALID_CURSOR offers the first page", async () => {
+    serve({
+      [api("incidents", DAY)]: { status: 503, body: refusal("WORK_STORE_UNAVAILABLE", "down") },
+      [countPath("incidents", DAY)]: { status: 503, body: refusal("WORK_STORE_UNAVAILABLE", "down") },
+    });
+    mount(page("incidents", DAY));
+    await settledScreen();
+    await vi.waitFor(() => expect(text(strip())).toContain("Count unknown · work source unavailable"));
+    const tabs = Array.from(document.querySelectorAll("nav.site-subtabs a"), (a) => text(a));
+    expect(tabs).toContain("Incidents (—)");
+    cleanup();
+    vi.unstubAllGlobals();
+    serve({ [api("incidents", DAY, `&known_at=${K}&cursor=OLD`)]: { status: 422, body: refusal("INVALID_CURSOR", "cursor `OLD` expired") } });
+    mount(`${page("incidents", DAY)}&known_at=${K}&cursor=OLD`);
+    await settledScreen();
+    const refused = panelTitled("Incidents at this site").querySelector("[data-work-refused]") as HTMLElement;
+    await vi.waitFor(() => expect(text(refused)).toContain("This page of results expired. Return to the first page."));
+    expect(refused.querySelector("[data-work-restart]")).not.toBeNull();
+    expect(text(document.querySelector("main"))).not.toContain("cursor `OLD`");
+  });
+
+  it("R324: a 160-character narrative keeps its preview and opens in full through a keyboard-reachable Read full text", async () => {
+    const long = `${"N".repeat(150)} END-OF-NARRATIVE`;
+    serve({ [api("incidents", DAY)]: { status: 200, body: body([1, 2, 3, 4, 5].map((n) => incidentRow(n, { narrative: `${n} ${long}` }))) } });
+    mount(page("incidents", DAY));
+    await settledScreen();
+    await vi.waitFor(() => expect(document.querySelectorAll("main tbody tr")).toHaveLength(5));
+    const cell = document.querySelector("[data-work-mini-long^='work-mini-narrative-']") as HTMLElement;
+    const summary = cell.querySelector("summary") as HTMLElement;
+    expect(text(summary)).toBe("Read full text");
+    expect(cell.querySelector(".work-cases-clamp")).not.toBeNull();
+    const details = summary.closest("details") as HTMLDetailsElement;
+    details.open = true;
+    fireEvent(details, new Event("toggle"));
+    await vi.waitFor(() => expect(text(cell)).toContain("END-OF-NARRATIVE"));
+    expect(cell.querySelector(".work-cases-clamp")).toBeNull();
+    // Five long rows: every row keeps its own disclosure.
+    expect(document.querySelectorAll("[data-work-mini-long^='work-mini-narrative-'] summary")).toHaveLength(5);
+  });
+
+  it("unit 5 (ruled Incidents 1440 cap 500): a mini table region that hides rows says so outside the region", async () => {
+    const sh = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollHeight");
+    const ch = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "clientHeight");
+    Object.defineProperty(HTMLElement.prototype, "scrollHeight", { configurable: true, get() { return this.classList?.contains("data-table__scroll") ? 692 : 0; } });
+    Object.defineProperty(HTMLElement.prototype, "clientHeight", { configurable: true, get() { return this.classList?.contains("data-table__scroll") ? 330 : 0; } });
+    try {
+      serve({ [api("incidents", DAY)]: { status: 200, body: body([1, 2, 3, 4, 5].map((n) => incidentRow(n))) } });
+      mount(page("incidents", DAY));
+      await settledScreen();
+      await vi.waitFor(() => expect(document.querySelectorAll("main tbody tr")).toHaveLength(5));
+      const table = document.querySelector("[data-work-table='incidents']") as HTMLElement;
+      expect(table.hasAttribute("data-work-mini")).toBe(true);
+      const hint = await vi.waitFor(() => {
+        const el = table.querySelector("[data-work-vscroll-hint]");
+        expect(el).not.toBeNull();
+        return el as HTMLElement;
+      });
+      expect(text(hint)).toBe("Scroll the incident table to see every row");
+      const region = table.querySelector(".data-table__scroll") as HTMLElement;
+      expect(region.getAttribute("tabindex")).toBe("0");
+      expect(region.getAttribute("role")).toBe("region");
+      expect(region.contains(hint)).toBe(false);
+    } finally {
+      if (sh) Object.defineProperty(HTMLElement.prototype, "scrollHeight", sh);
+      if (ch) Object.defineProperty(HTMLElement.prototype, "clientHeight", ch);
+    }
+  });
+
+  it("unit 5: no hint when every row fits, and the 1440 rule bounds only the mini Incident table", async () => {
+    serve({ [api("incidents", DAY)]: { status: 200, body: body([incidentRow(1)]) } });
+    mount(page("incidents", DAY));
+    await settledScreen();
+    await vi.waitFor(() => expect(document.querySelectorAll("main tbody tr")).toHaveLength(1));
+    expect(document.querySelector("[data-work-vscroll-hint]")).toBeNull();
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/sites/w4-work-cases.css`, "utf8");
+    expect(css).toMatch(/@media \(min-width: 761px\) \{\s*\.work-cases \[data-work-table="incidents"\]\[data-work-mini\] \.data-table__scroll \{ max-height: 330px; overflow: auto; \}/);
   });
 });

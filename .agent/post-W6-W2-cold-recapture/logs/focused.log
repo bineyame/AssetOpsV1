@@ -1,0 +1,21 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/assef/Bineyame/AssetOpsV1-ops04/frontend[39m
+
+ [32m✓[39m src/sites/__tests__/coldFindingIndex.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1382[2mms[22m[39m
+   [33m[2m✓[22m[39m W2-cold unit 4: cold Site Findings index[2m > [22mr253_selected_rows_columns_and_windowed_links [33m815[2mms[22m[39m
+ [32m✓[39m src/shell/__tests__/s404SiteFindingIndex.test.tsx [2m([22m[2m39 tests[22m[2m)[22m[33m 4878[2mms[22m[39m
+   [33m[2m✓[22m[39m S4-04 Site Findings index: assessed empty (sitefindings:1#a)[2m > [22mreads the address scope and states an assessed empty window with its basis [33m587[2mms[22m[39m
+   [33m[2m✓[22m[39m S4-04 Site Findings index: assessed empty (sitefindings:1#a)[2m > [22mchanging the dates writes a new window to the address and reads again [33m383[2mms[22m[39m
+   [33m[2m✓[22m[39m S4-04 Site Findings index: positive rows (sitefindings:1#b)[2m > [22mthe next page keeps the cursor in the address, so reload reads the same page [33m413[2mms[22m[39m
+ [32m✓[39m src/sites/__tests__/coldRoutes.test.tsx [2m([22m[2m62 tests[22m[2m)[22m[33m 6352[2mms[22m[39m
+   [33m[2m✓[22m[39m W2-03: cold assessment routes keep the v69 panel structure[2m > [22mstocked: temperature [33m855[2mms[22m[39m
+   [33m[2m✓[22m[39m W2-F 1b: cold truth on the assessment screens[2m > [22mw2f_temperature_bound_is_labelled [33m355[2mms[22m[39m
+ [32m✓[39m src/sites/__tests__/coldSiteViews.test.tsx [2m([22m[2m67 tests[22m[2m)[22m[33m 7538[2mms[22m[39m
+   [33m[2m✓[22m[39m W2-04: cold Site routes keep the v69 panel structure[2m > [22mstocked: cold [33m858[2mms[22m[39m
+   [33m[2m✓[22m[39m W2-F 2: cold frame on refusal, consequence counts and record IDs[2m > [22mw2f_refused_frames_and_footer [33m477[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[32m176 passed[39m[22m[90m (176)[39m
+[2m   Start at [22m 21:44:54
+[2m   Duration [22m 21.26s[2m (transform 7.95s, setup 2.91s, collect 40.54s, tests 20.15s, environment 7.64s, prepare 1.18s)[22m
+

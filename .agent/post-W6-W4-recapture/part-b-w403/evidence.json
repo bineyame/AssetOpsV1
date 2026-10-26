@@ -1,0 +1,1147 @@
+{
+  "revision": "3bfafdb7",
+  "captured_at": "2026-10-25T23:34:01.181Z",
+  "pairs": [
+    {
+      "screen": "renewable",
+      "case": "w403-decision-positive",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5452/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z",
+      "mock_hash": "#/renewable",
+      "app_image": "renewable-w403-decision-positive-1440-app.png",
+      "mock_image": "renewable-w403-decision-positive-1440-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Limited by 1 condition",
+            "bodyLen": 42,
+            "body": "Critical service has an unresolved deficit",
+            "scrollH": 66
+          },
+          {
+            "summary": "Basis and coverage",
+            "bodyLen": 248,
+            "body": "Retained margin: Unknown. The retained-margin value is not available in this read; inspect the pinned Foundation basis before using this breakdown.Accepted coverage: 300 of 300 minutes in the assessed hours. Maximum sources in one assessed hour: 5.",
+            "scrollH": 70
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Mini-grid depth demonstration",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance/service",
+            "text": "Service",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance/dispatch",
+            "text": "Dispatch",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance/fuel",
+            "text": "Fuel",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance/renewable",
+            "text": "Renewable",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance/backup",
+            "text": "Backup",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A34%3A06.003794Z",
+            "text": "Opportunity decision →",
+            "panel": "Productive-use evaluation"
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": "Eligible and excluded windows"
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": "Eligible and excluded windows"
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": "Eligible and excluded windows"
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": "Eligible and excluded windows"
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": "Eligible and excluded windows"
+          }
+        ],
+        "titles": [
+          "From physical headroom to an opportunity",
+          "Productive-use evaluation",
+          "Eligible and excluded windows"
+        ],
+        "panels": [
+          {
+            "title": "From physical headroom to an opportunity",
+            "x": 248,
+            "y": 509,
+            "w": 725,
+            "h": 263,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Productive-use evaluation",
+            "x": 991,
+            "y": 509,
+            "w": 403,
+            "h": 263,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Eligible and excluded windows",
+            "x": 248,
+            "y": 790,
+            "w": 1145,
+            "h": 383,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Day / period",
+              "Opportunity",
+              "Constraint check",
+              "Decision"
+            ],
+            "chips": [
+              "Excluded",
+              "Eligible",
+              "Eligible",
+              "Eligible",
+              "Eligible"
+            ],
+            "links": 5,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1284,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel",
+              "Renewable*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "13px": 4,
+          "14px": 4,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1284
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": [],
+        "mainText": "Sites Mini-grid depth demonstration Performance Mini-grid depth demonstration Demonstration data · MG-W402-001 Assess measured solar headroom and its limits. Overview Foundation Health Performance Findings Work Financials Evidence Service Dispatch Fuel Renewable Backup Site-local days 2026-10-06 to 2026-10-10 (Africa/Nairobi) UTC 2026-10-05T21:00:00Z to 2026-10-10T21:00:00Z First day Days 1 2 3 4 5 Apply Watch Confidence: Not assessedMOCK DEVIATION D1 (R451) Lens: OpportunityMOCK DEVIATION D1 (R454) Selected sources: Prepared example data, not field readings Current selection Limited by 1 condition Solar headroom on 4 of 5 completely assessed days Compare with Dispatch evidence · Not available yet PV capability 41–43 kW Reported PV capability and selected uncertainty PV used 20 kW Accepted power over 300/300 min Usable headroom 18–20 kW After retained margin and service checks Recurring opportunity 4 / 5 days Eligible complete days / assessed complete days From physical headroom to an opportunity Actual accepted interval means cover each eligible one-hour window Solar power in the assessed hours Available PV 41–43 kW Observed use 20 kW Retained margin Unknown After retained margin 18–20 kW Basis and coverage Productive-use evaluation Electrical feasibility does not establish customer demand No productive-use scenario has been assessed. Electrical capacity does not establish customer demand. Opportunity decision → Inspect opportunity constraints Eligible and excluded windows DAY / PERIOD OPPORTUNITY CONSTRAINT CHECK DECISION 2026-10-06 · 12:00–13:00 — Critical service has an unresolved deficit · 663 cited records · Evidence Excluded 2026-10-07 · 12:00–13:00 18–20 kWh All required evidence present · 663 cited records · Evidence Eligible 2026-10-08 · 12:00–13:00 18–20 kWh All required evidence present · 663 cited records · Evidence Eligible 2026-10-09 · 12:00–13:00 18–20 kWh All required evidence present · 663 cited records · Evidence Eligible 2026-10-10 · 12:00–13:00 18–20 kWh All required evidence present · 663 cited records · Evidence Eligible Usable headroom recurred on 4 of 5 completely assessed days. Opportunity is an evidence-backed capacity estimate. A paired load-addition comparison and local demand validation are required before an investment or revenue claim."
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "#/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "#/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "#/dispatch",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "#/sitefindings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "#/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "#/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "#/service",
+            "text": "Service",
+            "panel": ""
+          },
+          {
+            "href": "#/dispatch",
+            "text": "Dispatch",
+            "panel": ""
+          },
+          {
+            "href": "#/fuel",
+            "text": "Fuel",
+            "panel": ""
+          },
+          {
+            "href": "#/renewable",
+            "text": "Renewable",
+            "panel": ""
+          },
+          {
+            "href": "#/backup",
+            "text": "Backup",
+            "panel": ""
+          },
+          {
+            "href": "#/dispatch",
+            "text": "Compare with Dispatch evidence →",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "From physical headroom to an opportunity",
+          "Productive-use evaluation",
+          "Eligible and excluded windows"
+        ],
+        "panels": [
+          {
+            "title": "From physical headroom to an opportunity",
+            "x": 234,
+            "y": 548,
+            "w": 735,
+            "h": 244,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Productive-use evaluation",
+            "x": 987,
+            "y": 548,
+            "w": 408,
+            "h": 244,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Eligible and excluded windows",
+            "x": 234,
+            "y": 810,
+            "w": 1161,
+            "h": 364,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Day / period",
+              "Opportunity",
+              "Constraint check",
+              "Decision"
+            ],
+            "chips": [
+              "Eligible",
+              "Excluded",
+              "Eligible",
+              "Limited",
+              "Eligible"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1300,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel",
+              "Renewable*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "10px": 1,
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1256
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "renewable",
+      "case": "w403-decision-positive",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5452/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z",
+      "mock_hash": "#/renewable",
+      "app_image": "renewable-w403-decision-positive-390-app.png",
+      "mock_image": "renewable-w403-decision-positive-390-mock.png",
+      "app": {
+        "closedDetails": [
+          {
+            "summary": "Limited by 1 condition",
+            "bodyLen": 42,
+            "body": "Critical service has an unresolved deficit",
+            "scrollH": 49
+          },
+          {
+            "summary": "Basis and coverage",
+            "bodyLen": 248,
+            "body": "Retained margin: Unknown. The retained-margin value is not available in this read; inspect the pinned Foundation basis before using this breakdown.Accepted coverage: 300 of 300 minutes in the assessed hours. Maximum sources in one assessed hour: 5.",
+            "scrollH": 103
+          }
+        ],
+        "links": [
+          {
+            "href": "/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Mini-grid depth demonstration",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/findings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/work",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance/service",
+            "text": "Service",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance/dispatch",
+            "text": "Dispatch",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance/fuel",
+            "text": "Fuel",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance/renewable",
+            "text": "Renewable",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/performance/backup",
+            "text": "Backup",
+            "panel": ""
+          },
+          {
+            "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A34%3A19.995099Z",
+            "text": "Opportunity decision →",
+            "panel": "Productive-use evaluation"
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": "Eligible and excluded windows"
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": "Eligible and excluded windows"
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": "Eligible and excluded windows"
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": "Eligible and excluded windows"
+          },
+          {
+            "href": "/sites/MG-W402-001/evidence",
+            "text": "Evidence",
+            "panel": "Eligible and excluded windows"
+          }
+        ],
+        "titles": [
+          "From physical headroom to an opportunity",
+          "Productive-use evaluation",
+          "Eligible and excluded windows"
+        ],
+        "panels": [
+          {
+            "title": "From physical headroom to an opportunity",
+            "x": 16,
+            "y": 1003,
+            "w": 358,
+            "h": 281,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Productive-use evaluation",
+            "x": 16,
+            "y": 1301,
+            "w": 358,
+            "h": 260,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Eligible and excluded windows",
+            "x": 16,
+            "y": 1577,
+            "w": 358,
+            "h": 482,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Day / period",
+              "Opportunity",
+              "Constraint check",
+              "Decision"
+            ],
+            "chips": [
+              "Excluded",
+              "Eligible",
+              "Eligible",
+              "Eligible",
+              "Eligible"
+            ],
+            "links": 5,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2199,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel",
+              "Renewable*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 388,
+            "cw": 318,
+            "panel": "Eligible and excluded windows"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "13px": 4,
+          "14px": 4,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": [],
+        "mainText": "Sites Mini-grid depth demonstration Performance Mini-grid depth demonstration Demonstration data · MG-W402-001 Assess measured solar headroom and its limits. Overview Foundation Health Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Service Dispatch Fuel Renewable Backup Site-local days 2026-10-06 to 2026-10-10 (Africa/Nairobi) UTC 2026-10-05T21:00:00Z to 2026-10-10T21:00:00Z First day Days 1 2 3 4 5 Apply Watch Confidence: Not assessedMOCK DEVIATION D1 (R451) Lens: OpportunityMOCK DEVIATION D1 (R454) Selected sources: Prepared example data, not field readings Current selection Limited by 1 condition Solar headroom on 4 of 5 completely assessed days Compare with Dispatch evidence · Not available yet PV capability 41–43 kW Reported PV capability and selected uncertainty PV used 20 kW Accepted power over 300/300 min Usable headroom 18–20 kW After retained margin and service checks Recurring opportunity 4 / 5 days Eligible complete days / assessed complete days From physical headroom to an opportunity Actual accepted interval means cover each eligible one-hour window Solar power in the assessed hours Available PV 41–43 kW Observed use 20 kW Retained margin Unknown After retained margin 18–20 kW Basis and coverage Productive-use evaluation Electrical feasibility does not establish customer demand No productive-use scenario has been assessed. Electrical capacity does not establish customer demand. Opportunity decision → Inspect opportunity constraints Eligible and excluded windows DAY / PERIOD OPPORTUNITY CONSTRAINT CHECK DECISION 2026-10-06 · 12:00–13:00 — Critical service has an unresolved deficit · 663 cited records · Evidence Excluded 2026-10-07 · 12:00–13:00 18–20 kWh All required evidence present · 663 cited records · Evidence Eligible 2026-10-08 · 12:00–13:00 18–20 kWh All required evidence present · 663 cited records · Evidence Eligible 2026-10-09 · 12:00–13:00 18–20 kWh All required evidence present · 663 cited records · Evidence Eligible 2026-10-10 · 12:00–13:00 18–20 kWh All required evidence present · 663 cited records · Evidence Eligible Usable headroom recurred on 4 of 5 completely assessed days. Opportunity is an evidence-backed capacity estimate. A paired load-addition comparison and local demand validation are required before an investment or revenue claim."
+      },
+      "mock": {
+        "closedDetails": [],
+        "links": [
+          {
+            "href": "#/sites",
+            "text": "Sites",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Kobo Mini-grid",
+            "panel": ""
+          },
+          {
+            "href": "#/mini",
+            "text": "Overview",
+            "panel": ""
+          },
+          {
+            "href": "#/foundation",
+            "text": "Foundation",
+            "panel": ""
+          },
+          {
+            "href": "#/health",
+            "text": "Health",
+            "panel": ""
+          },
+          {
+            "href": "#/dispatch",
+            "text": "Performance",
+            "panel": ""
+          },
+          {
+            "href": "#/sitefindings",
+            "text": "Findings",
+            "panel": ""
+          },
+          {
+            "href": "#/sitework",
+            "text": "Work",
+            "panel": ""
+          },
+          {
+            "href": "#/financials",
+            "text": "Financials",
+            "panel": ""
+          },
+          {
+            "href": "#/evidence",
+            "text": "Evidence",
+            "panel": ""
+          },
+          {
+            "href": "#/service",
+            "text": "Service",
+            "panel": ""
+          },
+          {
+            "href": "#/dispatch",
+            "text": "Dispatch",
+            "panel": ""
+          },
+          {
+            "href": "#/fuel",
+            "text": "Fuel",
+            "panel": ""
+          },
+          {
+            "href": "#/renewable",
+            "text": "Renewable",
+            "panel": ""
+          },
+          {
+            "href": "#/backup",
+            "text": "Backup",
+            "panel": ""
+          },
+          {
+            "href": "#/dispatch",
+            "text": "Compare with Dispatch evidence →",
+            "panel": ""
+          }
+        ],
+        "titles": [
+          "From physical headroom to an opportunity",
+          "Productive-use evaluation",
+          "Eligible and excluded windows"
+        ],
+        "panels": [
+          {
+            "title": "From physical headroom to an opportunity",
+            "x": 15,
+            "y": 937,
+            "w": 360,
+            "h": 272,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Productive-use evaluation",
+            "x": 15,
+            "y": 1227,
+            "w": 360,
+            "h": 241,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Eligible and excluded windows",
+            "x": 15,
+            "y": 1486,
+            "w": 360,
+            "h": 438,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Day / period",
+              "Opportunity",
+              "Constraint check",
+              "Decision"
+            ],
+            "chips": [
+              "Eligible",
+              "Excluded",
+              "Eligible",
+              "Limited",
+              "Eligible"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2114,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Service",
+              "Dispatch",
+              "Fuel",
+              "Renewable*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 512,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 379,
+            "cw": 320,
+            "panel": "Eligible and excluded windows"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "10px": 1,
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

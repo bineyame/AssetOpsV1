@@ -101,3 +101,77 @@ export function siteTime(value: string | null | undefined, timeZone: string | nu
     siteZone: zone !== null,
   };
 }
+
+/**
+ * post-W6 W4 R320/R450 (Q8/Q14): Site-local calendar days for date inputs. The URL keeps UTC bounds: a day input is
+ * the Site's local midnight, converted here. A missing or invalid zone uses UTC (callers say `UTC` in the label).
+ */
+export function siteZoneOrUtc(timeZone: string | null | undefined): string {
+  return validZone(timeZone) ?? "UTC";
+}
+
+/** The Site-local `YYYY-MM-DD` of an instant, or "" when it does not parse. */
+export function siteLocalDate(value: string | null | undefined, timeZone: string | null | undefined): string {
+  const d = parse(value);
+  if (d === null) return "";
+  const p = parts(d, siteZoneOrUtc(timeZone));
+  return `${p.y}-${String(p.m).padStart(2, "0")}-${String(p.day).padStart(2, "0")}`;
+}
+
+/** The UTC ISO instant (`...Z`, no milliseconds) of local midnight starting `isoDate` at the Site; "" for a bad date. */
+export function siteLocalMidnightUtc(isoDate: string, timeZone: string | null | undefined): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
+  if (m === null) return "";
+  const zone = siteZoneOrUtc(timeZone);
+  const wall = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const offsetAt = (utc: number) => {
+    const p = parts(new Date(utc), zone);
+    return Date.UTC(p.y, p.m - 1, p.day, Number(p.hh), Number(p.mm), Number(p.ss)) - utc;
+  };
+  let utc = wall - offsetAt(wall);
+  utc = wall - offsetAt(utc);
+  return new Date(utc).toISOString().replace(".000Z", "Z");
+}
+
+/** Site-local calendar and clock parts of an instant, with the zone label; UTC (and `UTC`) when the zone is unusable. */
+export function siteLocalParts(
+  value: string | null | undefined,
+  timeZone: string | null | undefined,
+): { y: number; m: number; day: number; hh: string; mm: string; ss: string; zone: string } | null {
+  const d = parse(value);
+  if (d === null) return null;
+  const zone = validZone(timeZone);
+  return { ...parts(d, zone ?? "UTC"), zone: zone === null ? "UTC" : siteZoneLabel(zone, value) };
+}
+
+/** `2026-10-06 19:11 EAT`: the Site-local twin of the `2026-10-06 16:11 UTC` work text. */
+export function siteDateTimeText(value: string | null | undefined, timeZone: string | null | undefined): string | null {
+  const p = siteLocalParts(value, timeZone);
+  if (p === null) return null;
+  return `${p.y}-${String(p.m).padStart(2, "0")}-${String(p.day).padStart(2, "0")} ${p.hh}:${p.mm} ${p.zone}`;
+}
+
+/**
+ * post-W6 W4 build ruling 7: inclusive end dates. The Site-local date before an exclusive `to` bound (the last day a
+ * `[from,to)` window includes), or "" when it does not parse.
+ */
+export function siteLocalLastDay(to: string | null | undefined, timeZone: string | null | undefined): string {
+  const d = parse(to);
+  if (d === null) return "";
+  return siteLocalDate(new Date(d.getTime() - 1).toISOString(), timeZone);
+}
+
+/** The calendar day after `YYYY-MM-DD` (pure date arithmetic), or "" for a bad date. */
+export function nextIsoDate(isoDate: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return "";
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return "";
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+/** The exclusive UTC bound for an included last Site-local day: the next Site-local midnight; "" for a bad date. */
+export function siteLocalEndUtc(lastDay: string, timeZone: string | null | undefined): string {
+  const next = nextIsoDate(lastDay);
+  return next === "" ? "" : siteLocalMidnightUtc(next, timeZone);
+}

@@ -1,0 +1,16 @@
+chrome pid 23236
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  renewable-w403-decision-positive 1440: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/renewable: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  renewable-w403-decision-positive 1440: mock rendered
+PASS  renewable-w403-decision-positive 1440: same panel count  {"app":["From physical headroom to an opportunity","Productive-use evaluation","Eligible and excluded windows"],"mock":["From physical headroom to an opportunity","Productive-use evaluation","Eligible and excluded windows"]}
+PASS  renewable-w403-decision-positive 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  renewable-w403-decision-positive 390: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/renewable: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  renewable-w403-decision-positive 390: mock rendered
+PASS  renewable-w403-decision-positive 390: same panel count  {"app":["From physical headroom to an opportunity","Productive-use evaluation","Eligible and excluded windows"],"mock":["From physical headroom to an opportunity","Productive-use evaluation","Eligible and excluded windows"]}
+PASS  renewable-w403-decision-positive 390: no app page overflow  {"overflowX":0}
+
+12/12 claims passed; evidence in part-b-w403
+exit 0

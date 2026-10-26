@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 
 import { Badge, BigClaim, KeyValues, MetricCard, MetricCards, Panel, StatusBar } from "../ui";
 import { localDateOf, addDays, localMidnightUtc } from "./miniDepthClient";
-import { decisionRefusalCopy } from "./miniDecisionsClient";
+import { DECISIONS_UNAVAILABLE, decisionRefusalCopy } from "./miniDecisionsClient";
 import type {
   DecisionRead,
   MiniDecisionsClient,
@@ -363,7 +363,7 @@ export function matchStudy(list: OpportunityListBody, first: string, last: strin
       r.opportunity.model_version === OPPORTUNITY_MODEL,
   );
   if (hits.length === 0) return { kind: "zero" };
-  if (hits.length > 1) return { kind: "refused", copy: "Decisions are unavailable right now. Try again." };
+  if (hits.length > 1) return { kind: "refused", copy: DECISIONS_UNAVAILABLE };
   return { kind: "one", id: hits[0].opportunity!.id };
 }
 

@@ -1194,9 +1194,12 @@ describe("post-W6 W1-b: Action and Finding frame chrome", () => {
     await waitFor(() => expect(document.querySelector("main")).not.toBeNull());
     await settledScreen();
     expect(siteTabs()).toHaveLength(retained ? 1 : 0);
-    const labels = qa("[data-mock-deviation]");
+    // post-W6 W4 R453: the shared Site tab row carries its own wrap label inside the row; count the others.
+    const labels = qa("[data-mock-deviation]:not([data-mock-deviation='R453'])");
     expect(labels).toHaveLength(retained ? 1 : 0);
+    expect(qa("[data-mock-deviation='R453']")).toHaveLength(retained ? 1 : 0);
     if (retained) {
+      expect(siteTabs()[0].querySelector("[data-mock-deviation='R453']")).not.toBeNull();
       expect(labels[0]).toHaveAttribute("data-mock-deviation", "R383");
       expect(labels[0].textContent).toBe("MOCK DEVIATION D2 (R383)");
       expect(siteTabs()[0].nextElementSibling).toBe(labels[0]);

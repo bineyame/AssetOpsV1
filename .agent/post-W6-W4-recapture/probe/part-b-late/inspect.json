@@ -1,0 +1,4174 @@
+{
+ "revision": "3bfafdb7",
+ "label": "Probe sections (rows160*, title160*, title-episode160*) are SYNTHETIC LAYOUT EVIDENCE, NOT PRODUCT DATA",
+ "results": [
+  {
+   "screen": "scenarios",
+   "case": "populated",
+   "width": 1440,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Financial scenarios",
+     "h": 381,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/MG-W402-001/foundation"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/MG-W402-001/health"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/MG-W402-001/performance"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/MG-W402-001/findings"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/MG-W402-001/evidence"
+     }
+    ],
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Assumptions",
+      "href": "/sites/MG-W402-001/financials/assumptions"
+     },
+     {
+      "text": "Scenarios",
+      "href": "/sites/MG-W402-001/financials/scenarios"
+     }
+    ]
+   ],
+   "links": [
+    {
+     "text": "Assumptions",
+     "href": "/sites/MG-W402-001/financials/assumptions"
+    }
+   ],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00%3A00%3A00.000000Z&to=2026-10-25T23%3A48%3A00.544106Z&known_at=2026-10-25T23%3A48%3A00.544105Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Financial scenarios",
+     "kind": "fields",
+     "real": {
+      "closed": {
+       "panelH": 381,
+       "naturalH": 381,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 381,
+       "naturalH": 381,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "fields160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 1105,
+       "sw": 1105,
+       "wrapCw": 1105,
+       "wrapSw": 1105,
+       "wrapCh": 793,
+       "wrapSh": 793
+      },
+      "panelH": 977,
+      "naturalH": 977,
+      "scrollers": [],
+      "maxH": "none",
+      "panelW": 1145,
+      "rowHs": [
+       152,
+       152,
+       152,
+       152,
+       151
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1105,
+        "cw": 1105,
+        "scrolls": false
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 977,
+       "naturalH": 977,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "fields160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 1105,
+       "sw": 1105,
+       "wrapCw": 1105,
+       "wrapSw": 1105,
+       "wrapCh": 793,
+       "wrapSh": 793
+      },
+      "panelH": 1014,
+      "naturalH": 1014,
+      "scrollers": [],
+      "maxH": "none",
+      "panelW": 1145,
+      "rowHs": [
+       152,
+       152,
+       152,
+       152,
+       151
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1105,
+        "cw": 1105,
+        "scrolls": false
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 1014,
+       "naturalH": 1014,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "scenarios",
+   "case": "populated",
+   "width": 390,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Financial scenarios",
+     "h": 473,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/MG-W402-001/foundation"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/MG-W402-001/health"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/MG-W402-001/performance"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/MG-W402-001/findings"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/MG-W402-001/evidence"
+     }
+    ],
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Assumptions",
+      "href": "/sites/MG-W402-001/financials/assumptions"
+     },
+     {
+      "text": "Scenarios",
+      "href": "/sites/MG-W402-001/financials/scenarios"
+     }
+    ]
+   ],
+   "links": [
+    {
+     "text": "Assumptions",
+     "href": "/sites/MG-W402-001/financials/assumptions"
+    }
+   ],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00%3A00%3A00.000000Z&to=2026-10-25T23%3A48%3A33.855506Z&known_at=2026-10-25T23%3A48%3A33.855505Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Financial scenarios",
+     "kind": "fields",
+     "real": {
+      "closed": {
+       "panelH": 473,
+       "naturalH": 473,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 720,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 473,
+       "naturalH": 473,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 720,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "fields160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 720,
+       "sw": 720,
+       "wrapCw": 318,
+       "wrapSw": 720,
+       "wrapCh": 1153,
+       "wrapSh": 1153
+      },
+      "panelH": 1337,
+      "naturalH": 1337,
+      "scrollers": [],
+      "maxH": "none",
+      "panelW": 358,
+      "rowHs": [
+       224,
+       224,
+       224,
+       224,
+       223
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 720,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 1337,
+       "naturalH": 1337,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 720,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "fields160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 720,
+       "sw": 720,
+       "wrapCw": 318,
+       "wrapSw": 720,
+       "wrapCh": 1153,
+       "wrapSh": 1153
+      },
+      "panelH": 1424,
+      "naturalH": 1424,
+      "scrollers": [],
+      "maxH": "none",
+      "panelW": 358,
+      "rowHs": [
+       224,
+       224,
+       224,
+       224,
+       223
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 720,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 1424,
+       "naturalH": 1424,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 720,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "scenarios",
+   "case": "empty-window",
+   "width": 1440,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Financial scenarios",
+     "h": 325,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/MG-W402-001/foundation"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/MG-W402-001/health"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/MG-W402-001/performance"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/MG-W402-001/findings"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/MG-W402-001/evidence"
+     }
+    ],
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Assumptions",
+      "href": "/sites/MG-W402-001/financials/assumptions"
+     },
+     {
+      "text": "Scenarios",
+      "href": "/sites/MG-W402-001/financials/scenarios"
+     }
+    ]
+   ],
+   "links": [
+    {
+     "text": "Assumptions",
+     "href": "/sites/MG-W402-001/financials/assumptions"
+    }
+   ],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Financial scenarios",
+     "kind": "fields",
+     "real": {
+      "closed": {
+       "panelH": 325,
+       "naturalH": 325,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 325,
+       "naturalH": 325,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "fields160": {
+      "verified": false,
+      "reason": "no table body in panel",
+      "openedAll": null
+     },
+     "fields160-gap": {
+      "verified": false,
+      "reason": "no table body in panel",
+      "openedAll": null
+     }
+    }
+   ]
+  },
+  {
+   "screen": "scenarios",
+   "case": "empty-window",
+   "width": 390,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Financial scenarios",
+     "h": 325,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/MG-W402-001/foundation"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/MG-W402-001/health"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/MG-W402-001/performance"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/MG-W402-001/findings"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/MG-W402-001/evidence"
+     }
+    ],
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Assumptions",
+      "href": "/sites/MG-W402-001/financials/assumptions"
+     },
+     {
+      "text": "Scenarios",
+      "href": "/sites/MG-W402-001/financials/scenarios"
+     }
+    ]
+   ],
+   "links": [
+    {
+     "text": "Assumptions",
+     "href": "/sites/MG-W402-001/financials/assumptions"
+    }
+   ],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Financial scenarios",
+     "kind": "fields",
+     "real": {
+      "closed": {
+       "panelH": 325,
+       "naturalH": 325,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 325,
+       "naturalH": 325,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "fields160": {
+      "verified": false,
+      "reason": "no table body in panel",
+      "openedAll": null
+     },
+     "fields160-gap": {
+      "verified": false,
+      "reason": "no table body in panel",
+      "openedAll": null
+     }
+    }
+   ]
+  },
+  {
+   "screen": "scenarios",
+   "case": "refused-reversed",
+   "width": 1440,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Financial scenarios",
+     "h": 160,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/MG-W402-001/foundation"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/MG-W402-001/health"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/MG-W402-001/performance"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/MG-W402-001/findings"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/MG-W402-001/evidence"
+     }
+    ],
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Assumptions",
+      "href": "/sites/MG-W402-001/financials/assumptions"
+     },
+     {
+      "text": "Scenarios",
+      "href": "/sites/MG-W402-001/financials/scenarios"
+     }
+    ]
+   ],
+   "links": [
+    {
+     "text": "Assumptions",
+     "href": "/sites/MG-W402-001/financials/assumptions"
+    }
+   ],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Financial scenarios",
+     "kind": "fields",
+     "real": {
+      "closed": {
+       "panelH": 160,
+       "naturalH": 160,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 160,
+       "naturalH": 160,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "fields160": {
+      "verified": false,
+      "reason": "no table body in panel",
+      "openedAll": null
+     },
+     "fields160-gap": {
+      "verified": false,
+      "reason": "no table body in panel",
+      "openedAll": null
+     }
+    }
+   ]
+  },
+  {
+   "screen": "scenarios",
+   "case": "refused-reversed",
+   "width": 390,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Financial scenarios",
+     "h": 160,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/MG-W402-001/foundation"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/MG-W402-001/health"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/MG-W402-001/performance"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/MG-W402-001/findings"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/MG-W402-001/evidence"
+     }
+    ],
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Assumptions",
+      "href": "/sites/MG-W402-001/financials/assumptions"
+     },
+     {
+      "text": "Scenarios",
+      "href": "/sites/MG-W402-001/financials/scenarios"
+     }
+    ]
+   ],
+   "links": [
+    {
+     "text": "Assumptions",
+     "href": "/sites/MG-W402-001/financials/assumptions"
+    }
+   ],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Financial scenarios",
+     "kind": "fields",
+     "real": {
+      "closed": {
+       "panelH": 160,
+       "naturalH": 160,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 160,
+       "naturalH": 160,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "fields160": {
+      "verified": false,
+      "reason": "no table body in panel",
+      "openedAll": null
+     },
+     "fields160-gap": {
+      "verified": false,
+      "reason": "no table body in panel",
+      "openedAll": null
+     }
+    }
+   ]
+  },
+  {
+   "screen": "scenarios",
+   "case": "kobo-no-scenarios",
+   "width": 1440,
+   "url": "http://127.0.0.1:5452/sites/KOBO-001/financials/scenarios",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Kobo mini-grid",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Financial scenarios",
+     "h": 325,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/KOBO-001"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/KOBO-001/foundation"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/KOBO-001/health"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/KOBO-001/performance"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/KOBO-001/findings"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/KOBO-001/work"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/KOBO-001/financials"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/KOBO-001/evidence"
+     }
+    ],
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/KOBO-001/financials"
+     },
+     {
+      "text": "Assumptions",
+      "href": "/sites/KOBO-001/financials/assumptions"
+     },
+     {
+      "text": "Scenarios",
+      "href": "/sites/KOBO-001/financials/scenarios"
+     }
+    ]
+   ],
+   "links": [
+    {
+     "text": "Assumptions",
+     "href": "/sites/KOBO-001/financials/assumptions"
+    }
+   ],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/KOBO-001/financials/scenarios?from=1970-01-01T00%3A00%3A00.000000Z&to=2026-10-25T23%3A49%3A38.308202Z&known_at=2026-10-25T23%3A49%3A38.308201Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Financial scenarios",
+     "kind": "fields",
+     "real": {
+      "closed": {
+       "panelH": 325,
+       "naturalH": 325,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 325,
+       "naturalH": 325,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "fields160": {
+      "verified": false,
+      "reason": "no table body in panel",
+      "openedAll": null
+     },
+     "fields160-gap": {
+      "verified": false,
+      "reason": "no table body in panel",
+      "openedAll": null
+     }
+    }
+   ]
+  },
+  {
+   "screen": "scenarios",
+   "case": "kobo-no-scenarios",
+   "width": 390,
+   "url": "http://127.0.0.1:5452/sites/KOBO-001/financials/scenarios",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Kobo mini-grid",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Financial scenarios",
+     "h": 325,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/KOBO-001"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/KOBO-001/foundation"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/KOBO-001/health"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/KOBO-001/performance"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/KOBO-001/findings"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/KOBO-001/work"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/KOBO-001/financials"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/KOBO-001/evidence"
+     }
+    ],
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/KOBO-001/financials"
+     },
+     {
+      "text": "Assumptions",
+      "href": "/sites/KOBO-001/financials/assumptions"
+     },
+     {
+      "text": "Scenarios",
+      "href": "/sites/KOBO-001/financials/scenarios"
+     }
+    ]
+   ],
+   "links": [
+    {
+     "text": "Assumptions",
+     "href": "/sites/KOBO-001/financials/assumptions"
+    }
+   ],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/KOBO-001/financials/scenarios?from=1970-01-01T00%3A00%3A00.000000Z&to=2026-10-25T23%3A49%3A47.818240Z&known_at=2026-10-25T23%3A49%3A47.818239Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Financial scenarios",
+     "kind": "fields",
+     "real": {
+      "closed": {
+       "panelH": 325,
+       "naturalH": 325,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 325,
+       "naturalH": 325,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "fields160": {
+      "verified": false,
+      "reason": "no table body in panel",
+      "openedAll": null
+     },
+     "fields160-gap": {
+      "verified": false,
+      "reason": "no table body in panel",
+      "openedAll": null
+     }
+    }
+   ]
+  },
+  {
+   "screen": "alternatives",
+   "case": "db-time-409-late",
+   "width": 1440,
+   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Generator support merits review: bounded candidate avoidable running",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Alternatives to investigate",
+     "h": 99,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
+     },
+     {
+      "text": "Analysis",
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25&view=analysis"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/evidence?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
+     },
+     {
+      "text": "Alternatives",
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
+     },
+     {
+      "text": "Recommendation",
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/recommendation?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
+     },
+     {
+      "text": "History",
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/history?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
+   "consoleErrors": [],
+   "caps": []
+  },
+  {
+   "screen": "alternatives",
+   "case": "db-time-409-late",
+   "width": 390,
+   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Generator support merits review: bounded candidate avoidable running",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Alternatives to investigate",
+     "h": 99,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
+     },
+     {
+      "text": "Analysis",
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25&view=analysis"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/evidence?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
+     },
+     {
+      "text": "Alternatives",
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
+     },
+     {
+      "text": "Recommendation",
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/recommendation?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
+     },
+     {
+      "text": "History",
+      "href": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/history?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25",
+   "consoleErrors": [],
+   "caps": []
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "late-settled-current",
+   "width": 1440,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Productive-use headroom at Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Bounded opportunity",
+     "h": 185,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Next decision",
+     "h": 267,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Consequence basis",
+     "h": 267,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 1,
+   "banners": [],
+   "statusBars": [
+    "OPP-000001 · OpportunityConfidence: Not assessedSource changed since selectionDecision pending · evidence limited",
+    "OPP-000001 · Opportunity",
+    "Confidence: Not assessed",
+    "Source changed since selection"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Bounded opportunity",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 185,
+       "naturalH": 185,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 185,
+       "naturalH": 185,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    },
+    {
+     "panel": "Next decision",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 734,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 734,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    },
+    {
+     "panel": "Consequence basis",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 408,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 408,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "late-settled-current",
+   "width": 390,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Productive-use headroom at Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Bounded opportunity",
+     "h": 271,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Next decision",
+     "h": 176,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Consequence basis",
+     "h": 267,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 1,
+   "banners": [],
+   "statusBars": [
+    "OPP-000001 · OpportunityConfidence: Not assessedSource changed since selectionDecision pending · evidence limited",
+    "OPP-000001 · Opportunity",
+    "Confidence: Not assessed",
+    "Source changed since selection"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Bounded opportunity",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 271,
+       "naturalH": 271,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 271,
+       "naturalH": 271,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    },
+    {
+     "panel": "Next decision",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 176,
+       "naturalH": 176,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 176,
+       "naturalH": 176,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    },
+    {
+     "panel": "Consequence basis",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "stale-k-before-late",
+   "width": 1440,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A42%3A01.160317Z",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Productive-use headroom at Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Bounded opportunity",
+     "h": 185,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Next decision",
+     "h": 267,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Consequence basis",
+     "h": 267,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A42%3A01.160317Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 1,
+   "banners": [],
+   "statusBars": [
+    "OPP-000001 · OpportunityConfidence: Not assessedSource changed since selectionDecision pending · evidence limited",
+    "OPP-000001 · Opportunity",
+    "Confidence: Not assessed",
+    "Source changed since selection"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A42%3A01.160317Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Bounded opportunity",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 185,
+       "naturalH": 185,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 185,
+       "naturalH": 185,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    },
+    {
+     "panel": "Next decision",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 734,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 734,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    },
+    {
+     "panel": "Consequence basis",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 408,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 408,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "stale-k-before-late",
+   "width": 390,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A42%3A01.160317Z",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Productive-use headroom at Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Bounded opportunity",
+     "h": 271,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Next decision",
+     "h": 176,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Consequence basis",
+     "h": 267,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A42%3A01.160317Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 1,
+   "banners": [],
+   "statusBars": [
+    "OPP-000001 · OpportunityConfidence: Not assessedSource changed since selectionDecision pending · evidence limited",
+    "OPP-000001 · Opportunity",
+    "Confidence: Not assessed",
+    "Source changed since selection"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A42%3A01.160317Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Bounded opportunity",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 271,
+       "naturalH": 271,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 271,
+       "naturalH": 271,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    },
+    {
+     "panel": "Next decision",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 176,
+       "naturalH": 176,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 176,
+       "naturalH": 176,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    },
+    {
+     "panel": "Consequence basis",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "refused-bad-known-at",
+   "width": 1440,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=not-a-time",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Productive-use headroom at Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=not-a-time"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=not-a-time",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Bounded opportunity",
+     "kind": "none",
+     "real": null
+    },
+    {
+     "panel": "Next decision",
+     "kind": "none",
+     "real": null
+    },
+    {
+     "panel": "Consequence basis",
+     "kind": "none",
+     "real": null
+    }
+   ]
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "refused-bad-known-at",
+   "width": 390,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=not-a-time",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Productive-use headroom at Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=not-a-time"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=not-a-time",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Bounded opportunity",
+     "kind": "none",
+     "real": null
+    },
+    {
+     "panel": "Next decision",
+     "kind": "none",
+     "real": null
+    },
+    {
+     "panel": "Consequence basis",
+     "kind": "none",
+     "real": null
+    }
+   ]
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "late-stocked",
+   "width": 1440,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Incidents at this site",
+     "h": 479,
+     "details": 12,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/MG-W402-001/foundation"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/MG-W402-001/health"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/MG-W402-001/performance"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/MG-W402-001/findings"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/MG-W402-001/evidence"
+     }
+    ],
+    [
+     {
+      "text": "Actions (0)",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Incidents (5)",
+      "href": "/sites/MG-W402-001/work/incidents"
+     },
+     {
+      "text": "Maintenance (3)",
+      "href": "/sites/MG-W402-001/work/maintenance"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [
+    "Scoped to Mini-grid"
+   ],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Scoped to Mini-grid · 5 incidentsThese are work records at this siteManage in Incidents",
+    "Scoped to Mini-grid · 5 incidents",
+    "These are work records at this site",
+    "Manage in Incidents"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Incidents at this site",
+     "kind": "fields",
+     "real": {
+      "closed": {
+       "panelH": 479,
+       "naturalH": 741,
+       "scrollers": [
+        {
+         "cls": "data-table__scroll",
+         "sh": 592,
+         "ch": 330,
+         "focusable": true,
+         "label": "site-work-incidents-heading",
+         "maxH": "330px"
+        }
+       ],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-h",
+         "sw": 188,
+         "cw": 188,
+         "sh": 72,
+         "ch": 36
+        }
+       ],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 12,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 788,
+       "naturalH": 11522,
+       "scrollers": [
+        {
+         "cls": "data-table__scroll",
+         "sh": 11064,
+         "ch": 330,
+         "focusable": true,
+         "label": "site-work-incidents-heading",
+         "maxH": "330px"
+        }
+       ],
+       "maxH": "none",
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-h",
+         "sw": 185,
+         "cw": 185,
+         "sh": 72,
+         "ch": 36
+        }
+       ],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1090,
+         "cw": 1090,
+         "scrolls": false
+        }
+       ],
+       "details": 12,
+       "detailsOpen": 12,
+       "docOverflowX": 0
+      }
+     },
+     "fields160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 5,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 1105,
+       "sw": 1105,
+       "wrapCw": 1105,
+       "wrapSw": 1105,
+       "wrapCh": 330,
+       "wrapSh": 592
+      },
+      "panelH": 479,
+      "naturalH": 741,
+      "scrollers": [
+       {
+        "cls": "data-table__scroll",
+        "sh": 592,
+        "ch": 330,
+        "focusable": true,
+        "label": "site-work-incidents-heading",
+        "maxH": "330px"
+       }
+      ],
+      "maxH": "none",
+      "panelW": 1160,
+      "rowHs": [
+       107,
+       107,
+       107,
+       107,
+       131
+      ],
+      "clipped": [
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r0f1 Synthetic layout probe text that wraps across sever",
+        "sw": 298,
+        "cw": 298,
+        "sh": 50,
+        "ch": 33
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r1f1 Synthetic layout probe text that wraps across sever",
+        "sw": 298,
+        "cw": 298,
+        "sh": 50,
+        "ch": 33
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r2f1 Synthetic layout probe text that wraps across sever",
+        "sw": 298,
+        "cw": 298,
+        "sh": 50,
+        "ch": 33
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r3f1 Synthetic layout probe text that wraps across sever",
+        "sw": 298,
+        "cw": 298,
+        "sh": 50,
+        "ch": 33
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r4f1 Synthetic layout probe text that wraps across sever",
+        "sw": 298,
+        "cw": 298,
+        "sh": 50,
+        "ch": 33
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-h",
+        "sw": 188,
+        "cw": 188,
+        "sh": 72,
+        "ch": 36
+       }
+      ],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1105,
+        "cw": 1105,
+        "scrolls": false
+       }
+      ],
+      "details": 12,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 788,
+       "naturalH": 11522,
+       "scrollers": [
+        {
+         "cls": "data-table__scroll",
+         "sh": 11064,
+         "ch": 330,
+         "focusable": true,
+         "label": "site-work-incidents-heading",
+         "maxH": "330px"
+        }
+       ],
+       "maxH": "none",
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r0f1 Synthetic layout probe text that wraps across sever",
+         "sw": 294,
+         "cw": 294,
+         "sh": 50,
+         "ch": 33
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r1f1 Synthetic layout probe text that wraps across sever",
+         "sw": 294,
+         "cw": 294,
+         "sh": 50,
+         "ch": 33
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r2f1 Synthetic layout probe text that wraps across sever",
+         "sw": 294,
+         "cw": 294,
+         "sh": 50,
+         "ch": 33
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r3f1 Synthetic layout probe text that wraps across sever",
+         "sw": 294,
+         "cw": 294,
+         "sh": 50,
+         "ch": 33
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r4f1 Synthetic layout probe text that wraps across sever",
+         "sw": 294,
+         "cw": 294,
+         "sh": 50,
+         "ch": 33
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-h",
+         "sw": 185,
+         "cw": 185,
+         "sh": 72,
+         "ch": 36
+        }
+       ],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1090,
+         "cw": 1090,
+         "scrolls": false
+        }
+       ],
+       "details": 12,
+       "detailsOpen": 12,
+       "docOverflowX": 0
+      }
+     },
+     "fields160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 5,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 1105,
+       "sw": 1105,
+       "wrapCw": 1105,
+       "wrapSw": 1105,
+       "wrapCh": 330,
+       "wrapSh": 592
+      },
+      "panelH": 512,
+      "naturalH": 774,
+      "scrollers": [
+       {
+        "cls": "data-table__scroll",
+        "sh": 592,
+        "ch": 330,
+        "focusable": true,
+        "label": "site-work-incidents-heading",
+        "maxH": "330px"
+       }
+      ],
+      "maxH": "none",
+      "panelW": 1160,
+      "rowHs": [
+       107,
+       107,
+       107,
+       107,
+       131
+      ],
+      "clipped": [
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r0f1 Synthetic layout probe text that wraps across sever",
+        "sw": 298,
+        "cw": 298,
+        "sh": 50,
+        "ch": 33
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r1f1 Synthetic layout probe text that wraps across sever",
+        "sw": 298,
+        "cw": 298,
+        "sh": 50,
+        "ch": 33
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r2f1 Synthetic layout probe text that wraps across sever",
+        "sw": 298,
+        "cw": 298,
+        "sh": 50,
+        "ch": 33
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r3f1 Synthetic layout probe text that wraps across sever",
+        "sw": 298,
+        "cw": 298,
+        "sh": 50,
+        "ch": 33
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r4f1 Synthetic layout probe text that wraps across sever",
+        "sw": 298,
+        "cw": 298,
+        "sh": 50,
+        "ch": 33
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-h",
+        "sw": 188,
+        "cw": 188,
+        "sh": 72,
+        "ch": 36
+       }
+      ],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1105,
+        "cw": 1105,
+        "scrolls": false
+       }
+      ],
+      "details": 12,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 821,
+       "naturalH": 11555,
+       "scrollers": [
+        {
+         "cls": "data-table__scroll",
+         "sh": 11064,
+         "ch": 330,
+         "focusable": true,
+         "label": "site-work-incidents-heading",
+         "maxH": "330px"
+        }
+       ],
+       "maxH": "none",
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r0f1 Synthetic layout probe text that wraps across sever",
+         "sw": 294,
+         "cw": 294,
+         "sh": 50,
+         "ch": 33
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r1f1 Synthetic layout probe text that wraps across sever",
+         "sw": 294,
+         "cw": 294,
+         "sh": 50,
+         "ch": 33
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r2f1 Synthetic layout probe text that wraps across sever",
+         "sw": 294,
+         "cw": 294,
+         "sh": 50,
+         "ch": 33
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r3f1 Synthetic layout probe text that wraps across sever",
+         "sw": 294,
+         "cw": 294,
+         "sh": 50,
+         "ch": 33
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r4f1 Synthetic layout probe text that wraps across sever",
+         "sw": 294,
+         "cw": 294,
+         "sh": 50,
+         "ch": 33
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-h",
+         "sw": 185,
+         "cw": 185,
+         "sh": 72,
+         "ch": 36
+        }
+       ],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1090,
+         "cw": 1090,
+         "scrolls": false
+        }
+       ],
+       "details": 12,
+       "detailsOpen": 12,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "late-stocked",
+   "width": 390,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Incidents at this site",
+     "h": 435,
+     "details": 12,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/MG-W402-001/foundation"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/MG-W402-001/health"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/MG-W402-001/performance"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/MG-W402-001/findings"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/MG-W402-001/evidence"
+     }
+    ],
+    [
+     {
+      "text": "Actions (0)",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Incidents (5)",
+      "href": "/sites/MG-W402-001/work/incidents"
+     },
+     {
+      "text": "Maintenance (3)",
+      "href": "/sites/MG-W402-001/work/maintenance"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [
+    "Scoped to Mini-grid"
+   ],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Scoped to Mini-grid · 5 incidentsThese are work records at this siteManage in Incidents",
+    "Scoped to Mini-grid · 5 incidents",
+    "These are work records at this site",
+    "Manage in Incidents"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Incidents at this site",
+     "kind": "fields",
+     "real": {
+      "closed": {
+       "panelH": 435,
+       "naturalH": 758,
+       "scrollers": [
+        {
+         "cls": "data-table__scroll",
+         "sh": 547,
+         "ch": 224,
+         "focusable": true,
+         "label": "site-work-incidents-heading",
+         "maxH": "224px"
+        }
+       ],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Operator logged a supply complaint during the mill trial win",
+         "sw": 193,
+         "cw": 193,
+         "sh": 46,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Operator logged a supply complaint during the mill trial win",
+         "sw": 193,
+         "cw": 193,
+         "sh": 46,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Operator logged a supply complaint during the mill trial win",
+         "sw": 193,
+         "cw": 193,
+         "sh": 46,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Operator logged a supply complaint during the mill trial win",
+         "sw": 193,
+         "cw": 193,
+         "sh": 46,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Operator logged a supply complaint during the mill trial win",
+         "sw": 193,
+         "cw": 193,
+         "sh": 46,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-h",
+         "sw": 121,
+         "cw": 121,
+         "sh": 101,
+         "ch": 34
+        }
+       ],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 720,
+         "cw": 324,
+         "scrolls": true
+        }
+       ],
+       "details": 12,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 1053,
+       "naturalH": 11150,
+       "scrollers": [
+        {
+         "cls": "data-table__scroll",
+         "sh": 10321,
+         "ch": 224,
+         "focusable": true,
+         "label": "site-work-incidents-heading",
+         "maxH": "224px"
+        }
+       ],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Operator logged a supply complaint during the mill trial win",
+         "sw": 193,
+         "cw": 193,
+         "sh": 46,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Operator logged a supply complaint during the mill trial win",
+         "sw": 193,
+         "cw": 193,
+         "sh": 46,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Operator logged a supply complaint during the mill trial win",
+         "sw": 193,
+         "cw": 193,
+         "sh": 46,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Operator logged a supply complaint during the mill trial win",
+         "sw": 193,
+         "cw": 193,
+         "sh": 46,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Operator logged a supply complaint during the mill trial win",
+         "sw": 193,
+         "cw": 193,
+         "sh": 46,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-h",
+         "sw": 121,
+         "cw": 121,
+         "sh": 101,
+         "ch": 34
+        }
+       ],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 720,
+         "cw": 324,
+         "scrolls": true
+        }
+       ],
+       "details": 12,
+       "detailsOpen": 12,
+       "docOverflowX": 0
+      }
+     },
+     "fields160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 5,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 720,
+       "sw": 720,
+       "wrapCw": 324,
+       "wrapSw": 720,
+       "wrapCh": 224,
+       "wrapSh": 579
+      },
+      "panelH": 435,
+      "naturalH": 791,
+      "scrollers": [
+       {
+        "cls": "data-table__scroll",
+        "sh": 579,
+        "ch": 224,
+        "focusable": true,
+        "label": "site-work-incidents-heading",
+        "maxH": "224px"
+       }
+      ],
+      "maxH": "none",
+      "panelW": 358,
+      "rowHs": [
+       103,
+       103,
+       103,
+       103,
+       135
+      ],
+      "clipped": [
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r0f1 Synthetic layout probe text that wraps across sever",
+        "sw": 193,
+        "cw": 193,
+        "sh": 77,
+        "ch": 31
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r1f1 Synthetic layout probe text that wraps across sever",
+        "sw": 193,
+        "cw": 193,
+        "sh": 77,
+        "ch": 31
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r2f1 Synthetic layout probe text that wraps across sever",
+        "sw": 193,
+        "cw": 193,
+        "sh": 77,
+        "ch": 31
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r3f1 Synthetic layout probe text that wraps across sever",
+        "sw": 193,
+        "cw": 193,
+        "sh": 77,
+        "ch": 31
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r4f1 Synthetic layout probe text that wraps across sever",
+        "sw": 193,
+        "cw": 193,
+        "sh": 77,
+        "ch": 31
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-h",
+        "sw": 121,
+        "cw": 121,
+        "sh": 101,
+        "ch": 34
+       }
+      ],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 720,
+        "cw": 324,
+        "scrolls": true
+       }
+      ],
+      "details": 12,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 1053,
+       "naturalH": 11150,
+       "scrollers": [
+        {
+         "cls": "data-table__scroll",
+         "sh": 10321,
+         "ch": 224,
+         "focusable": true,
+         "label": "site-work-incidents-heading",
+         "maxH": "224px"
+        }
+       ],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r0f1 Synthetic layout probe text that wraps across sever",
+         "sw": 193,
+         "cw": 193,
+         "sh": 77,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r1f1 Synthetic layout probe text that wraps across sever",
+         "sw": 193,
+         "cw": 193,
+         "sh": 77,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r2f1 Synthetic layout probe text that wraps across sever",
+         "sw": 193,
+         "cw": 193,
+         "sh": 77,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r3f1 Synthetic layout probe text that wraps across sever",
+         "sw": 193,
+         "cw": 193,
+         "sh": 77,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r4f1 Synthetic layout probe text that wraps across sever",
+         "sw": 193,
+         "cw": 193,
+         "sh": 77,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-h",
+         "sw": 121,
+         "cw": 121,
+         "sh": 101,
+         "ch": 34
+        }
+       ],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 720,
+         "cw": 324,
+         "scrolls": true
+        }
+       ],
+       "details": 12,
+       "detailsOpen": 12,
+       "docOverflowX": 0
+      }
+     },
+     "fields160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 5,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 720,
+       "sw": 720,
+       "wrapCw": 324,
+       "wrapSw": 720,
+       "wrapCh": 224,
+       "wrapSh": 579
+      },
+      "panelH": 518,
+      "naturalH": 873,
+      "scrollers": [
+       {
+        "cls": "data-table__scroll",
+        "sh": 579,
+        "ch": 224,
+        "focusable": true,
+        "label": "site-work-incidents-heading",
+        "maxH": "224px"
+       }
+      ],
+      "maxH": "none",
+      "panelW": 358,
+      "rowHs": [
+       103,
+       103,
+       103,
+       103,
+       135
+      ],
+      "clipped": [
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r0f1 Synthetic layout probe text that wraps across sever",
+        "sw": 193,
+        "cw": 193,
+        "sh": 77,
+        "ch": 31
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r1f1 Synthetic layout probe text that wraps across sever",
+        "sw": 193,
+        "cw": 193,
+        "sh": 77,
+        "ch": 31
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r2f1 Synthetic layout probe text that wraps across sever",
+        "sw": 193,
+        "cw": 193,
+        "sh": 77,
+        "ch": 31
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r3f1 Synthetic layout probe text that wraps across sever",
+        "sw": 193,
+        "cw": 193,
+        "sh": 77,
+        "ch": 31
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "SYN-r4f1 Synthetic layout probe text that wraps across sever",
+        "sw": 193,
+        "cw": 193,
+        "sh": 77,
+        "ch": 31
+       },
+       {
+        "el": "SPAN.work-cases-clamp",
+        "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-h",
+        "sw": 121,
+        "cw": 121,
+        "sh": 101,
+        "ch": 34
+       }
+      ],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 720,
+        "cw": 324,
+        "scrolls": true
+       }
+      ],
+      "details": 12,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 1136,
+       "naturalH": 11233,
+       "scrollers": [
+        {
+         "cls": "data-table__scroll",
+         "sh": 10321,
+         "ch": 224,
+         "focusable": true,
+         "label": "site-work-incidents-heading",
+         "maxH": "224px"
+        }
+       ],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r0f1 Synthetic layout probe text that wraps across sever",
+         "sw": 193,
+         "cw": 193,
+         "sh": 77,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r1f1 Synthetic layout probe text that wraps across sever",
+         "sw": 193,
+         "cw": 193,
+         "sh": 77,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r2f1 Synthetic layout probe text that wraps across sever",
+         "sw": 193,
+         "cw": 193,
+         "sh": 77,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r3f1 Synthetic layout probe text that wraps across sever",
+         "sw": 193,
+         "cw": 193,
+         "sh": 77,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "SYN-r4f1 Synthetic layout probe text that wraps across sever",
+         "sw": 193,
+         "cw": 193,
+         "sh": 77,
+         "ch": 31
+        },
+        {
+         "el": "SPAN.work-cases-clamp",
+         "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-h",
+         "sw": 121,
+         "cw": 121,
+         "sh": 101,
+         "ch": 34
+        }
+       ],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 720,
+         "cw": 324,
+         "scrolls": true
+        }
+       ],
+       "details": 12,
+       "detailsOpen": 12,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "sitework-maintenance",
+   "case": "late-stocked",
+   "width": 1440,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Maintenance at this site",
+     "h": 316,
+     "details": 4,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/MG-W402-001/foundation"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/MG-W402-001/health"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/MG-W402-001/performance"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/MG-W402-001/findings"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/MG-W402-001/evidence"
+     }
+    ],
+    [
+     {
+      "text": "Actions (0)",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Incidents (5)",
+      "href": "/sites/MG-W402-001/work/incidents"
+     },
+     {
+      "text": "Maintenance (3)",
+      "href": "/sites/MG-W402-001/work/maintenance"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [
+    "Scoped to Mini-grid"
+   ],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Scoped to Mini-grid · 3 maintenance casesThese are work records at this siteManage in Maintenance",
+    "Scoped to Mini-grid · 3 maintenance cases",
+    "These are work records at this site",
+    "Manage in Maintenance"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Maintenance at this site",
+     "kind": "fields",
+     "real": {
+      "closed": {
+       "panelH": 316,
+       "naturalH": 316,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 4,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 7037,
+       "naturalH": 7037,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 4,
+       "detailsOpen": 4,
+       "docOverflowX": 0
+      }
+     },
+     "fields160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "intendedFields": 25,
+      "fieldsChanged": 25,
+      "table": {
+       "cw": 1105,
+       "sw": 1105,
+       "wrapCw": 1105,
+       "wrapSw": 1105,
+       "wrapCh": 707,
+       "wrapSh": 707
+      },
+      "panelH": 832,
+      "naturalH": 832,
+      "scrollers": [],
+      "maxH": "none",
+      "panelW": 1145,
+      "rowHs": [
+       135,
+       135,
+       135,
+       135,
+       134
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1105,
+        "cw": 1105,
+        "scrolls": false
+       }
+      ],
+      "details": 6,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 11828,
+       "naturalH": 11828,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 6,
+       "detailsOpen": 6,
+       "docOverflowX": 0
+      }
+     },
+     "fields160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "intendedFields": 25,
+      "fieldsChanged": 25,
+      "table": {
+       "cw": 1105,
+       "sw": 1105,
+       "wrapCw": 1105,
+       "wrapSw": 1105,
+       "wrapCh": 707,
+       "wrapSh": 707
+      },
+      "panelH": 865,
+      "naturalH": 865,
+      "scrollers": [],
+      "maxH": "none",
+      "panelW": 1145,
+      "rowHs": [
+       135,
+       135,
+       135,
+       135,
+       134
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1105,
+        "cw": 1105,
+        "scrolls": false
+       }
+      ],
+      "details": 6,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 11861,
+       "naturalH": 11861,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1145,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1105,
+         "cw": 1105,
+         "scrolls": false
+        }
+       ],
+       "details": 6,
+       "detailsOpen": 6,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "sitework-maintenance",
+   "case": "late-stocked",
+   "width": 390,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Maintenance at this site",
+     "h": 345,
+     "details": 4,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/MG-W402-001/foundation"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/MG-W402-001/health"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/MG-W402-001/performance"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/MG-W402-001/findings"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/MG-W402-001/financials"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/MG-W402-001/evidence"
+     }
+    ],
+    [
+     {
+      "text": "Actions (0)",
+      "href": "/sites/MG-W402-001/work"
+     },
+     {
+      "text": "Incidents (5)",
+      "href": "/sites/MG-W402-001/work/incidents"
+     },
+     {
+      "text": "Maintenance (3)",
+      "href": "/sites/MG-W402-001/work/maintenance"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [
+    "Scoped to Mini-grid"
+   ],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Scoped to Mini-grid · 3 maintenance casesThese are work records at this siteManage in Maintenance",
+    "Scoped to Mini-grid · 3 maintenance cases",
+    "These are work records at this site",
+    "Manage in Maintenance"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Maintenance at this site",
+     "kind": "fields",
+     "real": {
+      "closed": {
+       "panelH": 345,
+       "naturalH": 345,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 760,
+         "cw": 324,
+         "scrolls": true
+        }
+       ],
+       "details": 4,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 7010,
+       "naturalH": 7010,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 760,
+         "cw": 324,
+         "scrolls": true
+        }
+       ],
+       "details": 4,
+       "detailsOpen": 4,
+       "docOverflowX": 0
+      }
+     },
+     "fields160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "intendedFields": 25,
+      "fieldsChanged": 25,
+      "table": {
+       "cw": 760,
+       "sw": 760,
+       "wrapCw": 324,
+       "wrapSw": 760,
+       "wrapCh": 935,
+       "wrapSh": 935
+      },
+      "panelH": 1123,
+      "naturalH": 1123,
+      "scrollers": [],
+      "maxH": "none",
+      "panelW": 358,
+      "rowHs": [
+       181,
+       181,
+       181,
+       181,
+       180
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 760,
+        "cw": 324,
+        "scrolls": true
+       }
+      ],
+      "details": 6,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 11588,
+       "naturalH": 11588,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 760,
+         "cw": 324,
+         "scrolls": true
+        }
+       ],
+       "details": 6,
+       "detailsOpen": 6,
+       "docOverflowX": 0
+      }
+     },
+     "fields160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 3,
+      "intendedFields": 25,
+      "fieldsChanged": 25,
+      "table": {
+       "cw": 760,
+       "sw": 760,
+       "wrapCw": 324,
+       "wrapSw": 760,
+       "wrapCh": 935,
+       "wrapSh": 935
+      },
+      "panelH": 1205,
+      "naturalH": 1205,
+      "scrollers": [],
+      "maxH": "none",
+      "panelW": 358,
+      "rowHs": [
+       181,
+       181,
+       181,
+       181,
+       180
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 760,
+        "cw": 324,
+        "scrolls": true
+       }
+      ],
+      "details": 6,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 11671,
+       "naturalH": 11671,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 760,
+         "cw": 324,
+         "scrolls": true
+        }
+       ],
+       "details": 6,
+       "detailsOpen": 6,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "missing-day-limited",
+   "width": 1440,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02a792dc-bc01-4f38-98ed-61727f841d35",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Productive-use headroom at Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Bounded opportunity",
+     "h": 185,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Next decision",
+     "h": 267,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Consequence basis",
+     "h": 267,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/opportunities/02a792dc-bc01-4f38-98ed-61727f841d35"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 1,
+   "banners": [],
+   "statusBars": [
+    "OPP-000004 · OpportunityConfidence: Not assessedCurrent selectionDecision pending · evidence limited",
+    "OPP-000004 · Opportunity",
+    "Confidence: Not assessed",
+    "Current selection"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/MG-W402-001/opportunities/02a792dc-bc01-4f38-98ed-61727f841d35",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Bounded opportunity",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 185,
+       "naturalH": 185,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 185,
+       "naturalH": 185,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    },
+    {
+     "panel": "Next decision",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 734,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 734,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    },
+    {
+     "panel": "Consequence basis",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 408,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 408,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "missing-day-limited",
+   "width": 390,
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02a792dc-bc01-4f38-98ed-61727f841d35",
+   "ready": true,
+   "revision": "3bfafdb7",
+   "h1": "Productive-use headroom at Mini-grid depth demonstration",
+   "bars": [],
+   "chips": [],
+   "panels": [
+    {
+     "title": "Bounded opportunity",
+     "h": 271,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Next decision",
+     "h": 176,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Consequence basis",
+     "h": 267,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/MG-W402-001/opportunities/02a792dc-bc01-4f38-98ed-61727f841d35"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 1,
+   "banners": [],
+   "statusBars": [
+    "OPP-000004 · OpportunityConfidence: Not assessedCurrent selectionDecision pending · evidence limited",
+    "OPP-000004 · Opportunity",
+    "Confidence: Not assessed",
+    "Current selection"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/MG-W402-001/opportunities/02a792dc-bc01-4f38-98ed-61727f841d35",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Bounded opportunity",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 271,
+       "naturalH": 271,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 271,
+       "naturalH": 271,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    },
+    {
+     "panel": "Next decision",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 176,
+       "naturalH": 176,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 176,
+       "naturalH": 176,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    },
+    {
+     "panel": "Consequence basis",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 267,
+       "naturalH": 267,
+       "scrollers": [],
+       "maxH": "none",
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

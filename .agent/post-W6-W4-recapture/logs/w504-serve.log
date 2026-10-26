@@ -1,0 +1,4 @@
+positive: pid 28832 port 18461 healthy=True
+zero: pid 12040 port 18462 healthy=True
+forbidden: pid 20944 port 18466 healthy=True
+unavailable: pid 16048 port 18467 healthy=True

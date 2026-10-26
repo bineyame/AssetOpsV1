@@ -334,6 +334,26 @@ button:focus-visible {
   font-size: var(--text-tab);
 }
 
+/* post-W6 W4 R333, MOCK DEVIATION D2 (R453): the Site tab row wraps up to 760 px instead of scrolling inside
+   itself, so Overview and every other label stay visible at 390 (WCAG 2.2 1.4.10 reflow). One list, one nav landmark:
+   the wrapped lines still read as a single navigation group. The deviation line shows only where the wrap does. */
+.site-tabs__deviation {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .site-tabs--site .site-tabs__list {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    overflow-y: visible;
+    row-gap: 0;
+  }
+
+  .site-tabs--site .site-tabs__deviation {
+    display: block;
+  }
+}
+
 /* Foundation subtabs: the mock's `.tabs.subtabs`, one step smaller. */
 .site-subtabs .site-tabs__list {
   font-size: var(--text-subtab);
@@ -1176,6 +1196,13 @@ button:focus-visible {
   border-color: var(--badge-neutral-border);
   border-radius: var(--radius-sm);
 }
+
+/* post-W6 W4 R309 (Q2): semantic status tones, applied as a class beside an existing Badge tone and only where a stored
+   enum drives them. The word stays visible; colour only reinforces it. Unrelated Badge callers are unchanged. */
+.badge.status-tone--green { background: var(--status-green-bg); color: var(--status-green-text); border-color: var(--status-green-border); }
+.badge.status-tone--amber { background: var(--status-amber-bg); color: var(--status-amber-text); border-color: var(--status-amber-border); }
+.badge.status-tone--red { background: var(--status-red-bg); color: var(--status-red-text); border-color: var(--status-red-border); }
+.badge.status-tone--neutral { background: var(--status-neutral-bg); color: var(--status-neutral-text); border-color: var(--status-neutral-border); }
 
 /* W1-F3 review H2: a mock chip or column the reads do not support yet ("Not assessed"), muted and dashed. */
 .badge--not-assessed {
@@ -4332,6 +4359,12 @@ ul.evidence-notes li { font-size: inherit; }
   background: var(--series-1);
 }
 
+/* post-W6 W4 R309 (Q3): fixed series identities, each named by its row label; never an assessment colour. */
+.value-bars__fill--pv { background: var(--series-pv); }
+.value-bars__fill--margin { background: var(--series-margin); }
+.value-bars__fill--headroom { background: var(--series-headroom); }
+.value-bars__fill--critical { background: var(--series-critical); }
+
 /* "Not known" is a hatched full-width mark, never a short or empty bar. */
 .value-bars__unknown {
   display: block;
@@ -4851,6 +4884,11 @@ ul.evidence-notes li { font-size: inherit; }
 .v69-timeline__event--danger::before {
   background: #c15d5d;
   box-shadow: 0 0 0 1px #c15d5d;
+}
+
+.v69-timeline__event--ok::before {
+  background: #2f8f6f;
+  box-shadow: 0 0 0 1px #2f8f6f;
 }
 
 .v69-timeline__event--gap::before {

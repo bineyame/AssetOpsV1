@@ -1,0 +1,2 @@
+cold excursion db=assetops_w2coldrc_x_test exit=0 secs=21
+cold backup-failed db=assetops_w2coldrc_b_test exit=0 secs=21

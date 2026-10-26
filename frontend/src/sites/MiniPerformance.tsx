@@ -48,6 +48,7 @@ import type { MiniDecisionsClient } from "./miniDecisionsClient";
 import { OpportunityDecisionEntry } from "./MiniOpportunity";
 import { performanceSubtabs, type DomainPresentationProfile } from "./presentationProfile";
 import { PERFORMANCE_SUBTABS_LABEL } from "./performanceSubtabsLabel";
+import "../ui/mock-deviation.css";
 import "./w4-mini-performance.css";
 
 /* ---------- sibling tabs ---------- */
@@ -237,6 +238,29 @@ const CURRENTNESS_WORD: Record<string, string> = {
   UNKNOWN: "No selected assessment",
 };
 
+/* ---------- tones (post-W6 W4 R309, Q2): from stored enums only; the word always stays visible ---------- */
+
+type StatusTone = "green" | "amber" | "red" | "neutral";
+const toneClass = (tone: StatusTone): string => `status-tone--${tone}`;
+const ENVELOPE_TONE: Record<string, StatusTone> = { SUPPORTED: "green", LIMITED: "amber" };
+const DECISION_TONE: Record<string, StatusTone> = { ELIGIBLE: "green", EXCLUDED: "neutral", LIMITED: "amber", CONFLICT: "amber" };
+const SERVICE_ROW_TONE: Record<string, StatusTone> = { SUPPORTED: "green", LIMITED: "amber" };
+const BACKUP_RESULT_TONE: Record<string, StatusTone> = { PASS: "green", FAIL: "red", INCOMPLETE: "amber" };
+const tonedBy = (table: Record<string, StatusTone>, value: string): string => toneClass(table[value] ?? "neutral");
+
+/**
+ * post-W6 W4 R312 (Q6): the currentness chip. `No selected assessment` never sits beside selected rows; a real
+ * current, historical, pending or stale state still shows.
+ */
+function CurrentnessChip({ state, selected }: { state: string; selected: boolean }) {
+  if (state === "UNKNOWN" && selected) return null;
+  return (
+    <span className="status-strip__item" data-mini-currentness={state}>
+      <Badge tone="neutral" className={toneClass("neutral")}>{CURRENTNESS_WORD[state] ?? state}</Badge>
+    </span>
+  );
+}
+
 /* ---------- reads ---------- */
 
 function useMiniRead<T>(load: () => Promise<MiniRead<T>>, key: string, attempt: number): MiniRead<T> | null {
@@ -261,13 +285,7 @@ function refusalCopy(read: Exclude<MiniRead<unknown>, { status: "loaded" }>): { 
   if (http === 401) return { key: "unauthenticated", title: "Sign in required", body: "Sign in to read this site's mini-grid assessment." };
   if (http === 403) return { key: "forbidden", title: "Access refused", body: "You do not have access to this site." };
   if (http === 404) return { key: "not-found", title: "Not found", body: "This page was not found." };
-  if (http === 422) {
-    return {
-      key: "invalid-window",
-      title: "Period cannot be read",
-      body: read.message ?? "Select a valid complete site-local hour or one to five site-local days.",
-    };
-  }
+  if (http === 422) return { key: "invalid-window", title: "Period cannot be read", body: MINI_INVALID_WINDOW };
   return { key: "unavailable", title: "Assessment unavailable", body: MINI_UNAVAILABLE };
 }
 
@@ -286,6 +304,129 @@ function MiniRefusal({ read, onRetry }: { read: Exclude<MiniRead<unknown>, { sta
       ) : null}
     </div>
   );
+}
+
+/* ---------- refused window frame (post-W6 W4 R313, Q7) ---------- */
+
+export type MiniScreen = "renewable" | "service" | "fuel" | "backup";
+
+/**
+ * The screen's strip label, tile slots and every v69 panel of the screen, kept in page order so a refusal keeps the
+ * page's shape (post-W6 W4 unit-5 capture: the mock's full panel set, Q7 `preserve panel landmarks`).
+ */
+const REFUSED_FRAME: Record<MiniScreen, { strip: string; tiles: string[]; panels: Array<[string, string]> }> = {
+  renewable: {
+    strip: "Renewable assessment",
+    tiles: ["PV capability", "PV used", "Usable headroom", "Recurring opportunity"],
+    panels: [
+      ["From physical headroom to an opportunity", "mini-renewable-headroom-heading"],
+      ["Productive-use evaluation", "mini-renewable-productive-heading"],
+      ["Eligible and excluded windows", "mini-renewable-windows-heading"],
+    ],
+  },
+  service: {
+    strip: "Service assessment",
+    tiles: ["Delivered load", "Interruptions seen", "Critical load", "Unserved energy"],
+    panels: [
+      ["Where the power went", "mini-service-power-heading"],
+      ["Delivered power by addressed load", "mini-service-loads-heading"],
+      ["What is supported", "mini-service-supported-heading"],
+      ["What unlocks a service conclusion", "mini-service-unlock-heading"],
+    ],
+  },
+  fuel: {
+    strip: "Fuel balance",
+    tiles: ["Opening evidence", "Recorded deliveries", "Modelled expected use", "Residual"],
+    panels: [
+      ["Fuel balance at a glance", "mini-fuel-glance-heading"],
+      ["Balance bridge", "mini-fuel-bridge-heading"],
+      ["Inspect existing generator fuel interpretation", "mini-fuel-interpretation-heading"],
+    ],
+  },
+  backup: {
+    strip: "Backup readiness",
+    tiles: ["Outages in window", "Start success", "Last witnessed test", "Critical service recovery"],
+    panels: [
+      ["Backup event chains", "mini-backup-chains-heading"],
+      ["Backup readiness evidence", "mini-backup-readiness-heading"],
+      ["Operating evidence", "mini-backup-operating-heading"],
+      ["Next evidence", "mini-backup-next-heading"],
+    ],
+  },
+};
+
+export const MINI_WINDOW_CANNOT_BE_READ = "Window cannot be read";
+export const MINI_REVERSED_WINDOW = "The end must be after the start.";
+export const MINI_RENEWABLE_DAYS = "Choose one to five complete Site-local days.";
+export const MINI_HOUR_OR_DAY = "Choose one complete Site-local hour or one day.";
+export const MINI_INVALID_WINDOW = "Choose a valid Site-local window.";
+
+const HOUR_MS = 3_600_000;
+const DAY_MS = 86_400_000;
+
+/**
+ * Q7/Q20: the backend sends one `INVALID_WINDOW`; a specific cause is named only when the requested bounds prove it,
+ * otherwise the generic sentence. No server message reaches the page.
+ */
+export function miniWindowReason(screen: MiniScreen, window: MiniWindowQuery): string {
+  const from = window.from === null ? Number.NaN : Date.parse(window.from);
+  const to = window.to === null ? Number.NaN : Date.parse(window.to);
+  if (Number.isNaN(from) || Number.isNaN(to)) return MINI_INVALID_WINDOW;
+  if (to <= from) return MINI_REVERSED_WINDOW;
+  const span = to - from;
+  if (screen === "renewable") return span > 5 * DAY_MS ? MINI_RENEWABLE_DAYS : MINI_INVALID_WINDOW;
+  return span !== HOUR_MS && span !== DAY_MS ? MINI_HOUR_OR_DAY : MINI_INVALID_WINDOW;
+}
+
+/** The refused window keeps the page frame: strip, muted `Not assessed` tiles and the named panels, one reason. */
+function MiniRefusedFrame({ screen, window }: { screen: MiniScreen; window: MiniWindowQuery }) {
+  const frame = REFUSED_FRAME[screen];
+  return (
+    <>
+      <StatusBar label={frame.strip} items data={{ "data-mini-refused-strip": screen }}>
+        <span className="status-strip__item">
+          <Badge tone="neutral" className={toneClass("neutral")}>{MINI_WINDOW_CANNOT_BE_READ}</Badge>
+        </span>
+        <span className="status-strip__item" data-mini-confidence>
+          <span className="badge badge--not-assessed" data-not-assessed>Confidence: Not assessed</span>
+        </span>
+      </StatusBar>
+      <MetricCards label={`${frame.strip} summary`} data={{ "data-mini-cards": `${screen}-refused` }}>
+        {frame.tiles.map((tile) => (
+          <MetricCard key={tile} label={tile} value="Not assessed" tone="muted" word data={{ "data-mini-refused-card": tile }} />
+        ))}
+      </MetricCards>
+      {frame.panels.map(([heading, headingId], index) => (
+        <Panel key={headingId} heading={heading} headingId={headingId}>
+          {index === 0 ? (
+            <p className="not-available-yet v69-chart-note" role="status" data-page-refusal="invalid-window" data-panel-gap={`${screen}-refused`}>
+              {miniWindowReason(screen, window)}
+            </p>
+          ) : (
+            <p className="not-available-yet v69-chart-note" data-panel-gap={`${screen}-refused`}>
+              Not assessed
+            </p>
+          )}
+        </Panel>
+      ))}
+    </>
+  );
+}
+
+/** A read that did not load: a refused window keeps the frame (Q7); access and availability refusals keep theirs. */
+function MiniNotLoaded({
+  screen,
+  read,
+  window,
+  onRetry,
+}: {
+  screen: MiniScreen;
+  read: Exclude<MiniRead<unknown>, { status: "loaded" }>;
+  window: MiniWindowQuery;
+  onRetry: () => void;
+}) {
+  if (read.status === "refused" && read.httpStatus === 422) return <MiniRefusedFrame screen={screen} window={window} />;
+  return <MiniRefusal read={read} onRetry={onRetry} />;
 }
 
 /* ---------- period selector (Q5, q9-1: site-local days, sent as UTC bounds) ---------- */
@@ -377,10 +518,9 @@ function provenanceChips(read: Pick<RenewableRead, "selected_source_provenance" 
 function RenewableStatus({ read }: { read: RenewableRead }) {
   const { word, tone } = statusWord(read);
   const cards = read.cards;
-  const fact =
-    cards !== null && cards.eligible_days !== null && cards.assessed_days !== null
-      ? `Solar headroom on ${cards.eligible_days} of ${cards.assessed_days} assessed days`
-      : "Days with usable solar headroom: Unknown";
+  const fact = recurrenceEstablished(read)
+    ? `Solar headroom on ${cards?.eligible_days} of 5 completely assessed days`
+    : RECURRENCE_NOT_ESTABLISHED;
   const limits = Array.from(new Set(read.limitations.map((l) => plainCode(l.code))));
   return (
     <StatusBar
@@ -389,21 +529,33 @@ function RenewableStatus({ read }: { read: RenewableRead }) {
       data={{ "data-mini-status": read.status }}
     >
       <span className="status-strip__item">
-        <Badge tone="neutral" className={`mini-tone--${tone}`}>
+        <Badge tone="neutral" className={`mini-tone--${tone} ${toneClass(tone === "amber" ? "amber" : "neutral")}`}>
           {word}
         </Badge>
       </span>
+      {/* post-W6 W4 R310 / D1 R451: confidence stays not assessed until an approved rule exists (mock: Medium). */}
+      <span className="status-strip__item" data-mini-confidence>
+        <span className="badge badge--not-assessed" data-not-assessed>Confidence: Not assessed</span>
+        <span className="mock-deviation-line mini-inline-deviation" data-mock-deviation="R451">
+          MOCK DEVIATION D1 (R451)
+        </span>
+      </span>
       <span className="status-strip__item">
-        <Badge tone="neutral">Lens: Opportunity</Badge>
+        {/* post-W6 W4 build ruling 3 / D1 R454: the lens is the fixed identity of this page, not an assessment, so it
+            is neutral (the mock shows it green). */}
+        <Badge tone="neutral" className={toneClass("neutral")} data-mini-lens="">
+          Lens: Opportunity
+        </Badge>
+        <span className="mock-deviation-line mini-inline-deviation" data-mock-deviation="R454">
+          MOCK DEVIATION D1 (R454)
+        </span>
       </span>
       {provenanceChips(read).map((chip) => (
         <span className="status-strip__item" key={chip} data-mini-provenance>
           <Badge tone="neutral">{chip}</Badge>
         </span>
       ))}
-      <span className="status-strip__item" data-mini-currentness={read.currentness.state}>
-        <Badge tone="neutral">{CURRENTNESS_WORD[read.currentness.state] ?? read.currentness.state}</Badge>
-      </span>
+      <CurrentnessChip state={read.currentness.state} selected={read.rows.length > 0} />
       <StripLimitations limits={limits} />
       <span className="status-strip__item">{fact}</span>
       {read.currentness.state === "HISTORICAL" ? (
@@ -426,23 +578,29 @@ function RenewableStatus({ read }: { read: RenewableRead }) {
 function RenewableCardsRow({ read }: { read: RenewableRead }) {
   const cards = read.cards;
   const coverage = read.coverage;
-  const days =
-    cards !== null && cards.eligible_days !== null && cards.assessed_days !== null
-      ? `${cards.eligible_days} / ${cards.assessed_days} days`
-      : UNKNOWN;
+  const established = recurrenceEstablished(read);
+  const days = established ? `${cards?.eligible_days} / 5 days` : "Not established";
   const usedNote =
     coverage === null || coverage.required_seconds === 0
       ? "Accepted power"
       : `Accepted power over ${Math.floor(coverage.observed_seconds / 60)}/${Math.floor(coverage.required_seconds / 60)} min`;
   return (
     <MetricCards label="Renewable summary" data={{ "data-mini-cards": "renewable" }}>
-      <MetricCard label="PV capability" value={boundText(cards?.capability_kw ?? null, "kW")} note="Reported PV capability and selected uncertainty" />
-      <MetricCard label="PV used" value={boundText(cards?.used_kw ?? null, "kW")} note={usedNote} />
-      <MetricCard label="Usable headroom" value={boundText(cards?.headroom_kw ?? null, "kW")} note="After retained margin and service checks" />
-      <MetricCard label="Recurring opportunity" value={days} note="Eligible complete days / assessed complete days" />
+      <MetricCard label="PV capability" value={boundText(cards?.capability_kw ?? null, "kW")} word={isWordValue(boundText(cards?.capability_kw ?? null, "kW"))} note="Reported PV capability and selected uncertainty" />
+      <MetricCard label="PV used" value={boundText(cards?.used_kw ?? null, "kW")} word={isWordValue(boundText(cards?.used_kw ?? null, "kW"))} note={usedNote} />
+      <MetricCard label="Usable headroom" value={boundText(cards?.headroom_kw ?? null, "kW")} word={isWordValue(boundText(cards?.headroom_kw ?? null, "kW"))} note="After retained margin and service checks" />
+      <MetricCard
+        label="Recurring opportunity"
+        value={days}
+        word={!established}
+        note={established ? "Eligible complete days / assessed complete days" : "Needs five completely assessed days."}
+      />
     </MetricCards>
   );
 }
+
+/** post-W6 W4 R318: a value that does not start with a number is a word value and uses the one word size. */
+const isWordValue = (value: string): boolean => !/^[\d−-]/.test(value);
 
 const high = (bound: MiniBound | null | undefined): number | null => (bound === null || bound === undefined ? null : bound.high);
 
@@ -464,10 +622,10 @@ function HeadroomPanel({ read }: { read: RenewableRead }) {
       <ValueBars
         title="Solar power in the assessed hours"
         items={[
-          { key: "capability", label: "Available PV", value: high(cards?.capability_kw), valueText: boundText(cards?.capability_kw ?? null, "kW") },
+          { key: "capability", label: "Available PV", value: high(cards?.capability_kw), valueText: boundText(cards?.capability_kw ?? null, "kW"), tone: "pv" },
           { key: "used", label: "Observed use", value: high(cards?.used_kw), valueText: boundText(cards?.used_kw ?? null, "kW") },
-          { key: "margin", label: "Retained margin", value: null, valueText: UNKNOWN },
-          { key: "headroom", label: "After retained margin", value: high(cards?.headroom_kw), valueText: boundText(cards?.headroom_kw ?? null, "kW") },
+          { key: "margin", label: "Retained margin", value: null, valueText: UNKNOWN, tone: "margin" },
+          { key: "headroom", label: "After retained margin", value: high(cards?.headroom_kw), valueText: boundText(cards?.headroom_kw ?? null, "kW"), tone: "headroom" },
         ]}
         unknownText={UNKNOWN}
       />
@@ -537,9 +695,10 @@ function OpportunityDrawer({ read, timeZone, onClose }: { read: RenewableRead; t
 function ProductiveUsePanel({ read, timeZone, decision }: { read: RenewableRead; timeZone: string; decision?: OpportunityLink }) {
   const [open, setOpen] = useState(false);
   return (
+    // post-W6 W4 unit-5 (guide §1): no table heads this panel, so its overflow scrolls in the labelled, focusable
+    // `mini-scroll` region (the 390 capture found the bare panel body scrolling 11 px without keyboard access).
     <BoundedPanel
       bound="renewable-productive"
-      table
       heading="Productive-use evaluation"
       headingId="mini-renewable-productive-heading"
       description="Electrical feasibility does not establish customer demand"
@@ -595,12 +754,24 @@ function windowRows(read: RenewableRead): WindowRow[] {
   return out;
 }
 
-function recurrenceText(read: RenewableRead): string {
+export const RECURRENCE_NOT_ESTABLISHED = "Recurrence is not established for this selection.";
+
+/** Q19 / post-W6 W4 R312 (Q6): recurrence needs five completely assessed days; strip, card and chart share this. */
+function recurrenceEstablished(read: RenewableRead): boolean {
   const hours = read.currentness.windows;
-  const complete = hours.length === 5 && hours.every((h) => h.selection_id !== null) && read.cards?.assessed_days === 5;
-  return complete && read.cards?.eligible_days !== null && read.cards?.eligible_days !== undefined
-    ? `Usable headroom recurred on ${read.cards.eligible_days} of 5 completely assessed days.`
-    : "Recurrence is not established for this selection.";
+  return (
+    hours.length === 5 &&
+    hours.every((h) => h.selection_id !== null) &&
+    read.cards?.assessed_days === 5 &&
+    read.cards.eligible_days !== null &&
+    read.cards.eligible_days !== undefined
+  );
+}
+
+function recurrenceText(read: RenewableRead): string {
+  return recurrenceEstablished(read)
+    ? `Usable headroom recurred on ${read.cards?.eligible_days} of 5 completely assessed days.`
+    : RECURRENCE_NOT_ESTABLISHED;
 }
 
 function WindowsPanel({ read, timeZone, evidenceHref }: { read: RenewableRead; timeZone: string; evidenceHref: string | null }) {
@@ -642,7 +813,7 @@ function WindowsPanel({ read, timeZone, evidenceHref }: { read: RenewableRead; t
                     </span>
                   </td>
                   <td>
-                    <Badge tone="neutral" className={`mini-decision--${item.row.decision.toLowerCase()}`}>
+                    <Badge tone="neutral" className={`mini-decision--${item.row.decision.toLowerCase()} ${tonedBy(DECISION_TONE, item.row.decision)}`}>
                       {DECISION_WORD[item.row.decision] ?? item.row.decision}
                     </Badge>
                   </td>
@@ -741,7 +912,7 @@ export function MiniRenewable({
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
       ) : read.status !== "loaded" ? (
-        <MiniRefusal read={read} onRetry={() => setAttempt((n) => n + 1)} />
+        <MiniNotLoaded screen="renewable" read={read} window={window} onRetry={() => setAttempt((n) => n + 1)} />
       ) : (
         <MiniRenewablePage
           read={read.value}
@@ -874,13 +1045,11 @@ function ServiceStatus({ read }: { read: ServiceRead }) {
   return (
     <StatusBar label="Service assessment" items data={{ "data-mini-status": read.status }}>
       <span className="status-strip__item">
-        <Badge tone="neutral" className={read.status === "LIMITED" ? "mini-tone--amber" : undefined}>
+        <Badge tone="neutral" className={`${read.status === "LIMITED" ? "mini-tone--amber " : ""}${tonedBy(ENVELOPE_TONE, read.status)}`}>
           {`Service assessment: ${word}`}
         </Badge>
       </span>
-      <span className="status-strip__item" data-mini-currentness={read.currentness.state}>
-        <Badge tone="neutral">{CURRENTNESS_WORD[read.currentness.state] ?? read.currentness.state}</Badge>
-      </span>
+      <CurrentnessChip state={read.currentness.state} selected={read.rows.length > 0} />
       {provenanceChips(read).map((chip) => (
         <span className="status-strip__item" key={chip} data-mini-provenance>
           <Badge tone="neutral">{chip}</Badge>
@@ -911,21 +1080,25 @@ function ServiceCardsRow({ read }: { read: ServiceRead }) {
       <MetricCard
         label="Delivered load"
         value={kw(delivered)}
+        word={isWordValue(kw(delivered))}
         note={delivered === null ? "Delivered power is not measured for the whole hour" : minutes(read.coverage)}
       />
       <MetricCard
         label="Interruptions seen"
         value={interruptions === null ? UNKNOWN : interruptions === 0 ? "None seen in measured intervals" : String(interruptions)}
+        word={interruptions === null || interruptions === 0}
         note={interruptions === null ? "Needs delivered and requested power for every load" : minutes(read.coverage)}
       />
       <MetricCard
         label={critical === null ? "Critical load" : `${critical.load_label} (critical)`}
         value={kw(criticalKw)}
+        word={isWordValue(kw(criticalKw))}
         note={criticalNote(criticalCoverage)}
       />
       <MetricCard
         label="Unserved energy"
         value={kw(unserved, "kWh")}
+        word={isWordValue(kw(unserved, "kWh"))}
         note={unserved === null ? "Needs demand or request evidence" : minutes(read.coverage)}
       />
     </MetricCards>
@@ -946,14 +1119,28 @@ function PowerPanel({ read }: { read: ServiceRead }) {
         </p>
       ) : (
         <ValueBars
-          title="Delivered power by addressed load"
+          title="Where the power went"
+          captionHidden
           items={[
-            ...read.rows.map((row) => ({ key: row.asset_id, label: feederName(row), value: row.delivered_kw, valueText: kw(row.delivered_kw) })),
+            ...read.rows.map((row) => ({
+              key: row.asset_id,
+              // Q3: red only beside the words `Critical load`, from the stored CRITICAL role; others keep the default series.
+              label: row.role === "CRITICAL" ? `${feederName(row)} · Critical load` : feederName(row),
+              value: row.delivered_kw,
+              valueText: kw(row.delivered_kw),
+              tone: row.role === "CRITICAL" ? ("critical" as const) : undefined,
+            })),
             { key: "needed", label: "What was needed", value: null, valueText: UNKNOWN },
           ]}
           unknownText={UNKNOWN}
         />
       )}
+      {read.rows.some((row) => row.role !== "CRITICAL") ? (
+        // Q3: a load with no stored positive classification keeps the default series colour (mock: Grain mill green).
+        <p className="mock-deviation-line" data-mock-deviation="R452">
+          MOCK DEVIATION D1 (R452)
+        </p>
+      ) : null}
       <MoreList
         summary="Coverage"
         items={[`Delivered power per addressed load, average of the selected hour. ${minutes(read.coverage)}. The hatched bar is the missing half of a service judgement.`]}
@@ -1007,7 +1194,7 @@ function LoadTablePanel({ read, evidenceHref }: { read: ServiceRead; evidenceHre
                     </span>
                   </td>
                   <td>
-                    <Badge tone="neutral" className={`mini-decision--${row.assessment.toLowerCase()}`}>
+                    <Badge tone="neutral" className={`mini-decision--${row.assessment.toLowerCase()} ${tonedBy(SERVICE_ROW_TONE, row.assessment)}`}>
                       {SERVICE_STATUS_WORD[row.assessment] ?? UNKNOWN}
                     </Badge>
                   </td>
@@ -1107,7 +1294,7 @@ export function MiniService({
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
       ) : read.status !== "loaded" ? (
-        <MiniRefusal read={read} onRetry={() => setAttempt((n) => n + 1)} />
+        <MiniNotLoaded screen="service" read={read} window={window} onRetry={() => setAttempt((n) => n + 1)} />
       ) : (
         <MiniServicePage read={read.value} />
       )}
@@ -1191,7 +1378,7 @@ function FuelStatus({ read }: { read: FuelRead }) {
   return (
     <StatusBar label="Fuel balance" items data={{ "data-mini-status": read.status }}>
       <span className="status-strip__item">
-        <Badge tone="neutral" className={limited ? "mini-tone--amber" : undefined}>
+        <Badge tone="neutral" className={`${limited ? "mini-tone--amber " : ""}${tonedBy(ENVELOPE_TONE, read.status)}`}>
           {word}
         </Badge>
       </span>
@@ -1200,9 +1387,7 @@ function FuelStatus({ read }: { read: FuelRead }) {
           <Badge tone="neutral">{chip}</Badge>
         </span>
       ))}
-      <span className="status-strip__item" data-mini-currentness={read.currentness.state}>
-        <Badge tone="neutral">{CURRENTNESS_WORD[read.currentness.state] ?? read.currentness.state}</Badge>
-      </span>
+      <CurrentnessChip state={read.currentness.state} selected={read.rows.length > 0} />
       <StripLimitations lead={[FUEL_SECONDARY]} limits={limits} />
       {read.currentness.state === "HISTORICAL" ? (
         <span className="status-strip__item" data-mini-historical>
@@ -1425,7 +1610,7 @@ export function MiniFuel({
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
       ) : read.status !== "loaded" ? (
-        <MiniRefusal read={read} onRetry={() => setAttempt((n) => n + 1)} />
+        <MiniNotLoaded screen="fuel" read={read} window={window} onRetry={() => setAttempt((n) => n + 1)} />
       ) : (
         <MiniFuelPage read={read.value} />
       )}
@@ -1493,23 +1678,21 @@ function BackupStatus({ read }: { read: BackupRead }) {
   return (
     <StatusBar label="Backup readiness" items data={{ "data-mini-status": read.status }}>
       <span className="status-strip__item">
-        <Badge tone="neutral">Backup readiness: Unknown</Badge>
+        <Badge tone="neutral" className={toneClass("neutral")}>Backup readiness: Unknown</Badge>
       </span>
       {provenanceChips(read).map((chip) => (
         <span className="status-strip__item" key={chip} data-mini-provenance>
           <Badge tone="neutral">{chip}</Badge>
         </span>
       ))}
-      <span className="status-strip__item" data-mini-currentness={read.currentness.state}>
-        <Badge tone="neutral">{CURRENTNESS_WORD[read.currentness.state] ?? read.currentness.state}</Badge>
-      </span>
+      <CurrentnessChip state={read.currentness.state} selected={read.rows.length > 0} />
       <StripLimitations
         lead={[BACKUP_SECONDARY]}
         limits={limits}
         summary={
           limited ? (
             <span data-mini-chain-status>
-              <Badge tone="neutral" className="mini-tone--amber">
+              <Badge tone="neutral" className={`mini-tone--amber ${toneClass("amber")}`}>
                 Outage-chain assessment: evidence limited
               </Badge>
             </span>
@@ -1619,7 +1802,7 @@ function BackupChainsPanel({ read, timeZone }: { read: BackupRead; timeZone: str
                       <span className="mini-cited">{` · ${BACKUP_OUTCOME_WORD[row.service_outcome] ?? UNKNOWN}`}</span>
                     </td>
                     <td>
-                      <Badge tone="neutral" className={`mini-decision--${row.result.toLowerCase()}`}>
+                      <Badge tone="neutral" className={`mini-decision--${row.result.toLowerCase()} ${tonedBy(BACKUP_RESULT_TONE, row.result)}`}>
                         {BACKUP_RESULT_WORD[row.result] ?? row.result}
                       </Badge>
                     </td>
@@ -1773,7 +1956,7 @@ export function MiniBackup({
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
       ) : read.status !== "loaded" ? (
-        <MiniRefusal read={read} onRetry={() => setAttempt((n) => n + 1)} />
+        <MiniNotLoaded screen="backup" read={read} window={window} onRetry={() => setAttempt((n) => n + 1)} />
       ) : (
         <MiniBackupPage read={read.value} timeZone={timeZone} />
       )}

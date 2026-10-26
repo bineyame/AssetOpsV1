@@ -1,0 +1,1724 @@
+{
+ "revision": "47d7929c",
+ "label": "Probe sections (rows160*, title160*, title-episode160*) are SYNTHETIC LAYOUT EVIDENCE, NOT PRODUCT DATA",
+ "results": [
+  {
+   "screen": "cold-findings",
+   "case": "stocked",
+   "width": 1440,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "h": 296,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [
+    "Scoped to Cold replay lab"
+   ],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 4,
+   "banners": [],
+   "statusBars": [
+    "Scoped to Cold replay lab · 2 open · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Cold-chain Findings are not in the global Findings list MOCK DEVIATION D1 (R436)Manage in Findings · Not ",
+    "Scoped to Cold replay lab · 2 open · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Cold-chain Findings are not in the global Findings list MOCK DEVIATION D1 (R436)",
+    "Manage in Findings · Not available yet"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Findings at this site",
+     "kind": "coldrows",
+     "real": {
+      "closed": {
+       "panelH": 296,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1125,
+         "cw": 1120,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 296,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1125,
+         "cw": 1120,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "table": {
+       "cw": 1120,
+       "sw": 1120,
+       "wrapCw": 1120,
+       "wrapSw": 1120
+      },
+      "panelH": 496,
+      "panelW": 1160,
+      "rowHs": [
+       67,
+       67,
+       67,
+       67,
+       67
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1120,
+        "cw": 1120,
+        "scrolls": false
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 496,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "table": {
+       "cw": 1120,
+       "sw": 1120,
+       "wrapCw": 1120,
+       "wrapSw": 1120
+      },
+      "panelH": 539,
+      "panelW": 1160,
+      "rowHs": [
+       67,
+       67,
+       67,
+       67,
+       67
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1120,
+        "cw": 1120,
+        "scrolls": false
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 539,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1120,
+         "cw": 1120,
+         "scrolls": false
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title-episode160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 1284,
+       "sw": 1284,
+       "wrapCw": 1120,
+       "wrapSw": 1284
+      },
+      "panelH": 511,
+      "panelW": 1160,
+      "rowHs": [
+       67,
+       67,
+       67,
+       67,
+       67
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1284,
+        "cw": 1120,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 511,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1284,
+         "cw": 1120,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title-episode160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 1284,
+       "sw": 1284,
+       "wrapCw": 1120,
+       "wrapSw": 1284
+      },
+      "panelH": 554,
+      "panelW": 1160,
+      "rowHs": [
+       67,
+       67,
+       67,
+       67,
+       67
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1284,
+        "cw": 1120,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 554,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1284,
+         "cw": 1120,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "cold-findings",
+   "case": "stocked",
+   "width": 390,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "h": 313,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [
+    "Scoped to Cold replay lab"
+   ],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 4,
+   "banners": [],
+   "statusBars": [
+    "Scoped to Cold replay lab · 2 open · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Cold-chain Findings are not in the global Findings list MOCK DEVIATION D1 (R436)Manage in Findings · Not ",
+    "Scoped to Cold replay lab · 2 open · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Cold-chain Findings are not in the global Findings list MOCK DEVIATION D1 (R436)",
+    "Manage in Findings · Not available yet"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Findings at this site",
+     "kind": "coldrows",
+     "real": {
+      "closed": {
+       "panelH": 313,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 949,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 313,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 949,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "table": {
+       "cw": 797,
+       "sw": 797,
+       "wrapCw": 318,
+       "wrapSw": 797
+      },
+      "panelH": 694,
+      "panelW": 358,
+      "rowHs": [
+       103,
+       103,
+       103,
+       103,
+       103
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 797,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 694,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 797,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 5,
+      "fieldsChanged": 5,
+      "table": {
+       "cw": 797,
+       "sw": 797,
+       "wrapCw": 318,
+       "wrapSw": 797
+      },
+      "panelH": 786,
+      "panelW": 358,
+      "rowHs": [
+       103,
+       103,
+       103,
+       103,
+       103
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 797,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 786,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 797,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title-episode160": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 1284,
+       "sw": 1284,
+       "wrapCw": 318,
+       "wrapSw": 1284
+      },
+      "panelH": 514,
+      "panelW": 358,
+      "rowHs": [
+       67,
+       67,
+       67,
+       67,
+       67
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1284,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 514,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1284,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     },
+     "title-episode160-gap": {
+      "synthetic": true,
+      "verified": true,
+      "realRows": 2,
+      "intendedFields": 10,
+      "fieldsChanged": 10,
+      "table": {
+       "cw": 1284,
+       "sw": 1284,
+       "wrapCw": 318,
+       "wrapSw": 1284
+      },
+      "panelH": 606,
+      "panelW": 358,
+      "rowHs": [
+       67,
+       67,
+       67,
+       67,
+       67
+      ],
+      "clipped": [],
+      "innerScrollX": [
+       {
+        "cls": "data-table__scroll",
+        "sw": 1284,
+        "cw": 318,
+        "scrolls": true
+       }
+      ],
+      "details": 0,
+      "detailsOpen": 0,
+      "docOverflowX": 0,
+      "openedAll": {
+       "panelH": 606,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [
+        {
+         "cls": "data-table__scroll",
+         "sw": 1284,
+         "cw": 318,
+         "scrolls": true
+        }
+       ],
+       "details": 0,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "cold-findings",
+   "case": "refused",
+   "width": 1440,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "h": 113,
+     "details": 1,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 1,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Window cannot be read",
+    "Window cannot be read"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/COLD-LAB-001/findings?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Findings at this site",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 113,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 1,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 241,
+       "panelW": 1160,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "cold-findings",
+   "case": "refused",
+   "width": 390,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "h": 129,
+     "details": 1,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 1,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Window cannot be read",
+    "Window cannot be read"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/COLD-LAB-001/findings?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+   "consoleErrors": [],
+   "caps": [
+    {
+     "panel": "Findings at this site",
+     "kind": "none",
+     "real": {
+      "closed": {
+       "panelH": 129,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 1,
+       "detailsOpen": 0,
+       "docOverflowX": 0
+      },
+      "open": {
+       "panelH": 341,
+       "panelW": 358,
+       "rowHs": [],
+       "clipped": [],
+       "innerScrollX": [],
+       "details": 1,
+       "detailsOpen": 1,
+       "docOverflowX": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "screen": "cold-findings",
+   "case": "one-sided-from",
+   "width": 1440,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "h": 113,
+     "details": 1,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 1,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Window cannot be read",
+    "Window cannot be read"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z",
+   "consoleErrors": [],
+   "caps": []
+  },
+  {
+   "screen": "cold-findings",
+   "case": "one-sided-from",
+   "width": 390,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "h": 129,
+     "details": 1,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 1,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Window cannot be read",
+    "Window cannot be read"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z",
+   "consoleErrors": [],
+   "caps": []
+  },
+  {
+   "screen": "cold-findings",
+   "case": "long-32d",
+   "width": 1440,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "h": 113,
+     "details": 1,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 1,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Window cannot be read",
+    "Window cannot be read"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/COLD-LAB-001/findings?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+   "consoleErrors": [],
+   "caps": []
+  },
+  {
+   "screen": "cold-findings",
+   "case": "long-32d",
+   "width": 390,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/findings?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "Findings at this site",
+     "h": 113,
+     "details": 1,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 1,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Window cannot be read",
+    "Window cannot be read"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/COLD-LAB-001/findings?from=2026-10-01T00:00:00Z&to=2026-11-02T00:00:00Z",
+   "consoleErrors": [],
+   "caps": []
+  },
+  {
+   "screen": "cold-evidence-analysis",
+   "case": "stocked",
+   "width": 1440,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "Accepted records behind the conclusions",
+     "h": 391,
+     "details": 1,
+     "detailsOpen": 0
+    },
+    {
+     "title": "How a claim limit is set",
+     "h": 191,
+     "details": 1,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     }
+    ],
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Analysis",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z&view=analysis"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Evidence · Analysis Accepted records, timing and how each limit is set",
+    "Evidence · Analysis Accepted records, timing and how each limit is set"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "consoleErrors": [],
+   "caps": []
+  },
+  {
+   "screen": "cold-evidence-analysis",
+   "case": "stocked",
+   "width": 390,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "Accepted records behind the conclusions",
+     "h": 485,
+     "details": 1,
+     "detailsOpen": 0
+    },
+    {
+     "title": "How a claim limit is set",
+     "h": 262,
+     "details": 1,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     }
+    ],
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Analysis",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z&view=analysis"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Evidence · Analysis Accepted records, timing and how each limit is set",
+    "Evidence · Analysis Accepted records, timing and how each limit is set"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "consoleErrors": [],
+   "caps": []
+  },
+  {
+   "screen": "cold",
+   "case": "stocked",
+   "width": 1440,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "What happened · power → cooling → product conditions",
+     "h": 252,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Chamber temperature",
+     "h": 386,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Needs attention",
+     "h": 386,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Bounded money consequence",
+     "h": 222,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Next step",
+     "h": 222,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Degraded Confidence: Bounded Potential product exposureInspect evidence",
+    "Degraded Confidence: Bounded Potential product exposure",
+    "Inspect evidence"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "consoleErrors": [],
+   "caps": []
+  },
+  {
+   "screen": "cold",
+   "case": "stocked",
+   "width": 390,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "What happened · power → cooling → product conditions",
+     "h": 574,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Chamber temperature",
+     "h": 295,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Needs attention",
+     "h": 232,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Bounded money consequence",
+     "h": 288,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Next step",
+     "h": 182,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Degraded Confidence: Bounded Potential product exposureInspect evidence",
+    "Degraded Confidence: Bounded Potential product exposure",
+    "Inspect evidence"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+   "consoleErrors": [],
+   "caps": []
+  },
+  {
+   "screen": "cold",
+   "case": "no-selection",
+   "width": 1440,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "What happened · power → cooling → product conditions",
+     "h": 119,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Chamber temperature",
+     "h": 119,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Needs attention",
+     "h": 119,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Bounded money consequence",
+     "h": 131,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Next step",
+     "h": 131,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Unknown Confidence: Unknown Product exposure not establishedInspect evidence",
+    "Unknown Confidence: Unknown Product exposure not established",
+    "Inspect evidence"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 1440,
+   "location": "/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+   "consoleErrors": [],
+   "caps": []
+  },
+  {
+   "screen": "cold",
+   "case": "no-selection",
+   "width": 390,
+   "url": "http://127.0.0.1:5195/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+   "ready": true,
+   "revision": "47d7929c",
+   "h1": "Cold replay lab",
+   "panels": [
+    {
+     "title": "What happened · power → cooling → product conditions",
+     "h": 142,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Chamber temperature",
+     "h": 137,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Needs attention",
+     "h": 96,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Bounded money consequence",
+     "h": 131,
+     "details": 0,
+     "detailsOpen": 0
+    },
+    {
+     "title": "Next step",
+     "h": 96,
+     "details": 0,
+     "detailsOpen": 0
+    }
+   ],
+   "tabs": [
+    [
+     {
+      "text": "Overview",
+      "href": "/sites/COLD-LAB-001?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Foundation",
+      "href": "/sites/COLD-LAB-001/foundation?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Health",
+      "href": "/sites/COLD-LAB-001/health?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Performance",
+      "href": "/sites/COLD-LAB-001/performance?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Findings",
+      "href": "/sites/COLD-LAB-001/findings?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Work",
+      "href": "/sites/COLD-LAB-001/work?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Financials",
+      "href": "/sites/COLD-LAB-001/financials?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     },
+     {
+      "text": "Evidence",
+      "href": "/sites/COLD-LAB-001/evidence?from=2026-10-05T19%3A00%3A00Z&to=2026-10-05T20%3A05%3A00Z"
+     }
+    ]
+   ],
+   "links": [],
+   "strip": [],
+   "refusalTitles": [],
+   "sentenceCounts": {
+    "The selected window needs both a start and an end, with the start before the end.": 0,
+    "The selected window is longer than 31 days.": 0,
+    "The selected window is invalid.": 0
+   },
+   "notAssessed": 0,
+   "banners": [],
+   "statusBars": [
+    "Unknown Confidence: Unknown Product exposure not establishedInspect evidence",
+    "Unknown Confidence: Unknown Product exposure not established",
+    "Inspect evidence"
+   ],
+   "tiles": [],
+   "clippedDoc": [],
+   "docOverflowX": 0,
+   "viewport": 390,
+   "location": "/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+   "consoleErrors": [],
+   "caps": []
+  }
+ ]
+}

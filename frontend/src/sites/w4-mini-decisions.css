@@ -1,7 +1,7 @@
 /*
  * W4-03 unit 6: the v69 `scenarios` slots (closure 1 geometry). Desktop columns 20/24/20/22/14 percent; at 390 px
- * the panel keeps its width, the inner grid is at least 720 px with a sticky 144 px Scenario column. PR-12.1: at every
- * width the inner vertical scroll is capped to the header plus three rows under a sticky header, and the exact pinned
+ * the panel keeps its width, the inner grid is at least 720 px with a sticky 144 px Scenario column. post-W6 W4 R325:
+ * no inner vertical scroll cap (every row shows under the header), and the exact pinned
  * revision IDs sit in one bounded disclosure below the table. The page itself never scrolls sideways.
  */
 
@@ -9,8 +9,8 @@
   table-layout: fixed;
 }
 
-/* W4-03 u9c: populated Scenarios table scrolls inside the 348/391 px panel caps. */
-.mini-scenarios-table .data-table__scroll { max-height: 144px; overflow: auto; }
+/* post-W6 W4 R325 (Q13): no inner vertical cap; every row shows and the panel grows with them (the W4-03 u9c 144/188 px
+   table caps and 348/391 px placeholder panel caps are retired). Sideways overflow at 390 stays inside the table. */
 
 .mini-scenarios-table thead th {
   position: sticky;
@@ -109,8 +109,6 @@
 }
 
 @media (max-width: 600px) {
-  .mini-scenarios-table .data-table__scroll { max-height: 188px; overflow: auto; }
-
   .mini-scenarios-table .data-table {
     min-width: 720px;
   }
@@ -230,4 +228,24 @@ nav.mini-finding-crumbs .breadcrumbs__item::before {
 
 .mini-opportunity-crumbs__root {
   color: var(--text-secondary);
+}
+
+/* post-W6 W4 R325 (Q14), D2 R450: the compact page-local Window row after the subtabs. */
+.mini-scenarios-window-row {
+  margin: 0 0 var(--v69-gap, 18px);
+}
+
+.mini-scenarios-window {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.mini-scenarios-window__lead {
+  font-weight: var(--weight-semibold);
+}
+
+.mini-scenarios-window__error {
+  flex-basis: 100%;
+  color: var(--status-red-text);
 }

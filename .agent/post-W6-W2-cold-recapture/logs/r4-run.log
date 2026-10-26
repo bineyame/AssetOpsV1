@@ -1,0 +1,3 @@
+cap x exit=0 192/192 claims passed; evidence in r4-fix/part-x
+cap b exit=0 12/12 claims passed; evidence in r4-fix/part-b
+done

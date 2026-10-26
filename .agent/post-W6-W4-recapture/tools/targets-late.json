@@ -1,0 +1,57 @@
+[
+ {
+  "id": "scenarios",
+  "case": "populated",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios"
+ },
+ {
+  "id": "scenarios",
+  "case": "empty-window",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z"
+ },
+ {
+  "id": "scenarios",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z"
+ },
+ {
+  "id": "scenarios",
+  "case": "kobo-no-scenarios",
+  "url": "http://127.0.0.1:5452/sites/KOBO-001/financials/scenarios"
+ },
+ {
+  "id": "alternatives",
+  "case": "db-time-409-late",
+  "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0fd32575-0e35-48ba-9d0a-89ba3bad5a2a/alternatives?revision_id=095b3861-c8f8-4cbe-a550-47bcf9efae25"
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "late-settled-current",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198"
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "stale-k-before-late",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=2026-10-25T23%3A42%3A01.160317Z"
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "refused-bad-known-at",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/565e7e61-8362-432b-9580-458bfd260198?known_at=not-a-time"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "late-stocked",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "late-stocked",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-18T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "opportunity-finding",
+  "case": "missing-day-limited",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/02a792dc-bc01-4f38-98ed-61727f841d35"
+ }
+]
