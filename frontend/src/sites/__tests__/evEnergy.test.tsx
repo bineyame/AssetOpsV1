@@ -231,6 +231,25 @@ describe("W5-03a E3: EV Energy", () => {
     expect(main().textContent).not.toContain("0.00 USD");
   });
 
+  it("R346: a read-guard consequence shows the card's metered quantity; a stored null stays Unknown; R06 is labelled", async () => {
+    const guard = { ...ESTIMATED, state: "WITHHELD", quantity_kwh: null, amount: null, tariff_value: null, currency: null, limitation: "No stored gross tariff estimate matches the current evidence." };
+    expect(bridgeRows(read({ metered_complete_kwh: "15.000", consequence: guard }))[0]).toEqual([
+      "15.000 kWh complete-record delivery",
+      "No eligible tariff applied",
+      "Unpriced",
+      "No stored gross tariff estimate matches the current evidence.",
+    ]);
+    // A stored (non-withheld) consequence with no quantity is a stored unknown.
+    expect(bridgeRows(read({ metered_complete_kwh: "15.000", consequence: { ...guard, state: "UNPRICED" } }))[0][0]).toBe("Unknown");
+    renderEnergy(loaded(read({ metered_complete_kwh: "15.000", consequence: guard })));
+    await settledScreen();
+    expect(cards()[0][1]).toContain("15");
+    expect(main().textContent).toContain("15.000 kWh complete-record delivery");
+    const label = document.querySelector('[data-mock-deviation="R06"]') as HTMLElement;
+    expect(label.textContent).toBe("MOCK DEVIATION D1 (R06)");
+    expect(label.previousElementSibling?.tagName.toLowerCase()).toBe("figure");
+  });
+
   it("the below-limit answer is red No at or above the limit, green Yes below, neutral Unknown", async () => {
     const tone = (word: string) => document.querySelector('[data-key-value="below"] .badge')?.className.includes(word);
     renderEnergy(loaded(read({ peak_below_limit: "NO" })));
@@ -266,13 +285,32 @@ describe("W5-03a E3: EV Energy", () => {
     expect(notice.previousElementSibling?.classList.contains("status-strip")).toBe(true);
   });
 
-  it("refusal retries the same URL and never renders an empty success", async () => {
-    const getEnergy = renderEnergy({ status: "refused", httpStatus: 422, code: "EV_WINDOW_INVALID", message: "'from' must be before 'to'." });
+  it("R244: refusals are plain, keep the strip and tiles, correct a window by link and reload only a 503", async () => {
+    renderEnergy({ status: "refused", httpStatus: 422, code: "EV_WINDOW_INVALID", message: "'from' must be before 'to'." }, `?from=${TO}&to=${FROM}`);
     await settledScreen();
-    expect(text("[data-page-refusal='ev-depth']")).toContain("EV depth unavailable");
+    expect(text("[data-panel-gap='ev-depth-refusal']")).toBe("The selected window needs both a start and an end, with the start before the end.");
+    expect(main().textContent).not.toContain("EV_WINDOW_INVALID 'from'");
+    expect(main().textContent).not.toContain("EV depth unavailable");
     expect(main().textContent).not.toContain("No complete metered delivery");
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(Array.from(document.querySelectorAll("[data-ev-refused-card]")).map((n) => n.getAttribute("data-ev-refused-card"))).toEqual([
+      "Metered session energy",
+      "Observed peak import",
+      "Declared site limit",
+      "Gross tariff estimate",
+    ]);
+    expect(document.querySelector("[data-ev-depth-correction]")?.textContent).toBe("Read without a selected window");
+    expect(screen.queryByRole("button", { name: /Retry|Reload/ })).toBeNull();
+    cleanup();
+    const getEnergy = renderEnergy({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null });
+    await settledScreen();
+    expect(text("[data-ev-strip='refused']")).toContain("Unknown");
+    fireEvent.click(screen.getByRole("button", { name: "Reload" }));
     expect(getEnergy).toHaveBeenCalledTimes(2);
+    cleanup();
+    renderEnergy({ status: "refused", httpStatus: 403, code: "EV_SITE_FORBIDDEN", message: null });
+    await settledScreen();
+    expect(text("[data-panel-gap='ev-depth-refusal']")).toBe("You do not have access to this EV evidence.");
+    expect(screen.queryByRole("button", { name: /Retry|Reload/ })).toBeNull();
   });
 });
 

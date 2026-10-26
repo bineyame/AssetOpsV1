@@ -180,12 +180,18 @@ describe("W5-03b E6: EV Scenarios", () => {
     cleanup();
 
     const refused: Answer = { status: "refused", httpStatus: 422, code: "EV_WINDOW_INVALID", message: "'from' must be earlier than 'to'." };
-    const r = renderScenarios(refused, `?from=${TO}&to=${FROM}`);
+    renderScenarios(refused, `?from=${TO}&to=${FROM}`);
     await settledScreen();
-    expect(text(document.querySelector(".page-refusal__title"))).toBe("EV scenarios unavailable");
-    expect(text(document.querySelector("[data-ev-scenarios-error]"))).toBe("EV_WINDOW_INVALID 'from' must be earlier than 'to'.");
+    expect(text(document.querySelector("[data-panel-gap='ev-depth-refusal']"))).toBe("The selected window needs both a start and an end, with the start before the end.");
+    expect(renderedPanelTitles()).toEqual(["Financial scenarios"]);
+    expect(text(main())).not.toContain("EV_WINDOW_INVALID 'from'");
     expect(text(main())).not.toContain("No scenario defined yet");
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(document.querySelector("[data-ev-depth-correction]")?.textContent).toBe("Read without a selected window");
+    expect(screen.queryByRole("button", { name: /Retry|Reload/ })).toBeNull();
+    cleanup();
+    const r = renderScenarios({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null });
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: "Reload" }));
     await settledScreen();
     expect(r.list).toHaveBeenCalledTimes(2);
     expect(r.list.mock.calls[1]).toEqual(r.list.mock.calls[0]);
@@ -194,7 +200,8 @@ describe("W5-03b E6: EV Scenarios", () => {
     for (const message of [EV_SCENARIOS_MALFORMED, EV_SCENARIOS_UNREACHABLE]) {
       renderScenarios({ status: "unavailable", message });
       await settledScreen();
-      expect(text(document.querySelector("[data-ev-scenarios-error]"))).toBe(message);
+      expect(text(document.querySelector("[data-panel-gap='ev-depth-refusal']"))).toBe("EV evidence is temporarily unavailable. Retry.");
+      expect(message.length).toBeGreaterThan(0);
       expect(text(main())).not.toContain("No scenario defined yet");
       cleanup();
     }

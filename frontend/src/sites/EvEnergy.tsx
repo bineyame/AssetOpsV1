@@ -64,11 +64,15 @@ export function measuredBasis(read: EvEnergyRead): boolean {
 export function bridgeRows(read: EvEnergyRead): string[][] {
   const e = read.energy;
   const c = e.consequence;
+  const delivered = e.metered_complete_kwh === null ? "Unknown" : `${e.metered_complete_kwh} kWh complete-record delivery`;
+  // R346: a read-guard consequence (WITHHELD, no stored quantity) shows the same measurement as the energy card;
+  // a stored consequence with a null quantity stays Unknown.
+  const guarded = c !== null && c.state === "WITHHELD" && c.quantity_kwh === null;
   const first =
     c === null
-      ? [e.metered_complete_kwh === null ? "Unknown" : `${e.metered_complete_kwh} kWh complete-record delivery`, "No eligible gross tariff scenario.", "Unpriced", "No collections or profit claim"]
+      ? [delivered, "No eligible gross tariff scenario.", "Unpriced", "No collections or profit claim"]
       : [
-          c.quantity_kwh === null ? "Unknown" : `${c.quantity_kwh} kWh complete-record delivery`,
+          guarded ? delivered : c.quantity_kwh === null ? "Unknown" : `${c.quantity_kwh} kWh complete-record delivery`,
           estimated(c) ? `${c.tariff_value ?? "Unknown"} ${c.currency ?? ""}/kWh gross tariff scenario`.replace(" /kWh", "/kWh") : "No eligible tariff applied",
           estimated(c) ? `${c.amount ?? "Unknown"} ${c.currency ?? ""} gross estimate`.replace("  ", " ") : "Unpriced",
           c.limitation ?? "No collections or profit claim",
@@ -174,6 +178,10 @@ function EnergyBody({ read, routes }: { read: EvEnergyRead; routes: EvDepthRoute
       <div className="panel-pair">
         <Panel heading="Import power and configured limit" headingId="ev-energy-import-heading" description={IMPORT_NOTE}>
           <EvDepthPowerChart from={from} to={to} samples={e.import_samples} limitKw={e.configured_import_limit_kw} />
+          {/* MOCK DEVIATION D1 (R06): the mock draws a continuous power line; the stored data are point readings, so the chart shows points only. */}
+          <p className="mock-deviation-line" data-mock-deviation="R06">
+            MOCK DEVIATION D1 (R06)
+          </p>
           {e.import_samples.length === 0 ? (
             <p className="not-available-yet" data-ev-samples-empty="">
               {ENERGY_EMPTY_SAMPLES}
@@ -277,6 +285,16 @@ export function EvEnergy({ siteCode, window, client, routes }: EvEnergyProps) {
   const [attempt, setAttempt] = useState(0);
   const read = useEnergyRead(client, siteCode, window, attempt);
   if (read === null) return <p className="prose">{ENERGY_LOADING}</p>;
-  if (read.status !== "loaded") return <EvDepthRefusal read={read} onRetry={() => setAttempt((n) => n + 1)} />;
+  if (read.status !== "loaded") {
+    return (
+      <EvDepthRefusal
+        read={read}
+        window={window}
+        label="Charging energy"
+        tiles={["Metered session energy", "Observed peak import", "Declared site limit", "Gross tariff estimate"]}
+        onRetry={() => setAttempt((n) => n + 1)}
+      />
+    );
+  }
   return <EnergyBody read={read.value} routes={routes} />;
 }

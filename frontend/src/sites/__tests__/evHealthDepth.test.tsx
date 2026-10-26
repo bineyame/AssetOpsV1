@@ -197,20 +197,26 @@ describe("W5-03b E4: EV Health", () => {
 
     // Ruling 2: the server's typed refusal, never a fabricated one; Retry repeats the same read.
     const refused: Answer = { status: "refused", httpStatus: 422, code: "EV_WINDOW_INVALID", message: "'from' must be earlier than 'to'." };
-    const { getHealth } = renderHealth(refused, `?from=${TO}&to=${FROM}`);
+    renderHealth(refused, `?from=${TO}&to=${FROM}`);
     await settledScreen();
-    expect(text(document.querySelector(".page-refusal__title"))).toBe("EV depth unavailable");
-    expect(text(document.querySelector("[data-ev-depth-error]"))).toBe("EV_WINDOW_INVALID 'from' must be earlier than 'to'.");
+    expect(text(document.querySelector("[data-panel-gap='ev-depth-refusal']"))).toBe("The selected window needs both a start and an end, with the start before the end.");
+    expect(main().textContent).not.toContain("EV_WINDOW_INVALID 'from'");
     expect(document.querySelector("[data-ev-health-card]")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(document.querySelector("[data-ev-depth-correction]")?.textContent).toBe("Read without a selected window");
+    expect(screen.queryByRole("button", { name: /Retry|Reload/ })).toBeNull();
+    cleanup();
+    // A 503 reloads the same read (R244).
+    const unavailable = renderHealth({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null });
     await settledScreen();
-    expect(getHealth).toHaveBeenCalledTimes(2);
-    expect(getHealth.mock.calls[1]).toEqual(getHealth.mock.calls[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Reload" }));
+    await settledScreen();
+    expect(unavailable.getHealth).toHaveBeenCalledTimes(2);
+    expect(unavailable.getHealth.mock.calls[1]).toEqual(unavailable.getHealth.mock.calls[0]);
     cleanup();
 
     renderHealth({ status: "unavailable", message: EV_DEPTH_MALFORMED });
     await settledScreen();
-    expect(text(document.querySelector("[data-ev-depth-error]"))).toBe(EV_DEPTH_MALFORMED);
+    expect(text(document.querySelector("[data-panel-gap='ev-depth-refusal']"))).toBe("EV evidence is temporarily unavailable. Retry.");
     expect(text(main())).not.toContain("No records");
     cleanup();
 

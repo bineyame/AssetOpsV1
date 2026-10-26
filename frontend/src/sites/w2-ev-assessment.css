@@ -105,3 +105,17 @@
   word-break: break-all;
   white-space: normal;
 }
+
+/* post-W6 W5-EV R244: the depth-page refusal's correction link and Reload (24 px minimum targets). */
+.ev-depth-refusal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin: 12px 0;
+}
+.ev-depth-refusal__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+}

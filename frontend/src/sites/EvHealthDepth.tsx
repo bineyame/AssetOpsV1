@@ -193,6 +193,8 @@ export function EvHealthDepth({ siteCode, window, client, sessionsPath }: EvHeal
   const [attempt, setAttempt] = useState(0);
   const read = useHealthRead(client, siteCode, window, attempt);
   if (read === null) return <p className="prose">{HEALTH_LOADING}</p>;
-  if (read.status !== "loaded") return <EvDepthRefusal read={read} onRetry={() => setAttempt((n) => n + 1)} />;
+  if (read.status !== "loaded") {
+    return <EvDepthRefusal read={read} window={window} label="Charger condition" panel={{ heading: "Condition and evidence", headingId: HEALTH_TABLE_HEADING_ID }} onRetry={() => setAttempt((n) => n + 1)} />;
+  }
   return <HealthBody read={read.value} sessionsPath={sessionsPath} />;
 }

@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { Badge, DataTable, Panel, RailIcon } from "../ui";
 import { Notice } from "../ui/V69Layout";
 import type { ColdRead, ColdWindowQuery } from "./coldAssessmentClient";
+import { EvDepthRefusal } from "./EvAvailability";
 import { depthStateNotice } from "./evDepthClient";
 import {
   EV_SCENARIOS_MALFORMED,
@@ -75,27 +76,6 @@ function useScenarioList(client: EvScenariosClient, siteCode: string, query: EvS
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
   return state !== null && state.key === key ? state.value : null;
-}
-
-function ScenariosRefusal({ read, onRetry }: { read: Exclude<ColdRead<EvScenariosRead>, { status: "loaded" }>; onRetry: () => void }) {
-  return (
-    <div className="page-refusal" role="status" data-page-refusal="ev-scenarios">
-      <p className="page-refusal__title">
-        <strong>{EV_SCENARIOS_REFUSAL_HEADING}</strong>
-      </p>
-      {read.status === "refused" ? (
-        <p data-ev-scenarios-error="">
-          <code data-vocabulary-exempt="source-reference">{read.code}</code>
-          {read.message === null ? null : <> {read.message}</>}
-        </p>
-      ) : (
-        <p data-ev-scenarios-error="">{read.message ?? EV_SCENARIOS_UNREACHABLE}</p>
-      )}
-      <button type="button" className="button" data-ev-scenarios-retry="" onClick={onRetry}>
-        Retry
-      </button>
-    </div>
-  );
 }
 
 /** One exact source reference: its own exempt span, character-broken, one per line; null prints `None`. */
@@ -308,7 +288,17 @@ export function EvScenarios({ siteCode, window, scenarioAt, client }: EvScenario
   const [attempt, setAttempt] = useState(0);
   const read = useScenarioList(client, siteCode, { ...window, scenario_at: scenarioAt }, attempt);
   if (read === null) return <p className="prose">{EV_SCENARIOS_LOADING}</p>;
-  if (read.status !== "loaded") return <ScenariosRefusal read={read} onRetry={() => setAttempt((n) => n + 1)} />;
+  if (read.status !== "loaded") {
+    return (
+      <EvDepthRefusal
+        read={read}
+        window={window}
+        label="EV scenarios"
+        panel={{ heading: EV_SCENARIOS_PANEL, headingId: PANEL_HEADING_ID }}
+        onRetry={() => setAttempt((n) => n + 1)}
+      />
+    );
+  }
   return <ScenariosBody read={read.value} />;
 }
 
