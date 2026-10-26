@@ -1,0 +1,39 @@
+[
+ {
+  "id": "incidents",
+  "case": "ev",
+  "url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "ev",
+  "url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "ev",
+  "url": "http://localhost:5188/maintenance/preventive?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "oprecords",
+  "case": "ev",
+  "url": "http://localhost:5188/operational-records?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "incidents",
+  "case": "ev-all-open",
+  "url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "maintenance",
+  "case": "ev-all-open",
+  "url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "incidents",
+  "case": "ev-default-window",
+  "url": "http://localhost:5188/incidents"
+ }
+]

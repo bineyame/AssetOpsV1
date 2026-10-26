@@ -1,0 +1,14 @@
+96/96 claims passed; evidence in part-stress
+stress 16
+incidents worstcase 1440 R: ["cap exceeded [('Incident cases', 2.67, 3.12)]", "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000001 · Backupgeneratorautomaticstartfailu"] F: []
+incidents worstcase 390 R: ["cap exceeded [('Incident cases', 2.54, 2.87)]", "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000001 · Backupgeneratorautomaticstartfailu"] F: []
+incidents worstcase-all-open 1440 R: ["cap exceeded [('Incident cases', 3.27, 3.54)]", "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000001 · Backupgeneratorautomaticstartfailu"] F: []
+incidents worstcase-all-open 390 R: ["cap exceeded [('Incident cases', 2.78, 2.97)]", "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000001 · Backupgeneratorautomaticstartfailu"] F: []
+maintenance worstcase 1440 R: ["cap exceeded [('Corrective work requests', 1.29, 1.5)]", "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'WR-000007 · Startermotorandcontrolpanelinspecti"] F: []
+maintenance worstcase 390 R: ["clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'WR-000007 · Startermotorandcontrolpanelinspecti"] F: []
+maintenance worstcase-all-open 1440 R: ["cap exceeded [('Corrective work requests', 1.77, 1.98)]", "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'WR-000007 · Startermotorandcontrolpanelinspecti"] F: []
+maintenance worstcase-all-open 390 R: ["cap exceeded [('Corrective work requests', 1.49, 1.64)]", "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'WR-000007 · Startermotorandcontrolpanelinspecti"] F: []
+oprecords worstcase 1440 R: ["clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Operator checked the panel and logged readings "] F: ['fewer horizontal scrollers']
+oprecords worstcase 390 R: ["clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Operator checked the panel and logged readings "] F: []
+oprecords worstcase-all-open 1440 R: ["clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Operator checked the panel and logged readings "] F: ['fewer horizontal scrollers']
+oprecords worstcase-all-open 390 R: ["clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Operator checked the panel and logged readings "] F: []

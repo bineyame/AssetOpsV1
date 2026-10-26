@@ -1,0 +1,496 @@
+[
+ {
+  "screen": "maintenance-preventive",
+  "case": "positive",
+  "width": "1440",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-positive-1440-app.png",
+  "mock_image": "maintenance-preventive-positive-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "positive",
+  "width": "390",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-positive-390-app.png",
+  "mock_image": "maintenance-preventive-positive-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Preventive plan"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-all-open-1440-app.png",
+  "mock_image": "maintenance-preventive-all-open-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Preventive plan",
+    1.39
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-all-open-390-app.png",
+  "mock_image": "maintenance-preventive-all-open-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Preventive plan"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-refused-reversed-1440-app.png",
+  "mock_image": "maintenance-preventive-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-refused-reversed-390-app.png",
+  "mock_image": "maintenance-preventive-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 156->127",
+   "mainTop 136->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "refused-span-32d",
+  "width": "1440",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-refused-span-32d-1440-app.png",
+  "mock_image": "maintenance-preventive-refused-span-32d-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "refused-span-32d",
+  "width": "390",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-refused-span-32d-390-app.png",
+  "mock_image": "maintenance-preventive-refused-span-32d-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 156->127",
+   "mainTop 136->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "refused-one-bound",
+  "width": "1440",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-refused-one-bound-1440-app.png",
+  "mock_image": "maintenance-preventive-refused-one-bound-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "refused-one-bound",
+  "width": "390",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-refused-one-bound-390-app.png",
+  "mock_image": "maintenance-preventive-refused-one-bound-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 156->127",
+   "mainTop 136->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "refused-bad-known-at",
+  "width": "1440",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-refused-bad-known-at-1440-app.png",
+  "mock_image": "maintenance-preventive-refused-bad-known-at-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "refused-bad-known-at",
+  "width": "390",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-refused-bad-known-at-390-app.png",
+  "mock_image": "maintenance-preventive-refused-bad-known-at-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 156->127",
+   "mainTop 136->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-no-window-1440-app.png",
+  "mock_image": "maintenance-preventive-no-window-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Preventive plan] height 489->177",
+   "[Preventive plan] rows 5->0",
+   "[Preventive plan] links 5->0",
+   "[Preventive plan] details 10->0",
+   "[Preventive plan] tables 1->0",
+   "[Preventive plan] columns ['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']->[]",
+   "[Preventive plan] chips ['Draft', 'Draft', 'Draft', 'Draft', 'Draft']->[]",
+   "td presence True->False",
+   "th presence True->False",
+   "pSizes {'11px': 1}->{'11px': 1, '14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Preventive plan] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-no-window-390-app.png",
+  "mock_image": "maintenance-preventive-no-window-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Preventive plan] height 690->195",
+   "[Preventive plan] rows 5->0",
+   "[Preventive plan] links 5->0",
+   "[Preventive plan] details 10->0",
+   "[Preventive plan] tables 1->0",
+   "[Preventive plan] columns ['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']->[]",
+   "[Preventive plan] chips ['Draft', 'Draft', 'Draft', 'Draft', 'Draft']->[]",
+   "td presence True->False",
+   "th presence True->False",
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '14px': 2}",
+   "pageH 1636->1166",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 720, 'cw': 318, 'panel': 'Preventive plan'}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "[Preventive plan] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ }
+]

@@ -1,0 +1,46 @@
+[
+ {
+  "id": "incidents",
+  "case": "worstcase",
+  "url": "http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "incidents",
+  "case": "worstcase-all-open",
+  "url": "http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "maintenance",
+  "case": "worstcase",
+  "url": "http://localhost:5188/maintenance?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "worstcase-all-open",
+  "url": "http://localhost:5188/maintenance?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "worstcase",
+  "url": "http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "worstcase-all-open",
+  "url": "http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "oprecords",
+  "case": "worstcase",
+  "url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "oprecords",
+  "case": "worstcase-all-open",
+  "url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "openAll": true
+ }
+]

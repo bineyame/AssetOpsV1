@@ -1,0 +1,1392 @@
+[
+ {
+  "screen": "incidents",
+  "case": "coldwc",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-coldwc-1440-app.png",
+  "mock_image": "incidents-coldwc-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    3.54
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] links 21->16",
+   "[Incident cases] buttons 0->1",
+   "h1.top 24->44",
+   "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '12px': 2, '14px': 1}",
+   "pageH 1062->1188",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTT->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    3.27,
+    3.54
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Incident cases', 3.27, 3.54)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTT"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 · ACT-000001 / WR-000002",
+    "sw": 152,
+    "cw": 152,
+    "sh": 53,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 · Backup response failure 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 · Backup response failure 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 · Backup response failure 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 · ACT-000001 / WR-000002",
+    "sw": 152,
+    "cw": 152,
+    "sh": 53,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "incidents",
+  "case": "coldwc",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-coldwc-390-app.png",
+  "mock_image": "incidents-coldwc-390-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    2.97
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] links 21->16",
+   "[Incident cases] buttons 0->5",
+   "h1.top 108->127",
+   "pSizes {'11px': 1, '10px': 1, '14px': 1}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTT->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    2.78,
+    2.97
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Incident cases', 2.78, 2.97)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTT"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000010",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000008",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000006",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000004",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 · ACT-000001 / WR-000002",
+    "sw": 93,
+    "cw": 93,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 165,
+    "cw": 165,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000010",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 · Backup response failure 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 165,
+    "cw": 165,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000008",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 · Backup response failure 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 165,
+    "cw": 165,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000006",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 · Backup response failure 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 165,
+    "cw": 165,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000004",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 · ACT-000001 / WR-000002",
+    "sw": 93,
+    "cw": 93,
+    "sh": 70,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "maintenance",
+  "case": "coldwc",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-coldwc-1440-app.png",
+  "mock_image": "maintenance-coldwc-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.81
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] links 16->11",
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.6,
+    2.81
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Corrective work requests', 2.6, 2.81)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000010 · Starter/control inspection 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 211,
+    "cw": 211,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000008 · Starter/control inspection 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 211,
+    "cw": 211,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000006 · Starter/control inspection 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 211,
+    "cw": 211,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000004 · Starter/control inspection 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 211,
+    "cw": 211,
+    "sh": 88,
+    "ch": 53
+   }
+  ]
+ },
+ {
+  "screen": "maintenance",
+  "case": "coldwc",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-coldwc-390-app.png",
+  "mock_image": "maintenance-coldwc-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.25
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] links 16->11",
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.11,
+    2.25
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Corrective work requests', 2.11, 2.25)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000010 · Starter/control inspection 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000008 · Starter/control inspection 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000006 · Starter/control inspection 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000004 · Starter/control inspection 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 53
+   }
+  ]
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "coldwc",
+  "width": "1440",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-coldwc-1440-app.png",
+  "mock_image": "maintenance-preventive-coldwc-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "coldwc",
+  "width": "390",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-coldwc-390-app.png",
+  "mock_image": "maintenance-preventive-coldwc-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "coldwc",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-coldwc-1440-app.png",
+  "mock_image": "oprecords-coldwc-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 4}->{'11px': 2, '14px': 4, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "coldwc",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-coldwc-390-app.png",
+  "mock_image": "oprecords-coldwc-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 4}->{'11px': 2, '14px': 4, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "incidents",
+  "case": "coldwc-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-coldwc-all-open-1440-app.png",
+  "mock_image": "incidents-coldwc-all-open-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    3.54
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] links 21->16",
+   "[Incident cases] buttons 0->1",
+   "h1.top 24->44",
+   "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '12px': 2, '14px': 1}",
+   "pageH 1062->1188",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTT->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    3.27,
+    3.54
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Incident cases', 3.27, 3.54)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTT"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 · ACT-000001 / WR-000002",
+    "sw": 152,
+    "cw": 152,
+    "sh": 53,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 · Backup response failure 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 · Backup response failure 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 · Backup response failure 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 · ACT-000001 / WR-000002",
+    "sw": 152,
+    "cw": 152,
+    "sh": 53,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "incidents",
+  "case": "coldwc-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-coldwc-all-open-390-app.png",
+  "mock_image": "incidents-coldwc-all-open-390-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    2.97
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] links 21->16",
+   "[Incident cases] buttons 0->5",
+   "h1.top 108->127",
+   "pSizes {'11px': 1, '10px': 1, '14px': 1}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTT->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    2.78,
+    2.97
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Incident cases', 2.78, 2.97)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTT"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000010",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000008",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000006",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000004",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 · ACT-000001 / WR-000002",
+    "sw": 93,
+    "cw": 93,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 165,
+    "cw": 165,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000010",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 · Backup response failure 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 165,
+    "cw": 165,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000008",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 · Backup response failure 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 165,
+    "cw": 165,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000006",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 · Backup response failure 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 165,
+    "cw": 165,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000004",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 · ACT-000001 / WR-000002",
+    "sw": 93,
+    "cw": 93,
+    "sh": 70,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "maintenance",
+  "case": "coldwc-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-coldwc-all-open-1440-app.png",
+  "mock_image": "maintenance-coldwc-all-open-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.81
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] links 16->11",
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.6,
+    2.81
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Corrective work requests', 2.6, 2.81)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000010 · Starter/control inspection 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 211,
+    "cw": 211,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000008 · Starter/control inspection 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 211,
+    "cw": 211,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000006 · Starter/control inspection 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 211,
+    "cw": 211,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000004 · Starter/control inspection 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 211,
+    "cw": 211,
+    "sh": 88,
+    "ch": 53
+   }
+  ]
+ },
+ {
+  "screen": "maintenance",
+  "case": "coldwc-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-coldwc-all-open-390-app.png",
+  "mock_image": "maintenance-coldwc-all-open-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.25
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] links 16->11",
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.11,
+    2.25
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Corrective work requests', 2.11, 2.25)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000010 · Starter/control inspection 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000008 · Starter/control inspection 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000006 · Starter/control inspection 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000004 · Starter/control inspection 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 53
+   }
+  ]
+ },
+ {
+  "screen": "incidents",
+  "case": "coldwc-default-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-coldwc-default-window-1440-app.png",
+  "mock_image": "incidents-coldwc-default-window-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    3.54
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] links 21->16",
+   "[Incident cases] buttons 0->1",
+   "h1.top 24->44",
+   "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '12px': 2, '14px': 1}",
+   "pageH 1062->1188",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTT->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    3.27,
+    3.54
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Incident cases', 3.27, 3.54)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTT"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 · ACT-000001 / WR-000002",
+    "sw": 152,
+    "cw": 152,
+    "sh": 53,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 · Backup response failure 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 · Backup response failure 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 · Backup response failure 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 · ACT-000001 / WR-000002",
+    "sw": 152,
+    "cw": 152,
+    "sh": 53,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "incidents",
+  "case": "coldwc-default-window",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-coldwc-default-window-390-app.png",
+  "mock_image": "incidents-coldwc-default-window-390-mock.png",
+  "app_url": "http://localhost:5188/incidents",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    2.97
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] links 21->16",
+   "[Incident cases] buttons 0->5",
+   "h1.top 108->127",
+   "pSizes {'11px': 1, '10px': 1, '14px': 1}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTT->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    2.78,
+    2.97
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Incident cases', 2.78, 2.97)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 · Backup response failure 4 TTTTTTTT"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000010",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000008",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000006",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000004",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 · ACT-000001 / WR-000002",
+    "sw": 93,
+    "cw": 93,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 165,
+    "cw": 165,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000010",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 · Backup response failure 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 165,
+    "cw": 165,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000008",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 · Backup response failure 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 165,
+    "cw": 165,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000006",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 · Backup response failure 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 165,
+    "cw": 165,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 / WR-000004",
+    "sw": 93,
+    "cw": 93,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 2fbe1bdf · Finding b9ea2124 · ACT-000001 / WR-000002",
+    "sw": 93,
+    "cw": 93,
+    "sh": 70,
+    "ch": 35
+   }
+  ]
+ }
+]

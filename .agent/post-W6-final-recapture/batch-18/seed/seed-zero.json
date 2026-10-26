@@ -1,0 +1,26 @@
+{
+  "clock": "2026-10-21T12:00:00Z",
+  "commands": [],
+  "fixture": "zero",
+  "sites": [
+    {
+      "site_code": "KOBO-001",
+      "site_id": "dd6a3f2e-d9ff-402a-9e79-95e63928261f",
+      "tenant": "demo",
+      "tenant_id": "f1716ad4-da59-43e1-9c66-33795beb1662"
+    },
+    {
+      "site_code": "KOBO-002",
+      "site_id": "f3866152-a5fb-4890-b096-1be23452613a",
+      "tenant": "demo",
+      "tenant_id": "f1716ad4-da59-43e1-9c66-33795beb1662"
+    },
+    {
+      "site_code": "KOBO-001",
+      "site_id": "15564a86-cc95-4e34-b8b9-a819a9ec3f5e",
+      "tenant": "w601-other",
+      "tenant_id": "73d5b04f-c824-449f-b5fc-7b2aa987f089"
+    }
+  ],
+  "written": []
+}

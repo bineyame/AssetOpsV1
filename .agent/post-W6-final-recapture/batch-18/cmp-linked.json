@@ -1,0 +1,364 @@
+[
+ {
+  "screen": "incidents",
+  "case": "linked",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-linked-1440-app.png",
+  "mock_image": "incidents-linked-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.52
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 230->278",
+   "h1.top 24->44",
+   "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '12px': 2, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.26,
+    1.52
+   ]
+  ],
+  "fix_signals": [
+   "breadcrumb added above h1 (B18-08)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 278,
+   "Case boundaries": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 1.26, 1.52)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "incidents",
+  "case": "linked",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-linked-390-app.png",
+  "mock_image": "incidents-linked-390-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.44
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 308->356",
+   "h1.top 108->127",
+   "pSizes {'11px': 1, '10px': 1, '14px': 1}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.24,
+    1.44
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 356,
+   "Case boundaries": 126
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 1.24, 1.44)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "linked",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-linked-1440-app.png",
+  "mock_image": "maintenance-linked-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    1.79
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] height 370->418",
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    1.58,
+    1.79
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 418
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 1.58, 1.79)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "linked",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-linked-390-app.png",
+  "mock_image": "maintenance-linked-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    1.51
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] height 446->493",
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    1.36,
+    1.51
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 493
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 1.36, 1.51)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "linked-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-linked-all-open-1440-app.png",
+  "mock_image": "maintenance-linked-all-open-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.2
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] height 466->514",
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    1.99,
+    2.2
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "Corrective work requests": 514
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 1.99, 2.2)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "linked-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-linked-all-open-390-app.png",
+  "mock_image": "maintenance-linked-all-open-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    1.9
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    1.76,
+    1.9
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "Corrective work requests": 621
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 1.76, 1.9)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ }
+]

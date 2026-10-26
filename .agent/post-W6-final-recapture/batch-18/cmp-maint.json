@@ -1,0 +1,788 @@
+[
+ {
+  "screen": "maintenance",
+  "case": "positive",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-positive-1440-app.png",
+  "mock_image": "maintenance-positive-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.81
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.6,
+    2.81
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 657
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 2.6, 2.81)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "positive",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-positive-390-app.png",
+  "mock_image": "maintenance-positive-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.25
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.11,
+    2.25
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 737
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 2.11, 2.25)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-all-open-1440-app.png",
+  "mock_image": "maintenance-all-open-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.81
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.6,
+    2.81
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "Corrective work requests": 657
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 2.6, 2.81)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-all-open-390-app.png",
+  "mock_image": "maintenance-all-open-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.25
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.11,
+    2.25
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "Corrective work requests": 737
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 2.11, 2.25)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "page-two",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-page-two-1440-app.png",
+  "mock_image": "maintenance-page-two-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6YzEyMTg5NzJmODM4ZDRlNzk4YTNlYjY5ZTQwMDEwMWE0YjI5ODBmOGI3ZDA3MTFlZTJiZmI3MmRmM2NkZTAyMyIsImFmdGVyIjpbIjIwMjYtMTAtMjBUMTE6NTk6MDIuMDAwMDAwWiIsImtvYm8tMDAxIiwiMjI5ODJiNDMtYjE5ZC00MzU3LTkxNmYtZmUxMzFiMDM3ZjE3IiwiNGI5MmRjZWQtNDljNy00MDUxLTkwYTctYmMxNzdjOWU5MWRkIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMjI5ODJiNDMtYjE5ZC00MzU3LTkxNmYtZmUxMzFiMDM3ZjE3IiwiYmRmMjVjN2YtNTg1Yy00YjkyLTg1ZDItYmI1YmNkNzMxOGNhIl0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yNlQxMTo0MzoxMy4zMDQwNjFaIiwibWFjIjoiMzMxNTc0MzBkNjU2ZGVjYTRhNGNhMjY2NGVhODdiNDNmNzBkYzVkODNjNzc5MGIxZjNjZDA4MDlkNjYyY2MxMiIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJtYWludGVuYW5jZSIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo3YTVjYjkzMWUxOTBlZWQ1ZDc3MjU0OGE2ZWYxZWFlNzU0ZDQzNGI5OTY0YjNmNjI1MGJjNWUzOWZlZWEzNjQ2IiwidGVuYW50X2lkIjoiM2VjZTAzYWYtMDZmMS00YWEyLThjODEtZDViYjhhMzE5OGI5IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    1.79
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] height 370->418",
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    1.58,
+    1.79
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 418
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 1.58, 1.79)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "page-two",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-page-two-390-app.png",
+  "mock_image": "maintenance-page-two-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6YzEyMTg5NzJmODM4ZDRlNzk4YTNlYjY5ZTQwMDEwMWE0YjI5ODBmOGI3ZDA3MTFlZTJiZmI3MmRmM2NkZTAyMyIsImFmdGVyIjpbIjIwMjYtMTAtMjBUMTE6NTk6MDIuMDAwMDAwWiIsImtvYm8tMDAxIiwiMjI5ODJiNDMtYjE5ZC00MzU3LTkxNmYtZmUxMzFiMDM3ZjE3IiwiNGI5MmRjZWQtNDljNy00MDUxLTkwYTctYmMxNzdjOWU5MWRkIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMjI5ODJiNDMtYjE5ZC00MzU3LTkxNmYtZmUxMzFiMDM3ZjE3IiwiYmRmMjVjN2YtNTg1Yy00YjkyLTg1ZDItYmI1YmNkNzMxOGNhIl0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yNlQxMTo0MzoxMy4zMDQwNjFaIiwibWFjIjoiMzMxNTc0MzBkNjU2ZGVjYTRhNGNhMjY2NGVhODdiNDNmNzBkYzVkODNjNzc5MGIxZjNjZDA4MDlkNjYyY2MxMiIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJtYWludGVuYW5jZSIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo3YTVjYjkzMWUxOTBlZWQ1ZDc3MjU0OGE2ZWYxZWFlNzU0ZDQzNGI5OTY0YjNmNjI1MGJjNWUzOWZlZWEzNjQ2IiwidGVuYW50X2lkIjoiM2VjZTAzYWYtMDZmMS00YWEyLThjODEtZDViYjhhMzE5OGI5IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    1.4
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] height 411->458",
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    1.26,
+    1.4
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 458
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 1.26, 1.4)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-refused-reversed-1440-app.png",
+  "mock_image": "maintenance-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-refused-reversed-390-app.png",
+  "mock_image": "maintenance-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 199->127",
+   "mainTop 180->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 121
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "refused-span-32d",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-refused-span-32d-1440-app.png",
+  "mock_image": "maintenance-refused-span-32d-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "refused-span-32d",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-refused-span-32d-390-app.png",
+  "mock_image": "maintenance-refused-span-32d-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 199->127",
+   "mainTop 180->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 121
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "refused-one-bound",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-refused-one-bound-1440-app.png",
+  "mock_image": "maintenance-refused-one-bound-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "refused-one-bound",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-refused-one-bound-390-app.png",
+  "mock_image": "maintenance-refused-one-bound-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 199->127",
+   "mainTop 180->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 121
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "refused-bad-known-at",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-refused-bad-known-at-1440-app.png",
+  "mock_image": "maintenance-refused-bad-known-at-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "refused-bad-known-at",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-refused-bad-known-at-390-app.png",
+  "mock_image": "maintenance-refused-bad-known-at-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 199->127",
+   "mainTop 180->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 121
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-no-window-1440-app.png",
+  "mock_image": "maintenance-no-window-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.81
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.6,
+    2.81
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 657
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 2.6, 2.81)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-no-window-390-app.png",
+  "mock_image": "maintenance-no-window-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.25
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.11,
+    2.25
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 737
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 2.11, 2.25)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ }
+]

@@ -1,0 +1,98 @@
+[
+ {
+  "id": "incidents",
+  "case": "historical",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "incidents",
+  "case": "historical",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 720,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-incidents-cases-heading",
+    "inner": null,
+    "text": "IncidentSiteStartSeverityStateOwnerFindings / work"
+   }
+  ]
+ },
+ {
+  "id": "incidents",
+  "case": "historical-current",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "incidents",
+  "case": "historical-current",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 720,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-incidents-cases-heading",
+    "inner": null,
+    "text": "IncidentSiteStartSeverityStateOwnerFindings / work"
+   }
+  ]
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "historical",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "historical",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 720,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-preventive-plan-heading",
+    "inner": null,
+    "text": "Plan itemAsset / siteTriggerLast doneNext dueState"
+   }
+  ]
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "historical-current",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "historical-current",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 720,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-preventive-plan-heading",
+    "inner": null,
+    "text": "Plan itemAsset / siteTriggerLast doneNext dueState"
+   }
+  ]
+ }
+]

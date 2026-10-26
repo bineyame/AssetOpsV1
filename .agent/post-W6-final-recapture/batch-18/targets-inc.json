@@ -1,0 +1,43 @@
+[
+ {
+  "id": "incidents",
+  "case": "positive",
+  "url": "http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "incidents",
+  "case": "all-open",
+  "url": "http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "incidents",
+  "case": "page-two",
+  "url": "http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6YTZiODVkNTRiZjVkNTcyOWEwMGFiMmZlYWZhZDVjYjM2ZmQxNTY3NmNhODMxNDAwNWY2NmM3MmQzNmY4MTE0NiIsImFmdGVyIjpbIjIwMjYtMTAtMTlUMDk6MDA6MDAuMDAwMDAwWiIsImtvYm8tMDAyIiwiYTBiM2YyZmUtZWFiNi00NjJjLTllNDYtNTc4Yjk5ZmIzNjNkIiwiNjA1YTA1NjYtOTVhYi00NDQzLTk2ODktYjFhOTlkNjIxOTI4Il0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiNDUwYzM1MzktN2MyOC00NmI2LWEwZjktNWIyYjRhOGQ3ZTQxIiwiYTBiM2YyZmUtZWFiNi00NjJjLTllNDYtNTc4Yjk5ZmIzNjNkIl0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yNlQxMTo0MDo1Mi40MTgyMTRaIiwibWFjIjoiZjE5NzAwZGE4MzE0MmUzNjkxYzcyOTFjNGJiMzIzMzM5ODY1MDRlOTY4Nzk0ZmE1YTU3OTRkZjI5Yzc4NTA5ZSIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJpbmNpZGVudHMiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6ZjEyNTA2MmM5MGRjMDU4OTZiNmVkM2RlZWZlZjBiMmMyYmU4NDU0ZGRiNWFiMzZiMWVmZjg2MWQ2OWVlZDBkNiIsInRlbmFudF9pZCI6ImQzYmEwZmE1LTkzOTUtNGU5Zi05ZmRkLTgwOGUyOWVhMThkMCIsInRvIjoiMjAyNi0xMC0yMVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+ },
+ {
+  "id": "incidents",
+  "case": "refused-reversed",
+  "url": "http://localhost:5188/incidents?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z"
+ },
+ {
+  "id": "incidents",
+  "case": "refused-span-32d",
+  "url": "http://localhost:5188/incidents?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "incidents",
+  "case": "refused-one-bound",
+  "url": "http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z"
+ },
+ {
+  "id": "incidents",
+  "case": "refused-bad-known-at",
+  "url": "http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time"
+ },
+ {
+  "id": "incidents",
+  "case": "no-window",
+  "url": "http://localhost:5188/incidents"
+ }
+]

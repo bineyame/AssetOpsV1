@@ -1,0 +1,833 @@
+[
+ {
+  "screen": "incidents",
+  "case": "ev",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-ev-1440-app.png",
+  "mock_image": "incidents-ev-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.52
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 230->278",
+   "h1.top 24->44",
+   "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '12px': 2, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.26,
+    1.52
+   ]
+  ],
+  "fix_signals": [
+   "breadcrumb added above h1 (B18-08)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 278,
+   "Case boundaries": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 1.26, 1.52)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "incidents",
+  "case": "ev",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-ev-390-app.png",
+  "mock_image": "incidents-ev-390-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.44
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 308->356",
+   "h1.top 108->127",
+   "pSizes {'11px': 1, '10px': 1, '14px': 1}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.24,
+    1.44
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 356,
+   "Case boundaries": 126
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 1.24, 1.44)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "ev",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-ev-1440-app.png",
+  "mock_image": "maintenance-ev-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    1.42
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] height 285->333",
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    1.22,
+    1.42
+   ]
+  ],
+  "fix_signals": [
+   "raw EV_CONNECTOR code gone (B18-02)",
+   "plural '1 requests' fixed (B18-01)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 333
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 1.22, 1.42)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "ev",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-ev-390-app.png",
+  "mock_image": "maintenance-ev-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Corrective work requests] height 326->374",
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "raw EV_CONNECTOR code gone (B18-02)",
+   "plural '1 requests' fixed (B18-01)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 374
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "ev",
+  "width": "1440",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-ev-1440-app.png",
+  "mock_image": "maintenance-preventive-ev-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Preventive plan": 177
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "ev",
+  "width": "390",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-ev-390-app.png",
+  "mock_image": "maintenance-preventive-ev-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Preventive plan": 195
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "ev",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-ev-1440-app.png",
+  "mock_image": "oprecords-ev-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 4}->{'11px': 2, '14px': 4, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Operational records": 177,
+   "Record a manual reading": 325,
+   "How records are used": 325
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "ev",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-ev-390-app.png",
+  "mock_image": "oprecords-ev-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 4}->{'11px': 2, '14px': 4, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Operational records": 177,
+   "Record a manual reading": 513,
+   "How records are used": 223
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "incidents",
+  "case": "ev-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-ev-all-open-1440-app.png",
+  "mock_image": "incidents-ev-all-open-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.89
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 298->346",
+   "h1.top 24->44",
+   "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '12px': 2, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.63,
+    1.89
+   ]
+  ],
+  "fix_signals": [
+   "breadcrumb added above h1 (B18-08)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "Incident cases": 346,
+   "Case boundaries": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 1.63, 1.89)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "incidents",
+  "case": "ev-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-ev-all-open-390-app.png",
+  "mock_image": "incidents-ev-all-open-390-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.76
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 388->436",
+   "h1.top 108->127",
+   "pSizes {'11px': 1, '10px': 1, '14px': 1}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.56,
+    1.76
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "Incident cases": 436,
+   "Case boundaries": 126
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 1.56, 1.76)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "ev-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-ev-all-open-1440-app.png",
+  "mock_image": "maintenance-ev-all-open-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    1.7
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] height 349->397",
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    1.49,
+    1.7
+   ]
+  ],
+  "fix_signals": [
+   "raw EV_CONNECTOR code gone (B18-02)",
+   "plural '1 requests' fixed (B18-01)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "Corrective work requests": 397
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 1.49, 1.7)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "ev-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-ev-all-open-390-app.png",
+  "mock_image": "maintenance-ev-all-open-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    1.34
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] height 390->438",
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    1.19,
+    1.34
+   ]
+  ],
+  "fix_signals": [
+   "raw EV_CONNECTOR code gone (B18-02)",
+   "plural '1 requests' fixed (B18-01)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "Corrective work requests": 438
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 1.19, 1.34)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "incidents",
+  "case": "ev-default-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-ev-default-window-1440-app.png",
+  "mock_image": "incidents-ev-default-window-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.52
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 177->278",
+   "[Incident cases] rows 0->1",
+   "[Incident cases] links 0->3",
+   "[Incident cases] details 0->2",
+   "[Incident cases] tables 0->1",
+   "[Incident cases] columns []->['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']",
+   "[Incident cases] chips []->['Open']",
+   "h1.top 24->44",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 1, '14px': 3}->{'11px': 1, '12px': 2, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    0.97,
+    1.52
+   ]
+  ],
+  "fix_signals": [
+   "14px prose reduced",
+   "[Incident cases] table columns changed",
+   "breadcrumb added above h1 (B18-08)",
+   "default window now lists today rows (B18-12)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 278,
+   "Case boundaries": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 0.97, 1.52)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "incidents",
+  "case": "ev-default-window",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-ev-default-window-390-app.png",
+  "mock_image": "incidents-ev-default-window-390-mock.png",
+  "app_url": "http://localhost:5188/incidents",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.44
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 195->356",
+   "[Incident cases] rows 0->1",
+   "[Incident cases] links 0->3",
+   "[Incident cases] details 0->2",
+   "[Incident cases] tables 0->1",
+   "[Incident cases] columns []->['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']",
+   "[Incident cases] chips []->['Open']",
+   "h1.top 108->127",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 1, '14px': 3}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}",
+   "pageH 1065->1270",
+   "hscroll []->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 318, 'panel': 'Incident cases'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    0.79,
+    1.44
+   ]
+  ],
+  "fix_signals": [
+   "14px prose reduced",
+   "[Incident cases] table columns changed",
+   "default window now lists today rows (B18-12)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 356,
+   "Case boundaries": 126
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 0.79, 1.44)]",
+   "NEW inner horizontal scroller: [{'cls': 'data-table__scroll', 'sw': 720, 'cw': 318, 'panel': 'Incident cases'}]"
+  ],
+  "clipped_cells": [],
+  "cleared": [
+   "labelled focusable data-table scroller (probe), table now populated vs frozen empty state"
+  ]
+ }
+]

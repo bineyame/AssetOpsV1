@@ -1,0 +1,963 @@
+[
+ {
+  "screen": "incidents",
+  "case": "cold",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-cold-1440-app.png",
+  "mock_image": "incidents-cold-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.52
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 245->278",
+   "[Incident cases] links 5->4",
+   "[Incident cases] buttons 0->1",
+   "h1.top 24->44",
+   "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '12px': 2, '14px': 1}",
+   "clipped []->[{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Finding 6d206359 \u00c2\u00b7 Findi"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.34,
+    1.52
+   ]
+  ],
+  "fix_signals": [
+   "breadcrumb added above h1 (B18-08)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 ACT-000001 / WR-000002",
+    "sw": 157,
+    "cw": 157,
+    "sh": 53,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 ACT-000001 / WR-000002",
+    "sw": 157,
+    "cw": 157,
+    "sh": 53,
+    "ch": 35
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 278,
+   "Case boundaries": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 1.34, 1.52)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Find"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 "
+   ]
+  ],
+  "cleared": [
+   "clipped cells all carry a visible disclosure (1 clipped, Full title/record text 1, Show full 1) per ruling 4"
+  ]
+ },
+ {
+  "screen": "incidents",
+  "case": "cold",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-cold-390-app.png",
+  "mock_image": "incidents-cold-390-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.44
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 308->356",
+   "[Incident cases] links 5->4",
+   "[Incident cases] buttons 0->1",
+   "h1.top 108->127",
+   "pSizes {'11px': 1, '10px': 1, '14px': 1}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Finding 05280089 \u00c2\u00b7 Finding 29553f83 \u00c2\u00b7 Action 3728c61a / WR-000002',->[{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Finding 6d206359 \u00c2\u00b7 Findi"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.24,
+    1.44
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 ACT-000001 / WR-000002",
+    "sw": 93,
+    "cw": 93,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 ACT-000001 / WR-000002",
+    "sw": 93,
+    "cw": 93,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 356,
+   "Case boundaries": 126
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 1.24, 1.44)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Find"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 "
+   ]
+  ],
+  "cleared": [
+   "clipped cells all carry a visible disclosure (1 clipped, Full title/record text 1, Show full 1) per ruling 4"
+  ]
+ },
+ {
+  "screen": "maintenance",
+  "case": "cold",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-cold-1440-app.png",
+  "mock_image": "maintenance-cold-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    1.35
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] height 268->315",
+   "[Corrective work requests] links 4->3",
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    1.15,
+    1.35
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 315
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 1.15, 1.35)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "cold",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-cold-390-app.png",
+  "mock_image": "maintenance-cold-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Corrective work requests] height 308->356",
+   "[Corrective work requests] links 4->3",
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 356
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "cold",
+  "width": "1440",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-cold-1440-app.png",
+  "mock_image": "maintenance-preventive-cold-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Preventive plan": 177
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "cold",
+  "width": "390",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-cold-390-app.png",
+  "mock_image": "maintenance-preventive-cold-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Preventive plan": 195
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "cold",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-cold-1440-app.png",
+  "mock_image": "oprecords-cold-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 4}->{'11px': 2, '14px': 4, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Operational records": 177,
+   "Record a manual reading": 325,
+   "How records are used": 325
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "cold",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-cold-390-app.png",
+  "mock_image": "oprecords-cold-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 4}->{'11px': 2, '14px': 4, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Operational records": 177,
+   "Record a manual reading": 513,
+   "How records are used": 223
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "incidents",
+  "case": "cold-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-cold-all-open-1440-app.png",
+  "mock_image": "incidents-cold-all-open-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.89
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 298->346",
+   "[Incident cases] links 5->4",
+   "[Incident cases] buttons 0->1",
+   "h1.top 24->44",
+   "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '12px': 2, '14px': 1}",
+   "clipped []->[{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Finding 6d206359 \u00c2\u00b7 Findi"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.63,
+    1.89
+   ]
+  ],
+  "fix_signals": [
+   "breadcrumb added above h1 (B18-08)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 ACT-000001 / WR-000002",
+    "sw": 157,
+    "cw": 157,
+    "sh": 53,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 ACT-000001 / WR-000002",
+    "sw": 157,
+    "cw": 157,
+    "sh": 53,
+    "ch": 35
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "Incident cases": 346,
+   "Case boundaries": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 1.63, 1.89)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Find"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 "
+   ]
+  ],
+  "cleared": [
+   "clipped cells all carry a visible disclosure (1 clipped, Full title/record text 1, Show full 1) per ruling 4"
+  ]
+ },
+ {
+  "screen": "incidents",
+  "case": "cold-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-cold-all-open-390-app.png",
+  "mock_image": "incidents-cold-all-open-390-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.76
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 388->436",
+   "[Incident cases] links 5->4",
+   "[Incident cases] buttons 0->1",
+   "h1.top 108->127",
+   "pSizes {'11px': 1, '10px': 1, '14px': 1}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Finding 05280089 \u00c2\u00b7 Finding 29553f83 \u00c2\u00b7 Action 3728c61a / WR-000002',->[{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Finding 6d206359 \u00c2\u00b7 Findi"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.56,
+    1.76
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 ACT-000001 / WR-000002",
+    "sw": 93,
+    "cw": 93,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 ACT-000001 / WR-000002",
+    "sw": 93,
+    "cw": 93,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "Incident cases": 436,
+   "Case boundaries": 126
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 1.56, 1.76)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Find"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 "
+   ]
+  ],
+  "cleared": [
+   "clipped cells all carry a visible disclosure (1 clipped, Full title/record text 1, Show full 1) per ruling 4"
+  ]
+ },
+ {
+  "screen": "maintenance",
+  "case": "cold-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-cold-all-open-1440-app.png",
+  "mock_image": "maintenance-cold-all-open-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    1.62
+   ]
+  ],
+  "app_diffs": [
+   "[Corrective work requests] height 332->379",
+   "[Corrective work requests] links 4->3",
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    1.42,
+    1.62
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "Corrective work requests": 379
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 1.42, 1.62)]"
+  ],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "cold-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-cold-all-open-390-app.png",
+  "mock_image": "maintenance-cold-all-open-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Corrective work requests] height 372->420",
+   "[Corrective work requests] links 4->3",
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "Corrective work requests": 420
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "incidents",
+  "case": "cold-default-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-cold-default-window-1440-app.png",
+  "mock_image": "incidents-cold-default-window-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.52
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 245->278",
+   "[Incident cases] links 5->4",
+   "[Incident cases] buttons 0->1",
+   "h1.top 24->44",
+   "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '12px': 2, '14px': 1}",
+   "clipped []->[{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Finding 6d206359 \u00c2\u00b7 Findi"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.34,
+    1.52
+   ]
+  ],
+  "fix_signals": [
+   "breadcrumb added above h1 (B18-08)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 ACT-000001 / WR-000002",
+    "sw": 157,
+    "cw": 157,
+    "sh": 53,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 ACT-000001 / WR-000002",
+    "sw": 157,
+    "cw": 157,
+    "sh": 53,
+    "ch": 35
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 278,
+   "Case boundaries": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 1.34, 1.52)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Find"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 "
+   ]
+  ],
+  "cleared": [
+   "clipped cells all carry a visible disclosure (1 clipped, Full title/record text 1, Show full 1) per ruling 4"
+  ]
+ },
+ {
+  "screen": "incidents",
+  "case": "cold-default-window",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-cold-default-window-390-app.png",
+  "mock_image": "incidents-cold-default-window-390-mock.png",
+  "app_url": "http://localhost:5188/incidents",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.44
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 308->356",
+   "[Incident cases] links 5->4",
+   "[Incident cases] buttons 0->1",
+   "h1.top 108->127",
+   "pSizes {'11px': 1, '10px': 1, '14px': 1}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Finding 05280089 \u00c2\u00b7 Finding 29553f83 \u00c2\u00b7 Action 3728c61a / WR-000002',->[{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Finding 6d206359 \u00c2\u00b7 Findi"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.24,
+    1.44
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 ACT-000001 / WR-000002",
+    "sw": 93,
+    "cw": 93,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 ACT-000001 / WR-000002",
+    "sw": 93,
+    "cw": 93,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 356,
+   "Case boundaries": 126
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 1.24, 1.44)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Find"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "Finding 6d206359 \u00c2\u00b7 Finding 7ca039cd \u00c2\u00b7 "
+   ]
+  ],
+  "cleared": [
+   "clipped cells all carry a visible disclosure (1 clipped, Full title/record text 1, Show full 1) per ruling 4"
+  ]
+ }
+]

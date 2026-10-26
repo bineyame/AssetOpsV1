@@ -1,0 +1,43 @@
+[
+ {
+  "id": "maintenance",
+  "case": "positive",
+  "url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "all-open",
+  "url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "maintenance",
+  "case": "page-two",
+  "url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6YzEyMTg5NzJmODM4ZDRlNzk4YTNlYjY5ZTQwMDEwMWE0YjI5ODBmOGI3ZDA3MTFlZTJiZmI3MmRmM2NkZTAyMyIsImFmdGVyIjpbIjIwMjYtMTAtMjBUMTE6NTk6MDIuMDAwMDAwWiIsImtvYm8tMDAxIiwiMjI5ODJiNDMtYjE5ZC00MzU3LTkxNmYtZmUxMzFiMDM3ZjE3IiwiNGI5MmRjZWQtNDljNy00MDUxLTkwYTctYmMxNzdjOWU5MWRkIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMjI5ODJiNDMtYjE5ZC00MzU3LTkxNmYtZmUxMzFiMDM3ZjE3IiwiYmRmMjVjN2YtNTg1Yy00YjkyLTg1ZDItYmI1YmNkNzMxOGNhIl0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yNlQxMjozNjoyMi4wMzAyMDRaIiwibWFjIjoiYzg5N2EyZGI3NTZhODYwODU0MGQwOWQ5ZTk1ZTI5ZmQ0NjNiN2IxZDc5Nzg4MDM1ZTUzNmExZGNiYjc0OGFjMSIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJtYWludGVuYW5jZSIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpjZDMzMTEzNDg4NDkzYjc4MDBlZWEyZjE2MGIxZjkwMTlhYzNhMGQzNWYyODc5MDJiZTRkODJlNDc4OWU2ZGQzIiwidGVuYW50X2lkIjoiM2VjZTAzYWYtMDZmMS00YWEyLThjODEtZDViYjhhMzE5OGI5IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ"
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-reversed",
+  "url": "http://localhost:5188/maintenance?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-span-32d",
+  "url": "http://localhost:5188/maintenance?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-one-bound",
+  "url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z"
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-bad-known-at",
+  "url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time"
+ },
+ {
+  "id": "maintenance",
+  "case": "no-window",
+  "url": "http://localhost:5188/maintenance"
+ }
+]

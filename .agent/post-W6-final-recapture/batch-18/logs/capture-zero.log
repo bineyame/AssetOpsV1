@@ -1,0 +1,51 @@
+chrome pid 20160
+PASS  loaded http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  incidents-zero 1440: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  incidents-zero 1440: mock rendered
+PASS  incidents-zero 1440: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-zero 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-zero 390: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  incidents-zero 390: mock rendered
+PASS  incidents-zero 390: same panel count  {"app":["Incident cases","Case boundaries"],"mock":["Incident cases","Case boundaries"]}
+PASS  incidents-zero 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  maintenance-zero 1440: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  maintenance-zero 1440: mock rendered
+PASS  maintenance-zero 1440: same panel count  {"app":["Corrective work requests"],"mock":["Corrective work requests"]}
+PASS  maintenance-zero 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  maintenance-zero 390: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  maintenance-zero 390: mock rendered
+PASS  maintenance-zero 390: same panel count  {"app":["Corrective work requests"],"mock":["Corrective work requests"]}
+PASS  maintenance-zero 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  maintenance-preventive-zero 1440: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/maintenance-preventive: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  maintenance-preventive-zero 1440: mock rendered
+PASS  maintenance-preventive-zero 1440: same panel count  {"app":["Preventive plan"],"mock":["Preventive plan"]}
+PASS  maintenance-preventive-zero 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  maintenance-preventive-zero 390: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/maintenance-preventive: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  maintenance-preventive-zero 390: mock rendered
+PASS  maintenance-preventive-zero 390: same panel count  {"app":["Preventive plan"],"mock":["Preventive plan"]}
+PASS  maintenance-preventive-zero 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  oprecords-zero 1440: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/oprecords: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  oprecords-zero 1440: mock rendered
+PASS  oprecords-zero 1440: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-zero 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-zero 390: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/oprecords: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  oprecords-zero 390: mock rendered
+PASS  oprecords-zero 390: same panel count  {"app":["Operational records","Record a manual reading","How records are used"],"mock":["Operational records","Record a manual reading","How records are used"]}
+PASS  oprecords-zero 390: no app page overflow  {"overflowX":0}
+
+48/48 claims passed; evidence in part-zero

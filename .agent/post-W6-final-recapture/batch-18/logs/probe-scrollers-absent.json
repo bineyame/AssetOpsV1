@@ -1,0 +1,50 @@
+[
+ {
+  "id": "incidents",
+  "case": "unavailable-503",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "incidents",
+  "case": "unavailable-503",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "unavailable-503",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "unavailable-503",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "unavailable-503",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "unavailable-503",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "oprecords",
+  "case": "unavailable-503",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "oprecords",
+  "case": "unavailable-503",
+  "width": 390,
+  "scrollers": []
+ }
+]

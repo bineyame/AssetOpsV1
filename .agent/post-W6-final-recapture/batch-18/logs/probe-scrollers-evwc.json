@@ -1,0 +1,146 @@
+[
+ {
+  "id": "incidents",
+  "case": "evwc",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "incidents",
+  "case": "evwc",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 720,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-incidents-cases-heading",
+    "inner": null,
+    "text": "IncidentSiteStartSeverityStateOwnerFindings / work"
+   }
+  ]
+ },
+ {
+  "id": "maintenance",
+  "case": "evwc",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "evwc",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 1030,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-maintenance-requests-heading",
+    "inner": null,
+    "text": "Work requestAsset / siteOwnerStateVerificationWarr"
+   }
+  ]
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "evwc",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "evwc",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "oprecords",
+  "case": "evwc",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "oprecords",
+  "case": "evwc",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "incidents",
+  "case": "evwc-all-open",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "incidents",
+  "case": "evwc-all-open",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 720,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-incidents-cases-heading",
+    "inner": null,
+    "text": "IncidentSiteStartSeverityStateOwnerFindings / work"
+   }
+  ]
+ },
+ {
+  "id": "maintenance",
+  "case": "evwc-all-open",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "evwc-all-open",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 1030,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-maintenance-requests-heading",
+    "inner": null,
+    "text": "Work requestAsset / siteOwnerStateVerificationWarr"
+   }
+  ]
+ },
+ {
+  "id": "incidents",
+  "case": "evwc-default-window",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "incidents",
+  "case": "evwc-default-window",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 720,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-incidents-cases-heading",
+    "inner": null,
+    "text": "IncidentSiteStartSeverityStateOwnerFindings / work"
+   }
+  ]
+ }
+]

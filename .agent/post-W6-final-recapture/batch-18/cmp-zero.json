@@ -1,0 +1,358 @@
+[
+ {
+  "screen": "incidents",
+  "case": "zero",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-zero-1440-app.png",
+  "mock_image": "incidents-zero-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Incident cases] height 177->197",
+   "h1.top 24->44",
+   "pSizes {'11px': 1, '14px': 3}->{'11px': 1, '14px': 3, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "breadcrumb added above h1 (B18-08)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 197,
+   "Case boundaries": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "incidents",
+  "case": "zero",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-zero-390-app.png",
+  "mock_image": "incidents-zero-390-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Incident cases] height 195->215",
+   "h1.top 108->127",
+   "pSizes {'11px': 1, '14px': 3}->{'11px': 1, '14px': 3, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 215,
+   "Case boundaries": 126
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "zero",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-zero-1440-app.png",
+  "mock_image": "maintenance-zero-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Corrective work requests] height 177->197",
+   "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '14px': 2, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 197
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "zero",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-zero-390-app.png",
+  "mock_image": "maintenance-zero-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Corrective work requests] height 195->215",
+   "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '14px': 2, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 215
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "zero",
+  "width": "1440",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-zero-1440-app.png",
+  "mock_image": "maintenance-preventive-zero-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Preventive plan": 177
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "zero",
+  "width": "390",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-zero-390-app.png",
+  "mock_image": "maintenance-preventive-zero-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Preventive plan": 195
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "zero",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-zero-1440-app.png",
+  "mock_image": "oprecords-zero-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 4}->{'11px': 2, '14px': 4, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Operational records": 177,
+   "Record a manual reading": 325,
+   "How records are used": 325
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "zero",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-zero-390-app.png",
+  "mock_image": "oprecords-zero-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 4}->{'11px': 2, '14px': 4, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Operational records": 177,
+   "Record a manual reading": 513,
+   "How records are used": 223
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ }
+]

@@ -1,0 +1,110 @@
+[
+ {
+  "id": "maintenance-preventive",
+  "case": "positive",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "positive",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 720,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-preventive-plan-heading",
+    "inner": null,
+    "text": "Plan itemAsset / siteTriggerLast doneNext dueState"
+   }
+  ]
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "all-open",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "all-open",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 720,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-preventive-plan-heading",
+    "inner": null,
+    "text": "Plan itemAsset / siteTriggerLast doneNext dueState"
+   }
+  ]
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "refused-reversed",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "refused-reversed",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "refused-span-32d",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "refused-span-32d",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "refused-one-bound",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "refused-one-bound",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "refused-bad-known-at",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "refused-bad-known-at",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "no-window",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance-preventive",
+  "case": "no-window",
+  "width": 390,
+  "scrollers": []
+ }
+]

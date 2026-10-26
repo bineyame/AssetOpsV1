@@ -1,0 +1,146 @@
+[
+ {
+  "id": "maintenance",
+  "case": "positive",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "positive",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 1030,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-maintenance-requests-heading",
+    "inner": null,
+    "text": "Work requestAsset / siteOwnerStateVerificationWarr"
+   }
+  ]
+ },
+ {
+  "id": "maintenance",
+  "case": "all-open",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "all-open",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 1030,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-maintenance-requests-heading",
+    "inner": null,
+    "text": "Work requestAsset / siteOwnerStateVerificationWarr"
+   }
+  ]
+ },
+ {
+  "id": "maintenance",
+  "case": "page-two",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "page-two",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 1030,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-maintenance-requests-heading",
+    "inner": null,
+    "text": "Work requestAsset / siteOwnerStateVerificationWarr"
+   }
+  ]
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-reversed",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-reversed",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-span-32d",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-span-32d",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-one-bound",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-one-bound",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-bad-known-at",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "refused-bad-known-at",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "no-window",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "maintenance",
+  "case": "no-window",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 1030,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "global-maintenance-requests-heading",
+    "inner": null,
+    "text": "Work requestAsset / siteOwnerStateVerificationWarr"
+   }
+  ]
+ }
+]

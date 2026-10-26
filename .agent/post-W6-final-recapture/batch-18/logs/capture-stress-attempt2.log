@@ -1,0 +1,57 @@
+chrome pid 24928
+PASS  loaded http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  incidents-worstcase 1440: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  incidents-worstcase 1440: mock rendered
+PASS  incidents-worstcase 1440: same panel count  {"app":[],"mock":[]}
+PASS  incidents-worstcase 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  incidents-worstcase 390: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  incidents-worstcase 390: mock rendered
+PASS  incidents-worstcase 390: same panel count  {"app":[],"mock":[]}
+PASS  incidents-worstcase 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  incidents-worstcase-all-open 1440: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  incidents-worstcase-all-open 1440: mock rendered
+PASS  incidents-worstcase-all-open 1440: same panel count  {"app":[],"mock":[]}
+PASS  incidents-worstcase-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  incidents-worstcase-all-open 390: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  incidents-worstcase-all-open 390: mock rendered
+PASS  incidents-worstcase-all-open 390: same panel count  {"app":[],"mock":[]}
+PASS  incidents-worstcase-all-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/maintenance?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  maintenance-worstcase 1440: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  maintenance-worstcase 1440: mock rendered
+PASS  maintenance-worstcase 1440: same panel count  {"app":[],"mock":[]}
+PASS  maintenance-worstcase 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/maintenance?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  maintenance-worstcase 390: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  maintenance-worstcase 390: mock rendered
+PASS  maintenance-worstcase 390: same panel count  {"app":[],"mock":[]}
+PASS  maintenance-worstcase 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/maintenance?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  maintenance-worstcase-all-open 1440: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  maintenance-worstcase-all-open 1440: mock rendered
+PASS  maintenance-worstcase-all-open 1440: same panel count  {"app":[],"mock":[]}
+PASS  maintenance-worstcase-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/maintenance?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  maintenance-worstcase-all-open 390: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  maintenance-worstcase-all-open 390: mock rendered
+PASS  maintenance-worstcase-all-open 390: same panel count  {"app":[],"mock":[]}
+PASS  maintenance-worstcase-all-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  maintenance-preventive-worstcase 1440: app rendered
+PASS  loaded http://localhost:5188/mockups/v69/index.html#/maintenance-preventive: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+FAIL  maintenance-preventive-worstcase 1440: mock rendered
+PASS  maintenance-preventive-worstcase 1440: same panel count  {"app":[],"mock":[]}
+PASS  maintenance-preventive-worstcase 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5188/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+FAIL  maintenance-preventive-worstcase 390: app rendered

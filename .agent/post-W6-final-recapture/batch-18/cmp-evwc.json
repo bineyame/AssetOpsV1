@@ -1,0 +1,1606 @@
+[
+ {
+  "screen": "incidents",
+  "case": "evwc",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-evwc-1440-app.png",
+  "mock_image": "incidents-evwc-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    3.54
+   ]
+  ],
+  "app_diffs": [
+   "h1.top 24->44",
+   "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '12px': 2, '14px': 1}",
+   "pageH 1062->1188"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    3.27,
+    3.54
+   ]
+  ],
+  "fix_signals": [
+   "breadcrumb added above h1 (B18-08)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 647,
+   "Case boundaries": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 3.27, 3.54)]"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp",
+    "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2"
+   ]
+  ],
+  "cleared": []
+ },
+ {
+  "screen": "incidents",
+  "case": "evwc",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-evwc-390-app.png",
+  "mock_image": "incidents-evwc-390-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    2.97
+   ]
+  ],
+  "app_diffs": [
+   "h1.top 108->127",
+   "pSizes {'11px': 1, '10px': 1, '14px': 1}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    2.78,
+    2.97
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 737,
+   "Case boundaries": 126
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 2.78, 2.97)]"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp",
+    "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2"
+   ]
+  ],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "evwc",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-evwc-1440-app.png",
+  "mock_image": "maintenance-evwc-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.81
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.6,
+    2.81
+   ]
+  ],
+  "fix_signals": [
+   "raw EV_CONNECTOR code gone (B18-02)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000010 \u00c2\u00b7 Connector diagnostic inspection 5 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 211,
+    "cw": 211,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000008 \u00c2\u00b7 Connector diagnostic inspection 4 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 211,
+    "cw": 211,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000006 \u00c2\u00b7 Connector diagnostic inspection 3 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 211,
+    "cw": 211,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000004 \u00c2\u00b7 Connector diagnostic inspection 2 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 211,
+    "cw": 211,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000002 \u00c2\u00b7 Connector diagnostic inspection 1 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 211,
+    "cw": 211,
+    "sh": 106,
+    "ch": 53
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 657
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 2.6, 2.81)]"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp",
+    "WR-000010 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000008 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000006 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000004 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000002 \u00c2\u00b7 Connector diagnostic inspec"
+   ]
+  ],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "evwc",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-evwc-390-app.png",
+  "mock_image": "maintenance-evwc-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.25
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.11,
+    2.25
+   ]
+  ],
+  "fix_signals": [
+   "raw EV_CONNECTOR code gone (B18-02)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000010 \u00c2\u00b7 Connector diagnostic inspection 5 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 198,
+    "cw": 198,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000008 \u00c2\u00b7 Connector diagnostic inspection 4 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 198,
+    "cw": 198,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000006 \u00c2\u00b7 Connector diagnostic inspection 3 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 198,
+    "cw": 198,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000004 \u00c2\u00b7 Connector diagnostic inspection 2 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 198,
+    "cw": 198,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000002 \u00c2\u00b7 Connector diagnostic inspection 1 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 198,
+    "cw": 198,
+    "sh": 123,
+    "ch": 53
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Corrective work requests": 737
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 2.11, 2.25)]"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp",
+    "WR-000010 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000008 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000006 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000004 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000002 \u00c2\u00b7 Connector diagnostic inspec"
+   ]
+  ],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "evwc",
+  "width": "1440",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-evwc-1440-app.png",
+  "mock_image": "maintenance-preventive-evwc-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Preventive plan": 177
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance-preventive",
+  "case": "evwc",
+  "width": "390",
+  "new_app_titles": [
+   "Preventive plan"
+  ],
+  "mock_titles": [
+   "Preventive plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-preventive-evwc-390-app.png",
+  "mock_image": "maintenance-preventive-evwc-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance/preventive?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Preventive plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Preventive plan": 195
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "evwc",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-evwc-1440-app.png",
+  "mock_image": "oprecords-evwc-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 4}->{'11px': 2, '14px': 4, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Operational records": 177,
+   "Record a manual reading": 325,
+   "How records are used": 325
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "evwc",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-evwc-390-app.png",
+  "mock_image": "oprecords-evwc-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 4}->{'11px': 2, '14px': 4, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Operational records": 177,
+   "Record a manual reading": 513,
+   "How records are used": 223
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [],
+  "clipped_cells": [],
+  "cleared": []
+ },
+ {
+  "screen": "incidents",
+  "case": "evwc-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-evwc-all-open-1440-app.png",
+  "mock_image": "incidents-evwc-all-open-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    3.54
+   ]
+  ],
+  "app_diffs": [
+   "h1.top 24->44",
+   "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '12px': 2, '14px': 1}",
+   "pageH 1062->1188"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    3.27,
+    3.54
+   ]
+  ],
+  "fix_signals": [
+   "breadcrumb added above h1 (B18-08)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "Incident cases": 647,
+   "Case boundaries": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 3.27, 3.54)]"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp",
+    "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2"
+   ]
+  ],
+  "cleared": []
+ },
+ {
+  "screen": "incidents",
+  "case": "evwc-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-evwc-all-open-390-app.png",
+  "mock_image": "incidents-evwc-all-open-390-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    2.97
+   ]
+  ],
+  "app_diffs": [
+   "h1.top 108->127",
+   "pSizes {'11px': 1, '10px': 1, '14px': 1}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    2.78,
+    2.97
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "Incident cases": 737,
+   "Case boundaries": 126
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 2.78, 2.97)]"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp",
+    "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2"
+   ]
+  ],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "evwc-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-evwc-all-open-1440-app.png",
+  "mock_image": "maintenance-evwc-all-open-1440-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.81
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.6,
+    2.81
+   ]
+  ],
+  "fix_signals": [
+   "raw EV_CONNECTOR code gone (B18-02)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000010 \u00c2\u00b7 Connector diagnostic inspection 5 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 211,
+    "cw": 211,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000008 \u00c2\u00b7 Connector diagnostic inspection 4 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 211,
+    "cw": 211,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000006 \u00c2\u00b7 Connector diagnostic inspection 3 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 211,
+    "cw": 211,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000004 \u00c2\u00b7 Connector diagnostic inspection 2 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 211,
+    "cw": 211,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000002 \u00c2\u00b7 Connector diagnostic inspection 1 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 211,
+    "cw": 211,
+    "sh": 106,
+    "ch": 53
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "Corrective work requests": 657
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 2.6, 2.81)]"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp",
+    "WR-000010 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000008 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000006 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000004 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000002 \u00c2\u00b7 Connector diagnostic inspec"
+   ]
+  ],
+  "cleared": []
+ },
+ {
+  "screen": "maintenance",
+  "case": "evwc-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Corrective work requests"
+  ],
+  "mock_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "maintenance-evwc-all-open-390-app.png",
+  "mock_image": "maintenance-evwc-all-open-390-mock.png",
+  "app_url": "http://localhost:5188/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Corrective work requests",
+    2.25
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 1, '10px': 1}->{'11px': 1, '10px': 1, '12px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Corrective work requests"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Corrective work requests",
+    2.11,
+    2.25
+   ]
+  ],
+  "fix_signals": [
+   "raw EV_CONNECTOR code gone (B18-02)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1030,
+    "cw": 318,
+    "panel": "Corrective work requests"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000010 \u00c2\u00b7 Connector diagnostic inspection 5 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 198,
+    "cw": 198,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000008 \u00c2\u00b7 Connector diagnostic inspection 4 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 198,
+    "cw": 198,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000006 \u00c2\u00b7 Connector diagnostic inspection 3 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 198,
+    "cw": 198,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000004 \u00c2\u00b7 Connector diagnostic inspection 2 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 198,
+    "cw": 198,
+    "sh": 123,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "WR-000002 \u00c2\u00b7 Connector diagnostic inspection 1 \u00e2\u20ac\u201d long request title proof wwwwwww",
+    "sw": 198,
+    "cw": 198,
+    "sh": 123,
+    "ch": 53
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "Corrective work requests": 737
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Corrective work requests', 2.11, 2.25)]"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp",
+    "WR-000010 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000008 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000006 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000004 \u00c2\u00b7 Connector diagnostic inspec"
+   ],
+   [
+    "global-work-clamp",
+    "WR-000002 \u00c2\u00b7 Connector diagnostic inspec"
+   ]
+  ],
+  "cleared": []
+ },
+ {
+  "screen": "incidents",
+  "case": "evwc-default-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-evwc-default-window-1440-app.png",
+  "mock_image": "incidents-evwc-default-window-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    3.54
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 177->647",
+   "[Incident cases] rows 0->5",
+   "[Incident cases] links 0->10",
+   "[Incident cases] details 0->10",
+   "[Incident cases] tables 0->1",
+   "[Incident cases] columns []->['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']",
+   "[Incident cases] chips []->['Open', 'Open', 'Open', 'Open', 'Open']",
+   "h1.top 24->44",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 1, '14px': 3}->{'11px': 1, '12px': 2, '14px': 1}",
+   "pageH 1000->1188",
+   "clipped []->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2\u20ac\u201d long case title proof xxxxx"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    0.97,
+    3.54
+   ]
+  ],
+  "fix_signals": [
+   "14px prose reduced",
+   "[Incident cases] table columns changed",
+   "breadcrumb added above h1 (B18-08)",
+   "default window now lists today rows (B18-12)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   }
+  ],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 261,
+    "cw": 261,
+    "sh": 88,
+    "ch": 53
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 647,
+   "Case boundaries": 103
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 0.97, 3.54)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2\u20ac\u201d long ca"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp",
+    "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2"
+   ]
+  ],
+  "cleared": [
+   "clipped cells all carry a visible disclosure (5 clipped, Full title/record text 5, Show full 0) per ruling 4"
+  ]
+ },
+ {
+  "screen": "incidents",
+  "case": "evwc-default-window",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-evwc-default-window-390-app.png",
+  "mock_image": "incidents-evwc-default-window-390-mock.png",
+  "app_url": "http://localhost:5188/incidents",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    2.97
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 195->737",
+   "[Incident cases] rows 0->5",
+   "[Incident cases] links 0->10",
+   "[Incident cases] details 0->10",
+   "[Incident cases] tables 0->1",
+   "[Incident cases] columns []->['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']",
+   "[Incident cases] chips []->['Open', 'Open', 'Open', 'Open', 'Open']",
+   "h1.top 108->127",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 1, '14px': 3}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}",
+   "pageH 1065->1652",
+   "clipped []->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2\u20ac\u201d long case title proof xxxxx",
+   "hscroll []->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 318, 'panel': 'Incident cases'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    0.79,
+    2.97
+   ]
+  ],
+  "fix_signals": [
+   "14px prose reduced",
+   "[Incident cases] table columns changed",
+   "default window now lists today rows (B18-12)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   }
+  ],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2\u20ac\u201d long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 165,
+    "cw": 165,
+    "sh": 106,
+    "ch": 53
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Incident cases": 737,
+   "Case boundaries": 126
+  },
+  "over_ruled_cap": [],
+  "regress_raw": [
+   "cap exceeded [('Incident cases', 0.79, 2.97)]",
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2\u20ac\u201d long ca",
+   "NEW inner horizontal scroller: [{'cls': 'data-table__scroll', 'sw': 720, 'cw': 318, 'panel': 'Incident cases'}]"
+  ],
+  "clipped_cells": [
+   [
+    "global-work-clamp",
+    "INC-000009 \u00c2\u00b7 Charging session fault 5 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000007 \u00c2\u00b7 Charging session fault 4 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000005 \u00c2\u00b7 Charging session fault 3 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000003 \u00c2\u00b7 Charging session fault 2 \u00e2"
+   ],
+   [
+    "global-work-clamp",
+    "INC-000001 \u00c2\u00b7 Charging session fault 1 \u00e2"
+   ]
+  ],
+  "cleared": [
+   "clipped cells all carry a visible disclosure (5 clipped, Full title/record text 5, Show full 0) per ruling 4",
+   "labelled focusable data-table scroller (probe), table now populated vs frozen empty state"
+  ]
+ }
+]

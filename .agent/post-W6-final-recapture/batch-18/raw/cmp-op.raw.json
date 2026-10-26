@@ -1,0 +1,1456 @@
+[
+ {
+  "screen": "oprecords",
+  "case": "positive",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-positive-1440-app.png",
+  "mock_image": "oprecords-positive-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Operational records] buttons 1->2",
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}",
+   "clipped []->[{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Correction: Log wording ",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 1105, 'panel': 'Operational records'}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Corr"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Correction: Log wording corrected after review",
+    "sw": 68,
+    "cw": 68,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Correction: Log wording corrected after review",
+    "sw": 68,
+    "cw": 68,
+    "sh": 70,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "oprecords",
+  "case": "positive",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-positive-390-app.png",
+  "mock_image": "oprecords-positive-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Operational records] buttons 1->2",
+   "pSizes {'11px': 2, '10px': 1, '14px': 2}->{'11px': 2, '10px': 1, '12px': 1, '14px': 2}",
+   "clipped []->[{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Correction: Log wording ",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 318, 'panel': 'Operational records'}]->[{'cls': 'data-table__scroll', 'sw': 1085, 'cw': 318, 'panel': 'Operational records'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Corr"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Correction: Log wording corrected after review",
+    "sw": 68,
+    "cw": 68,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1085,
+    "cw": 318,
+    "panel": "Operational records"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Correction: Log wording corrected after review",
+    "sw": 68,
+    "cw": 68,
+    "sh": 70,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "oprecords",
+  "case": "all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-all-open-1440-app.png",
+  "mock_image": "oprecords-all-open-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Operational records] buttons 1->2",
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}",
+   "clipped []->[{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Correction: Log wording ",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 1090, 'panel': 'Operational records'}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Corr"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Correction: Log wording corrected after review",
+    "sw": 68,
+    "cw": 68,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Correction: Log wording corrected after review",
+    "sw": 68,
+    "cw": 68,
+    "sh": 70,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "oprecords",
+  "case": "all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-all-open-390-app.png",
+  "mock_image": "oprecords-all-open-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Operational records] buttons 1->2",
+   "pSizes {'11px': 2, '10px': 1, '14px': 2}->{'11px': 2, '10px': 1, '12px': 1, '14px': 2}",
+   "clipped []->[{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Correction: Log wording ",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 318, 'panel': 'Operational records'}]->[{'cls': 'data-table__scroll', 'sw': 1085, 'cw': 318, 'panel': 'Operational records'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Corr"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Correction: Log wording corrected after review",
+    "sw": 68,
+    "cw": 68,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1085,
+    "cw": 318,
+    "panel": "Operational records"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Correction: Log wording corrected after review",
+    "sw": 68,
+    "cw": 68,
+    "sh": 70,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "oprecords",
+  "case": "page-two",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-page-two-1440-app.png",
+  "mock_image": "oprecords-page-two-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NDVkYzQ1NjhlZmM4OTc3MTJmYjFjNDZmYjNmNTg1MDNhODA1YTlmNTg4ZDMzZGVkZmVlZWJmMGZmMDE3MWM4YSIsImFmdGVyIjpbIjIwMjYtMTAtMjFUMTE6NTk6MDUuMDAwMDAwWiIsImtvYm8tMDAxIiwiMWE0ZDgyNjQtNzMxMS00NjExLTk3YWYtNDc1ZTMyYTJmNmFiIiwiYjhmNzI2M2EtNzVmYy00NDc0LWIxOTYtOGVhMWMzN2Y1NjIzIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMDI2NDgwZDUtOTEyNC00OTkxLWI1MDgtYzJmZTI3YzU3MzU2IiwiMWE0ZDgyNjQtNzMxMS00NjExLTk3YWYtNDc1ZTMyYTJmNmFiIl0sImZpbHRlciI6ImFsbCIsImZyb20iOiIyMDI2LTEwLTE0VDAwOjAwOjAwLjAwMDAwMFoiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjZUMTE6NDY6NDcuNzI3NDE5WiIsIm1hYyI6IjI4NmI3MDcwNDkxN2ZiYjMxYmNlYzEzYmY2NmEyOWJjMjAxZmZiY2Y0NWUxNTYxMzQ3MWY4OWNkNjI4NmJjZDkiLCJwYWdlX29uZV9tb2RlIjoiY3VycmVudCIsInJvdXRlIjoib3BlcmF0aW9uYWwtcmVjb3JkcyIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo4MDI0MTFlMTY0NWE4OThhMmVkNDFjYWU0YTE1NDljNTYzZTRhNzZkZGZiZGVhNzhjMDQ3MTQzOTg0NGE1M2Q1IiwidGVuYW50X2lkIjoiYTc4YTc2ZTItM2MzYS00NTRiLWFlYzUtYmExMjY0MThmMjQ0IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 1105, 'panel': 'Operational records'}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "page-two",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-page-two-390-app.png",
+  "mock_image": "oprecords-page-two-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NDVkYzQ1NjhlZmM4OTc3MTJmYjFjNDZmYjNmNTg1MDNhODA1YTlmNTg4ZDMzZGVkZmVlZWJmMGZmMDE3MWM4YSIsImFmdGVyIjpbIjIwMjYtMTAtMjFUMTE6NTk6MDUuMDAwMDAwWiIsImtvYm8tMDAxIiwiMWE0ZDgyNjQtNzMxMS00NjExLTk3YWYtNDc1ZTMyYTJmNmFiIiwiYjhmNzI2M2EtNzVmYy00NDc0LWIxOTYtOGVhMWMzN2Y1NjIzIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMDI2NDgwZDUtOTEyNC00OTkxLWI1MDgtYzJmZTI3YzU3MzU2IiwiMWE0ZDgyNjQtNzMxMS00NjExLTk3YWYtNDc1ZTMyYTJmNmFiIl0sImZpbHRlciI6ImFsbCIsImZyb20iOiIyMDI2LTEwLTE0VDAwOjAwOjAwLjAwMDAwMFoiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjZUMTE6NDY6NDcuNzI3NDE5WiIsIm1hYyI6IjI4NmI3MDcwNDkxN2ZiYjMxYmNlYzEzYmY2NmEyOWJjMjAxZmZiY2Y0NWUxNTYxMzQ3MWY4OWNkNjI4NmJjZDkiLCJwYWdlX29uZV9tb2RlIjoiY3VycmVudCIsInJvdXRlIjoib3BlcmF0aW9uYWwtcmVjb3JkcyIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo4MDI0MTFlMTY0NWE4OThhMmVkNDFjYWU0YTE1NDljNTYzZTRhNzZkZGZiZGVhNzhjMDQ3MTQzOTg0NGE1M2Q1IiwidGVuYW50X2lkIjoiYTc4YTc2ZTItM2MzYS00NTRiLWFlYzUtYmExMjY0MThmMjQ0IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '10px': 1, '14px': 2}->{'11px': 2, '10px': 1, '12px': 1, '14px': 2}",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 318, 'panel': 'Operational records'}]->[{'cls': 'data-table__scroll', 'sw': 1085, 'cw': 318, 'panel': 'Operational records'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1085,
+    "cw": 318,
+    "panel": "Operational records"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "kind-OPERATOR_LOG",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-kind-OPERATOR_LOG-1440-app.png",
+  "mock_image": "oprecords-kind-OPERATOR_LOG-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=OPERATOR_LOG",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 1105, 'panel': 'Operational records'}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "kind-OPERATOR_LOG",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-kind-OPERATOR_LOG-390-app.png",
+  "mock_image": "oprecords-kind-OPERATOR_LOG-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=OPERATOR_LOG",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '10px': 1, '14px': 2}->{'11px': 2, '10px': 1, '12px': 1, '14px': 2}",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 318, 'panel': 'Operational records'}]->[{'cls': 'data-table__scroll', 'sw': 1085, 'cw': 318, 'panel': 'Operational records'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1085,
+    "cw": 318,
+    "panel": "Operational records"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "kind-MANUAL_READING",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-kind-MANUAL_READING-1440-app.png",
+  "mock_image": "oprecords-kind-MANUAL_READING-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=MANUAL_READING",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 1105, 'panel': 'Operational records'}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "kind-MANUAL_READING",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-kind-MANUAL_READING-390-app.png",
+  "mock_image": "oprecords-kind-MANUAL_READING-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=MANUAL_READING",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '10px': 1, '14px': 2}->{'11px': 2, '10px': 1, '12px': 1, '14px': 2}",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 318, 'panel': 'Operational records'}]->[{'cls': 'data-table__scroll', 'sw': 1085, 'cw': 318, 'panel': 'Operational records'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1085,
+    "cw": 318,
+    "panel": "Operational records"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "kind-SHIFT_NOTE",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-kind-SHIFT_NOTE-1440-app.png",
+  "mock_image": "oprecords-kind-SHIFT_NOTE-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SHIFT_NOTE",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Operational records] buttons 0->1",
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}",
+   "pageH 1190->1310",
+   "clipped []->[{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Correction: Log wording ",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 1105, 'panel': 'Operational records'}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Corr"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Correction: Log wording corrected after review",
+    "sw": 70,
+    "cw": 70,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Correction: Log wording corrected after review",
+    "sw": 70,
+    "cw": 70,
+    "sh": 70,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "oprecords",
+  "case": "kind-SHIFT_NOTE",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-kind-SHIFT_NOTE-390-app.png",
+  "mock_image": "oprecords-kind-SHIFT_NOTE-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SHIFT_NOTE",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Operational records] height 472->520",
+   "[Operational records] buttons 0->1",
+   "pSizes {'11px': 2, '10px': 1, '14px': 2}->{'11px': 2, '10px': 1, '12px': 1, '14px': 2}",
+   "clipped []->[{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Correction: Log wording ",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 318, 'panel': 'Operational records'}]->[{'cls': 'data-table__scroll', 'sw': 1085, 'cw': 318, 'panel': 'Operational records'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp global-work-clamp--two cell-disclosure__va', 'text': 'Corr"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Correction: Log wording corrected after review",
+    "sw": 68,
+    "cw": 68,
+    "sh": 70,
+    "ch": 35
+   }
+  ],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1085,
+    "cw": 318,
+    "panel": "Operational records"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp global-work-clamp--two cell-disclosure__va",
+    "text": "Correction: Log wording corrected after review",
+    "sw": 68,
+    "cw": 68,
+    "sh": 70,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "oprecords",
+  "case": "kind-SITE_VISIT",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-kind-SITE_VISIT-1440-app.png",
+  "mock_image": "oprecords-kind-SITE_VISIT-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SITE_VISIT",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 4}->{'11px': 2, '14px': 4, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "kind-SITE_VISIT",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-kind-SITE_VISIT-390-app.png",
+  "mock_image": "oprecords-kind-SITE_VISIT-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SITE_VISIT",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 4}->{'11px': 2, '14px': 4, '12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "historical",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-historical-1440-app.png",
+  "mock_image": "oprecords-historical-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 1105, 'panel': 'Operational records'}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "historical",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-historical-390-app.png",
+  "mock_image": "oprecords-historical-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '10px': 1, '14px': 2}->{'11px': 2, '10px': 1, '12px': 1, '14px': 2}",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 318, 'panel': 'Operational records'}]->[{'cls': 'data-table__scroll', 'sw': 1085, 'cw': 318, 'panel': 'Operational records'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1085,
+    "cw": 318,
+    "panel": "Operational records"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "invalid-kind",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-invalid-kind-1440-app.png",
+  "mock_image": "oprecords-invalid-kind-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=BOGUS",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "invalid-kind",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-invalid-kind-390-app.png",
+  "mock_image": "oprecords-invalid-kind-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=BOGUS",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-refused-reversed-1440-app.png",
+  "mock_image": "oprecords-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-refused-reversed-390-app.png",
+  "mock_image": "oprecords-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "refused-span-32d",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-refused-span-32d-1440-app.png",
+  "mock_image": "oprecords-refused-span-32d-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "refused-span-32d",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-refused-span-32d-390-app.png",
+  "mock_image": "oprecords-refused-span-32d-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "refused-one-bound",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-refused-one-bound-1440-app.png",
+  "mock_image": "oprecords-refused-one-bound-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "refused-one-bound",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-refused-one-bound-390-app.png",
+  "mock_image": "oprecords-refused-one-bound-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "refused-bad-known-at",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-refused-bad-known-at-1440-app.png",
+  "mock_image": "oprecords-refused-bad-known-at-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "refused-bad-known-at",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-refused-bad-known-at-390-app.png",
+  "mock_image": "oprecords-refused-bad-known-at-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '12px': 1, '14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-no-window-1440-app.png",
+  "mock_image": "oprecords-no-window-1440-mock.png",
+  "app_url": "http://localhost:5188/operational-records",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Operational records] height 629->177",
+   "[Operational records] rows 5->0",
+   "[Operational records] links 6->0",
+   "[Operational records] details 11->0",
+   "[Operational records] buttons 1->0",
+   "[Operational records] tables 1->0",
+   "[Operational records] columns ['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']->[]",
+   "[Operational records] chips ['Submitted', 'Submitted', 'Submitted', 'Submitted', 'Submitted']->[]",
+   "td presence True->False",
+   "th presence True->False",
+   "pSizes {'11px': 2, '14px': 2}->{'11px': 2, '14px': 4, '12px': 1}",
+   "pageH 1355->1000",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 1105, 'panel': 'Operational records'}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "[Operational records] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "oprecords",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "mock_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "oprecords-no-window-390-app.png",
+  "mock_image": "oprecords-no-window-390-mock.png",
+  "app_url": "http://localhost:5188/operational-records",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Operational records] height 637->177",
+   "[Operational records] rows 5->0",
+   "[Operational records] links 6->0",
+   "[Operational records] details 11->0",
+   "[Operational records] buttons 1->0",
+   "[Operational records] tables 1->0",
+   "[Operational records] columns ['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']->[]",
+   "[Operational records] chips ['Submitted', 'Submitted', 'Submitted', 'Submitted', 'Submitted']->[]",
+   "td presence True->False",
+   "th presence True->False",
+   "pSizes {'11px': 2, '10px': 1, '14px': 2}->{'11px': 2, '14px': 4, '12px': 1}",
+   "pageH 2229->1821",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1150, 'cw': 318, 'panel': 'Operational records'}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Operational records",
+   "Record a manual reading",
+   "How records are used"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "[Operational records] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "incidents",
+  "case": "one-row",
+  "width": "1440",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-one-row-1440-app.png",
+  "mock_image": "incidents-one-row-1440-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.52
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 230->278",
+   "h1.top 24->44",
+   "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '12px': 2, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.26,
+    1.52
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Incident cases', 1.26, 1.52)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "incidents",
+  "case": "one-row",
+  "width": "390",
+  "new_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "mock_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "incidents-one-row-390-app.png",
+  "mock_image": "incidents-one-row-390-mock.png",
+  "app_url": "http://localhost:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incident cases",
+    1.36
+   ]
+  ],
+  "app_diffs": [
+   "[Incident cases] height 291->338",
+   "h1.top 108->127",
+   "pSizes {'11px': 1, '10px': 1, '14px': 1}->{'11px': 1, '10px': 1, '12px': 2, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incident cases",
+   "Case boundaries"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incident cases",
+    1.17,
+    1.36
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Incident cases', 1.17, 1.36)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Incident cases"
+   }
+  ],
+  "inner_all_clipped": []
+ }
+]
