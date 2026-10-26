@@ -722,7 +722,7 @@ describe("post-W6 W1-a Q16 / Q17: History heading and Site-local time", () => {
     expect(row.querySelector("[data-history-recorded-exact]")?.textContent).toBe("2026-10-06T14:10:00.000Z");
   });
 
-  it("Q17: a Site without a timezone falls back to UTC and says so in the heading", async () => {
+  it("Q17: a Site without a timezone falls back to UTC and says so in full in the heading (final-fix L6)", async () => {
     const noZone: SiteDetailClient = { getSite: async () => ({ status: "loaded", site: { ...HYBRID_MINI_GRID_SITE, timezone: "" } }) };
     render(
       <MemoryRouter initialEntries={[`${HISTORY}?revision_id=${rid(1)}`]}>
@@ -732,7 +732,7 @@ describe("post-W6 W1-a Q16 / Q17: History heading and Site-local time", () => {
       </MemoryRouter>,
     );
     await settledScreen();
-    expect((document.querySelector("[data-history-time-zone]") as HTMLElement).textContent?.trim()).toBe("Time (UTC)");
+    expect((document.querySelector("[data-history-time-zone]") as HTMLElement).textContent?.trim()).toBe("Time (UTC (Site time zone unavailable))");
     expect(q(`[data-history-revision='${rid(1)}'] td time`)?.textContent).toBe("6 Oct · 14:10");
   });
 

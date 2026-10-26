@@ -128,14 +128,24 @@ export function KeyValueValue({ children }: { children: ReactNode }) {
     if (root === null) return undefined;
     const mark = () => {
       root.querySelectorAll("code").forEach((code) => {
+        // Only what this effect added is ever removed; an author-supplied label or role is kept as written.
+        const ours = code.hasAttribute("data-scroll-focus");
         if (code.scrollWidth > code.clientWidth + 1) {
+          if (!ours && code.hasAttribute("tabindex")) return;
+          if (!ours) code.setAttribute("data-scroll-focus", code.hasAttribute("aria-label") ? "kept" : "");
           code.setAttribute("tabindex", "0");
-          code.setAttribute("role", "group");
-          code.setAttribute("aria-label", `Full value: ${code.textContent ?? ""}`);
-        } else {
+          if (code.getAttribute("data-scroll-focus") === "") {
+            code.setAttribute("role", "group");
+            code.setAttribute("aria-label", `Full value: ${code.textContent ?? ""}`);
+          }
+        } else if (ours) {
+          const added = code.getAttribute("data-scroll-focus") === "";
+          code.removeAttribute("data-scroll-focus");
           code.removeAttribute("tabindex");
-          code.removeAttribute("role");
-          code.removeAttribute("aria-label");
+          if (added) {
+            code.removeAttribute("role");
+            code.removeAttribute("aria-label");
+          }
         }
       });
     };

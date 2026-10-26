@@ -41,3 +41,22 @@ describe("post-W6 final-fix L11: an overflowing key-value code is keyboard reach
     expect(css).toMatch(/\.v69-key-values dd code:focus-visible \{[^}]*outline: 2px solid/s);
   });
 });
+
+describe("final-fix L11: author-supplied code attributes are preserved", () => {
+  it("keeps an author aria-label on a code that fits and on one that overflows", () => {
+    const row = () => <KeyValues label="Facts" rows={[["Session", <code key="c" aria-label="Session 7">SES-7</code>, "s"]]} />;
+    const view = render(row());
+    const code = view.container.querySelector("code") as HTMLElement;
+    expect(code.getAttribute("aria-label")).toBe("Session 7");
+    overflow(code, 400, 120);
+    view.rerender(row());
+    view.rerender(row());
+    expect(code.getAttribute("aria-label")).toBe("Session 7");
+    expect(code.getAttribute("tabindex")).toBe("0");
+    expect(code.hasAttribute("role")).toBe(false);
+    overflow(code, 100, 120);
+    view.rerender(row());
+    expect(code.getAttribute("aria-label")).toBe("Session 7");
+    expect(code.hasAttribute("tabindex")).toBe(false);
+  });
+});
