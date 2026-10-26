@@ -1,0 +1,17 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "linked-source-wr5",
+  "url": "http://localhost:5189/maintenance/requests/ec39da8c-509d-4e81-85a6-0f1dbc38462f?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "linked-source-wr5",
+  "url": "http://localhost:5189/maintenance/requests/ec39da8c-509d-4e81-85a6-0f1dbc38462f/record?site_id=KOBO-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "linked-source-wr5",
+  "url": "http://localhost:5189/maintenance/requests/ec39da8c-509d-4e81-85a6-0f1dbc38462f/history?site_id=KOBO-001"
+ }
+]

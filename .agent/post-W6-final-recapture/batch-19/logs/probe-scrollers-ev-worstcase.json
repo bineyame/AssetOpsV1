@@ -1,0 +1,146 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 960,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-record-heading",
+    "inner": null,
+    "text": "ItemDetailStatusBasisRecord 1 · 26 Oct 2026, 14:05"
+   }
+  ]
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy26 Oct 2026, 14:05:44 UTCOccurrence tim"
+   }
+  ]
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 960,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-record-heading",
+    "inner": null,
+    "text": "ItemDetailStatusBasisRecord 1 · 26 Oct 2026, 14:05"
+   }
+  ]
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy26 Oct 2026, 14:05:44 UTCOccurrence tim"
+   }
+  ]
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-worstcase-wr-000002",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-worstcase-wr-000002",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-worstcase-wr-000006",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-worstcase-wr-000006",
+  "width": 390,
+  "scrollers": []
+ }
+]

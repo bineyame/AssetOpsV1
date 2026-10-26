@@ -1,0 +1,35 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "cold-wr-000002",
+  "url": "http://localhost:5189/maintenance/requests/eebc7f37-7517-42ec-bf8e-28e81a396d0c?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-wr-000002",
+  "url": "http://localhost:5189/maintenance/requests/eebc7f37-7517-42ec-bf8e-28e81a396d0c/record?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "cold-wr-000002",
+  "url": "http://localhost:5189/maintenance/requests/eebc7f37-7517-42ec-bf8e-28e81a396d0c/history?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-overview",
+  "case": "cold-all-open-wr-000002",
+  "url": "http://localhost:5189/maintenance/requests/eebc7f37-7517-42ec-bf8e-28e81a396d0c?site_id=COLD-LAB-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-all-open-wr-000002",
+  "url": "http://localhost:5189/maintenance/requests/eebc7f37-7517-42ec-bf8e-28e81a396d0c/record?site_id=COLD-LAB-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-history",
+  "case": "cold-all-open-wr-000002",
+  "url": "http://localhost:5189/maintenance/requests/eebc7f37-7517-42ec-bf8e-28e81a396d0c/history?site_id=COLD-LAB-001",
+  "openAll": true
+ }
+]

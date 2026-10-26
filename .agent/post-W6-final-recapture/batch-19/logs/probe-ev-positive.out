@@ -1,0 +1,12 @@
+wr-overview ev-wr-000002 1440 0 0 unfocusable
+wr-overview ev-wr-000002 390 0 0 unfocusable
+wr-record ev-wr-000002 1440 0 0 unfocusable
+wr-record ev-wr-000002 390 1 0 unfocusable
+wr-history ev-wr-000002 1440 0 0 unfocusable
+wr-history ev-wr-000002 390 1 0 unfocusable
+wr-overview ev-all-open-wr-000002 1440 0 0 unfocusable
+wr-overview ev-all-open-wr-000002 390 0 0 unfocusable
+wr-record ev-all-open-wr-000002 1440 0 0 unfocusable
+wr-record ev-all-open-wr-000002 390 1 0 unfocusable
+wr-history ev-all-open-wr-000002 1440 0 0 unfocusable
+wr-history ev-all-open-wr-000002 390 1 0 unfocusable

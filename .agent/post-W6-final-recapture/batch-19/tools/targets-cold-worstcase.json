@@ -1,0 +1,50 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "cold-worstcase-wr-000002",
+  "url": "http://localhost:5189/maintenance/requests/7176d3d6-dc0b-451c-9589-a2f3a2b8a2ed?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-worstcase-wr-000002",
+  "url": "http://localhost:5189/maintenance/requests/7176d3d6-dc0b-451c-9589-a2f3a2b8a2ed/record?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "cold-worstcase-wr-000002",
+  "url": "http://localhost:5189/maintenance/requests/7176d3d6-dc0b-451c-9589-a2f3a2b8a2ed/history?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-overview",
+  "case": "cold-worstcase-wr-000004",
+  "url": "http://localhost:5189/maintenance/requests/5c08e5d5-e615-4098-863e-2dd0d7375323?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-worstcase-wr-000004",
+  "url": "http://localhost:5189/maintenance/requests/5c08e5d5-e615-4098-863e-2dd0d7375323/record?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-history",
+  "case": "cold-worstcase-wr-000004",
+  "url": "http://localhost:5189/maintenance/requests/5c08e5d5-e615-4098-863e-2dd0d7375323/history?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-overview",
+  "case": "cold-worstcase-all-open-wr-000004",
+  "url": "http://localhost:5189/maintenance/requests/5c08e5d5-e615-4098-863e-2dd0d7375323?site_id=COLD-LAB-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-worstcase-all-open-wr-000004",
+  "url": "http://localhost:5189/maintenance/requests/5c08e5d5-e615-4098-863e-2dd0d7375323/record?site_id=COLD-LAB-001",
+  "openAll": true
+ },
+ {
+  "id": "wr-history",
+  "case": "cold-worstcase-all-open-wr-000004",
+  "url": "http://localhost:5189/maintenance/requests/5c08e5d5-e615-4098-863e-2dd0d7375323/history?site_id=COLD-LAB-001",
+  "openAll": true
+ }
+]

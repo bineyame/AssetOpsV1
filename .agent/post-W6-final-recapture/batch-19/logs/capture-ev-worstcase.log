@@ -1,0 +1,99 @@
+chrome pid 1344
+PASS  loaded http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144?site_id=EV-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  wr-overview-ev-worstcase-160-wr-000004 1440: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-overview-ev-worstcase-160-wr-000004 1440: mock rendered
+PASS  wr-overview-ev-worstcase-160-wr-000004 1440: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  wr-overview-ev-worstcase-160-wr-000004 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144?site_id=EV-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-overview-ev-worstcase-160-wr-000004 390: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-overview-ev-worstcase-160-wr-000004 390: mock rendered
+PASS  wr-overview-ev-worstcase-160-wr-000004 390: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  wr-overview-ev-worstcase-160-wr-000004 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/record?site_id=EV-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-record-ev-worstcase-160-wr-000004 1440: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-record: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-record-ev-worstcase-160-wr-000004 1440: mock rendered
+PASS  wr-record-ev-worstcase-160-wr-000004 1440: same panel count  {"app":["Maintenance record · activity"],"mock":["Maintenance record · activity"]}
+PASS  wr-record-ev-worstcase-160-wr-000004 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/record?site_id=EV-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-record-ev-worstcase-160-wr-000004 390: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-record: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-record-ev-worstcase-160-wr-000004 390: mock rendered
+PASS  wr-record-ev-worstcase-160-wr-000004 390: same panel count  {"app":["Maintenance record · activity"],"mock":["Maintenance record · activity"]}
+PASS  wr-record-ev-worstcase-160-wr-000004 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/history?site_id=EV-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  wr-history-ev-worstcase-160-wr-000004 1440: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-history-ev-worstcase-160-wr-000004 1440: mock rendered
+PASS  wr-history-ev-worstcase-160-wr-000004 1440: same panel count  {"app":["History"],"mock":["History"]}
+PASS  wr-history-ev-worstcase-160-wr-000004 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/history?site_id=EV-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-history-ev-worstcase-160-wr-000004 390: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-history-ev-worstcase-160-wr-000004 390: mock rendered
+PASS  wr-history-ev-worstcase-160-wr-000004 390: same panel count  {"app":["History"],"mock":["History"]}
+PASS  wr-history-ev-worstcase-160-wr-000004 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144?site_id=EV-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  wr-overview-ev-worstcase-160-all-open-wr-000004 1440: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-overview-ev-worstcase-160-all-open-wr-000004 1440: mock rendered
+PASS  wr-overview-ev-worstcase-160-all-open-wr-000004 1440: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  wr-overview-ev-worstcase-160-all-open-wr-000004 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144?site_id=EV-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-overview-ev-worstcase-160-all-open-wr-000004 390: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-overview-ev-worstcase-160-all-open-wr-000004 390: mock rendered
+PASS  wr-overview-ev-worstcase-160-all-open-wr-000004 390: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  wr-overview-ev-worstcase-160-all-open-wr-000004 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/record?site_id=EV-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-record-ev-worstcase-160-all-open-wr-000004 1440: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-record: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-record-ev-worstcase-160-all-open-wr-000004 1440: mock rendered
+PASS  wr-record-ev-worstcase-160-all-open-wr-000004 1440: same panel count  {"app":["Maintenance record · activity"],"mock":["Maintenance record · activity"]}
+PASS  wr-record-ev-worstcase-160-all-open-wr-000004 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/record?site_id=EV-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-record-ev-worstcase-160-all-open-wr-000004 390: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-record: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-record-ev-worstcase-160-all-open-wr-000004 390: mock rendered
+PASS  wr-record-ev-worstcase-160-all-open-wr-000004 390: same panel count  {"app":["Maintenance record · activity"],"mock":["Maintenance record · activity"]}
+PASS  wr-record-ev-worstcase-160-all-open-wr-000004 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/history?site_id=EV-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  wr-history-ev-worstcase-160-all-open-wr-000004 1440: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-history-ev-worstcase-160-all-open-wr-000004 1440: mock rendered
+PASS  wr-history-ev-worstcase-160-all-open-wr-000004 1440: same panel count  {"app":["History"],"mock":["History"]}
+PASS  wr-history-ev-worstcase-160-all-open-wr-000004 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/history?site_id=EV-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-history-ev-worstcase-160-all-open-wr-000004 390: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-history-ev-worstcase-160-all-open-wr-000004 390: mock rendered
+PASS  wr-history-ev-worstcase-160-all-open-wr-000004 390: same panel count  {"app":["History"],"mock":["History"]}
+PASS  wr-history-ev-worstcase-160-all-open-wr-000004 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/7f1328e8-4564-406d-a928-3de392586b0b?site_id=EV-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  wr-overview-ev-worstcase-wr-000002 1440: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-overview-ev-worstcase-wr-000002 1440: mock rendered
+PASS  wr-overview-ev-worstcase-wr-000002 1440: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  wr-overview-ev-worstcase-wr-000002 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/7f1328e8-4564-406d-a928-3de392586b0b?site_id=EV-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-overview-ev-worstcase-wr-000002 390: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-overview-ev-worstcase-wr-000002 390: mock rendered
+PASS  wr-overview-ev-worstcase-wr-000002 390: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  wr-overview-ev-worstcase-wr-000002 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/ff35acb5-345d-4deb-8664-abf953a71419?site_id=EV-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  wr-overview-ev-worstcase-wr-000006 1440: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-overview-ev-worstcase-wr-000006 1440: mock rendered
+PASS  wr-overview-ev-worstcase-wr-000006 1440: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  wr-overview-ev-worstcase-wr-000006 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/ff35acb5-345d-4deb-8664-abf953a71419?site_id=EV-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-overview-ev-worstcase-wr-000006 390: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-overview-ev-worstcase-wr-000006 390: mock rendered
+PASS  wr-overview-ev-worstcase-wr-000006 390: same panel count  {"app":["Work done","Lifecycle"],"mock":["Work done","Lifecycle"]}
+PASS  wr-overview-ev-worstcase-wr-000006 390: no app page overflow  {"overflowX":0}
+
+96/96 claims passed; evidence in part-ev-worstcase

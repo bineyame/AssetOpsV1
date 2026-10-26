@@ -1,0 +1,122 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "ev-wr-000002",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-wr-000002",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-wr-000002",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-wr-000002",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 960,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-record-heading",
+    "inner": null,
+    "text": "ItemDetailStatusBasisRecord 1 · 26 Oct 2026, 14:06"
+   }
+  ]
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-wr-000002",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-wr-000002",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy26 Oct 2026, 14:07:09 UTCOccurrence tim"
+   }
+  ]
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-all-open-wr-000002",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "ev-all-open-wr-000002",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-all-open-wr-000002",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-all-open-wr-000002",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 960,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-record-heading",
+    "inner": null,
+    "text": "ItemDetailStatusBasisRecord 1 · 26 Oct 2026, 14:06"
+   }
+  ]
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-all-open-wr-000002",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "ev-all-open-wr-000002",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy26 Oct 2026, 14:07:09 UTCOccurrence tim"
+   }
+  ]
+ }
+]

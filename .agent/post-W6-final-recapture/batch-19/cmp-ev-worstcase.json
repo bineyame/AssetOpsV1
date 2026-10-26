@@ -1,0 +1,928 @@
+[
+ {
+  "screen": "wr-overview",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": "1440",
+  "new_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-ev-worstcase-160-wr-000004-1440-app.png",
+  "mock_image": "wr-overview-ev-worstcase-160-wr-000004-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144?site_id=EV-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Work done",
+    1.41
+   ],
+   [
+    "Lifecycle",
+    1.41
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{'12px': 2, '11px': 10, '10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "raw asset label code \u00b7 TYPE gone (B19-06, Q18)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Work done": 404,
+   "Lifecycle": 404
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-overview",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": "390",
+  "new_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-ev-worstcase-160-wr-000004-390-app.png",
+  "mock_image": "wr-overview-ev-worstcase-160-wr-000004-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144?site_id=EV-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Work done",
+    1.31
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{'12px': 2, '11px': 10, '10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "raw asset label code \u00b7 TYPE gone (B19-06, Q18)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp work-request-prose",
+    "text": "Inspect connector 2 and witness a charging session \u00e2\u20ac\u201d long activity proof aaaaaaa",
+    "sw": 318,
+    "cw": 318,
+    "sh": 77,
+    "ch": 58
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Work done": 442,
+   "Lifecycle": 167
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "mock_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-ev-worstcase-160-wr-000004-1440-app.png",
+  "mock_image": "wr-record-ev-worstcase-160-wr-000004-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/record?site_id=EV-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Maintenance record \u00c2\u00b7 activity",
+    1.42
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 2}->{'11px': 1, '12px': 1}",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "validateDOMNesting console warning gone (B19-08, R368)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Maintenance record \u00c2\u00b7 activity": 622
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "mock_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-ev-worstcase-160-wr-000004-390-app.png",
+  "mock_image": "wr-record-ev-worstcase-160-wr-000004-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/record?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '10px': 1}->{'11px': 1, '10px': 1, '12px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection 2 recorded; recurrence and availability re->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection 2 recorded; recurrence and availability re",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record \u00c2\u00b7 act->[{'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record \u00c2\u00b7 activity'}]",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "validateDOMNesting console warning gone (B19-08, R368)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 960,
+    "cw": 318,
+    "panel": "Maintenance record \u00c2\u00b7 activity"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Outcome note: Inspection 2 recorded; recurrence and availability remain unverifi",
+    "sw": 398,
+    "cw": 398,
+    "sh": 70,
+    "ch": 53
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Maintenance record \u00c2\u00b7 activity": 672
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 960,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-record-heading",
+    "inner": null,
+    "text": "ItemDetailStatusBasisRecord 1 \u00c2\u00b7 26 Oct 2026, 14:05"
+   }
+  ],
+  "cleared": [
+   "same clipped cells as the frozen capture (pixel-only sh/ch change); designed clamp with its Full ... text disclosure"
+  ]
+ },
+ {
+  "screen": "wr-history",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": "1440",
+  "new_app_titles": [
+   "History"
+  ],
+  "mock_titles": [
+   "History"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-history-ev-worstcase-160-wr-000004-1440-app.png",
+  "mock_image": "wr-history-ev-worstcase-160-wr-000004-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/history?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {}->{'12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "History"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "History": 287
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-history",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": "390",
+  "new_app_titles": [
+   "History"
+  ],
+  "mock_titles": [
+   "History"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-history-ev-worstcase-160-wr-000004-390-app.png",
+  "mock_image": "wr-history-ev-worstcase-160-wr-000004-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/history?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'10px': 1}->{'10px': 1, '12px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 750, 'cw': 318, 'panel': 'History'}]->[{'cls': 'data-table__scroll', 'sw': 750, 'cw': 318, 'panel': 'History'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "History"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 750,
+    "cw": 318,
+    "panel": "History"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "History": 310
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy26 Oct 2026, 14:05:44 UTCOccurrence tim"
+   }
+  ],
+  "cleared": []
+ },
+ {
+  "screen": "wr-overview",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": "1440",
+  "new_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-ev-worstcase-160-all-open-wr-000004-1440-app.png",
+  "mock_image": "wr-overview-ev-worstcase-160-all-open-wr-000004-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144?site_id=EV-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Work done",
+    1.56
+   ],
+   [
+    "Lifecycle",
+    1.56
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{'12px': 2, '11px': 10, '10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "raw asset label code \u00b7 TYPE gone (B19-06, Q18)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "Work done": 445,
+   "Lifecycle": 445
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-overview",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": "390",
+  "new_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-ev-worstcase-160-all-open-wr-000004-390-app.png",
+  "mock_image": "wr-overview-ev-worstcase-160-all-open-wr-000004-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144?site_id=EV-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Work done",
+    1.61
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{'12px': 2, '11px': 10, '10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "raw asset label code \u00b7 TYPE gone (B19-06, Q18)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp work-request-prose",
+    "text": "Inspect connector 2 and witness a charging session \u00e2\u20ac\u201d long activity proof aaaaaaa",
+    "sw": 318,
+    "cw": 318,
+    "sh": 77,
+    "ch": 58
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "Work done": 543,
+   "Lifecycle": 167
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "mock_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-ev-worstcase-160-all-open-wr-000004-1440-app.png",
+  "mock_image": "wr-record-ev-worstcase-160-all-open-wr-000004-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/record?site_id=EV-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Maintenance record \u00c2\u00b7 activity",
+    1.42
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 2}->{'11px': 1, '12px': 1}",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "validateDOMNesting console warning gone (B19-08, R368)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "Maintenance record \u00c2\u00b7 activity": 622
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "mock_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-ev-worstcase-160-all-open-wr-000004-390-app.png",
+  "mock_image": "wr-record-ev-worstcase-160-all-open-wr-000004-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/record?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '10px': 1}->{'11px': 1, '10px': 1, '12px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection 2 recorded; recurrence and availability re->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection 2 recorded; recurrence and availability re",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record \u00c2\u00b7 act->[{'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record \u00c2\u00b7 activity'}]",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "validateDOMNesting console warning gone (B19-08, R368)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 960,
+    "cw": 318,
+    "panel": "Maintenance record \u00c2\u00b7 activity"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Outcome note: Inspection 2 recorded; recurrence and availability remain unverifi",
+    "sw": 398,
+    "cw": 398,
+    "sh": 70,
+    "ch": 53
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "Maintenance record \u00c2\u00b7 activity": 720
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 960,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-record-heading",
+    "inner": null,
+    "text": "ItemDetailStatusBasisRecord 1 \u00c2\u00b7 26 Oct 2026, 14:05"
+   }
+  ],
+  "cleared": [
+   "same clipped cells as the frozen capture (pixel-only sh/ch change); designed clamp with its Full ... text disclosure"
+  ]
+ },
+ {
+  "screen": "wr-history",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": "1440",
+  "new_app_titles": [
+   "History"
+  ],
+  "mock_titles": [
+   "History"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-history-ev-worstcase-160-all-open-wr-000004-1440-app.png",
+  "mock_image": "wr-history-ev-worstcase-160-all-open-wr-000004-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/history?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {}->{'12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "History"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "History": 303
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-history",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": "390",
+  "new_app_titles": [
+   "History"
+  ],
+  "mock_titles": [
+   "History"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-history-ev-worstcase-160-all-open-wr-000004-390-app.png",
+  "mock_image": "wr-history-ev-worstcase-160-all-open-wr-000004-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/5bd87f71-08d1-4e4d-be9f-044de1b7b144/history?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'10px': 1}->{'10px': 1, '12px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 750, 'cw': 318, 'panel': 'History'}]->[{'cls': 'data-table__scroll', 'sw': 750, 'cw': 318, 'panel': 'History'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "History"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 750,
+    "cw": 318,
+    "panel": "History"
+   }
+  ],
+  "inner_all_clipped": [],
+  "open_all": true,
+  "panel_heights": {
+   "History": 326
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy26 Oct 2026, 14:05:44 UTCOccurrence tim"
+   }
+  ],
+  "cleared": []
+ },
+ {
+  "screen": "wr-overview",
+  "case": "ev-worstcase-wr-000002",
+  "width": "1440",
+  "new_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-ev-worstcase-wr-000002-1440-app.png",
+  "mock_image": "wr-overview-ev-worstcase-wr-000002-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/7f1328e8-4564-406d-a928-3de392586b0b?site_id=EV-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Work done",
+    1.41
+   ],
+   [
+    "Lifecycle",
+    1.41
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{'12px': 2, '11px': 10, '10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "raw asset label code \u00b7 TYPE gone (B19-06, Q18)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Work done": 404,
+   "Lifecycle": 404
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-overview",
+  "case": "ev-worstcase-wr-000002",
+  "width": "390",
+  "new_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-ev-worstcase-wr-000002-390-app.png",
+  "mock_image": "wr-overview-ev-worstcase-wr-000002-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/7f1328e8-4564-406d-a928-3de392586b0b?site_id=EV-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Work done",
+    1.31
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{'12px': 2, '11px': 10, '10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "raw asset label code \u00b7 TYPE gone (B19-06, Q18)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp work-request-prose",
+    "text": "Inspect connector 1 and witness a charging session \u00e2\u20ac\u201d long activity proof aaaaaaa",
+    "sw": 318,
+    "cw": 318,
+    "sh": 77,
+    "ch": 58
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Work done": 442,
+   "Lifecycle": 167
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-overview",
+  "case": "ev-worstcase-wr-000006",
+  "width": "1440",
+  "new_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-ev-worstcase-wr-000006-1440-app.png",
+  "mock_image": "wr-overview-ev-worstcase-wr-000006-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/ff35acb5-345d-4deb-8664-abf953a71419?site_id=EV-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Work done",
+    1.41
+   ],
+   [
+    "Lifecycle",
+    1.41
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{'12px': 2, '11px': 10, '10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "raw asset label code \u00b7 TYPE gone (B19-06, Q18)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {
+   "Work done": 404,
+   "Lifecycle": 404
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-overview",
+  "case": "ev-worstcase-wr-000006",
+  "width": "390",
+  "new_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-ev-worstcase-wr-000006-390-app.png",
+  "mock_image": "wr-overview-ev-worstcase-wr-000006-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/ff35acb5-345d-4deb-8664-abf953a71419?site_id=EV-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Work done",
+    1.31
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{'12px': 2, '11px': 10, '10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "raw asset label code \u00b7 TYPE gone (B19-06, Q18)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp work-request-prose",
+    "text": "Inspect connector 3 and witness a charging session \u00e2\u20ac\u201d long activity proof aaaaaaa",
+    "sw": 318,
+    "cw": 318,
+    "sh": 77,
+    "ch": 58
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Work done": 442,
+   "Lifecycle": 167
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ }
+]

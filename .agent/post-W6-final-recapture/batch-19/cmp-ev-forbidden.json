@@ -1,0 +1,293 @@
+[
+ {
+  "screen": "wr-overview",
+  "case": "ev-forbidden-403",
+  "width": "1440",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-ev-forbidden-403-1440-app.png",
+  "mock_image": "wr-overview-ev-forbidden-403-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/54e75a2f-b17e-48c7-bdae-2dee3cfaa7b5?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['Work done', 'Lifecycle'] -> []",
+   "h1.text 'Connector diagnostic inspection'->'Work request'",
+   "h2 presence True->False",
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "W5 forbidden principal now refused 'No access to this Site's work.' (B19-15, R373)",
+   "refusal: header + one refusal, no empty shell panels (B19-07, R367)",
+   "false Reload gone on non-503 refusal (B19-07)",
+   "raw asset label code \u00b7 TYPE gone (B19-06, Q18)"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {},
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-overview",
+  "case": "ev-forbidden-403",
+  "width": "390",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-ev-forbidden-403-390-app.png",
+  "mock_image": "wr-overview-ev-forbidden-403-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/54e75a2f-b17e-48c7-bdae-2dee3cfaa7b5?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['Work done', 'Lifecycle'] -> []",
+   "h1.text 'Connector diagnostic inspection'->'Work request'",
+   "h1.top 163->139",
+   "h2 presence True->False",
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{}",
+   "pageH 1190->900",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "W5 forbidden principal now refused 'No access to this Site's work.' (B19-15, R373)",
+   "refusal: header + one refusal, no empty shell panels (B19-07, R367)",
+   "false Reload gone on non-503 refusal (B19-07)",
+   "raw asset label code \u00b7 TYPE gone (B19-06, Q18)"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {},
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "ev-forbidden-403",
+  "width": "1440",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-ev-forbidden-403-1440-app.png",
+  "mock_image": "wr-record-ev-forbidden-403-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/54e75a2f-b17e-48c7-bdae-2dee3cfaa7b5/record?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['Maintenance record \u00c2\u00b7 activity'] -> []",
+   "h1.text 'Connector diagnostic inspection'->'Work request'",
+   "h2 presence True->False",
+   "td presence True->False",
+   "th presence True->False",
+   "pSizes {'11px': 2}->{}",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "W5 forbidden principal now refused 'No access to this Site's work.' (B19-15, R373)",
+   "refusal: header + one refusal, no empty shell panels (B19-07, R367)",
+   "false Reload gone on non-503 refusal (B19-07)",
+   "validateDOMNesting console warning gone (B19-08, R368)"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {},
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "ev-forbidden-403",
+  "width": "390",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-ev-forbidden-403-390-app.png",
+  "mock_image": "wr-record-ev-forbidden-403-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/54e75a2f-b17e-48c7-bdae-2dee3cfaa7b5/record?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['Maintenance record \u00c2\u00b7 activity'] -> []",
+   "h1.text 'Connector diagnostic inspection'->'Work request'",
+   "h1.top 163->139",
+   "h2 presence True->False",
+   "td presence True->False",
+   "th presence True->False",
+   "pSizes {'11px': 2, '10px': 1}->{}",
+   "pageH 1306->900",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record \u00c2\u00b7 act->[]",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "W5 forbidden principal now refused 'No access to this Site's work.' (B19-15, R373)",
+   "refusal: header + one refusal, no empty shell panels (B19-07, R367)",
+   "false Reload gone on non-503 refusal (B19-07)",
+   "validateDOMNesting console warning gone (B19-08, R368)"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {},
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-history",
+  "case": "ev-forbidden-403",
+  "width": "1440",
+  "new_app_titles": [],
+  "mock_titles": [
+   "History"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-history-ev-forbidden-403-1440-app.png",
+  "mock_image": "wr-history-ev-forbidden-403-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/54e75a2f-b17e-48c7-bdae-2dee3cfaa7b5/history?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['History'] -> []",
+   "h1.text 'Connector diagnostic inspection'->'Work request'",
+   "h2 presence True->False",
+   "td presence True->False",
+   "th presence True->False"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "History"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "W5 forbidden principal now refused 'No access to this Site's work.' (B19-15, R373)",
+   "refusal: header + one refusal, no empty shell panels (B19-07, R367)",
+   "false Reload gone on non-503 refusal (B19-07)"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {},
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-history",
+  "case": "ev-forbidden-403",
+  "width": "390",
+  "new_app_titles": [],
+  "mock_titles": [
+   "History"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-history-ev-forbidden-403-390-app.png",
+  "mock_image": "wr-history-ev-forbidden-403-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/54e75a2f-b17e-48c7-bdae-2dee3cfaa7b5/history?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['History'] -> []",
+   "h1.text 'Connector diagnostic inspection'->'Work request'",
+   "h2 presence True->False",
+   "td presence True->False",
+   "th presence True->False",
+   "pSizes {'10px': 1}->{}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 750, 'cw': 318, 'panel': 'History'}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "History"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "W5 forbidden principal now refused 'No access to this Site's work.' (B19-15, R373)",
+   "refusal: header + one refusal, no empty shell panels (B19-07, R367)",
+   "false Reload gone on non-503 refusal (B19-07)"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {},
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ }
+]

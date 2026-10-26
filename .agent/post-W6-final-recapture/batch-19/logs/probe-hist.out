@@ -1,0 +1,12 @@
+wr-overview historical-120001-rev2 1440 0 0 unfocusable
+wr-overview historical-120001-rev2 390 0 0 unfocusable
+wr-overview historical-current-rev3 1440 0 0 unfocusable
+wr-overview historical-current-rev3 390 0 0 unfocusable
+wr-record historical-120001-rev2 1440 0 0 unfocusable
+wr-record historical-120001-rev2 390 1 0 unfocusable
+wr-record historical-current-rev3 1440 0 0 unfocusable
+wr-record historical-current-rev3 390 1 0 unfocusable
+wr-history historical-120001-rev2 1440 0 0 unfocusable
+wr-history historical-120001-rev2 390 1 0 unfocusable
+wr-history historical-current-rev3 1440 0 0 unfocusable
+wr-history historical-current-rev3 390 1 0 unfocusable

@@ -1,0 +1,940 @@
+[
+ {
+  "screen": "wr-overview",
+  "case": "worstcase-200char-wr7",
+  "width": "1440",
+  "new_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-worstcase-200char-wr7-1440-app.png",
+  "mock_image": "wr-overview-worstcase-200char-wr7-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/4b0ceba3-aa5e-45af-b3f3-fe6a76ea960e?site_id=KOBO-001",
+  "ratios_over_1.3": [
+   [
+    "Work done",
+    1.55
+   ],
+   [
+    "Lifecycle",
+    1.55
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{'12px': 2, '11px': 10, '10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "work-request-preview",
+    "text": "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+    "sw": 206,
+    "cw": 206,
+    "sh": 66,
+    "ch": 33
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp work-request-prose",
+    "text": "Inspection narrative Inspection narrative Inspection narrative Inspection narrat",
+    "sw": 694,
+    "cw": 694,
+    "sh": 614,
+    "ch": 58
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp work-request-prose",
+    "text": "Replaced starter relay and tested Replaced starter relay and tested Replaced sta",
+    "sw": 694,
+    "cw": 694,
+    "sh": 595,
+    "ch": 58
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Work done": 442,
+   "Lifecycle": 442
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-overview",
+  "case": "worstcase-200char-wr7",
+  "width": "390",
+  "new_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-worstcase-200char-wr7-390-app.png",
+  "mock_image": "wr-overview-worstcase-200char-wr7-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/4b0ceba3-aa5e-45af-b3f3-fe6a76ea960e?site_id=KOBO-001",
+  "ratios_over_1.3": [
+   [
+    "Work done",
+    1.31
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{'12px': 2, '11px': 10, '10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "work-request-preview",
+    "text": "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+    "sw": 152,
+    "cw": 152,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp work-request-prose",
+    "text": "Inspection narrative Inspection narrative Inspection narrative Inspection narrat",
+    "sw": 318,
+    "cw": 318,
+    "sh": 1477,
+    "ch": 58
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp work-request-prose",
+    "text": "Replaced starter relay and tested Replaced starter relay and tested Replaced sta",
+    "sw": 318,
+    "cw": 318,
+    "sh": 1305,
+    "ch": 58
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Work done": 442,
+   "Lifecycle": 167
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-overview",
+  "case": "worstcase-all-open-wr7",
+  "width": "1440",
+  "new_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-worstcase-all-open-wr7-1440-app.png",
+  "mock_image": "wr-overview-worstcase-all-open-wr7-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/4b0ceba3-aa5e-45af-b3f3-fe6a76ea960e?site_id=KOBO-001",
+  "ratios_over_1.3": [
+   [
+    "Work done",
+    4.42
+   ],
+   [
+    "Lifecycle",
+    4.42
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{'12px': 2, '11px': 10, '10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "work-request-preview",
+    "text": "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+    "sw": 203,
+    "cw": 203,
+    "sh": 66,
+    "ch": 33
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp work-request-prose",
+    "text": "Inspection narrative Inspection narrative Inspection narrative Inspection narrat",
+    "sw": 685,
+    "cw": 685,
+    "sh": 614,
+    "ch": 58
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp work-request-prose",
+    "text": "Replaced starter relay and tested Replaced starter relay and tested Replaced sta",
+    "sw": 685,
+    "cw": 685,
+    "sh": 595,
+    "ch": 58
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "Work done": 1263,
+   "Lifecycle": 1263
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-overview",
+  "case": "worstcase-all-open-wr7",
+  "width": "390",
+  "new_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-worstcase-all-open-wr7-390-app.png",
+  "mock_image": "wr-overview-worstcase-all-open-wr7-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/4b0ceba3-aa5e-45af-b3f3-fe6a76ea960e?site_id=KOBO-001",
+  "ratios_over_1.3": [
+   [
+    "Work done",
+    6.75
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'12px': 1, '11px': 10, '10px': 1}->{'12px': 2, '11px': 10, '10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "work-request-preview",
+    "text": "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+    "sw": 152,
+    "cw": 152,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp work-request-prose",
+    "text": "Inspection narrative Inspection narrative Inspection narrative Inspection narrat",
+    "sw": 318,
+    "cw": 318,
+    "sh": 1477,
+    "ch": 58
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp work-request-prose",
+    "text": "Replaced starter relay and tested Replaced starter relay and tested Replaced sta",
+    "sw": 318,
+    "cw": 318,
+    "sh": 1305,
+    "ch": 58
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "Work done": 2283,
+   "Lifecycle": 167
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "worstcase-200char-wr7",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "mock_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-worstcase-200char-wr7-1440-app.png",
+  "mock_image": "wr-record-worstcase-200char-wr7-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/4b0ceba3-aa5e-45af-b3f3-fe6a76ea960e/record?site_id=KOBO-001",
+  "ratios_over_1.3": [
+   [
+    "Maintenance record \u00c2\u00b7 activity",
+    1.36
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 2}->{'11px': 1, '12px': 1}",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "validateDOMNesting console warning gone (B19-08, R368)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "work-request-preview",
+    "text": "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+    "sw": 203,
+    "cw": 203,
+    "sh": 66,
+    "ch": 33
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Replaced starter relay and tested Replaced starter relay and tested Replaced sta",
+    "sw": 461,
+    "cw": 461,
+    "sh": 739,
+    "ch": 53
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Maintenance record \u00c2\u00b7 activity": 596
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "worstcase-200char-wr7",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "mock_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-worstcase-200char-wr7-390-app.png",
+  "mock_image": "wr-record-worstcase-200char-wr7-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/4b0ceba3-aa5e-45af-b3f3-fe6a76ea960e/record?site_id=KOBO-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '10px': 1}->{'11px': 1, '10px': 1, '12px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record \u00c2\u00b7 act->[{'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record \u00c2\u00b7 activity'}]",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "validateDOMNesting console warning gone (B19-08, R368)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 960,
+    "cw": 318,
+    "panel": "Maintenance record \u00c2\u00b7 activity"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "work-request-preview",
+    "text": "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+    "sw": 152,
+    "cw": 152,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Replaced starter relay and tested Replaced starter relay and tested Replaced sta",
+    "sw": 398,
+    "cw": 398,
+    "sh": 897,
+    "ch": 53
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "Maintenance record \u00c2\u00b7 activity": 636
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 960,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-record-heading",
+    "inner": null,
+    "text": "ItemDetailStatusBasisRecord 1 \u00c2\u00b7 19 Oct 2026, 12:00"
+   }
+  ],
+  "cleared": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "worstcase-all-open-wr7",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "mock_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-worstcase-all-open-wr7-1440-app.png",
+  "mock_image": "wr-record-worstcase-all-open-wr7-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/4b0ceba3-aa5e-45af-b3f3-fe6a76ea960e/record?site_id=KOBO-001",
+  "ratios_over_1.3": [
+   [
+    "Maintenance record \u00c2\u00b7 activity",
+    1.42
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 2}->{'11px': 1, '12px': 1}",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "validateDOMNesting console warning gone (B19-08, R368)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "work-request-preview",
+    "text": "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+    "sw": 203,
+    "cw": 203,
+    "sh": 66,
+    "ch": 33
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Replaced starter relay and tested Replaced starter relay and tested Replaced sta",
+    "sw": 455,
+    "cw": 455,
+    "sh": 757,
+    "ch": 53
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "Maintenance record \u00c2\u00b7 activity": 622
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "worstcase-all-open-wr7",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "mock_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-worstcase-all-open-wr7-390-app.png",
+  "mock_image": "wr-record-worstcase-all-open-wr7-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/4b0ceba3-aa5e-45af-b3f3-fe6a76ea960e/record?site_id=KOBO-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 2, '10px': 1}->{'11px': 1, '10px': 1, '12px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record \u00c2\u00b7 act->[{'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record \u00c2\u00b7 activity'}]",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "validateDOMNesting console warning gone (B19-08, R368)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 960,
+    "cw": 318,
+    "panel": "Maintenance record \u00c2\u00b7 activity"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "work-request-preview",
+    "text": "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+    "sw": 152,
+    "cw": 152,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Replaced starter relay and tested Replaced starter relay and tested Replaced sta",
+    "sw": 398,
+    "cw": 398,
+    "sh": 897,
+    "ch": 53
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "Maintenance record \u00c2\u00b7 activity": 763
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 960,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-record-heading",
+    "inner": null,
+    "text": "ItemDetailStatusBasisRecord 1 \u00c2\u00b7 19 Oct 2026, 12:00"
+   }
+  ],
+  "cleared": []
+ },
+ {
+  "screen": "wr-history",
+  "case": "worstcase-200char-wr7",
+  "width": "1440",
+  "new_app_titles": [
+   "History"
+  ],
+  "mock_titles": [
+   "History"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-history-worstcase-200char-wr7-1440-app.png",
+  "mock_image": "wr-history-worstcase-200char-wr7-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/4b0ceba3-aa5e-45af-b3f3-fe6a76ea960e/history?site_id=KOBO-001",
+  "ratios_over_1.3": [
+   [
+    "History",
+    1.47
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {}->{'12px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'work-request-preview', 'text': 'FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFiel->[{'tag': 'DIV', 'cls': 'work-request-preview', 'text': 'FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFiel"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "History"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "work-request-preview",
+    "text": "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+    "sw": 203,
+    "cw": 203,
+    "sh": 66,
+    "ch": 33
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Correction: Corrected the inspection scope Corrected the inspection scope Correc",
+    "sw": 479,
+    "cw": 479,
+    "sh": 176,
+    "ch": 53
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "History": 487
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": [
+   "same clipped cells as the frozen capture (pixel-only sh/ch change); designed clamp with its Full ... text disclosure"
+  ]
+ },
+ {
+  "screen": "wr-history",
+  "case": "worstcase-200char-wr7",
+  "width": "390",
+  "new_app_titles": [
+   "History"
+  ],
+  "mock_titles": [
+   "History"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-history-worstcase-200char-wr7-390-app.png",
+  "mock_image": "wr-history-worstcase-200char-wr7-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/4b0ceba3-aa5e-45af-b3f3-fe6a76ea960e/history?site_id=KOBO-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'10px': 1}->{'10px': 1, '12px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 750, 'cw': 318, 'panel': 'History'}]->[{'cls': 'data-table__scroll', 'sw': 750, 'cw': 318, 'panel': 'History'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "History"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 750,
+    "cw": 318,
+    "panel": "History"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "work-request-preview",
+    "text": "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+    "sw": 152,
+    "cw": 152,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Assigned to FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmai",
+    "sw": 318,
+    "cw": 318,
+    "sh": 70,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Correction: Corrected the inspection scope Corrected the inspection scope Correc",
+    "sw": 318,
+    "cw": 318,
+    "sh": 246,
+    "ch": 53
+   }
+  ],
+  "open_all": false,
+  "panel_heights": {
+   "History": 510
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy20 Oct 2026, 11:59:07 UTCOccurrence tim"
+   }
+  ],
+  "cleared": []
+ },
+ {
+  "screen": "wr-history",
+  "case": "worstcase-all-open-wr7",
+  "width": "1440",
+  "new_app_titles": [
+   "History"
+  ],
+  "mock_titles": [
+   "History"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-history-worstcase-all-open-wr7-1440-app.png",
+  "mock_image": "wr-history-worstcase-all-open-wr7-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/4b0ceba3-aa5e-45af-b3f3-fe6a76ea960e/history?site_id=KOBO-001",
+  "ratios_over_1.3": [
+   [
+    "History",
+    1.59
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {}->{'12px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "History"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "work-request-preview",
+    "text": "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+    "sw": 203,
+    "cw": 203,
+    "sh": 66,
+    "ch": 33
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Correction: Corrected the inspection scope Corrected the inspection scope Correc",
+    "sw": 472,
+    "cw": 472,
+    "sh": 176,
+    "ch": 53
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "History": 529
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-history",
+  "case": "worstcase-all-open-wr7",
+  "width": "390",
+  "new_app_titles": [
+   "History"
+  ],
+  "mock_titles": [
+   "History"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-history-worstcase-all-open-wr7-390-app.png",
+  "mock_image": "wr-history-worstcase-all-open-wr7-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/4b0ceba3-aa5e-45af-b3f3-fe6a76ea960e/history?site_id=KOBO-001",
+  "ratios_over_1.3": [
+   [
+    "History",
+    1.5
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'10px': 1}->{'10px': 1, '12px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 750, 'cw': 318, 'panel': 'History'}]->[{'cls': 'data-table__scroll', 'sw': 750, 'cw': 318, 'panel': 'History'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "History"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 750,
+    "cw": 318,
+    "panel": "History"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "work-request-preview",
+    "text": "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+    "sw": 152,
+    "cw": 152,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Assigned to FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmai",
+    "sw": 318,
+    "cw": 318,
+    "sh": 70,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Correction: Corrected the inspection scope Corrected the inspection scope Correc",
+    "sw": 318,
+    "cw": 318,
+    "sh": 246,
+    "ch": 53
+   }
+  ],
+  "open_all": true,
+  "panel_heights": {
+   "History": 602
+  },
+  "over_ruled_cap": [],
+  "probe_scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy20 Oct 2026, 11:59:07 UTCOccurrence tim"
+   }
+  ],
+  "cleared": []
+ }
+]

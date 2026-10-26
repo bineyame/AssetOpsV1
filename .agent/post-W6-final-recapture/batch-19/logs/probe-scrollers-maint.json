@@ -1,0 +1,218 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "open-wr-000001",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "open-wr-000001",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "open-wr-000001",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "open-wr-000001",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "open-wr-000001",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "open-wr-000001",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy20 Oct 2026, 11:59:00 UTCOccurrence tim"
+   }
+  ]
+ },
+ {
+  "id": "wr-overview",
+  "case": "cancelled-from-open-wr-000004",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "cancelled-from-open-wr-000004",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "cancelled-from-open-wr-000004",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "cancelled-from-open-wr-000004",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "cancelled-from-open-wr-000004",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "cancelled-from-open-wr-000004",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy20 Oct 2026, 11:59:03 UTCOccurrence tim"
+   }
+  ]
+ },
+ {
+  "id": "wr-overview",
+  "case": "in-progress-assigned-wr-000005",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "in-progress-assigned-wr-000005",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "in-progress-assigned-wr-000005",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "in-progress-assigned-wr-000005",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "in-progress-assigned-wr-000005",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "in-progress-assigned-wr-000005",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy20 Oct 2026, 11:59:04 UTCOccurrence tim"
+   }
+  ]
+ },
+ {
+  "id": "wr-overview",
+  "case": "completed-wr-000006",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "completed-wr-000006",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "completed-wr-000006",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "completed-wr-000006",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 960,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-record-heading",
+    "inner": null,
+    "text": "ItemDetailStatusBasisRecord 1 · 19 Oct 2026, 12:00"
+   }
+  ]
+ },
+ {
+  "id": "wr-history",
+  "case": "completed-wr-000006",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "completed-wr-000006",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy20 Oct 2026, 11:59:05 UTCOccurrence tim"
+   }
+  ]
+ },
+ {
+  "id": "wr-overview",
+  "case": "other-tenant-wr8-404",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "other-tenant-wr8-404",
+  "width": 390,
+  "scrollers": []
+ }
+]

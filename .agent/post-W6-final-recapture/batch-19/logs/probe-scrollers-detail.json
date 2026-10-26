@@ -1,0 +1,398 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "positive-wr1-in-progress",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "positive-wr1-in-progress",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "all-open-wr1",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "all-open-wr1",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "cancelled-wr2",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "cancelled-wr2",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "not-found-404",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "not-found-404",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "no-site-id",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "no-site-id",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "bad-known-at",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "bad-known-at",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "positive-wr1-in-progress",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "positive-wr1-in-progress",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 960,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-record-heading",
+    "inner": null,
+    "text": "ItemDetailStatusBasisRecord 1 · 19 Oct 2026, 12:00"
+   }
+  ]
+ },
+ {
+  "id": "wr-record",
+  "case": "all-open-wr1",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "all-open-wr1",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 960,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-record-heading",
+    "inner": null,
+    "text": "ItemDetailStatusBasisRecord 1 · 19 Oct 2026, 12:00"
+   }
+  ]
+ },
+ {
+  "id": "wr-record",
+  "case": "cancelled-wr2",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "cancelled-wr2",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "not-found-404",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "not-found-404",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "no-site-id",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "no-site-id",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "bad-known-at",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "bad-known-at",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "positive-wr1-in-progress",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "positive-wr1-in-progress",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy20 Oct 2026, 11:59:00 UTCOccurrence tim"
+   }
+  ]
+ },
+ {
+  "id": "wr-history",
+  "case": "all-open-wr1",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "all-open-wr1",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy20 Oct 2026, 11:59:00 UTCOccurrence tim"
+   }
+  ]
+ },
+ {
+  "id": "wr-history",
+  "case": "cancelled-wr2",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "cancelled-wr2",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy20 Oct 2026, 11:59:07 UTCOccurrence tim"
+   }
+  ]
+ },
+ {
+  "id": "wr-history",
+  "case": "not-found-404",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "not-found-404",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "no-site-id",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "no-site-id",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "bad-known-at",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "bad-known-at",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "page2-wr1",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "page2-wr1",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy20 Oct 2026, 11:59:00 UTCOccurrence tim"
+   }
+  ]
+ },
+ {
+  "id": "wr-history",
+  "case": "page2-all-open-wr1",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "page2-all-open-wr1",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy20 Oct 2026, 11:59:00 UTCOccurrence tim"
+   }
+  ]
+ },
+ {
+  "id": "wr-history",
+  "case": "historical-1159-04-wr1",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "historical-1159-04-wr1",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 750,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-history-heading",
+    "inner": null,
+    "text": "TimeEventBy20 Oct 2026, 11:59:00 UTCOccurrence tim"
+   }
+  ]
+ },
+ {
+  "id": "wr-overview",
+  "case": "historical-1159-04-wr1-completed",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "historical-1159-04-wr1-completed",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "wrong-site-kobo002",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "wrong-site-kobo002",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "malformed-case-id",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "malformed-case-id",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "before-created-known-at",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "before-created-known-at",
+  "width": 390,
+  "scrollers": []
+ }
+]

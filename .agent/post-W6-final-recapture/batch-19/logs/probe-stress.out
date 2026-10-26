@@ -1,0 +1,12 @@
+wr-overview worstcase-200char-wr7 1440 0 0 unfocusable
+wr-overview worstcase-200char-wr7 390 0 0 unfocusable
+wr-overview worstcase-all-open-wr7 1440 0 0 unfocusable
+wr-overview worstcase-all-open-wr7 390 0 0 unfocusable
+wr-record worstcase-200char-wr7 1440 0 0 unfocusable
+wr-record worstcase-200char-wr7 390 1 0 unfocusable
+wr-record worstcase-all-open-wr7 1440 0 0 unfocusable
+wr-record worstcase-all-open-wr7 390 1 0 unfocusable
+wr-history worstcase-200char-wr7 1440 0 0 unfocusable
+wr-history worstcase-200char-wr7 390 1 0 unfocusable
+wr-history worstcase-all-open-wr7 1440 0 0 unfocusable
+wr-history worstcase-all-open-wr7 390 1 0 unfocusable

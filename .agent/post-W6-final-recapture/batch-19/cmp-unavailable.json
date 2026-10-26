@@ -1,0 +1,256 @@
+[
+ {
+  "screen": "wr-overview",
+  "case": "store-unavailable-503",
+  "width": "1440",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-store-unavailable-503-1440-app.png",
+  "mock_image": "wr-overview-store-unavailable-503-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/7dcc9494-addb-44cc-baf6-705a45d812c1?site_id=KOBO-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['Work done', 'Lifecycle'] -> []",
+   "h2 presence True->False",
+   "pSizes {'10px': 1}->{}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "refusal: header + one refusal, no empty shell panels (B19-07, R367)"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {},
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-overview",
+  "case": "store-unavailable-503",
+  "width": "390",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-overview-store-unavailable-503-390-app.png",
+  "mock_image": "wr-overview-store-unavailable-503-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/7dcc9494-addb-44cc-baf6-705a45d812c1?site_id=KOBO-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['Work done', 'Lifecycle'] -> []",
+   "h1.top 281->139",
+   "h2 presence True->False",
+   "pSizes {'10px': 1}->{}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 250->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Work done",
+   "Lifecycle"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "refusal: header + one refusal, no empty shell panels (B19-07, R367)"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {},
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "store-unavailable-503",
+  "width": "1440",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-store-unavailable-503-1440-app.png",
+  "mock_image": "wr-record-store-unavailable-503-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/7dcc9494-addb-44cc-baf6-705a45d812c1/record?site_id=KOBO-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['Maintenance record \u00c2\u00b7 activity'] -> []",
+   "h2 presence True->False",
+   "pSizes {'11px': 1}->{}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "refusal: header + one refusal, no empty shell panels (B19-07, R367)"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {},
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "store-unavailable-503",
+  "width": "390",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-store-unavailable-503-390-app.png",
+  "mock_image": "wr-record-store-unavailable-503-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/7dcc9494-addb-44cc-baf6-705a45d812c1/record?site_id=KOBO-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['Maintenance record \u00c2\u00b7 activity'] -> []",
+   "h1.top 315->139",
+   "h2 presence True->False",
+   "pSizes {'11px': 1}->{}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 284->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record \u00c2\u00b7 activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "refusal: header + one refusal, no empty shell panels (B19-07, R367)"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {},
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-history",
+  "case": "store-unavailable-503",
+  "width": "1440",
+  "new_app_titles": [],
+  "mock_titles": [
+   "History"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-history-store-unavailable-503-1440-app.png",
+  "mock_image": "wr-history-store-unavailable-503-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/7dcc9494-addb-44cc-baf6-705a45d812c1/history?site_id=KOBO-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['History'] -> []",
+   "h2 presence True->False"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "History"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "refusal: header + one refusal, no empty shell panels (B19-07, R367)"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {},
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ },
+ {
+  "screen": "wr-history",
+  "case": "store-unavailable-503",
+  "width": "390",
+  "new_app_titles": [],
+  "mock_titles": [
+   "History"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-history-store-unavailable-503-390-app.png",
+  "mock_image": "wr-history-store-unavailable-503-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/7dcc9494-addb-44cc-baf6-705a45d812c1/history?site_id=KOBO-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['History'] -> []",
+   "h1.top 336->139",
+   "h2 presence True->False",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 305->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "History"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 tab row wraps; History tab no longer cut (B19-03, R364)",
+   "refusal: header + one refusal, no empty shell panels (B19-07, R367)"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [],
+  "open_all": false,
+  "panel_heights": {},
+  "over_ruled_cap": [],
+  "probe_scrollers": [],
+  "cleared": []
+ }
+]

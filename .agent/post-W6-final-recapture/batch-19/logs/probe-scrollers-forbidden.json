@@ -1,0 +1,38 @@
+[
+ {
+  "id": "wr-overview",
+  "case": "forbidden-403",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-overview",
+  "case": "forbidden-403",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "forbidden-403",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "forbidden-403",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "forbidden-403",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-history",
+  "case": "forbidden-403",
+  "width": 390,
+  "scrollers": []
+ }
+]
