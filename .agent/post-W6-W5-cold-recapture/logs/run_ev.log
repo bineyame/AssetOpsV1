@@ -1,0 +1,19 @@
+positive 12
+zero 4
+Stop-Process : Cannot find a process with the process identifier 31328.
+At line:1 char:113
++ ... ort 5187' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
++                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (31328:Int32) [Stop-Process], ProcessCommandException
+    + FullyQualifiedErrorId : NoProcessFoundForGivenId,Microsoft.PowerShell.Commands.StopProcessCommand
+ 
+Stop-Process : Cannot find a process with the process identifier 31848.
+At line:1 char:113
++ ... ort 5187' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
++                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (31848:Int32) [Stop-Process], ProcessCommandException
+    + FullyQualifiedErrorId : NoProcessFoundForGivenId,Microsoft.PowerShell.Commands.StopProcessCommand
+ 
+worstcase 4
+forbidden 2
+unavailable 2

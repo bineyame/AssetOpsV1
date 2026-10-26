@@ -1,0 +1,47 @@
+[
+ {
+  "id": "sitework-incidents",
+  "case": "one-incident",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "one-request",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "empty-kobo",
+  "url": "http://127.0.0.1:5452/sites/KOBO-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "empty-kobo",
+  "url": "http://127.0.0.1:5452/sites/KOBO-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "empty-past-window",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-27T00%3A00%3A00Z&to=2026-10-19T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-maintenance",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-27T00%3A00%3A00Z&to=2026-10-19T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "refused-long",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "sitework-incidents",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents"
+ }
+]

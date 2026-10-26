@@ -1,0 +1,131 @@
+[
+ {
+  "id": "cooling",
+  "case": "current-limited",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z"
+ },
+ {
+  "id": "cold-health",
+  "case": "current-limited",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z"
+ },
+ {
+  "id": "cold-scenarios",
+  "case": "current-limited",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z"
+ },
+ {
+  "id": "cold-work",
+  "case": "positive",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "cooling",
+  "case": "empty-window",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z"
+ },
+ {
+  "id": "cold-health",
+  "case": "empty-window",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z"
+ },
+ {
+  "id": "cold-scenarios",
+  "case": "empty-window",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z"
+ },
+ {
+  "id": "cold-work",
+  "case": "zero",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+ },
+ {
+  "id": "cold-work",
+  "case": "historical",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A47%3A23.074563Z"
+ },
+ {
+  "id": "cooling",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z"
+ },
+ {
+  "id": "cold-health",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z"
+ },
+ {
+  "id": "cold-scenarios",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z"
+ },
+ {
+  "id": "cold-work",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z"
+ },
+ {
+  "id": "cold-work",
+  "case": "refused-span-32d",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-09-22T00:00:00Z&to=2026-10-24T00:00:00Z"
+ },
+ {
+  "id": "cooling",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling"
+ },
+ {
+  "id": "cold-health",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/health"
+ },
+ {
+  "id": "cold-scenarios",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios"
+ },
+ {
+  "id": "cold-work",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work"
+ },
+ {
+  "id": "cooling",
+  "case": "work-day-window",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "cold-health",
+  "case": "work-day-window",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "cold-scenarios",
+  "case": "work-day-window",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "cooling",
+  "case": "all-open",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+  "openAll": true
+ },
+ {
+  "id": "cold-health",
+  "case": "all-open",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+  "openAll": true
+ },
+ {
+  "id": "cold-scenarios",
+  "case": "all-open",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+  "openAll": true
+ },
+ {
+  "id": "cold-work",
+  "case": "all-open",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ }
+]

@@ -1,4 +1,4 @@
-# Handoff: post-W6 W5-cold-Work (partial)
+# Handoff: post-W6 W5-cold-Work (COMPLETE: all steps done, see packet "Completion")
 
 Branch `task/post-W6-W5-cold-work`, last build commit 363008e1. Packet: `.agent/post-W6-W5-cold-packet.md`.
 

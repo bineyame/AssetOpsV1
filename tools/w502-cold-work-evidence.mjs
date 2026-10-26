@@ -1021,9 +1021,11 @@ async function actionMain() {
     capK4(W, "action-not-found", m, wi);
     for (const [k, proc] of [["action-403", forbidden], ["action-503", unavailable]]) {
       m = await recordK4(W, wi, k, url(procBase(proc), aid, null));
-      claim(`${W} ${k}: one untitled refusal panel, 'Cold work unavailable', server message and Retry (${proc.expected.http} ${proc.expected.code})`,
-        m.shell === "refused" && m.panelCount === 1 && m.headings[0] === "" && m.refusal === proc.expected.code && /Cold work unavailable/.test(m.refusalText) &&
-          m.refusalMessage.length > 0 && !/unexpected shape|could not be reached/.test(m.refusalMessage) && m.retryVisible === true,
+      // post-W6 W5-cold B15-04: the message is chosen by exact code (client copy); Retry only on a 503 or an unreached server.
+      const expectMsg = proc.expected.code === "SITE_SCOPE_FORBIDDEN" ? /You do not have access to this site./ : /Cold work is unavailable right now. Try again./;
+      claim(`${W} ${k}: one untitled refusal panel with the code-keyed message, Retry only for 503 (${proc.expected.http} ${proc.expected.code})`,
+        m.shell === "refused" && m.panelCount === 1 && m.headings[0] === "" && m.refusal === proc.expected.code && expectMsg.test(m.refusalText ?? "") &&
+          m.refusalMessage.length > 0 && !/unexpected shape|could not be reached/.test(m.refusalMessage) && m.retryVisible === (proc.expected.http === 503),
         { refusal: m.refusal, text: m.refusalText, message: m.refusalMessage, retry: m.retryVisible });
       capK4(W, k, m, wi);
     }

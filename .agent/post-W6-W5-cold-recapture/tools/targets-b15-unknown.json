@@ -1,0 +1,17 @@
+[
+ {
+  "id": "cold-work-incidents",
+  "case": "unknown",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A49%3A22.196816Z"
+ },
+ {
+  "id": "cold-work-maintenance",
+  "case": "unknown",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A49%3A22.196816Z"
+ },
+ {
+  "id": "cold-action",
+  "case": "unknown",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/actions/babd78dd-156a-45c2-ab21-22f1cef7905c/verification?known_at=2026-10-26T00%3A49%3A22.196816Z"
+ }
+]
