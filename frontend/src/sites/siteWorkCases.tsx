@@ -28,7 +28,7 @@ import { Link } from "react-router-dom";
 import { DataTable, Disclosure, Fact, FactList, Notice, Panel, ProductStatus, RailIcon, type ProductWords } from "../ui";
 import { globalWorkRequestHref } from "../work/globalWorkClient";
 import { READ_FULL_TEXT, coldCurrentnessNotice, coldCurrentnessTone, isLongText } from "./coldWorkPresentation";
-import { siteDateTimeText, siteLocalDate, siteLocalEndUtc, siteLocalLastDay, siteLocalMidnightUtc, siteLocalParts, siteZoneLabel } from "./siteTime";
+import { siteDateTimeText, siteLocalDate, siteLocalEndUtc, siteLocalLastDay, siteLocalMidnightUtc, siteLocalParts, siteZoneDisplayLabel } from "./siteTime";
 import type { DomainStatus } from "./domainActionClient";
 import { EV_ACTION_LINK_LIVE, EV_SOURCE_FINDING_UNAVAILABLE, evActionHref } from "./evWorkPresentation";
 import type { DecisionRead, MiniDecisionsClient, WorkContextsBody, WorkDecisionContext } from "./miniDecisionsClient";
@@ -323,7 +323,7 @@ function WindowForm({
       setLast(lastDay(scope.to, timeZone));
     }
   }, [scope.from, scope.to, valid, timeZone]);
-  const zone = siteZoneLabel(timeZone, scope.from);
+  const zone = siteZoneDisplayLabel(timeZone, scope.from);
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (!first || !last) return;

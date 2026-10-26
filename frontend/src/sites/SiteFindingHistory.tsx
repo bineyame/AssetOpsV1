@@ -28,7 +28,7 @@ import { findingRefusalWords } from "./findingPresentation";
 import { findingCurrentnessWords, LIFECYCLE_WORDS, transitionWords } from "./findingWords";
 import { FINDING_NAME } from "./SiteFindingEvidence";
 import { findingLocalTime } from "./findingTime";
-import { siteZoneLabel } from "./siteTime";
+import { siteZoneDisplayLabel } from "./siteTime";
 import "./w1ux02-finding.css";
 import "./w1f3-finding-history.css";
 
@@ -343,8 +343,8 @@ function RevisionHistory({
   const versionHead = (
     <thead>
       <tr>
-        <th scope="col" data-history-time-zone={siteZoneLabel(timeZone, rows[0]?.times.recorded_at ?? null)}>
-          Time ({siteZoneLabel(timeZone, rows[0]?.times.recorded_at ?? null)})
+        <th scope="col" data-history-time-zone={siteZoneDisplayLabel(timeZone, rows[0]?.times.recorded_at ?? null)}>
+          Time ({siteZoneDisplayLabel(timeZone, rows[0]?.times.recorded_at ?? null)})
         </th>
         <th scope="col">Event</th>
         <th scope="col">Basis</th>

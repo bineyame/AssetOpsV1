@@ -114,20 +114,29 @@ export function isLongText(text: string): boolean {
 
 /**
  * post-W6 W5-cold B15-04 (cites R322; W4 Q10 exact-code taxonomy, W5 rulings 2): the cold Action refusal by exact code.
- * Never the raw server message, cutoff or Site code. Retry only for 503 and an unreached server; a client-authored
- * sentence (no code: unreachable or unexpected shape) is kept as written.
+ * Never the raw server message, cutoff or Site code. Superseded in part by the final-fix M2 map below.
  */
-export const COLD_ACTION_REFUSAL_COPY: Record<string, string> = {
-  INVALID_KNOWN_AT: "Choose a valid evidence cutoff.",
-  SITE_SCOPE_FORBIDDEN: "You do not have access to this site.",
-  WORK_STORE_UNAVAILABLE: "Cold work is unavailable right now. Try again.",
-};
-export const COLD_ACTION_REFUSED = "The attempt was refused.";
+export const COLD_ACTION_REFUSAL_COPY = {
+  invalidKnownAt: "Choose a valid evidence cutoff.",
+  forbidden: "You do not have access to this site.",
+  unavailable: "Cold work is unavailable right now. Try again.",
+  changed: "The Action changed while it was being read.",
+  other: "The Action could not be read.",
+} as const;
+/** post-W6 final-fix M2: the one recoverable-read button label of the shared Action shell, cold and EV. */
+export const COLD_WORK_RELOAD = "Reload";
 
+/**
+ * post-W6 final-fix M2: mirrors `evActionRefusal` with the cold noun. By code and status, never the raw server text:
+ * `INVALID_KNOWN_AT` names the cutoff, 403 is access, 503 and an unreached server are the recoverable unavailable state,
+ * 409 is a changed Action; Reload only where a retry could succeed (503, unreached, 409).
+ */
 export function coldActionRefusal(refusal: { http: number | null; code: string | null; message: string }): { message: string; retry: boolean } {
-  const retry = refusal.http === null || refusal.http === 503;
-  if (refusal.code === null) return { message: refusal.message, retry };
-  return { message: COLD_ACTION_REFUSAL_COPY[refusal.code] ?? COLD_ACTION_REFUSED, retry };
+  if (refusal.code === "INVALID_KNOWN_AT") return { message: COLD_ACTION_REFUSAL_COPY.invalidKnownAt, retry: false };
+  if (refusal.http === null || refusal.http === 503) return { message: COLD_ACTION_REFUSAL_COPY.unavailable, retry: true };
+  if (refusal.http === 403) return { message: COLD_ACTION_REFUSAL_COPY.forbidden, retry: false };
+  if (refusal.http === 409) return { message: COLD_ACTION_REFUSAL_COPY.changed, retry: true };
+  return { message: COLD_ACTION_REFUSAL_COPY.other, retry: false };
 }
 
 /**
@@ -151,6 +160,8 @@ export const COLD_ACTION_PRESENTATION: DomainActionPresentation = {
   closingNotice: COLD_ACTION_NOTICE,
   windowQuery: false,
   refusal: coldActionRefusal,
+  reloadLabel: COLD_WORK_RELOAD,
+  technicalDetail: true,
   panel: {
     criteriaTitle: COLD_CRITERIA_TITLE,
     columns: COLD_CRITERIA_COLUMNS,

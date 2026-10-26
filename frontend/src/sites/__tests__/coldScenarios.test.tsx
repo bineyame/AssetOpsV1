@@ -631,3 +631,29 @@ describe("authored, pending and historical cold Scenarios", () => {
     expect(list).not.toHaveBeenCalled();
   });
 });
+
+describe("post-W6 final-fix L4/L5: the cold Scenarios Site tab row", () => {
+  const tabHrefs = () =>
+    Array.from(document.querySelectorAll('nav[aria-label="Site sections"] a')).map((a) => a.getAttribute("href") ?? "");
+
+  it("carries the validated window and cutoff, like the breadcrumb", async () => {
+    await renderPage(stub(() => loaded(body([]))).client);
+    const overview = tabHrefs().find((h) => h.startsWith(`/sites/${SITE_CODE}?`)) ?? "";
+    expect(overview).toContain(`from=${encodeURIComponent(FROM)}`);
+    expect(overview).toContain(`to=${encodeURIComponent(TO)}`);
+    expect(overview).toContain(`known_at=${encodeURIComponent(KNOWN)}`);
+    expect(overview).not.toContain("scenario_at");
+  });
+
+  it("drops a one-sided window from the tab row but keeps a valid cutoff", async () => {
+    await renderPage(stub(() => loaded(body([]))).client, `?from=${encodeURIComponent(FROM)}&known_at=${encodeURIComponent(KNOWN)}`);
+    const all = tabHrefs().join(" ");
+    expect(all).not.toContain("from=");
+    expect(all).toContain(`known_at=${encodeURIComponent(KNOWN)}`);
+  });
+
+  it("propagates nothing when the address has no selection", async () => {
+    await renderPage(stub(() => loaded(body([]))).client, "");
+    expect(tabHrefs().join(" ")).not.toContain("?");
+  });
+});

@@ -175,3 +175,30 @@ export function siteLocalEndUtc(lastDay: string, timeZone: string | null | undef
   const next = nextIsoDate(lastDay);
   return next === "" ? "" : siteLocalMidnightUtc(next, timeZone);
 }
+
+/** `YYYY-MM-DD` shifted by `days` (pure date arithmetic), or "" for a bad date. */
+export function shiftIsoDate(isoDate: string, days: number): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return "";
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return "";
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+/**
+ * post-W6 final-fix M1: the mini Site Work default, seven Site-local calendar days including today, from local
+ * midnight six days before the Site's current date to local midnight tomorrow, as UTC instants. A missing or
+ * invalid zone uses UTC (callers say so in the date-field labels).
+ */
+export function siteSevenDayWindow(timeZone: string | null | undefined, now: Date = new Date()): { from: string; to: string } {
+  const today = siteLocalDate(now.toISOString(), timeZone);
+  return { from: siteLocalMidnightUtc(shiftIsoDate(today, -6), timeZone), to: siteLocalEndUtc(today, timeZone) };
+}
+
+/** The unavailable-zone label for display beside Site-time fields (UI guide section 4). */
+export const SITE_ZONE_UNAVAILABLE_LABEL = "UTC (Site time zone unavailable)";
+
+/** `siteZoneLabel`, but a missing or invalid zone reads `UTC (Site time zone unavailable)` for display. */
+export function siteZoneDisplayLabel(timeZone: string | null | undefined, at?: string | null): string {
+  return validZone(timeZone) === null ? SITE_ZONE_UNAVAILABLE_LABEL : siteZoneLabel(timeZone, at);
+}

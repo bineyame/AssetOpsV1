@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { eatTime } from "../coldSiteViews";
-import { nextIsoDate, siteLocalEndUtc, siteLocalLastDay, siteTime, siteZoneLabel } from "../siteTime";
+import { nextIsoDate, siteLocalEndUtc, siteLocalLastDay, siteSevenDayWindow, siteTime, siteZoneDisplayLabel, siteZoneLabel } from "../siteTime";
 
 describe("post-W6 W2-EV: shared Site-timezone formatter", () => {
   it("formats Addis Ababa local time with seconds, the EAT label and exact UTC", () => {
@@ -60,5 +60,35 @@ describe("post-W6 W4 build ruling 7: inclusive Site-local end dates over a half-
     expect(siteLocalLastDay("2026-10-31T21:00:00Z", "Africa/Addis_Ababa")).toBe("2026-10-31");
     expect(siteLocalLastDay("2026-10-26T00:00:00Z", "Europe/London")).toBe("2026-10-25");
     expect(siteLocalLastDay("bad", null)).toBe("");
+  });
+});
+
+describe("post-W6 final-fix M1: the mini Site Work seven-Site-local-day default", () => {
+  it("EAT near midnight: 22:30Z on the 26th is the 27th at the Site, so the window ends 28 Oct 00:00 EAT", () => {
+    expect(siteSevenDayWindow("Africa/Addis_Ababa", new Date("2026-10-26T22:30:00Z"))).toEqual({ from: "2026-10-20T21:00:00Z", to: "2026-10-27T21:00:00Z" });
+  });
+
+  it("EAT just before local midnight stays on the same Site day", () => {
+    expect(siteSevenDayWindow("Africa/Addis_Ababa", new Date("2026-10-26T20:59:59Z"))).toEqual({ from: "2026-10-19T21:00:00Z", to: "2026-10-26T21:00:00Z" });
+  });
+
+  it("falls back to UTC days for a missing or invalid zone", () => {
+    const utc = { from: "2026-10-20T00:00:00Z", to: "2026-10-27T00:00:00Z" };
+    expect(siteSevenDayWindow(null, new Date("2026-10-26T22:30:00Z"))).toEqual(utc);
+    expect(siteSevenDayWindow("Not/AZone", new Date("2026-10-26T22:30:00Z"))).toEqual(utc);
+  });
+
+  it("a clock-change zone keeps local midnights: New York leaves daylight time on 1 Nov 2026", () => {
+    // 3 Nov: six days back is 28 Oct (EDT, UTC-4); tomorrow 4 Nov 00:00 is EST (UTC-5). The window is 7 local days, 169 hours.
+    const w = siteSevenDayWindow("America/New_York", new Date("2026-11-03T15:00:00Z"));
+    expect(w).toEqual({ from: "2026-10-28T04:00:00Z", to: "2026-11-04T05:00:00Z" });
+    expect((new Date(w.to).getTime() - new Date(w.from).getTime()) / 3_600_000).toBe(169);
+  });
+
+  it("names an unavailable Site zone in full for display, and keeps the short label for valid zones", () => {
+    expect(siteZoneDisplayLabel(null)).toBe("UTC (Site time zone unavailable)");
+    expect(siteZoneDisplayLabel("Not/AZone")).toBe("UTC (Site time zone unavailable)");
+    expect(siteZoneDisplayLabel("Etc/UTC")).toBe("UTC");
+    expect(siteZoneDisplayLabel("Africa/Addis_Ababa")).toBe("EAT");
   });
 });

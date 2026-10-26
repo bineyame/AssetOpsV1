@@ -27,13 +27,15 @@ from assetops_backend.financials import ev_money as em
 NO_MONEY = "No gross tariff scenario assessed."
 HISTORY_LABEL = "Historical scenario"
 NOT_INCLUDED = ["lost_sales", "collections", "margin", "repair", "warranty"]
+#: post-W6 final-fix L3: one plain sentence for the withheld tariff state, Site and estate pinned reads alike.
+STALE_BASIS_COPY = "No stored gross tariff estimate matches the evidence at this cutoff."
 #: q1 R5/R6 visible copy per (guard or stored) reason.
 MONEY_COPY = {
     "HISTORICAL_CURRENT_CLAIM": HISTORY_LABEL,
     em.ERROR_PENDING: "New evidence is being assessed. The previous result may change.",
     em.SOURCE_GATE: "EV source or binding is unverified; session outcomes cannot be assessed.",
     em.CONTRADICTORY: "Accepted EV records conflict; no current gross tariff estimate.",
-    "STALE_BASIS": "No stored gross tariff estimate matches the current evidence.",
+    "STALE_BASIS": STALE_BASIS_COPY,
     em.INCOMPLETE: "Delivered energy is incomplete for pricing; partial metered energy is shown separately.",
     em.TARIFF_MISSING: "No published EV tariff covers the eligible delivery.",
     em.PRICE_GAP: "One tariff revision does not cover all eligible delivery intervals.",
@@ -85,7 +87,7 @@ SOURCE_SUFFIX = {"ev_session_event": "session", "ev_connector_fault": "connector
 UNKNOWN_SOURCE_SUFFIX = "EV reading"
 #: W3-02 0c r1 H1: the pinned `STALE_BASIS` copy (the as-of tariff basis has no stored head by K), and the label of
 #: an explicit earlier cutoff.
-STALE_AS_OF_COPY = "Withheld · tariff basis has no stored consequence at this evidence cutoff"
+STALE_AS_OF_COPY = STALE_BASIS_COPY
 HISTORICAL_AS_OF = "Historical as of {known_at}"
 #: Review r1 M3: the plain word of each connector state (`sites/binding_roles.EV_CONNECTOR_STATES`).
 STATE_TEXT = {"AVAILABLE": "Available", "UNPLUGGED": "Unplugged", "PLUGGED": "Plugged in",

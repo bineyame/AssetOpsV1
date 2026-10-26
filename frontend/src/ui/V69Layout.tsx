@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import { PageHeader } from "./PageHeader";
 
@@ -91,7 +91,7 @@ export function MetricHeader({ cells, label, data }: { cells: [ReactNode, ReactN
       {cells.map(([term, value, key], index) => (
         <div key={key ?? index} data-mheader-cell={key}>
           <dt>{term}</dt>
-          <dd>{value}</dd>
+          <KeyValueValue>{value}</KeyValueValue>
         </div>
       ))}
     </dl>
@@ -114,6 +114,38 @@ export function KeyValues({ rows, label }: { rows: [ReactNode, ReactNode, string
       ))}
     </dl>
   );
+}
+
+/**
+ * post-W6 final-fix L11: a code token wider than its value box scrolls inside itself (`primitives.css`); a scrolling
+ * region must be reachable by keyboard. Each overflowing `code` in the value becomes a focusable group named by its
+ * full text (the visible focus ring is CSS); one that fits stays out of the tab order.
+ */
+export function KeyValueValue({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const root = ref.current;
+    if (root === null) return undefined;
+    const mark = () => {
+      root.querySelectorAll("code").forEach((code) => {
+        if (code.scrollWidth > code.clientWidth + 1) {
+          code.setAttribute("tabindex", "0");
+          code.setAttribute("role", "group");
+          code.setAttribute("aria-label", `Full value: ${code.textContent ?? ""}`);
+        } else {
+          code.removeAttribute("tabindex");
+          code.removeAttribute("role");
+          code.removeAttribute("aria-label");
+        }
+      });
+    };
+    mark();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver(mark);
+    observer.observe(root);
+    return () => observer.disconnect();
+  });
+  return <dd ref={ref}>{children}</dd>;
 }
 
 export interface AttentionItem {

@@ -891,7 +891,7 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
     expect(document.querySelector("[data-domain-action-strip]")).toBeNull();
   });
 
-  it("a 404 says not found and never falls back to W1; a refusal shows its exact-code sentence, Retry only for 503", async () => {
+  it("a 404 says not found and never falls back to W1; a refusal shows its exact-code sentence, Reload only for 503", async () => {
     stubFetch(() => json(599, {}));
     const missing = domainClient(
       () => ({ status: "loaded", value: indexBody([]) }),
@@ -918,8 +918,8 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
     expect(text(main.querySelector("h1"))).toBe("Action");
     expect(main.querySelector("[data-domain-action-crumb-code]")).toBeNull();
     expect(main.querySelector("[data-domain-action-notice]")).toBeNull();
-    // post-W6 B15-04: a 403 offers no Retry; a 503 does.
-    expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
+    // post-W6 B15-04: a 403 offers no Reload; a 503 does.
+    expect(screen.queryByRole("button", { name: "Reload" })).toBeNull();
     cleanup();
     attempts = 0;
     const unavailable = domainClient(
@@ -931,7 +931,7 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
     );
     main = await mountAction(`/sites/${SITE}/actions/${DOMAIN_ID}/verification`, unavailable.client);
     expect(text(main.querySelector("[data-domain-action-refusal-message]"))).toBe("Cold work is unavailable right now. Try again.");
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    fireEvent.click(screen.getByRole("button", { name: "Reload" }));
     await waitFor(() => expect(attempts).toBe(2));
     expect(fetchRecord).toEqual([]);
   });

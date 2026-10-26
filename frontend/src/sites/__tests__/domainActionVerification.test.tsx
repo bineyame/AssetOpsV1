@@ -299,10 +299,12 @@ describe("cold-action strip, currentness and non-loaded states (rulings 3, 4, 6,
     [422, "INVALID_KNOWN_AT", "'known_at' must be one UTC instant no later than the read time. 2099-01-01T00:00:00Z", "Choose a valid evidence cutoff.", false],
     [403, "SITE_SCOPE_FORBIDDEN", "No access to Site 'COLD-001'.", "You do not have access to this site.", false],
     [503, "WORK_STORE_UNAVAILABLE", "The work store is unavailable.", "Cold work is unavailable right now. Try again.", true],
-    [409, "SOMETHING_NEW", "Raw server text COLD-001.", "The attempt was refused.", false],
-    [null, null, "The cold work read could not be reached.", "The cold work read could not be reached.", true],
-    [503, null, "The cold work read answered in an unexpected shape.", "The cold work read answered in an unexpected shape.", true],
-    [500, null, "The cold work read answered in an unexpected shape.", "The cold work read answered in an unexpected shape.", false],
+    // post-W6 final-fix M2: cold mirrors EV's code/status map; 409 is a changed Action with Reload; other is one sentence.
+    [409, "DOMAIN_INTENT_BASIS_CHANGED", "Raw server text COLD-001.", "The Action changed while it was being read.", true],
+    [418, "SOMETHING_NEW", "Raw server text COLD-001.", "The Action could not be read.", false],
+    [null, null, "The cold work read could not be reached.", "Cold work is unavailable right now. Try again.", true],
+    [503, null, "The cold work read answered in an unexpected shape.", "Cold work is unavailable right now. Try again.", true],
+    [500, null, "The cold work read answered in an unexpected shape.", "The Action could not be read.", false],
   ])("a %s %s refusal shows one untitled alert panel with the exact-code sentence", async (http, code, message, sentence, retry) => {
     const { main, calls } = await mount(() => ({ status: "refused", http, code, message }));
     expect(main.querySelectorAll("section.panel")).toHaveLength(1);
@@ -316,12 +318,16 @@ describe("cold-action strip, currentness and non-loaded states (rulings 3, 4, 6,
     expect(text(panel)).not.toContain("COLD-001");
     expect(text(panel)).not.toContain("2099-01-01");
     expect(main.textContent).not.toContain("Related activity");
+    // M2: the same labelled technical disclosure as EV, status and code outside the primary copy.
+    expect(text(panel.querySelector("[data-domain-action-technical]"))).toBe(`Status ${http ?? "none"} · code ${code ?? "none"}`);
+    expect(text(panel.querySelector("[data-domain-action-refusal-message]"))).not.toContain("Status");
     const button = panel.querySelector("[data-domain-action-retry]") as HTMLElement | null;
     if (!retry) {
       expect(button).toBeNull();
       expect(panel.querySelector("button")).toBeNull();
       return;
     }
+    expect(button?.textContent).toBe("Reload");
     fireEvent.click(button as HTMLElement);
     await settledScreen();
     expect(calls).toHaveLength(2);
@@ -643,7 +649,9 @@ describe("ev-action window (R348)", () => {
     ["one-sided", q(EV_FROM, null), SAME],
     ["reversed", q(EV_TO, EV_FROM), SAME],
     ["32 days", q("2026-09-01T00:00:00Z", "2026-10-03T00:00:00Z"), "The selected window is longer than 31 days."],
-    ["non-UTC", q("2026-10-06T08:00:00+03:00", "2026-10-06T09:00:00+03:00"), SAME],
+    // post-W6 final-fix L9: a correctly ordered non-UTC pair is a format error, not an ordering one.
+    ["non-UTC", q("2026-10-06T08:00:00+03:00", "2026-10-06T09:00:00+03:00"), "The selected window start and end must be UTC times."],
+    ["non-UTC and reversed", q("2026-10-06T09:00:00+03:00", "2026-10-06T08:00:00+03:00"), SAME],
   ])("a %s window is refused before any read and carried by no link", async (_name, query, sentence) => {
     const { main, calls } = await mountEv(() => loaded(evDetail()), `/verification${query}`);
     expect(calls).toEqual([]);

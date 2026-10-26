@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import type { ColdAssessmentClient } from "../sites/coldAssessmentClient";
 import { coldWindowFromParams, coldWindowSearch } from "../sites/coldAssessmentClient";
+import { invalidScope, isUtcInstant } from "../sites/domainActionClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
 import { ColdSiteFrame, type ColdSiteRoutes, type ColdSiteView } from "../sites/coldSiteViews";
 import type { SiteDetailReadModel } from "../sites/siteReadModel";
@@ -25,7 +26,14 @@ import {
  * `known_at` through W2-EV's `OperatorSiteTabs` `search` override; other Site types get no query (undefined).
  */
 export function coldTabSearch(site: { site_type: string }, params: URLSearchParams): string | undefined {
-  return site.site_type === "COLDCHAIN" ? coldWindowSearch(coldWindowFromParams(params)) : undefined;
+  if (site.site_type !== "COLDCHAIN") return undefined;
+  // post-W6 final-fix L5: the same valid-window gate as `evWorkTabSearch`. A one-sided, reversed, overlong or non-UTC
+  // window is dropped from destination tabs (the current page may still explain it); a valid cutoff is kept alone.
+  const window = coldWindowFromParams(params);
+  const known_at = window.known_at !== null && isUtcInstant(window.known_at) ? window.known_at : null;
+  const complete =
+    window.from !== null && window.to !== null && invalidScope({ from: window.from, to: window.to, knownAt: null, cursor: null }) === null;
+  return coldWindowSearch({ from: complete ? window.from : null, to: complete ? window.to : null, known_at });
 }
 
 /** W2-04: the UI route bases (no query) the five cold Site screens link to. */

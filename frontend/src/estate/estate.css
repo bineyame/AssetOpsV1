@@ -135,13 +135,15 @@
   }
 
   /* Q8: a narrow sticky first column so Finding, Site, Priority and part of Confidence show at 390. */
-  .estate-page .data-table th:first-child,
-  .estate-page .data-table td:first-child {
+  /* post-W6 final-fix M3: Findings only (identified by its column group, like the 672px rule below); the Financials,
+     Evidence, Actions and Portfolio tables keep their own first-column widths. */
+  .estate-page:not([data-estate-root="actions"]) .data-table:has(col.estate-findings-col) th:first-child,
+  .estate-page:not([data-estate-root="actions"]) .data-table:has(col.estate-findings-col) td:first-child {
     width: 152px;
     max-width: 152px;
   }
 
-  .estate-page .data-table col:first-child {
+  .estate-page:not([data-estate-root="actions"]) .data-table:has(col.estate-findings-col) col:first-child {
     width: 152px !important;
   }
 

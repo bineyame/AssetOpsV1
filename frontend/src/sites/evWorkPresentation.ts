@@ -104,6 +104,7 @@ export const EV_ACTION_HEADINGS = { loading: "Loading Action…", notFound: "Act
 
 /** R348: the one title of an unreadable selected window (W2-EV ruling 5). */
 export const EV_ACTION_WINDOW_TITLE = "Window cannot be read";
+export const EV_WINDOW_NOT_UTC_TEXT = "The selected window start and end must be UTC times.";
 export const EV_ACTION_WITHOUT_WINDOW = "Open this Action without a window";
 
 /**
@@ -115,6 +116,13 @@ export function actionWindowRefusal(window: { from: string | null; to: string | 
   if (window.from === null && window.to === null) return null;
   const bad = invalidScope({ from: window.from ?? "", to: window.to ?? "", knownAt: null, cursor: null });
   if (bad === null) return null;
+  if (window.from !== null && window.to !== null && !(isUtcInstant(window.from) && isUtcInstant(window.to))) {
+    // post-W6 final-fix L9: a correctly ordered pair that is not UTC is a format error, not an ordering one.
+    const start = new Date(window.from).getTime();
+    const end = new Date(window.to).getTime();
+    if (Number.isNaN(start) || Number.isNaN(end) || start < end) return EV_WINDOW_NOT_UTC_TEXT;
+    return EV_WINDOW_INVALID_TEXT;
+  }
   if (window.from !== null && window.to !== null && isUtcInstant(window.from) && isUtcInstant(window.to)) {
     const span = new Date(window.to).getTime() - new Date(window.from).getTime();
     if (span > 0 && span > 31 * 24 * 3600 * 1000) return EV_WINDOW_TOO_LONG_TEXT;
