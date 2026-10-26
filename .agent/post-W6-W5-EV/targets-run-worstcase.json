@@ -1,0 +1,76 @@
+[
+ {
+  "id": "ev-work",
+  "case": "worstcase",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work",
+  "case": "worstcase-all-open",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "ev-health",
+  "case": "worstcase-db",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "id": "ev-scenarios",
+  "case": "worstcase-db",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "worstcase-positive-action",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/257bec4a-0ef3-4b2d-a844-ed6ae3ee925c/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "worstcase-160-2",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/c03ccdb6-be55-4965-91d5-8cd7ec2f98b0/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "worstcase-160-all-open",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/c03ccdb6-be55-4965-91d5-8cd7ec2f98b0/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "ev-action",
+  "case": "worstcase-160-3",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/3f5e44fa-f4ef-43ab-90fc-130e33e27ddc/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "worstcase-160-4",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/3a133e4d-4d8c-4964-bde7-aac01c3dfa20/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "worstcase-160-5",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/27ce7320-f66c-4b71-bd91-d4eca89ea355/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "worstcase-five-160",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "worstcase-five-160-all-open",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "worstcase-five-160",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "worstcase-five-160-all-open",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ }
+]

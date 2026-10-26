@@ -1,0 +1,809 @@
+[
+  {
+    "page": "availability",
+    "title": "Connector states over the service schedule",
+    "mode": "closed",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 275,
+      "scrollH": 273,
+      "clientH": 273,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 607
+        },
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 466
+        }
+      ],
+      "clippedY": 2
+    }
+  },
+  {
+    "page": "availability",
+    "title": "Connector states over the service schedule",
+    "mode": "closed",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 316,
+      "scrollH": 314,
+      "clientH": 314,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 607
+        },
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 466
+        }
+      ],
+      "clippedY": 2
+    }
+  },
+  {
+    "page": "availability",
+    "title": "Connector states over the service schedule",
+    "mode": "stress",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 275,
+      "scrollH": 273,
+      "clientH": 273,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 607
+        },
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 466
+        }
+      ],
+      "clippedY": 2
+    },
+    "stress": {
+      "h": 626,
+      "scrollH": 624,
+      "clientH": 624,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 806
+        },
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 806
+        }
+      ],
+      "clippedY": 2
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 11,
+    "allSet160": true
+  },
+  {
+    "page": "availability",
+    "title": "Connector states over the service schedule",
+    "mode": "stress",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 316,
+      "scrollH": 314,
+      "clientH": 314,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 607
+        },
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 466
+        }
+      ],
+      "clippedY": 2
+    },
+    "stress": {
+      "h": 826,
+      "scrollH": 824,
+      "clientH": 824,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 806
+        },
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 806
+        }
+      ],
+      "clippedY": 2
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 11,
+    "allSet160": true
+  },
+  {
+    "page": "availability",
+    "title": "Full-schedule availability bound",
+    "mode": "closed",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 182,
+      "scrollH": 180,
+      "clientH": 180,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    }
+  },
+  {
+    "page": "availability",
+    "title": "Full-schedule availability bound",
+    "mode": "closed",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 182,
+      "scrollH": 180,
+      "clientH": 180,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    }
+  },
+  {
+    "page": "availability",
+    "title": "Full-schedule availability bound",
+    "mode": "stress",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 182,
+      "scrollH": 180,
+      "clientH": 180,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 182,
+      "scrollH": 180,
+      "clientH": 180,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 1,
+    "allSet160": true
+  },
+  {
+    "page": "availability",
+    "title": "Full-schedule availability bound",
+    "mode": "stress",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 182,
+      "scrollH": 180,
+      "clientH": 180,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 205,
+      "scrollH": 203,
+      "clientH": 203,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 1,
+    "allSet160": true
+  },
+  {
+    "page": "availability",
+    "title": "Most useful next evidence",
+    "mode": "closed",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 182,
+      "scrollH": 180,
+      "clientH": 180,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    }
+  },
+  {
+    "page": "availability",
+    "title": "Most useful next evidence",
+    "mode": "closed",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 205,
+      "scrollH": 203,
+      "clientH": 203,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    }
+  },
+  {
+    "page": "availability",
+    "title": "Most useful next evidence",
+    "mode": "stress",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 182,
+      "scrollH": 180,
+      "clientH": 180,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 218,
+      "scrollH": 216,
+      "clientH": 216,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 2,
+    "allSet160": true
+  },
+  {
+    "page": "availability",
+    "title": "Most useful next evidence",
+    "mode": "stress",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 205,
+      "scrollH": 203,
+      "clientH": 203,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 241,
+      "scrollH": 239,
+      "clientH": 239,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 2,
+    "allSet160": true
+  },
+  {
+    "page": "energy",
+    "title": "Import power and configured limit",
+    "mode": "closed",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 403,
+      "scrollH": 401,
+      "clientH": 401,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 131
+        }
+      ],
+      "clippedY": 1
+    }
+  },
+  {
+    "page": "energy",
+    "title": "Import power and configured limit",
+    "mode": "closed",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 292,
+      "scrollH": 290,
+      "clientH": 290,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 131
+        },
+        {
+          "cls": "data-table__scroll data-table__scroll--s",
+          "client": 318,
+          "scroll": 640
+        }
+      ],
+      "clippedY": 1
+    }
+  },
+  {
+    "page": "energy",
+    "title": "Import power and configured limit",
+    "mode": "stress",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 403,
+      "scrollH": 401,
+      "clientH": 401,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 131
+        }
+      ],
+      "clippedY": 1
+    },
+    "stress": {
+      "h": 441,
+      "scrollH": 439,
+      "clientH": 439,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 131
+        }
+      ],
+      "clippedY": 1
+    },
+    "rowsBefore": 18,
+    "rowsAfter": 18,
+    "fieldsChanged": 3,
+    "allSet160": true
+  },
+  {
+    "page": "energy",
+    "title": "Import power and configured limit",
+    "mode": "stress",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 292,
+      "scrollH": 290,
+      "clientH": 290,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 131
+        },
+        {
+          "cls": "data-table__scroll data-table__scroll--s",
+          "client": 318,
+          "scroll": 640
+        }
+      ],
+      "clippedY": 1
+    },
+    "stress": {
+      "h": 368,
+      "scrollH": 366,
+      "clientH": 366,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 131
+        },
+        {
+          "cls": "data-table__scroll data-table__scroll--s",
+          "client": 318,
+          "scroll": 640
+        }
+      ],
+      "clippedY": 1
+    },
+    "rowsBefore": 18,
+    "rowsAfter": 18,
+    "fieldsChanged": 3,
+    "allSet160": true
+  },
+  {
+    "page": "energy",
+    "title": "What can be concluded",
+    "mode": "closed",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 403,
+      "scrollH": 401,
+      "clientH": 401,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    }
+  },
+  {
+    "page": "energy",
+    "title": "What can be concluded",
+    "mode": "closed",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 339,
+      "scrollH": 337,
+      "clientH": 337,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    }
+  },
+  {
+    "page": "energy",
+    "title": "What can be concluded",
+    "mode": "stress",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 403,
+      "scrollH": 401,
+      "clientH": 401,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 657,
+      "scrollH": 655,
+      "clientH": 655,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 9,
+    "allSet160": true
+  },
+  {
+    "page": "energy",
+    "title": "What can be concluded",
+    "mode": "stress",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 339,
+      "scrollH": 337,
+      "clientH": 337,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 772,
+      "scrollH": 770,
+      "clientH": 770,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 9,
+    "allSet160": true
+  },
+  {
+    "page": "energy",
+    "title": "Technical-to-financial bridge",
+    "mode": "closed",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 197,
+      "scrollH": 195,
+      "clientH": 195,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    }
+  },
+  {
+    "page": "energy",
+    "title": "Technical-to-financial bridge",
+    "mode": "closed",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 211,
+      "scrollH": 209,
+      "clientH": 209,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "data-table__scroll data-table__scroll--s",
+          "client": 318,
+          "scroll": 640
+        }
+      ],
+      "clippedY": 0
+    }
+  },
+  {
+    "page": "energy",
+    "title": "Technical-to-financial bridge",
+    "mode": "stress",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 197,
+      "scrollH": 195,
+      "clientH": 195,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 443,
+      "scrollH": 441,
+      "clientH": 441,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 3,
+    "rowsAfter": 5,
+    "fieldsChanged": 15,
+    "allSet160": true
+  },
+  {
+    "page": "energy",
+    "title": "Technical-to-financial bridge",
+    "mode": "stress",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 211,
+      "scrollH": 209,
+      "clientH": 209,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "data-table__scroll data-table__scroll--s",
+          "client": 318,
+          "scroll": 640
+        }
+      ],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 649,
+      "scrollH": 647,
+      "clientH": 647,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "data-table__scroll data-table__scroll--s",
+          "client": 318,
+          "scroll": 640
+        }
+      ],
+      "clippedY": 0
+    },
+    "rowsBefore": 3,
+    "rowsAfter": 5,
+    "fieldsChanged": 15,
+    "allSet160": true
+  },
+  {
+    "page": "ev-health",
+    "title": "Condition and evidence",
+    "mode": "closed",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 324,
+      "scrollH": 322,
+      "clientH": 322,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    }
+  },
+  {
+    "page": "ev-health",
+    "title": "Condition and evidence",
+    "mode": "closed",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 455,
+      "scrollH": 453,
+      "clientH": 453,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    }
+  },
+  {
+    "page": "ev-health",
+    "title": "Condition and evidence",
+    "mode": "stress",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 324,
+      "scrollH": 322,
+      "clientH": 322,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 558,
+      "scrollH": 556,
+      "clientH": 556,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 3,
+    "rowsAfter": 5,
+    "fieldsChanged": 11,
+    "allSet160": true
+  },
+  {
+    "page": "ev-health",
+    "title": "Condition and evidence",
+    "mode": "stress",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 455,
+      "scrollH": 453,
+      "clientH": 453,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 1220,
+      "scrollH": 1218,
+      "clientH": 1218,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 3,
+    "rowsAfter": 5,
+    "fieldsChanged": 11,
+    "allSet160": true
+  },
+  {
+    "page": "ev-scenarios",
+    "title": "Financial scenarios",
+    "mode": "closed",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 305,
+      "scrollH": 303,
+      "clientH": 303,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    }
+  },
+  {
+    "page": "ev-scenarios",
+    "title": "Financial scenarios",
+    "mode": "closed",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 345,
+      "scrollH": 343,
+      "clientH": 343,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    }
+  },
+  {
+    "page": "ev-scenarios",
+    "title": "Financial scenarios",
+    "mode": "stress",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 305,
+      "scrollH": 303,
+      "clientH": 303,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 305,
+      "scrollH": 303,
+      "clientH": 303,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 2,
+    "allSet160": true
+  },
+  {
+    "page": "ev-scenarios",
+    "title": "Financial scenarios",
+    "mode": "stress",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 345,
+      "scrollH": 343,
+      "clientH": 343,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 381,
+      "scrollH": 379,
+      "clientH": 379,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 2,
+    "allSet160": true
+  }
+]

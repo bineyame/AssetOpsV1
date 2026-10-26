@@ -1,0 +1,56 @@
+[
+  {
+    "page": "energy",
+    "title": "text",
+    "mode": "text",
+    "viewport": "1440",
+    "ready": true,
+    "has": true,
+    "old": false
+  },
+  {
+    "page": "energy",
+    "title": "text",
+    "mode": "text",
+    "viewport": "390",
+    "ready": true,
+    "has": true,
+    "old": false
+  },
+  {
+    "page": "ev-overview",
+    "title": "text",
+    "mode": "text",
+    "viewport": "1440",
+    "ready": true,
+    "has": true,
+    "old": false
+  },
+  {
+    "page": "ev-overview",
+    "title": "text",
+    "mode": "text",
+    "viewport": "390",
+    "ready": true,
+    "has": true,
+    "old": false
+  },
+  {
+    "page": "ev-financials",
+    "title": "text",
+    "mode": "text",
+    "viewport": "1440",
+    "ready": true,
+    "has": true,
+    "old": false
+  },
+  {
+    "page": "ev-financials",
+    "title": "text",
+    "mode": "text",
+    "viewport": "390",
+    "ready": true,
+    "has": true,
+    "old": false
+  }
+]

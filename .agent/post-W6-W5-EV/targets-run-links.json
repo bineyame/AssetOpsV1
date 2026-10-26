@@ -1,0 +1,98 @@
+[
+ {
+  "id": "link-check",
+  "case": "ev-overview",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "mock": "ev"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-overview-bare",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001",
+  "mock": "ev"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-site-findings",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "mock": "ev-findings"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-sessions",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/performance?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "mock": "ev"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-generic-financial-scenarios",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "mock": "ev-scenarios"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-financials",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "mock": "ev-financials"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-bare",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/df16beb3-b51c-41d5-8f89-b8bf0a9abdad?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-verification",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/df16beb3-b51c-41d5-8f89-b8bf0a9abdad/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-overview",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/df16beb3-b51c-41d5-8f89-b8bf0a9abdad/overview?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-execution",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/df16beb3-b51c-41d5-8f89-b8bf0a9abdad/execution?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-history",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/df16beb3-b51c-41d5-8f89-b8bf0a9abdad/history?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-plan",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/df16beb3-b51c-41d5-8f89-b8bf0a9abdad/plan?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-action-tab-evidence",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/df16beb3-b51c-41d5-8f89-b8bf0a9abdad/evidence?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "link-check",
+  "case": "ev-work-actions-tab",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-work"
+ },
+ {
+  "id": "link-check",
+  "case": "global-incidents",
+  "url": "http://127.0.0.1:5197/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-work-incidents"
+ },
+ {
+  "id": "link-check",
+  "case": "global-maintenance",
+  "url": "http://127.0.0.1:5197/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-work-maintenance"
+ }
+]

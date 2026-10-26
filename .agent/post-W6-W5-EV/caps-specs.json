@@ -1,0 +1,98 @@
+[
+ {
+  "page": "availability",
+  "title": "Connector states over the service schedule",
+  "mode": "closed",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "availability",
+  "title": "Connector states over the service schedule",
+  "mode": "stress",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "availability",
+  "title": "Full-schedule availability bound",
+  "mode": "closed",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "availability",
+  "title": "Full-schedule availability bound",
+  "mode": "stress",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "availability",
+  "title": "Most useful next evidence",
+  "mode": "closed",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "availability",
+  "title": "Most useful next evidence",
+  "mode": "stress",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "energy",
+  "title": "Import power and configured limit",
+  "mode": "closed",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "energy",
+  "title": "Import power and configured limit",
+  "mode": "stress",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "energy",
+  "title": "What can be concluded",
+  "mode": "closed",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "energy",
+  "title": "What can be concluded",
+  "mode": "stress",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "energy",
+  "title": "Technical-to-financial bridge",
+  "mode": "closed",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "energy",
+  "title": "Technical-to-financial bridge",
+  "mode": "stress",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "ev-health",
+  "title": "Condition and evidence",
+  "mode": "closed",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "ev-health",
+  "title": "Condition and evidence",
+  "mode": "stress",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "ev-scenarios",
+  "title": "Financial scenarios",
+  "mode": "closed",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "page": "ev-scenarios",
+  "title": "Financial scenarios",
+  "mode": "stress",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ }
+]
