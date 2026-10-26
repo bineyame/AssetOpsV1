@@ -681,10 +681,10 @@ describe("ev-action window (R348)", () => {
 });
 
 describe("Action section addresses (R350, cold and EV)", () => {
-  it.each(["plan", "execution", "evidence", "history"])("EV `/%s` is the shelled not-served state: no read, no redirect, valid params kept", async (section) => {
+  it.each(["plan", "execution", "evidence", "history"])("EV `/%s` is the shelled not-served state: probe only, no redirect, valid params kept", async (section) => {
     const query = `?from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}&known_at=${encodeURIComponent(EV_KNOWN)}`;
     const { main, calls } = await mountEv(() => loaded(evDetail()), `/${section}${query}`);
-    expect(calls).toEqual([]);
+    expect(calls).toHaveLength(1);
     expect(text(screen.getByTestId("where"))).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/${section}${query}`);
     expect(text(main.querySelector("h1"))).toBe("Page not available");
     expect(text(main.querySelector("section.panel h2"))).toBe("This address is not served");
@@ -714,7 +714,7 @@ describe("Action section addresses (R350, cold and EV)", () => {
       </MemoryRouter>,
     );
     await settledScreen();
-    expect(d.calls).toEqual([]);
+    expect(d.calls).toHaveLength(1);
     const main = document.querySelector("main") as HTMLElement;
     expect(text(main.querySelector("h1"))).toBe("Page not available");
     expect(text(main.querySelector("section.panel h2"))).toBe("This address is not served");

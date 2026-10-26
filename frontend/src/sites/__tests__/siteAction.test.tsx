@@ -1022,6 +1022,32 @@ describe("W1 and domain Action IDs on one cold Site", () => {
     expect(s.unmatched).toEqual([]);
   });
 
+  it.each(["plan", "execution", "evidence", "history"])("cold domain ID at `/%s` is probed then not served: stays at the URL, no W1 read (R350 ruling 1)", async (section) => {
+    const s = serve({ [DOMAIN_API]: domainLoaded });
+    mountCold(`/sites/KOBO-001/actions/${DOMAIN_ID}/${section}`);
+    await settledScreen();
+    await waitFor(() => expect(q("[data-action-unknown-section]")).not.toBeNull());
+    expect(where()).toBe(`/sites/KOBO-001/actions/${DOMAIN_ID}/${section}`);
+    expect(s.requests.length).toBeGreaterThan(0);
+    expect(s.requests.every((r) => r.url.split("?")[0] === DOMAIN_API)).toBe(true);
+    expect(s.requests.some((r) => r.url.startsWith("/api/sites/KOBO-001/actions/"))).toBe(false);
+  });
+
+  it.each(["plan", "execution", "evidence", "history"])("cold W1 ID at `/%s` falls back to its W1 section after a non-loaded probe", async (section) => {
+    const s = serve({ ...actionReads(ov.applied_pending_newer_revision, hi.events_latest), [W1_ON_DOMAIN_API]: notFound });
+    mountCold(`/sites/KOBO-001/actions/${ACTION}/${section}`);
+    await settledScreen();
+    await waitFor(() => expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Battery reserve trial"));
+    expect(q("[data-action-unknown-section]")).toBeNull();
+    expect(q("[data-domain-action-shell]")).toBeNull();
+    expect(qa("[data-action-section]")).toHaveLength(6);
+    expect(q(`[data-action-section="${section}"]`)?.getAttribute("aria-current")).toBe("page");
+    expect(where()).toBe(`/sites/KOBO-001/actions/${ACTION}/${section}`);
+    expect(s.requests.some((r) => r.url === W1_ON_DOMAIN_API)).toBe(true);
+    // The W1 plan/evidence readers' own verification-plan GET is not in this fixture set (pre-existing W1 behaviour).
+    expect(s.unmatched.filter((u) => !u.includes("/verification/"))).toEqual([]);
+  });
+
   it("a domain ID at its bare address redirects to /verification and renders the domain shell (direct reload)", async () => {
     const s = serve({ [DOMAIN_API]: domainLoaded });
     mountCold(`/sites/KOBO-001/actions/${DOMAIN_ID}`);
@@ -1080,13 +1106,30 @@ describe("W1 and EV domain Action IDs on one EV Site", () => {
     expect(s.requests.some((r) => r.url.startsWith(`/api/sites/KOBO-001/actions/`))).toBe(false);
   });
 
-  it("an EV domain ID at `/plan` is not served: no redirect, no Action read (post-W6 W5-EV R350)", async () => {
+  it.each(["plan", "execution", "evidence", "history"])("EV domain ID at `/%s` is probed then not served: stays at the URL, no W1 read (R350 ruling 1)", async (section) => {
     const s = serve({ [DOMAIN_API]: evLoaded });
-    mountEv(`/sites/KOBO-001/actions/${DOMAIN_ID}/plan`);
+    mountEv(`/sites/KOBO-001/actions/${DOMAIN_ID}/${section}`);
     await settledScreen();
-    expect(where()).toBe(`/sites/KOBO-001/actions/${DOMAIN_ID}/plan`);
-    expect(q("[data-action-unknown-section]")).not.toBeNull();
-    expect(s.requests).toHaveLength(0);
+    await waitFor(() => expect(q("[data-action-unknown-section]")).not.toBeNull());
+    expect(where()).toBe(`/sites/KOBO-001/actions/${DOMAIN_ID}/${section}`);
+    expect(s.requests.length).toBeGreaterThan(0);
+    expect(s.requests.every((r) => r.url.split("?")[0] === DOMAIN_API)).toBe(true);
+    expect(s.requests.some((r) => r.url.startsWith("/api/sites/KOBO-001/actions/"))).toBe(false);
+  });
+
+  it.each(["plan", "execution", "evidence", "history"])("EV W1 ID at `/%s` falls back to its W1 section after a non-loaded probe", async (section) => {
+    const s = serve({ ...actionReads(ov.applied_pending_newer_revision, hi.events_latest), [W1_ON_DOMAIN_API]: notFound });
+    mountEv(`/sites/KOBO-001/actions/${ACTION}/${section}`);
+    await settledScreen();
+    await waitFor(() => expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Battery reserve trial"));
+    expect(q("[data-action-unknown-section]")).toBeNull();
+    expect(q("[data-domain-action-shell]")).toBeNull();
+    expect(qa("[data-action-section]")).toHaveLength(6);
+    expect(q(`[data-action-section="${section}"]`)?.getAttribute("aria-current")).toBe("page");
+    expect(where()).toBe(`/sites/KOBO-001/actions/${ACTION}/${section}`);
+    expect(s.requests.some((r) => r.url === W1_ON_DOMAIN_API)).toBe(true);
+    // The W1 plan/evidence readers' own verification-plan GET is not in this fixture set (pre-existing W1 behaviour).
+    expect(s.unmatched.filter((u) => !u.includes("/verification/"))).toEqual([]);
   });
 
   it("a W1 ID at its bare address on an EV Site keeps the W1 battery detail (ruling 43 fallback)", async () => {

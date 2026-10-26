@@ -2,7 +2,7 @@ import { useSearchParams, useParams } from "react-router-dom";
 
 import { Panel } from "../ui";
 import { coldWindowFromParams, coldWindowSearch } from "../sites/coldAssessmentClient";
-import { invalidScope } from "../sites/domainActionClient";
+import { invalidScope, isUtcInstant } from "../sites/domainActionClient";
 import { EV_SITE_HEADING_ID, EvSiteFrame, type EvSiteRoutes, type EvSiteView } from "../sites/EvSiteViews";
 import type { EvSiteClient } from "../sites/evSiteClient";
 import type { EvScenariosClient } from "../sites/evScenariosClient";
@@ -53,6 +53,10 @@ export const evWorkTabHrefs = (site: { site_type: string }): OperatorSiteTabHref
 export function evWorkTabSearch(site: { site_type: string }, params: URLSearchParams): string | undefined {
   if (site.site_type !== "EV_CHARGING") return undefined;
   const window = coldWindowFromParams(params);
+  if (window.from === null && window.to === null) {
+    // Neither side selected: a valid UTC cutoff alone is still carried.
+    return window.known_at !== null && isUtcInstant(window.known_at) ? coldWindowSearch({ from: null, to: null, known_at: window.known_at }) : "";
+  }
   if (window.from === null || window.to === null) return "";
   const refused = invalidScope({ from: window.from, to: window.to, knownAt: window.known_at, cursor: null });
   return refused === null ? coldWindowSearch(window) : "";

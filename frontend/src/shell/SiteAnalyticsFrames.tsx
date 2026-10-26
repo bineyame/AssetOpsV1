@@ -1707,6 +1707,7 @@ function DomainActionRoute({
   windowRefusal,
   client,
   w1,
+  unserved = null,
 }: {
   site: LoadedSite;
   actionId: string;
@@ -1718,12 +1719,14 @@ function DomainActionRoute({
   windowRefusal: string | null;
   client: DomainActionClient;
   w1: () => ReactNode;
+  /** R350 ruling 1: for a W1-only section, the shelled state a validated domain Action gets (no redirect). */
+  unserved?: ReactNode;
 }) {
   const [attempt, setAttempt] = useState(0);
   const [read, setRead] = useState<{ key: string; result: DomainDetailResult } | null>(null);
   const key = `${site.site_id}|${actionId}|${knownAt ?? ""}|${attempt}`;
   useEffect(() => {
-    if (windowRefusal !== null) return undefined;
+    if (windowRefusal !== null && unserved === null) return undefined;
     let active = true;
     // Ruling 64: an EV Site passes its Site type for the EV fallback sentences; cold keeps its three-argument read.
     const read =
@@ -1736,9 +1739,9 @@ function DomainActionRoute({
     return () => {
       active = false;
     };
-  }, [client, site.site_id, site.site_type, actionId, knownAt, key, windowRefusal]);
+  }, [client, site.site_id, site.site_type, actionId, knownAt, key, windowRefusal, unserved === null]);
   const result = read !== null && read.key === key ? read.result : null;
-  if (!verification && windowRefusal === null) {
+  if (!verification && (windowRefusal === null || unserved !== null)) {
     if (result === null) {
       return (
         <main aria-labelledby={SITE_ACTION_HEADING_ID} data-domain-action-probe>
@@ -1747,6 +1750,7 @@ function DomainActionRoute({
         </main>
       );
     }
+    if (result.status === "loaded" && unserved !== null) return <>{unserved}</>;
     if (result.status === "loaded") {
       return <Navigate replace to={domainVerificationHref(site.site_id, actionId, knownAt, window)} />;
     }
@@ -1802,8 +1806,22 @@ export function SiteActionFrame({
         // W5-02 K2a: COLDCHAIN (P-G-6); W5-04 V4a ruling 43 adds EV_CHARGING. An unknown section name keeps the W1
         // "No such Action section" state. post-W6 W5-EV R350 (ruling 4): a W1-only section (plan, execution, evidence,
         // history) on a cold or EV Site is not served: one shelled state, no redirect and no Action read.
+        // Architect ruling 1 (r350-rulings): the domain probe decides; only a non-loaded probe falls back to W1.
         if (DOMAIN_ACTION_SITE_TYPES.includes(site.site_type) && actionView !== undefined && W1_ONLY_SECTIONS.includes(actionView)) {
-          return <DomainActionUnknownSection site={site} actionId={id} params={params} />;
+          return (
+            <DomainActionRoute
+              key={`${site.site_id}|${id}|${actionView}`}
+              site={site}
+              actionId={id}
+              verification={false}
+              knownAt={params.get("known_at")}
+              window={null}
+              windowRefusal={null}
+              client={domainActions}
+              w1={w1}
+              unserved={<DomainActionUnknownSection site={site} actionId={id} params={params} />}
+            />
+          );
         }
         if (DOMAIN_ACTION_SITE_TYPES.includes(site.site_type) && (actionView === undefined || actionView === "verification")) {
           // R348: the window is parsed only where the presentation carries it (EV); a refused one is carried nowhere.

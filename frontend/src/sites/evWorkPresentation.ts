@@ -90,6 +90,8 @@ export const EV_ACTION_REFUSAL_COPY = {
 } as const;
 
 export function evActionRefusal(refusal: { http: number | null; code: string | null; message: string }): { message: string; retry: boolean } {
+  // The client refuses a non-UTC known_at before fetching (http null), so the code is checked first.
+  if (refusal.code === "INVALID_KNOWN_AT") return { message: EV_ACTION_REFUSAL_COPY.invalidKnownAt, retry: false };
   if (refusal.http === null || refusal.http === 503) return { message: EV_ACTION_REFUSAL_COPY.unavailable, retry: true };
   if (refusal.http === 403) return { message: EV_ACTION_REFUSAL_COPY.forbidden, retry: false };
   if (refusal.http === 409) return { message: EV_ACTION_REFUSAL_COPY.changed, retry: true };
