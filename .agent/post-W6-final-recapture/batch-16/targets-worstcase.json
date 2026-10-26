@@ -1,0 +1,23 @@
+[
+ {
+  "id": "ev-work",
+  "case": "worstcase",
+  "url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work",
+  "case": "worstcase-all-open",
+  "url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "ev-health",
+  "case": "worstcase-db",
+  "url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "id": "ev-scenarios",
+  "case": "worstcase-db",
+  "url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ }
+]

@@ -1,0 +1,1 @@
+{"forbidden": {"http": 403, "code": "SITE_SCOPE_FORBIDDEN"}, "unavailable": {"stopped_pid": 9160, "port": 18707, "http_after_stop": 0, "expected": "connection refused; the browser proxy reports 503"}}

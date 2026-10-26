@@ -1,0 +1,110 @@
+[
+ {
+  "id": "ev-work-incidents",
+  "case": "positive",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "historical-index-known-at",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T11%3A14%3A20.067035Z"
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "refused-reversed",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/incidents?from=2026-10-27T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "refused-span-32d",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/incidents?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "no-window",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/incidents"
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "all-open",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "positive",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "historical-index-known-at",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T11%3A14%3A20.067035Z"
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "refused-reversed",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-27T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "refused-span-32d",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/maintenance?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "no-window",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/maintenance"
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "all-open",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "ev-action",
+  "case": "positive-current",
+  "url": "http://localhost:5187/sites/EV-LAB-001/actions/d9529e80-acb7-4d9b-b072-02f72c129652/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "historical-before-intent",
+  "url": "http://localhost:5187/sites/EV-LAB-001/actions/d9529e80-acb7-4d9b-b072-02f72c129652/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T11%3A14%3A19.438526Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "historical-before-action",
+  "url": "http://localhost:5187/sites/EV-LAB-001/actions/d9529e80-acb7-4d9b-b072-02f72c129652/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T11%3A14%3A18.298352Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "not-found-404",
+  "url": "http://localhost:5187/sites/EV-LAB-001/actions/00000000-0000-4000-8000-000000000000/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "refused-reversed",
+  "url": "http://localhost:5187/sites/EV-LAB-001/actions/d9529e80-acb7-4d9b-b072-02f72c129652/verification?from=2026-10-27T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "refused-span-32d",
+  "url": "http://localhost:5187/sites/EV-LAB-001/actions/d9529e80-acb7-4d9b-b072-02f72c129652/verification?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "refused-bad-known-at",
+  "url": "http://localhost:5187/sites/EV-LAB-001/actions/d9529e80-acb7-4d9b-b072-02f72c129652/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=yesterday"
+ },
+ {
+  "id": "ev-action",
+  "case": "no-window",
+  "url": "http://localhost:5187/sites/EV-LAB-001/actions/d9529e80-acb7-4d9b-b072-02f72c129652/verification"
+ },
+ {
+  "id": "ev-action",
+  "case": "all-open",
+  "url": "http://localhost:5187/sites/EV-LAB-001/actions/d9529e80-acb7-4d9b-b072-02f72c129652/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ }
+]

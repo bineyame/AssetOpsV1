@@ -1,0 +1,17 @@
+[
+ {
+  "id": "ev-work-incidents",
+  "case": "forbidden-403",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "forbidden-403",
+  "url": "http://localhost:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "forbidden-403",
+  "url": "http://localhost:5187/sites/EV-LAB-001/actions/d9529e80-acb7-4d9b-b072-02f72c129652/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ }
+]

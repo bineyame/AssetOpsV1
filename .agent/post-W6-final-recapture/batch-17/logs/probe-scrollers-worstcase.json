@@ -1,0 +1,614 @@
+[
+ {
+  "id": "ev-action",
+  "case": "worstcase-160-all-open",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "ev-action",
+  "case": "worstcase-160-all-open",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "worstcase-five-160-all-open",
+  "width": 1440,
+  "scrollers": [
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "abbe4e6b-11b3-41d5-a810-e4914118bb89"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "6117c323-1247-42aa-b6e7-3e249180144d"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "e708e589-d694-4dcd-a79b-4aa48c7ab4d0"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "6b72bbac-1871-4e47-95f9-db1b8c83b5ed"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "bc6a1ee5-241c-4443-9c51-0b00ad03dabd"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "e44a5863-a544-41dd-81ff-fb605cd0fd03"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "379abafc-ebcb-4b90-acd3-c432dd6f1dfe"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "908f1696-058c-4c17-9125-86831a3f481d"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "2f0c9ded-f539-4353-b7a0-b8f97b6f7f91"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "d35cf843-f296-4cb2-ab75-ad37b7e2d512"
+   }
+  ]
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "worstcase-five-160-all-open",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 720,
+    "cw": 324,
+    "focusable": true,
+    "role": "region",
+    "label": "site-work-incidents-heading",
+    "inner": null,
+    "text": "CaseWindowWhat happenedLinked findingsStateINC-000"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "abbe4e6b-11b3-41d5-a810-e4914118bb89"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "6117c323-1247-42aa-b6e7-3e249180144d"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "e708e589-d694-4dcd-a79b-4aa48c7ab4d0"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "6b72bbac-1871-4e47-95f9-db1b8c83b5ed"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "bc6a1ee5-241c-4443-9c51-0b00ad03dabd"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "e44a5863-a544-41dd-81ff-fb605cd0fd03"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "379abafc-ebcb-4b90-acd3-c432dd6f1dfe"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "908f1696-058c-4c17-9125-86831a3f481d"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "2f0c9ded-f539-4353-b7a0-b8f97b6f7f91"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "d35cf843-f296-4cb2-ab75-ad37b7e2d512"
+   }
+  ]
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "worstcase-five-160-all-open",
+  "width": 1440,
+  "scrollers": [
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "b1a8c1c8-5811-482d-910d-9726d73f9c19"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "c26a3736-b9fb-4306-bab2-5e6689da962c"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "55370550-7eb8-491a-a08a-542fa7e4e299"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "ef1c0ea2-7586-4bd9-9ef7-265d6063e3a4"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "981e5bc8-ddf6-4156-a32b-2fdd07450c7d"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "bd909957-d781-406d-8d63-673d288cb5a4"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "b23d4f3d-b2e2-4777-a8f7-f00ddc70964f"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "f79ae12a-7e15-4eb6-a723-3064f8a049a8"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "10a74ad5-5537-4992-bf59-9b2d2458a15b"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "8a21acbf-d528-4768-af39-cfa8e4b450a6"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "05ab5925-88f1-4539-8612-d601a9ee52fe"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "0bd39c58-c9cf-4275-be29-e9ba73d2fb98"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "d2107bb8-67b2-40f5-b3d7-13d85d7e48d6"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "d49b2887-7543-4c4c-8f20-39dbae90be3b"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "f8ab11d6-dbeb-4c82-ada8-e5993faea16f"
+   }
+  ]
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "worstcase-five-160-all-open",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 760,
+    "cw": 324,
+    "focusable": true,
+    "role": "region",
+    "label": "site-work-maintenance-heading",
+    "inner": null,
+    "text": "Work requestAssetActivityOutcomeNext evidenceWR-00"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "b1a8c1c8-5811-482d-910d-9726d73f9c19"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "c26a3736-b9fb-4306-bab2-5e6689da962c"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "55370550-7eb8-491a-a08a-542fa7e4e299"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "ef1c0ea2-7586-4bd9-9ef7-265d6063e3a4"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "981e5bc8-ddf6-4156-a32b-2fdd07450c7d"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "bd909957-d781-406d-8d63-673d288cb5a4"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "b23d4f3d-b2e2-4777-a8f7-f00ddc70964f"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "f79ae12a-7e15-4eb6-a723-3064f8a049a8"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "10a74ad5-5537-4992-bf59-9b2d2458a15b"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "8a21acbf-d528-4768-af39-cfa8e4b450a6"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "05ab5925-88f1-4539-8612-d601a9ee52fe"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "0bd39c58-c9cf-4275-be29-e9ba73d2fb98"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "d2107bb8-67b2-40f5-b3d7-13d85d7e48d6"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "d49b2887-7543-4c4c-8f20-39dbae90be3b"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "f8ab11d6-dbeb-4c82-ada8-e5993faea16f"
+   }
+  ]
+ }
+]

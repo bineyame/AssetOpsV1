@@ -1,0 +1,2715 @@
+[
+ {
+  "screen": "availability",
+  "case": "current",
+  "width": "1440",
+  "new_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-current-1440-app.png",
+  "mock_image": "availability-current-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "availability",
+  "case": "current",
+  "width": "390",
+  "new_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-current-390-app.png",
+  "mock_image": "availability-current-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "current",
+  "width": "1440",
+  "new_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-current-1440-app.png",
+  "mock_image": "energy-current-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 6, '10px': 1}->{'11px': 6, '12px': 1, '10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "current",
+  "width": "390",
+  "new_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-current-390-app.png",
+  "mock_image": "energy-current-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Import power and configured limit] height 264->292",
+   "pSizes {'11px': 6, '10px': 1}->{'11px': 6, '12px': 1, '10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Import power and configured limit'}, {'cls': 'data-table__sc"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Import power and configured limit"
+   },
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Technical-to-financial bridge"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "current",
+  "width": "1440",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-current-1440-app.png",
+  "mock_image": "ev-health-current-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Condition and evidence",
+    1.64
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "current",
+  "width": "390",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-current-390-app.png",
+  "mock_image": "ev-health-current-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Condition and evidence",
+    1.58
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "current",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-current-1440-app.png",
+  "mock_image": "ev-scenarios-current-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "current",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-current-390-app.png",
+  "mock_image": "ev-scenarios-current-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 173->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 153->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work",
+  "case": "positive",
+  "width": "1440",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-positive-1440-app.png",
+  "mock_image": "ev-work-positive-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work",
+  "case": "positive",
+  "width": "390",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-positive-390-app.png",
+  "mock_image": "ev-work-positive-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 141->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 821, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 819, 'cw': 318, 'panel': 'Actions at this site'}]",
+   "mainTop 122->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 819,
+    "cw": 318,
+    "panel": "Actions at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "availability",
+  "case": "empty-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-empty-window-1440-app.png",
+  "mock_image": "availability-empty-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-05T08:00:00Z&to=2026-10-05T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "availability",
+  "case": "empty-window",
+  "width": "390",
+  "new_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-empty-window-390-app.png",
+  "mock_image": "availability-empty-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-05T08:00:00Z&to=2026-10-05T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "empty-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-empty-window-1440-app.png",
+  "mock_image": "energy-empty-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-05T08:00:00Z&to=2026-10-05T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 6, '13px': 1, '10px': 1}->{'11px': 6, '12px': 1, '13px': 1, '10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "empty-window",
+  "width": "390",
+  "new_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-empty-window-390-app.png",
+  "mock_image": "energy-empty-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-05T08:00:00Z&to=2026-10-05T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Import power and configured limit",
+    1.41
+   ]
+  ],
+  "app_diffs": [
+   "[Import power and configured limit] height 300->332",
+   "pSizes {'11px': 6, '13px': 1, '10px': 1}->{'11px': 6, '12px': 1, '13px': 1, '10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Import power and configured limit'}, {'cls': 'data-table__sc"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Import power and configured limit",
+    1.28,
+    1.41
+   ]
+  ],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "cap exceeded [('Import power and configured limit', 1.28, 1.41)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Import power and configured limit"
+   },
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Technical-to-financial bridge"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "empty-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-empty-window-1440-app.png",
+  "mock_image": "ev-health-empty-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-05T08:00:00Z&to=2026-10-05T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Condition and evidence",
+    1.55
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "empty-window",
+  "width": "390",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-empty-window-390-app.png",
+  "mock_image": "ev-health-empty-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-05T08:00:00Z&to=2026-10-05T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Condition and evidence] height 402->347",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "Condition and evidence ratio 1.41->1.21"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "empty-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-empty-window-1440-app.png",
+  "mock_image": "ev-scenarios-empty-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-05T08:00:00Z&to=2026-10-05T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "empty-window",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-empty-window-390-app.png",
+  "mock_image": "ev-scenarios-empty-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-05T08:00:00Z&to=2026-10-05T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 142->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 123->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "availability",
+  "case": "known-at-before-watermark",
+  "width": "1440",
+  "new_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-known-at-before-watermark-1440-app.png",
+  "mock_image": "availability-known-at-before-watermark-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T08:30:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "availability",
+  "case": "known-at-before-watermark",
+  "width": "390",
+  "new_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-known-at-before-watermark-390-app.png",
+  "mock_image": "availability-known-at-before-watermark-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T08:30:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "known-at-before-watermark",
+  "width": "1440",
+  "new_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-known-at-before-watermark-1440-app.png",
+  "mock_image": "energy-known-at-before-watermark-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T08:30:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 6, '13px': 1, '10px': 1}->{'11px': 6, '12px': 1, '13px': 1, '10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "known-at-before-watermark",
+  "width": "390",
+  "new_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-known-at-before-watermark-390-app.png",
+  "mock_image": "energy-known-at-before-watermark-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T08:30:00Z",
+  "ratios_over_1.3": [
+   [
+    "Import power and configured limit",
+    1.41
+   ]
+  ],
+  "app_diffs": [
+   "[Import power and configured limit] height 300->332",
+   "pSizes {'11px': 6, '13px': 1, '10px': 1}->{'11px': 6, '12px': 1, '13px': 1, '10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Import power and configured limit'}, {'cls': 'data-table__sc"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Import power and configured limit",
+    1.28,
+    1.41
+   ]
+  ],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "cap exceeded [('Import power and configured limit', 1.28, 1.41)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Import power and configured limit"
+   },
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Technical-to-financial bridge"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "known-at-before-watermark",
+  "width": "1440",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-known-at-before-watermark-1440-app.png",
+  "mock_image": "ev-health-known-at-before-watermark-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T08:30:00Z",
+  "ratios_over_1.3": [
+   [
+    "Condition and evidence",
+    1.55
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "known-at-before-watermark",
+  "width": "390",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-known-at-before-watermark-390-app.png",
+  "mock_image": "ev-health-known-at-before-watermark-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T08:30:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Condition and evidence] height 402->347",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "Condition and evidence ratio 1.41->1.21"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "known-at-before-watermark",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-known-at-before-watermark-1440-app.png",
+  "mock_image": "ev-scenarios-known-at-before-watermark-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T08:30:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "known-at-before-watermark",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-known-at-before-watermark-390-app.png",
+  "mock_image": "ev-scenarios-known-at-before-watermark-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T08:30:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 142->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 123->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work",
+  "case": "historical",
+  "width": "1440",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-historical-1440-app.png",
+  "mock_image": "ev-work-historical-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A55%3A05.442038Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work",
+  "case": "historical",
+  "width": "390",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-historical-390-app.png",
+  "mock_image": "ev-work-historical-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A55%3A05.442038Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 821, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 819, 'cw': 318, 'panel': 'Actions at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 819,
+    "cw": 318,
+    "panel": "Actions at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "availability",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-refused-reversed-1440-app.png",
+  "mock_image": "availability-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "availability",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-refused-reversed-390-app.png",
+  "mock_image": "availability-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 324->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 304->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-refused-reversed-1440-app.png",
+  "mock_image": "energy-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-refused-reversed-390-app.png",
+  "mock_image": "energy-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 324->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 304->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-refused-reversed-1440-app.png",
+  "mock_image": "ev-health-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles [] -> ['Condition and evidence']",
+   "h2 presence False->True",
+   "pSizes {}->{'10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-refused-reversed-390-app.png",
+  "mock_image": "ev-health-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles [] -> ['Condition and evidence']",
+   "h1.top 353->127",
+   "h2 presence False->True",
+   "pSizes {}->{'10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 334->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-refused-reversed-1440-app.png",
+  "mock_image": "ev-scenarios-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles [] -> ['Financial scenarios']",
+   "h2 presence False->True",
+   "pSizes {}->{'10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-refused-reversed-390-app.png",
+  "mock_image": "ev-scenarios-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles [] -> ['Financial scenarios']",
+   "h1.top 324->127",
+   "h2 presence False->True",
+   "pSizes {}->{'10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 304->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-refused-reversed-1440-app.png",
+  "mock_image": "ev-work-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-27T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)*', 'Incidents (—)', 'Maintenance (—)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)*', 'Incidents', 'Maintenance']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-refused-reversed-390-app.png",
+  "mock_image": "ev-work-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-27T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 142->127",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)*', 'Incidents (—)', 'Maintenance (—)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)*', 'Incidents', 'Maintenance']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 122->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work",
+  "case": "refused-span-32d",
+  "width": "1440",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-refused-span-32d-1440-app.png",
+  "mock_image": "ev-work-refused-span-32d-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-09-22T00:00:00Z&to=2026-10-24T00:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)*', 'Incidents (—)', 'Maintenance (—)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)*', 'Incidents', 'Maintenance']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work",
+  "case": "refused-span-32d",
+  "width": "390",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-refused-span-32d-390-app.png",
+  "mock_image": "ev-work-refused-span-32d-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-09-22T00:00:00Z&to=2026-10-24T00:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 142->127",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)*', 'Incidents (—)', 'Maintenance (—)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)*', 'Incidents', 'Maintenance']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 122->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "availability",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-no-window-1440-app.png",
+  "mock_image": "availability-no-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "availability",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-no-window-390-app.png",
+  "mock_image": "availability-no-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-no-window-1440-app.png",
+  "mock_image": "energy-no-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 6, '10px': 1}->{'11px': 6, '12px': 1, '10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-no-window-390-app.png",
+  "mock_image": "energy-no-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Import power and configured limit] height 264->292",
+   "pSizes {'11px': 6, '10px': 1}->{'11px': 6, '12px': 1, '10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Import power and configured limit'}, {'cls': 'data-table__sc"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Import power and configured limit"
+   },
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Technical-to-financial bridge"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-no-window-1440-app.png",
+  "mock_image": "ev-health-no-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health",
+  "ratios_over_1.3": [
+   [
+    "Condition and evidence",
+    1.64
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-no-window-390-app.png",
+  "mock_image": "ev-health-no-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health",
+  "ratios_over_1.3": [
+   [
+    "Condition and evidence",
+    1.58
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-no-window-1440-app.png",
+  "mock_image": "ev-scenarios-no-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-no-window-390-app.png",
+  "mock_image": "ev-scenarios-no-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 173->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 153->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-no-window-1440-app.png",
+  "mock_image": "ev-work-no-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Actions at this site] height 262->184",
+   "[Actions at this site] rows 0->1",
+   "[Actions at this site] links 0->1",
+   "[Actions at this site] details 0->1",
+   "[Actions at this site] tables 0->1",
+   "[Actions at this site] columns []->['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']",
+   "[Actions at this site] chips []->['Open']",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'12px': 1}->{'11px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)*', 'Incidents (0)', 'Maintenance (0)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "Actions at this site ratio 1.43->1.01",
+   "[Actions at this site] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-no-window-390-app.png",
+  "mock_image": "ev-work-no-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Actions at this site] height 282->199",
+   "[Actions at this site] rows 0->1",
+   "[Actions at this site] links 0->1",
+   "[Actions at this site] details 0->1",
+   "[Actions at this site] tables 0->1",
+   "[Actions at this site] columns []->['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']",
+   "[Actions at this site] chips []->['Open']",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'12px': 1}->{'11px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)*', 'Incidents (0)', 'Maintenance (0)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 819, 'cw': 318, 'panel': 'Actions at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "[Actions at this site] table columns changed"
+  ],
+  "regress": [
+   "NEW inner horizontal scroller: [{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 819, 'cw': 318, 'panel': 'Actions at this site'}]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 819,
+    "cw": 318,
+    "panel": "Actions at this site"
+   }
+  ],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 819,
+    "cw": 318,
+    "panel": "Actions at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "availability",
+  "case": "work-day-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-work-day-window-1440-app.png",
+  "mock_image": "availability-work-day-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "availability",
+  "case": "work-day-window",
+  "width": "390",
+  "new_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-work-day-window-390-app.png",
+  "mock_image": "availability-work-day-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "work-day-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-work-day-window-1440-app.png",
+  "mock_image": "energy-work-day-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 6, '13px': 1, '10px': 1}->{'11px': 6, '12px': 1, '13px': 1, '10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "work-day-window",
+  "width": "390",
+  "new_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-work-day-window-390-app.png",
+  "mock_image": "energy-work-day-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Import power and configured limit",
+    1.41
+   ]
+  ],
+  "app_diffs": [
+   "[Import power and configured limit] height 300->332",
+   "pSizes {'11px': 6, '13px': 1, '10px': 1}->{'11px': 6, '12px': 1, '13px': 1, '10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Import power and configured limit'}, {'cls': 'data-table__sc"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Import power and configured limit",
+    1.28,
+    1.41
+   ]
+  ],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "cap exceeded [('Import power and configured limit', 1.28, 1.41)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Import power and configured limit"
+   },
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Technical-to-financial bridge"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "work-day-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-work-day-window-1440-app.png",
+  "mock_image": "ev-health-work-day-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Condition and evidence",
+    1.55
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "work-day-window",
+  "width": "390",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-work-day-window-390-app.png",
+  "mock_image": "ev-health-work-day-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Condition and evidence] height 402->347",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "Condition and evidence ratio 1.41->1.21"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "work-day-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-work-day-window-1440-app.png",
+  "mock_image": "ev-scenarios-work-day-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "work-day-window",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-work-day-window-390-app.png",
+  "mock_image": "ev-scenarios-work-day-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 142->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 123->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "availability",
+  "case": "all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-all-open-1440-app.png",
+  "mock_image": "availability-all-open-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "availability",
+  "case": "all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "availability-all-open-390-app.png",
+  "mock_image": "availability-all-open-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Connector states over the service schedule",
+   "Full-schedule availability bound",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-all-open-1440-app.png",
+  "mock_image": "energy-all-open-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Import power and configured limit",
+    2.57
+   ],
+   [
+    "What can be concluded",
+    2.57
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 6, '10px': 1}->{'11px': 6, '12px': 1, '10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "energy",
+  "case": "all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "mock_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "energy-all-open-390-app.png",
+  "mock_image": "energy-all-open-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Import power and configured limit",
+    3.43
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'11px': 6, '10px': 1}->{'11px': 6, '12px': 1, '10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 640, 'cw': 318, 'panel': 'Import power and configured limit'}, {'cls': 'data-table__sc"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Import power and configured limit",
+   "What can be concluded",
+   "Technical-to-financial bridge"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Import power and configured limit",
+    3.31,
+    3.43
+   ]
+  ],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "cap exceeded [('Import power and configured limit', 3.31, 3.43)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Import power and configured limit"
+   },
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Technical-to-financial bridge"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-all-open-1440-app.png",
+  "mock_image": "ev-health-all-open-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Condition and evidence",
+    1.64
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-all-open-390-app.png",
+  "mock_image": "ev-health-all-open-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Condition and evidence",
+    1.58
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-all-open-1440-app.png",
+  "mock_image": "ev-scenarios-all-open-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-all-open-390-app.png",
+  "mock_image": "ev-scenarios-all-open-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 173->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 153->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work",
+  "case": "all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-all-open-1440-app.png",
+  "mock_image": "ev-work-all-open-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work",
+  "case": "all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-all-open-390-app.png",
+  "mock_image": "ev-work-all-open-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Actions at this site",
+    1.43
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 821, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 819, 'cw': 318, 'panel': 'Actions at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 819,
+    "cw": 318,
+    "panel": "Actions at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ }
+]

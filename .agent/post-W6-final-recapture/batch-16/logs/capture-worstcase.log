@@ -1,0 +1,51 @@
+chrome pid 22772
+PASS  loaded http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  ev-work-worstcase 1440: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/ev-work: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  ev-work-worstcase 1440: mock rendered
+PASS  ev-work-worstcase 1440: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  ev-work-worstcase 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  ev-work-worstcase 390: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/ev-work: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  ev-work-worstcase 390: mock rendered
+PASS  ev-work-worstcase 390: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  ev-work-worstcase 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  ev-work-worstcase-all-open 1440: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/ev-work: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  ev-work-worstcase-all-open 1440: mock rendered
+PASS  ev-work-worstcase-all-open 1440: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  ev-work-worstcase-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  ev-work-worstcase-all-open 390: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/ev-work: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  ev-work-worstcase-all-open 390: mock rendered
+PASS  ev-work-worstcase-all-open 390: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  ev-work-worstcase-all-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  ev-health-worstcase-db 1440: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/ev-health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  ev-health-worstcase-db 1440: mock rendered
+PASS  ev-health-worstcase-db 1440: same panel count  {"app":["Condition and evidence"],"mock":["Condition and evidence"]}
+PASS  ev-health-worstcase-db 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  ev-health-worstcase-db 390: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/ev-health: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  ev-health-worstcase-db 390: mock rendered
+PASS  ev-health-worstcase-db 390: same panel count  {"app":["Condition and evidence"],"mock":["Condition and evidence"]}
+PASS  ev-health-worstcase-db 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  ev-scenarios-worstcase-db 1440: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/ev-scenarios: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  ev-scenarios-worstcase-db 1440: mock rendered
+PASS  ev-scenarios-worstcase-db 1440: same panel count  {"app":["Financial scenarios"],"mock":["Financial scenarios"]}
+PASS  ev-scenarios-worstcase-db 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  ev-scenarios-worstcase-db 390: app rendered
+PASS  loaded http://localhost:5186/mockups/v69/index.html#/ev-scenarios: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  ev-scenarios-worstcase-db 390: mock rendered
+PASS  ev-scenarios-worstcase-db 390: same panel count  {"app":["Financial scenarios"],"mock":["Financial scenarios"]}
+PASS  ev-scenarios-worstcase-db 390: no app page overflow  {"overflowX":0}
+
+48/48 claims passed; evidence in part-worstcase

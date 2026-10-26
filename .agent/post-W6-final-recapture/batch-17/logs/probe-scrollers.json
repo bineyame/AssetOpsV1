@@ -1,0 +1,210 @@
+[
+ {
+  "id": "ev-work-incidents",
+  "case": "positive",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "positive",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "all-open",
+  "width": 1440,
+  "scrollers": [
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "ec620255-1a54-400e-93cd-8877af5bce38"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "62594eb8-6c16-476b-b190-a5b5158f465b"
+   }
+  ]
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "all-open",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 720,
+    "cw": 324,
+    "focusable": true,
+    "role": "region",
+    "label": "site-work-incidents-heading",
+    "inner": null,
+    "text": "CaseWindowWhat happenedLinked findingsStateINC-000"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "ec620255-1a54-400e-93cd-8877af5bce38"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "62594eb8-6c16-476b-b190-a5b5158f465b"
+   }
+  ]
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "positive",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "positive",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "all-open",
+  "width": 1440,
+  "scrollers": [
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "9b40a9ad-e5ad-447e-9c14-057afd43c2df"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "07b4cbf5-41eb-4d9b-8485-4dc44ee9336b"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 180,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "92f7ae9a-205f-455e-ad2a-f393ae6a5c5c"
+   }
+  ]
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "all-open",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 760,
+    "cw": 324,
+    "focusable": true,
+    "role": "region",
+    "label": "site-work-maintenance-heading",
+    "inner": null,
+    "text": "Work requestAssetActivityOutcomeNext evidenceWR-00"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "9b40a9ad-e5ad-447e-9c14-057afd43c2df"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "07b4cbf5-41eb-4d9b-8485-4dc44ee9336b"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": false,
+    "role": null,
+    "label": "",
+    "inner": null,
+    "text": "92f7ae9a-205f-455e-ad2a-f393ae6a5c5c"
+   }
+  ]
+ },
+ {
+  "id": "ev-action",
+  "case": "positive-current",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "ev-action",
+  "case": "positive-current",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "ev-action",
+  "case": "all-open",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "ev-action",
+  "case": "all-open",
+  "width": 390,
+  "scrollers": []
+ }
+]

@@ -1,0 +1,12 @@
+[
+ {
+  "id": "ev-work",
+  "case": "zero",
+  "url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work",
+  "case": "zero-mode-current-day",
+  "url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ }
+]

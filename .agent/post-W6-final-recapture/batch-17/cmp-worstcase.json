@@ -1,0 +1,1448 @@
+[
+ {
+  "screen": "ev-action",
+  "case": "worstcase-positive-action",
+  "width": "1440",
+  "new_app_titles": [
+   "Declared verification plan"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-worstcase-positive-action-1440-app.png",
+  "mock_image": "ev-action-worstcase-positive-action-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/e0f84208-f5c8-440f-a5b7-0b817cafa082/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-action",
+  "case": "worstcase-positive-action",
+  "width": "390",
+  "new_app_titles": [
+   "Declared verification plan"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-worstcase-positive-action-390-app.png",
+  "mock_image": "ev-action-worstcase-positive-action-390-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/e0f84208-f5c8-440f-a5b7-0b817cafa082/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-action",
+  "case": "worstcase-160-2",
+  "width": "1440",
+  "new_app_titles": [
+   "Declared verification plan"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-worstcase-160-2-1440-app.png",
+  "mock_image": "ev-action-worstcase-160-2-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/3dea5788-28c4-4dc0-a1bb-f7d2402bec00/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-action",
+  "case": "worstcase-160-2",
+  "width": "390",
+  "new_app_titles": [
+   "Declared verification plan"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-worstcase-160-2-390-app.png",
+  "mock_image": "ev-action-worstcase-160-2-390-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/3dea5788-28c4-4dc0-a1bb-f7d2402bec00/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-action",
+  "case": "worstcase-160-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Declared verification plan"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-worstcase-160-all-open-1440-app.png",
+  "mock_image": "ev-action-worstcase-160-all-open-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/3dea5788-28c4-4dc0-a1bb-f7d2402bec00/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-action",
+  "case": "worstcase-160-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Declared verification plan"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-worstcase-160-all-open-390-app.png",
+  "mock_image": "ev-action-worstcase-160-all-open-390-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/3dea5788-28c4-4dc0-a1bb-f7d2402bec00/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-action",
+  "case": "worstcase-160-3",
+  "width": "1440",
+  "new_app_titles": [
+   "Declared verification plan"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-worstcase-160-3-1440-app.png",
+  "mock_image": "ev-action-worstcase-160-3-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/a8881c13-3ad3-46d5-98dc-8d067df52546/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-action",
+  "case": "worstcase-160-3",
+  "width": "390",
+  "new_app_titles": [
+   "Declared verification plan"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-worstcase-160-3-390-app.png",
+  "mock_image": "ev-action-worstcase-160-3-390-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/a8881c13-3ad3-46d5-98dc-8d067df52546/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-action",
+  "case": "worstcase-160-4",
+  "width": "1440",
+  "new_app_titles": [
+   "Declared verification plan"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-worstcase-160-4-1440-app.png",
+  "mock_image": "ev-action-worstcase-160-4-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/8202cb5a-7e20-43f7-ba4a-cefe0e88fced/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-action",
+  "case": "worstcase-160-4",
+  "width": "390",
+  "new_app_titles": [
+   "Declared verification plan"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-worstcase-160-4-390-app.png",
+  "mock_image": "ev-action-worstcase-160-4-390-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/8202cb5a-7e20-43f7-ba4a-cefe0e88fced/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-action",
+  "case": "worstcase-160-5",
+  "width": "1440",
+  "new_app_titles": [
+   "Declared verification plan"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-worstcase-160-5-1440-app.png",
+  "mock_image": "ev-action-worstcase-160-5-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/c7e90c8b-a8c9-45d0-be28-30e947daa32d/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-action",
+  "case": "worstcase-160-5",
+  "width": "390",
+  "new_app_titles": [
+   "Declared verification plan"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-worstcase-160-5-390-app.png",
+  "mock_image": "ev-action-worstcase-160-5-390-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/c7e90c8b-a8c9-45d0-be28-30e947daa32d/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work-incidents",
+  "case": "worstcase-five-160",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-incidents-worstcase-five-160-1440-app.png",
+  "mock_image": "ev-work-incidents-worstcase-five-160-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    1.59
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 224,
+    "cw": 224,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Connector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+    "sw": 303,
+    "cw": 303,
+    "sh": 66,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 224,
+    "cw": 224,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Connector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+    "sw": 303,
+    "cw": 303,
+    "sh": 66,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 224,
+    "cw": 224,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Connector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+    "sw": 303,
+    "cw": 303,
+    "sh": 66,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 224,
+    "cw": 224,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Connector fault 2 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+    "sw": 303,
+    "cw": 303,
+    "sh": 66,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000001 · Charging session fault 1 — long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 224,
+    "cw": 224,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Connector fault 1 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+    "sw": 303,
+    "cw": 303,
+    "sh": 66,
+    "ch": 33
+   }
+  ]
+ },
+ {
+  "screen": "ev-work-incidents",
+  "case": "worstcase-five-160",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-incidents-worstcase-five-160-390-app.png",
+  "mock_image": "ev-work-incidents-worstcase-five-160-390-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    1.32
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 324,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 142,
+    "cw": 142,
+    "sh": 108,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Connector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+    "sw": 193,
+    "cw": 193,
+    "sh": 92,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 142,
+    "cw": 142,
+    "sh": 108,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Connector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+    "sw": 193,
+    "cw": 193,
+    "sh": 92,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 142,
+    "cw": 142,
+    "sh": 108,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Connector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+    "sw": 193,
+    "cw": 193,
+    "sh": 92,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 142,
+    "cw": 142,
+    "sh": 108,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Connector fault 2 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+    "sw": 193,
+    "cw": 193,
+    "sh": 92,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000001 · Charging session fault 1 — long case title proof xxxxxxxxxxxxxxxxxx",
+    "sw": 142,
+    "cw": 142,
+    "sh": 108,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Connector fault 1 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+    "sw": 193,
+    "cw": 193,
+    "sh": 92,
+    "ch": 31
+   }
+  ]
+ },
+ {
+  "screen": "ev-work-incidents",
+  "case": "worstcase-five-160-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-incidents-worstcase-five-160-all-open-1440-app.png",
+  "mock_image": "ev-work-incidents-worstcase-five-160-all-open-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    6.32
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work-incidents",
+  "case": "worstcase-five-160-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-incidents-worstcase-five-160-all-open-390-app.png",
+  "mock_image": "ev-work-incidents-worstcase-five-160-all-open-390-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    6.82
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incidents at this site",
+    6.57,
+    6.82
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Incidents at this site', 6.57, 6.82)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 324,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work-maintenance",
+  "case": "worstcase-five-160",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-maintenance-worstcase-five-160-1440-app.png",
+  "mock_image": "ev-work-maintenance-worstcase-five-160-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Maintenance at this site",
+    1.7
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwww",
+    "sw": 224,
+    "cw": 224,
+    "sh": 99,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwww",
+    "sw": 224,
+    "cw": 224,
+    "sh": 99,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwww",
+    "sw": 224,
+    "cw": 224,
+    "sh": 99,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwww",
+    "sw": 224,
+    "cw": 224,
+    "sh": 99,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwww",
+    "sw": 224,
+    "cw": 224,
+    "sh": 99,
+    "ch": 33
+   }
+  ]
+ },
+ {
+  "screen": "ev-work-maintenance",
+  "case": "worstcase-five-160",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-maintenance-worstcase-five-160-390-app.png",
+  "mock_image": "ev-work-maintenance-worstcase-five-160-390-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Maintenance at this site",
+    1.41
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 760,
+    "cw": 324,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwww",
+    "sw": 151,
+    "cw": 151,
+    "sh": 139,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwww",
+    "sw": 151,
+    "cw": 151,
+    "sh": 139,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwww",
+    "sw": 151,
+    "cw": 151,
+    "sh": 139,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwww",
+    "sw": 151,
+    "cw": 151,
+    "sh": 139,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwww",
+    "sw": 151,
+    "cw": 151,
+    "sh": 139,
+    "ch": 31
+   }
+  ]
+ },
+ {
+  "screen": "ev-work-maintenance",
+  "case": "worstcase-five-160-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-maintenance-worstcase-five-160-all-open-1440-app.png",
+  "mock_image": "ev-work-maintenance-worstcase-five-160-all-open-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Maintenance at this site",
+    7.49
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work-maintenance",
+  "case": "worstcase-five-160-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-maintenance-worstcase-five-160-all-open-390-app.png",
+  "mock_image": "ev-work-maintenance-worstcase-five-160-all-open-390-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Maintenance at this site",
+    7.68
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Maintenance at this site",
+    7.41,
+    7.68
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Maintenance at this site', 7.41, 7.68)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 760,
+    "cw": 324,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ }
+]

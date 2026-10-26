@@ -1,0 +1,220 @@
+[
+ {
+  "screen": "ev-work-incidents",
+  "case": "forbidden-403",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-incidents-forbidden-403-1440-app.png",
+  "mock_image": "ev-work-incidents-forbidden-403-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work-incidents",
+  "case": "forbidden-403",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-incidents-forbidden-403-390-app.png",
+  "mock_image": "ev-work-incidents-forbidden-403-390-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 153->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 134->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work-maintenance",
+  "case": "forbidden-403",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-maintenance-forbidden-403-1440-app.png",
+  "mock_image": "ev-work-maintenance-forbidden-403-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work-maintenance",
+  "case": "forbidden-403",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-maintenance-forbidden-403-390-app.png",
+  "mock_image": "ev-work-maintenance-forbidden-403-390-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 153->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 134->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-action",
+  "case": "forbidden-403",
+  "width": "1440",
+  "new_app_titles": [
+   "(untitled)"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-forbidden-403-1440-app.png",
+  "mock_image": "ev-action-forbidden-403-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/d9529e80-acb7-4d9b-b072-02f72c129652/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[] height 158->137",
+   "[] details 0->1",
+   "[] buttons 1->0",
+   "h1.text 'Action'->'Action unavailable'",
+   "pSizes {'14px': 3}->{'14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "(untitled)"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "14px prose reduced"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-action",
+  "case": "forbidden-403",
+  "width": "390",
+  "new_app_titles": [
+   "(untitled)"
+  ],
+  "mock_titles": [
+   "Declared verification plan"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-action-forbidden-403-390-app.png",
+  "mock_image": "ev-action-forbidden-403-390-mock.png",
+  "app_url": "http://localhost:5187/sites/EV-LAB-001/actions/d9529e80-acb7-4d9b-b072-02f72c129652/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[] height 158->137",
+   "[] details 0->1",
+   "[] buttons 1->0",
+   "h1.text 'Action'->'Action unavailable'",
+   "h1.top 323->128",
+   "pSizes {'14px': 3}->{'14px': 2}",
+   "mainTop 302->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "(untitled)"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "14px prose reduced"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ }
+]

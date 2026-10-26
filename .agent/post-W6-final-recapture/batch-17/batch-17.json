@@ -1,0 +1,3063 @@
+{
+ "batch": "17",
+ "name": "W5 EV cases/Action",
+ "main_sha": "89a11477",
+ "pair_count": 84,
+ "frozen_pair_count": 84,
+ "counts": {
+  "PASS": 52,
+  "FIXED": 32
+ },
+ "pairs": [
+  {
+   "screen": "ev-work-incidents",
+   "case": "forbidden-403",
+   "width": "1440",
+   "part": "forbidden",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-03",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "forbidden/ev-work-incidents-forbidden-403-1440-app.png",
+   "mock_image": "forbidden/ev-work-incidents-forbidden-403-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "forbidden-403",
+   "width": "390",
+   "part": "forbidden",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-03",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 153->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 134->108"
+   ],
+   "app_image": "forbidden/ev-work-incidents-forbidden-403-390-app.png",
+   "mock_image": "forbidden/ev-work-incidents-forbidden-403-390-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "forbidden-403",
+   "width": "1440",
+   "part": "forbidden",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-03",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "forbidden/ev-work-maintenance-forbidden-403-1440-app.png",
+   "mock_image": "forbidden/ev-work-maintenance-forbidden-403-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "forbidden-403",
+   "width": "390",
+   "part": "forbidden",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-03",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 153->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 134->108"
+   ],
+   "app_image": "forbidden/ev-work-maintenance-forbidden-403-390-app.png",
+   "mock_image": "forbidden/ev-work-maintenance-forbidden-403-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "forbidden-403",
+   "width": "1440",
+   "part": "forbidden",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; 14px prose reduced",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-06",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "(untitled)"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[] height 158->137",
+    "[] details 0->1",
+    "[] buttons 1->0",
+    "h1.text 'Action'->'Action unavailable'",
+    "pSizes {'14px': 3}->{'14px': 2}"
+   ],
+   "app_image": "forbidden/ev-action-forbidden-403-1440-app.png",
+   "mock_image": "forbidden/ev-action-forbidden-403-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "forbidden-403",
+   "width": "390",
+   "part": "forbidden",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; 14px prose reduced",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-06",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "(untitled)"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[] height 158->137",
+    "[] details 0->1",
+    "[] buttons 1->0",
+    "h1.text 'Action'->'Action unavailable'",
+    "h1.top 323->128",
+    "pSizes {'14px': 3}->{'14px': 2}",
+    "mainTop 302->108"
+   ],
+   "app_image": "forbidden/ev-action-forbidden-403-390-app.png",
+   "mock_image": "forbidden/ev-action-forbidden-403-390-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "positive",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-01",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/ev-work-incidents-positive-1440-app.png",
+   "mock_image": "positive/ev-work-incidents-positive-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "positive",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-01",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+   ],
+   "app_image": "positive/ev-work-incidents-positive-390-app.png",
+   "mock_image": "positive/ev-work-incidents-positive-390-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "historical-index-known-at",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A13%3A10.456299Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/ev-work-incidents-historical-index-known-at-1440-app.png",
+   "mock_image": "positive/ev-work-incidents-historical-index-known-at-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "historical-index-known-at",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A13%3A10.456299Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "positive/ev-work-incidents-historical-index-known-at-390-app.png",
+   "mock_image": "positive/ev-work-incidents-historical-index-known-at-390-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "refused-reversed",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-03",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)*', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents*', 'Maintenance']]"
+   ],
+   "app_image": "positive/ev-work-incidents-refused-reversed-1440-app.png",
+   "mock_image": "positive/ev-work-incidents-refused-reversed-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "refused-reversed",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-03",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 153->127",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)*', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents*', 'Maintenance']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 134->108"
+   ],
+   "app_image": "positive/ev-work-incidents-refused-reversed-390-app.png",
+   "mock_image": "positive/ev-work-incidents-refused-reversed-390-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "refused-span-32d",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-03",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)*', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents*', 'Maintenance']]"
+   ],
+   "app_image": "positive/ev-work-incidents-refused-span-32d-1440-app.png",
+   "mock_image": "positive/ev-work-incidents-refused-span-32d-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "refused-span-32d",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-03",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 143->127",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)*', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents*', 'Maintenance']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 123->108"
+   ],
+   "app_image": "positive/ev-work-incidents-refused-span-32d-390-app.png",
+   "mock_image": "positive/ev-work-incidents-refused-span-32d-390-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "no-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/incidents",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "No-window now defaults to the current day/week, which holds 1 incident (frozen run's DB day held none), so the table and its closed 'UTC and IDs' disclosure now render; the inner scrollers (labelled data-table region at 390; Case/Version ID value scroller) are the same ones the frozen positive pair already had (B13-18 accept); data-day driven",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-14",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] height 337->212",
+    "[Incidents at this site] rows 0->1",
+    "[Incidents at this site] links 0->1",
+    "[Incidents at this site] details 1->2",
+    "[Incidents at this site] tables 0->1",
+    "[Incidents at this site] columns []->['Case', 'Window', 'What happened', 'Linked findings', 'State']",
+    "[Incidents at this site] chips []->['Open']",
+    "td presence False->True",
+    "th presence False->True",
+    "pSizes {'11px': 1, '12px': 1}->{'11px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)', 'Incidents (0)*', 'Maintenance (0)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (1)', 'Incidents (1)*', 'Maintenance (1)']]",
+    "hscroll []->[{'cls': 'fact-list__value', 'sw': 218, 'cw': 157, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 157, 'panel': 'Inc"
+   ],
+   "app_image": "positive/ev-work-incidents-no-window-1440-app.png",
+   "mock_image": "positive/ev-work-incidents-no-window-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "no-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/incidents",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "No-window now defaults to the current day/week, which holds 1 incident (frozen run's DB day held none), so the table and its closed 'UTC and IDs' disclosure now render; the inner scrollers (labelled data-table region at 390; Case/Version ID value scroller) are the same ones the frozen positive pair already had (B13-18 accept); data-day driven",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-14",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] height 344->201",
+    "[Incidents at this site] rows 0->1",
+    "[Incidents at this site] links 0->1",
+    "[Incidents at this site] details 1->2",
+    "[Incidents at this site] tables 0->1",
+    "[Incidents at this site] columns []->['Case', 'Window', 'What happened', 'Linked findings', 'State']",
+    "[Incidents at this site] chips []->['Open']",
+    "td presence False->True",
+    "th presence False->True",
+    "pSizes {'11px': 1, '12px': 1}->{'11px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)', 'Incidents (0)*', 'Maintenance (0)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (1)', 'Incidents (1)*', 'Maintenance (1)']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+   ],
+   "app_image": "positive/ev-work-incidents-no-window-390-app.png",
+   "mock_image": "positive/ev-work-incidents-no-window-390-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "all-open",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-01",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Incidents at this site",
+     2.48
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/ev-work-incidents-all-open-1440-app.png",
+   "mock_image": "positive/ev-work-incidents-all-open-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "all-open",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "all-disclosures-open state is exempt from closed caps (frozen B17-13 Accept; all-open exempt); ratio moved 3.04->3.29 (worstcase 6.57->6.82) only from the longer 36-character ids in the open disclosure; readable at 390, no clipped text outside the scroller; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-01",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Incidents at this site",
+     3.29
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pageH 1718->1890",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+   ],
+   "app_image": "positive/ev-work-incidents-all-open-390-app.png",
+   "mock_image": "positive/ev-work-incidents-all-open-390-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "positive",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-01",
+    "B17-02",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/ev-work-maintenance-positive-1440-app.png",
+   "mock_image": "positive/ev-work-maintenance-positive-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "positive",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-01",
+    "B17-02",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+   ],
+   "app_image": "positive/ev-work-maintenance-positive-390-app.png",
+   "mock_image": "positive/ev-work-maintenance-positive-390-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "historical-index-known-at",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A13%3A10.456299Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/ev-work-maintenance-historical-index-known-at-1440-app.png",
+   "mock_image": "positive/ev-work-maintenance-historical-index-known-at-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "historical-index-known-at",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A13%3A10.456299Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "positive/ev-work-maintenance-historical-index-known-at-390-app.png",
+   "mock_image": "positive/ev-work-maintenance-historical-index-known-at-390-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "refused-reversed",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-03",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)', 'Maintenance (\u00e2\u20ac\u201d)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents', 'Maintenance*']]"
+   ],
+   "app_image": "positive/ev-work-maintenance-refused-reversed-1440-app.png",
+   "mock_image": "positive/ev-work-maintenance-refused-reversed-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "refused-reversed",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-03",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Maintenance at this site] height 153->174",
+    "h1.top 153->127",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)', 'Maintenance (\u00e2\u20ac\u201d)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents', 'Maintenance*']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 134->108"
+   ],
+   "app_image": "positive/ev-work-maintenance-refused-reversed-390-app.png",
+   "mock_image": "positive/ev-work-maintenance-refused-reversed-390-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "refused-span-32d",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-03",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)', 'Maintenance (\u00e2\u20ac\u201d)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents', 'Maintenance*']]"
+   ],
+   "app_image": "positive/ev-work-maintenance-refused-span-32d-1440-app.png",
+   "mock_image": "positive/ev-work-maintenance-refused-span-32d-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "refused-span-32d",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-03",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 143->127",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)', 'Maintenance (\u00e2\u20ac\u201d)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents', 'Maintenance*']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 123->108"
+   ],
+   "app_image": "positive/ev-work-maintenance-refused-span-32d-390-app.png",
+   "mock_image": "positive/ev-work-maintenance-refused-span-32d-390-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "no-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/maintenance",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "No-window now defaults to the current day/week, which holds 1 work request (frozen run's DB day held none), so the table renders; the inner scrollers are the same ones the frozen positive pair already had (B13-18 accept); data-day driven",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-14",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Maintenance at this site] height 317->195",
+    "[Maintenance at this site] rows 0->1",
+    "[Maintenance at this site] links 0->2",
+    "[Maintenance at this site] details 1->4",
+    "[Maintenance at this site] tables 0->1",
+    "[Maintenance at this site] columns []->['Work request', 'Asset', 'Activity', 'Outcome', 'Next evidence']",
+    "[Maintenance at this site] chips []->['Open', 'Unverified']",
+    "td presence False->True",
+    "th presence False->True",
+    "pSizes {'11px': 1, '12px': 1}->{'11px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)', 'Incidents (0)', 'Maintenance (0)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (1)', 'Incidents (1)', 'Maintenance (1)*']]",
+    "hscroll []->[{'cls': 'fact-list__value', 'sw': 218, 'cw': 180, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 180, 'panel': 'M"
+   ],
+   "app_image": "positive/ev-work-maintenance-no-window-1440-app.png",
+   "mock_image": "positive/ev-work-maintenance-no-window-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "no-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/maintenance",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "No-window now defaults to the current day/week, which holds 1 work request (frozen run's DB day held none), so the table renders; the inner scrollers are the same ones the frozen positive pair already had (B13-18 accept); data-day driven",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-14",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Maintenance at this site] height 324->216",
+    "[Maintenance at this site] rows 0->1",
+    "[Maintenance at this site] links 0->2",
+    "[Maintenance at this site] details 1->4",
+    "[Maintenance at this site] tables 0->1",
+    "[Maintenance at this site] columns []->['Work request', 'Asset', 'Activity', 'Outcome', 'Next evidence']",
+    "[Maintenance at this site] chips []->['Open', 'Unverified']",
+    "td presence False->True",
+    "th presence False->True",
+    "pSizes {'11px': 1, '12px': 1}->{'11px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)', 'Incidents (0)', 'Maintenance (0)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (1)', 'Incidents (1)', 'Maintenance (1)*']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+   ],
+   "app_image": "positive/ev-work-maintenance-no-window-390-app.png",
+   "mock_image": "positive/ev-work-maintenance-no-window-390-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "all-open",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-01",
+    "B17-02",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Maintenance at this site",
+     2.79
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/ev-work-maintenance-all-open-1440-app.png",
+   "mock_image": "positive/ev-work-maintenance-all-open-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "all-open",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "all-disclosures-open state is exempt from closed caps (frozen B17-13 Accept; all-open exempt); ratio moved 3.32->3.59 (worstcase 7.41->7.68) only from the open disclosure; readable at 390, no clipped text outside the scroller; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-01",
+    "B17-02",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Maintenance at this site",
+     3.59
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+   ],
+   "app_image": "positive/ev-work-maintenance-all-open-390-app.png",
+   "mock_image": "positive/ev-work-maintenance-all-open-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "positive-current",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/ev-action-positive-current-1440-app.png",
+   "mock_image": "positive/ev-action-positive-current-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "positive-current",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/ev-action-positive-current-390-app.png",
+   "mock_image": "positive/ev-action-positive-current-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "historical-before-intent",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A13%3A09.370620Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/ev-action-historical-before-intent-1440-app.png",
+   "mock_image": "positive/ev-action-historical-before-intent-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "historical-before-intent",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A13%3A09.370620Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 226->128",
+    "mainTop 205->108"
+   ],
+   "app_image": "positive/ev-action-historical-before-intent-390-app.png",
+   "mock_image": "positive/ev-action-historical-before-intent-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "historical-before-action",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A13%3A07.993892Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-06",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "(untitled)"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Action'->'Action not found'"
+   ],
+   "app_image": "positive/ev-action-historical-before-action-1440-app.png",
+   "mock_image": "positive/ev-action-historical-before-action-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "historical-before-action",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T18%3A13%3A07.993892Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-06",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "(untitled)"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Action'->'Action not found'",
+    "h1.top 371->128",
+    "mainTop 350->108"
+   ],
+   "app_image": "positive/ev-action-historical-before-action-390-app.png",
+   "mock_image": "positive/ev-action-historical-before-action-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "not-found-404",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/00000000-0000-4000-8000-000000000000/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-06",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "(untitled)"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Action'->'Action not found'"
+   ],
+   "app_image": "positive/ev-action-not-found-404-1440-app.png",
+   "mock_image": "positive/ev-action-not-found-404-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "not-found-404",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/00000000-0000-4000-8000-000000000000/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-06",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "(untitled)"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Action'->'Action not found'",
+    "h1.top 371->128",
+    "mainTop 350->108"
+   ],
+   "app_image": "positive/ev-action-not-found-404-390-app.png",
+   "mock_image": "positive/ev-action-not-found-404-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "refused-reversed",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; panel set changed",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-04",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "(untitled)"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "titles ['Declared verification plan'] -> ['(untitled)']",
+    "h1.text 'ACT-000001 \u00c2\u00b7 Investigate connector 2'->'Action unavailable'",
+    "h2 presence True->False",
+    "td presence True->False",
+    "th presence True->False",
+    "pSizes {}->{'14px': 3}"
+   ],
+   "app_image": "positive/ev-action-refused-reversed-1440-app.png",
+   "mock_image": "positive/ev-action-refused-reversed-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "refused-reversed",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-25T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; panel set changed",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-04",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "(untitled)"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "titles ['Declared verification plan'] -> ['(untitled)']",
+    "h1.text 'ACT-000001 \u00c2\u00b7 Investigate connector 2'->'Action unavailable'",
+    "h2 presence True->False",
+    "td presence True->False",
+    "th presence True->False",
+    "pSizes {}->{'14px': 3}"
+   ],
+   "app_image": "positive/ev-action-refused-reversed-390-app.png",
+   "mock_image": "positive/ev-action-refused-reversed-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "refused-span-32d",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; panel set changed",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-04",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "(untitled)"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "titles ['Declared verification plan'] -> ['(untitled)']",
+    "h1.text 'ACT-000001 \u00c2\u00b7 Investigate connector 2'->'Action unavailable'",
+    "h2 presence True->False",
+    "td presence True->False",
+    "th presence True->False",
+    "pSizes {}->{'14px': 3}"
+   ],
+   "app_image": "positive/ev-action-refused-span-32d-1440-app.png",
+   "mock_image": "positive/ev-action-refused-span-32d-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "refused-span-32d",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; panel set changed",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-04",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "(untitled)"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "titles ['Declared verification plan'] -> ['(untitled)']",
+    "h1.text 'ACT-000001 \u00c2\u00b7 Investigate connector 2'->'Action unavailable'",
+    "h2 presence True->False",
+    "td presence True->False",
+    "th presence True->False",
+    "pSizes {}->{'14px': 3}"
+   ],
+   "app_image": "positive/ev-action-refused-span-32d-390-app.png",
+   "mock_image": "positive/ev-action-refused-span-32d-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "refused-bad-known-at",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=yesterday",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; 14px prose reduced",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-06",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "(untitled)"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[] height 158->137",
+    "[] details 0->1",
+    "[] buttons 1->0",
+    "h1.text 'Action'->'Action unavailable'",
+    "pSizes {'14px': 3}->{'14px': 2}"
+   ],
+   "app_image": "positive/ev-action-refused-bad-known-at-1440-app.png",
+   "mock_image": "positive/ev-action-refused-bad-known-at-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "refused-bad-known-at",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=yesterday",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; 14px prose reduced",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-06",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "(untitled)"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[] height 181->137",
+    "[] details 0->1",
+    "[] buttons 1->0",
+    "h1.text 'Action'->'Action unavailable'",
+    "h1.top 312->128",
+    "pSizes {'14px': 3}->{'14px': 2}",
+    "mainTop 291->108"
+   ],
+   "app_image": "positive/ev-action-refused-bad-known-at-390-app.png",
+   "mock_image": "positive/ev-action-refused-bad-known-at-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "no-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/ev-action-no-window-1440-app.png",
+   "mock_image": "positive/ev-action-no-window-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "no-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/ev-action-no-window-390-app.png",
+   "mock_image": "positive/ev-action-no-window-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "all-open",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/ev-action-all-open-1440-app.png",
+   "mock_image": "positive/ev-action-all-open-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "all-open",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/ev-action-all-open-390-app.png",
+   "mock_image": "positive/ev-action-all-open-390-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "store-unavailable-503",
+   "width": "1440",
+   "part": "unavailable",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Site unavailable"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "unavailable/ev-work-incidents-store-unavailable-503-1440-app.png",
+   "mock_image": "unavailable/ev-work-incidents-store-unavailable-503-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "store-unavailable-503",
+   "width": "390",
+   "part": "unavailable",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Site unavailable"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 397->108",
+    "mainTop 397->108"
+   ],
+   "app_image": "unavailable/ev-work-incidents-store-unavailable-503-390-app.png",
+   "mock_image": "unavailable/ev-work-incidents-store-unavailable-503-390-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "store-unavailable-503",
+   "width": "1440",
+   "part": "unavailable",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Site unavailable"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "unavailable/ev-work-maintenance-store-unavailable-503-1440-app.png",
+   "mock_image": "unavailable/ev-work-maintenance-store-unavailable-503-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "store-unavailable-503",
+   "width": "390",
+   "part": "unavailable",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Site unavailable"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 397->108",
+    "mainTop 397->108"
+   ],
+   "app_image": "unavailable/ev-work-maintenance-store-unavailable-503-390-app.png",
+   "mock_image": "unavailable/ev-work-maintenance-store-unavailable-503-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "store-unavailable-503",
+   "width": "1440",
+   "part": "unavailable",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Site unavailable"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "unavailable/ev-action-store-unavailable-503-1440-app.png",
+   "mock_image": "unavailable/ev-action-store-unavailable-503-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "store-unavailable-503",
+   "width": "390",
+   "part": "unavailable",
+   "route": "/sites/EV-LAB-001/actions/ab9b6724-8174-44d0-b1bf-5e7a9598acc1/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Site unavailable"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 397->108",
+    "mainTop 397->108"
+   ],
+   "app_image": "unavailable/ev-action-store-unavailable-503-390-app.png",
+   "mock_image": "unavailable/ev-action-store-unavailable-503-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "worstcase-positive-action",
+   "width": "1440",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/actions/bb12aabf-c4d9-46a7-aa5e-ab43e89a5384/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-action-worstcase-positive-action-1440-app.png",
+   "mock_image": "worstcase/ev-action-worstcase-positive-action-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "worstcase-positive-action",
+   "width": "390",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/actions/bb12aabf-c4d9-46a7-aa5e-ab43e89a5384/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-action-worstcase-positive-action-390-app.png",
+   "mock_image": "worstcase/ev-action-worstcase-positive-action-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "worstcase-160-2",
+   "width": "1440",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/actions/06bd5d12-c661-4455-8bc3-fbe0d8ee5bd5/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-action-worstcase-160-2-1440-app.png",
+   "mock_image": "worstcase/ev-action-worstcase-160-2-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "worstcase-160-2",
+   "width": "390",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/actions/06bd5d12-c661-4455-8bc3-fbe0d8ee5bd5/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-action-worstcase-160-2-390-app.png",
+   "mock_image": "worstcase/ev-action-worstcase-160-2-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "worstcase-160-all-open",
+   "width": "1440",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/actions/06bd5d12-c661-4455-8bc3-fbe0d8ee5bd5/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-action-worstcase-160-all-open-1440-app.png",
+   "mock_image": "worstcase/ev-action-worstcase-160-all-open-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "worstcase-160-all-open",
+   "width": "390",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/actions/06bd5d12-c661-4455-8bc3-fbe0d8ee5bd5/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-action-worstcase-160-all-open-390-app.png",
+   "mock_image": "worstcase/ev-action-worstcase-160-all-open-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "worstcase-160-3",
+   "width": "1440",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/actions/082ba320-cee7-4e16-b2d4-75511f71bbf2/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-action-worstcase-160-3-1440-app.png",
+   "mock_image": "worstcase/ev-action-worstcase-160-3-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "worstcase-160-3",
+   "width": "390",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/actions/082ba320-cee7-4e16-b2d4-75511f71bbf2/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-action-worstcase-160-3-390-app.png",
+   "mock_image": "worstcase/ev-action-worstcase-160-3-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "worstcase-160-4",
+   "width": "1440",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/actions/b00e1218-3333-46cc-ae8c-b6ae57abc2ec/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-action-worstcase-160-4-1440-app.png",
+   "mock_image": "worstcase/ev-action-worstcase-160-4-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "worstcase-160-4",
+   "width": "390",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/actions/b00e1218-3333-46cc-ae8c-b6ae57abc2ec/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-action-worstcase-160-4-390-app.png",
+   "mock_image": "worstcase/ev-action-worstcase-160-4-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "worstcase-160-5",
+   "width": "1440",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/actions/45628698-a4f2-4b7d-9916-0fa8c63aa1b4/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-action-worstcase-160-5-1440-app.png",
+   "mock_image": "worstcase/ev-action-worstcase-160-5-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "worstcase-160-5",
+   "width": "390",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/actions/45628698-a4f2-4b7d-9916-0fa8c63aa1b4/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-action-worstcase-160-5-390-app.png",
+   "mock_image": "worstcase/ev-action-worstcase-160-5-390-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "worstcase-five-160",
+   "width": "1440",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Incidents at this site",
+     1.59
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-work-incidents-worstcase-five-160-1440-app.png",
+   "mock_image": "worstcase/ev-work-incidents-worstcase-five-160-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "worstcase-five-160",
+   "width": "390",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Incidents at this site",
+     1.32
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+   ],
+   "app_image": "worstcase/ev-work-incidents-worstcase-five-160-390-app.png",
+   "mock_image": "worstcase/ev-work-incidents-worstcase-five-160-390-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "worstcase-five-160-all-open",
+   "width": "1440",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Incidents at this site",
+     6.32
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-work-incidents-worstcase-five-160-all-open-1440-app.png",
+   "mock_image": "worstcase/ev-work-incidents-worstcase-five-160-all-open-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "worstcase-five-160-all-open",
+   "width": "390",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "all-disclosures-open state is exempt from closed caps (frozen B17-13 Accept; all-open exempt); ratio moved 3.04->3.29 (worstcase 6.57->6.82) only from the longer 36-character ids in the open disclosure; readable at 390, no clipped text outside the scroller",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Incidents at this site",
+     6.82
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+   ],
+   "app_image": "worstcase/ev-work-incidents-worstcase-five-160-all-open-390-app.png",
+   "mock_image": "worstcase/ev-work-incidents-worstcase-five-160-all-open-390-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "worstcase-five-160",
+   "width": "1440",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-02",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Maintenance at this site",
+     1.7
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-work-maintenance-worstcase-five-160-1440-app.png",
+   "mock_image": "worstcase/ev-work-maintenance-worstcase-five-160-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "worstcase-five-160",
+   "width": "390",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-02",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Maintenance at this site",
+     1.41
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+   ],
+   "app_image": "worstcase/ev-work-maintenance-worstcase-five-160-390-app.png",
+   "mock_image": "worstcase/ev-work-maintenance-worstcase-five-160-390-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "worstcase-five-160-all-open",
+   "width": "1440",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-02",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Maintenance at this site",
+     7.49
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/ev-work-maintenance-worstcase-five-160-all-open-1440-app.png",
+   "mock_image": "worstcase/ev-work-maintenance-worstcase-five-160-all-open-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "worstcase-five-160-all-open",
+   "width": "390",
+   "part": "worstcase",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "all-disclosures-open state is exempt from closed caps (frozen B17-13 Accept; all-open exempt); ratio moved 3.32->3.59 (worstcase 7.41->7.68) only from the open disclosure; readable at 390, no clipped text outside the scroller",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-02",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Maintenance at this site",
+     7.68
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+   ],
+   "app_image": "worstcase/ev-work-maintenance-worstcase-five-160-all-open-390-app.png",
+   "mock_image": "worstcase/ev-work-maintenance-worstcase-five-160-all-open-390-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "zero",
+   "width": "1440",
+   "part": "zero",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "zero/ev-work-incidents-zero-1440-app.png",
+   "mock_image": "zero/ev-work-incidents-zero-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "zero",
+   "width": "390",
+   "part": "zero",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "zero/ev-work-incidents-zero-390-app.png",
+   "mock_image": "zero/ev-work-incidents-zero-390-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "zero-prior-day",
+   "width": "1440",
+   "part": "zero",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "zero/ev-work-incidents-zero-prior-day-1440-app.png",
+   "mock_image": "zero/ev-work-incidents-zero-prior-day-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-incidents",
+   "case": "zero-prior-day",
+   "width": "390",
+   "part": "zero",
+   "route": "/sites/EV-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "zero/ev-work-incidents-zero-prior-day-390-app.png",
+   "mock_image": "zero/ev-work-incidents-zero-prior-day-390-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "zero",
+   "width": "1440",
+   "part": "zero",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "zero/ev-work-maintenance-zero-1440-app.png",
+   "mock_image": "zero/ev-work-maintenance-zero-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "zero",
+   "width": "390",
+   "part": "zero",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "zero/ev-work-maintenance-zero-390-app.png",
+   "mock_image": "zero/ev-work-maintenance-zero-390-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "zero-prior-day",
+   "width": "1440",
+   "part": "zero",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "zero/ev-work-maintenance-zero-prior-day-1440-app.png",
+   "mock_image": "zero/ev-work-maintenance-zero-prior-day-1440-mock.png"
+  },
+  {
+   "screen": "ev-work-maintenance",
+   "case": "zero-prior-day",
+   "width": "390",
+   "part": "zero",
+   "route": "/sites/EV-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-05",
+    "B17-09",
+    "B17-10",
+    "B17-11",
+    "B17-12",
+    "B17-13",
+    "B17-15",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "zero/ev-work-maintenance-zero-prior-day-390-app.png",
+   "mock_image": "zero/ev-work-maintenance-zero-prior-day-390-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "zero-mode-current",
+   "width": "1440",
+   "part": "zero",
+   "route": "/sites/EV-LAB-001/actions/2dfc4a00-eef7-45a8-ac00-36c9b6f9dd8d/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "zero/ev-action-zero-mode-current-1440-app.png",
+   "mock_image": "zero/ev-action-zero-mode-current-1440-mock.png"
+  },
+  {
+   "screen": "ev-action",
+   "case": "zero-mode-current",
+   "width": "390",
+   "part": "zero",
+   "route": "/sites/EV-LAB-001/actions/2dfc4a00-eef7-45a8-ac00-36c9b6f9dd8d/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B17-X1",
+    "B17-07",
+    "B17-09",
+    "B17-12",
+    "B17-13",
+    "B17-16"
+   ],
+   "app_titles": [
+    "Declared verification plan"
+   ],
+   "mock_titles": [
+    "Declared verification plan"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "zero/ev-action-zero-mode-current-390-app.png",
+   "mock_image": "zero/ev-action-zero-mode-current-390-mock.png"
+  }
+ ]
+}

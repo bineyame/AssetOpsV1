@@ -1,0 +1,177 @@
+[
+ {
+  "id": "availability",
+  "case": "current",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "id": "energy",
+  "case": "current",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "id": "ev-health",
+  "case": "current",
+  "url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "id": "ev-scenarios",
+  "case": "current",
+  "url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
+ },
+ {
+  "id": "ev-work",
+  "case": "positive",
+  "url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "availability",
+  "case": "empty-window",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-05T08:00:00Z&to=2026-10-05T09:00:00Z"
+ },
+ {
+  "id": "energy",
+  "case": "empty-window",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-05T08:00:00Z&to=2026-10-05T09:00:00Z"
+ },
+ {
+  "id": "ev-health",
+  "case": "empty-window",
+  "url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-05T08:00:00Z&to=2026-10-05T09:00:00Z"
+ },
+ {
+  "id": "ev-scenarios",
+  "case": "empty-window",
+  "url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-05T08:00:00Z&to=2026-10-05T09:00:00Z"
+ },
+ {
+  "id": "availability",
+  "case": "known-at-before-watermark",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T08:30:00Z"
+ },
+ {
+  "id": "energy",
+  "case": "known-at-before-watermark",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T08:30:00Z"
+ },
+ {
+  "id": "ev-health",
+  "case": "known-at-before-watermark",
+  "url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T08:30:00Z"
+ },
+ {
+  "id": "ev-scenarios",
+  "case": "known-at-before-watermark",
+  "url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T08:30:00Z"
+ },
+ {
+  "id": "ev-work",
+  "case": "historical",
+  "url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A55%3A05.442038Z"
+ },
+ {
+  "id": "availability",
+  "case": "refused-reversed",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z"
+ },
+ {
+  "id": "energy",
+  "case": "refused-reversed",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z"
+ },
+ {
+  "id": "ev-health",
+  "case": "refused-reversed",
+  "url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z"
+ },
+ {
+  "id": "ev-scenarios",
+  "case": "refused-reversed",
+  "url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z"
+ },
+ {
+  "id": "ev-work",
+  "case": "refused-reversed",
+  "url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-27T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work",
+  "case": "refused-span-32d",
+  "url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-09-22T00:00:00Z&to=2026-10-24T00:00:00Z"
+ },
+ {
+  "id": "availability",
+  "case": "no-window",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/availability"
+ },
+ {
+  "id": "energy",
+  "case": "no-window",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/energy"
+ },
+ {
+  "id": "ev-health",
+  "case": "no-window",
+  "url": "http://localhost:5186/sites/EV-LAB-001/health"
+ },
+ {
+  "id": "ev-scenarios",
+  "case": "no-window",
+  "url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios"
+ },
+ {
+  "id": "ev-work",
+  "case": "no-window",
+  "url": "http://localhost:5186/sites/EV-LAB-001/work"
+ },
+ {
+  "id": "availability",
+  "case": "work-day-window",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "energy",
+  "case": "work-day-window",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-health",
+  "case": "work-day-window",
+  "url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-scenarios",
+  "case": "work-day-window",
+  "url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "availability",
+  "case": "all-open",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "openAll": true
+ },
+ {
+  "id": "energy",
+  "case": "all-open",
+  "url": "http://localhost:5186/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "openAll": true
+ },
+ {
+  "id": "ev-health",
+  "case": "all-open",
+  "url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "openAll": true
+ },
+ {
+  "id": "ev-scenarios",
+  "case": "all-open",
+  "url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "openAll": true
+ },
+ {
+  "id": "ev-work",
+  "case": "all-open",
+  "url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ }
+]

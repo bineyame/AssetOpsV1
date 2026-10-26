@@ -1,0 +1,458 @@
+[
+ {
+  "screen": "ev-work",
+  "case": "worstcase",
+  "width": "1440",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-worstcase-1440-app.png",
+  "mock_image": "ev-work-worstcase-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Actions at this site",
+    2.62
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000005 · Investigate connector 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxx",
+    "sw": 296,
+    "cw": 296,
+    "sh": 70,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Charging operations 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 202,
+    "cw": 202,
+    "sh": 106,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000004 · Investigate connector 4 — long title proof xxxxxxxxxxxxxxxxxxxxxxxx",
+    "sw": 296,
+    "cw": 296,
+    "sh": 70,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Charging operations 4 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 202,
+    "cw": 202,
+    "sh": 106,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000003 · Investigate connector 3 — long title proof xxxxxxxxxxxxxxxxxxxxxxxx",
+    "sw": 296,
+    "cw": 296,
+    "sh": 70,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Charging operations 3 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 202,
+    "cw": 202,
+    "sh": 106,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000002 · Investigate connector 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxx",
+    "sw": 296,
+    "cw": 296,
+    "sh": 70,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 202,
+    "cw": 202,
+    "sh": 106,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "ev-work",
+  "case": "worstcase",
+  "width": "390",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-worstcase-390-app.png",
+  "mock_image": "ev-work-worstcase-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Actions at this site",
+    2.09
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 820, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 821, 'cw': 318, 'panel': 'Actions at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 821,
+    "cw": 318,
+    "panel": "Actions at this site"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000005 · Investigate connector 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxx",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Charging operations 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 128,
+    "cw": 128,
+    "sh": 123,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000004 · Investigate connector 4 — long title proof xxxxxxxxxxxxxxxxxxxxxxxx",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Charging operations 4 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 128,
+    "cw": 128,
+    "sh": 123,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000003 · Investigate connector 3 — long title proof xxxxxxxxxxxxxxxxxxxxxxxx",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Charging operations 3 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 128,
+    "cw": 128,
+    "sh": 123,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000002 · Investigate connector 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxx",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 128,
+    "cw": 128,
+    "sh": 123,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "ev-work",
+  "case": "worstcase-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-worstcase-all-open-1440-app.png",
+  "mock_image": "ev-work-worstcase-all-open-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Actions at this site",
+    4.25
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-work",
+  "case": "worstcase-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-work-worstcase-all-open-390-app.png",
+  "mock_image": "ev-work-worstcase-all-open-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Actions at this site",
+    4.04
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 820, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 821, 'cw': 318, 'panel': 'Actions at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 821,
+    "cw": 318,
+    "panel": "Actions at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "worstcase-db",
+  "width": "1440",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-worstcase-db-1440-app.png",
+  "mock_image": "ev-health-worstcase-db-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Condition and evidence",
+    1.64
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-health",
+  "case": "worstcase-db",
+  "width": "390",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-health-worstcase-db-390-app.png",
+  "mock_image": "ev-health-worstcase-db-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Condition and evidence",
+    1.58
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "worstcase-db",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-worstcase-db-1440-app.png",
+  "mock_image": "ev-scenarios-worstcase-db-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-scenarios",
+  "case": "worstcase-db",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-scenarios-worstcase-db-390-app.png",
+  "mock_image": "ev-scenarios-worstcase-db-390-mock.png",
+  "app_url": "http://localhost:5186/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 173->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 153->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ }
+]
